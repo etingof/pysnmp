@@ -4,7 +4,7 @@ except:
     gethostname = lambda x="": x
 from time import time
 from sys import version
-from pysnmp.version import getVersion
+from pysnmp import majorVersionId
 from pysnmp.asn1 import subtypes
 
 Integer, ObjectIdentifier, = mibBuilder.importSymbols(
@@ -28,7 +28,7 @@ snmpMIB = ModuleIdentity(snmpModules.name + (1,))
 snmpMIBObjects = MibIdentifier(snmpMIB.name + (1,))
 system = MibIdentifier(mib_2.name + (1,))
 
-sysDescr = MibVariable(system.name + (1,), DisplayString("PySNMP engine version %s.%s.%s, Python %s" % (getVersion() + (version,))).addConstraints(subtypes.ValueSizeConstraint(0, 255))).setMaxAccess('readonly')
+sysDescr = MibVariable(system.name + (1,), DisplayString("PySNMP engine version %s, Python %s" % (majorVersionId, version)).addConstraints(subtypes.ValueSizeConstraint(0, 255))).setMaxAccess('readonly')
 
 sysObjectID = MibVariable(system.name + (2,), ObjectIdentifier((1,3,6,1,4,1,20408))).setMaxAccess('readonly')
 
