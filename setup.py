@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-
 from distutils.core import setup
 
 setup(name="pysnmp",
-      version="4.0.0a",
+      version="4.0.1a",
       description="SNMP framework for Python",
       author="Ilya Etingof",
       author_email="ilya@glas.net ",

@@ -1,3 +1,10 @@
+Thu Nov  18 07:13:25 MSD 2004
+
+Changes to version 4.0.1a
+-------------------------
+
+- Minor bug/typo fixes, mostly in example/ scripts.
+
 Mon Nov  15 08:11:59 MSD 2004
 
 Changes to version 4.0.0a
