@@ -11,6 +11,13 @@ Changes to version 3.4.1
   comply SNMP v3 model. As a result a new API is introduced, Backward
   compatibility is [hopefully] preserved.
 
+Mon Sep  1 11:08:30 MSD 2003
+
+Changes to version 3.3.6
+------------------------
+- Another bugfix to broken errorIndex/VarBindList handling
+  at examples/*.py tools
+
 Wed Aug 27 22:45:44 MSD 2003
                                                                                 
 Changes to version 3.3.5
