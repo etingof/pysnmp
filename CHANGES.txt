@@ -1,10 +1,10 @@
-Wed Feb 18 18:34:05 MSK 2004
+Fri Oct  22 18:23:43 MSK 2004
 
-Changes to version 3.4.3
+Changes to version 3.5.1
 ------------------------
 
-- SMI framework implemented. This is to be used to access abstract SNMP
-  management information (MIBs) in various ways.
+- SMI framework implemented. This is meant to be a tool for accessing
+  MIB objects whilst in manager and/or agent roles.
 - ASN.1 subtyping machinery implemented. Now dynamic ASN.1 instances
   subtyping and quering becomes available. Previously, this has been done
   through Python classes inheritance what proved to be a wrong concept.
@@ -21,6 +21,20 @@ Changes to version 3.4.3
 - Many low-level API modifications at pysnmp.asn1.* classes.
 - More tests added at pysnmp.test package.
 - Many minor bugfixes.
+
+Fri Oct  22 18:23:43 MSK 2004
+
+Changes to version 3.4.3
+------------------------
+
+- Bugfixes and improvements to pysnmp.test code
+- Bugfix to asn1.univ.Null() -- always initialize to an empty string
+- Python < 2.0 issue fixed at pysnmp.asn1 (defined slice operations for custom
+  sequence objects)
+- Bugfix to compatibility class v1.Message: decode() overloaded to 
+  behave like original on BER decoding errors
+- Fixed __cmp__ methods at pysnmp.base to hide coercion errors on comparation
+- The examples/manager/snmpset.py example added for clarity
 
 Sun Feb  8 19:12:34 MSK 2004
 
