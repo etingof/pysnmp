@@ -1,3 +1,14 @@
+Wed Dec 18 20:39:00 MSD 2002
+
+Changes to version 2.0.8
+------------------------
+
+- Convert examples/snmptable.py into examples/snmpwalk.py as the
+  functionality of the former seems to closer mimic Net-SNMP's
+  snmpwalk behavior.
+- The examples/snmpwalk.py fixed to include requested OID in the
+  search range.
+
 Thu Nov 28 18:58:45 MSD 200
 
 Changes to version 2.0.7
