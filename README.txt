@@ -2,11 +2,10 @@
 SNMP engine for Python, version 2.0.1
 -------------------------------------
 
-This is a Python implementation of SNMP v.1 engine. It's general
-functionality is to assemble/disassemble SNMP v.1 message from/into
-given SNMP Object IDs along with associated values. As an additional
-benefit, PySNMP provides a few transport methods specific to TCP/IP
-networking.
+This is a Python implementation of SNMP v.1/v.2c engine. It's general
+functionality is to assemble/disassemble SNMP messages from/into
+given SNMP Object IDs along with associated values. PySNMP also provides
+a few transport methods specific to TCP/IP networking.
 
 PySNMP is written entirely in Python and is self-sufficient in terms
 that it does not rely on any third party tool (it is not a wrapper!).
@@ -19,6 +18,10 @@ license. See the LICENSE file for details.
 
 PRECAUTIONS
 -----------
+
+Unfortunately, version 2.x of PySNMP software is *INCOMPATIBLE* with
+its 1.x branch at the moment. Work on a compatibility layer is being
+in progress.
 
 While the pure-Python MIB compiler project is underway, the ASN.1
 types of Object IDs associated values must be explicitly specified
@@ -67,22 +70,23 @@ Here is an example of using pysnmp package for querying SNMP agent
 
 Python 1.5.2 (#3, Aug 25 1999, 19:14:24)  [GCC 2.8.1] on sunos5
 Copyright 1991-1995 Stichting Mathematisch Centrum, Amsterdam
->>> from pysnmp import session
->>> s = session.session ('cisco0.sovam.com', 'public')
->>> encoded_objid = s.encode_oid ([1, 3, 6, 1, 2, 1, 1, 1, 0])
->>> question = s.encode_request ('GETREQUEST', [encoded_objid], [])
->>> answer = s.send_and_receive (question)
->>> (encoded_objids, encoded_values) = s.decode_response (answer)
->>> objids = map (s.decode_value, encoded_objids)
->>> objids
+>>> from pysnmp import role, v2c, asn1
+>>> req = v2c.GETREQUEST()
+>>> req['encoded_oids'] = [ asn1.OBJECTID().encode('1.3.6.1.2.1.1.1.0') ]
+>>> tr = role.manager(('router-1.glas.net', 161))
+>>> (rawrsp, src) = tr.send_and_receive(req.encode())
+>>> rsp = v2c.RESPONSE()
+>>> rsp.decode(rawrsp)
+>>> oids = map(lambda x:x[0], map(asn1.OBJECTID().decode, rsp['encoded_oids']))
+>>> print oids
 ['.1.3.6.1.2.1.1.1.0']
->>> values = map (s.decode_value, encoded_values)
->>> values
-['Cisco Internetwork Operating System Software \015\012IOS (tm)\
-5300 Software (C5300-J-M), Experimental Version 12.1(20001115:152556)\
-[haag-V121_4 102]\015\012Copyright (c) 1986-2000 by cisco Systems,\
-Inc.\015\012Compiled Mon 20-Nov-00 19:22 by haag']
->>> 
+>>> vals = map(lambda x: x[0](), map(asn1.decode, rsp['encoded_vals']))
+>>> print vals
+['Cisco Internetwork Operating System Software \015\012IOS (tm) 5300 Software
+(C5300-J-M), Experimental Version 12.1(20001115:152556) [haag-V121_4 102]
+\015\012Copyright (c) 1986-2000 by cisco Systems, Inc.\015\012Compiled
+Mon 20-Nov-00 19:22 by haag']
+>>>
 
 8X---------------- cut here --------------------
 

@@ -1,4 +1,4 @@
-Wed Jan  23 18:55:09 MSK 2002
+Mon May  20 18:55:09 MSK 2002
 
 Changes to version 2.0.1
 ------------------------
@@ -13,8 +13,7 @@ Changes to version 2.0.1
   * SNMP agent (server) support added to SNMP transport code;
  
   * API level compatibility with previous PySNMP versions is
-    not preserved at the moment. The 2.0.1 version will not be
-    released until the compatibility layer is written (work is
+    not preserved at the moment (work on the compatibility layer is
     in progress).
 
 Changes to version 1.6.5
