@@ -1,3 +1,15 @@
+Fri Jun   7 10:35:30 MSK 2002
+
+Changes to version 2.0.2
+------------------------
+
+- Bugfix: non-existent exception class error.PySNMPError replaced with
+  error.Generic in asynchronous code. 
+
+- Bugfix: check that exc_type is not None in asyncmgr.py
+  telnet_server.request_done_fun() to see if an exception
+  occurred.
+
 Mon May  20 18:55:09 MSK 2002
 
 Changes to version 2.0.1
