@@ -40,7 +40,6 @@ class AbstractSocketTransport(asyncore.dispatcher):
                 del sockMap[self]
 
     def registerSocket(self, sockMap=None):
-        self.del_channel(sockMap)
         self.add_channel(sockMap)
         
     def unregisterSocket(self, sockMap=None):
