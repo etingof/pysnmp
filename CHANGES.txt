@@ -1,3 +1,10 @@
+Tue Mar  1 18:45:32 MSK 2005
+
+Changes to version 4.0.2a
+-------------------------
+
+- Adopted to slightly changed asyncore API (as shipped with python 2,4)
+
 Thu Nov  18 07:13:25 MSD 2004
 
 Changes to version 4.0.1a
