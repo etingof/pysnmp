@@ -7,7 +7,7 @@ mibBuilder = builder.MibBuilder().loadModules(
 print 'done'
 
 print 'Building MIB tree...',
-mibInstrum = instrum.MibInstrumentationController(mibBuilder)
+mibInstrum = instrum.MibInstrumController(mibBuilder)
 print 'done'
 
 print 'Remote manager write/create access to MIB instrumentation: ',
