@@ -1,3 +1,12 @@
+Fri Sep 20 08:35:43 MSD 2002
+
+Changes to version 2.0.6
+------------------------
+
+- Bugfix: in bulkrole.py, ignore transport errors by catching
+  error.Error based exceptions.
+- Use repr() when reporting garbaged octet stream on decoder input.
+
 Tue Jul 16 12:19:35 MSD 2002
 
 Changes to version 2.0.5
