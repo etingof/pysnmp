@@ -1,0 +1,176 @@
+
+Thu Nov 16 08:49:14 MSK 2000
+
+Changes to version 1.3.14
+-------------------------
+
+- The license of the PySNMP package changed for a [more relaxed] BSD License;
+
+Sat Nov  4 19:22:20 MSK 2000
+
+Changes to version 1.3.13
+-------------------------
+
+- Fixed wrong (non-tuple type) argument passed to socket.connect() method in
+  session.open();
+
+Mon Sep 11 11:47:12 MSD 2000
+
+Changes to version 1.3.12
+-------------------------
+
+- bug fixed in IP address encapsulation method (ber.encode_ipaddr()). Thanks
+  to Jarkko Torppa for pointing it out!
+
+Fri Sep  8 11:51:34 MSD 2000
+
+Changes to version 1.3.11
+-------------------------
+
+- the obsolete standard Python module 'rand' replaced with 'whrandom'
+  in pysnmp.py for better portability. The random numbers generator is
+  used for SNMP RequestID initialization. This change also enlarges the
+  range of possible RequestID values from 0 to 0x7fffffff.
+
+- contribution/ directory introduced and Cayce Ullman's PySNMP based
+  SNMP agent put there as an example of possible PySNMP use;
+
+Mon Sep  4 15:04:05 MSD 2000
+
+Changes to version 1.3.10
+-------------------------
+
+- catch all possible SNMP related exceptions in async_session.handle_read()
+  and convert them into (None, None) result as they would arrive out of
+  context at that point (this is subject for further re-work);
+
+- a syntax error fixed in ber.encode_ipaddr() thanks to Stefan Sami-Soueiha
+  who pointed this out;
+
+Fri Aug  4 09:50:37 MSD 2000
+
+Changes to version 1.3.9
+------------------------
+
+- initialize SNMP Request-Id to a random value (by means of rand.rand())
+  in pysnmp.packet class constructor. This makes sense when user doesn't re-use
+  pysnmp object for subsequent SNMP queries but re-creates new pysnmp
+  object for every request;
+
+- convert possible pysnnp exceptions when decoding SNMP reply in
+  async_session.handle_read() into (None, None) result as a pysnmp
+  exception at that point would arrive out of context;
+
+- do not destroy pysnmp.session object in async_session.handle_read()
+  method as pysnmp.session object may be re-used;
+
+Tue May 30 18:32:23 MSD 2000 
+
+Changes to version 1.3.8
+------------------------
+
+- a bunch of changes to pysnmp.multisession class suggested by Case Van Horsen.
+  These changes make objects of multisession class handling socket exceptions
+  rather than passing them up to mother application;
+- socket variable at pysnmp.py: replaced with sock as Case Van Horsen
+  reported that it interferes with the socket module;
+
+Mon Mar 20 18:48:54 MSK 2000
+
+Changes to version 1.3.7
+------------------------
+
+- pysnmp.objid class moved to a dedicated module objid.py;
+- ber.ber now superclasses objid.objid class;
+- pysnmp.session.__init__() doesn't create an instance of pysnmp.objid()
+  class (THIS MAY CAUSE BACKWARD INCOMPATIBILITY, please, let me know
+  if you think I should maintain backward compatibility at this point
+  of code);
+- ber.decode_value() now attempts to decode an Object-Id type argument
+  as suggested by Case Van Horsen;
+- examples/*.py changed to utilize ber.decode_value() method against
+  Object-ID's;
+- tabs converted to spaces through all the *.py files;
+- a few cosmetic changes applied to code;
+
+Tue Jan 25 00:22:18 MSK 2000
+
+Changes to version 1.3.6
+------------------------
+
+- the README example corrected, thanks to Carl Bray <cbray@Orchestream.com>;
+
+Wed Jan 19 14:43:31 MSK 2000
+
+Changes to version 1.3.5
+------------------------
+
+- the asynchronous SNMP manager class previously founded in
+  examples/async_snmpget.py moved to a separate module asynsnmp.py;
+- examples/async_snmpget.py now imports asynchronous SNMP manager class
+  from asynsnmp.py module;
+
+Mon Jan 17 15:50:04 MSK 2000
+
+Changes to version 1.3.4
+------------------------
+
+- session.open() now returns the socket object it created;
+- added a session.get_socket() method which returns socket object
+  previously created with session.open() method;
+- examples/async_snmpget.py added;
+
+Thu Nov 25 16:42:59 MSK 1999
+
+Changes to version 1.3.3
+------------------------
+
+- added a method which figures out if one OBJID is a prefix of another OBJID
+  (this is used in table retrieval;
+- example/snmptable.py added;
+
+Sat Nov 13 23:43:08 MSK 1999
+
+Changes to version 1.3.2
+------------------------
+
+- community argument of examples/* tools is now obligatory;
+- multisession example of snmpget tool converted to snmpbulk tool;
+
+Wed Nov 10 18:06:34 MSK 1999
+
+Changes to version 1.3.1
+------------------------
+
+- a couple of bugfixes for BER [en,de]coders reported by 
+  Steve Cochran <steve@more.net> commited to the distribution;
+
+Thu Oct 28 17:40:09 MSD 1999
+
+Changes to version 1.3
+----------------------
+
+- example/snmpset.py added;
+
+Sun Oct 17 17:42:31 MSD 1999
+
+Changes to version 1.2
+----------------------
+
+- examples/* tools now support command line arguments;
+- order of the arguments of session.__init__() and multisession.submit_request()
+  changed to better use defaults;
+- order of the arguments of session.decode_response() changed, response type
+  may now be ommited;
+
+Sat Oct 16 19:19:00 MSD 1999
+
+Changes to version 1.1
+----------------------
+
+- more checks against inconsistent arguments passed to various methods added;
+- SMTP request type can now be passed to the packet constructing methods;
+- more comments added to the code;
+- a Object ID's convertion class (pysnmp.objid) added;
+- examples/* updated (snmpwalk.py added);
+- a few significant bugs fixed;

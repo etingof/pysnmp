@@ -1,0 +1,5 @@
+YET TO BE DONE
+--------------
+
+- implement an example server listening for SNMP traps;
+- implement MIB parser;
