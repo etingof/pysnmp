@@ -1,8 +1,9 @@
 Mon Nov  15 08:11:59 MSD 2004
 
-Changes to version 4.0.0a (pre-alpha)
--------------------------------------
+Changes to version 4.0.0a
+-------------------------
 
+- UNSTABLE EARLY ALPHA RELEASE.
 - Major re-design and re-implementation.
 - Rudimental API versioning implemented to let incompatible package
   branches to co-exist within the same Python installation.
