@@ -1,26 +1,26 @@
-Fri Oct  22 18:23:43 MSK 2004
+Mon Nov  8 22:11:59 MSK 2004
 
-Changes to version 3.5.1
+Changes to version 4.0.0
 ------------------------
 
-- SMI framework implemented. This is meant to be a tool for accessing
-  MIB objects whilst in manager and/or agent roles.
+- Major re-design and re-implementation.
+- SMI framework designed and implemented. This framework provides 
+  1) various access to MIB data 2) a way to implement custom MIB
+  instrumentation objects. There's also a tool for building SMI classes
+  from libsmi(3) output (smidump -f python).
 - ASN.1 subtyping machinery implemented. Now dynamic ASN.1 instances
   subtyping and quering becomes available. Previously, this has been done
   through Python classes inheritance what proved to be a wrong concept.
-  As a side-effect, the low-level API to ASN.1 classes has been changed.
 - ASN.1 codecs framework re-designed and re-implemented aimed at a more
   consistent design and better performance. Highlights include abstract
   codec interface and serialized data caching (at encoder).
-- Asn1Object constraints machinery re-implemented based on Mike C. Fletcher's
+- Asn1Item constraints machinery re-implemented based on Mike C. Fletcher's
   design and code. Now various constrains are implemented as stand-alone
   objects serving interested Asn1Object derivatives through some abstract
   protocol (that's probably the Decorator design pattern).
-- Structured pysnmp.asn1.base.* classes reworked to act as proxy objects
-  over Python dictionary for better performance.
-- Many low-level API modifications at pysnmp.asn1.* classes.
-- More tests added at pysnmp.test package.
-- Many minor bugfixes.
+- ASN.1 tagging facility re-implemented along the client-server design
+  pattern. Besides this seems to be a more appropriate design, it allows
+  an easier way for dynamic subtyping.
 
 Fri Oct  22 18:23:43 MSK 2004
 
