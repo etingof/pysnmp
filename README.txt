@@ -19,6 +19,12 @@ wrapper!).
 The PySNMP package is distributed under terms and conditions of BSD-style
 license. See LICENSE at PySNMP homepage [1].
 
+WARNING! WARNING! WARNING!
+--------------------------
+
+The 4.x branch of PySNMP is extremely experimental, the API WILL
+change in the future. Do not use the 4.x API in real projects!
+
 FEATURES
 --------
 
