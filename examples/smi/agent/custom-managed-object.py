@@ -1,3 +1,5 @@
+from pysnmp import setApiVersion
+setApiVersion('v4')
 from pysnmp.smi import builder, instrum, error
 
 print 'Loading MIB modules...',
