@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name="pysnmp",
-      version="4.0.0",
+      version="4.0.0-alpha-0",
       description="SNMP framework for Python",
       author="Ilya Etingof",
       author_email="ilya@glas.net ",
@@ -18,6 +18,8 @@ setup(name="pysnmp",
                    'pysnmp.carrier.asynsock',
                    'pysnmp.carrier.asynsock.dgram',
                    'pysnmp.proto',
+                   'pysnmp.proto.msgproc',
+                   'pysnmp.proto.secmod',
                    'pysnmp.proto.api',
                    'pysnmp.proto.api.alpha' ],
       license="BSD"
