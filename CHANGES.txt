@@ -32,6 +32,7 @@ Changes to version 3.3.5
   implemented as a superset of pysnmp.proto.api.generic API, which
   remains fully functional.
 - Bugfix to v*.SetRequest.Community initialization at pysnmp.proto
+- Bugfix to ObjectIdentifier class wrapper at pysnmp.compat.pysnmpxx
 
 Thu Jun 07 19:23:33 MSD 2003
 
