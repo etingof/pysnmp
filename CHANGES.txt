@@ -36,6 +36,8 @@ Changes to version 3.3.5
 - rfc1902 BITS construct implemented (as an ApplicationSyntax component
   whilst SMI defines it as one of possible Syntax values. Why it's defined
   so and what's the right implementation is still unclear to me).
+- Obsolete rfc1442 BIT STRING type implemented to handle outdated SNMP
+  entities.
 
 Thu Jun 07 19:23:33 MSD 2003
 
