@@ -120,8 +120,8 @@ visualisation purposes (SNMP manager side) and/or become management targets
 
 Since PySNMP native MIB compiler/codegenerator is not yet implemented,
 the Python dump feature of libsmi library [6] is used. In order to convert MIB
-text files into pysnmp.smi-compliant Python source, the following procedure
-could be used:
+text files into pysnmp.smi-compliant Python source, something like the
+following UNIX shell script could be used:
 
 for srcfile in /usr/share/snmp/mibs/*txt
 do
