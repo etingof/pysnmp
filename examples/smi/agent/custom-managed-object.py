@@ -1,3 +1,4 @@
+# SNMP agent backend
 from pysnmp.smi import builder, instrum, error
 
 print 'Loading MIB modules...',
