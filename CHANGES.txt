@@ -1,3 +1,18 @@
+Tue Jun 25 8:34:39 MSD 2002
+
+Changes to version 2.0.4
+------------------------
+
+- Bugfix: the 'UPTIME' BER tag removed from asn1.BERHEADER.TAGS dictionary
+  as it seems to duplicate the 'TIMETICKS' flag what accidentally causes
+  pysnmp.asn1.TypeError exception.
+
+- The FLAGS dictionaries in various classes split up to CLASS and
+  FORMAT ones to better follow BER specification.
+
+- The asn1.TAGGEDSEQUENCE class renamed to asn1.SEQUENCE as the latter
+  seems not to be defined and used in SNMP context.
+
 Fri Jun 21 08:54:43 MSD 2002
 
 Changes to version 2.0.3
