@@ -9,4 +9,5 @@ setup(name="pysnmp",
       author_email="ilya@glas.net ",
       url="http://sourceforge.net/projects/pysnmp/",
       packages=['pysnmp'],
+      license="BSD"
       )
