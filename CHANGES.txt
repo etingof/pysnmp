@@ -1,3 +1,149 @@
+Thu Jun 07 19:23:33 MSD 2003
+
+Changes to version 3.3.4
+------------------------
+
+- Raw values access interface of asn1.base.SimpleAsn1Object reworked for
+  better performance
+- initialValue of asn1.base.SimpleAsn1Object class objects may now be
+  defined as method
+- Bugfix to asn1.base.SimpleAsn1Object value assignment -- copy mutable
+  values rather then store a reference to the passed one
+- The tree-making facility of asn1.univ.ObjectIdentifier class reworked
+  for better performance and clearer protocol
+- Bugfix initial value assignment of proto.rfc1157.RequestId & 
+  proto.rfc1905.RequestId classes to get much less repetitive values
+- The getTerminal() method implemented to all base ASN1 data types
+  (simple & structed) for a more constent API
+- Bugfix to examples/* var-bind pretty printing (IpAddress wouldn't print).
+- UCD command line interface mixins now support the rest of SNMP data types
+  (Gauge, Counter32 etc.)
+
+Thu Mar 20 18:43:55 MSD 2003
+
+Changes to version 3.3.3
+------------------------
+
+- The constraints methods set of asn1.base.Asn1Object converted to
+  a set of flags accompanied by a single constraints checking
+  method for better efficiency.
+- The asn1.base.ChoiceTypeAsn1Object.get() method converted to
+  getTerminal() to handle possible structured Choice elements
+  (may cause incompatibilities!).
+- ber.base.decodeTag() function substitutes functionally similar
+  code scattered over a few BER decoders.
+- asn1.univ.ObjectIdentifier.str2num()/num2str() methods code optimized
+  for better performance.
+- Bugfix to handle_error() methods of udp.asynrole.manager/agent.
+- Bugfix to examples/snmpwalk.py v2c.EndOfMibView handling in
+  response.
+- examples/ converted to use `env' for interpreter invocation.
+- Many minor optimization changes.
+
+Wed Mar 19 18:01:05 MSD 2003
+
+Changes to version 3.3.2
+------------------------
+
+- Bugfix to examples/asyncmgr.py to make the tool simultaneous
+  request safe
+- Bugfix to setup.py -- some sub-packages were not installed
+- The request-specific match() method of proto.v1 and proto.v2c
+  split on request and PDU-specific parts
+- Half-baked SNMP v.3 files appeared in 3.3.1 by mistake (rfc2571.py, 
+  rfc2572.py) excluded
+
+Tue Jan 14 19:41:21 MSD 2003
+
+Changes to version 3.3.1
+------------------------
+
+- role.manager() now uses a user-specified callback function to
+  verify received SNMP messages (this mostly addresses the out-of-order
+  SNMP messages problem).
+- examples/* tools updated to utilize role.manager()'s message verification
+  callback function
+- Net-SNMP-style command-line interface implemented (as a sub-package
+  pysnmp.proto.cli)
+- High-level API to SNMP message objects implemented (as a sub-package
+  pysnmp.proto.api)
+- The examples/asyncmgr.py tool now supports all available SNMP message
+  types
+- pysnmp.asn1.ber sub-package re-written to act as an optional mix-in
+  to base ASN.1 objects (and moved under pysnmp.asn1.encoding package)
+- quite a few small fixes
+
+Thu Nov 14 18:09:53 MSD 2002
+
+Changes to version 3.2.2
+------------------------
+
+- Bugfix to default value for 'dst' address parameter in
+  mapping/udp/role.py, mapping/udp/asynrole.py and
+  mapping/udp/bulkrole.py.
+- asyncode compatibility bugfix to asynrole.manager.handle_error()   
+  and asynrole.agent.handle_error() parameters list. Affected the
+  mapping/udp/asynrole.py and examples/asyncmgr.py scripts.
+- Bugfix to transport-level exceptions handling code in
+  examples/snmpbulk.py and mapping/udp/bulkrole.py.
+- Bugfix to reportTypeFlag handling at examples/snmpbulk.py.
+- Command line parameters support implemented to the
+  examples/asyncmgr.py script.
+
+Thu Oct 31 08:32:49 MSD 2002
+
+Changes to version 3.2.1
+------------------------
+
+- asn1.base.ChoiceTypeAsn1Object.get() method added for recursively
+  fetching enclosed scalar terminals whenever possible.
+- examples/*.py scripts updated to make use of the above feature
+  (by means of -R command line swich).
+
+Tue Oct 15 23:53:32 MSD 2002
+
+Changes to version 3.1.3
+------------------------
+
+- A few bugs fixed in example/snmptrap.py and example/snmpset.py
+
+Sat Oct 12 10:43:46 MSD 2002
+
+Changes to version 3.1.2
+------------------------
+
+- Incorrect params to role.agent() constructor in examples/snmptrapd.py fixed
+- The __all__ list memebers in rfc1155.py and rfc1902.py updated
+
+Fri Oct 11 18:34:31 MSD 2002
+
+Changes to version 3.1.1
+------------------------
+
+- A bug in setup.py (that prevents package installation) has been fixed.
+- Syntax typo in asynrole.py has been fixed.
+
+Mon Oct  7 08:29:58 MSD 2002
+
+Changes to version 3.1.0
+------------------------
+
+- The snmpy compatibility sub-package added.
+- __hash__() methods implelented for Asn1Object-based
+  objects.
+- Many stupid typos fixed thoughout the code.
+
+Tue Oct  1 08:02:43 MSD 2002
+
+Changes to version 3.0.0
+------------------------
+
+- Major re-write of the whole package aimed at a more accurate, standards
+  compliant and extensible ASN.1 and SNMP protocol objects implementation.
+
+  Backward compatibility with earlier PySMMP versions is preserved by means
+  of compatibility sub-packages.
+
 Wed Dec 18 20:39:00 MSD 2002
 
 Changes to version 2.0.8
