@@ -1,3 +1,10 @@
+Fri Jun 21 08:54:43 MSD 2002
+
+Changes to version 2.0.3
+------------------------
+
+- Bugfix: role.agent class constructor must be passed a list type parameter.
+
 Fri Jun   7 10:35:30 MSK 2002
 
 Changes to version 2.0.2
