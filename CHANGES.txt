@@ -18,6 +18,7 @@ Changes to version 3.3.6
 - Another bugfix to broken errorIndex/VarBindList handling
   at examples/*.py tools
 - Syntax error fixed at cli/ucd/rfc1157.py
+- Bugfix to asn1.ObjectIdentifier labeling code
 
 Wed Aug 27 22:45:44 MSD 2003
                                                                                 
