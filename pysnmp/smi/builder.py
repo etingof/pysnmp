@@ -5,7 +5,6 @@ try:
     import pysnmp_mibs
 except ImportError:
     pysnmp_mibs = None
-    
 __all__ = [ 'MibBuilder' ]
 
 class MibBuilder:
@@ -14,9 +13,9 @@ class MibBuilder:
         self.execContext = execContext
         self.mibSymbols = {}
         paths = (os.path.join(os.path.split(error.__file__)[0], 'mibs'),)
-        if os.environ.has_key('PYSNMPMIBDIR'):
+        if os.environ.has_key('PYSNMP_MIB_DIR'):
             paths = paths + (
-                os.path.join(os.path.split(os.environ['PYSNMPMIBDIR'])[0]),
+                os.path.join(os.path.split(os.environ['PYSNMP_MIB_DIR'])[0]),
                 )
         if pysnmp_mibs:
             paths = paths + (
