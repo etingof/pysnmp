@@ -1,4 +1,17 @@
 Wed Aug 27 22:45:44 MSD 2003
+
+Changes to version 3.4.1
+------------------------
+
+- examples/* tools reworked and moved to apps/ (to act as full-blown
+  applications)
+- the mapping.udp.cli.ucd code reworked for a more consistent design.
+  API slightly changed in an backward incompatible way.
+- socket-based transport re-written from the scratch to better
+  comply SNMP v3 model. As a result a new API is introduced, Backward
+  compatibility is [hopefully] preserved.
+
+Wed Aug 27 22:45:44 MSD 2003
                                                                                 
 Changes to version 3.3.5
 ------------------------
@@ -18,6 +31,7 @@ Changes to version 3.3.5
 - New another flavor of API to protocol objects (pysnmp.proto.api.alpha)
   implemented as a superset of pysnmp.proto.api.generic API, which
   remains fully functional.
+- Bugfix to v*.SetRequest.Community initialization at pysnmp.proto
 
 Thu Jun 07 19:23:33 MSD 2003
 
