@@ -1,6 +1,4 @@
 # SNMP manager-side MIB management
-from pysnmp import setApiVersion
-setApiVersion('v4')
 from pysnmp.smi import builder, view, error
 
 print 'Loading MIB modules...',
