@@ -1,3 +1,17 @@
+Tue Jul 16 12:19:35 MSD 2002
+
+Changes to version 2.0.5
+------------------------
+
+- Bugfix: use long ints in integers decoders of asn1.py to prevent a
+  wrapover on left shift what sometimes decodes to negative in unsigned
+  data types decoders.
+
+- Verify against negative initializers to unsigned data types.
+
+- Split up BER decoders of asn1.INTEGER and asn1.UNSIGNED32 classes,
+  derive asn1.COUNTER64 class from asn1.UNSIGNED32 for clarity.
+
 Tue Jun 25 8:34:39 MSD 2002
 
 Changes to version 2.0.4

@@ -1,5 +1,5 @@
 
-SNMP engine for Python, version 2.0.4
+SNMP engine for Python, version 2.0.5
 -------------------------------------
 
 This is a Python implementation of SNMP v.1/v.2c engine. It's general
@@ -46,13 +46,13 @@ directory in the following way (assuming your Python distribution
 resides under /usr/local/lib/python):
 
 $ cd /usr/local/lib/python/site-packages
-$ tar xvf /tmp/pysnmp-2.0.4.tar
-$ echo pysnmp-2.0.4 > pysnmp.pth
+$ tar xvf /tmp/pysnmp-2.0.5.tar
+$ echo pysnmp-2.0.5 > pysnmp.pth
 
 Alternatively, the $PYTHONPATH environment variable can be updated to
 point to your PySNMP package location (assuming your UNIX shell is bash):
 
-export PYTHONPATH=/home/ilya/src/py/pysnmp-2.0.4:$PYTHONPATH
+export PYTHONPATH=/home/ilya/src/py/pysnmp-2.0.5:$PYTHONPATH
 
 The latter trick is also known to work on Windows.
 
