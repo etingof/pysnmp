@@ -1,3 +1,24 @@
+Wed Aug 27 22:45:44 MSD 2003
+                                                                                
+Changes to version 3.3.5
+------------------------
+                                                                                
+- The examples/snmp*walk.py tools fixed not to query first OID in range
+  by GetRequest unless explicitly specified by command line.
+- The -C<p|i|c> option implemented at examples/snmp*walk.py tools
+- Bugfix to empty/malformed VarBindList reference by ErrorIndex on
+  ErrorStatus reported at examples/* tools.
+- Syntax errors fixed at pysnmp/mapping/udp/asynrole.py and
+  pysnmp/proto/cli/ucd/rfc1905.py
+- The manager class at pysnmp/mapping/udp/role.py fixed not to connect()
+  to default destination as this prevents underlying socket from
+  receiving UDP from non-default source (some agents appear to respond
+  from a strange IP/port). Note: this change raises the risk of agent
+  IP/port spoofing!
+- New another flavor of API to protocol objects (pysnmp.proto.api.alpha)
+  implemented as a superset of pysnmp.proto.api.generic API, which
+  remains fully functional.
+
 Thu Jun 07 19:23:33 MSD 2003
 
 Changes to version 3.3.4
