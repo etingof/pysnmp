@@ -4,7 +4,7 @@ SNMP framework for Python, version 4.x (alpha)
 
 This is a pure-Python implementation of multi-protocol SNMP engine. Although
 only SNMP versions 1 and 2c are fully supported at the moment, the APIs
-are aligned with the SNMPv3 architecture [1], so it would naturally host SNMP 
+are aligned with the SNMPv3 architecture [4], so it would naturally host SNMP 
 version 3, and hopefully future SNMP versions, whenever corresponding 
 protocol-specific modules would be implemented (work's in progress).
 
@@ -17,7 +17,7 @@ PySNMP is written entirely in Python and is self-sufficient (it is not a
 wrapper!).
 
 The PySNMP package is distributed under terms and conditions of BSD-style
-license. See LICENSE at PySNMP homepage [2].
+license. See LICENSE at PySNMP homepage [1].
 
 FEATURES
 --------
@@ -33,10 +33,7 @@ FEATURES
 MISFEATURES
 -----------
 
-* No pure-Python MIB compiler. However, there's a tools/libsmi2pysnmp 
-  script in the PySNMP distribution which may be used for converting MIB
-  text files into pysnmp.smi-compliant Python modules. For a large set of
-  pre-compiled pysnmp MIB files, see the pysnmp-mibs package [3].
+* No pure-Python MIB compiler. Although, there's a workaround, read on.
 * No SNMP v.3 support
 
 PRECAUTIONS
@@ -61,7 +58,7 @@ OPERATION
 ---------
 
 As of this writing, PySNMP implements two SNMP architectures -- the first
-is a legacy one used in SNMPv1 & v2c specifications [4]. It is quite 
+is a legacy one used in SNMPv1 & v2c specifications [5]. It is quite 
 protocol-oriented and, in particular, requires application to manage
 transport failures, access issues and so on.
 
@@ -99,12 +96,12 @@ tspDsp.runDispatcher(liveForever=1)
 8X---------------- cut here --------------------
 
 The second model supported by PySNMP resembles the SNMPv3 architecture, 
-as specified in [1]. The model is somewhat complex for this introductory
+as specified in [4]. The model is somewhat complex for this introductory
 README, so for more information, please, follow the pysnmp/examples/v3arch 
 directory in the PySNMP distribution.
 
 A set of complete SNMP applications based on the PySNMP framework's
-shipped with the pysnmp-apps package. [5]
+shipped with the pysnmp-apps package. [3]
 
 MIB SUPPORT
 -----------
@@ -129,12 +126,12 @@ done
 The libsmi2pysnmp script is could be found in pysnmp/tools/ directory.
 
 Alternatively, a large set of pre-compiled MIB files is shipped along the
-pysnmp-mibs package. [3]
+pysnmp-mibs package. [2]
 
 AVAILABILITY
 ------------
 
-The PySNMP software is freely available for download from project's homepage.[2]
+The PySNMP software is freely available for download from project's homepage.[1]
 
 GETTING HELP
 ------------
@@ -152,21 +149,21 @@ purpose. Please, send me a note then. Thanks!
 REFERENCES
 ----------
 
-[1] SNMP Version 3 specification and related
-    http://www.ibr.cs.tu-bs.de/projects/snmpv3/
-
-[2] PySNMP project homepage:
+[1] PySNMP project homepage:
     http://pysnmp.sf.net
 
-[3] Pre-compiled PySNMP MIB modules:
+[2] Pre-compiled PySNMP MIB modules:
     http://sourceforge.net/project/showfiles.php?group_id=14735
 
-[4] SNMP Version 1/2 specifications:
+[3] PySNMP applications:
+    http://sourceforge.net/project/showfiles.php?group_id=14735
+
+[4] SNMP Version 3 specification and related
+    http://www.ibr.cs.tu-bs.de/projects/snmpv3/
+
+[5] SNMP Version 1/2 specifications:
     http://www.ietf.org/rfc/rfc1155.txt - http://www.ietf.org/rfc/rfc1158.txt
     http://www.ietf.org/rfc/rfc1901.txt - http://www.ietf.org/rfc/rfc1909.txt
-
-[5] PySNMP applications:
-    http://sourceforge.net/project/showfiles.php?group_id=14735
 
 [6] libsmi homepage
     http://www.ibr.cs.tu-bs.de/projects/libsmi/
