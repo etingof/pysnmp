@@ -99,6 +99,13 @@ AVAILABILITY
 The PySNMP software is available for download from project's homepage:
 http://sourceforge.net/projects/pysnmp/
 
+GETTING HELP
+------------
+
+Once anything does not work as expected, please, try browsing PySNMP
+mailing list archives at http://sourceforge.net/mail/?group_id=14735
+or post your question there.
+
 FEEDBACK
 --------
 
