@@ -1,5 +1,5 @@
 
-SNMP engine for Python, version 2.0.6
+SNMP engine for Python, version 2.0.7
 -------------------------------------
 
 This is a Python implementation of SNMP v.1/v.2c engine. It's general
@@ -19,9 +19,13 @@ license. See the LICENSE file for details.
 PRECAUTIONS
 -----------
 
+If you are starting a new project, consider trying the 3.x branch
+of PySNMP which is written in a more standards-compliant way and is
+[hopefully] stable enough by the time of this writing.
+
 Unfortunately, version 2.x of PySNMP software is *INCOMPATIBLE* with
-its 1.x branch at the moment. Work on a compatibility layer is being
-in progress.
+its 1.x branch at the moment. For a fully compatible solution, use the
+3.x branch of PySNMP package.
 
 While the pure-Python MIB compiler project is underway, the ASN.1
 types of Object IDs associated values must be explicitly specified
@@ -46,13 +50,13 @@ directory in the following way (assuming your Python distribution
 resides under /usr/local/lib/python):
 
 $ cd /usr/local/lib/python/site-packages
-$ tar xvf /tmp/pysnmp-2.0.6.tar
-$ echo pysnmp-2.0.6 > pysnmp.pth
+$ tar xvf /tmp/pysnmp-2.0.7.tar
+$ echo pysnmp-2.0.7 > pysnmp.pth
 
 Alternatively, the $PYTHONPATH environment variable can be updated to
 point to your PySNMP package location (assuming your UNIX shell is bash):
 
-export PYTHONPATH=/home/ilya/src/py/pysnmp-2.0.6:$PYTHONPATH
+export PYTHONPATH=/home/ilya/src/py/pysnmp-2.0.7:$PYTHONPATH
 
 The latter trick is also known to work on Windows.
 

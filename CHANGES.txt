@@ -1,3 +1,12 @@
+Thu Nov 28 18:58:45 MSD 200
+
+Changes to version 2.0.7
+------------------------
+
+- Bugfix to asn1.py, incorrect ASN.1 tag used for UNSIGNED32 type.
+- Bugfix to v1.py & v2c.py modules, GAUGE32 was missing from the
+  list of allowed value-bind types.
+
 Fri Sep 20 08:35:43 MSD 2002
 
 Changes to version 2.0.6
