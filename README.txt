@@ -85,12 +85,12 @@ Copyright 1991-1995 Stichting Mathematisch Centrum, Amsterdam
 >>> from pysnmp.proto.api import generic
 >>> from pysnmp.mapping.udp import role
 >>> req = v1.GetRequest()
->>> req.apiGetPdu().apiSetVarBind([('1.3.6.1.2.1.1.1.0', None)])
+>>> req.apiGenGetPdu().apiGenSetVarBind([('1.3.6.1.2.1.1.1.0', v1.Null())])
 >>> tr = role.manager(('router-1.glas.net', 161))
 >>> (answer, src) = tr.send_and_receive(req.encode())
 >>> rsp = v1.GetResponse()
 >>> rsp.decode(answer)
->>> vars = rsp.apiGetPdu().apiGetVarBind()
+>>> vars = rsp.apiGenGetPdu().apiGenGetVarBind()
 >>> print vars
 [('.1.3.6.1.2.1.1.1.0', OctetString('Cisco Internetwork Operating System Software \015\012IOS (tm) 5400 Software(C5400-JS-M), Version 12.2(11.8b), MAINTENANCE INTERIM SOFTWARE\015\012 Copyright (c) 1986-2002 by cisco Systems, Inc.\015\012Compiled Tue 30-Jul-02 19:02 by pwade'))]
 
