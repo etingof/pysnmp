@@ -5,11 +5,20 @@ Changes to version 3.4.1
 
 - examples/* tools reworked and moved to apps/ (to act as full-blown
   applications)
-- the mapping.udp.cli.ucd code reworked for a more consistent design.
+- The mapping.udp.cli.ucd code reworked for a more consistent design.
   API slightly changed in an backward incompatible way.
-- socket-based transport re-written from the scratch to better
+- Socket-based transport re-written from the scratch to better
   comply SNMP v3 model. As a result a new API is introduced, Backward
   compatibility is [hopefully] preserved.
+- Various structured ASN.1 objects might not now return newly created
+  inner components upon decoding as well as not copying passed objects
+  on assignment. As a rule of thumb, all asn1.StructuredAsn1Object derivatives
+  are mutable and they deals with object references.
+- Inner components caching implemented at SingleFixedTypeAsn1Object.berDecoder()
+  of pysnmp.asn1.encoding.ber for better performance on repetitive operations.
+- Var-binds caching implemented at RequestPduMixIn.apiAlphaSetVarBind() of
+  pysnmp.proto.api.alpha.rfc1157 & rfc1905 for better performance on
+  repetitive operations.
 
 Mon Sep  1 11:08:30 MSD 2003
 
