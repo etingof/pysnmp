@@ -1,26 +1,70 @@
-Wed Aug 27 22:45:44 MSD 2003
+Wed Feb 18 18:34:05 MSK 2004
+
+Changes to version 3.4.3
+------------------------
+
+- SMI framework implemented. This is to be used to access abstract SNMP
+  management information (MIBs) in various ways.
+- ASN.1 subtyping machinery implemented. Now dynamic ASN.1 instances
+  subtyping and quering becomes available. Previously, this has been done
+  through Python classes inheritance what proved to be a wrong concept.
+  As a side-effect, the low-level API to ASN.1 classes has been changed.
+- ASN.1 codecs framework re-designed and re-implemented aimed at a more
+  consistent design and better performance. Highlights include abstract
+  codec interface and serialized data caching (at encoder).
+- Asn1Object constraints machinery re-implemented based on Mike C. Fletcher's
+  design and code. Now various constrains are implemented as stand-alone
+  objects serving interested Asn1Object derivatives through some abstract
+  protocol (that's probably the Decorator design pattern).
+- Structured pysnmp.asn1.base.* classes reworked to act as proxy objects
+  over Python dictionary for better performance.
+- Many low-level API modifications at pysnmp.asn1.* classes.
+- More tests added at pysnmp.test package.
+- Many minor bugfixes.
+
+Sun Feb  8 19:12:34 MSK 2004
+
+Changes to version 3.4.2
+------------------------
+
+- The pysnmp.test package implemented (pyunit based).
+- Bugfix to pysnmp1.x compatibility API that makes it operational
+  again.
+- Bugfix to None -> Null() value translation at proto.api.generic.
+- Bugfix to OIDs comparation & SNMP error propagation code at
+  proto.api.generic.
+- Bugfix to role.Agent instantiation at asyncrole.Agent code.
+- The VarBindMixIn.apiAlphaSetOidVal() method now does not modify current
+  oid and/or val whenever None's passed as oid and/or val parameters
+  respectively.
+
+Thu Feb  5 18:35:38 MSK 2004
 
 Changes to version 3.4.1
 ------------------------
 
-- examples/* tools reworked and moved to apps/ (to act as full-blown
-  applications)
-- The mapping.udp.cli.ucd code reworked for a more consistent design.
-  API slightly changed in an backward incompatible way.
-- Socket-based transport re-written from the scratch to better
-  comply SNMP v3 model. As a result a new API is introduced, Backward
-  compatibility is [hopefully] preserved.
-- Various structured ASN.1 objects might not now return newly created
-  inner components upon decoding as well as not copying passed objects
-  on assignment. As a rule of thumb, all asn1.StructuredAsn1Object derivatives
-  are mutable and they deals with object references.
-- Inner components caching implemented at SingleFixedTypeAsn1Object.berDecoder()
-  of pysnmp.asn1.encoding.ber for better performance on repetitive operations.
-- Var-binds caching implemented at RequestPduMixIn.apiAlphaSetVarBind() of
-  pysnmp.proto.api.alpha.rfc1157 & rfc1905 for better performance on
-  repetitive operations.
+- The examples/* tools reworked to act more like examples while full-blown
+  SNMP tools (along with their CLI and friends) moved to a stand-alone package
+  which is pysnmp-apps available from PySNMP homepage.
+- Components caching implemented at almost all asn1.base.Asn1Object
+  deviratives what aims at significant performance improvement. What is
+  related to this change is that various structured ASN.1 objects might not
+  now return newly created inner components as well as not copying (but
+  borrowing) passed objects on assignment.
+- The pysnmp.mapping.udp.bulkrole module dropped as it looks somewhat
+  redundant to asynrole functionality.
+- Alpha API to pysnmp.proto objects is now the API of choice. Besides
+  other improvements, this package introduces a protocol version-neutral
+  API. Previous Generic API (pysnmp.proto.api.generic) remains for
+  compatibility.
+- Code cleaned up to better comply with coding standards. Particularily,
+  some symbols changed their case, though, aliases set for compatibility.
+- The suggested way to process SNMP responses at role.Agent has been changed
+  to perform complete response processing at the callback function (cbFun).
+  That's why the sendAndReceive() method of role.Agent class now accepts cbCtx
+  parameter.
 
-Mon Sep  1 11:08:30 MSD 2003
+Thu Oct 30 18:43:44 MSK 2003
 
 Changes to version 3.3.6
 ------------------------
@@ -33,10 +77,10 @@ Changes to version 3.3.6
   handling
 
 Wed Aug 27 22:45:44 MSD 2003
-                                                                                
+
 Changes to version 3.3.5
 ------------------------
-                                                                                
+
 - The examples/snmp*walk.py tools fixed not to query first OID in range
   by GetRequest unless explicitly specified by command line.
 - The -C<p|i|c> option implemented at examples/snmp*walk.py tools

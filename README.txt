@@ -21,8 +21,6 @@ FEATURES
 * Both synchronous and asynchronous IO API support
 * Fully documented API with many examples
 * Generic, objective ASN.1 framework
-* Partial MIB I/II data types and macros implementation (check
-  CVS at SF for recent development)
 * 100% Python, works with Python 1.x and later
 * MT-safe
 
@@ -31,7 +29,7 @@ MISFEATURES
 
 * No MIB compiler (though, it's possible to compile ASN.1 code into PySNMP
   classes by hand, oh...)
-* No SNMP v.3 support (though, it's almost implemented, check CVS at SF)
+* No SNMP v.3 support (though, it's partially implemented, check CVS at SF)
 
 PRECAUTIONS
 -----------
@@ -57,19 +55,30 @@ directory in the following way (assuming your Python distribution
 resides under /usr/local/lib/python):
 
 $ cd /usr/local/lib/python/site-packages
-$ tar xvf /tmp/pysnmp-3.3.1.tar
-$ echo pysnmp-3.3.1 > pysnmp.pth
+$ tar xvf /tmp/pysnmp-3.3.5.tar
+$ echo pysnmp-3.3.5 > pysnmp.pth
 
 Alternatively, the $PYTHONPATH environment variable can be updated to
 point to your PySNMP package location (assuming your UNIX shell is bash):
 
-export PYTHONPATH=/home/ilya/src/py/pysnmp-3.3.1:$PYTHONPATH
+export PYTHONPATH=/home/ilya/src/py/pysnmp-3.3.5:$PYTHONPATH
 
 The latter trick is also known to work on Windows.
 
 I've been told, that on Windows 2000, one needs to go to "Control panel"
 -> "System" -> "Advanced" -> "Environment variables" and add/update the
 PYTHONPATH environment variable there.
+
+TESTING
+-------
+
+Once the PySNMP package is installed, try running:
+
+python -c 'from pysnmp.test import suite; suite.run()'
+
+at your command line to make sure the whole thing is working
+properly. Otherwise, please, report all failures to PySNMP mailing
+list (see below).
 
 OPERATION
 ---------
@@ -108,7 +117,7 @@ http://sourceforge.net/projects/pysnmp/
 GETTING HELP
 ------------
 
-Once anything does not work as expected, please, try browsing PySNMP
+If something does not work as expected, please, try browsing PySNMP
 mailing list archives at http://sourceforge.net/mail/?group_id=14735
 or post your question there.
 
