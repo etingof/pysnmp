@@ -1,9 +1,11 @@
-Mon Nov  8 22:11:59 MSK 2004
+Mon Nov  15 08:11:59 MSD 2004
 
-Changes to version 4.0.0
-------------------------
+Changes to version 4.0.0a (pre-alpha)
+-------------------------------------
 
 - Major re-design and re-implementation.
+- Rudimental API versioning implemented to let incompatible package
+  branches to co-exist within the same Python installation.
 - SMI framework designed and implemented. This framework provides 
   1) various access to MIB data 2) a way to implement custom MIB
   instrumentation objects. There's also a tool for building SMI classes
