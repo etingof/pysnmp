@@ -29,6 +29,8 @@ Changes to version 3.3.6
 - Syntax error fixed at cli/ucd/rfc1157.py
 - Bugfix to asn1.ObjectIdentifier labeling code
 - Bugfix to VarBindList initialization at compat.pysnmp2x
+- Bugfix to extra data at the tail of structured types BER octetstream
+  handling
 
 Wed Aug 27 22:45:44 MSD 2003
                                                                                 
