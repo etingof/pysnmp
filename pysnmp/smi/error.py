@@ -1,23 +1,34 @@
+from pyasn1.error import PyAsn1Error
 from pysnmp.error import PySnmpError
 
-__all__ = [
-    'SmiError', 'NotInitializedError', 'NoSuchInstanceError',
-    'InconsistentValueError', 'WrongValueError',
-    'NoAccessError', 'ReadOnlyError', 'NotWritableError',
-    'NoCreationError', 'RowCreationWanted', 'RowDestructionWanted'
-    ]
+class SmiError(PySnmpError, PyAsn1Error): pass
+class MibOperationError(SmiError):
+    def __init__(self, **kwargs): self.__outArgs = kwargs
+    def __str__(self): return str(self.__outArgs)
+    def __getitem__(self, key): return self.__outArgs[key]
+    def has_key(self, key): return self.__outArgs.has_key(key)
+    def get(self, key, defVal=None): return self.__outArgs.get(key, defVal)
+    def keys(self): return self.__outArgs.keys()
+    
+# Aligned with SNMPv2 PDU error-status
+class GenError(MibOperationError): pass
+class NoAccessError(MibOperationError): pass
+class WrongTypeError(MibOperationError): pass
+class WrongValueError(MibOperationError): pass
+class NoCreationError(MibOperationError): pass
+class InconsistentValueError(MibOperationError): pass
+class ResourceUnavailableError(MibOperationError): pass
+class CommitFailedError(MibOperationError): pass
+class UndoFailedError(MibOperationError): pass
+class AuthorizationError(MibOperationError): pass
+class NotWritableError(MibOperationError): pass
+class InconsistentNameError(MibOperationError): pass
 
-class SmiError(PySnmpError): pass
-class NotInitializedError(SmiError): pass
-class NoSuchModuleError(SmiError): pass
-class MibVariableError(SmiError): pass
-class NoSuchInstanceError(MibVariableError): pass
-class InconsistentValueError(MibVariableError): pass
-class WrongValueError(MibVariableError): pass
-class NoAccessError(MibVariableError): pass
-class ReadOnlyError(MibVariableError): pass
-class NotWritableError(MibVariableError): pass
-class NoCreationError(MibVariableError): pass
+# Aligned with SNMPv2 Var-Bind exceptions
+class NoSuchObjectError(MibOperationError): pass
+class NoSuchInstanceError(MibOperationError): pass
+class EndOfMibViewError(MibOperationError): pass
+
 # Row management
-class RowCreationWanted(MibVariableError): pass
-class RowDestructionWanted(MibVariableError): pass
+class RowCreationWanted(MibOperationError): pass
+class RowDestructionWanted(MibOperationError): pass
