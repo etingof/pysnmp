@@ -26,7 +26,7 @@ print oid, label, suffix
 
 print 'MIB object value pretty print: ',
 mibNode, = mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
-print mibNode.syntax.prettyGet()
+print mibNode.syntax
 
 print 'MIB symbol location lookup by name: ',
 modName, symName = mibView.getNodeLocation('snmpCommunityEntry')
