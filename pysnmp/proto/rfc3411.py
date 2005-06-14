@@ -1,46 +1,48 @@
+# SNMP PDU taxonomy
 from pysnmp.proto import rfc1157, rfc1905
 
-__all__ = [
-    'ReadClassMixIn', 'WriteClassMixIn', 'ResponseClassMixIn',
-    'NotificationClassMixIn', 'InternalClassMixIn', 
-    'ConfirmedClassMixIn', 'UnconfirmedClassMixIn'
-    ]
+readClassPDUs = {
+    rfc1157.GetRequestPDU.tagSet: 1,
+    rfc1157.GetNextRequestPDU.tagSet: 1,
+    rfc1905.GetRequestPDU.tagSet: 1,
+    rfc1905.GetNextRequestPDU.tagSet: 1,
+    rfc1905.GetBulkRequestPDU.tagSet: 1
+    }
 
-# Functional PDU classification
+writeClassPDUs = {
+    rfc1157.SetRequestPDU.tagSet: 1,
+    rfc1905.SetRequestPDU.tagSet: 1
+    }
 
-class ReadClassMixIn: pass
-class WriteClassMixIn: pass
-class ResponseClassMixIn: pass
-class NotificationClassMixIn: pass
-class InternalClassMixIn: pass
+responseClassPDUs = {
+    rfc1157.GetResponsePDU.tagSet: 1,
+    rfc1905.ResponsePDU.tagSet: 1,
+    rfc1905.ReportPDU.tagSet: 1
+    }
 
-# PDU classification based on whether a response is expected
+notificationClassPDUs = {
+    rfc1157.TrapPDU.tagSet: 1,
+    rfc1905.SNMPv2TrapPDU.tagSet: 1
+    }
 
-class ConfirmedClassMixIn: pass
-class UnconfirmedClassMixIn: pass
+internalClassPDUs = {
+    rfc1905.ReportPDU.tagSet: 1
+    }
 
-# Classify various PDU types    
+confirmedClassPDUs = {
+    rfc1157.GetResponsePDU.tagSet: 1,
+    rfc1157.GetNextRequestPDU.tagSet: 1,
+    rfc1157.SetRequestPDU.tagSet: 1,
+    rfc1905.GetRequestPDU.tagSet: 1,
+    rfc1905.GetNextRequestPDU.tagSet: 1,
+    rfc1905.GetBulkRequestPDU.tagSet: 1,
+    rfc1905.SetRequestPDU.tagSet: 1    
+    }
 
-__mixInMatrix = (
-    # RFC1157 types
-    (rfc1157.GetRequestPdu, (ReadClassMixIn, ConfirmedClassMixIn)),
-    (rfc1157.GetNextRequestPdu, (ReadClassMixIn, ConfirmedClassMixIn)),
-    (rfc1157.SetRequestPdu, (WriteClassMixIn, ConfirmedClassMixIn)),
-    (rfc1157.GetResponsePdu, (ResponseClassMixIn, UnconfirmedClassMixIn)),
-    (rfc1157.GetResponsePdu, ( ResponseClassMixIn, UnconfirmedClassMixIn)),
-    (rfc1157.TrapPdu, (NotificationClassMixIn, UnconfirmedClassMixIn)),
-    # RFC1905 types
-    (rfc1905.GetRequestPdu, (ReadClassMixIn, ConfirmedClassMixIn)),
-    (rfc1905.GetNextRequestPdu, (ReadClassMixIn, ConfirmedClassMixIn)),
-    (rfc1905.GetBulkRequestPdu, (ReadClassMixIn, ConfirmedClassMixIn)),
-    (rfc1905.SetRequestPdu, (WriteClassMixIn, ConfirmedClassMixIn)),
-    (rfc1905.ResponsePdu, (ResponseClassMixIn, UnconfirmedClassMixIn)),
-    (rfc1905.ReportPdu, (ResponseClassMixIn, UnconfirmedClassMixIn,
-                         InternalClassMixIn)),
-    (rfc1905.SnmpV2TrapPdu, (NotificationClassMixIn, UnconfirmedClassMixIn))
-    )
-
-for baseClass, mixIns in __mixInMatrix:
-    for mixIn in mixIns:
-        if mixIn not in baseClass.__bases__:
-            baseClass.__bases__ = (mixIn, ) + baseClass.__bases__
+unconfirmedClassPDUs = {
+    rfc1157.GetResponsePDU.tagSet: 1,
+    rfc1905.ResponsePDU.tagSet: 1,
+    rfc1157.TrapPDU.tagSet: 1,
+    rfc1905.ReportPDU.tagSet: 1,
+    rfc1905.SNMPv2TrapPDU.tagSet: 1
+    }
