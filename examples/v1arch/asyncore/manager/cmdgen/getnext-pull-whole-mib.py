@@ -1,49 +1,57 @@
 """Command Generator Application (GETNEXT)"""
 from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
 from pysnmp.carrier.asynsock.dgram.udp import UdpSocketTransport
-from pysnmp.proto import omni
+from pyasn1.codec.ber import encoder, decoder
+from pysnmp.proto import api
 from time import time
 
 # Protocol version to use
-ver = omni.protoVersions[omni.protoVersionId1]
+pMod = api.protoModules[api.protoVersion1]
 
 # SNMP table header
-headVars = [ ver.ObjectName((1,3,6)) ]
+headVars = [ pMod.ObjectIdentifier((1,3,6)) ]
 
-# Create request & response message objects
-req = ver.Message(); rsp = ver.Message()
-req.omniSetCommunity('public')
+# Build PDU
+reqPDU =  pMod.GetNextRequestPDU()
+pMod.apiPDU.setDefaults(reqPDU)
+pMod.apiPDU.setVarBinds(
+    reqPDU, map(lambda x, pMod=pMod: (x, pMod.Null()), headVars)
+    )
 
-# Create PDU, load var-binds, attach PDU to SNMP message
-req.omniSetPdu(ver.GetNextRequestPdu())
-apply(req.omniGetPdu().omniSetVarBindList,
-      map(lambda x, ver=ver: (x.get(), ver.Null()), headVars))
+# Build message
+reqMsg = pMod.Message()
+pMod.apiMessage.setDefaults(reqMsg)
+pMod.apiMessage.setCommunity(reqMsg, 'public')
+pMod.apiMessage.setPDU(reqMsg, reqPDU)
 
-def cbTimerFun(timeNow, startedAt=time()):
+startedAt = time()
+
+def cbTimerFun(timeNow):
     if timeNow - startedAt > 3:
         raise "Request timed out"
-    
+
 def cbRecvFun(tspDsp, transportDomain, transportAddress, wholeMsg,
-              req=req, headVars=headVars):
-    rsp = ver.Message()
+              reqPDU=reqPDU, headVars=headVars):
     while wholeMsg:
-        wholeMsg = rsp.berDecode(wholeMsg)
-        if req.omniMatch(rsp):
+        rspMsg, wholeMsg = decoder.decode(wholeMsg, asn1Spec=pMod.Message())
+#        print rspMsg.prettyPrinter()        
+        rspPDU = pMod.apiMessage.getPDU(rspMsg)
+        # Match response to request
+        if pMod.apiPDU.getRequestID(reqPDU)==pMod.apiPDU.getRequestID(rspPDU):
             # Check for SNMP errors reported
-            errorStatus = rsp.omniGetPdu().omniGetErrorStatus()
+            errorStatus = pMod.apiPDU.getErrorStatus(rspPDU)
             if errorStatus and errorStatus != 2:
                 raise errorStatus
-       
             # Build SNMP table from response
-            tableIndices = apply(req.omniGetPdu().omniGetTableIndices,
-                                 [rsp.omniGetPdu()] + headVars)
-
+            tableIndices = pMod.apiPDU.getTableIndices(
+                reqPDU, rspPDU, headVars
+                )
             # Report SNMP table
-            varBindList = rsp.omniGetPdu().omniGetVarBindList()
+            varBindList = pMod.apiPDU.getVarBindList(rspPDU)
             for rowIndices in tableIndices:
                 for cellIdx in filter(lambda x: x!=-1, rowIndices):
-                    print transportAddress, \
-                          varBindList[cellIdx].omniGetOidVal()
+                    print transportAddress,
+                    print pMod.apiVarBind.getOIDVal(varBindList[cellIdx])
 
             # Remove completed SNMP table columns
             map(lambda idx, headVars=headVars: headVars.__delitem__(idx), \
@@ -52,20 +60,36 @@ def cbRecvFun(tspDsp, transportDomain, transportAddress, wholeMsg,
                 raise "EOM"
 
             # Generate request for next row
-            lastRow = map(lambda cellIdx, varBindList=varBindList:
-                          varBindList[cellIdx].omniGetOidVal(),
-                          filter(lambda x: x!=-1, tableIndices[-1]))
-            apply(req.omniGetPdu().omniSetVarBindList,
-                  map(lambda (x, y): (x.get(), None), lastRow))
-        
-            req.omniGetPdu().omniGetRequestId().inc(1)
+            lastRow = []
+            for cellIdx in filter(lambda x: x!=-1, tableIndices[-1]):
+                lastRow.append(
+                    (pMod.apiVarBind.getOIDVal(varBindList[cellIdx])[0],
+                     pMod.Null())
+                    )
+            pMod.apiPDU.setVarBinds(reqPDU, lastRow)
+            pMod.apiPDU.setRequestID(reqPDU, pMod.getNextRequestID())
             tspDsp.sendMessage(
-                req.berEncode(), transportDomain, transportAddress
-                ) 
+                encoder.encode(reqMsg), transportDomain, transportAddress
+                )
+            global startedAt
+            if time() - startedAt > 3:
+                raise 'Request timed out'
+            startedAt = time()
     return wholeMsg
 
 dsp = AsynsockDispatcher(udp=UdpSocketTransport().openClientMode())
 dsp.registerRecvCbFun(cbRecvFun)
 dsp.registerTimerCbFun(cbTimerFun)
-dsp.sendMessage(req.berEncode(), 'udp', ('localhost', 1161)) # 161
-dsp.runDispatcher(liveForever=1)
+#dsp.sendMessage(req.berEncode(), 'udp', ('localhost', 1161)) # 161
+dsp.sendMessage(encoder.encode(reqMsg), 'udp', ('ts29.moscow.net.rol.ru', 161))
+
+try:
+    msgAndPduDsp.transportDispatcher.runDispatcher()
+except "EOM":
+    pass
+
+#def f():
+#    dsp.runDispatcher(liveForever=1)
+#f()
+#import profile
+#profile.run('f()')

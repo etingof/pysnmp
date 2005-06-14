@@ -1,43 +1,52 @@
 """Command Generator Application (GET)"""
 from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
 from pysnmp.carrier.asynsock.dgram.udp import UdpSocketTransport
-from pysnmp.proto import omni
+from pyasn1.codec.ber import encoder, decoder
+from pysnmp.proto import api
 from time import time
 
 # Protocol version to use
-ver = omni.protoVersions[omni.protoVersionId1]
-
-# Build message
-req = ver.Message()
-req.omniSetCommunity('public')
+pMod = api.protoModules[api.protoVersion1]
 
 # Build PDU
-req.omniSetPdu(ver.GetRequestPdu())
-req.omniGetPdu().omniSetVarBindList(
-    ((1,3,6,1,2,1,1,1,0), ver.Null()), ((1,3,6,1,2,1,1,2,0), ver.Null())
+reqPDU =  pMod.GetRequestPDU()
+pMod.apiPDU.setDefaults(reqPDU)
+pMod.apiPDU.setVarBinds(
+    reqPDU, (((1,3,6,1,2,1,1,1,0), pMod.Null()),
+             ((1,3,6,1,2,1,1,2,0), pMod.Null()))
     )
+
+# Build message
+reqMsg = pMod.Message()
+pMod.apiMessage.setDefaults(reqMsg)
+pMod.apiMessage.setCommunity(reqMsg, 'public')
+pMod.apiMessage.setPDU(reqMsg, reqPDU)
 
 def cbTimerFun(timeNow, startedAt=time()):
     if timeNow - startedAt > 3:
         raise "Request timed out"
     
-def cbRecvFun(tspDsp, transportDomain, transportAddress, wholeMsg, req=req):
-    rsp = ver.Message()
+def cbRecvFun(tspDsp, transportDomain, transportAddress,
+              wholeMsg, reqPDU=reqPDU):
     while wholeMsg:
-        wholeMsg = rsp.berDecode(wholeMsg)
-        # Make sure this is a response to this request
-        if req.omniMatch(rsp):
-            errorStatus = rsp.omniGetPdu().omniGetErrorStatus()
+        rspMsg, wholeMsg = decoder.decode(wholeMsg, asn1Spec=pMod.Message())
+        print rspMsg.prettyPrinter()        
+        rspPDU = pMod.apiMessage.getPDU(rspMsg)
+        # Match response to request
+        if pMod.apiPDU.getRequestID(reqPDU)==pMod.apiPDU.getRequestID(rspPDU):
+            # Check for SNMP errors reported
+            errorStatus = pMod.apiPDU.getErrorStatus(rspPDU)
             if errorStatus:
                 print 'Error: ', errorStatus
             else:
-                for varBind in rsp.omniGetPdu().omniGetVarBindList():
-                    print varBind.omniGetOidVal()
+                for oid, val in pMod.apiPDU.getVarBinds(rspPDU):
+                    print oid, val
     tspDsp.doDispatchFlag = 0
     return wholeMsg
 
 dsp = AsynsockDispatcher(udp=UdpSocketTransport().openClientMode())
 dsp.registerRecvCbFun(cbRecvFun)
 dsp.registerTimerCbFun(cbTimerFun)
-dsp.sendMessage(req.berEncode(), 'udp', ('localhost', 1161)) # 161
+#dsp.sendMessage(encoder.encode(reqMsg), 'udp', ('localhost', 1161)) # 161
+dsp.sendMessage(encoder.encode(reqMsg), 'udp', ('ts29.moscow.net.rol.ru', 161))
 dsp.runDispatcher(liveForever=1)
