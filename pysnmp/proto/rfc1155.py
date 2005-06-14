@@ -1,131 +1,103 @@
-"""Implementation of data types defined by SNMP SMI (RFC1155, RFC1212)"""
-from string import split, atoi, atoi_error
-from types import StringType
-from pysnmp.asn1 import univ, tags, subtypes
-import pysnmp.asn1.encoding.ber
+import string
+from pyasn1.type import univ, tag, constraint, namedtype
 from pysnmp.proto import error
 
-__all__ = [
-    'Integer', 'OctetString', 'Null', 'ObjectIdentifier',
-    'IpAddress', 'Counter', 'Gauge', 'TimeTicks', 'Opaque',
-    'Sequence', 'SequenceOf', 'Choice', 'NetworkAddress',
-    'ObjectName', 'SimpleSyntax', 'ApplicationSyntax', 'ObjectSyntax'
-    ]
-
-# SimpleSyntax
-
-Integer = univ.Integer
-OctetString = univ.OctetString
-Null = univ.Null
-ObjectIdentifier = univ.ObjectIdentifier
-
-# ApplicationSyntax
-
-class IpAddressInterfaceMixIn:
-    def _iconv(self, value):
-        # Convert IP address given in dotted notation into an unsigned
-        # int value
-        try:
-            packed = split(value, '.')
-
-        except:
-            raise error.BadArgumentError(
-                'Malformed IP address %s for %s' %
-                (str(value), self.__class__.__name__)
+def ipAddressPrettyIn(self, value):
+    if len(value) == 4:
+        return value  # IP as an octet stream
+    try:
+        packed = string.split(value, '.')
+    except:
+        raise error.ProtocolError(
+            'Bad IP address syntax %s' %  value
+                )
+    if len(packed) != 4:
+        raise error.ProtocolError(
+            'Bad IP address syntax %s' %  value
             )
-        
-        # Make sure it is four octets length
-        if len(packed) != 4:
-            raise error.BadArgumentError(
-                'Malformed IP address %s for %s' %
-                (str(value), self.__class__.__name__)
+    try:
+        return reduce(
+            lambda x, y: x+y,
+            map(lambda x: chr(string.atoi(x)), packed)
+            )
+    except string.atoi_error:
+        raise error.ProtocolError(
+            'Bad IP address value %s' %  value
             )
 
-        # Convert string octets into integer counterparts
-        try:
-            return reduce(lambda x, y: x+y, \
-                          map(lambda x: chr(atoi(x)), packed))
-
-        except atoi_error:
-            raise error.BadArgumentError(
-                'Malformed IP address %s for %s' %
-                (str(value), self.__class__.__name__)
+def ipAddressPrettyOut(self, value):
+    if value:
+        return '%d.%d.%d.%d' % (
+            ord(value[0]), ord(value[1]), ord(value[2]), ord(value[3])
             )
-
-    def _oconv(self, value):
-        if value:
-            # Convert unsigned int value into IP address dotted representation
-            return '%d.%d.%d.%d' % (ord(value[0]), ord(value[1]), \
-                                    ord(value[2]), ord(value[3]))
-        else: return value
+    else:
+        return ''
     
-class IpAddress(IpAddressInterfaceMixIn, univ.OctetString):
-    tagSet = univ.OctetString.tagSet.clone(
-        tagClass=tags.tagClassApplication, tagId=0x00
+class IpAddress(univ.OctetString):
+    tagSet = univ.OctetString.tagSet.tagImplicitly(
+        tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x00)
         )
-    # Subtyping -- size constraint
-    subtypeConstraints = ( subtypes.ValueSizeConstraint(4, 4), )
-    initialValue = '\000\000\000\000'
+    subtypeSpec = univ.OctetString.subtypeSpec+constraint.ValueSizeConstraint(
+        4, 4
+        )
+    _prettyIn = ipAddressPrettyIn
+    _prettyOut = ipAddressPrettyOut
     
 class Counter(univ.Integer):
-    tagSet = univ.Integer.tagSet.clone(
-        tagClass=tags.tagClassApplication, tagId=0x01
+    tagSet = univ.Integer.tagSet.tagImplicitly(
+        tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x01)
         )
-    # Subtyping -- value range constraint
-    subtypeConstraints = ( subtypes.ValueRangeConstraint(0, 4294967295L), )
-
-class Gauge(univ.Integer):
-    tagSet = univ.Integer.tagSet.clone(
-        tagClass=tags.tagClassApplication, tagId=0x02
+    subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
+        0, 4294967295L
         )
-    # Subtyping -- value range constraint
-    subtypeConstraints = ( subtypes.ValueRangeConstraint(0, 4294967295L), )
-
-class TimeTicks(univ.Integer):
-    tagSet = univ.Integer.tagSet.clone(
-        tagClass=tags.tagClassApplication, tagId=0x03
-        )
-    # Subtyping -- value range constraint
-    subtypeConstraints = ( subtypes.ValueRangeConstraint(0, 4294967295L), )
-
-class Opaque(univ.OctetString):
-    tagSet = univ.OctetString.tagSet.clone(
-        tagClass=tags.tagClassApplication, tagId=0x04
-        )
-
-Sequence = univ.Sequence
-SequenceOf = univ.SequenceOf
-Choice = univ.Choice
 
 class NetworkAddress(univ.Choice):
-    protoComponents = { 'internet': IpAddress() }
+    componentType = namedtype.NamedTypes(
+        namedtype.NamedType('internet', IpAddress())
+        )
 
-    # Initialize to Internet address
-    initialComponentKey = 'internet'
+class Gauge(univ.Integer):
+    tagSet = univ.Integer.tagSet.tagImplicitly(
+        tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x02)
+        )
+    subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
+        0, 4294967295L
+        )
 
-ObjectName = univ.ObjectIdentifier
+class TimeTicks(univ.Integer):
+    tagSet = univ.Integer.tagSet.tagImplicitly(
+        tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x03)
+        )
+    subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
+        0, 4294967295L
+        )
+
+class Opaque(univ.OctetString):
+    tagSet = univ.Integer.tagSet.tagImplicitly(
+        tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x04)
+        )
+
+class ObjectName(univ.ObjectIdentifier): pass
 
 class SimpleSyntax(univ.Choice):
-    protoComponents = {
-        'number': Integer(),
-        'string': OctetString(),
-        'object': ObjectIdentifier(),
-        'empty': Null()
-        }
-    initialComponentKey = 'empty'
+    componentType = namedtype.NamedTypes(
+        namedtype.NamedType('number', univ.Integer()),
+        namedtype.NamedType('string', univ.OctetString()),
+        namedtype.NamedType('object', univ.ObjectIdentifier()),
+        namedtype.NamedType('empty', univ.Null())
+        )
 
 class ApplicationSyntax(univ.Choice):
-    protoComponents = {
-        'address': NetworkAddress(),
-        'counter': Counter(),
-        'gauge': Gauge(),
-        'ticks': TimeTicks(),
-        'arbitrary': Opaque()
-        }
+    componentType = namedtype.NamedTypes(
+        namedtype.NamedType('address', NetworkAddress()),
+        namedtype.NamedType('counter', Counter()),
+        namedtype.NamedType('gauge', Gauge()),
+        namedtype.NamedType('ticks', TimeTicks()),
+        namedtype.NamedType('arbitrary', Opaque())
+        )
 
 class ObjectSyntax(univ.Choice):
-    protoComponents = {
-        'simple': SimpleSyntax(),
-        'application_wide': ApplicationSyntax(),
-        }
-    initialComponentKey = 'simple'
+    componentType = namedtype.NamedTypes(
+        namedtype.NamedType('simple', SimpleSyntax()),
+        namedtype.NamedType('application-wide', ApplicationSyntax())
+        )

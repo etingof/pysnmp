@@ -1,204 +1,96 @@
-"""Implementation of SNMP v.2c (RFC1905)"""
-
-from time import time
-from pysnmp.asn1 import univ, tags, subtypes
+from pyasn1.type import univ, tag, constraint, namedtype, namedval
 from pysnmp.proto import rfc1902
-from pysnmp.proto.rfc1157 import InitialRequestIdMixIn
-import pysnmp.asn1.error
-
-__all__ = [
-    'Version', 'Community', 'RequestId', 'NoSuchObject',
-    'NoSuchInstance', 'EndOfMibView', 'BindValue', 'VarBind',
-    'VarBindList', 'Pdu', 'NonRepeaters', 'MaxRepetitions',
-    'GetRequestPdu', 'GetNextRequestPdu', 'ResponsePdu',
-    'SetRequestPdu', 'GetBulkRequestPdu', 'InformRequestPdu',
-    'SnmpV2TrapPdu', 'ReportPdu', 'Pdus', 'Message'
-    ]
 
 # Value reference -- max bindings in VarBindList
 max_bindings = rfc1902.Integer(2147483647)
 
-class Version(univ.Integer):
-    subtypeConstraints = ( subtypes.SingleValueConstraint(1), )
-    initialValue = 1
-    namedValues = univ.Integer.namedValues.clone(('version-2c', 1))
-    
-class Community(univ.OctetString):
-    initialValue = 'public'    
-
-class RequestId(InitialRequestIdMixIn, rfc1902.Integer32): pass
-
-class ErrorStatus(univ.Integer):
-    initialValue = 0
-    subtypeConstraints = ( subtypes.ValueRangeConstraint(0, 18), )
-    namedValues = univ.Integer.namedValues.clone(
-        ('noError', 0), ('tooBig', 1), ('noSuchName', 3), ('badValue', 4),
-        ('readOnly', 5), ('genError', 6), ('noAccess', 7), ('wrongType', 8),
-        ('wrongLength', 9), ('wrongEncoding', 10), ('wrongValue', 11),
-        ('noCreation', 12), ('inconsistentValue', 13),
-        ('resourceUnavailable', 14), ('commitFailed', 15), ('undoFailed', 16),
-        ('authorizationError', 17), ('notWritable', 18),
-        ('inconsistentName', 19)
+class _BindValue(univ.Choice): # Made a separate class for better readability
+    componentType = namedtype.NamedTypes(
+        namedtype.NamedType('value', rfc1902.ObjectSyntax()),
+        namedtype.NamedType('unSpecified', univ.Null()),
+        namedtype.NamedType('noSuchObject', univ.Null().subtype(implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x00))),
+        namedtype.NamedType('noSuchInstance', univ.Null().subtype(implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x01))),
+        namedtype.NamedType('endOfMibView', univ.Null().subtype(implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x02)))
         )
-    pduErrors = [
-        '(noError) No Error',
-        '(tooBig) Response message would have been too large',
-        '(noSuchName) There is no such variable name in this MIB',
-        '(badValue) The value given has the wrong type or length',
-        '(readOnly) No modifications allowed to this object',
-        '(genError) A general failure occured',
-        '(noAccess) Access denied',
-        '(wrongType) Wrong BER type',
-        '(wrongLength) Wrong BER length',
-        '(wrongEncoding) Wrong BER encoding',
-        '(wrongValue) Wrong value',
-        '(noCreation) Object creation prohibited',
-        '(inconsistentValue) Inconsistent value',
-        '(resourceUnavailable) Resource unavailable',
-        '(commitFailed) Commit failed',
-        '(undoFailed) Undo failed',
-        '(authorizationError) Authorization error',
-        '(notWritable) Object is not writable',
-        '(inconsistentName) Inconsistent object name'
-        ]
-
-    def __str__(self):
-        return '%s: %d (%s)' % (
-            self.__class__.__name__, self.get(), self.pduErrors[self.get()]
-            )
-    
-class ErrorIndex(univ.Integer):
-    subtypeConstraints = (
-        subtypes.ValueRangeConstraint(0, max_bindings.get()),
-        )
-
-class NoSuchObject(univ.Null):
-    tagSet = univ.Null.tagSet.clone(
-        tagClass=tags.tagClassContext, tagId=0x00
-        )
-
-class NoSuchInstance(univ.Null):
-    tagSet = univ.Null.tagSet.clone(
-        tagClass=tags.tagClassContext, tagId=0x01
-        )
-
-class EndOfMibView(univ.Null):
-    tagSet = univ.Null.tagSet.clone(
-        tagClass=tags.tagClassContext, tagId=0x02
-        )
-
-class BindValue(univ.Choice):
-    protoComponents = {
-        'value': rfc1902.ObjectSyntax(),
-        'unspecified': rfc1902.Null(),
-        'noSuchObject': NoSuchObject(),
-        'noSuchInstance': NoSuchInstance(),
-        'endOfMibView': EndOfMibView()
-        }
-    initialComponentKey = 'unspecified'
-    
+        
 class VarBind(univ.Sequence):
-    # Bind structure
-    protoComponents = {
-        'name': rfc1902.ObjectName(),
-        'value': BindValue()
-        }
-    protoSequence = ( 'name', 'value' )
-
+    componentType = namedtype.NamedTypes(
+        namedtype.NamedType('name', rfc1902.ObjectName()),
+        namedtype.NamedType('', _BindValue())
+        )
+    
 class VarBindList(univ.SequenceOf):
-    protoComponent = VarBind()
-    subtypeConstraints = (
-        subtypes.ValueSizeConstraint(0, max_bindings.get()),
+    componentType = VarBind()
+    subtypeSpec = univ.SequenceOf.subtypeSpec + constraint.ValueSizeConstraint(
+        0, max_bindings
         )
 
 # Base class for a non-bulk PDU
-class Pdu(univ.Sequence):
-    tagSet = univ.Sequence.tagSet.clone(
-        tagClass=tags.tagClassContext
+class PDU(univ.Sequence):
+    componentType = namedtype.NamedTypes(
+        namedtype.NamedType('request-id', rfc1902.Integer32()),
+        namedtype.NamedType('error-status', univ.Integer(namedValues=namedval.NamedValues(('noError', 0), ('tooBig', 1), ('noSuchName', 2), ('badValue', 3), ('readOnly', 4), ('genErr', 5), ('noAccess', 6), ('wrongType', 7), ('wrongLength', 8), ('wrongEncoding', 9), ('wrongValue', 10), ('noCreation', 11), ('inconsistentValue', 12), ('resourceUnavailable', 13), ('commitFailed', 14), ('undoFailed', 15), ('authorizationError', 16), ('notWritable', 17), ('inconsistentName', 18)))),
+        namedtype.NamedType('error-index', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, max_bindings))),
+        namedtype.NamedType('variable-bindings', VarBindList())
         )
-    # PDU structure
-    protoComponents = {
-        'request_id': RequestId(),
-        'error_status': ErrorStatus(),
-        'error_index': ErrorIndex(),
-        'variable_bindings': VarBindList()
-        }
-    protoSequence = (
-        'request_id', 'error_status',
-        'error_index', 'variable_bindings'
-        )
-    
-class NonRepeaters(univ.Integer):
-    subtypeConstraints = (
-        subtypes.ValueRangeConstraint(0, max_bindings.get()),
-        )
-
-class MaxRepetitions(univ.Integer):
-    subtypeConstraints = (
-        subtypes.ValueRangeConstraint(0, max_bindings.get()),
-        )
-    initialValue = 255
 
 # Base class for bulk PDU
-class BulkPdu(univ.Sequence):
-    tagSet = univ.Sequence.tagSet.clone(
-        tagClass=tags.tagClassContext
-        )
-    # PDU structure
-    protoComponents = {
-        'request_id': RequestId(),
-        'non_repeaters': NonRepeaters(),
-        'max_repetitions': MaxRepetitions(),
-        'variable_bindings': VarBindList()
-        }
-    protoSequence = (
-        'request_id', 'non_repeaters',
-        'max_repetitions', 'variable_bindings'
+class BulkPDU(univ.Sequence):
+    componentType = namedtype.NamedTypes(
+        namedtype.NamedType('request-id', rfc1902.Integer32()),
+        namedtype.NamedType('non-repeaters', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, max_bindings))),
+        namedtype.NamedType('max-repetitions', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, max_bindings))),
+        namedtype.NamedType('variable-bindings', VarBindList())
         )
 
-class GetRequestPdu(Pdu):
-    tagSet = Pdu.tagSet.clone(tagId=0x00)
+class GetRequestPDU(PDU):
+    tagSet = PDU.tagSet.tagImplicitly(
+        tag.Tag(tag.tagClassContext, tag.tagFormatConstructed, 0)
+        )
 
-class GetNextRequestPdu(Pdu):
-    tagSet = Pdu.tagSet.clone(tagId=0x01)
+class GetNextRequestPDU(PDU):
+    tagSet = PDU.tagSet.tagImplicitly(
+        tag.Tag(tag.tagClassContext, tag.tagFormatConstructed, 1)
+        )
 
-class ResponsePdu(Pdu):
-    tagSet = Pdu.tagSet.clone(tagId=0x02)
+class ResponsePDU(PDU):
+    tagSet = PDU.tagSet.tagImplicitly(
+        tag.Tag(tag.tagClassContext, tag.tagFormatConstructed, 2)
+        )
 
-class SetRequestPdu(Pdu):
-    tagSet = Pdu.tagSet.clone(tagId=0x03)
+class SetRequestPDU(PDU):
+    tagSet = PDU.tagSet.tagImplicitly(
+        tag.Tag(tag.tagClassContext, tag.tagFormatConstructed, 3)
+        )
 
-class GetBulkRequestPdu(BulkPdu):
-    tagSet = BulkPdu.tagSet.clone(tagId=0x05)
+class GetBulkRequestPDU(BulkPDU):
+    tagSet = PDU.tagSet.tagImplicitly(
+        tag.Tag(tag.tagClassContext, tag.tagFormatConstructed, 5)
+        )
 
-class InformRequestPdu(Pdu):
-    tagSet = Pdu.tagSet.clone(tagId=0x06)
+class InformRequestPDU(PDU):
+    tagSet = PDU.tagSet.tagImplicitly(
+        tag.Tag(tag.tagClassContext, tag.tagFormatConstructed, 6)
+        )
 
-class SnmpV2TrapPdu(Pdu):
-    tagSet = Pdu.tagSet.clone(tagId=0x07)
+class SNMPv2TrapPDU(PDU):
+    tagSet = PDU.tagSet.tagImplicitly(
+        tag.Tag(tag.tagClassContext, tag.tagFormatConstructed, 7)
+        )
 
-# XXX v1 compatible alias
-TrapPdu = SnmpV2TrapPdu
+class ReportPDU(PDU):
+    tagSet = PDU.tagSet.tagImplicitly(
+        tag.Tag(tag.tagClassContext, tag.tagFormatConstructed, 8)
+        )
 
-class ReportPdu(Pdu):
-    tagSet = Pdu.tagSet.clone(tagId=0x08)
-
-class Pdus(univ.Choice):
-    protoComponents = {
-        'get_request': GetRequestPdu(),
-        'get_next_request': GetNextRequestPdu(),
-        'get_bulk_request': GetBulkRequestPdu(),
-        'response': ResponsePdu(),
-        'set_request': SetRequestPdu(),
-        'inform_request': InformRequestPdu(),
-        'snmpV2_trap': SnmpV2TrapPdu(),
-        'report': ReportPdu()
-        }
-    
-class Message(univ.Sequence):
-    protoComponents = {
-        'version': Version(),
-        'community': Community(),
-        'pdu': Pdus()
-        }
-    protoSequence = ( 'version', 'community', 'pdu' )
+class PDUs(univ.Choice):
+    componentType = namedtype.NamedTypes(
+        namedtype.NamedType('get-request', GetRequestPDU()),
+        namedtype.NamedType('get-next-request', GetNextRequestPDU()),
+        namedtype.NamedType('get-bulk-request', GetBulkRequestPDU()),
+        namedtype.NamedType('response', ResponsePDU()),
+        namedtype.NamedType('set-request', SetRequestPDU()),
+        namedtype.NamedType('inform-request', InformRequestPDU()),
+        namedtype.NamedType('snmpV2-trap', SNMPv2TrapPDU()),
+        namedtype.NamedType('report', ReportPDU())
+        )
