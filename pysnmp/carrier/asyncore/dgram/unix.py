@@ -3,6 +3,8 @@ from os import remove
 from socket import AF_UNIX
 from pysnmp.carrier.asynsock.dgram.base import DgramSocketTransport
 
+domainName = snmpLocalDomain = (1, 3, 6, 1, 2, 1, 100, 1, 13)
+
 class UnixDgramSocketTransport(DgramSocketTransport):
     sockFamily = AF_UNIX
 
