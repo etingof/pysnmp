@@ -91,7 +91,7 @@ class MibInstrumController:
         
     # MIB instrumentation
     
-    def flipFlopFsm(self, fsmTable, *inputNameVals):
+    def flipFlopFsm(self, fsmTable, inputNameVals, (acFun, acCtx)):
         self.__indexMib()
         mibTree, = self.mibBuilder.importSymbols('SNMPv2-SMI', 'iso')
         outputNameVals = []
@@ -106,8 +106,10 @@ class MibInstrumController:
                         'Unresolved FSM state %s, %s' % (state, status)
                         )
             state = fsmState
+            status = 'ok'
             if state == 'stop':
                 break
+            idx = 0
             for name, val in inputNameVals:
                 f = getattr(mibTree, state, None)
                 if f is None:
@@ -115,40 +117,23 @@ class MibInstrumController:
                         'Unsupported state handler %s at %s' % (state, self)
                         )
                 try:
-                    rval = f(name, val)
-                except error.MibVariableError, why:
+                    rval = f(tuple(name), val, idx, (acFun, acCtx)) # XXX
+                except error.SmiError, why:
                     if myErr is None:  # Take the first exception
                         myErr = why
                     status = 'err'
                     break
                 else:
-                    status = 'ok'
                     if rval is not None:
-                        outputNameVals.append(rval)
+                        outputNameVals.append((rval[0], rval[1]))
+                idx = idx + 1
         if myErr:
             raise myErr
         return outputNameVals
     
-    def readVars(self, *vars):
-        return apply(self.flipFlopFsm, (self.fsmReadVar,) + vars)
-    
-    def readNextVars(self, *vars):
-        return apply(self.flipFlopFsm, (self.fsmReadNextVar,) + vars)
-    
-    def writeVars(self, *vars):
-        return apply(self.flipFlopFsm, (self.fsmWriteVar,) + vars)
-    
-if __name__ == '__main__':
-    from pysnmp.smi.builder import MibBuilder
-
-    mibInstrum = MibInstrumController(MibBuilder().loadModules())
-
-    print 'Remote manager access to MIB instrumentation (table walk)'
-
-    name, val = (), None
-    while 1:
-        try:
-            name, val = mibInstrum.readNextVars((name, val))[0]
-        except error.NoSuchInstanceError:
-            break
-        print name, val
+    def readVars(self, vars, (acFun, acCtx)=(None, None)):
+        return self.flipFlopFsm(self.fsmReadVar, vars, (acFun, acCtx))
+    def readNextVars(self, vars, (acFun, acCtx)=(None, None)):
+        return self.flipFlopFsm(self.fsmReadNextVar, vars, (acFun, acCtx))
+    def writeVars(self, vars, (acFun, acCtx)=(None, None)):
+        return self.flipFlopFsm(self.fsmWriteVar, vars, (acFun, acCtx))
