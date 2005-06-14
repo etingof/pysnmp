@@ -1,6 +1,6 @@
 from string import split, digits
 from pysnmp.smi import error
-from pysnmp.asn1 import subtypes
+from pyasn1.type import constraint, namedval
 
 OctetString, Integer, ObjectIdentifier = mibBuilder.importSymbols(
     'ASN1', 'OctetString', 'Integer', 'ObjectIdentifier'
@@ -21,10 +21,9 @@ class TextualConvention:
     def getDescription(self): return self.description
     def getReference(self): return self.reference
 
-    def prettyGet(self):
+    def _prettyOut(self, value):  # override asn1 type method
         """Implements DISPLAY-HINT evaluation"""
-        if self.displayHint and self.__integer.isSubtype(self):
-            value = self.get()
+        if self.displayHint and self.__integer.isSuperTypeOf(self):
             t, f = apply(lambda t, f=0: (t, f), split(self.displayHint, '-'))
             if t == 'x':
                 return '0x%x' % value
@@ -47,9 +46,9 @@ class TextualConvention:
                 raise error.SmiError(
                     'Unsupported numeric type spec: %s' % t
                     )
-        elif self.displayHint and self.__octetString.isSubtype(self):
+        elif self.displayHint and self.__octetString.isSuperTypeOf(self):
             r = ''
-            v = self.get()
+            v = str(self)
             d = self.displayHint
             while v and d:
                 # 1
@@ -132,65 +131,52 @@ class TextualConvention:
 #                     'Unparsed display hint left: %s' % d
 #                     )                    
             return r
-        elif self.displayHint and self.__objectIdentifier.isSubtype(self):
+        elif self.displayHint and self.__objectIdentifier.isSuperTypeOf(self):
             return str(self)
         else:
-            return str(self.get())
+            return str(self)
 
 #         elif self.bits:
 #             try:
-#                 return self.bits[value.get()]
+#                 return self.bits[value]
 #             except StandardError, why:
 #                 raise error.SmiError(
 #                     'Enumeratin resolution failure for %s: %s' % (self, why)
 #                     )
 
-    def prettySet(self, value):
-        # XXX
-        self.set(value)
+# XXX
+#    def _prettyIn(self, value):
+#        # XXX parse TC syntax
+#        return str(value)
 
-    # Overload ASN1 value API access methods
-#     def _iconv(): pass
-#     def _oconv(): pass
-#     def set(self, val): pass
-#     def get(self): pass
-    
 class DisplayString(TextualConvention, OctetString):
-    subtypeConstraints = OctetString.subtypeConstraints + (
-        subtypes.ValueSizeConstraint(0, 255),
-        )
+    subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(0,255)
     displayHint = "255a"
 
 class PhysAddress(TextualConvention, OctetString):
     displayHint = "1x:"
 
 class MacAddress(TextualConvention, OctetString):
-    subtypeConstraints = OctetString.subtypeConstraints + (
-        subtypes.ValueSizeConstraint(6, 6),
-        )
+    subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(6,6)
     displayHint = "1x:"
 
 class TruthValue(TextualConvention, Integer):
-    subtypeConstraints = Integer.subtypeConstraints + (
-        subtypes.SingleValueConstraint(1, 2),
-        )
-    namedValues = Integer.namedValues.clone(
-        ('true', 1), ('false', 2)
-        )
+    subtypeSpec = Integer.subtypeSpec+constraint.SingleValueConstraint(1, 2)
+    namedValues = namedval.NamedValues(('true', 1), ('false', 2))
     
 class TestAndIncr(Integer):
-    subtypeConstraints = Integer.subtypeConstraints + (    
-        subtypes.ValueRangeConstraint(0, 2147483647),
-        )
-    def set(self, value):
+    subtypeSpec = Integer.subtypeSpec+constraint.ValueRangeConstraint(0, 2147483647)
+    def clone(self, value=None, tagSet=None, subtypeSpec=None):
+        if value is None:
+            return self
         if value != self:
             raise error.InconsistentValueError(
-                'Old/new values mismatch %s: %s' % value
+                'Old/new values mismatch %s: %s' % (self, value)
                 )
         value = value + 1
         if value > 2147483646:
             value = 0
-        return Integer.set(self, value)
+        return Integer.clone(self, value, tagSet, subtypeSpec)
 
 class AutonomousType(TextualConvention, ObjectIdentifier): pass
 class InstancePointer(TextualConvention,ObjectIdentifier):
@@ -202,14 +188,11 @@ class RowStatus(TextualConvention, Integer):
     """A special kind of scalar MIB variable responsible for
        MIB table row creation/destruction.
     """
-    subtypeConstraints = Integer.subtypeConstraints + (
-        subtypes.SingleValueConstraint(1, 2, 3, 4, 5, 6),
-        )
-    namedValues = Integer.namedValues.clone(
-        ('active', 1), ('notInService', 2), ('notReady', 3),
+    subtypeSpec = Integer.subtypeSpec+constraint.SingleValueConstraint(1, 2, 3, 4, 5, 6)
+    namedValues = namedval.NamedValues(
+        ('notExists', 0), ('active', 1), ('notInService', 2), ('notReady', 3),
         ('createAndGo', 4), ('createAndWait', 5), ('destroy', 6)
         )
-             
     # Known row states
     stNotExists, stActive, stNotInService, stNotReady, \
                  stCreateAndGo, stCreateAndWait, stDestroy = range(7)
@@ -287,18 +270,19 @@ class RowStatus(TextualConvention, Integer):
         }
     defaultValue = stNotExists
                                     
-    def set(self, value):
+    def clone(self, value=None, tagSet=None, subtypeSpec=None): # XXX
+        if value is None:
+            return self
         # Run through states transition matrix, resolve new instance value
         err, val = self.stateMatrix.get(
-            (value.get(), self.get()),
-            (error.MibVariableError, None)
+            (value, int(self)), (error.SmiError, None)
             )
         if err is not None:
             err = err(
-                'Exception at row state transition %s->%s' % (self, val)
+                msg='Exception at row state transition %s->%s' % (self, value)
                 )
         if val is not None:
-            Integer.set(self, val)        
+            return RowStatus(val)
         if err is not None:
             raise err
         return self
@@ -306,21 +290,15 @@ class RowStatus(TextualConvention, Integer):
 class TimeStamp(TextualConvention, TimeTicks): pass
 
 class TimeInterval(TextualConvention, Integer):
-    subtypeConstraints = Integer.subtypeConstraints + (
-        subtypes.ValueRangeConstraint(0, 2147483647),
-        )
+    subtypeSpec = Integer.subtypeSpec+constraint.ValueRangeConstraint(0, 2147483647)
 
 class DateAndTime(TextualConvention, OctetString):
-    subtypeConstraints = OctetString.subtypeConstraints + (
-        subtypes.ValueSizeConstraint(8, 11),
-        )
+    subtypeSpec = Integer.subtypeSpec+constraint.ValueSizeConstraint(8, 11)
     displayHint = "2d-1d-1d,1d:1d:1d.1d,1a1d:1d"
 
 class StorageType(TextualConvention, Integer):
-    subtypeConstraints = Integer.subtypeConstraints + (
-        subtypes.SingleValueConstraint(1, 2, 3, 4, 5),
-        )
-    namedValues = Integer.namedValues.clone(
+    subtypeSpec = Integer.subtypeSpec+constraint.SingleValueConstraint(1, 2, 3, 4, 5)
+    namedValues = namedval.NamedValues(
         ('other', 1), ('volatile', 2), ('nonVolatile', 3),
         ('permanent', 4), ('readOnly', 5)
         )
@@ -328,9 +306,7 @@ class StorageType(TextualConvention, Integer):
 class TDomain(TextualConvention, ObjectIdentifier): pass
 
 class TAddress(TextualConvention, OctetString):
-    subtypeConstraints = OctetString.subtypeConstraints + (
-        subtypes.ValueSizeConstraint(1, 255),
-        )
+    subtypeSpec = Integer.subtypeSpec+constraint.ValueSizeConstraint(1, 255)
 
 mibBuilder.exportSymbols(
     'SNMPv2-TC', TextualConvention=TextualConvention, DisplayString=DisplayString,

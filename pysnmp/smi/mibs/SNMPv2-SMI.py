@@ -1,21 +1,15 @@
 from string import join, split
 from pysnmp.smi.indices import OidOrderedDict
-from pysnmp.smi import error
+from pysnmp.smi import exval, error
 from pysnmp.proto import rfc1902
-from pysnmp.asn1 import subtypes
-from pysnmp.asn1.error import ValueConstraintError
+from pyasn1.type import constraint
+from pyasn1.error import ValueConstraintError
 
-( OctetString,
-  ObjectIdentifier,
-  Integer ) = mibBuilder.importSymbols(
-    'ASN1',
-    'OctetString',
-    'ObjectIdentifier',
-    'Integer'
-    )
+( Integer, ObjectIdentifier, Null ) = mibBuilder.importSymbols("ASN1", "Integer", "ObjectIdentifier", "Null")
 
 # syntax of objects
 
+OctetString = rfc1902.OctetString
 Bits = rfc1902.Bits
 Integer32 = rfc1902.Integer32
 IpAddress = rfc1902.IpAddress
@@ -27,9 +21,7 @@ Opaque = rfc1902.Opaque
 Counter64 = rfc1902.Counter64
 
 class ExtUTCTime(OctetString):
-    subtypeConstraints = OctetString.subtypeConstraints + (
-        subtypes.ValueSizeConstraint(0, 13),
-        )
+    subtypeSpec = OctetString.subtypeSpec+constraint.ConstraintsUnion(constraint.ValueSizeConstraint(11,11), constraint.ValueSizeConstraint(13,13))
 
 # MIB tree foundation classes
 
@@ -170,7 +162,7 @@ class ObjectTypePattern(MibNodeBase):
     def setReference(self, v):
         self.reference = v
         return self
-        
+
 class MibVariable(ObjectTypePattern):
     """Scalar MIB variable instance. Implements read/write operations."""
     maxAccess = 'readonly'
@@ -198,70 +190,62 @@ class MibVariable(ObjectTypePattern):
             myClone.syntax = self.syntax.clone()
         return myClone
 
-    def getNode(self, name):
+    def getNode(self, name, idx=None):
         # Recursion terminator
         if name == self.name:
             return self
-        raise error.NoSuchInstanceError(
-            'No such name %s at %s' % (name, self)
-            )
+        raise error.NoSuchInstanceError(idx=idx, name=name)
 
-    def getNextNode(self, name):
+    def getNextNode(self, name, idx=None):
         # Recursion terminator
-        raise error.NoSuchInstanceError(
-            'No next name %s at leaf %s' % (name, self)
-            )
+        raise error.NoSuchInstanceError(idx=idx, name=name)
 
     # MIB instrumentation methods
     
     # Read operation
     
-    def readTest(self, name, val):
+    def readTest(self, name, val, idx, (acFun, acCtx)):
         if name == self.name:
             if self.maxAccess != 'readonly' and \
                self.maxAccess != 'readwrite' and \
-               self.maxAccess != 'readcreate':
-                raise error.NoAccessError(
-                    'No read access to variable %s' % str(name)
-                    )
-        else:
-            raise error.NoSuchInstanceError(
-                'Variable %s does not exist at %s' % (name, self)
-                )
+               self.maxAccess != 'readcreate' or \
+               acFun and acFun(name, idx, 'read', acCtx):
+                raise error.NoAccessError(idx=idx, name=name)
+        # missing object's not an error here
+#        else:
+#            raise error.NoSuchInstanceError(idx=idx, name=name)
     
-    def readGet(self, name, val):
+    def readGet(self, name, val, idx, (acFun, acCtx)):
         # Return current variable (name, value). This is the only API method
         # capable of returning anything!
         if name == self.name:
-            return self.name, self.syntax
+            return self.name, self.syntax.clone()
+        else:
+            return name, exval.noSuchInstance
     
     # Two-phase commit implementation
 
-    def writeTest(self, name, val):
+    def writeTest(self, name, val, idx, (acFun, acCtx)):
         # Make sure write's allowed
         if name == self.name:
             # make sure variable is writable
             if self.maxAccess != 'readwrite' and \
-               self.maxAccess != 'readcreate':
-                raise error.NotWritableError(
-                    'No write access to variable %s at %s' % (name, self)
-                    )
+               self.maxAccess != 'readcreate' or \
+               acFun and acFun(name, idx, 'write', acCtx):
+                raise error.NotWritableError(idx=idx, name=name)
         else:
-            raise error.NoSuchInstanceError(
-                'Variable %s does not exist at %s' % (name, self)
-                )
-        self.__newSyntax = self.syntax.clone()
-        self.__newSyntax.set(val)
+            raise error.NoSuchInstanceError(idx=idx, name=name)
+        self.__newSyntax = self.syntax.clone(val)
 
-    def writeCommit(self, name, val):
+    def writeCommit(self, name, val, idx, (acFun, acCtx)):
         # Commit new value
         self.syntax, self.__newSyntax = self.__newSyntax, self.syntax
         
-    def writeCleanup(self, name, val):
+    def writeCleanup(self, name, val, idx, (acFun, acCtx)):
         # Drop previous value
         self.__newSyntax = None
     
-    def writeUndo(self, name, val):
+    def writeUndo(self, name, val, idx, (acFun, acCtx)):
         # Revive previous value
         self.syntax, self.__newSyntax = self.__newSyntax, None
 
@@ -306,7 +290,7 @@ class MibTree(ObjectTypePattern):
 
     # Tree traversal
 
-    def getBranch(self, name):
+    def getBranch(self, name, idx):
         """Return a branch of this tree where the 'name' OID may reside"""
         subName = tuple(name)
         subNameLen = len(self.name)
@@ -315,21 +299,19 @@ class MibTree(ObjectTypePattern):
                 return self._vars[subName]
             subName = subName[:-1]
         else:
-            raise error.NoSuchInstanceError(
-                'Name %s does not exist at %s' % (name, self)
-                )
+            raise error.NoSuchInstanceError(name=name, idx=idx)
 
-    def getNode(self, name):
+    def getNode(self, name, idx=None):
         """Return tree node found by name"""
         if name == self.name:
             return self
         else:
-            return self.getBranch(name).getNode(name)
+            return self.getBranch(name, idx).getNode(name, idx)
 
-    def getNextNode(self, name):
+    def getNextNode(self, name, idx=None):
         """Return tree node next to name"""
         try:
-            nextNode = self.getBranch(name)
+            nextNode = self.getBranch(name, idx)
         except error.NoSuchInstanceError:
             # Start from the beginning
             if self._vars and name <= self._vars.keys()[0]:
@@ -338,12 +320,12 @@ class MibTree(ObjectTypePattern):
                 raise
         else:
             try:
-                return nextNode.getNextNode(name)
+                return nextNode.getNextNode(name, idx)
             except error.NoSuchInstanceError:
                 try:
                     return self._vars[self._vars.nextKey(nextNode.name)]
                 except KeyError:
-                    raise error.NoSuchInstanceError(name)
+                    raise error.NoSuchInstanceError(idx=idx, name=name)
                 
     # Mapping interface to subtree XXX
     
@@ -354,81 +336,83 @@ class MibTree(ObjectTypePattern):
 
     # Read operation
     
-    def readTest(self, name, val):
+    def readTest(self, name, val, idx, (acFun, acCtx)):
         if name == self.name:
             if self.maxAccess != 'readonly' and \
                    self.maxAccess != 'readwrite' and \
-                   self.maxAccess != 'readcreate':
-                raise error.NoAccessError(
-                    'No read access to variable at %s' % self
-                    )
+                   self.maxAccess != 'readcreate' or \
+                   acFun and acFun(name, idx, 'read', acCtx):
+                raise error.NoAccessError(idx=idx, name=name)
         else:
-            node = self.getBranch(name)
+            try:
+                node = self.getBranch(name, idx)
+            except error.NoSuchInstanceError:
+                return # missing object is not an error here
 
-# XXX
-#            if not isinstance(node, ObjectTypePattern):
-#                raise error.NoAccessError(
-#                    'Not ObjectType macro instance at %s' % self
-#                    )
-            node.readTest(name, val)
+            node.readTest(name, val, idx, (acFun, acCtx))
         
-    def readGet(self, name, val):
-        return self.getBranch(name).readGet(name, val)
+    def readGet(self, name, val, idx, (acFun, acCtx)):
+        try:
+            node = self.getBranch(name, idx)
+        except error.NoSuchInstanceError:
+            return name, exval.noSuchInstance
+        else:
+            return node.readGet(name, val, idx, (acFun, acCtx))
 
     # Read next operation is subtree-specific
     
-    def readTestNext(self, name, val):
+    def readTestNext(self, name, val, idx, (acFun, acCtx)):
         nextName = name
-        while 1:
-            nextName = self.getNextNode(nextName).name
+        while 1:  # XXX linear search here
             try:
-                return self.readTest(nextName, val)
+                nextName = self.getNextNode(nextName, idx).name
+            except error.NoSuchInstanceError:
+                return # missing object is not an error here
+            try:
+                return self.readTest(nextName, val, idx, (acFun, acCtx))
             except error.NoAccessError:
                 continue
     
-    def readGetNext(self, name, val):
+    def readGetNext(self, name, val, idx, (acFun, acCtx)):
         nextName = name
         while 1:
-            nextName = self.getNextNode(nextName).name
-            if nextName:
-                try:
-                    self.readTest(nextName, val) # XXX
-                except error.NoAccessError:
-                    continue
-                else:
-                    return self.readGet(nextName, val)
+            try:
+                nextName = self.getNextNode(nextName, idx).name
+            except error.NoSuchInstanceError:
+                return name, exval.endOfMib
+            try:
+                self.readTest(nextName, val, idx, (acFun, acCtx)) # XXX
+            except error.NoAccessError:
+                continue
             else:
-                raise error.NoSuchInstanceError(
-                    'Variable next to %s does not exist at %s' % (name, self)
-                    )
+                return self.readGet(nextName, val, idx, (acFun, acCtx))
 
     # Write operation
     
-    def writeTest(self, name, val):
+    def writeTest(self, name, val, idx, (acFun, acCtx)):
         if name == self.name:
             # Make sure variable is writable
             if self.maxAccess != 'readwrite' and \
-                   self.maxAccess != 'readcreate':
-                raise error.NotWritableError(
-                    'No write access to variable %s at %s' % (name, self)
-                    )
+                   self.maxAccess != 'readcreate' or \
+                   acFun and acFun(name, idx, 'write', acCtx):
+                raise error.NotWritableError(idx=idx, name=name)
         else:
-            node = self.getBranch(name)
+            node = self.getBranch(name, idx)
 # XXX
 #            if not isinstance(node, ObjectTypePattern): # XXX
 #                raise error.NoAccessError(
 #                    'Not ObjectType macro instance at %s' % self
 #                    )
-            node.writeTest(name, val)
+            node.writeTest(name, val, idx, (acFun, acCtx))
     
-    def writeCommit(self, name, val):
-        self.getBranch(name).writeCommit(name, val)
+    def writeCommit(self, name, val, idx, (acFun, acCtx)):
+        self.getBranch(name, idx).writeCommit(name, val, idx, (acFun, acCtx))
     
-    def writeCleanup(self, name, val):
-        self.getBranch(name).writeCleanup(name, val)
+    def writeCleanup(self, name, val, idx, (acFun, acCtx)):
+        self.getBranch(name, idx).writeCleanup(name, val, idx, (acFun, acCtx))
     
-    def writeUndo(self, name, val):
-        self.getBranch(name).writeUndo(name, val)
+    def writeUndo(self, name, val, idx, (acFun, acCtx)):
+        self.getBranch(name, idx).writeUndo(name, val, idx, (acFun, acCtx))
 
 # Conceptual table classes
 
@@ -465,49 +449,58 @@ class MibTableColumn(MibTree):
     # machine for clarity). Also, it might be a good idea to inidicate
     # defaulted cols creation in a clearer way than just a val == None.
     
-    def createTest(self, name, val=None):
+    def createTest(self, name, val, idx, (acFun, acCtx)):
         # Make sure creation allowed, create a new column instance but
         # do not replace the old one
         if self._vars.has_key(name):
             return
         if val is not None and \
-               self.columnInitializer.maxAccess != 'readcreate':
-            raise error.NoCreationError(
-                'Column instance creation prohibited at %s' % self
-                )
-        if not self.__createdInstances.has_key(name):            
+               self.columnInitializer.maxAccess != 'readcreate' or \
+               acFun and acFun(name, idx, 'write', acCtx):
+            raise error.NoCreationError(idx=idx, name=name)
+        if not self.__createdInstances.has_key(name):
             self.__createdInstances[name] = self.columnInitializer.clone(
                 name
                 )
         if val is not None:
             try:
-                self.__createdInstances[name].writeTest(name, val)
+                self.__createdInstances[name].writeTest(
+                    name, val, idx, (acFun, acCtx)
+                    )
             except (error.RowCreationWanted, error.RowDestructionWanted):
                 pass
             
-    def createCommit(self, name, val=None):
+    def createCommit(self, name, val, idx, (acFun, acCtx)):
         # Commit new instance value
         if self._vars.has_key(name):
             if self.__createdInstances.has_key(name):
                 if val is not None:
-                    self._vars[name].writeCommit(name, val)
+                    self._vars[name].writeCommit(
+                        name, val, idx, (acFun, acCtx)
+                        )
             return
         if val is not None:
-            self.__createdInstances[name].writeCommit(name, val)
+            self.__createdInstances[name].writeCommit(
+                name, val, idx, (acFun, acCtx)
+                )
         # ...commit new column instance
         self._vars[name], self.__createdInstances[name] = \
                           self.__createdInstances[name], self._vars.get(name)
 
-    def createCleanup(self, name, val=None):
+    def createCleanup(self, name, val, idx, (acFun, acCtx)):
         # Drop previous column instance
         if self.__createdInstances.has_key(name):
             if self.__createdInstances[name] is not None:
-                self.__createdInstances[name].writeCleanup(name, val)
+                self.__createdInstances[name].writeCleanup(
+                    name, val, idx, (acFun, acCtx)
+                    )
             del self.__createdInstances[name]
         elif self._vars.has_key(name):
-            self._vars[name].writeCleanup(name, val)
+            self._vars[name].writeCleanup(
+                name, val, idx, (acFun, acCtx)
+                )
         
-    def createUndo(self, name, val=None):
+    def createUndo(self, name, val, idx, (acFun, acCtx)):
         # Set back previous column instance, drop the new one
         if self.__createdInstances.has_key(name):
             self._vars[name] = self.__createdInstances[name]
@@ -516,31 +509,32 @@ class MibTableColumn(MibTree):
             if self._vars[name] is None:
                 del self._vars[name]
             else:
-                self._vars[name].writeUndo(name, val)
+                self._vars[name].writeUndo(
+                    name, val, idx, (acFun, acCtx)
+                    )
                 
     # Column destruction
         
-    def destroyTest(self, name, val=None):
+    def destroyTest(self, name, val, idx, (acFun, acCtx)):
         # Make sure destruction is allowed
         if self._vars.has_key(name):
             if val is not None and \
-                   self.columnInitializer.maxAccess != 'readcreate':
-                raise error.NoAccessError(
-                    'Column instance destruction prohibited at %s' % self
-                    )
+                   self.columnInitializer.maxAccess != 'readcreate' or \
+                   acFun and acFun(name, idx, 'write', cbCtx):
+                raise error.NoAccessError(idx=idx, name=name)
 
-    def destroyCommit(self, name, val=None):
+    def destroyCommit(self, name, val, idx, (acFun, acCtx)):
         # Make a copy of column instance and take it off the tree
         if self._vars.has_key(name):
             self.__destroyedInstances[name] = self._vars[name]
             del self._vars[name]
         
-    def destroyCleanup(self, name, val=None):
+    def destroyCleanup(self, name, val, idx, (acFun, acCtx)):
         # Drop instance copy
         if self.__destroyedInstances.has_key(name):
             del self.__destroyedInstances[name]
             
-    def destroyUndo(self, name, val=None):
+    def destroyUndo(self, name, val, idx, (acFun, acCtx)):
         # Set back column instance
         if self.__destroyedInstances.has_key(name):
             self._vars[name] = self.__destroyedInstances[name]
@@ -548,41 +542,47 @@ class MibTableColumn(MibTree):
             
     # Set/modify column
 
-    def writeTest(self, name, val):
+    def writeTest(self, name, val, idx, (acFun, acCtx)):
         # Besides common checks, request row creation on no-instance
         try:
             # First try the instance
-            MibTree.writeTest(self, name, val)
+            MibTree.writeTest(self, name, val, idx, (acFun, acCtx))
         # ...otherwise proceed with creating new column
         except (error.NoSuchInstanceError, error.RowCreationWanted):
             self.__rowOpWanted[name] =  error.RowCreationWanted()
-            self.createTest(name, val)
+            self.createTest(name, val, idx, (acFun, acCtx))
         except error.RowDestructionWanted:
             self.__rowOpWanted[name] =  error.RowDestructionWanted()
-            self.destroyTest(name, val)
+            self.destroyTest(name, val, idx, (acFun, acCtx))
         if self.__rowOpWanted.has_key(name):
             raise self.__rowOpWanted[name]
 
-    def __delegateWrite(self, subAction, name, val):
+    def __delegateWrite(self, subAction, name, val, idx, (acFun, acCtx)):
         if not self.__rowOpWanted.has_key(name):
-            getattr(MibTree, 'write'+subAction)(self, name, val)
+            getattr(MibTree, 'write'+subAction)(
+                self, name, val, idx, (acFun, acCtx)
+                )
             return
         if isinstance(self.__rowOpWanted[name], error.RowCreationWanted):
-            getattr(self, 'create'+subAction)(name, val)
+            getattr(self, 'create'+subAction)(
+                name, val, idx, (acFun, acCtx)
+                )
         if isinstance(self.__rowOpWanted[name], error.RowDestructionWanted):
-            getattr(self, 'destroy'+subAction)(name, val)            
+            getattr(self, 'destroy'+subAction)(
+                name, val, idx, (acFun, acCtx)
+                )
         raise self.__rowOpWanted[name]
 
-    def writeCommit(self, name, val):
-        self.__delegateWrite('Commit', name, val)
+    def writeCommit(self, name, val, idx, (acFun, acCtx)):
+        self.__delegateWrite('Commit', name, val, idx, (acFun, acCtx))
 
-    def writeCleanup(self, name, val):
-        self.__delegateWrite('Cleanup', name, val)
+    def writeCleanup(self, name, val, idx, (acFun, acCtx)):
+        self.__delegateWrite('Cleanup', name, val, idx, (acFun, acCtx))
         if self.__rowOpWanted.has_key(name):
             del self.__rowOpWanted[name]
             
-    def writeUndo(self, name, val):
-        self.__delegateWrite('Undo', name, val)
+    def writeUndo(self, name, val, idx, (acFun, acCtx)):
+        self.__delegateWrite('Undo', name, val, idx, (acFun, acCtx))
         if self.__rowOpWanted.has_key(name):
             del self.__rowOpWanted[name]
 
@@ -608,50 +608,31 @@ class MibTableRow(MibTree):
     __ipaddrValue = IpAddress()
 
     def setFromName(self, obj, value, impliedFlag=None):
-        if self.__intValue.isSubtype(obj):
-            obj.set(value[0])
-            return value[1:]
-        elif self.__ipaddrValue.isSubtype(obj):
-            obj.set(join(map(str, value[:4]), '.'))
-            return value[4:]
-        elif self.__strValue.isSubtype(obj):
+        if self.__intValue.isSuperTypeOf(obj):
+            return obj.clone(value[0]), value[1:]
+        elif self.__ipaddrValue.isSuperTypeOf(obj):
+            return obj.clone(join(map(str, value[:4]), '.')), value[4:]
+        elif self.__strValue.isSuperTypeOf(obj):
             if impliedFlag:
                 s = reduce(lambda x,y: x+y, map(lambda x: chr(x), value))
+                return obj.clone(s), ()                
             else:
-                s = reduce(lambda x,y: x+y, map(lambda x: chr(x), value[1:]))
-                # XXX check name vs str length
-            valueLength = len(s)
-            while valueLength:
-                try:
-                    obj.set(s[:valueLength])
-                    s = s[valueLength:]
-                    # XXX
-                    if impliedFlag:
-                        initial = ()
-                    else:
-                        initial = (len(obj),)
-                    return reduce(
-                        lambda x,y: x+(y,), map(lambda x: ord(x), s), initial
-                        )
-                except ValueConstraintError:
-                    valueLength = valueLength - 1
-                raise error.SmiError(
-                    'Instance ID %s does not fit INDEX %s' % (value, obj)
-                    )
-        elif self.__oidValue.isSubtype(obj):
+                s = reduce(lambda x,y: x+y,
+                           map(lambda x: chr(x), value[1:value[0]+1]), '')
+                return obj.clone(s), value[value[0]+1:]
+        elif self.__oidValue.isSuperTypeOf(obj):
             if impliedFlag:
-                obj.set(value)
+                return obj.clone(value), ()
             else:
-                obj.set(value[1:])
-            return ()
+                return obj.clone(value[1:value[0]+1]), value[value[0]+1:]
         else:
-            obj.set(value)
-            return ()
-            
+            raise error.SmiError('Unknown value type for index %s' % repr(obj))
+#            return obj.clone(value), ()
+
     def getAsName(self, obj, impliedFlag=None):
-        if self.__intValue.isSubtype(obj):
-            return (obj.get())
-        elif self.__strValue.isSubtype(obj):
+        if self.__intValue.isSuperTypeOf(obj):
+            return (int(obj),)
+        elif self.__strValue.isSuperTypeOf(obj):
             if impliedFlag:
                 initial = ()
             else:
@@ -659,54 +640,56 @@ class MibTableRow(MibTree):
             return reduce(
                 lambda x,y: x+(y,), map(lambda x: ord(x), obj), initial
                 )
-        elif self.__oidValue.isSubtype(obj):
+        elif self.__oidValue.isSuperTypeOf(obj):
             if impliedFlag:
-                return tuple(self)
+                return tuple(obj)
             else:
-                return (len(self),) + tuple(self)            
-        elif self.__ipaddrValue.isSubtype(obj):
-            return tuple(map(int, split(obj.get(), '.')))
+                return (len(self.name),) + tuple(obj)
+        elif self.__ipaddrValue.isSuperTypeOf(obj):
+            return tuple(map(int, obj))
         else:
-            return (obj.get())
+            raise error.SmiError('Unknown value type for index %s' % repr(obj))
+#            return obj
             
     # Fate sharing mechanics
 
-    def announceManagementEvent(self, action, name):
+    def announceManagementEvent(self, action, name, val, idx, (acFun, acCtx)):
         # Convert OID suffix into index vals
         instId = name[len(self.name)+1:]
         baseIndices = []
         for impliedFlag, modName, symName in self.indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
-            instId = self.setFromName(
+            syntax, instId = self.setFromName(
                 mibObj.getColumnInitializer().syntax, instId, impliedFlag
                 )
             if self.name == mibObj.name[:-1]:
-                baseIndices.append(mibObj)
+                baseIndices.append((mibObj.name, syntax))
         if instId:
             raise error.SmiError(
-                'Exsessive instance identifier sub-OIDs left at %s: %s' %
+                'Excessive instance identifier sub-OIDs left at %s: %s' %
                 (self, instId)
                 )
         if not baseIndices:
             return
         for modName, mibSym in self.augmentingRows.keys():
-             mibObj, = mibBuilder.importSymbols(modName, mibSym)
-             mibObj.receiveManagementEvent(action, baseIndices)
+            mibObj, = mibBuilder.importSymbols(modName, mibSym)
+            mibObj.receiveManagementEvent(
+                action, baseIndices, val, idx, (acFun, acCtx)
+                )
             
-    def receiveManagementEvent(self, action, baseIndices):
+    def receiveManagementEvent(
+        self, action, baseIndices, val, idx, (acFun, acCtx)
+        ):
         # The default implementation supports one-to-one rows dependency
         newSuffix = ()
         # Resolve indices intersection
-        for impliedFlag, mibMod, symName in self.indexNames:
+        for impliedFlag, modName, symName in self.indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
-            for baseIndex in baseIndices:
-                if baseIndex.name == mibObj.name:
-                    newSuffix = newSuffix + \
-                                self.getAsName(
-                        baseIndex.getColumnInitializer().syntax, impliedFlag
-                        )
+            for name, syntax in baseIndices:
+                if name == mibObj.name:
+                    newSuffix = newSuffix + self.getAsName(syntax, impliedFlag)
         if newSuffix:
-            self.__manageColumns(action, newSuffix)
+            self.__manageColumns(action, newSuffix, val, idx, (acFun, acCtx))
 
     def registerAugmentions(self, *names):
         for modName, symName in names:
@@ -731,26 +714,41 @@ class MibTableRow(MibTree):
     def getIndexNames(self):
         return self.indexNames
                              
-    def __manageColumns(self, action, nameSuffix):
+    def __manageColumns(self, action, nameSuffix, val, idx, (acFun, acCtx)):
         for name, var in self._vars.items():
-            getattr(var, action)(name + nameSuffix)
+            getattr(var, action)(name + nameSuffix, val, idx, (acFun, acCtx))
 
-    def __delegate(self, subAction, name, val):
+    def __delegate(self, subAction, name, val, idx, (acFun, acCtx)):
         # Relay operation request to column, expect row operation request.
-        
         try:
-            getattr(self.getBranch(name), 'write'+subAction)(name, val)
+            getattr(self.getBranch(name, idx), 'write'+subAction)(
+                name, val, idx, (acFun, acCtx)
+                )
         except error.RowCreationWanted, why:
-            self.__manageColumns('create'+subAction, name[len(self.name)+1:])
-            self.announceManagementEvent('create'+subAction, name)
+            self.__manageColumns(
+                'create'+subAction, name[len(self.name)+1:],
+                None, idx, (acFun, acCtx)
+                )
+            self.announceManagementEvent(
+                'create'+subAction, name, None, idx, (acFun, acCtx)
+                )
         except error.RowDestructionWanted, why:
-            self.__manageColumns('destroy'+subAction, name[len(self.name)+1:])
-            self.announceManagementEvent('destroy'+subAction, name)
+            self.__manageColumns(
+                'destroy'+subAction, name[len(self.name)+1:],
+                None, idx, (acFun, acCtx)
+                )
+            self.announceManagementEvent(
+                'destroy'+subAction, name, None, idx, (acFun, acCtx)
+                )
     
-    def writeTest(self, name, val): self.__delegate('Test', name, val)
-    def writeCommit(self, name, val): self.__delegate('Commit', name, val)
-    def writeCleanup(self, name, val): self.__delegate('Cleanup', name, val)
-    def writeUndo(self, name, val): self.__delegate('Undo', name, val)
+    def writeTest(self, name, val, idx, (acFun, acCtx)):
+        self.__delegate('Test', name, val, idx, (acFun, acCtx))
+    def writeCommit(self, name, val, idx, (acFun, acCtx)):
+        self.__delegate('Commit', name, val, idx, (acFun, acCtx))
+    def writeCleanup(self, name, val, idx, (acFun, acCtx)):
+        self.__delegate('Cleanup', name, val, idx, (acFun, acCtx))
+    def writeUndo(self, name, val, idx, (acFun, acCtx)):
+        self.__delegate('Undo', name, val)
 
     # Table row management
     
@@ -767,11 +765,11 @@ class MibTableRow(MibTree):
         for impliedFlag, modName, symName in self.indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
             val = mibObj.getColumnInitializer().syntax
-            instId = self.setFromName(val, instId, impliedFlag)
-            indices.append(val.get())
+            syntax, instId = self.setFromName(val, instId, impliedFlag)
+            indices.append(syntax) # to avoid cyclic refs
         if instId:
             raise error.SmiError(
-                'Exsessive instance identifier sub-OIDs left at %s: %s' %
+                'Excessive instance identifier sub-OIDs left at %s: %s' %
                 (self, instId)
                 )
         return tuple(indices)
@@ -783,9 +781,12 @@ class MibTableRow(MibTree):
             mibObj, = mibBuilder.importSymbols(modName, symName)
             if idx < len(indices):
                 instId = instId + self.getAsName(
-                    mibObj.getColumnInitializer().syntax.set(indices[idx]),
+                    mibObj.getColumnInitializer().syntax.clone(indices[idx]),
                     impliedFlag
                     )
+            else:
+                break
+            idx = idx + 1
         return instId
 
     # Table access by index
@@ -849,3 +850,4 @@ mibBuilder.exportSymbols(
 
 # XXX
 # maybe re-factor tree facilities
+# getAsName/setFromName goes out of MibRow?
