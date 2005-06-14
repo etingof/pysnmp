@@ -40,6 +40,16 @@ class SNMPv3Message(univ.Sequence):
          namedtype.NamedType('msgData', ScopedPduData())
          )
 
+# XXX move somewhere?
+_snmpErrors = {
+    (1, 3, 6, 1, 6, 3, 15, 1, 1, 1, 0): 'unsupportedSecLevel',
+    (1, 3, 6, 1, 6, 3, 15, 1, 1, 2, 0): 'notInTimeWindow', 
+    (1, 3, 6, 1, 6, 3, 15, 1, 1, 3, 0): 'unknownUserName',
+    (1, 3, 6, 1, 6, 3, 15, 1, 1, 4, 0): 'unknownEngineID',
+    (1, 3, 6, 1, 6, 3, 15, 1, 1, 5, 0): 'wrongDigest',
+    (1, 3, 6, 1, 6, 3, 15, 1, 1, 6, 0): 'decryptionError',
+    }
+
 class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
     messageProcessingModelID = 3
     _snmpMsgSpec = SNMPv3Message()
@@ -534,6 +544,9 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             varBinds = pMod.apiPDU.getVarBinds(pdu)
             if varBinds:
                 statusInformation = error.StatusInformation(
+                    errorIndication=_snmpErrors.get(
+                    tuple(varBinds[0][0]), 'errorReportReceived'
+                    ),
                     oid=varBinds[0][0],
                     val=varBinds[0][1],
                     sendPduHandle=sendPduHandle
