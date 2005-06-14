@@ -1,0 +1,192 @@
+PYSNMP-USM-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY,
+    OBJECT-TYPE
+        FROM SNMPv2-SMI
+    SnmpAdminString
+        FROM SNMP-FRAMEWORK-MIB
+    usmUserEntry
+        FROM SNMP-USER-BASED-SM-MIB
+    RowStatus
+        FROM SNMPv2-TC
+    pysnmpModuleIDs
+        FROM PYSNMP-MIB;
+
+pysnmpUsmMIB MODULE-IDENTITY
+    LAST-UPDATED "200505140000Z"          -- 14 May 2005, midnight
+    ORGANIZATION "The PySNMP project"
+    CONTACT-INFO "E-mail:     ilya@glas.net
+                  Subscribe:  pysnmp-users-request@lists.sourceforge.net"
+        DESCRIPTION
+            "This MIB module defines objects specific to User
+             Security Model (USM) implementation at PySNMP."
+        REVISION "200505140000Z"          -- 14 May 2005, midnight
+        DESCRIPTION "The Initial Revision"
+    ::= { pysnmpModuleIDs 1 }
+
+-- Administrative assignments ****************************************
+
+pysnmpUsmMIBObjects     OBJECT IDENTIFIER ::= { pysnmpUsmMIB 1 }
+pysnmpUsmMIBConformance OBJECT IDENTIFIER ::= { pysnmpUsmMIB 2 }
+
+-- Implementation-specific SNMP engine configuration
+
+pysnmpUsmCfg    OBJECT IDENTIFIER ::= { pysnmpUsmMIBObjects 1 }
+
+pysnmpUsmDiscoverable OBJECT-TYPE
+    SYNTAX       INTEGER { notDiscoverable(0), discoverable(1) }
+    MAX-ACCESS   read-write
+    STATUS       current
+    DESCRIPTION "Whether SNMP engine would support its discovery by
+                 responding to unknown clients."
+    DEFVAL      { discoverable }
+    ::= { pysnmpUsmCfg 1 }
+
+pysnmpUsmDiscovery OBJECT-TYPE
+    SYNTAX       INTEGER { doNotDiscover(0), doDiscover(1) }
+    MAX-ACCESS   read-write
+    STATUS       current
+    DESCRIPTION "Whether SNMP engine would try to figure out the EngineIDs
+                 of its peers by sending discover requests."
+    DEFVAL      { doDiscover }
+    ::= { pysnmpUsmCfg 2 }
+
+-- The usmUser Group ************************************************
+
+pysnmpUsmUser       OBJECT IDENTIFIER ::= { pysnmpUsmMIBObjects 3 }
+
+--
+-- The pysnmpUsmSecretTable contains a database of USM users passphrases
+-- used for key localization. This table may be consulted during SNMP engine-ID
+-- autodiscovery procedure.
+--
+
+pysnmpUsmSecretTable OBJECT-TYPE
+    SYNTAX       SEQUENCE OF PysnmpUsmSecretEntry
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "The table of USM users passphrases configured in the SNMP 
+         engine's Local Configuration Datastore (LCD)."
+    ::= { pysnmpUsmMIBObjects 2 }
+
+pysnmpUsmSecretEntry OBJECT-TYPE
+    SYNTAX       PysnmpUsmSecretEntry
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "Information about a particular USM user credentials."
+    INDEX       { IMPLIED pysnmpUsmSecretUserName }
+    ::= { pysnmpUsmSecretTable 1 }
+
+PysnmpUsmSecretEntry ::= SEQUENCE {
+    pysnmpUsmSecretUserName       SnmpAdminString,
+    pysnmpUsmSecretAuthKey        OCTET STRING,
+    pysnmpUsmSecretPrivKey        OCTET STRING,
+    pysnmpUsmSecretStatus         RowStatus
+}
+
+pysnmpUsmSecretUserName OBJECT-TYPE
+    SYNTAX      SnmpAdminString (SIZE(1..32))
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The username string for which a row in this table
+         represents a configuration."
+    ::= { pysnmpUsmSecretEntry 1 }
+
+pysnmpUsmSecretAuthKey OBJECT-TYPE
+    SYNTAX       OCTET STRING (SIZE(8..32))
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "User's authentication passphrase used for localized key generation."
+    ::= { pysnmpUsmSecretEntry 2 }
+
+pysnmpUsmSecretPrivKey OBJECT-TYPE
+    SYNTAX       OCTET STRING (SIZE(8..32))
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "User's encryption passphrase used for localized key generation."
+    ::= { pysnmpUsmSecretEntry 3 }
+
+pysnmpUsmSecretStatus OBJECT-TYPE
+    SYNTAX       RowStatus
+    MAX-ACCESS   read-create
+    STATUS       current
+    DESCRIPTION
+        "Table status"
+    ::= { pysnmpUsmSecretEntry 4 }
+
+--
+-- The pysnmpUsmKeysTable contains a database of USM users' localized
+-- keys.
+--
+
+pysnmpUsmKeyTable OBJECT-TYPE
+    SYNTAX       SEQUENCE OF PysnmpUsmKeyEntry
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "The table of USM users localized keys configured in the 
+         SNMP engine's Local Configuration Datastore (LCD)."
+    ::= { pysnmpUsmMIBObjects 3 }
+
+pysnmpUsmKeyEntry OBJECT-TYPE
+    SYNTAX       PysnmpUsmKeyEntry
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "Information about a particular USM user credentials."
+    AUGMENTS    { usmUserEntry }
+    ::= { pysnmpUsmKeyTable 1 }
+
+PysnmpUsmKeyEntry ::= SEQUENCE {
+    pysnmpUsmKeyAuthLocalized       OCTET STRING,
+    pysnmpUsmKeyPrivLocalized       OCTET STRING,
+    pysnmpUsmKeyAuth                OCTET STRING,
+    pysnmpUsmKeyPriv                OCTET STRING
+}
+
+pysnmpUsmKeyAuthLocalized OBJECT-TYPE
+    SYNTAX       OCTET STRING (SIZE(8..32))
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "User's localized key used for authentication."
+    ::= { pysnmpUsmKeyEntry 1 }
+
+pysnmpUsmKeyPrivLocalized OBJECT-TYPE
+    SYNTAX       OCTET STRING (SIZE(8..32))
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "User's localized key used for encryption."
+    ::= { pysnmpUsmKeyEntry 2 }
+
+pysnmpUsmKeyAuth OBJECT-TYPE
+    SYNTAX       OCTET STRING (SIZE(8..32))
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "User's non-localized key used for authentication."
+    ::= { pysnmpUsmKeyEntry 3 }
+
+pysnmpUsmKeyPriv OBJECT-TYPE
+    SYNTAX       OCTET STRING (SIZE(8..32))
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "User's non-localized key used for encryption."
+    ::= { pysnmpUsmKeyEntry 4 }
+
+-- Conformance Information *******************************************
+
+pysnmpUsmMIBCompliances OBJECT IDENTIFIER
+                            ::= { pysnmpUsmMIBConformance 1 }
+pysnmpUsmMIBGroups      OBJECT IDENTIFIER
+                            ::= { pysnmpUsmMIBConformance 2 }
+
+END

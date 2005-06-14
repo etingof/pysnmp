@@ -1,0 +1,51 @@
+PYSNMP-MIB DEFINITIONS ::= BEGIN
+
+--
+-- Top-level infrastructure of the PySNMP project enterprise MIB tree
+--
+
+IMPORTS
+    MODULE-IDENTITY, enterprises FROM SNMPv2-SMI;
+
+pysnmp MODULE-IDENTITY
+    LAST-UPDATED "200505140000Z"
+    ORGANIZATION "pysnmp.sf.net"
+    CONTACT-INFO    
+        "email: ilya@glas.net"
+    DESCRIPTION
+	"Top-level infrastructure of the PySNMP project enterprise MIB tree"
+    REVISION     "200505140000Z"
+    DESCRIPTION
+	"Initial revision"
+    ::= { enterprises 20408 }
+
+
+--
+--  PySNMP enterprise-specific management objects
+--
+
+pysnmpObjects              OBJECT IDENTIFIER ::= {pysnmp 1}
+pysnmpExamples             OBJECT IDENTIFIER ::= {pysnmp 2}
+pysnmpEnumerations         OBJECT IDENTIFIER ::= {pysnmp 3}
+pysnmpModuleIDs            OBJECT IDENTIFIER ::= {pysnmpEnumerations 1}
+pysnmpAgentOIDs            OBJECT IDENTIFIER ::= {pysnmpEnumerations 2}
+pysnmpDomains              OBJECT IDENTIFIER ::= {pysnmpEnumerations 3}
+pysnmpExperimental         OBJECT IDENTIFIER ::= {pysnmp 9999}
+
+--
+--  Notifications
+--
+
+pysnmpNotificationPrefix   OBJECT IDENTIFIER ::= {pysnmp 4}
+pysnmpNotifications        OBJECT IDENTIFIER ::= {pysnmpNotificationPrefix 0}
+pysnmpNotificationObjects  OBJECT IDENTIFIER ::= {pysnmpNotificationPrefix 1}
+
+--
+--  Conformance
+--
+
+pysnmpConformance          OBJECT IDENTIFIER ::= {pysnmp 5}
+pysnmpCompliances          OBJECT IDENTIFIER ::= {pysnmpConformance 1}
+pysnmpGroups               OBJECT IDENTIFIER ::= {pysnmpConformance 2}
+
+END
