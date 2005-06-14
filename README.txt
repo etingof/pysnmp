@@ -2,19 +2,15 @@
 SNMP framework for Python, version 4.x (alpha)
 ----------------------------------------------
 
-This is a pure-Python implementation of multi-protocol SNMP engine. Although
-only SNMP versions 1 and 2c are fully supported at the moment, the APIs
-are aligned with the SNMPv3 architecture [4], so it would naturally host SNMP 
-version 3, and hopefully future SNMP versions, whenever corresponding 
-protocol-specific modules would be implemented (work's in progress).
+This is a pure-Python implementation of multi-protocol SNMP engine.
 
-This software provides facilities for building pure-Python SNMP v1/v2c entities,
+This software provides facilities for building pure-Python SNMP v1/v2c/v3 entities,
 such as managers, agents and proxies. A set of MIB data access methods allows for
 building SNMP managers fully aware of agent MIB, as well as SNMP agents having
 their own MIB instrumentation.
 
-PySNMP is written entirely in Python and is self-sufficient (it is not a 
-wrapper!).
+PySNMP is written entirely in Python and only requires a few third-party
+Python modules to operate (it is not a wrapper!).
 
 The PySNMP package is distributed under terms and conditions of BSD-style
 license. See LICENSE at PySNMP homepage [1].
@@ -28,7 +24,7 @@ change in the future. Do not use the 4.x API in real projects!
 FEATURES
 --------
 
-* Complete SNMPv1 and SNMPv2c support
+* Complete SNMPv1/v2c and SNMPv3 support
 * Complete SNMP entity implementation (SNMP manager and agent roles)
 * SMI framework for browsing MIB information and managing MIB instrumentation
 * Extensible network transports framework (UDP and UNIX domain implemented)
@@ -40,7 +36,6 @@ MISFEATURES
 -----------
 
 * No pure-Python MIB compiler. Although, there's a workaround, read on.
-* No SNMP v.3 support
 
 PRECAUTIONS
 -----------
@@ -68,46 +63,31 @@ is a legacy one used in SNMPv1 & v2c specifications [5]. It is quite
 protocol-oriented and, in particular, requires application to manage
 transport failures, access issues and so on.
 
-Here is an example on querying an SNMP agent (cisco router) for arbitrary
-value (sysDescr):
-
-8X---------------- cut here --------------------
-
-from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
-from pysnmp.carrier.asynsock.dgram.udp import UdpSocketTransport
-from pysnmp.proto.api import alpha
-
-ver = alpha.protoVersions[alpha.protoVersionId1]
-
-def cbRecvFun(tspDsp, transportDomain, transportAddress, wholeMsg):
-    rsp = ver.Message()
-    rsp.berDecode(wholeMsg)
-    for varBind in rsp.apiAlphaGetPdu().apiAlphaGetVarBindList():
-        print varBind.apiAlphaGetOidVal()
-    tspDsp.doDispatchFlag = 0
-    return ''
- 
-req = ver.Message()
-req.apiAlphaSetCommunity('public')
-req.apiAlphaSetPdu(ver.GetRequestPdu())
-req.apiAlphaGetPdu().apiAlphaSetVarBindList(
-    ((1,3,6,1,2,1,1,1,0), ver.Null())
-)
-
-tspDsp = AsynsockDispatcher(udp=UdpSocketTransport().openClientMode())
-tspDsp.registerRecvCbFun(cbRecvFun)
-tspDsp.sendMessage(req.berEncode(), 'udp', ('router-1.glas.net', 161))
-tspDsp.runDispatcher(liveForever=1)
-
-8X---------------- cut here --------------------
-
 The second model supported by PySNMP resembles the SNMPv3 architecture, 
-as specified in [4]. The model is somewhat complex for this introductory
-README, so for more information, please, follow the pysnmp/examples/v3arch 
-directory in the PySNMP distribution.
+as specified in [4]. Here is an example on querying an SNMP agent
+for arbitrary value (sysDescr):
 
-A set of complete SNMP applications based on the PySNMP framework's
-shipped with the pysnmp-apps package. [3]
+8X---------------- cut here --------------------
+
+from pysnmp.entity.rfc3413.oneliner import cmdgen
+
+errorIndication, errorStatus, errorIndex, varBinds = cmdgen.CmdGen().snmpGet(
+    cmdgen.UsmUserData('test-user', 'authkey1', 'privkey1'),
+    cmdgen.UdpTransportTarget(('localhost', 161)),
+    'SNMPv2-MIB::sysDescr.0'
+    )
+
+if errorIndication:
+    print errorIndication
+else:
+    if errorStatus:
+        print '%s at %s\n' % (errorStatus, varBinds[errorIndex-1])
+    else:
+        print varBinds
+
+8X---------------- cut here --------------------
+
+For more examples, please see the examples directory in the PySNMP distribution.
 
 MIB SUPPORT
 -----------
