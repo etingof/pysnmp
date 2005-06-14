@@ -5,13 +5,10 @@ try:
     import pysnmp_mibs
 except ImportError:
     pysnmp_mibs = None
-__all__ = [ 'MibBuilder' ]
 
 class MibBuilder:
-    def __init__(self, execContext=None):
+    def __init__(self):
         self.lastBuildId = 0L
-        self.execContext = execContext
-        self.mibSymbols = {}
         paths = (os.path.join(os.path.split(error.__file__)[0], 'mibs'),)
         if os.environ.has_key('PYSNMP_MIB_DIR'):
             paths = paths + (
@@ -22,7 +19,8 @@ class MibBuilder:
                 os.path.join(os.path.split(pysnmp_mibs.__file__)[0]),
                 )
         apply(self.setMibPath, paths)
-        
+        self.mibSymbols = {}
+
     # MIB modules management
     
     def setMibPath(self, *mibPaths):
@@ -63,12 +61,9 @@ class MibBuilder:
                 raise error.SmiError(
                     'MIB module %s open error' % modPath
                     )
-            g = {
-                'mibBuilder': self,
-                'execContext': self.execContext,
-                }
+            g = { 'mibBuilder': self }
 
-            self.mibSymbols[modName] = {}
+            self.mibSymbols[modName] = {} # to stop recursion
             
             try:
                 execfile(modPath, g)
@@ -102,6 +97,8 @@ class MibBuilder:
 
     def exportSymbols(self, modName, **kwargs):
         for symName, symObj in kwargs.items():
+            if not self.mibSymbols.has_key(modName):
+                self.mibSymbols[modName] = {}
             if self.mibSymbols[modName].has_key(symName):
                 raise error.SmiError(
                     'Symbol %s already exported at %s' % (symName, modName)
@@ -110,17 +107,10 @@ class MibBuilder:
                 symName = symObj.label
             self.mibSymbols[modName][symName] = symObj
 
-if __name__ == '__main__':
-    mibBuilder = MibBuilder().loadModules('Modem-MIB')
-#    mibBuilder = MibBuilder().loadModules('SNMPv2-SMI')
-#    mibTree = mibBuilder.importSymbols('SNMPv2-SMI', 'experimental')
-#    print mibTree
-
+# XXX
 # get rid of tree MIB structure (index MIB objects by OID name only at MIB
 #    instrumentation controller)
 # implement by-OID indexing at MIB coltroller
-# rework MIB instrumentation (tables etc.) to work with
-#    top-level / plain MIB objects organization
 # re-work augmention not to exist at the MibRow level but
 #    use name lookups instead
 # get rid from subtree registration at MIB modules
