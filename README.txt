@@ -10,7 +10,7 @@ building SNMP managers fully aware of agent MIB, as well as SNMP agents having
 their own MIB instrumentation.
 
 PySNMP is written entirely in Python and only requires a few third-party
-Python modules to operate (it is not a wrapper!).
+Python packages to operate.
 
 The PySNMP package is distributed under terms and conditions of BSD-style
 license. See LICENSE at PySNMP homepage [1].
@@ -54,6 +54,9 @@ The PySNMP package uses distutils for installation:
 $ tar zxf pysnmp.tar.gz
 $ cd pysnmp
 $ python setup.py install
+
+Besides PySNMP, the pyasn1 [8] package must be installed. For secure SNMPv3 
+operation, the PyCrypto [9] toolkit is required.
 
 OPERATION
 ---------
@@ -156,6 +159,12 @@ REFERENCES
 
 [7] PySNMP mailing list archives:
     http://sourceforge.net/mail/?group_id=14735
+
+[8] pyasn1 project homepage:
+    http://pyasn1.sf.net
+
+[9] PyCrypto project:
+    http://www.amk.ca/python/code/crypto.html
 
 =-=-=
 mailto: ilya@glas.net
