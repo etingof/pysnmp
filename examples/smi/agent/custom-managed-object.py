@@ -1,5 +1,5 @@
 # SNMP agent backend
-from pysnmp.smi import builder, instrum, error
+from pysnmp.smi import builder, instrum, exval
 
 print 'Loading MIB modules...',
 mibBuilder = builder.MibBuilder().loadModules(
@@ -13,15 +13,14 @@ print 'done'
 
 print 'Remote manager write/create access to MIB instrumentation: ',
 print mibInstrum.writeVars(
-    ((1,3,6,1,6,3,18,1,1,1,2,109,121,110,109,115), 'mycomm'),
-    ((1,3,6,1,6,3,18,1,1,1,3,109,121,110,109,115), 'mynmsname')
+    (((1,3,6,1,6,3,18,1,1,1,2,109,121,110,109,115), 'mycomm'),
+     ((1,3,6,1,6,3,18,1,1,1,3,109,121,110,109,115), 'mynmsname'))
     )
 
 print 'Remote manager read access to MIB instrumentation (table walk)'
 oid, val = (), None
 while 1:
-    try:
-        oid, val = mibInstrum.readNextVars((oid, val))[0]
-    except error.NoSuchInstanceError:
+    oid, val = mibInstrum.readNextVars(((oid, val),))[0]
+    if exval.endOfMib.isSameTypeWith(val):
         break
     print oid, val
