@@ -4,9 +4,7 @@ except ImportError:
     version_info = ( 0, 0 )   # a really early version
 from time import time
 from select import select
-from pysnmp.carrier.base import AbstractTransportDispatcher
-
-__all__ = [ 'AsynsockDispatcher' ]
+from pysnmp.carrier import base
 
 # Old asyncore doesn't allow socket_map param at poll
 if version_info < (2, 0):
@@ -32,24 +30,20 @@ if version_info < (2, 0):
 else:
     from asyncore import poll
 
-class AsynsockDispatcher(AbstractTransportDispatcher):
+class AsynsockDispatcher(base.AbstractTransportDispatcher):
     """Implements I/O over asynchronous sockets"""
-    def __init__(self, **kwargs):
+    def __init__(self):
         self.__sockMap = {}
         self.timeout = 1.0
-        apply(AbstractTransportDispatcher.__init__, [self], kwargs)
+        base.AbstractTransportDispatcher.__init__(self)
 
-    def registerTransports(self, **kwargs):
-        apply(AbstractTransportDispatcher.registerTransports, (self,), kwargs)
-        for transport in kwargs.values():
-            transport.registerSocket(self.__sockMap)
+    def registerTransport(self, tDomain, t):
+        base.AbstractTransportDispatcher.registerTransport(self, tDomain, t)
+        t.registerSocket(self.__sockMap)
 
-    def unregisterTransports(self, *args):
-        for name in args:
-            self.getTransport(name).unregisterSocket(self.__sockMap)
-        apply(
-            AbstractTransportDispatcher.unregisterTransports, (self, ) + args
-            )
+    def unregisterTransport(self, tDomain):
+        self.getTransport(tDomain).unregisterSocket(self.__sockMap)
+        base.AbstractTransportDispatcher.unregisterTransports(self, tDomain)
 
     def runDispatcher(self, liveForever=1):
         self.doDispatchFlag = liveForever
