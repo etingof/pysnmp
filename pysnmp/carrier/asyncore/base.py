@@ -48,13 +48,13 @@ class AbstractSocketTransport(asyncore.dispatcher):
     # Public API
     
     def openClientMode(self, iface=None):
-        raise error.BadArgumentError('Method not implemented')
+        raise error.CarrierError('Method not implemented')
 
     def openServerMode(self, iface=None):
-        raise error.BadArgumentError('Method not implemented')
+        raise error.CarrierError('Method not implemented')
         
     def sendMessage(self, outgoingMessage, transportAddress):
-        raise error.BadArgumentError('Method not implemented')
+        raise error.CarrierError('Method not implemented')
 
     def registerCbFun(self, cbFun):
         self._cbFun = cbFun
