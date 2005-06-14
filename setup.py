@@ -18,8 +18,9 @@ setup(name="pysnmp",
                    'pysnmp.v4.carrier.asynsock',
                    'pysnmp.v4.carrier.asynsock.dgram',
                    'pysnmp.v4.proto',
-                   'pysnmp.v4.proto.msgproc',
+                   'pysnmp.v4.proto.mpmod',
                    'pysnmp.v4.proto.secmod',
-                   'pysnmp.v4.proto.omni' ],
+                   'pysnmp.v4.proto.acmod',
+                   'pysnmp.v4.proto.api' ],
       license="BSD"
       )
