@@ -115,6 +115,12 @@ class MibViewController:
         
         self.lastBuildId = self.mibBuilder.lastBuildId
 
+    def loadMissingModule(self, modName):
+        self.__indexMib()
+        if self.__mibSymbolsIdx.has_key(modName):
+            return
+        apply(self.mibBuilder.loadModules, (modName,))
+        
     # Module management
     
     def getFirstModuleName(self):
@@ -122,16 +128,14 @@ class MibViewController:
         modNames = self.__mibSymbolsIdx.keys()
         if modNames:
             return modNames[0]
-        raise error.NoSuchModuleError(
-            'No modules loaded at %s' % self
-            )
+        raise error.SmiError('No modules loaded at %s' % self)
 
     def getNextModuleName(self, modName):
         self.__indexMib()
         try:
             return self.__mibSymbolsIdx.nextKey(modName)
         except KeyError:
-            raise error.NoSuchModuleError(
+            raise error.SmiError(
                 'No module next to %s at %s' % (modName, self)
                 )
 
@@ -167,7 +171,7 @@ class MibViewController:
         self.__indexMib()        
         mibMod = self.__mibSymbolsIdx.get(modName)
         if mibMod is None:
-            raise error.NoSuchModuleError(
+            raise error.SmiError(
                 'No module %s at %s' % (modName, self)
                 )
         oid, label, suffix = self.__getOidLabel(
@@ -175,7 +179,7 @@ class MibViewController:
             )
         if oid == label:
             raise error.NoSuchInstanceError(
-                'Can\'t resolve node name %s::%s at %s' % 
+                str='Can\'t resolve node name %s::%s at %s' % 
                 (modName, nodeName, self)
                 )
         return oid, label, suffix
@@ -184,13 +188,13 @@ class MibViewController:
         self.__indexMib()        
         mibMod = self.__mibSymbolsIdx.get(modName)
         if mibMod is None:
-            raise error.NoSuchModuleError(
+            raise error.SmiError(
                 'No module %s at %s' % (modName, self)
                 )
         oid = mibMod['varToNameIdx'].get(nodeName)
         if oid is None:
             raise error.NoSuchInstanceError(
-                'No such symbol %s::%s at %s' % (modName, nodeName, self)
+                str='No such symbol %s::%s at %s' % (modName, nodeName, self)
                 )
         return self.getNodeNameByOid(oid, modName)
 
@@ -204,12 +208,12 @@ class MibViewController:
         self.__indexMib()        
         mibMod = self.__mibSymbolsIdx.get(modName)
         if mibMod is None:
-            raise error.NoSuchModuleError(
+            raise error.SmiError(
                 'No module %s at %s' % (modName, self)
                 )
         if not mibMod['oidToLabelIdx']:
             raise error.NoSuchInstanceError(
-                'No variables at MIB module %s at %s' % (modName, self)
+                str='No variables at MIB module %s at %s' % (modName, self)
                 )
         oid, label = mibMod['oidToLabelIdx'].items()[0]
         return oid, label, ()
@@ -223,20 +227,21 @@ class MibViewController:
                 )
         except KeyError:
             raise error.NoSuchInstanceError(
-                'No name next to %s::%s at %s' % (modName, nodeName, self)
+                str='No name next to %s::%s at %s' % (modName, nodeName, self)
                 )
     
     def getParentNodeName(self, nodeName, modName=''):
         oid, label, suffix = self.getNodeName(nodeName, modName)
         if len(oid) < 2:
             raise error.NoSuchInstanceError(
-                'No parent name for %s::%s at %s' % (modName, nodeName, self)
+                str='No parent name for %s::%s at %s' %
+                (modName, nodeName, self)
                 )
         return oid[:-1], label[:-1], oid[-1:] + suffix
 
     def getNodeLocation(self, nodeName, modName=''):
         oid, label, suffix = self.getNodeName(nodeName, modName)
-        return self.__mibSymbolsIdx['']['oidToModIdx'][oid], label[-1]
+        return self.__mibSymbolsIdx['']['oidToModIdx'][oid], label[-1], suffix
     
     # MIB type management
 
@@ -244,13 +249,13 @@ class MibViewController:
         self.__indexMib()
         mibMod = self.__mibSymbolsIdx.get(modName)
         if mibMod is None:
-            raise error.NoSuchModuleError(
+            raise error.SmiError(
                 'No module %s at %s' % (modName, self)
                 )
         m = mibMod['typeToModIdx'].get(typeName)
         if m is None:
             raise error.NoSuchInstanceError(
-                'No such type %s::%s at %s' % (modName, typeName, self)
+                str='No such type %s::%s at %s' % (modName, typeName, self)
                 )
         return m, typeName
         
@@ -258,12 +263,12 @@ class MibViewController:
         self.__indexMib()
         mibMod = self.__mibSymbolsIdx.get(modName)
         if mibMod is None:
-            raise error.NoSuchModuleError(
+            raise error.SmiError(
                 'No module %s at %s' % (modName, self)
                 )
         if not mibMod['typeToModIdx']:
             raise error.NoSuchInstanceError(
-                'No types at MIB module %s at %s' % (modName, self)
+                str='No types at MIB module %s at %s' % (modName, self)
                 )
         t = mibMod['typeToModIdx'].keys()[0]
         return mibMod['typeToModIdx'][t], t
@@ -274,57 +279,9 @@ class MibViewController:
             return self.__mibSymbolsIdx[m]['typeToModIdx'].nextKey(t)
         except KeyError:
             raise error.NoSuchInstanceError(
-                'No type next to %s::%s at %s' % (modName, typeName, self)
+                str='No type next to %s::%s at %s' % (modName, typeName, self)
                 )
 
-if __name__ == '__main__':
-    from pysnmp.smi.builder import MibBuilder
-
-    mibBuilder = MibBuilder().loadModules()
-    mibView = MibViewController(mibBuilder)
-#    print mibView.getNodeName('iso')
-#    print mibView.getNodeName('sysDescr')
-#    print mibView.getNodeName('sysObjectID', 'SNMPv2-MIB')
-#    print mibView.getNodeName((1, 3, 6, 1, 2, 1, 1, 3))
-    print mibView.getNodeName((1, 3, 6, 1, 2, 1, 1, 'sysContact'))
-
-    print 'MIB tree traversal'
-    
-    oid, label, suffix = mibView.getFirstNodeName()
-
-    while 1:
-        try:
-            modName, nodeDesc = mibView.getNodeLocation(oid)
-            print '%s::%s == %s' % (modName, nodeDesc, oid)
-            oid, label, suffix = mibView.getNextNodeName(oid)
-        except error.NoSuchInstanceError:
-            break
-
-    print 'Modules traversal'
-    modName = mibView.getFirstModuleName()
-    while 1:
-        print modName
-        try:
-            modName = mibView.getNextModuleName(modName)
-        except error.NoSuchModuleError:
-            break
-
-    print 'TEXTUAL-CONVENTION pretty print'
-    node, = apply(
-        mibBuilder.importSymbols, mibView.getNodeLocation('snmpEngineID')
-        )
-    print node.syntax.prettyGet()
-    
-    print 'Conceptual table indices convertion'
-    rowNode, = apply(
-        mibBuilder.importSymbols, mibView.getNodeLocation('snmpCommunityEntry')
-        )
-    print rowNode
-    entryOid = rowNode.getInstIdFromIndices('router')
-    print entryOid
-    print rowNode.getIndicesFromInstId(entryOid)
-    
-    
 # XXX
 # indices -> ../
 # repr node
