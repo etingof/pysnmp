@@ -108,16 +108,5 @@ def isAccessAllowed(
         # 3.2.5c
         return error.StatusInformation(errorIndication='accessAllowed')
 
-if __name__ == '__main__':
-    from pysnmp.entity import engine, config
-
-    snmpEngine = engine.SnmpEngine()
-
-    config.addRoUser(snmpEngine, 'test-user', 1, (1,3,6,1,2,1,2,2,1,1))
-    
-    isAccessAllowed(
-        snmpEngine, 3, 'test-user', 1, 'read', '', (1,3,6,1,2,1,2,2,1,1,22)
-        )
-    
 # XXX
 # develop a non-intrum-based management objects access methods

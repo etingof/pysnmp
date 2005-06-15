@@ -104,14 +104,3 @@ class Des(base.AbstractEncryptionService):
         
         # 8.3.2.6
         return desObj.decrypt(str(encryptedData))
-
-if __name__ == '__main__':
-    from pysnmp.smi import builder, instrum
-
-    mibInstrumController = instrum.MibInstrumController(
-        builder.MibBuilder()
-        )
-
-    d = Des()
-    ct, p = d.encryptData(mibInstrumController, '1234567890123456', 'security? not my problem!')
-    print d.decryptData(mibInstrumController, '1234567890123456', p, ct)
