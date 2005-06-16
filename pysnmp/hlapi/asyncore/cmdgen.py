@@ -222,6 +222,8 @@ class CmdGen(AsynCmdGen):
                     varBindTable=varBindTotalTable
                     )
             else:
+                varBindTotalTable.extend(varBindTable) # XXX out of table 
+                                                       # rows possible
                 varBindTableRow = varBindTable[-1]
                 for idx in range(len(varBindTableRow)):
                     name, val = varBindTableRow[idx]
@@ -235,7 +237,6 @@ class CmdGen(AsynCmdGen):
                         varBinds=varBindTable[-1],
                         varBindTable=varBindTotalTable
                         )
-                varBindTotalTable.extend(varBindTable)
 
         head = map(lambda x,self=self: univ.ObjectIdentifier(mibvar.instanceNameToOid(self.mibView, x)), varNames)
                    
