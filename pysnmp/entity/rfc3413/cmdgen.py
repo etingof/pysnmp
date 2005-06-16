@@ -328,24 +328,9 @@ class SnmpSet(CmdGenBase):
         
         reqPDU = pMod.SetRequestPDU()
         pMod.apiPDU.setDefaults(reqPDU)
+
+        pMod.apiPDU.setVarBinds(reqPDU, varBinds)
         
-        __varBinds = []
-        for name, value in varBinds:
-            # XXX
-            oid = resolveMibName(mibView, name)
-            if type(value) != types.InstanceType:
-                modName, symName, suffix = mibView.getNodeLocation(oid)
-                mibNode, = mibView.mibBuilder.importSymbols(modName, symName)
-                try:
-                    value = mibNode.syntax.clone(value)
-                except AttributeError:
-                    raise error.ProtocolError(
-                        'Object %s is not a variable' % mibNode
-                        )
-            __varBinds.append((oid, value))
-
-        pMod.apiPDU.setVarBinds(reqPDU, __varBinds)
-
         self._sendRequestHandleSource = self._sendRequestHandleSource + 1
         
         self._sendPdu(
@@ -466,12 +451,15 @@ class SnmpWalk(CmdGenBase):
         sendRequestHandle,
         (cbFun, cbCtx)
         ):
-        varBinds = pMod.apiPDU.getVarBinds(rspPDU)
-        cbFun(sendRequestHandle, None, pMod.apiPDU.getErrorStatus(rspPDU),
-              pMod.apiPDU.getErrorIndex(rspPDU), varBinds, cbCtx)
-
+        varBindTable = pMod.apiPDU.getVarBindTable(PDU, rspPDU)
+            
+        cbFun(sendRequestHandle, None,
+              pMod.apiPDU.getErrorStatus(rspPDU),
+              pMod.apiPDU.getErrorIndex(rspPDU),
+              varBindTable, cbCtx)
+        
         pMod.apiPDU.setVarBinds(
-            PDU, map(lambda (x,y),n=pMod.Null(): (x,n), varBinds)
+            PDU, map(lambda (x,y),n=pMod.Null(): (x,n), varBindTable[-1])
             )
 
         self._sendRequestHandleSource = self._sendRequestHandleSource + 1
@@ -524,9 +512,9 @@ class SnmpBulkWalk(CmdGenBase):
         pMod.apiBulkPDU.setNonRepeaters(reqPDU, nonRepeaters)
         pMod.apiBulkPDU.setMaxRepetitions(reqPDU, maxRepetitions)
         
-        pMod.apiPDU.setDefaults(reqPDU)
+        pMod.apiBulkPDU.setDefaults(reqPDU)
         
-        pMod.apiPDU.setVarBinds(reqPDU, varBinds)
+        pMod.apiBulkPDU.setVarBinds(reqPDU, varBinds)
 
         self._sendRequestHandleSource = self._sendRequestHandleSource + 1
         
@@ -571,12 +559,15 @@ class SnmpBulkWalk(CmdGenBase):
         sendRequestHandle,
         (cbFun, cbCtx)
         ):
-        varBinds = pMod.apiPDU.getVarBinds(rspPDU)        
-        cbFun(sendRequestHandle, None, pMod.apiPDU.getErrorStatus(rspPDU),
-              pMod.apiPDU.getErrorIndex(rspPDU), varBinds, cbCtx)
-
-        pMod.apiPDU.setVarBinds(
-            PDU, map(lambda (x,y),n=pMod.Null(): (x,n), varBinds)
+        varBindTable = pMod.apiBulkPDU.getVarBindTable(PDU, rspPDU)
+            
+        cbFun(sendRequestHandle, None,
+              pMod.apiBulkPDU.getErrorStatus(rspPDU),
+              pMod.apiBulkPDU.getErrorIndex(rspPDU),
+              varBindTable, cbCtx)
+        
+        pMod.apiBulkPDU.setVarBinds(
+            PDU, map(lambda (x,y),n=pMod.Null(): (x,n), varBindTable[-1])
             )
 
         self._sendRequestHandleSource = self._sendRequestHandleSource + 1
