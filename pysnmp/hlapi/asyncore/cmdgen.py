@@ -1,6 +1,6 @@
 import socket, string, types
 from pysnmp.entity import engine, config
-from pysnmp.entity.rfc3413 import cmdgen
+from pysnmp.entity.rfc3413 import cmdgen, mibvar
 from pysnmp.carrier.asynsock.dgram import udp
 from pysnmp.smi import view
 from pysnmp.entity.rfc3413.error import ApplicationReturn
@@ -84,34 +84,7 @@ class AsynCmdGen:
                 )
         return addrName
 
-    # OID filters
-    
-    def prettyNameToOid(self, varName):
-        if string.find(varName, '::') == -1:
-            modName, symName = '', varName
-        else:
-            modName, symName = string.split(varName, '::')
-            self.mibView.loadMissingModule(modName)
-        __n = string.split(symName, '.')  # XXX support index spec
-        oid, label, suffix = self.mibView.getNodeName(__n[0], modName)
-        newSymName = []; newSymName.extend(oid); newSymName.extend(suffix)
-        for subName in __n[1:]:
-            try:
-                newSymName.append(string.atol(subName))
-            except ValueError:
-                raise error.PySnmpError('Unexpected name suffix %s' % (__n,))
-        return tuple(newSymName)
-
-    def oidToPrettyName(self, oid):
-        modName, symName, suffix = self.mibView.getNodeLocation(tuple(oid))
-        mibNode, = self.mibView.mibBuilder.importSymbols(modName, symName)
-        symName = '%s.%s' % (
-            symName, string.join(map(str, suffix), '.')
-            )
-        return (modName, symName)
-
-    def makePrettyValue(self, value): pass
-    def makeNativeValue(self, value): pass
+    # Async SNMP apps
     
     def asyncSnmpGet(
         self, authData, transportTarget, varNames, (cbFun, cbCtx)
@@ -121,12 +94,9 @@ class AsynCmdGen:
             )
         varBinds = []
         for varName in varNames:
-            if type(varName) == types.StringType:
-                oid = self.prettyNameToOid(varName)
-            else:
-                oid, label, suffix = self.mibView.getNodeName(varName)
-                oid = oid + suffix
-            varBinds.append((oid, self._null))
+            varBinds.append(
+                (mibvar.instanceNameToOid(self.mibView, varName), self._null)
+                )
         return cmdgen.SnmpGet().sendReq(
             self.snmpEngine, addrName, varBinds, cbFun, cbCtx
             )
@@ -139,19 +109,31 @@ class AsynCmdGen:
             )
         varBinds = []
         for varName in varNames:
-            if type(varName) == types.StringType:
-                oid = self.prettyNameToOid(varName)
-            else:
-                oid, label, suffix = self.mibView.getNodeName(varName)
-                oid = oid + suffix
-            varBinds.append((oid, self._null))
+            varBinds.append(
+                (mibvar.instanceNameToOid(self.mibView, varName), self._null)
+                )
         return cmdgen.SnmpWalk().sendReq(
             self.snmpEngine, addrName, varBinds, cbFun, cbCtx
             )
 
-    def snmpTable(self): pass
+    def asyncSnmpBulkWalk(
+        self, authData, transportTarget, nonRepeaters, maxRepetitions,
+        varNames, (cbFun, cbCtx)
+        ):
+        addrName = self.__configure(
+            authData, transportTarget
+            )
+        varBinds = []
+        for varName in varNames:
+            varBinds.append(
+                (mibvar.instanceNameToOid(self.mibView, varName), self._null)
+                )
+        return cmdgen.SnmpBulkWalk().sendReq(
+            self.snmpEngine, addrName, nonRepeaters, maxRepetitions,
+            varBinds, cbFun, cbCtx
+            )
+
     def snmpSet(self): pass
-    def snmpBulkWalk(self): pass
 
 class CmdGen(AsynCmdGen):
     def __cbFun(
@@ -182,19 +164,20 @@ class CmdGen(AsynCmdGen):
     def snmpWalk(self, authData, transportTarget, *varNames):
         def __cbFun(
             sendRequestHandle, errorIndication, errorStatus, errorIndex,
-            varBinds, (varBindHead, varBindTable)
+            varBindTable, (varBindHead, varBindTotalTable)
             ):
             if errorIndication or errorStatus:
                 raise ApplicationReturn(
                     errorIndication=errorIndication,
                     errorStatus=errorStatus,
                     errorIndex=errorIndex,
-                    varBinds=varBinds,
-                    varBindTable=varBindTable
+                    varBinds=varBindTable[-1],
+                    varBindTable=varBindTotalTable
                     )
             else:
-                for idx in range(len(varBinds)):
-                    name, val = varBinds[idx]
+                varBindTableRow = varBindTable[-1]
+                for idx in range(len(varBindTableRow)):
+                    name, val = varBindTableRow[idx]
                     if head[idx].isPrefixOf(name):
                         break
                 else:
@@ -202,16 +185,13 @@ class CmdGen(AsynCmdGen):
                         errorIndication=errorIndication,
                         errorStatus=errorStatus,
                         errorIndex=errorIndex,
-                        varBinds=varBinds,
-                        varBindTable=varBindTable
+                        varBinds=varBindTable[-1],
+                        varBindTable=varBindTotalTable
                         )
-                varBindTable.extend(varBinds)
+                varBindTotalTable.extend(varBindTable)
 
-        head = map(
-            lambda x,self=self: univ.ObjectIdentifier(self.prettyNameToOid(x)),
-            varNames
-            )
-
+        head = map(lambda x,self=self: univ.ObjectIdentifier(mibvar.instanceNameToOid(self.mibView, x)), varNames)
+                   
         self.asyncSnmpWalk(
             authData, transportTarget, varNames, (__cbFun, (head, []))
             )
@@ -226,13 +206,61 @@ class CmdGen(AsynCmdGen):
                 applicationReturn['varBinds'],
                 applicationReturn['varBindTable'],
                 )
+
+    def snmpBulkWalk(self, authData, transportTarget,
+                     nonRepeaters, maxRepetitions, *varNames):
+        def __cbFun(
+            sendRequestHandle, errorIndication, errorStatus, errorIndex,
+            varBindTable, (varBindHead, varBindTotalTable)
+            ):
+            if errorIndication or errorStatus:
+                raise ApplicationReturn(
+                    errorIndication=errorIndication,
+                    errorStatus=errorStatus,
+                    errorIndex=errorIndex,
+                    varBinds=varBindTable[-1],
+                    varBindTable=varBindTotalTable
+                    )
+            else:
+                varBindTableRow = varBindTable[-1]
+                for idx in range(len(varBindTableRow)):
+                    name, val = varBindTableRow[idx]
+                    if head[idx].isPrefixOf(name):
+                        break
+                else:
+                    raise ApplicationReturn(
+                        errorIndication=errorIndication,
+                        errorStatus=errorStatus,
+                        errorIndex=errorIndex,
+                        varBinds=varBindTable[-1],
+                        varBindTable=varBindTotalTable
+                        )
+                varBindTotalTable.extend(varBindTable)
+
+        head = map(lambda x,self=self: univ.ObjectIdentifier(mibvar.instanceNameToOid(self.mibView, x)), varNames)
+                   
+        self.asyncSnmpBulkWalk(
+            authData, transportTarget, nonRepeaters, maxRepetitions,
+            varNames, (__cbFun, (head, []))
+            )
+        try:
+            while 1:
+                self.snmpEngine.transportDispatcher.runDispatcher()
+        except ApplicationReturn, applicationReturn:
+            return (
+                applicationReturn['errorIndication'],
+                applicationReturn['errorStatus'],
+                applicationReturn['errorIndex'],
+                applicationReturn['varBinds'],
+                applicationReturn['varBindTable']                
+                )
     
 # XXX
 # unify cb params passing
-# how to stop walkng a tree at oneliners?
 # rename oneliner
 # some method for params passing other than exception?
-# implement SMI indices handling
 # speed up key localization
-# implement snmpbulk oneliner
 # get snmpv1 back to life
+# traps
+# rename snmpwalk, snmpget -> getnext, get etc.
+# pretty print oid & val at oneliner
