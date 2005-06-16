@@ -1,5 +1,6 @@
 from pysnmp.proto import rfc1902, rfc1905, error
 from pysnmp.proto.api import v1
+from pysnmp.smi import exval
 from pyasn1.type import univ, namedtype, namedval
 
 # Shortcuts to SNMP types
@@ -57,7 +58,7 @@ class BulkPDUAPI(PDUAPI):
     def getMaxRepetitions(self, pdu): return pdu.getComponentByPosition(2)
     def setMaxRepetitions(self,pdu,value): pdu.setComponentByPosition(2,value)
 
-    def getTableIndices(self, reqPDU, rspPDU, headerVars):
+    def getVarBindTable(self, reqPDU, rspPDU):
         nonRepeaters = int(self.getNonRepeaters(reqPDU))
         N = min(nonRepeaters, len(self.getVarBindList(reqPDU)))
         R = max(len(self.getVarBindList(reqPDU))-N, 0)
@@ -66,20 +67,14 @@ class BulkPDUAPI(PDUAPI):
         else:
             M = int(min(self.getMaxRepetitions(reqPDU),
                         (len(apiPDU.getVarBindList(rspPDU))-N))/R)
-        if len(headerVars) < R + N:
-            raise error.ProtocolError('Short table header')                
-        endOfMIBIndices = map(lambda (x,y):x, apiPDU.getErrorBinds(rspPDU))
         varBindList = apiPDU.getVarBindList(rspPDU)
         varBindRows = []; varBindTable = [ varBindRows ]
+        __null = Null()
         for idx in range(N):
-            if idx in endOfMIBIndices: # check _val XXX
-                varBindRows.append(-1)
-                continue
             oid, val = apiVarBind.getOIDVal(varBindList[idx])
-            if not headerVars[idx].isPrefixOf(oid):
-                varBindRows.append(-1)
-                continue
-            varBindRows.append(idx)
+            if exval.endOfMib.isSameTypeWith(val):
+                val = __null
+            varBindRows.append((oid, val))
         for rowIdx in range(M):
             if len(varBindTable) < rowIdx+1:
                 varBindTable.append([])
@@ -87,12 +82,12 @@ class BulkPDUAPI(PDUAPI):
             for colIdx in range(R):
                 while rowIdx and len(varBindRow) < N:
                     varBindRow.append(varBindTable[-2][colIdx])
-                if len(varBindRow) < colIdx+N+1:
-                    varBindRow.append(-1)
                 idx = N + rowIdx*R + colIdx
                 oid, val = apiVarBind.getOIDVal(varBindList[idx])
-                if headerVars[colIdx+N].isPrefixOf(oid):
-                    varBindRow[-1] = idx
+                if len(varBindRow) < colIdx+N+1:
+                    varBindRow.append((oid, val))
+                else:
+                    varBindRow[colIdx] = (oid, val)                
         return varBindTable
 
 apiBulkPDU = BulkPDUAPI()

@@ -98,39 +98,18 @@ class PDUAPI:
         self.setRequestID(rspPDU, self.getRequestID(reqPDU))
         return rspPDU
 
-    def getEndOfMIBIndices(self, pdu):
-        if apiPDU.getErrorStatus(pdu) == 2:
-            return ( apiPDU.getErrorIndex(pdu) - 1, )
-        return ()
+#     def getEndOfMIBIndices(self, pdu):
+#         if apiPDU.getErrorStatus(pdu) == 2:
+#             return ( apiPDU.getErrorIndex(pdu) - 1, )
+#         return ()
 
-    def setEndOfMIBIndices(self, pdu, *indices):
-        if indices:
-            apiPDU.setErrorStatus(pdu, 2)
-            apiPDU.setErrorIndex(pdu, indices[0]+1)
+#     def setEndOfMIBIndices(self, pdu, *indices):
+#         if indices:
+#             apiPDU.setErrorStatus(pdu, 2)
+#             apiPDU.setErrorIndex(pdu, indices[0]+1)
 
-    def getTableIndices(self, reqPDU, rspPDU, headerVars):
-        varBindList = apiPDU.getVarBindList(reqPDU)
-        if not varBindList:  # Shortcut for no-varbinds PDU
-            return [ [ -1 ] * len(headerVars) ]
-        if len(varBindList) != len(headerVars):
-            raise error.ProtocolError(
-                'Unmatching table head & row size %s vs %s' %
-                (len(headerVars), len(varBindList))
-            )
-        if not headerVars:
-            raise error.ProtocolError('Empty table')
-        endOfMIBIndices = self.getEndOfMIBIndices(reqPDU)
-        varBindRows = []
-        for idx in range(len(varBindList)):
-            if idx in endOfMIBIndices:
-                varBindRows.append(-1)
-                continue
-            oid, val = apiVarBind.getOIDVal(varBindList[idx])
-            if not headerVars[idx].isPrefixOf(oid):
-                varBindRows.append(-1)
-                continue
-            varBindRows.append(idx)
-        return [ varBindRows ]
+    def getVarBindTable(self, reqPDU, rspPDU):
+        return [ apiPDU.getVarBinds(rspPDU) ]
 
 apiPDU = PDUAPI()
 
