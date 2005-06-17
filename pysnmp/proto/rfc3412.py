@@ -162,6 +162,8 @@ class MsgAndPduDispatcher:
             raise
 
         # 4.1.1.6
+        if snmpEngine.transportDispatcher is None:
+            raise error.PySnmpError('Transport dispatcher not set')
         snmpEngine.transportDispatcher.sendMessage(
             outgoingMessage, destTransportDomain, destTransportAddress
             )
