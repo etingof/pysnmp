@@ -67,26 +67,29 @@ protocol-oriented and, in particular, requires application to manage
 transport failures, access issues and so on.
 
 The second model supported by PySNMP resembles the SNMPv3 architecture, 
-as specified in [4]. Here is an example on querying an SNMP agent
-for arbitrary value (sysDescr):
+as specified in [4]. Here is an example on querying SNMP agent
+for arbitrary value (sysDescr) over SNMP v3 with authentication and 
+privacy enabled:
 
 8X---------------- cut here --------------------
 
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 
-errorIndication, errorStatus, errorIndex, varBinds = cmdgen.CmdGen().snmpGet(
-    cmdgen.UsmUserData('test-user', 'authkey1', 'privkey1'),
-    cmdgen.UdpTransportTarget(('localhost', 161)),
-    'SNMPv2-MIB::sysDescr.0'
+userData = cmdgen.UsmUserData('test-user', 'authkey1', 'privkey1')
+targetAddr = cmdgen.UdpTransportTarget(('localhost', 161))
+
+errorIndication, errorStatus, errorIndex, varBinds = cmdgen.CmdGen().getCmd(
+    userData, targetAddr, (('sysDescr', 'SNMPv2-MIB'), 0)
     )
 
-if errorIndication:
+if errorIndication: # SNMP engine errors
     print errorIndication
 else:
-    if errorStatus:
+    if errorStatus: # SNMP agent errors
         print '%s at %s\n' % (errorStatus, varBinds[errorIndex-1])
     else:
-        print varBinds
+        for varBind in varBinds: # SNMP agent values
+            print '%s = %s' % varBind
 
 8X---------------- cut here --------------------
 
