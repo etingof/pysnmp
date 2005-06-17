@@ -226,7 +226,7 @@ class GetCmdRsp(CmdRspBase):
             pMod.apiPDU.getVarBinds(PDU), (acFun, acCtx)
             )
 
-class GetNextRsp(CmdRspBase):
+class NextCmdRsp(CmdRspBase):
     pduTypes = ( rfc1905.GetNextRequestPDU.tagSet, )
 
     # rfc1905: 4.2.2
@@ -237,7 +237,7 @@ class GetNextRsp(CmdRspBase):
             pMod.apiPDU.getVarBinds(PDU), (acFun, acCtx)
             )
 
-class GetBulkRsp(CmdRspBase):
+class BulkCmdRsp(CmdRspBase):
     pduTypes = ( rfc1905.GetBulkRequestPDU.tagSet, )
     maxVarBinds = 64
     
