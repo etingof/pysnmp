@@ -227,7 +227,7 @@ class CmdGenBase:
             sendRequestHandle,
             )
 
-class SnmpGet(CmdGenBase):
+class GetCmdGen(CmdGenBase):
     def sendReq(
         self,
         snmpEngine,
@@ -304,7 +304,7 @@ class SnmpGet(CmdGenBase):
               pMod.apiPDU.getVarBinds(rspPDU),
               cbCtx)
 
-class SnmpSet(CmdGenBase):
+class SetCmdGen(CmdGenBase):
     def sendReq(
         self,
         snmpEngine,
@@ -381,7 +381,7 @@ class SnmpSet(CmdGenBase):
               pMod.apiPDU.getVarBinds(rspPDU),
               cbCtx)
 
-class SnmpWalk(CmdGenBase):
+class NextCmdGen(CmdGenBase):
     def sendReq(
         self,
         snmpEngine,
@@ -483,7 +483,7 @@ class SnmpWalk(CmdGenBase):
             (self.processResponsePdu, (cbFun, cbCtx))            
             )
 
-class SnmpBulkWalk(CmdGenBase):
+class BulkCmdGen(CmdGenBase):
     def sendReq(
         self,
         snmpEngine,

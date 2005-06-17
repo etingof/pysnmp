@@ -86,7 +86,7 @@ class AsynCmdGen:
 
     # Async SNMP apps
     
-    def asyncSnmpGet(
+    def asyncGetCmd(
         self, authData, transportTarget, varNames, (cbFun, cbCtx)
         ):
         addrName = self.__configure(
@@ -97,11 +97,11 @@ class AsynCmdGen:
             varBinds.append(
                 (mibvar.instanceNameToOid(self.mibView, varName), self._null)
                 )
-        return cmdgen.SnmpGet().sendReq(
+        return cmdgen.GetCmdGen().sendReq(
             self.snmpEngine, addrName, varBinds, cbFun, cbCtx
             )
 
-    def asyncSnmpWalk(
+    def asyncNextCmd(
         self, authData, transportTarget, varNames, (cbFun, cbCtx)
         ):
         addrName = self.__configure(
@@ -112,11 +112,11 @@ class AsynCmdGen:
             varBinds.append(
                 (mibvar.instanceNameToOid(self.mibView, varName), self._null)
                 )
-        return cmdgen.SnmpWalk().sendReq(
+        return cmdgen.NextCmdGen().sendReq(
             self.snmpEngine, addrName, varBinds, cbFun, cbCtx
             )
 
-    def asyncSnmpBulkWalk(
+    def asyncBulkCmd(
         self, authData, transportTarget, nonRepeaters, maxRepetitions,
         varNames, (cbFun, cbCtx)
         ):
@@ -128,12 +128,12 @@ class AsynCmdGen:
             varBinds.append(
                 (mibvar.instanceNameToOid(self.mibView, varName), self._null)
                 )
-        return cmdgen.SnmpBulkWalk().sendReq(
+        return cmdgen.BulkCmdGen().sendReq(
             self.snmpEngine, addrName, nonRepeaters, maxRepetitions,
             varBinds, cbFun, cbCtx
             )
 
-    def snmpSet(self): pass
+    def asyncSetCmd(self): pass
 
 class CmdGen(AsynCmdGen):
     def __cbFun(
@@ -147,8 +147,8 @@ class CmdGen(AsynCmdGen):
             varBinds=varBinds
             )
         
-    def snmpGet(self, authData, transportTarget, *varNames):
-        self.asyncSnmpGet(
+    def getCmd(self, authData, transportTarget, *varNames):
+        self.asyncGetCmd(
             authData, transportTarget, varNames, (self.__cbFun, None)
             )
         try:
@@ -161,7 +161,7 @@ class CmdGen(AsynCmdGen):
                 applicationReturn['varBinds']
                 )
 
-    def snmpWalk(self, authData, transportTarget, *varNames):
+    def nextCmd(self, authData, transportTarget, *varNames):
         def __cbFun(
             sendRequestHandle, errorIndication, errorStatus, errorIndex,
             varBindTable, (varBindHead, varBindTotalTable)
@@ -192,7 +192,7 @@ class CmdGen(AsynCmdGen):
 
         head = map(lambda x,self=self: univ.ObjectIdentifier(mibvar.instanceNameToOid(self.mibView, x)), varNames)
                    
-        self.asyncSnmpWalk(
+        self.asyncNextCmd(
             authData, transportTarget, varNames, (__cbFun, (head, []))
             )
         try:
@@ -207,8 +207,8 @@ class CmdGen(AsynCmdGen):
                 applicationReturn['varBindTable'],
                 )
 
-    def snmpBulkWalk(self, authData, transportTarget,
-                     nonRepeaters, maxRepetitions, *varNames):
+    def bulkCmd(self, authData, transportTarget,
+                nonRepeaters, maxRepetitions, *varNames):
         def __cbFun(
             sendRequestHandle, errorIndication, errorStatus, errorIndex,
             varBindTable, (varBindHead, varBindTotalTable)
@@ -240,7 +240,7 @@ class CmdGen(AsynCmdGen):
 
         head = map(lambda x,self=self: univ.ObjectIdentifier(mibvar.instanceNameToOid(self.mibView, x)), varNames)
                    
-        self.asyncSnmpBulkWalk(
+        self.asyncBulkCmd(
             authData, transportTarget, nonRepeaters, maxRepetitions,
             varNames, (__cbFun, (head, []))
             )
@@ -262,6 +262,6 @@ class CmdGen(AsynCmdGen):
 # some method for params passing other than exception?
 # speed up key localization
 # get snmpv1 back to life
+# protocol proxy
 # traps
-# rename snmpwalk, snmpget -> getnext, get etc.
 # pretty print oid & val at oneliner

@@ -214,7 +214,7 @@ class CmdRspBase:
                     'Unknown ACM error %s' % errorIndication
                     )
         
-class GetRsp(CmdRspBase):
+class GetCmdRsp(CmdRspBase):
     pduTypes = ( rfc1905.GetRequestPDU.tagSet, )
 
     # rfc1905: 4.2.1
