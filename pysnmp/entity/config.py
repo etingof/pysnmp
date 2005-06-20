@@ -12,14 +12,61 @@ from pysnmp import error
 snmpUDPDomain = udp.snmpUDPDomain
 snmpLocalDomain = unix.snmpLocalDomain
 
+def addV1System(snmpEngine, securityName, communityName,
+                contextEngineID=None, contextName=None,
+                transportTag=None):
+    snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+
+    # Build entry index
+    snmpCommunityEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-COMMUNITY-MIB', 'snmpCommunityEntry')
+    tblIdx = snmpCommunityEntry.getInstIdFromIndices(
+        snmpEngineID.syntax, securityName
+        )
+
+    # Create new row
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
+        ((snmpCommunityEntry.name + (8,) + tblIdx, 4),) # XXX symbolic names
+        )
+
+    # Commit table cell
+    snmpCommunityName = snmpCommunityEntry.getNode(
+        snmpCommunityEntry.name + (2,) + tblIdx
+        )
+    snmpCommunityName.syntax = snmpCommunityName.syntax.clone(communityName)
+    
+    snmpCommunitySecurityName = snmpCommunityEntry.getNode(
+        snmpCommunityEntry.name + (3,) + tblIdx
+        )
+    snmpCommunitySecurityName.syntax = snmpCommunitySecurityName.syntax.clone(
+        securityName
+        )
+
+    if contextEngineID is None:
+        contextEngineID = snmpEngineID.syntax
+
+    snmpCommunityContextEngineID = snmpCommunityEntry.getNode(
+        snmpCommunityEntry.name + (4,) + tblIdx
+        )
+    snmpCommunityContextEngineID.syntax = snmpCommunityContextEngineID.syntax.clone(contextEngineID)
+
+    if contextName is not None:
+        snmpCommunityContextName = snmpCommunityEntry.getNode(
+            snmpCommunityEntry.name + (5,) + tblIdx
+            )
+        snmpCommunityContextName.syntax = snmpCommunityContextName.syntax.clone(communityName)
+
+    if transportTag is not None:
+        snmpCommunityTransportTag = snmpCommunityEntry.getNode(
+            snmpCommunityEntry.name + (6,) + tblIdx
+            )
+        snmpCommunityTransportTag.syntax = snmpCommunityTransportTag.syntax.clone(snmpCommunityTransportTag)
+    
 def addV3User(snmpEngine, securityName, authKey=None, authProtocol=None,
               privKey=None, privProtocol=None, hashedAuthKey=None,
               hashedPrivKey=None):
     # v3 setup
     snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
-    snmpUDPDomain  = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-TM', 'snmpUDPDomain')
-    
     # Build entry index
     usmUserEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmUserEntry')
     tblIdx = usmUserEntry.getInstIdFromIndices(
@@ -458,3 +505,4 @@ def addRwUser(snmpEngine, securityName, securityLevel, subTree):
         )
 
 #print repr(localkey.hashPassphrase('privkey1'))
+
