@@ -1,6 +1,6 @@
 # SNMP v1 & v2c security models implementation
+from pyasn1.codec.ber import encoder, decoder
 from pysnmp.proto.secmod import base
-from pysnmp.proto import rfc1157, rfc1905, rfc3411
 from pysnmp.smi.error import NoSuchInstanceError
 from pysnmp.proto import error
 
@@ -9,7 +9,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
     # According to rfc2576, community name <-> contextEngineID/contextName
     # mapping is up to MP module for notifications but belongs to secmod
     # responsibility for other PDU types. Since I do not yet understand
-    # the reason for this distribution, I moved this code from MP-scope
+    # the reason for this de-coupling, I've moved this code from MP-scope
     # in here.
 
     def generateRequestMsg(
@@ -24,6 +24,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         securityLevel,
         scopedPDU
         ):
+        msg, = globalData
         contextEngineID, contextName, pdu = scopedPDU
         
         # rfc2576: 5.2.3
@@ -62,9 +63,12 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
             mibNode = snmpCommunityName.getNode(
                 snmpCommunityName.name + instId
                 )
-            communityName = mibNode.syntax
-            securityParameters = communityName
-            return ( securityParameters, scopedPDU )
+            securityParameters = mibNode.syntax
+            msg.setComponentByPosition(1, securityParameters)
+            msg.setComponentByPosition(2)
+            msg.getComponentByPosition(2).setComponentByType(pdu.tagSet, pdu)
+            wholeMsg = encoder.encode(msg)
+            return ( securityParameters, wholeMsg )
 
         raise error.StatusInformation(
             errorIndication = 'unknownCommunityName'
@@ -84,13 +88,15 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         securityStateReference
         ):
         # rfc2576: 5.2.2
-        cachedData = self._cachePop(securityStateReference)
-        securityParameters = (
-            cachedData['communityName'],
-            cachedData['srcTransport'],
-            cachedData['destTransport']
-            )
-        return ( securityParameters, scopedPDU )
+        msg, = globalData
+        contextEngineID, contextName, pdu = scopedPDU
+        cachedSecurityData = self._cachePop(securityStateReference)
+        communityName = cachedSecurityData['communityName']
+        msg.setComponentByPosition(1, communityName)
+        msg.setComponentByPosition(2)
+        msg.getComponentByPosition(2).setComponentByType(pdu.tarSet, pdu)
+        wholeMsg = encoder.encode(msg)
+        return ( communityName, wholeMsg )
 
     def processIncomingMsg(
         self,
@@ -153,9 +159,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
             )
 
         stateReference = self._cachePush(
-            communityName=communityName.syntax,
-            srcTransport=srcTransport,
-            destTransport=destTransport
+            communityName=communityName.syntax
             )
         
         securityEngineID = snmpEngineID.syntax
@@ -175,11 +179,8 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
     
 class SnmpV2cSecurityModel(SnmpV1SecurityModel):
     securityModelID = 2
-    _protoMsg = rfc1157.Message() # XXX re-assign PDUs
     
 # XXX
 # use biling api?
-# move to pyunit
 # v2c support
-# where to set defaults to PDU?
 # contextEngineId/contextName goes to globalData
