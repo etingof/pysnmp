@@ -7,11 +7,22 @@ from pysnmp.entity.rfc3413.error import ApplicationReturn
 from pysnmp import error
 from pyasn1.type import univ
 
-class CommunityData: pass
+class CommunityData:
+    mpModel=0
+    securityModel=1
+    securityLevel='noAuthNoPriv'
+    def __init__(self, securityName, communityName, mpModel=None):
+        self.securityName = securityName
+        self.communityName = communityName
+        if mpModel is not None:
+            self.mpModel = mpModel
+            self.securityModel = mpModel + 1
 
 class UsmUserData:
     authKey = privKey = None
     securityLevel='noAuthNoPriv'
+    securityModel=3
+    mpModel=2
     authProtocol='md5'
     privProtocol='des'
     def __init__(self, securityName, authKey=None, privKey=None):
@@ -50,8 +61,16 @@ class AsynCmdGen:
         paramsName = '%s-params' % (authData.securityName,)
         if not self.__knownAuths.has_key(authData):
             if isinstance(authData, CommunityData):
-                # XXX
-                config.addV1System(self.snmpEngine, authData.communityName)
+                config.addV1System(
+                    self.snmpEngine,
+                    authData.securityName,
+                    authData.communityName
+                    )
+                config.addTargetParams(
+                    self.snmpEngine, paramsName,
+                    authData.securityName, authData.securityLevel,
+                    authData.securityModel, authData.mpModel
+                    )
             elif isinstance(authData, UsmUserData):
                 config.addV3User(
                     self.snmpEngine,
@@ -265,3 +284,4 @@ class CmdGen(AsynCmdGen):
 # protocol proxy
 # traps
 # pretty print oid & val at oneliner
+# cache release
