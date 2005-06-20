@@ -8,7 +8,7 @@ def getVersionSpecifics(snmpVersion):
         pduVersion = snmpVersion
     else:
         pduVersion = 1
-    return pduVersion, api.protoModules[pduVersion]
+    return pduVersion, api.protoModules[int(pduVersion)]
 
 def getTargetInfo(snmpEngine, snmpTargetAddrName):
     mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
@@ -137,7 +137,7 @@ class CmdGenBase:
            origPduVersion != pduVersion:
             return
 
-        pMod = api.protoModules[pduVersion]
+        pMod = api.protoModules[int(pduVersion)]
         
         # 3.1.2
         if pMod.apiPDU.getRequestID(PDU) != pMod.apiPDU.getRequestID(origPdu):
