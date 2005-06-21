@@ -8,8 +8,8 @@ from pysnmp import error
 from pyasn1.type import univ
 
 class CommunityData:
-    mpModel=0
-    securityModel=1
+    mpModel=1 # Default is SMIv2
+    securityModel=mpModel+1
     securityLevel='noAuthNoPriv'
     def __init__(self, securityName, communityName, mpModel=None):
         self.securityName = securityName
@@ -280,8 +280,9 @@ class CmdGen(AsynCmdGen):
 # rename oneliner
 # some method for params passing other than exception?
 # speed up key localization
-# get snmpv1 back to life
-# protocol proxy
-# traps
+# cmdgen app
+# trap app
+# proxy app
 # pretty print oid & val at oneliner
 # cache release
+# do we need pMod in cmdgen?
