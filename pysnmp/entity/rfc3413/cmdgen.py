@@ -2,6 +2,7 @@ import types, time
 from pysnmp.proto import rfc1157, rfc1905, api
 from pysnmp.smi import view
 from pysnmp.proto import error
+from pysnmp.proto.proxy import rfc2576
 
 def getVersionSpecifics(snmpVersion):
     if snmpVersion < 3:
@@ -128,7 +129,7 @@ class CmdGenBase:
                 (self.processResponsePdu, (cbFun, cbCtx))
                 )
             return
-        
+
         if origMessageProcessingModel != messageProcessingModel or \
            origSecurityModel != securityModel or \
            origSecurityName != origSecurityName or \
@@ -143,6 +144,10 @@ class CmdGenBase:
         if pMod.apiPDU.getRequestID(PDU) != pMod.apiPDU.getRequestID(origPdu):
             return
 
+        # User-side API assumes SMIv2
+        if messageProcessingModel == 0:
+            PDU = rfc2576.v1ToV2(PDU)
+        
         self._handleResponse(
             snmpEngine,
             origTransportDomain,
@@ -330,6 +335,10 @@ class SetCmdGen(CmdGenBase):
         pMod.apiPDU.setDefaults(reqPDU)
 
         pMod.apiPDU.setVarBinds(reqPDU, varBinds)
+
+        # User-side API assumes SMIv2
+        if messageProcessingModel == 0:
+            reqPDU = rfc2576.v2ToV1(reqPDU)
         
         self._sendRequestHandleSource = self._sendRequestHandleSource + 1
         
