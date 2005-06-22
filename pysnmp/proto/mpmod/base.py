@@ -96,7 +96,8 @@ class AbstractMessageProcessingModel:
         return cacheEntry
 
     def _cachePopBySendPduHandle(self, sendPduHandle):
-        self._cachePopByMsgId(self.__sendPduHandleIdx[sendPduHandle])
+        if self.__sendPduHandleIdx.has_key(sendPduHandle):
+            self._cachePopByMsgId(self.__sendPduHandleIdx[sendPduHandle])
         
     def __expireCaches(self):
         # Uses internal clock to expire pending messages
@@ -112,5 +113,8 @@ class AbstractMessageProcessingModel:
         self.__expirationTimer = self.__expirationTimer + 1
 
     def releaseStateInformation(self, sendPduHandle):
-        self._cachePopBySendPduHandle(sendPduHandle)
+        try:
+            self._cachePopBySendPduHandle(sendPduHandle)
+        except error.ProtocolError:
+            pass # XXX maybe these should all follow some scheme?
     
