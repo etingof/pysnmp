@@ -278,7 +278,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                 cachedReqParams = self._cachePopByMsgId(long(msgID))
             except error.ProtocolError:
                 raise error.StatusInformation(
-                    errorIndication = 'lateResponse'
+                    errorIndication = 'dataMismatch'
                     )
 
             # 7.2.10b            

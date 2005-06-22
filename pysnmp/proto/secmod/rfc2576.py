@@ -94,7 +94,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         communityName = cachedSecurityData['communityName']
         msg.setComponentByPosition(1, communityName)
         msg.setComponentByPosition(2)
-        msg.getComponentByPosition(2).setComponentByType(pdu.tarSet, pdu)
+        msg.getComponentByPosition(2).setComponentByType(pdu.tagSet, pdu)
         wholeMsg = encoder.encode(msg)
         return ( communityName, wholeMsg )
 
