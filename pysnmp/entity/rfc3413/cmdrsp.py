@@ -51,7 +51,7 @@ class CmdRspBase:
 
         del self.__pendingReqs[stateReference]
 
-        pMod = api.protoModules[pduVersion]
+        pMod = api.protoModules[1] # int(pduVersion)] XXX pMod needed??
 
         pMod.apiPDU.setErrorStatus(PDU, errorStatus)
         pMod.apiPDU.setErrorIndex(PDU, errorIndex)
@@ -99,7 +99,12 @@ class CmdRspBase:
         maxSizeResponseScopedPDU,
         stateReference
         ):
-        pMod = api.protoModules[pduVersion]
+
+        # Agent-side API complies with SMIv2
+        if messageProcessingModel == 0:
+            PDU = rfc2576.v1ToV2(PDU)
+                
+        pMod = api.protoModules[1] # XXX int(pduVersion)]
 
         # 3.2.1
         if rfc3411.readClassPDUs.has_key(PDU.tagSet):
@@ -139,10 +144,6 @@ class CmdRspBase:
             snmpEngine, securityModel, securityName, securityLevel, contextName
             )
 
-        # Agent-side API complies with SMIv2
-        if messageProcessingModel == 0:
-            PDU = rfc2576.v1ToV2(PDU)
-        
         # 3.2.5
         varBinds = pMod.apiPDU.getVarBinds(PDU)
         errorStatus, errorIndex = 'noError', 0
