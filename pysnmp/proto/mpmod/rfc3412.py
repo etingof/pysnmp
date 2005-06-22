@@ -532,7 +532,12 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         if rfc3411.responseClassPDUs.has_key(pduType) or \
                rfc3411.internalClassPDUs.has_key(pduType):
             # 7.2.10a
-            cachedReqParams = self._cachePopByMsgId(long(msgID))
+            try:
+                cachedReqParams = self._cachePopByMsgId(long(msgID))
+            except error.ProtocolError:
+                raise error.StatusInformation(
+                    errorIndication = 'dataMismatch'
+                    )
             # 7.2.10b            
             sendPduHandle = cachedReqParams['sendPduHandle']
         else:
