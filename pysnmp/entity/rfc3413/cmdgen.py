@@ -5,8 +5,8 @@ from pysnmp.proto import error
 from pysnmp.proto.proxy import rfc2576
 
 def getVersionSpecifics(snmpVersion):
-    if snmpVersion < 3:
-        pduVersion = snmpVersion
+    if snmpVersion == 0:
+        pduVersion = 0
     else:
         pduVersion = 1
     return pduVersion, api.protoModules[int(pduVersion)]
@@ -466,7 +466,8 @@ class NextCmdGen(CmdGenBase):
               pMod.apiPDU.getErrorStatus(rspPDU),
               pMod.apiPDU.getErrorIndex(rspPDU),
               varBindTable, cbCtx)
-        
+
+        pMod.apiPDU.setRequestID(PDU, pMod.getNextRequestID())
         pMod.apiPDU.setVarBinds(
             PDU, map(lambda (x,y),n=pMod.Null(): (x,n), varBindTable[-1])
             )
@@ -574,7 +575,8 @@ class BulkCmdGen(CmdGenBase):
               pMod.apiBulkPDU.getErrorStatus(rspPDU),
               pMod.apiBulkPDU.getErrorIndex(rspPDU),
               varBindTable, cbCtx)
-        
+
+        pMod.apiBulkPDU.setRequestID(PDU, pMod.getNextRequestID())
         pMod.apiBulkPDU.setVarBinds(
             PDU, map(lambda (x,y),n=pMod.Null(): (x,n), varBindTable[-1])
             )
