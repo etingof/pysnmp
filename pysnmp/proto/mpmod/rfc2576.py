@@ -2,7 +2,8 @@
 from pyasn1.codec.ber import encoder, decoder
 from pysnmp.proto.mpmod.base import AbstractMessageProcessingModel
 from pysnmp.proto.secmod import rfc2576
-from pysnmp.proto import rfc1157, rfc1905, rfc3411, error
+from pysnmp.proto import rfc3411, error
+from pysnmp.proto.api import v1, v2c
 from pyasn1.type import univ
 from pyasn1.error import PyAsn1Error
 
@@ -11,8 +12,8 @@ from pyasn1.error import PyAsn1Error
 # references here goes to RFC3412.
 
 class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
-    messageProcessingModelID = 0
-    _snmpMsgSpec = rfc1157.Message()
+    messageProcessingModelID = 0 # SNMPv1
+    _snmpMsgSpec = v1.Message()
     # rfc3412: 7.1
     def prepareOutgoingMessage(
         self,
@@ -376,7 +377,8 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             )
         
 class SnmpV2cMessageProcessingModel(SnmpV1MessageProcessingModel):
-    messageProcessingModelID = 1
+    messageProcessingModelID = 1 # SNMPv2c
+    _snmpMsgSpec = v2c.Message()
     
 # XXX
 # cache expiration
