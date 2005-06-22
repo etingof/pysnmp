@@ -60,6 +60,5 @@ class Message(univ.Sequence):
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('version', univ.Integer(namedValues = namedval.NamedValues(('version-1', 0)))),
         namedtype.NamedType('community', univ.OctetString()),
-        namedtype.NamedType('data', PDUs())
-        
-)
+        namedtype.NamedType('data', PDUs())        
+        )
