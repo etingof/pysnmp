@@ -155,7 +155,7 @@ class MsgAndPduDispatcher:
                 sendPduHandle
                 )
         except error.StatusInformation, statusInformation:
-            self.__cachePop(sendPduHandle)
+#            self.releaseStateInformation(snmpEngine, sendPduHandle)
             raise
 
         # 4.1.1.6
@@ -469,10 +469,9 @@ class MsgAndPduDispatcher:
     
 # XXX
 # LCD may be used to cache frequently accessed MIB variables
-# rework cache expiration to index ents to be expired
 # rework transport in a loadable fashion
 # asn1.type clone/subtype issue
 # asn1 types should hash eq to their python types
 # get restOfMsg from mp model at receiveMessage()
 # snmp entity's scope debug object
-# debug snmp v1/2 code
+# straighten up caches management logic
