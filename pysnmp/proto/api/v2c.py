@@ -49,6 +49,14 @@ class PDUAPI(v1.PDUAPI):
         self.setRequestID(rspPDU, self.getRequestID(reqPDU))
         return rspPDU
 
+    def getVarBindTable(self, reqPDU, rspPDU):
+        varBinds = []
+        for oid, val in apiPDU.getVarBinds(rspPDU):
+            if exval.endOfMib.isSameTypeWith(val):
+                val = None
+            varBinds.append((oid, val))
+        return [ varBinds ]
+
 apiPDU = PDUAPI()
 
 class BulkPDUAPI(PDUAPI):
