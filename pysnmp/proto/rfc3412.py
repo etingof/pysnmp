@@ -8,9 +8,6 @@ from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
 from pysnmp.carrier.asynsock.dgram import udp
 from pysnmp.error import PySnmpError
 
-# Defaults
-defaultMessageProcessingVersion = 0
-
 class MsgAndPduDispatcher:
     """SNMP engine PDU & message dispatcher. Exchanges SNMP PDU's with
        applications and serialized messages with transport level.
@@ -426,6 +423,14 @@ class MsgAndPduDispatcher:
 
             return restOfWholeMsg
 
+    def releaseStateInformation(
+        self, snmpEngine, sendPduHandle, messageProcessingModel
+        ):
+        mpHandler = snmpEngine.messageProcessingSubsystems.get(
+            int(messageProcessingModel)
+            )
+        mpHandler.releaseStateInformation(sendPduHandle)
+        
     # Cache expiration stuff
 
     def __expireRequest(self, snmpEngine,cachedParams,statusInformation=None):
@@ -437,6 +442,11 @@ class MsgAndPduDispatcher:
             statusInformation = error.StatusInformation(
                 errorIndication='requestTimedOut'
                 )
+        self.releaseStateInformation(
+            snmpEngine,
+            cachedParams['sendPduHandle'],
+            cachedParams['messageProcessingModel']
+            )
         processResponsePdu(
             snmpEngine,
             None,
