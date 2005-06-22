@@ -51,7 +51,7 @@ _snmpErrors = {
     }
 
 class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
-    messageProcessingModelID = 3
+    messageProcessingModelID = 3 # SNMPv3
     _snmpMsgSpec = SNMPv3Message()
     def __init__(self):
         AbstractMessageProcessingModel.__init__(self)
