@@ -1,6 +1,7 @@
 # PDU v1/v2c two-way proxy
 from pysnmp.proto import rfc3411
 from pysnmp.proto.api import v1, v2c
+from pysnmp.smi import exval
 
 # 2.1.1
 
@@ -114,7 +115,7 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
 
         # 3.1.3
         else:
-            snmpTrapOID = __v1ToV2TrapMap[genericTrap]
+            snmpTrapOID = __v1ToV2TrapMap[int(genericTrap)]
 
         v2VarBinds.append((sysUpTime, None))
         v2VarBinds.append((snmpTrapOID, None))
@@ -138,22 +139,22 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
 
         # 4.1.2.1 --> no-op
 
-    v1.apiPDU.setVarBinds(v2Pdu, v2VarBinds)
+    v2c.apiPDU.setVarBinds(v2Pdu, v2VarBinds)
         
     return v2Pdu
 
 def v2ToV1(v2Pdu, origV1Pdu=None):
-    pduType = v1Pdu.tagSet
+    pduType = v2Pdu.tagSet
 
     v1Pdu = __v2ToV1PduMap[pduType].clone()
 
-    v2VarBinds = v2c.getVarBinds(v2Pdu)
+    v2VarBinds = v2c.apiPDU.getVarBinds(v2Pdu)
     v1VarBinds = []
 
     # 3.2
     if rfc3411.notificationClassPDUs.has_key(pduType):
         # 3.2.1
-        snmpTrapOID = v2VarBinds[0][0]
+        snmpTrapOID = tuple(v2VarBinds[0][0])
         if __v2ToV1TrapMap.has_key(snmpTrapOID):
             for oid, val in v2VarBinds:
                 # snmpTrapEnterprise
@@ -196,7 +197,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         # 3.2.6 --> done below
 
     if rfc3411.responseClassPDUs.has_key(pduType):
-        idx = len(v2VarBinds)
+        idx = len(v2VarBinds)-1
         while idx >= 0:
             # 4.1.2.1
             oid, val = v2VarBinds[idx]
@@ -222,7 +223,9 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         # 4.1.2.3.1
         v2ErrorStatus = v2c.apiPDU.getErrorStatus(v2Pdu)
         if v2ErrorStatus:
-            v1.apiPDU.setErrorStatus(v1Pdu, __v2ToV1ErrorMap(v2ErrorStatus))
+            v1.apiPDU.setErrorStatus(
+                v1Pdu, __v2ToV1ErrorMap[int(v2ErrorStatus)]
+                )
             v1.apiPDU.setErrorIndex(v1Pdu, v2c.apiPDU.getErrorIndex(v2Pdu))
             
     if not rfc3411.notificationClassPDUs.has_key(pduType):
@@ -233,11 +236,12 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
     # Translate Var-Binds
     for oid, v2Val in v2VarBinds:
         v1VarBinds.append(
-            oid, __v2ToV1ValueMap(v2Val.tagSet).clone(v2Val)
+            (oid, __v2ToV1ValueMap[v2Val.tagSet].clone(v2Val))
             )
 
+    v1.apiPDU.setVarBinds(v1Pdu, v1VarBinds)
     v1.apiPDU.setDefaults(v1Pdu)
-         
+
     return v1Pdu
 
 # XXX constants
