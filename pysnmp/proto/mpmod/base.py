@@ -7,6 +7,7 @@ class AbstractMessageProcessingModel:
     def __init__(self):
         self.__msgIdIndex = {}
         self.__stateReferenceIndex = {}
+        self.__sendPduHandleIdx = {}
         # Message expiration mechanics
         self.__expirationQueue = {}
         self.__expirationTimer = 0L
@@ -70,6 +71,8 @@ class AbstractMessageProcessingModel:
                 )
         expireAt = self.__expirationTimer+50
         self.__msgIdIndex[msgId] = ( msgInfo, expireAt )
+
+        self.__sendPduHandleIdx[msgInfo['sendPduHandle']] = msgId
         
         # Schedule to expire
         if not self.__expirationQueue.has_key(expireAt):
@@ -85,11 +88,16 @@ class AbstractMessageProcessingModel:
             raise error.ProtocolError(
                 'Cache miss for msgId=%s at %s' % (msgId, self)
                 )
+        msgInfo, expireAt = cacheInfo
+        del self.__sendPduHandleIdx[msgInfo['sendPduHandle']]
         del self.__msgIdIndex[msgId]
         cacheEntry, expireAt = cacheInfo
         del self.__expirationQueue[expireAt]['msgId'][msgId]
         return cacheEntry
 
+    def _cachePopBySendPduHandle(self, sendPduHandle):
+        self._cachePopByMsgId(self.__sendPduHandleIdx[sendPduHandle])
+        
     def __expireCaches(self):
         # Uses internal clock to expire pending messages
         if self.__expirationQueue.has_key(self.__expirationTimer):
@@ -102,3 +110,7 @@ class AbstractMessageProcessingModel:
                     del self.__msgIdIndex[msgId]
             del self.__expirationQueue[self.__expirationTimer]
         self.__expirationTimer = self.__expirationTimer + 1
+
+    def releaseStateInformation(self, sendPduHandle):
+        self._cachePopBySendPduHandle(sendPduHandle)
+    
