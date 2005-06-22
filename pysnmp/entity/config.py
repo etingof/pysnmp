@@ -196,8 +196,7 @@ def addTargetParams(
     name,
     securityName,
     securityLevel,
-    securityModel=3,
-    mpModel=3
+    mpModel=3  # 0 == SNMPv1, 1 == SNMPv2c, 3 == SNMPv3
     ):
     # Build entry index
     snmpTargetParamsEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-TARGET-MIB', 'snmpTargetParamsEntry')
@@ -207,6 +206,13 @@ def addTargetParams(
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpTargetParamsEntry.name + (7,) + tblIdx, 4),)
         )
+
+    if mpModel == 0:
+        securityModel = 1
+    elif mpModel == 1 or mpModel == 2:
+        securityModel = 2
+    else:
+        securityModel = 3
     
     # Fill entries
     snmpTargetParamsName = snmpTargetParamsEntry.getNode(
