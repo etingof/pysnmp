@@ -69,11 +69,12 @@ class BulkPDUAPI(PDUAPI):
                         (len(apiPDU.getVarBindList(rspPDU))-N))/R)
         varBindList = apiPDU.getVarBindList(rspPDU)
         varBindRows = []; varBindTable = [ varBindRows ]
-        __null = Null()
+#        __null = Null()
         for idx in range(N):
             oid, val = apiVarBind.getOIDVal(varBindList[idx])
             if exval.endOfMib.isSameTypeWith(val):
-                val = __null
+                val = None
+#                val = __null
             varBindRows.append((oid, val))
         for rowIdx in range(M):
             if len(varBindTable) < rowIdx+1:
@@ -84,6 +85,8 @@ class BulkPDUAPI(PDUAPI):
                     varBindRow.append(varBindTable[-2][colIdx])
                 idx = N + rowIdx*R + colIdx
                 oid, val = apiVarBind.getOIDVal(varBindList[idx])
+                if exval.endOfMib.isSameTypeWith(val):
+                    val = None
                 if len(varBindRow) < colIdx+N+1:
                     varBindRow.append((oid, val))
                 else:
@@ -107,3 +110,6 @@ class MessageAPI(v1.MessageAPI):
         return rspMsg
 
 apiMessage = MessageAPI()
+
+# XXX
+# EOM protocol

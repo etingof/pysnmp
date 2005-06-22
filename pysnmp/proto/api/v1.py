@@ -39,7 +39,7 @@ apiVarBind = VarBindAPI()
 class __RequestIDSource:
     requestId = 0
     def __call__(self):
-        if self.requestId >0xfffe:
+        if self.requestId > 0xfffe:
             self.requestId = 0
         else:
             self.requestId = self.requestId + 1
@@ -98,18 +98,11 @@ class PDUAPI:
         self.setRequestID(rspPDU, self.getRequestID(reqPDU))
         return rspPDU
 
-#     def getEndOfMIBIndices(self, pdu):
-#         if apiPDU.getErrorStatus(pdu) == 2:
-#             return ( apiPDU.getErrorIndex(pdu) - 1, )
-#         return ()
-
-#     def setEndOfMIBIndices(self, pdu, *indices):
-#         if indices:
-#             apiPDU.setErrorStatus(pdu, 2)
-#             apiPDU.setErrorIndex(pdu, indices[0]+1)
-
     def getVarBindTable(self, reqPDU, rspPDU):
-        return [ apiPDU.getVarBinds(rspPDU) ]
+        if apiPDU.getErrorStatus(rspPDU) == 2:
+            return [ map(lambda (x,y): x,None, apiPDU.getVarBinds(reqPDU)) ]
+        else:
+            return [ apiPDU.getVarBinds(rspPDU) ]
 
 apiPDU = PDUAPI()
 
