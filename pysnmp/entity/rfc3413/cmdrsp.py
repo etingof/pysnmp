@@ -1,5 +1,6 @@
 from pysnmp.proto import rfc1157, rfc1905, api
 from pysnmp.proto import rfc1905, rfc3411, error
+from pysnmp.proto.proxy import rfc2576
 import pysnmp.smi.error
 
 vacmID = 3
@@ -55,6 +56,10 @@ class CmdRspBase:
         pMod.apiPDU.setErrorStatus(PDU, errorStatus)
         pMod.apiPDU.setErrorIndex(PDU, errorIndex)
         pMod.apiPDU.setVarBinds(PDU, varBinds)
+
+        # Agent-side API complies with SMIv2
+        if messageProcessingModel == 0:
+            PDU = rfc2576.v2ToV1(PDU)
 
         # 3.2.6
         try:
@@ -133,7 +138,11 @@ class CmdRspBase:
         acCtx = (
             snmpEngine, securityModel, securityName, securityLevel, contextName
             )
-            
+
+        # Agent-side API complies with SMIv2
+        if messageProcessingModel == 0:
+            PDU = rfc2576.v1ToV2(PDU)
+        
         # 3.2.5
         varBinds = pMod.apiPDU.getVarBinds(PDU)
         errorStatus, errorIndex = 'noError', 0
