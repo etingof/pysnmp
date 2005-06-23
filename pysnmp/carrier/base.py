@@ -3,7 +3,7 @@ from pysnmp.carrier import error
 
 class AbstractTransportDispatcher:
     def __init__(self):
-        self.doDispatchFlag = 1
+        self._doDispatchFlag = 1
         self.__transports = {}
         self.__recvCbFun = self.__timerCbFun = None
 
@@ -82,6 +82,9 @@ class AbstractTransportDispatcher:
     def runDispatcher(self, timeout=0.0):
         raise error.CarrierError('Method not implemented')
 
+    def stopDispatcher(self):
+        self._doDispatchFlag = 0
+        
     def closeDispatcher(self):
         self.closeTransports()
         for tDomain in self.__transports.keys():

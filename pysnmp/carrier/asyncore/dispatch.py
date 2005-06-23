@@ -46,11 +46,11 @@ class AsynsockDispatcher(base.AbstractTransportDispatcher):
         base.AbstractTransportDispatcher.unregisterTransports(self, tDomain)
 
     def runDispatcher(self, liveForever=1):
-        self.doDispatchFlag = liveForever
+        self._doDispatchFlag = liveForever
         while 1:
             poll(self.timeout, self.__sockMap)
             self.handleTimerTick(time())
-            if not self.doDispatchFlag:
+            if not self._doDispatchFlag:
                 break
             
 # XXX doDispatchFlag is needed?
