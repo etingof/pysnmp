@@ -317,7 +317,11 @@ class MibTree(ObjectTypePattern):
             if self._vars and name <= self._vars.keys()[0]:
                 return self._vars[self._vars.keys()[0]]
             else:
-                raise
+                # Try following the white rabbit at our level
+                try:
+                    return self._vars[self._vars.nextKey(name)]
+                except KeyError:
+                    raise error.NoSuchInstanceError(idx=idx, name=name)
         else:
             try:
                 return nextNode.getNextNode(name, idx)
@@ -329,8 +333,8 @@ class MibTree(ObjectTypePattern):
                 
     # Mapping interface to subtree XXX
     
-    def get(self, key, defVal=None): return self._vars.get(key, defVal)
-    def keys(self): return self._vars.keys()
+#    def get(self, key, defVal=None): return self._vars.get(key, defVal)
+#    def keys(self): return self._vars.keys()
     
     # MIB instrumentation
 
@@ -849,5 +853,8 @@ mibBuilder.exportSymbols(
     )
 
 # XXX
-# maybe re-factor tree facilities
+# maybe re-design tree scheme for clarity and less iters on tree walk?
 # getAsName/setFromName goes out of MibRow?
+# revisit getNextNode() & getBranch() -- these need optimization
+# re-design MibVariable to be a subtree with a single leaf -- MibInstance;
+#    MibColumn syntax is also MibVarInstance instead of ColInitializer
