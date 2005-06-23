@@ -495,7 +495,6 @@ def addRoUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
         snmpEngine, groupName+'-view-ro', 1, subTree, '',
         )
 
-    # Model? XXX
 def addRwUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
     groupName = '%s-grp-%d' % (securityName, securityModel)
     SnmpSecurityLevel, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'SnmpSecurityLevel')
@@ -510,4 +509,3 @@ def addRwUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
     addVacmView(
         snmpEngine, groupName+'-view-rw', 1, subTree, ''
         )
-
