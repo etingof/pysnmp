@@ -1,4 +1,5 @@
-from pysnmp.proto import rfc1157, rfc1905, api
+from pysnmp.proto import rfc1157, rfc1905
+from pysnmp.proto.api import v2c  # backend is always SMIv2 compliant
 from pysnmp.proto import rfc1905, rfc3411, error
 from pysnmp.proto.proxy import rfc2576
 import pysnmp.smi.error
@@ -51,16 +52,14 @@ class CmdRspBase:
 
         del self.__pendingReqs[stateReference]
 
-        pMod = api.protoModules[1] # int(pduVersion)] XXX pMod needed??
-
-        pMod.apiPDU.setErrorStatus(PDU, errorStatus)
-        pMod.apiPDU.setErrorIndex(PDU, errorIndex)
-        pMod.apiPDU.setVarBinds(PDU, varBinds)
+        v2c.apiPDU.setErrorStatus(PDU, errorStatus)
+        v2c.apiPDU.setErrorIndex(PDU, errorIndex)
+        v2c.apiPDU.setVarBinds(PDU, varBinds)
 
         # Agent-side API complies with SMIv2
         if messageProcessingModel == 0:
             PDU = rfc2576.v2ToV1(PDU)
-
+        
         # 3.2.6
         try:
             snmpEngine.msgAndPduDsp.returnResponsePdu(
@@ -103,8 +102,6 @@ class CmdRspBase:
         # Agent-side API complies with SMIv2
         if messageProcessingModel == 0:
             PDU = rfc2576.v1ToV2(PDU)
-                
-        pMod = api.protoModules[1] # XXX int(pduVersion)]
 
         # 3.2.1
         if rfc3411.readClassPDUs.has_key(PDU.tagSet):
@@ -114,12 +111,11 @@ class CmdRspBase:
         else:
             raise error.ProtocolError('Unexpected PDU class %s' % PDU.tagSet)
         
-        # 3.2.2
-        requestId = pMod.apiPDU.getRequestID(PDU)
+        # 3.2.2 --> no-op
 
         # 3.2.4
-        rspPDU = pMod.apiPDU.getResponse(PDU)
-
+        rspPDU = v2c.apiPDU.getResponse(PDU)
+        
         statusInformation = {}
         
         self.__pendingReqs[stateReference] = (
@@ -145,11 +141,11 @@ class CmdRspBase:
             )
 
         # 3.2.5
-        varBinds = pMod.apiPDU.getVarBinds(PDU)
+        varBinds = v2c.apiPDU.getVarBinds(PDU)
         errorStatus, errorIndex = 'noError', 0
         try:
             errorStatus, errorIndex, varBinds = self._handleManagementOperation(
-                snmpEngine, contextMibInstrumCtl, pMod, PDU,
+                snmpEngine, contextMibInstrumCtl, PDU,
                 (self.__verifyAccess, acCtx)
                 )
         # SNMPv2 SMI exceptions
@@ -229,11 +225,11 @@ class GetCmdRsp(CmdRspBase):
 
     # rfc1905: 4.2.1
     def _handleManagementOperation(
-        self, snmpEngine, contextMibInstrumCtl, pMod, PDU, (acFun, acCtx)
+        self, snmpEngine, contextMibInstrumCtl, PDU, (acFun, acCtx)
         ):
         # rfc1905: 4.2.1.1
         return 0, 0, contextMibInstrumCtl.readVars(
-            pMod.apiPDU.getVarBinds(PDU), (acFun, acCtx)
+            v2c.apiPDU.getVarBinds(PDU), (acFun, acCtx)
             )
 
 class NextCmdRsp(CmdRspBase):
@@ -241,10 +237,10 @@ class NextCmdRsp(CmdRspBase):
 
     # rfc1905: 4.2.2
     def _handleManagementOperation(self, snmpEngine, contextMibInstrumCtl,
-                                   pMod, PDU, (acFun, acCtx)):
+                                   PDU, (acFun, acCtx)):
         # rfc1905: 4.2.1.1
         return 0, 0, contextMibInstrumCtl.readNextVars(
-            pMod.apiPDU.getVarBinds(PDU), (acFun, acCtx)
+            v2c.apiPDU.getVarBinds(PDU), (acFun, acCtx)
             )
 
 class BulkCmdRsp(CmdRspBase):
@@ -253,14 +249,14 @@ class BulkCmdRsp(CmdRspBase):
     
     # rfc1905: 4.2.3
     def _handleManagementOperation(self, snmpEngine, contextMibInstrumCtl,
-                                   pMod, PDU, (acFun, acCtx)):
-        nonRepeaters = pMod.apiBulkPDU.getNonRepeaters(PDU)
+                                   PDU, (acFun, acCtx)):
+        nonRepeaters = v2c.apiBulkPDU.getNonRepeaters(PDU)
         if nonRepeaters < 0:
             nonRepeaters = 0
-        maxRepetitions = pMod.apiBulkPDU.getMaxRepetitions(PDU)
+        maxRepetitions = v2c.apiBulkPDU.getMaxRepetitions(PDU)
         if maxRepetitions < 0:
             maxRepetitions = 0
-        reqVarBinds = pMod.apiPDU.getVarBinds(PDU)
+        reqVarBinds = v2c.apiPDU.getVarBinds(PDU)
 
         N = min(nonRepeaters, len(reqVarBinds))
         M = int(maxRepetitions)
