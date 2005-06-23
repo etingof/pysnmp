@@ -480,35 +480,34 @@ def addVacmView(snmpEngine, viewName, viewType, subTree, mask):
 
 # VACM simplicity wrappers
 
-def addRoUser(snmpEngine, securityName, securityLevel, subTree):
-    groupName = '%s-grp-%d' % (securityName, 3)
+def addRoUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
+    groupName = '%s-grp-%d' % (securityName, securityModel)
     SnmpSecurityLevel, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'SnmpSecurityLevel')
     securityLevel = SnmpSecurityLevel(securityLevel)
     addVacmGroup(
-        snmpEngine, groupName, 3, securityName
+        snmpEngine, groupName, securityModel, securityName
         )
     addVacmAccess(
-        snmpEngine, groupName, '', 3, securityLevel, 1,
+        snmpEngine, groupName, '', securityModel, securityLevel, 1,
         groupName+'-view-ro', '', ''
         )
     addVacmView(
         snmpEngine, groupName+'-view-ro', 1, subTree, '',
         )
-    
-def addRwUser(snmpEngine, securityName, securityLevel, subTree):
-    groupName = '%s-grp-%d' % (securityName, 3)
+
+    # Model? XXX
+def addRwUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
+    groupName = '%s-grp-%d' % (securityName, securityModel)
     SnmpSecurityLevel, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'SnmpSecurityLevel')
     securityLevel = SnmpSecurityLevel(securityLevel)
     addVacmGroup(
-        snmpEngine, groupName, 3, securityName
+        snmpEngine, groupName, securityModel, securityName
         )
     addVacmAccess(
-        snmpEngine, groupName, '', 3, securityLevel, 1,
+        snmpEngine, groupName, '', securityModel, securityLevel, 1,
         groupName+'-view-rw', groupName+'-view-rw', ''
         )
     addVacmView(
         snmpEngine, groupName+'-view-rw', 1, subTree, ''
         )
-
-#print repr(localkey.hashPassphrase('privkey1'))
 
