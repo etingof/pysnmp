@@ -1,5 +1,5 @@
 # SNMP v1 & v2c security models implementation
-from pyasn1.codec.ber import encoder, decoder
+from pyasn1.codec.ber import encoder
 from pysnmp.proto.secmod import base
 from pysnmp.smi.error import NoSuchInstanceError
 from pysnmp.proto import error
@@ -95,6 +95,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         msg.setComponentByPosition(1, communityName)
         msg.setComponentByPosition(2)
         msg.getComponentByPosition(2).setComponentByType(pdu.tagSet, pdu)
+        
         wholeMsg = encoder.encode(msg)
         return ( communityName, wholeMsg )
 

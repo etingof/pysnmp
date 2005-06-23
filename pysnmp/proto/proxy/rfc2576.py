@@ -92,7 +92,6 @@ __v2ToV1ErrorMap = {
 def v1ToV2(v1Pdu, origV2Pdu=None):
     pduType = v1Pdu.tagSet
     v2Pdu = __v1ToV2PduMap[pduType].clone()
-
     v2c.apiPDU.setDefaults(v2Pdu)
     
     if not rfc3411.notificationClassPDUs.has_key(pduType):
@@ -147,6 +146,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
     pduType = v2Pdu.tagSet
 
     v1Pdu = __v2ToV1PduMap[pduType].clone()
+    v1.apiPDU.setDefaults(v1Pdu)
 
     v2VarBinds = v2c.apiPDU.getVarBinds(v2Pdu)
     v1VarBinds = []
@@ -214,7 +214,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
             # 4.1.2.2.1&2
             if exval.noSuchInstance.tagSet == val.tagSet or \
                exval.noSuchObject.tagSet == val.tagSet or \
-               exval.endOfMibView.tagSet == val.tagSet:
+               exval.endOfMib.tagSet == val.tagSet:
                 v1.apiPDU.setErrorStatus(v1Pdu, 2)
                 v1.apiPDU.setErrorIndex(v1Pdu, idx+1)
                 
@@ -240,8 +240,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
             )
 
     v1.apiPDU.setVarBinds(v1Pdu, v1VarBinds)
-    v1.apiPDU.setDefaults(v1Pdu)
-
+    
     return v1Pdu
 
 # XXX constants

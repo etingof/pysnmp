@@ -1,5 +1,5 @@
 # SNMP v1 & v2c message processing models implementation
-from pyasn1.codec.ber import encoder, decoder
+from pyasn1.codec.ber import decoder
 from pysnmp.proto.mpmod.base import AbstractMessageProcessingModel
 from pysnmp.proto.secmod import rfc2576
 from pysnmp.proto import rfc3411, error
