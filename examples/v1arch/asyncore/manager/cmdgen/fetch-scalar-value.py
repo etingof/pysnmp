@@ -1,6 +1,6 @@
 """Command Generator Application (GET)"""
 from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
-from pysnmp.carrier.asynsock.dgram.udp import UdpSocketTransport
+from pysnmp.carrier.asynsock.dgram import udp
 from pyasn1.codec.ber import encoder, decoder
 from pysnmp.proto import api
 from time import time
@@ -26,11 +26,10 @@ def cbTimerFun(timeNow, startedAt=time()):
     if timeNow - startedAt > 3:
         raise "Request timed out"
     
-def cbRecvFun(tspDsp, transportDomain, transportAddress,
+def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
               wholeMsg, reqPDU=reqPDU):
     while wholeMsg:
         rspMsg, wholeMsg = decoder.decode(wholeMsg, asn1Spec=pMod.Message())
-        print rspMsg.prettyPrinter()        
         rspPDU = pMod.apiMessage.getPDU(rspMsg)
         # Match response to request
         if pMod.apiPDU.getRequestID(reqPDU)==pMod.apiPDU.getRequestID(rspPDU):
@@ -41,12 +40,18 @@ def cbRecvFun(tspDsp, transportDomain, transportAddress,
             else:
                 for oid, val in pMod.apiPDU.getVarBinds(rspPDU):
                     print oid, val
-    tspDsp.doDispatchFlag = 0
+            transportDispatcher.stopDispatcher()
     return wholeMsg
 
-dsp = AsynsockDispatcher(udp=UdpSocketTransport().openClientMode())
-dsp.registerRecvCbFun(cbRecvFun)
-dsp.registerTimerCbFun(cbTimerFun)
-#dsp.sendMessage(encoder.encode(reqMsg), 'udp', ('localhost', 1161)) # 161
-dsp.sendMessage(encoder.encode(reqMsg), 'udp', ('ts29.moscow.net.rol.ru', 161))
-dsp.runDispatcher(liveForever=1)
+transportDispatcher = AsynsockDispatcher()
+transportDispatcher.registerTransport(
+    udp.domainName, udp.UdpSocketTransport().openClientMode()
+    )
+transportDispatcher.registerRecvCbFun(cbRecvFun)
+transportDispatcher.registerTimerCbFun(cbTimerFun)
+transportDispatcher.sendMessage(
+    encoder.encode(reqMsg), udp.domainName, ('localhost', 161)
+    )
+transportDispatcher.runDispatcher()
+
+# oneliner?
