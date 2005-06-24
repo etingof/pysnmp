@@ -86,7 +86,6 @@ class AbstractTransportDispatcher:
         self._doDispatchFlag = 0
         
     def closeDispatcher(self):
-        self.closeTransports()
         for tDomain in self.__transports.keys():
             self.__transports[tDomain].closeTransport()
             self.unregisterTransport(tDomain)
