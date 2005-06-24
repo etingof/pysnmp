@@ -70,6 +70,12 @@ class PDUAPI:
     def setErrorIndex(self, pdu, value):
         pdu.setComponentByPosition(2, value)
 
+    def setEndOfMibError(self, pdu, errorIndex):
+        self.setErrorStatus(pdu, 2)
+
+    def setNoSuchInstanceError(self, pdu, errorIndex):
+        self.setEndOfMibError(pdu, errorIndex)
+    
     def getVarBindList(self, pdu):
         return pdu.getComponentByPosition(3)
     def setVarBindList(self, pdu, varBindList):

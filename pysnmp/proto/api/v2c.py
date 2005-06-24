@@ -57,6 +57,14 @@ class PDUAPI(v1.PDUAPI):
             varBinds.append((oid, val))
         return [ varBinds ]
 
+    def setEndOfMibError(self, pdu, errorIndex):
+        varBindList = self.apiGetVarBindList(pdu)
+        varBindList[errorIndex-1][1] = exval.endOfMib
+
+    def setNoSuchInstanceError(self, pdu, errorIndex):
+        varBindList = self.apiGetVarBindList(pdu)
+        varBindList[errorIndex-1][1] = exval.noSuchInstance
+
 apiPDU = PDUAPI()
 
 class BulkPDUAPI(PDUAPI):
