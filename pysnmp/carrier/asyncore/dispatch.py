@@ -43,7 +43,7 @@ class AsynsockDispatcher(base.AbstractTransportDispatcher):
 
     def unregisterTransport(self, tDomain):
         self.getTransport(tDomain).unregisterSocket(self.__sockMap)
-        base.AbstractTransportDispatcher.unregisterTransports(self, tDomain)
+        base.AbstractTransportDispatcher.unregisterTransport(self, tDomain)
 
     def runDispatcher(self, liveForever=1):
         self._doDispatchFlag = liveForever
