@@ -28,7 +28,7 @@ pysnmpUsmSecretAuthKey = MibTableColumn((1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 2,
 pysnmpUsmSecretPrivKey = MibTableColumn((1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 2, 1, 3)).setColumnInitializer(MibVariable((), OctetString().subtype(subtypeSpec=constraint.ValueSizeConstraint(8, 32))).setMaxAccess("noaccess"))
 pysnmpUsmSecretStatus = MibTableColumn((1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 2, 1, 4)).setColumnInitializer(MibVariable((), RowStatus()).setMaxAccess("readcreate"))
 pysnmpUsmUser = MibIdentifier((1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 3))
-pysnmpUsmKeyEntry = MibTableRow((1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 3, 1)).setIndexNames((0, "SNMP-USER-BASED-SM-MIB", "usmUserEngineID"), (0, "SNMP-USER-BASED-SM-MIB", "usmUserName"))
+pysnmpUsmKeyEntry = MibTableRow((1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 3, 1))
 pysnmpUsmKeyAuthLocalized = MibTableColumn((1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 3, 1, 1)).setColumnInitializer(MibVariable((), OctetString().subtype(subtypeSpec=constraint.ValueSizeConstraint(8, 32))).setMaxAccess("noaccess"))
 pysnmpUsmKeyPrivLocalized = MibTableColumn((1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 3, 1, 2)).setColumnInitializer(MibVariable((), OctetString().subtype(subtypeSpec=constraint.ValueSizeConstraint(8, 32))).setMaxAccess("noaccess"))
 pysnmpUsmKeyAuth = MibTableColumn((1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 3, 1, 3)).setColumnInitializer(MibVariable((), OctetString().subtype(subtypeSpec=constraint.ValueSizeConstraint(8, 32))).setMaxAccess("readcreate"))
@@ -40,6 +40,7 @@ pysnmpUsmMIBGroups = MibIdentifier((1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 2, 2))
 # Augmentions
 usmUserEntry, = mibBuilder.importSymbols("SNMP-USER-BASED-SM-MIB", "usmUserEntry")
 usmUserEntry.registerAugmentions(("PYSNMP-USM-MIB", "pysnmpUsmKeyEntry"))
+apply(pysnmpUsmKeyEntry.setIndexNames, usmUserEntry.getIndexNames())
 
 # Exports
 
