@@ -128,14 +128,14 @@ class Bits(univ.OctetString):
 
 class ObjectName(univ.ObjectIdentifier): pass
 
-class SimpleSyntax(univ.Choice):
+class SimpleSyntax(rfc1155.TypeCoercionHackMixIn, univ.Choice):
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('integer-value', Integer()),
         namedtype.NamedType('string-value', OctetString()),
         namedtype.NamedType('objectID-value', univ.ObjectIdentifier())
         )
 
-class ApplicationSyntax(univ.Choice):
+class ApplicationSyntax(rfc1155.TypeCoercionHackMixIn, univ.Choice):
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('ipAddress-value', IpAddress()),
         namedtype.NamedType('counter-value', Counter32()),

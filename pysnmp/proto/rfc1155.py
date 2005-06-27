@@ -1,5 +1,6 @@
 import string
 from pyasn1.type import univ, tag, constraint, namedtype
+from pyasn1.error import PyAsn1Error
 from pysnmp.proto import error
 
 def ipAddressPrettyIn(self, value):
@@ -79,7 +80,22 @@ class Opaque(univ.OctetString):
 
 class ObjectName(univ.ObjectIdentifier): pass
 
-class SimpleSyntax(univ.Choice):
+class TypeCoercionHackMixIn: # XXX
+    # Reduce ASN1 type check to simple tag check as SMIv2 objects may
+    # not be constraints-compatible with those used in SNMP PDU.
+    def _verifyComponent(self, idx, value):
+        componentType = self._componentType
+        if componentType:
+            if idx >= len(componentType):
+                raise PyAsn1Error(
+                    'Component type error out of range'
+                    )
+            t = componentType[idx].getType()
+            if not t.getTagSet().isSuperTagSetOf(value.getTagSet()):
+                raise PyAsn1Error('Component type error %s vs %s' %
+                                  (repr(t), repr(value)))
+    
+class SimpleSyntax(TypeCoercionHackMixIn, univ.Choice):
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('number', univ.Integer()),
         namedtype.NamedType('string', univ.OctetString()),
@@ -87,7 +103,7 @@ class SimpleSyntax(univ.Choice):
         namedtype.NamedType('empty', univ.Null())
         )
 
-class ApplicationSyntax(univ.Choice):
+class ApplicationSyntax(TypeCoercionHackMixIn, univ.Choice):
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('address', NetworkAddress()),
         namedtype.NamedType('counter', Counter()),
