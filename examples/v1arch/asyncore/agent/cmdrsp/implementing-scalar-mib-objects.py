@@ -32,7 +32,7 @@ for mibVar in mibInstr:
 
 def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
     while wholeMsg:
-        msgVer = int(api.decodeMessageVersion(wholeMsg))
+        msgVer = api.decodeMessageVersion(wholeMsg)
         pMod = api.protoModules[msgVer]
         reqMsg, wholeMsg = decoder.decode(
             wholeMsg, asn1Spec=pMod.Message(),
@@ -59,9 +59,9 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
                         )
         elif reqPDU.isSameTypeWith(pMod.GetRequestPDU()):
             for oid, val in pMod.apiPDU.getVarBinds(reqPDU):
-                if mibInstrIdx.has_key(tuple(oid)):
+                if mibInstrIdx.has_key(oid):
                     varBinds.append(
-                        (oid, mibInstrIdx[tuple(oid)](msgVer))
+                        (oid, mibInstrIdx[oid](msgVer))
                         )
                 else:
                     # No such instance
