@@ -141,7 +141,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         # 7.1.7e
         headerData.setComponentByPosition(3, securityModel)
 
-        smHandler = snmpEngine.securityModels.get(int(securityModel))
+        smHandler = snmpEngine.securityModels.get(securityModel)
         if smHandler is None:
             raise error.StatusInformation(
                 errorIndication = 'unsupportedSecurityModel'
@@ -186,7 +186,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         if rfc3411.confirmedClassPDUs.has_key(pdu.tagSet):
             # XXX rfc bug? why stateReference should be created?
             self._cachePushByMsgId(
-                long(msgID),
+                msgID,
                 sendPduHandle=sendPduHandle,
                 msgID=msgID,
                 snmpEngineID=snmpEngineID,
@@ -340,7 +340,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         # 7.1.7e
         headerData.setComponentByPosition(3, securityModel)
 
-        smHandler = snmpEngine.securityModels.get(int(securityModel))
+        smHandler = snmpEngine.securityModels.get(securityModel)
         if smHandler is None:
             raise error.StatusInformation(
                 errorIndication = 'unsupportedSecurityModel'
@@ -402,7 +402,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         securityParameters = msg.getComponentByPosition(2)
         
         # 7.2.4
-        if not snmpEngine.securityModels.has_key(int(securityModel)):
+        if not snmpEngine.securityModels.has_key(securityModel):
             snmpUnknownSecurityModels, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-MIB', 'snmpUnknownSecurityModels')
             snmpUnknownSecurityModels.syntax = snmpUnknownSecurityModels.syntax + 1
             raise error.StatusInformation(
@@ -426,7 +426,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         reportableFlag = bool(msgFlags & 0x04)
 
         # 7.2.6
-        smHandler = snmpEngine.securityModels[int(securityModel)]
+        smHandler = snmpEngine.securityModels[securityModel]
         try:
             ( securityEngineID,
               securityName,
@@ -533,7 +533,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                rfc3411.internalClassPDUs.has_key(pduType):
             # 7.2.10a
             try:
-                cachedReqParams = self._cachePopByMsgId(long(msgID))
+                cachedReqParams = self._cachePopByMsgId(msgID)
             except error.ProtocolError:
                 raise error.StatusInformation(
                     errorIndication = 'dataMismatch'
@@ -550,7 +550,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             if varBinds:
                 statusInformation = error.StatusInformation(
                     errorIndication=_snmpErrors.get(
-                    tuple(varBinds[0][0]), 'errorReportReceived'
+                    varBinds[0][0], 'errorReportReceived'
                     ),
                     oid=varBinds[0][0],
                     val=varBinds[0][1],

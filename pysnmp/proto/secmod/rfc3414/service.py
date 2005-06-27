@@ -4,14 +4,14 @@ from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
 from pysnmp.proto.secmod.rfc3414.priv import des
 from pysnmp.proto.secmod.rfc3414 import localkey
 from pysnmp.smi.error import NoSuchInstanceError
-from pysnmp.proto import error
+from pysnmp.proto import rfc1155, error
 from pyasn1.type import univ, namedtype, constraint
 from pyasn1.codec.ber import encoder, decoder
 from pyasn1.error import PyAsn1Error
 
 # USM security params
 
-class UsmSecurityParameters(univ.Sequence):
+class UsmSecurityParameters(rfc1155.TypeCoercionHackMixIn, univ.Sequence):
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('msgAuthoritativeEngineID', univ.OctetString()),
         namedtype.NamedType('msgAuthoritativeEngineBoots', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 2147483647))),
@@ -231,9 +231,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         
         # 3.1.4a
         if securityLevel == 3:
-            privHandler = self.privServices.get(
-                tuple(usmUserPrivProtocol)
-                )
+            privHandler = self.privServices.get(usmUserPrivProtocol)
             if privHandler is None:
                 raise error.StatusInformation(
                     errorIndication = 'encryptionError'
@@ -255,7 +253,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             securityParameters.setComponentByPosition(5, '')
             
         # 3.1.5
-        securityParameters.setComponentByPosition(0, str(securityEngineID))
+        securityParameters.setComponentByPosition(0, securityEngineID)
 
         # 3.1.6a
         if securityStateReference is None and (  # request type check added
@@ -280,17 +278,15 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         else:
             snmpEngineBoots = snmpEngineTime = 0
 
-        securityParameters.setComponentByPosition(1, int(snmpEngineBoots))
-        securityParameters.setComponentByPosition(2, int(snmpEngineTime))
+        securityParameters.setComponentByPosition(1, snmpEngineBoots)
+        securityParameters.setComponentByPosition(2, snmpEngineTime)
     
         # 3.1.7
-        securityParameters.setComponentByPosition(3, str(usmUserName))
+        securityParameters.setComponentByPosition(3, usmUserName)
 
         # 3.1.8a
         if securityLevel == 3 or securityLevel == 2:
-            authHandler = self.authServices.get(
-                tuple(usmUserAuthProtocol)
-                )
+            authHandler = self.authServices.get(usmUserAuthProtocol)
             if authHandler is None:
                 raise error.StatusInformation(
                     errorIndication = 'authenticationFailure'
@@ -521,9 +517,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         # 3.2.6
         if securityLevel == 3 or securityLevel == 2:
-            authHandler = self.authServices.get(
-                tuple(usmUserAuthProtocol)
-                )
+            authHandler = self.authServices.get(usmUserAuthProtocol)
             if authHandler is None:
                 raise error.StatusInformation(
                     errorIndication = 'authenticationFailure'
@@ -604,9 +598,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         
         # 3.2.8a
         if securityLevel == 3:
-            privHandler = self.privServices.get(
-                tuple(usmUserPrivProtocol)
-                )
+            privHandler = self.privServices.get(usmUserPrivProtocol)
             if privHandler is None:
                 raise error.StatusInformation(
                     errorIndication = 'decryptionError'

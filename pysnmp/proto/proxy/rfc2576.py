@@ -96,7 +96,7 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
     
     if not rfc3411.notificationClassPDUs.has_key(pduType):
         v2Pdu.setComponentByPosition(  # req-id
-            0, long(v1Pdu.getComponentByPosition(0))
+            0, v1Pdu.getComponentByPosition(0)
             )
 
     v2VarBinds = []
@@ -114,7 +114,7 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
 
         # 3.1.3
         else:
-            snmpTrapOID = __v1ToV2TrapMap[int(genericTrap)]
+            snmpTrapOID = __v1ToV2TrapMap[genericTrap]
 
         v2VarBinds.append((sysUpTime, None))
         v2VarBinds.append((snmpTrapOID, None))
@@ -130,10 +130,10 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
     if rfc3411.responseClassPDUs.has_key(pduType):
         # 4.1.2.2 --> one-to-one mapping
         v2Pdu.setComponentByPosition( # err-status
-            1, int(v1Pdu.getComponentByPosition(1))
+            1, v1Pdu.getComponentByPosition(1)
             )
         v2Pdu.setComponentByPosition(  # err-index
-            2, int(v1Pdu.getComponentByPosition(2))
+            2, v1Pdu.getComponentByPosition(2)
             )
 
         # 4.1.2.1 --> no-op
@@ -154,7 +154,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
     # 3.2
     if rfc3411.notificationClassPDUs.has_key(pduType):
         # 3.2.1
-        snmpTrapOID = tuple(v2VarBinds[0][0])
+        snmpTrapOID = v2VarBinds[0][0]
         if __v2ToV1TrapMap.has_key(snmpTrapOID):
             for oid, val in v2VarBinds:
                 # snmpTrapEnterprise
@@ -224,7 +224,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         v2ErrorStatus = v2c.apiPDU.getErrorStatus(v2Pdu)
         if v2ErrorStatus:
             v1.apiPDU.setErrorStatus(
-                v1Pdu, __v2ToV1ErrorMap[int(v2ErrorStatus)]
+                v1Pdu, __v2ToV1ErrorMap[v2ErrorStatus]
                 )
             v1.apiPDU.setErrorIndex(v1Pdu, v2c.apiPDU.getErrorIndex(v2Pdu))
             

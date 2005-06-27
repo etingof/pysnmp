@@ -9,7 +9,7 @@ def getVersionSpecifics(snmpVersion):
         pduVersion = 0
     else:
         pduVersion = 1
-    return pduVersion, api.protoModules[int(pduVersion)]
+    return pduVersion, api.protoModules[pduVersion]
 
 def getTargetInfo(snmpEngine, snmpTargetAddrName):
     mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
@@ -56,7 +56,7 @@ def getTargetInfo(snmpEngine, snmpTargetAddrName):
         snmpTargetParamsEntry.name + (5,) + tblIdx
         )
 
-    return ( tuple(snmpTargetAddrTDomain.syntax),
+    return ( snmpTargetAddrTDomain.syntax,
              snmpTargetAddrTAddress.syntax.getNativeValue(),
              snmpTargetAddrTimeout.syntax,
              snmpTargetAddrRetryCount.syntax,
@@ -138,7 +138,7 @@ class CmdGenBase:
            origPduVersion != pduVersion:
             return
 
-        pMod = api.protoModules[int(pduVersion)]
+        pMod = api.protoModules[pduVersion]
         
         # 3.1.2
         if pMod.apiPDU.getRequestID(PDU) != pMod.apiPDU.getRequestID(origPdu):
@@ -606,3 +606,4 @@ class BulkCmdGen(CmdGenBase):
 # reduce code dublication
 # make secret persistent for fast startup
 # re-design MIB name spec syntax
+# usm keys must not be accessible

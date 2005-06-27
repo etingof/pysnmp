@@ -63,12 +63,12 @@ class AbstractTransportDispatcher:
         del self.__transports[tDomain]
 
     def getTransport(self, transportDomain):
-        return self.__transports.get(tuple(transportDomain))
+        return self.__transports.get(transportDomain)
 
     def sendMessage(
         self, outgoingMessage, transportDomain, transportAddress
         ):
-        transport = self.__transports.get(tuple(transportDomain))
+        transport = self.__transports.get(transportDomain)
         if transport is None:
             raise error.CarrierError(
                 'No suitable transport domain for %s' % (transportDomain,)
@@ -91,6 +91,3 @@ class AbstractTransportDispatcher:
             self.unregisterTransport(tDomain)
         self.unregisterRecvCbFun()
         self.unregisterTimerCbFun()
-        
-# XXX
-# support mapping API?

@@ -117,7 +117,9 @@ class MibInstrumController:
                         'Unsupported state handler %s at %s' % (state, self)
                         )
                 try:
-                    rval = f(tuple(name), val, idx, (acFun, acCtx)) # XXX
+                    # Convert to tuple to avoid ObjectName instantiation
+                    # on subscription
+                    rval = f(tuple(name), val, idx, (acFun, acCtx))
                 except error.SmiError, why:
                     if myErr is None:  # Take the first exception
                         myErr = why
