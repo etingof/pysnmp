@@ -3,7 +3,7 @@ from pyasn1.type import univ, tag, constraint, namedtype
 from pyasn1.error import PyAsn1Error
 from pysnmp.proto import error
 
-def ipAddressPrettyIn(self, value):
+def ipAddressPrettyIn(value):
     if len(value) == 4:
         return value  # IP as an octet stream
     try:
@@ -26,7 +26,7 @@ def ipAddressPrettyIn(self, value):
             'Bad IP address value %s' %  value
             )
 
-def ipAddressPrettyOut(self, value):
+def ipAddressPrettyOut(value):
     if value:
         return '%d.%d.%d.%d' % (
             ord(value[0]), ord(value[1]), ord(value[2]), ord(value[3])
@@ -41,8 +41,9 @@ class IpAddress(univ.OctetString):
     subtypeSpec = univ.OctetString.subtypeSpec+constraint.ValueSizeConstraint(
         4, 4
         )
-    _prettyIn = ipAddressPrettyIn
-    _prettyOut = ipAddressPrettyOut
+
+    def prettyIn(self, value): return ipAddressPrettyIn(value)
+    def prettyOut(self, value): return ipAddressPrettyOut(value)
     
 class Counter(univ.Integer):
     tagSet = univ.Integer.tagSet.tagImplicitly(

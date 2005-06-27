@@ -1,5 +1,7 @@
+import types
+import string
 from pyasn1.type import univ, tag, constraint, namedtype, namedval
-from pysnmp.proto import rfc1155
+from pysnmp.proto import rfc1155, error
 
 class Integer(univ.Integer):
     subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
@@ -23,8 +25,8 @@ class IpAddress(univ.OctetString):
     subtypeSpec = univ.OctetString.subtypeSpec+constraint.ValueSizeConstraint(
         4, 4
         )
-    _prettyIn = rfc1155.ipAddressPrettyIn
-    _prettyOut = rfc1155.ipAddressPrettyOut
+    def prettyIn(self, value): return rfc1155.ipAddressPrettyIn(value)
+    def prettyOut(self, value): return rfc1155.ipAddressPrettyOut(value)
 
 class Counter32(univ.Integer):
     tagSet = univ.Integer.tagSet.tagImplicitly(
@@ -97,7 +99,7 @@ class Bits(univ.OctetString):
             if d >= len(octets):
                 octets.extend((0,) * (d - len(octets) + 1))
             octets[d] = octets[d] | 0x01 << (7-m)
-        return join(map(lambda x: chr(x), octets))
+        return string.join(map(lambda x: chr(x), octets))
 
     def _prettyOut(self, value):
         names = []
