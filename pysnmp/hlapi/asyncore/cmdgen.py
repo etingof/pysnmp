@@ -51,7 +51,7 @@ class AsynCmdGen:
             self.snmpEngine = engine.SnmpEngine()
         else:
             self.snmpEngine = snmpEngine
-        self.mibView = view.MibViewController(
+        self.mibViewController = view.MibViewController(
             self.snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
             )
         self.__knownAuths = {}
@@ -69,7 +69,7 @@ class AsynCmdGen:
                 config.addTargetParams(
                     self.snmpEngine, paramsName,
                     authData.securityName, authData.securityLevel,
-                    authData.securityModel, authData.mpModel
+                    authData.mpModel
                     )
             elif isinstance(authData, UsmUserData):
                 config.addV3User(
@@ -113,9 +113,10 @@ class AsynCmdGen:
             )
         varBinds = []
         for varName in varNames:
-            varBinds.append(
-                (mibvar.instanceNameToOid(self.mibView, varName), self._null)
+            name, oid = mibvar.instanceNameToOid(
+                self.mibViewController, varName
                 )
+            varBinds.append((name + oid, self._null))
         return cmdgen.GetCmdGen().sendReq(
             self.snmpEngine, addrName, varBinds, cbFun, cbCtx
             )
@@ -128,9 +129,10 @@ class AsynCmdGen:
             )
         varBinds = []
         for varName in varNames:
-            varBinds.append(
-                (mibvar.instanceNameToOid(self.mibView, varName), self._null)
+            name, oid = mibvar.instanceNameToOid(
+                self.mibViewController, varName
                 )
+            varBinds.append((name + oid, self._null))
         return cmdgen.NextCmdGen().sendReq(
             self.snmpEngine, addrName, varBinds, cbFun, cbCtx
             )
@@ -144,9 +146,10 @@ class AsynCmdGen:
             )
         varBinds = []
         for varName in varNames:
-            varBinds.append(
-                (mibvar.instanceNameToOid(self.mibView, varName), self._null)
+            name, oid = mibvar.instanceNameToOid(
+                self.mibViewController, varName
                 )
+            varBinds.append((name + oid, self._null))
         return cmdgen.BulkCmdGen().sendReq(
             self.snmpEngine, addrName, nonRepeaters, maxRepetitions,
             varBinds, cbFun, cbCtx
@@ -186,11 +189,15 @@ class CmdGen(AsynCmdGen):
             varBindTable, (varBindHead, varBindTotalTable)
             ):
             if errorIndication or errorStatus:
+                if varBindTable:
+                    varBinds=varBindTable[-1]
+                else:
+                    varBinds = []
                 raise ApplicationReturn(
                     errorIndication=errorIndication,
                     errorStatus=errorStatus,
                     errorIndex=errorIndex,
-                    varBinds=varBindTable[-1],
+                    varBinds=varBinds,
                     varBindTable=varBindTotalTable
                     )
             else:
@@ -209,8 +216,8 @@ class CmdGen(AsynCmdGen):
                         )
                 varBindTotalTable.extend(varBindTable)
 
-        head = map(lambda x,self=self: univ.ObjectIdentifier(mibvar.instanceNameToOid(self.mibView, x)), varNames)
-                   
+        head = map(lambda (x,y): univ.ObjectIdentifier(x+y), map(lambda x,self=self: mibvar.instanceNameToOid(self.mibViewController, x), varNames))
+
         self.asyncNextCmd(
             authData, transportTarget, varNames, (__cbFun, (head, []))
             )
@@ -233,11 +240,15 @@ class CmdGen(AsynCmdGen):
             varBindTable, (varBindHead, varBindTotalTable)
             ):
             if errorIndication or errorStatus:
+                if varBindTable:
+                    varBinds=varBindTable[-1]
+                else:
+                    varBinds = []
                 raise ApplicationReturn(
                     errorIndication=errorIndication,
                     errorStatus=errorStatus,
                     errorIndex=errorIndex,
-                    varBinds=varBindTable[-1],
+                    varBinds=varBinds,
                     varBindTable=varBindTotalTable
                     )
             else:
@@ -257,7 +268,7 @@ class CmdGen(AsynCmdGen):
                         varBindTable=varBindTotalTable
                         )
 
-        head = map(lambda x,self=self: univ.ObjectIdentifier(mibvar.instanceNameToOid(self.mibView, x)), varNames)
+        head = map(lambda (x,y): univ.ObjectIdentifier(x+y), map(lambda x,self=self: mibvar.instanceNameToOid(self.mibViewController, x), varNames))
                    
         self.asyncBulkCmd(
             authData, transportTarget, nonRepeaters, maxRepetitions,
@@ -279,10 +290,7 @@ class CmdGen(AsynCmdGen):
 # unify cb params passing
 # rename oneliner
 # some method for params passing other than exception?
-# speed up key localization
-# cmdgen app
 # trap app
 # proxy app
-# pretty print oid & val at oneliner
 # cache release
-# do we need pMod in cmdgen?
+# profile for performance
