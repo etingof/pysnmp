@@ -162,21 +162,18 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 securityEngineID = peerSnmpEngineData['securityEngineID']
                 
         # 7.1.9.b
-        try:
-            ( securityParameters,
-              wholeMsg ) = smHandler.generateRequestMsg(
-                snmpEngine,
-                self.messageProcessingModelID,
-                msg,
-                snmpEngineMaxMessageSize.syntax,
-                securityModel,
-                securityEngineID,
-                securityName,
-                securityLevel,
-                scopedPDU
-                )
-        except error.StatusInformation, statusInformation:
-            raise
+        ( securityParameters,
+          wholeMsg ) = smHandler.generateRequestMsg(
+            snmpEngine,
+            self.messageProcessingModelID,
+            msg,
+            snmpEngineMaxMessageSize.syntax,
+            securityModel,
+            securityEngineID,
+            securityName,
+            securityLevel,
+            scopedPDU
+            )
 
         # Message size constraint verification
         if len(wholeMsg) > snmpEngineMaxMessageSize.syntax:
@@ -385,7 +382,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             msg, restOfwholeMsg = decoder.decode(
                 wholeMsg, asn1Spec=self._snmpMsgSpec
                 )
-        except PyAsn1Error, why:
+        except PyAsn1Error:
             snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-MIB', 'snmpInASNParseErrs')
             snmpInASNParseErrs.syntax = snmpInASNParseErrs.syntax + 1
             raise error.StatusInformation(
@@ -606,7 +603,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         if rfc3411.confirmedClassPDUs.has_key(pduType):
             # 7.2.13a
             if securityEngineID != snmpEngineID:
-                smHandler.releaseStateInformation(securityStateRerefence)
+                smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(
                     errorIndication = 'engineIDMispatch'
                     )

@@ -1,5 +1,5 @@
 # PDU v1/v2c two-way proxy
-from pysnmp.proto import rfc3411
+from pysnmp.proto import rfc3411, error
 from pysnmp.proto.api import v1, v2c
 from pysnmp.smi import exval
 

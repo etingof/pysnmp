@@ -68,9 +68,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                 errorIndication = 'unsupportedSecurityModel'
                 )
 
-        # rfc3412: 7.1.9.a & rfc2576: 5.2.1
-        if rfc3411.unconfirmedClassPDUs.has_key(pdu.tagSet):
-            securityEngineID = snmpEngineID
+        # rfc3412: 7.1.9.a & rfc2576: 5.2.1 --> no-op
 
         snmpEngineMaxMessageSize, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
             
@@ -166,6 +164,8 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         msg.setComponentByPosition(2)
         msg.getComponentByPosition(2).setComponentByType(pdu.tagSet, pdu)
 
+        # att: msgId not set back to PDU as it's up to responder app
+        
         # rfc3412: 7.1.7
         globalData = ( msg, )
 
@@ -388,4 +388,3 @@ class SnmpV2cMessageProcessingModel(SnmpV1MessageProcessingModel):
     
 # XXX
 # cache expiration
-# why ResponsePdu accepts non ASN1 objects?

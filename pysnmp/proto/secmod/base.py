@@ -8,7 +8,7 @@ class AbstractSecurityModel:
 
     def processIncomingMsg(
         self,
-        mibInstrumController,
+        snmpEngine,
         messageProcessingModel,
         maxMessageSize,
         securityParameters,
@@ -23,7 +23,7 @@ class AbstractSecurityModel:
 
     def generateRequestMsg(
         self,
-        minInstrController,
+        snmpEngine,
         messageProcessingModel,
         globalData,
         maxMessageSize,
@@ -39,7 +39,7 @@ class AbstractSecurityModel:
 
     def generateResponseMsg(
         self,
-        minInstrController,
+        snmpEngine,
         messageProcessingModel,
         globalData,
         maxMessageSize,
@@ -73,4 +73,4 @@ class AbstractSecurityModel:
         return securityData
 
     def releaseStateInformation(self, stateReference):
-        self.__cachePop(stateReference)
+        self._cachePop(stateReference)

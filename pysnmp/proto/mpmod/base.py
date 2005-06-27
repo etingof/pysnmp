@@ -12,12 +12,46 @@ class AbstractMessageProcessingModel:
         self.__expirationQueue = {}
         self.__expirationTimer = 0L
     
-    def prepareOutgoingMessage(self, msgAndPduDsp, mibInstrumController,
-                               **kwargs): pass
-    def prepareResponseMessage(self, msgAndPduDsp, mibInstrumController,
-                               **kwargs): pass
-    def prepareDataElements(self, msgAndPduDsp, mibInstrumController,
-                            wholeMsg): pass
+    def prepareOutgoingMessage(
+        self,
+        snmpEngine,
+        transportDomain,
+        transportAddress,
+        messageProcessingModel,
+        securityModel,
+        securityName,
+        securityLevel,
+        contextEngineID,
+        contextName,
+        pduVersion,
+        pdu,
+        expectResponse,
+        sendPduHandle
+        ): pass
+        
+    def prepareResponseMessage(
+        self,
+        snmpEngine,
+        messageProcessingModel,
+        securityModel,
+        securityName,
+        securityLevel,
+        contextEngineID,
+        contextName,
+        pduVersion,
+        pdu,
+        maxSizeResponseScopedPDU,
+        stateReference,
+        statusInformation
+        ): pass
+
+    def prepareDataElements(
+        self,
+        snmpEngine,
+        transportDomain,
+        transportAddress,
+        wholeMsg
+        ): pass
 
     def _newStateReference(self):
         AbstractMessageProcessingModel.__stateReference = (

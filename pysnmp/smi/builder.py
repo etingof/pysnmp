@@ -76,7 +76,7 @@ class MibBuilder:
         
         return self
                 
-    def unloadModule(self, *names):
+    def unloadModule(self, *modNames):
         return self
 
     def importSymbols(self, modName, *symNames):

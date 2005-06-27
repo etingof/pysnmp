@@ -1,6 +1,5 @@
-from pysnmp.proto import rfc1157, rfc1905
+from pysnmp.proto import rfc1157, rfc1905, rfc3411, error
 from pysnmp.proto.api import v2c  # backend is always SMIv2 compliant
-from pysnmp.proto import rfc1905, rfc3411, error
 from pysnmp.proto.proxy import rfc2576
 import pysnmp.smi.error
 
@@ -31,6 +30,10 @@ class CmdRspBase:
                 'No such contextName %s' % contextName
                 )
         del self.__contextNames[contextName]
+
+    def _handleManagementOperation(
+        self, snmpEngine, contextMibInstrumCtl, PDU, (acFun, acCtx)
+        ): pass
         
     def close(self, snmpEngine):
         snmpEngine.msgAndPduDsp.unregisterContextEngineId(
@@ -289,8 +292,4 @@ class BulkCmdRsp(CmdRspBase):
 # re-work mibinstrum for return through cb fun (async mode) ?
 # how to pass name/index with RowStatus exception
 # persistent objects (key)
-# each managed object should be able to access others through mibBuilder
-# cleanup caches
 # rework linear search behind the acl
-# move mib view out of manager apps
-# implement one-liners

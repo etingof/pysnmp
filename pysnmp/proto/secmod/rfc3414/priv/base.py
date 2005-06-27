@@ -1,4 +1,6 @@
 class AbstractEncryptionService:
     serviceID = None
-    def encryptData(self, encryptKey, dataToEncrypt): pass
-    def decryptData(self, decryptKey, privParameters, encryptedData): pass
+    def encryptData(self, mibInstrumController, encryptKey,
+                    dataToEncrypt):pass
+    def decryptData(self, mibInstrumController, decryptKey,
+                    privParameters, encryptedData): pass

@@ -7,6 +7,7 @@ from pysnmp.proto.secmod.rfc2576 import SnmpV1SecurityModel, \
      SnmpV2cSecurityModel
 from pysnmp.proto.secmod.rfc3414 import SnmpUSMSecurityModel
 from pysnmp.proto.acmod import rfc3415
+from pysnmp import error
 
 class SnmpEngine:
     def __init__(self, snmpEngineID=None, maxMessageSize=65507):
@@ -46,7 +47,7 @@ class SnmpEngine:
     
     def __receiveMessageCbFun(
         self,
-        tspDsp,
+        transportDispatcher,
         transportDomain,
         transportAddress,
         wholeMsg
@@ -79,7 +80,3 @@ class SnmpEngine:
         self.transportDispatcher.unregisterRecvCbFun()
         self.transportDispatcher.unregisterTimerCbFun()
         self.transportDispatcher = None
-
-        
-# XXX
-# fix libsmi2pysnmp to set indices to augmenting entries

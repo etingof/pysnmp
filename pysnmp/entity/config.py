@@ -109,7 +109,7 @@ def addV3User(snmpEngine, securityName, authKey=None, authProtocol=None,
             usmHMACMD5AuthProtocol.name
             )
     elif string.find('SHA', string.upper(authProtocol)) != -1:
-        usmHMACMD5AuthProtocol, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmHMACMD5AuthProtocol')
+        usmHMACSHAAuthProtocol, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmHMACSHAAuthProtocol')
         usmUserAuthProtocol.syntax = usmUserAuthProtocol.syntax.clone(
             usmHMACSHAAuthProtocol.name
             )

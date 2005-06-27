@@ -389,7 +389,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 securityParameters,
                 asn1Spec=self._securityParametersSpec
                 )
-        except PyAsn1Error, why:
+        except PyAsn1Error:
            snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-MIB', 'snmpInASNParseErrs')
            snmpInASNParseErrs.syntax = snmpInASNParseErrs.syntax + 1
            raise error.StatusInformation(

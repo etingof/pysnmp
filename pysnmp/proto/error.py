@@ -8,6 +8,7 @@ class ProtocolError(PySnmpError, PyAsn1Error): pass
 class SnmpV3Error(ProtocolError): pass
 class StatusInformation(SnmpV3Error):
     def __init__(self, **kwargs):
+        SnmpV3Error.__init__(self)
 #        print kwargs
         self.__errorIndication = kwargs
     def __str__(self): return str(self.__errorIndication)
