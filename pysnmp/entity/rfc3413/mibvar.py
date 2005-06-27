@@ -11,35 +11,41 @@ def instanceNameToOid(mibView, name):
         suffix = name[1:]
     else:
         oid, label, suffix = mibView.getNodeNameByOid(name)
-    # Instance ID
-    if suffix == (0,): # scalar
-        return oid + suffix
-    else: # possible table cell
-        modName, symName, _s = mibView.getNodeLocation(oid[:-1]) # XXX
+    modName, symName, _s = mibView.getNodeLocation(oid)
+    mibNode, = mibView.mibBuilder.importSymbols(
+        modName, symName
+        )
+    if hasattr(mibNode, 'getColumnInitializer'): # table column
+        modName, symName, _s = mibView.getNodeLocation(oid[:-1])
         rowNode, = mibView.mibBuilder.importSymbols(modName, symName)
-        if hasattr(rowNode, 'getInstIdFromIndices'): # table cell
-            return apply(rowNode.getInstIdFromIndices, suffix)
-        else: # incomplete spec
-            return oid + suffix
+        return oid, apply(rowNode.getInstIdFromIndices, suffix)
+    else: # scalar or incomplete spec
+        return oid, suffix
 
-def oidToIinstanceName(mibView, oid):
-    oid, label, suffix = mibView.getNodeNameByOid(oid)
-    if oid == label: # not resolved
-        return label
-    modName, mibSym, suffix = mibView.getNodeLocation(oid)        
-    if suffix == (0,): # resolved to scalar
+def oidToInstanceName(mibView, oid):
+    oid, label, suffix = mibView.getNodeNameByOid(tuple(oid))
+    modName, symName, __suffix = mibView.getNodeLocation(oid)
+    mibNode, = mibView.mibBuilder.importSymbols(
+        modName, symName
+        )
+    if hasattr(mibNode, 'getColumnInitializer'): # table column
+        __modName, __symName, __s = mibView.getNodeLocation(oid[:-1])
+        rowNode, = mibView.mibBuilder.importSymbols(__modName, __symName)
+        return (symName, modName), rowNode.getIndicesFromInstId(suffix)
+    elif suffix == (0,): # scalar
         return (symName, modName), suffix
-    else: # possible table
-        rowNode = mibView.mibBuilder.getNode(oid[:-1])
-        return (symName, modName), label + rowNode.getIndicesFromInstId(
-            suffix
+    else:
+        raise NoSuchInstanceError(
+            str='No MIB info for %s' % (oid, )
             )
 
 # Value
 
-def prettyValueToObjectValue(mibView, objectName, prettyValue):
-    mibNode = mibView.mibBuilder.getNode(objectName)
-    return mibNode.syntax.clone(prettyValue)
-
-def objectValueToPrettyValue(mibView, objectName, value):
-    return prettyValueToObjectValue(mibView, objectName, prettyValue)
+def cloneFromMibValue(mibView, modName, symName, value):
+    mibNode, = mibView.mibBuilder.importSymbols(
+        modName, symName
+        )
+    if hasattr(mibNode, 'getColumnInitializer'): # table column
+        return mibNode.getColumnInitializer().syntax.clone(value)
+    else:
+        return mibNode.syntax.clone(value)
