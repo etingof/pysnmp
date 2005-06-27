@@ -707,11 +707,6 @@ class MibTableRow(MibTree):
         
     def setIndexNames(self, *names):
         for name in names:
-#             if name in self.indexNames:
-#                 raise error.SmiError(
-#                     'Index %s already set to row %s' % (
-#                     name, self
-#                     ))
             self.indexNames = self.indexNames + (name,)
         return self
 
