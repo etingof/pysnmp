@@ -26,11 +26,9 @@ class DgramSocketTransport(AbstractSocketTransport):
         self._iface = iface
         return self
 
-    def rewriteAddress(self, transportAddress): return transportAddress
-    
     def sendMessage(self, outgoingMessage, transportAddress):
         self.__outQueue.append(
-            (outgoingMessage, self.rewriteAddress(transportAddress))
+            (outgoingMessage, transportAddress)
             )
 
     # asyncore API
