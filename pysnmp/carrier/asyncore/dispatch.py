@@ -52,5 +52,3 @@ class AsynsockDispatcher(base.AbstractTransportDispatcher):
             self.handleTimerTick(time())
             if not self._doDispatchFlag:
                 break
-            
-# XXX doDispatchFlag is needed?
