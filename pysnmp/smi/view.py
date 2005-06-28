@@ -111,16 +111,8 @@ class MibViewController:
                 mibMod['oidToLabelIdx'][oid] = oidToLabelIdx[oid]
                 mibMod['labelToOidIdx'][oidToLabelIdx[oid]] = oid
             
-#        for k, v in oidToLabelIdx.items(): print k, v
-        
         self.lastBuildId = self.mibBuilder.lastBuildId
 
-    def loadMissingModule(self, modName):
-        self.__indexMib()
-        if self.__mibSymbolsIdx.has_key(modName):
-            return
-        apply(self.mibBuilder.loadModules, (modName,))
-        
     # Module management
     
     def getFirstModuleName(self):
@@ -283,10 +275,4 @@ class MibViewController:
                 )
 
 # XXX
-# indices -> ../
-# repr node
-# how to index ObjectIds at MIB mods?
-# how to index mib symbols -- by oid or by Python var name?
-# how to handle '-' in symbol names
-# implement defs/tc.py to look like a primitive type, SNMP-TC derive from it
-# MibTree / MibLoader / MibViewController relations
+# do not index instance vars
