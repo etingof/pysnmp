@@ -32,11 +32,11 @@ def oidToInstanceName(mibView, oid):
         __modName, __symName, __s = mibView.getNodeLocation(oid[:-1])
         rowNode, = mibView.mibBuilder.importSymbols(__modName, __symName)
         return (symName, modName), rowNode.getIndicesFromInstId(suffix)
-    elif suffix == (0,): # scalar
+    elif not suffix or suffix == (0,): # scalar/identifier
         return (symName, modName), suffix
     else:
         raise NoSuchInstanceError(
-            str='No MIB info for %s' % (oid, )
+            str='No MIB info for %s (distant parent %s)' % (oid, mibNode)
             )
 
 # Value
@@ -47,5 +47,10 @@ def cloneFromMibValue(mibView, modName, symName, value):
         )
     if hasattr(mibNode, 'getColumnInitializer'): # table column
         return mibNode.getColumnInitializer().syntax.clone(value)
-    else:
+    elif hasattr(mibNode, 'syntax'): # scalar
         return mibNode.syntax.clone(value)
+    else:
+        return   # identifier
+
+# XXX
+# how comes zero suffix comes from MIB resolver?
