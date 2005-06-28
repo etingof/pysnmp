@@ -661,10 +661,3 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         raise error.StatusInformation(
             errorIndication = 'unknownPDU'
             )
-
-# XXX
-# noAuthNoPriv numeric IDs (maybe as well as others for perf and syntax)
-# target entity's securityEngineID lookup by transport
-# clone() -> subtype() at asn1.type.base
-# expire engineIDs
-# peer DNS resolution with response engineID match

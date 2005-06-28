@@ -385,6 +385,3 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 class SnmpV2cMessageProcessingModel(SnmpV1MessageProcessingModel):
     messageProcessingModelID = 1 # SNMPv2c
     _snmpMsgSpec = v2c.Message()
-    
-# XXX
-# cache expiration

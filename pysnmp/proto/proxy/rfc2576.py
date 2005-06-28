@@ -236,7 +236,3 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
     v1.apiPDU.setVarBinds(v1Pdu, v1VarBinds)
     
     return v1Pdu
-
-# XXX
-# constants
-# review pdu components coercion code -- do that through map?

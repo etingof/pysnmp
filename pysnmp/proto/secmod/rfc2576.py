@@ -182,6 +182,4 @@ class SnmpV2cSecurityModel(SnmpV1SecurityModel):
     securityModelID = 2
     
 # XXX
-# use biling api?
-# v2c support
 # contextEngineId/contextName goes to globalData

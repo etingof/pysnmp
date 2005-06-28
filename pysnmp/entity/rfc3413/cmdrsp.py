@@ -285,11 +285,3 @@ class BulkCmdRsp(CmdRspBase):
             rspVarBinds = rspVarBinds[:self.maxVarBinds]
 
         return 0, 0, rspVarBinds
-    
-# XXX
-# invoke shutdown methods
-# pysnmp-mib should be no-accessible
-# re-work mibinstrum for return through cb fun (async mode) ?
-# how to pass name/index with RowStatus exception
-# persistent objects (key)
-# rework linear search behind the acl

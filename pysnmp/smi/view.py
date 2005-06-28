@@ -38,7 +38,7 @@ class MibViewController:
             if not modName:
                 globMibMod = mibMod
                 continue
-            
+
             # Types & MIB vars indices
             for n, v in self.mibBuilder.mibSymbols[modName].items():
                 if type(v) == ClassType:
@@ -273,6 +273,3 @@ class MibViewController:
             raise error.NoSuchInstanceError(
                 str='No type next to %s::%s at %s' % (modName, typeName, self)
                 )
-
-# XXX
-# do not index instance vars

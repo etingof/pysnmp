@@ -107,6 +107,3 @@ def isAccessAllowed(
                 continue # no match
         # 3.2.5c
         return error.StatusInformation(errorIndication='accessAllowed')
-
-# XXX
-# develop a non-intrum-based management objects access methods

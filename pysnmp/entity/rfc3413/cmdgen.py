@@ -461,7 +461,7 @@ class NextCmdGen(CmdGenBase):
         (cbFun, cbCtx)
         ):
         varBindTable = pMod.apiPDU.getVarBindTable(PDU, rspPDU)
-            
+
         cbFun(sendRequestHandle, None,
               pMod.apiPDU.getErrorStatus(rspPDU),
               pMod.apiPDU.getErrorIndex(rspPDU),
@@ -473,7 +473,7 @@ class NextCmdGen(CmdGenBase):
             )
 
         self._sendRequestHandleSource = self._sendRequestHandleSource + 1
-        
+
         self._sendPdu(
             snmpEngine,
             transportDomain,
@@ -601,9 +601,3 @@ class BulkCmdGen(CmdGenBase):
             self._sendRequestHandleSource,
             (self.processResponsePdu, (cbFun, cbCtx))            
             )
-
-# XXX
-# reduce code dublication
-# make secret persistent for fast startup
-# re-design MIB name spec syntax
-# usm keys must not be accessible

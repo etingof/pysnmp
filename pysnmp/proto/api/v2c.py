@@ -126,6 +126,3 @@ class MessageAPI(v1.MessageAPI):
         return rspMsg
 
 apiMessage = MessageAPI()
-
-# XXX
-# EOM protocol

@@ -285,12 +285,3 @@ class CmdGen(AsynCmdGen):
                 applicationReturn['varBinds'],
                 applicationReturn['varBindTable']                
                 )
-    
-# XXX
-# unify cb params passing
-# rename oneliner
-# some method for params passing other than exception?
-# trap app
-# proxy app
-# cache release
-# fix out of head rows to be queried on multi-var-bind req

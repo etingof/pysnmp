@@ -64,7 +64,7 @@ class MibBuilder:
             g = { 'mibBuilder': self }
 
             self.mibSymbols[modName] = {} # to stop recursion
-            
+
             try:
                 execfile(modPath, g)
             except StandardError, why:
@@ -106,12 +106,3 @@ class MibBuilder:
             if hasattr(symObj, 'label') and symObj.label:
                 symName = symObj.label
             self.mibSymbols[modName][symName] = symObj
-
-# XXX
-# get rid of tree MIB structure (index MIB objects by OID name only at MIB
-#    instrumentation controller)
-# implement by-OID indexing at MIB coltroller
-# re-work augmention not to exist at the MibRow level but
-#    use name lookups instead
-# get rid from subtree registration at MIB modules
-

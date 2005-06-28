@@ -53,5 +53,3 @@ transportDispatcher.sendMessage(
     encoder.encode(reqMsg), udp.domainName, ('localhost', 161)
     )
 transportDispatcher.runDispatcher()
-
-# oneliner?

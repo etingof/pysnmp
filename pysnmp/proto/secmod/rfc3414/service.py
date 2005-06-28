@@ -675,7 +675,3 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                  scopedPDU,
                  maxSizeResponseScopedPDU,
                  securityStateReference )
-
-# XXX
-# get rid of msg handler passed into processIncomingMsg
-# usmUserName vs usmUserSecurityName -- map?

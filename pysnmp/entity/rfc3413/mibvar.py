@@ -64,6 +64,3 @@ def cloneFromMibValue(mibView, modName, symName, value):
         return mibNode.syntax.clone(value)
     else:
         return   # identifier
-
-# XXX
-# how comes zero suffix comes from MIB resolver?

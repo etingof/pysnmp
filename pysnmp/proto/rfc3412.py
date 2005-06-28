@@ -465,13 +465,3 @@ class MsgAndPduDispatcher:
         
     def receiveTimerTick(self, snmpEngine, timeNow):
         self.__cacheExpire(snmpEngine, self.__expireRequest)
-
-    
-# XXX
-# LCD may be used to cache frequently accessed MIB variables
-# rework transport in a loadable fashion
-# asn1.type clone/subtype issue
-# asn1 types should hash eq to their python types
-# get restOfMsg from mp model at receiveMessage()
-# snmp entity's scope debug object
-# straighten up caches management logic
