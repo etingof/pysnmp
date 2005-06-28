@@ -21,7 +21,9 @@ sysObjectID = MibVariable((1, 3, 6, 1, 2, 1, 1, 2), ObjectIdentifier((1,3,6,1,4,
 class __SysUpTime(TimeTicks):
     birthday = time()
     def clone(self, value=None, tagSet=None, subtypeSpec=None):
-        return TimeTicks.clone(self, int(time()-self.birthday)*100)
+        if value is None:
+            value = int(time()-self.birthday)*100
+        return TimeTicks.clone(self, value)
 
 sysUpTime = MibVariable((1, 3, 6, 1, 2, 1, 1, 3), __SysUpTime()).setMaxAccess("readonly")
 sysContact = MibVariable((1, 3, 6, 1, 2, 1, 1, 4), DisplayString().subtype(subtypeSpec=constraint.ValueSizeConstraint(0, 255))).setMaxAccess("readwrite")
