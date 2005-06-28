@@ -95,9 +95,8 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
     v2c.apiPDU.setDefaults(v2Pdu)
     
     if not rfc3411.notificationClassPDUs.has_key(pduType):
-        v2Pdu.setComponentByPosition(  # req-id
-            0, v1Pdu.getComponentByPosition(0)
-            )
+        requestId = v1.apiPDU.getRequestID(v1Pdu)
+        v2c.apiPDU.setRequestID(v2Pdu, long(v1.apiPDU.getRequestID(v1Pdu)))
 
     v2VarBinds = []
 
@@ -129,11 +128,11 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
 
     if rfc3411.responseClassPDUs.has_key(pduType):
         # 4.1.2.2 --> one-to-one mapping
-        v2Pdu.setComponentByPosition( # err-status
-            1, v1Pdu.getComponentByPosition(1)
+        v2c.apiPDU.setErrorStatus(
+            v2Pdu, int(v1.apiPDU.getErrorStatus(v1Pdu))
             )
-        v2Pdu.setComponentByPosition(  # err-index
-            2, v1Pdu.getComponentByPosition(2)
+        v2c.apiPDU.setErrorIndex(
+            v2Pdu, int(v1.apiPDU.getErrorIndex(v1Pdu))
             )
 
         # 4.1.2.1 --> no-op
@@ -228,11 +227,6 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
                 )
             v1.apiPDU.setErrorIndex(v1Pdu, v2c.apiPDU.getErrorIndex(v2Pdu))
             
-    if not rfc3411.notificationClassPDUs.has_key(pduType):
-        v1Pdu.setComponentByPosition(  # req-id
-            0, v2Pdu.getComponentByPosition(0)
-            )
-
     # Translate Var-Binds
     for oid, v2Val in v2VarBinds:
         v1VarBinds.append(
@@ -243,4 +237,6 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
     
     return v1Pdu
 
-# XXX constants
+# XXX
+# constants
+# review pdu components coercion code -- do that through map?
