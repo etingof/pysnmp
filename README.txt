@@ -1,26 +1,11 @@
 
-SNMP framework for Python, version 4.x (alpha)
-----------------------------------------------
+PYTHON SNMP FRAMEWORK
+---------------------
 
-This is a pure-Python implementation of multi-protocol SNMP engine.
+This is an alpha-quality revision of pure-Python, open source and free
+implementation of v1/v2c/v3 SNMP engine.
 
-This software provides facilities for building pure-Python SNMP v1/v2c/v3 
-entities, such as managers, agents and proxies. A set of MIB data access 
-methods allows for building SNMP managers fully aware of agent MIB, as well 
-as SNMP agents having their own MIB instrumentation.
-
-PySNMP is written entirely in Python and requires only a pair third-party
-Python packages to operate.
-
-The PySNMP package is distributed under terms and conditions of BSD-style
-license. See LICENSE at PySNMP homepage [1].
-
-WARNING! WARNING! WARNING!
---------------------------
-
-The 4.x branch of PySNMP is experimental, its API MAY slightly change 
-in the future. Do not use the 4.x branch in production projects for 
-a while!
+The PySNMP project has been sponsored by a PSF grant [10]. Thanks!
 
 FEATURES
 --------
@@ -60,22 +45,17 @@ releases.
 INSTALLATION
 ------------
 
-The PySNMP package uses distutils for installation:
-
-$ tar zxf pysnmp.tar.gz
-$ cd pysnmp
-$ python setup.py install
-
-Besides PySNMP, the PyASN1 [8] package must be installed. For secure SNMPv3 
-operation, the PyCrypto [9] toolkit is required.
+The PySNMP package uses distutils for package management. The PyASN1 [8]
+package is required. For secure SNMPv3 communication, PyyCrypto [9]
+should also be installed.
 
 OPERATION
 ---------
 
 As of this writing, PySNMP implements two SNMP architectures -- the first
-is a legacy one used in SNMPv1 & v2c specifications [5]. It is quite 
-protocol-oriented and, in particular, requires application to manage
-transport failures, access issues and so on.
+is a legacy one specified by SNMPv1 & v2c standards [5]. It is quite 
+low-level and protocol-oriented by design. In particular, it requires
+application to manage transport failures, access issues and so on.
 
 The second model supported by PySNMP is aligned to SNMPv3 architecture, 
 as specified in [4]. Here is an example on querying SNMP agent
@@ -175,6 +155,9 @@ REFERENCES
 
 [9] PyCrypto project:
     http://www.amk.ca/python/code/crypto.html
+
+[10] Python Software Foundation
+    http://www.python.org/psf/
 
 =-=-=
 mailto: ilya@glas.net
