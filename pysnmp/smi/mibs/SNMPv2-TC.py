@@ -188,7 +188,7 @@ class RowStatus(TextualConvention, Integer):
     """A special kind of scalar MIB variable responsible for
        MIB table row creation/destruction.
     """
-    subtypeSpec = Integer.subtypeSpec+constraint.SingleValueConstraint(1, 2, 3, 4, 5, 6)
+    subtypeSpec = Integer.subtypeSpec+constraint.SingleValueConstraint(0, 1, 2, 3, 4, 5, 6)
     namedValues = namedval.NamedValues(
         ('notExists', 0), ('active', 1), ('notInService', 2), ('notReady', 3),
         ('createAndGo', 4), ('createAndWait', 5), ('destroy', 6)
