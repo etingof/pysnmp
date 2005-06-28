@@ -25,6 +25,7 @@ Features, specific to SNMPv3 model include:
 * Built-in SNMP proxy PDU converter for building multi-lingual
   SNMP entities (RFC2576)
 * Remote SNMP engine configuration
+* Optional SNMP engine discovery
 * Shipped with standard SNMP applications (RC3413)  
 
 MISFEATURES
