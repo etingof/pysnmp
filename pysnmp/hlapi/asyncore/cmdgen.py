@@ -204,7 +204,7 @@ class CmdGen(AsynCmdGen):
                 varBindTableRow = varBindTable[-1]
                 for idx in range(len(varBindTableRow)):
                     name, val = varBindTableRow[idx]
-                    if head[idx].isPrefixOf(name):
+                    if head[idx].isPrefixOf(name):  # XXX this causes extra rows
                         break
                 else:
                     raise ApplicationReturn(
@@ -293,4 +293,4 @@ class CmdGen(AsynCmdGen):
 # trap app
 # proxy app
 # cache release
-# profile for performance
+# fix out of head rows to be queried on multi-var-bind req
