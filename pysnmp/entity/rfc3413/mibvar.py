@@ -6,7 +6,8 @@ from pysnmp.smi.error import NoSuchInstanceError
 
 def instanceNameToOid(mibView, name):
     if type(name[0]) == types.TupleType:
-        symName, modName = apply(lambda x,y='': (x,y), name[0])
+        modName, symName = apply(lambda x,y='': (x,y), name[0])
+        mibView.loadMissingModule(modName) # load module if needed
         oid, label, suffix = mibView.getNodeNameByDesc(symName, modName)
         suffix = name[1:]
     else:
