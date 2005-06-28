@@ -14,31 +14,31 @@ from pyasn1.type import constraint, namedval
 # Types
 
 class TransportAddress(OctetString):
-    subtypeSpec = OctetString.subtypeSpec+constraint.ValueRangeConstraint(0,255)
+    subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(0,255)
     pass
 
 class TransportAddressDns(TextualConvention, OctetString):
-    subtypeSpec = OctetString.subtypeSpec+constraint.ValueRangeConstraint(1,255)
+    subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(1,255)
     pass
 
 class TransportAddressIPv4(TextualConvention, OctetString):
-    subtypeSpec = OctetString.subtypeSpec+constraint.ValueRangeConstraint(6,6)
+    subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(6,6)
     pass
 
 class TransportAddressIPv4z(TextualConvention, OctetString):
-    subtypeSpec = OctetString.subtypeSpec+constraint.ValueRangeConstraint(10,10)
+    subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(10,10)
     pass
 
 class TransportAddressIPv6(TextualConvention, OctetString):
-    subtypeSpec = OctetString.subtypeSpec+constraint.ValueRangeConstraint(18,18)
+    subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(18,18)
     pass
 
 class TransportAddressIPv6z(TextualConvention, OctetString):
-    subtypeSpec = OctetString.subtypeSpec+constraint.ValueRangeConstraint(22,22)
+    subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(22,22)
     pass
 
 class TransportAddressLocal(TextualConvention, OctetString):
-    subtypeSpec = OctetString.subtypeSpec+constraint.ValueRangeConstraint(1,255)
+    subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(1,255)
     pass
 
 class TransportAddressType(Integer):
