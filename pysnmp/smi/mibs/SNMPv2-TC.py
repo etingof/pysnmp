@@ -21,7 +21,7 @@ class TextualConvention:
     def getDescription(self): return self.description
     def getReference(self): return self.reference
 
-    def _prettyOut(self, value):  # override asn1 type method
+    def prettyOut(self, value):  # override asn1 type method
         """Implements DISPLAY-HINT evaluation"""
         if self.displayHint and self.__integer.isSuperTypeOf(self):
             t, f = apply(lambda t, f=0: (t, f), split(self.displayHint, '-'))
@@ -145,7 +145,7 @@ class TextualConvention:
 #                     )
 
 # XXX
-#    def _prettyIn(self, value):
+#    def prettyIn(self, value):
 #        # XXX parse TC syntax
 #        return str(value)
 

@@ -25,8 +25,8 @@ class IpAddress(univ.OctetString):
     subtypeSpec = univ.OctetString.subtypeSpec+constraint.ValueSizeConstraint(
         4, 4
         )
-    def _prettyIn(self, value): return rfc1155.ipAddressPrettyIn(value)
-    def _prettyOut(self, value): return rfc1155.ipAddressPrettyOut(value)
+    def prettyIn(self, value): return rfc1155.ipAddressPrettyIn(value)
+    def prettyOut(self, value): return rfc1155.ipAddressPrettyOut(value)
 
 class Counter32(univ.Integer):
     tagSet = univ.Integer.tagSet.tagImplicitly(
@@ -85,7 +85,7 @@ class Bits(univ.OctetString):
             self, value, tagSet, subtypeSpec
             )
 
-    def _prettyIn(self, bits):
+    def prettyIn(self, bits):
         if type(bits) == types.StringType:
             return bits # raw bitstring
         octets = []
@@ -101,7 +101,7 @@ class Bits(univ.OctetString):
             octets[d] = octets[d] | 0x01 << (7-m)
         return string.join(map(lambda x: chr(x), octets))
 
-    def _prettyOut(self, value):
+    def prettyOut(self, value):
         names = []
         octets = tuple(map(None, value))
         i = 0

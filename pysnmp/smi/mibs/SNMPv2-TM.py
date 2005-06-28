@@ -16,7 +16,7 @@ class SnmpUDPAddress(TextualConvention, OctetString):
     subtypeSpec = OctetString.subtypeSpec + constraint.ValueSizeConstraint(6, 6)
     displayHint = "1d.1d.1d.1d/2d"
 
-    def _prettyIn(self, value):
+    def prettyIn(self, value):
         self.__nativeValue = value
         return "0000/0"  # XXX
     
