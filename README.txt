@@ -4,12 +4,12 @@ SNMP framework for Python, version 4.x (alpha)
 
 This is a pure-Python implementation of multi-protocol SNMP engine.
 
-This software provides facilities for building pure-Python SNMP v1/v2c/v3 entities,
-such as managers, agents and proxies. A set of MIB data access methods allows for
-building SNMP managers fully aware of agent MIB, as well as SNMP agents having
-their own MIB instrumentation.
+This software provides facilities for building pure-Python SNMP v1/v2c/v3 
+entities, such as managers, agents and proxies. A set of MIB data access 
+methods allows for building SNMP managers fully aware of agent MIB, as well 
+as SNMP agents having their own MIB instrumentation.
 
-PySNMP is written entirely in Python and only requires a few third-party
+PySNMP is written entirely in Python and requires only a pair third-party
 Python packages to operate.
 
 The PySNMP package is distributed under terms and conditions of BSD-style
@@ -18,30 +18,41 @@ license. See LICENSE at PySNMP homepage [1].
 WARNING! WARNING! WARNING!
 --------------------------
 
-The 4.x branch of PySNMP is extremely experimental, the API WILL
-change in the future. Do not use the 4.x API in real projects!
+The 4.x branch of PySNMP is experimental, its API MAY slightly change 
+in the future. Do not use the 4.x branch in production projects for 
+a while!
 
 FEATURES
 --------
 
 * Complete SNMPv1/v2c and SNMPv3 support
-* Complete SNMP entity implementation (SNMP manager and agent roles)
-* SMI framework for browsing MIB information and managing MIB instrumentation
+* SMI framework for resolving MIB information and managing MIB objects
+* Complete SNMP entity implementation
 * Extensible network transports framework (UDP and UNIX domain implemented)
 * Asynchronous socket-based IO API support
 * 100% Python, works with Python 1.5 and later
 * MT-safe
 
+Features, specific to SNMPv3 model include:
+
+* USM authentication (MD5/SHA) and privacy (DES) protocols (RFC3414)
+* View-based access control to use with any SNMP model (RFC3415)
+* Built-in SNMP proxy PDU converter for building multi-lingual
+  SNMP entities (RFC2576)
+* Remote SNMP engine configuration
+* Shipped with standard SNMP applications (RC3413)  
+
 MISFEATURES
 -----------
 
-* No pure-Python MIB compiler. Although, there's a workaround, read on.
+* Much slower than C implementations. Some optimization still possible.
+* No pure-Python MIB compiler. But there's a workaround, read on.
 
 PRECAUTIONS
 -----------
 
 The 4.x revision of PySNMP brings an alpha-quality code, unstable APIs and
-appears to run painfully slow. Also, the 4.x APIs are quite incompatible
+appears to run rather slow. Also, the 4.x APIs are quite incompatible
 with their 2.x/3.x counterparts as of this early release. Chances are that,
 at least, high-level compatibility interfaces would appear in future stable
 releases.
@@ -55,7 +66,7 @@ $ tar zxf pysnmp.tar.gz
 $ cd pysnmp
 $ python setup.py install
 
-Besides PySNMP, the pyasn1 [8] package must be installed. For secure SNMPv3 
+Besides PySNMP, the PyASN1 [8] package must be installed. For secure SNMPv3 
 operation, the PyCrypto [9] toolkit is required.
 
 OPERATION
@@ -66,7 +77,7 @@ is a legacy one used in SNMPv1 & v2c specifications [5]. It is quite
 protocol-oriented and, in particular, requires application to manage
 transport failures, access issues and so on.
 
-The second model supported by PySNMP resembles the SNMPv3 architecture, 
+The second model supported by PySNMP is aligned to SNMPv3 architecture, 
 as specified in [4]. Here is an example on querying SNMP agent
 for arbitrary value (sysDescr) over SNMP v3 with authentication and 
 privacy enabled:
@@ -79,14 +90,14 @@ userData = cmdgen.UsmUserData('test-user', 'authkey1', 'privkey1')
 targetAddr = cmdgen.UdpTransportTarget(('localhost', 161))
 
 errorIndication, errorStatus, errorIndex, varBinds = cmdgen.CmdGen().getCmd(
-    userData, targetAddr, (('sysDescr', 'SNMPv2-MIB'), 0)
+    userData, targetAddr, (('SNMPv2-MIB', 'sysDescr'), 0)
     )
 
 if errorIndication: # SNMP engine errors
     print errorIndication
 else:
     if errorStatus: # SNMP agent errors
-        print '%s at %s\n' % (errorStatus, varBinds[errorIndex-1])
+        print '%s at %s\n' % (errorStatus, varBinds[int(errorIndex)-1])
     else:
         for varBind in varBinds: # SNMP agent values
             print '%s = %s' % varBind
@@ -104,21 +115,17 @@ implemented in Python, loaded into SNMP entity and used for verification and
 visualisation purposes (SNMP manager side) and/or become management targets
 (SNMP agent side).
 
-Since PySNMP native MIB compiler/codegenerator is not yet implemented,
-the Python dump feature of libsmi library [6] is used. In order to convert MIB
-text files into pysnmp.smi-compliant Python source, something like the
-following UNIX shell script could be used:
+While MIB parser/codegenerator has not been implemented in PySNMP, the
+smidump tool of libsmi library [6] could be used for automatic convertion
+of MIB text files into Python code. The code been generated relies upon
+PySNMP SMI library.
 
-for srcfile in /usr/share/snmp/mibs/*txt
-do
-    dstmib=`echo $srcfile | sed -e 's/\.txt//g'`.py
-    smidump -f python $srcfile | libsmi2pysnmp > $dstmib
-done
+In order to convert MIB text files into pysnmp.smi-compliant Python source,
+please, use the pysnmp/tools/buildmibs.sh utility. Review its source code
+before use.
 
-The libsmi2pysnmp script is could be found in pysnmp/tools/ directory.
-
-Alternatively, a large set of pre-compiled MIB files is shipped along the
-pysnmp-mibs package. [2]
+A large set of pre-compiled MIB files is shipped along the pysnmp-mibs
+package.[2]
 
 AVAILABILITY
 ------------
@@ -163,7 +170,7 @@ REFERENCES
 [7] PySNMP mailing list archives:
     http://sourceforge.net/mail/?group_id=14735
 
-[8] pyasn1 project homepage:
+[8] PyASN1 project homepage:
     http://pyasn1.sf.net
 
 [9] PyCrypto project:
