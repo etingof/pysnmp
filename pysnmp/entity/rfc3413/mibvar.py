@@ -1,5 +1,6 @@
 # MIB variable pretty printers/parsers
 import types
+from pyasn1.type import univ
 from pysnmp.smi.error import NoSuchInstanceError
 
 # Name
@@ -7,9 +8,10 @@ from pysnmp.smi.error import NoSuchInstanceError
 def instanceNameToOid(mibView, name):
     if type(name[0]) == types.TupleType:
         modName, symName = apply(lambda x='',y='': (x,y), name[0])
-        if not modName:
-            modName = mibView.getFirstModuleName()
-        mibView.loadMissingModule(modName) # load module if needed
+        if modName: # load module if needed
+            mibView.mibBuilder.loadModules(modName)
+        else:
+            mibView.mibBuilder.loadModules() # load all (slow)
         if symName:
             oid, label, suffix = mibView.getNodeNameByDesc(symName, modName)
         else:
@@ -28,21 +30,26 @@ def instanceNameToOid(mibView, name):
     else: # scalar or incomplete spec
         return oid, suffix
 
+__scalarSuffix = (univ.Integer(0),)
+
 def oidToInstanceName(mibView, oid):
-    oid, label, suffix = mibView.getNodeNameByOid(tuple(oid))
-    modName, symName, __suffix = mibView.getNodeLocation(oid)
+    _oid, label, suffix = mibView.getNodeNameByOid(tuple(oid))
+    modName, symName, __suffix = mibView.getNodeLocation(_oid)
     mibNode, = mibView.mibBuilder.importSymbols(
         modName, symName
         )
     if hasattr(mibNode, 'getColumnInitializer'): # table column
-        __modName, __symName, __s = mibView.getNodeLocation(oid[:-1])
+        __modName, __symName, __s = mibView.getNodeLocation(_oid[:-1])
         rowNode, = mibView.mibBuilder.importSymbols(__modName, __symName)
         return (symName, modName), rowNode.getIndicesFromInstId(suffix)
-    elif not suffix or suffix == (0,): # scalar/identifier
+    elif not suffix: # scalar
         return (symName, modName), suffix
+    elif suffix == (0,): # scalar
+        return (symName, modName), __scalarSuffix
     else:
         raise NoSuchInstanceError(
-            str='No MIB info for %s (distant parent %s)' % (oid, mibNode)
+            str='No MIB info for %s (closest parent %s)' %
+            (oid, mibNode.name)
             )
 
 # Value
