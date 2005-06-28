@@ -25,8 +25,8 @@ class IpAddress(univ.OctetString):
     subtypeSpec = univ.OctetString.subtypeSpec+constraint.ValueSizeConstraint(
         4, 4
         )
-    def prettyIn(self, value): return rfc1155.ipAddressPrettyIn(value)
-    def prettyOut(self, value): return rfc1155.ipAddressPrettyOut(value)
+    def _prettyIn(self, value): return rfc1155.ipAddressPrettyIn(value)
+    def _prettyOut(self, value): return rfc1155.ipAddressPrettyOut(value)
 
 class Counter32(univ.Integer):
     tagSet = univ.Integer.tagSet.tagImplicitly(
@@ -90,7 +90,7 @@ class Bits(univ.OctetString):
             return bits # raw bitstring
         octets = []
         for bit in bits: # tuple of named bits
-            v = self.namedValues.getValue(bit)
+            v = self.__namedValues.getValue(bit)
             if v is None:
                 raise error.ProtocolError(
                     'Unknown named bit %s' % bit
@@ -110,7 +110,7 @@ class Bits(univ.OctetString):
             j = 7
             while j > 0:
                 if v & (0x01<<j):
-                    name = self.namedValues.getName(i*8+7-j)
+                    name = self.__namedValues.getName(i*8+7-j)
                     if name is None:
                         raise error.ProtocolError(
                             'Unknown named value %s' % v
@@ -122,10 +122,34 @@ class Bits(univ.OctetString):
 
     def clone(self, value=None, tagSet=None, subtypeSpec=None,
               namedValues=None):
-        if value is None: value = self._value
-        if tagSet is None: tagSet = self._tagSet
-        if subtypeSpec is None: subtypeSpec = self._subtypeSpec
-        if namedValues is None: namedValues = self.__namedValues
+        if value is None and self._value is not self.defaultValue:
+            value = self._value
+        if tagSet is None:
+            tagSet = self._tagSet
+        if subtypeSpec is None:
+            subtypeSpec = self._subtypeSpec
+        if namedValues is None:
+            namedValues = self.__namedValues
+        return self.__class__(value, tagSet, subtypeSpec, namedValues)
+
+    def subtype(self, value=None, implicitTag=None, explicitTag=None,
+                subtypeSpec=None, namedValues=None):
+        if value is None and self._value is not self.defaultValue:
+            value = self._value
+        if implicitTag is not None:
+            tagSet = self._tagSet.tagImplicitly(implicitTag)
+        elif explicitTag is not None:
+            tagSet = self._tagSet.tagExplicitly(explicitTag)
+        else:
+            tagSet = self._tagSet
+        if subtypeSpec is None:
+            subtypeSpec = self._subtypeSpec
+        else:
+            subtypeSpec = subtypeSpec + self._subtypeSpec
+        if namedValues is None:
+            namedValues = self.__namedValues
+        else:
+            namedValues = namedValues + self.__namedValues
         return self.__class__(value, tagSet, subtypeSpec, namedValues)
 
 class ObjectName(univ.ObjectIdentifier): pass
