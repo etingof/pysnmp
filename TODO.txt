@@ -1,0 +1,58 @@
+
+Sparse notes on major existing problems/plans
+
+* Re-design SMI model aiming at more consistent design
+  and better performance. One problem with current model
+  is that MIB variable and variable instance is not clarly
+  separated. Scalar vars and table cells should share the
+  same mechanics. For example, MibVariable may be a subtree
+  with a single leaf -- MibVarInstance; MibColumn would also
+  hold a ref to MibVarInstance then.
+
+  Linear search for subtree constributes to poor performance,
+
+  Possibly, MIB tree should be a single-level dictionary of
+  MIB objects.
+
+  Subtree registration at MIB tree objects may be obsolete
+
+* At MibViewController, do not index intance objects
+
+* Implement 'oneliner' API for v1arch
+
+* Implement prettyIn value format parser at TC
+
+* Disallow SNMP access to USM objects
+
+* Make sure objects shutdown methods work alright
+
+* Maybe MibInstrumentationController should be async what
+  implies callback function interface.
+
+* Re-work ACL to get rid of linear search there
+
+* Implement SNMP trap and proxy apps; complete example apps
+
+* Check for memory leaks esp. on failed requests
+
+* Implement partial context name match at isAccessAllowed()
+
+* Should managed objects be accessed through some dedicated,
+  non-SNMP-based API? A sort of backdoor which is basically
+  intrum minus transactions and AC.
+
+* Clean up cache management code at MsgAndPduDsp and MP
+
+* Sort out whether pyasn1 obejcts should probably have either clone() or 
+  subtype() methods.
+
+* Implement SNMP engine-scope debug mode logging
+
+* Convert symbolic constants into integers for performance and typing
+  reliablity
+
+* Expire discovered snmpEngineIds at mpmod/rfc3412
+
+* Implement by-transportTag search at secmod/rfc2576
+
+* Review PDU components coercion code at proxy/rfc2576
