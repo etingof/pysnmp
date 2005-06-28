@@ -42,8 +42,8 @@ class IpAddress(univ.OctetString):
         4, 4
         )
 
-    def prettyIn(self, value): return ipAddressPrettyIn(value)
-    def prettyOut(self, value): return ipAddressPrettyOut(value)
+    def _prettyIn(self, value): return ipAddressPrettyIn(value)
+    def _prettyOut(self, value): return ipAddressPrettyOut(value)
     
 class Counter(univ.Integer):
     tagSet = univ.Integer.tagSet.tagImplicitly(
