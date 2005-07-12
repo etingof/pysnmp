@@ -2,7 +2,7 @@ Revision 4.1.2a
 ---------------
 
 - UNSTABLE ALPHA RELEASE.
-- Many minor fixes
+- Many minor fixes (inspired by testing on WinXP)
 
 Revision 4.1.1a
 ---------------
