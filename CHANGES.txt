@@ -2,6 +2,10 @@ Revision 4.1.2a
 ---------------
 
 - UNSTABLE ALPHA RELEASE.
+- Top-level application classes renamed into longer, self descripting names
+  for clarity.
+- CommandResponder & NotificationOriginator applications now uses 
+  stand-alone SnmpContext for application registration.
 - Many minor fixes (inspired by testing on WinXP)
 
 Revision 4.1.1a
