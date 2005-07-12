@@ -9,27 +9,12 @@ vacmID = 3
 class CmdRspBase:
     pduTypes = ()
 
-    def __init__(self, snmpEngine, contextEngineId=None):
+    def __init__(self, snmpEngine, snmpContext):
         snmpEngine.msgAndPduDsp.registerContextEngineId(
-            contextEngineId, self.pduTypes, self.processPdu
+            snmpContext.contextEngineId, self.pduTypes, self.processPdu
             )
-        self.__contextEngineId = contextEngineId # for unregistration
+        self.snmpContext = snmpContext # for unregistration
         self.__pendingReqs = {}
-        self.__contextNames = {}
-
-    def registerContextName(self, contextName, mibInstrumController):
-        if self.__contextNames.has_key(contextName):
-            raise error.ProtocolError(
-                'Duplicate contextNames %s' % contextName
-                )
-        self.__contextNames[contextName] = mibInstrumController
-
-    def unregisterContextName(self, contextName):
-        if not self.__contextNames.has_key(contextName):
-            raise error.ProtocolError(
-                'No such contextName %s' % contextName
-                )
-        del self.__contextNames[contextName]
 
     def _handleManagementOperation(
         self, snmpEngine, contextMibInstrumCtl, PDU, (acFun, acCtx)
@@ -37,7 +22,7 @@ class CmdRspBase:
         
     def close(self, snmpEngine):
         snmpEngine.msgAndPduDsp.unregisterContextEngineId(
-            self.__contextEngineId, self.pduTypes
+            self.snmpContext.contextEngineId, self.pduTypes
             )
 
     def __sendResponse(self, snmpEngine, errorStatus, errorIndex,
@@ -134,10 +119,7 @@ class CmdRspBase:
             statusInformation
             )
 
-        if self.__contextNames.has_key(str(contextName)):
-            contextMibInstrumCtl =  self.__contextNames[contextName]
-        else:
-            contextMibInstrumCtl = snmpEngine.msgAndPduDsp.mibInstrumController
+        contextMibInstrumCtl = self.snmpContext.getMibInstrum(contextName)
 
         acCtx = (
             snmpEngine, securityModel, securityName, securityLevel, contextName
