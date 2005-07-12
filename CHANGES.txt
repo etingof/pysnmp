@@ -1,3 +1,9 @@
+Revision 4.1.2a
+---------------
+
+- UNSTABLE ALPHA RELEASE.
+- Many minor fixes
+
 Revision 4.1.1a
 ---------------
 
