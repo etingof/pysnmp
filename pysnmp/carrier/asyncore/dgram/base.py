@@ -3,6 +3,12 @@ import socket, errno
 from pysnmp.carrier.asynsock.base import AbstractSocketTransport
 from pysnmp.carrier import error
 
+__sockErrors = {
+    errno.ESHUTDOWN: 1,
+    errno.ENOTCONN: 1,
+    errno.ECONNRESET: 1
+    }
+    
 class DgramSocketTransport(AbstractSocketTransport):
     sockType = socket.SOCK_DGRAM
     retryCount = 3; retryInterval = 1
@@ -39,7 +45,7 @@ class DgramSocketTransport(AbstractSocketTransport):
         try:
             self.socket.sendto(outgoingMessage, transportAddress)
         except socket.error, why:
-            if why[0] != socket.EWOULDBLOCK:
+            if why[0] != errno.EWOULDBLOCK:
                 raise socket.error, why
     def readable(self): return 1
     def handle_read(self):
@@ -52,8 +58,7 @@ class DgramSocketTransport(AbstractSocketTransport):
                 self._cbFun(self, transportAddress, incomingMessage)
                 return
         except socket.error, why:
-            # winsock sometimes throws ENOTCONN
-            if why[0] in (socket.ECONNRESET, socket.ENOTCONN, socket.ESHUTDOWN):
+            if __sockErrors.has_key(why[0]):
                 self.handle_close()
                 return
             else:
