@@ -1,6 +1,5 @@
 import types, time
 from pysnmp.proto import rfc1157, rfc1905, api
-from pysnmp.smi import view
 from pysnmp.proto import error
 from pysnmp.proto.proxy import rfc2576
 
@@ -11,6 +10,7 @@ def getVersionSpecifics(snmpVersion):
         pduVersion = 1
     return pduVersion, api.protoModules[pduVersion]
 
+# XXX remove
 def getTargetInfo(snmpEngine, snmpTargetAddrName):
     mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
     # Transport endpoint
