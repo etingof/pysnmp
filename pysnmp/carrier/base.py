@@ -82,6 +82,9 @@ class AbstractTransportDispatcher:
     def runDispatcher(self, timeout=0.0):
         raise error.CarrierError('Method not implemented')
 
+    def startDispatcher(self):
+        self._doDispatchFlag = 1
+
     def stopDispatcher(self):
         self._doDispatchFlag = 0
         
