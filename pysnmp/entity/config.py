@@ -1,7 +1,13 @@
-# SNMP engine configuration functions
+# Initial SNMP engine configuration functions. During further operation,
+# SNMP engine might be configured remotely (through SNMP).
 import string
 from pysnmp.carrier.asynsock import dispatch
-from pysnmp.carrier.asynsock.dgram import udp, unix
+from pysnmp.carrier.asynsock.dgram import udp
+try:
+    from pysnmp.carrier.asynsock.dgram import unix
+    snmpLocalDomain = unix.snmpLocalDomain
+except ImportError: # may not be always available
+    pass
 from pysnmp.proto import rfc3412
 from pysnmp.proto.secmod.rfc3414 import localkey
 from pysnmp.entity import engine
@@ -10,7 +16,6 @@ from pysnmp import error
 
 # XXX
 snmpUDPDomain = udp.snmpUDPDomain
-snmpLocalDomain = unix.snmpLocalDomain
 
 def addV1System(snmpEngine, securityName, communityName,
                 contextEngineID=None, contextName=None,
@@ -508,4 +513,88 @@ def addRwUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
         )
     addVacmView(
         snmpEngine, groupName+'-view-rw', 1, subTree, ''
+        )
+
+# Notification configuration
+
+def addNotificationTarget(snmpEngine, notificationName, paramsName,
+                          transportTag, notifyType=None, filterSubtree=None,
+                          filterMask=None, filterType=None):
+    # Configure snmpNotifyTable
+    
+    # Build entry index
+    snmpNotifyEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-NOTIFICATION-MIB', 'snmpNotifyEntry')
+    tblIdx = snmpNotifyEntry.getInstIdFromIndices(
+        notificationName
+        )
+
+    # Create new row
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
+        ((snmpNotifyEntry.name + (5,) + tblIdx, 4),)
+        )
+
+    # Commit table cell
+    snmpNotifyTag = snmpNotifyEntry.getNode(
+        snmpNotifyEntry.name + (2,) + tblIdx
+        )
+    snmpNotifyTag.syntax = snmpNotifyTag.syntax.clone(transportTag)
+
+    if notifyType is not None:
+        snmpNotifyType = snmpNotifyEntry.getNode(
+            snmpNotifyEntry.name + (3,) + tblIdx
+            )
+        snmpNotifyType.syntax = snmpNotifyType.syntax.clone(notifyType)
+
+    # Configure snmpNotifyFilterProfileTable
+    snmpNotifyFilterProfileEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-NOTIFICATION-MIB', 'snmpNotifyFilterProfileEntry')
+    tblIdx = snmpNotifyFilterProfileEntry.getInstIdFromIndices(
+        paramsName
+        )
+
+    # Create new row
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
+        ((snmpNotifyFilterProfileEntry.name + (3,) + tblIdx, 4),)
+        )
+
+    profileName = '%s-filter' % notificationName
+    
+    # Commit table cell
+    snmpNotifyFilterProfileName = snmpNotifyFilterProfileEntry.getNode(
+        snmpNotifyFilterProfileEntry.name + (1,) + tblIdx
+        )
+    snmpNotifyFilterProfileName.syntax = snmpNotifyFilterProfileName.syntax.clone(profileName)
+    
+    # Configure snmpNotifyFilterEntry
+
+    snmpNotifyFilterEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-NOTIFICATION-MIB', 'snmpNotifyFilterEntry')
+    tblIdx = snmpNotifyFilterProfileEntry.getInstIdFromIndices(profileName)
+
+    if filterSubtree == filterMask == filterType == None:
+        return
+    
+    # Create new row
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
+        ((snmpNotifyFilterEntry.name + (5,) + tblIdx, 4),)
+        )
+    
+    # Commit table cell
+    snmpNotifyFilterSubtree =snmpNotifyFilterEntry.getNode(
+        snmpNotifyFilterEntry.name + (1,) + tblIdx
+        )
+    snmpNotifyFilterSubtree.syntax = snmpNotifyFilterSubtree.syntax.clone(
+        filterSubtree
+        )
+
+    snmpNotifyFilterMask =snmpNotifyFilterEntry.getNode(
+        snmpNotifyFilterEntry.name + (2,) + tblIdx
+        )
+    snmpNotifyFilterMask.syntax = snmpNotifyFilterMask.syntax.clone(
+        filterMask
+        )
+
+    snmpNotifyFilterType =snmpNotifyFilterEntry.getNode(
+        snmpNotifyFilterEntry.name + (3,) + tblIdx
+        )
+    snmpNotifyFilterType.syntax = snmpNotifyFilterType.syntax.clone(
+        filterType
         )
