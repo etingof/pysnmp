@@ -3,7 +3,7 @@ import socket, errno
 from pysnmp.carrier.asynsock.base import AbstractSocketTransport
 from pysnmp.carrier import error
 
-__sockErrors = {
+sockErrors = {
     errno.ESHUTDOWN: 1,
     errno.ENOTCONN: 1,
     errno.ECONNRESET: 1
@@ -58,8 +58,9 @@ class DgramSocketTransport(AbstractSocketTransport):
                 self._cbFun(self, transportAddress, incomingMessage)
                 return
         except socket.error, why:
-            if __sockErrors.has_key(why[0]):
+            if sockErrors.has_key(why[0]):
                 self.handle_close()
                 return
             else:
                 raise socket.error, why
+    def handle_close(self): pass # no datagram connection
