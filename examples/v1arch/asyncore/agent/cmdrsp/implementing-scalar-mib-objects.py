@@ -79,7 +79,7 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
 
 transportDispatcher = AsynsockDispatcher()
 transportDispatcher.registerTransport(
-    udp.domainName, udp.UdpSocketTransport().openServerMode(('localhost', 1161))
+    udp.domainName, udp.UdpSocketTransport().openServerMode(('localhost', 161))
     )
 transportDispatcher.registerRecvCbFun(cbFun)
 transportDispatcher.runDispatcher()
