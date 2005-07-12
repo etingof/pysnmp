@@ -45,8 +45,7 @@ class AsynsockDispatcher(base.AbstractTransportDispatcher):
         self.getTransport(tDomain).unregisterSocket(self.__sockMap)
         base.AbstractTransportDispatcher.unregisterTransport(self, tDomain)
 
-    def runDispatcher(self, liveForever=1):
-        self._doDispatchFlag = liveForever
+    def runDispatcher(self):
         while 1:
             poll(self.timeout, self.__sockMap)
             self.handleTimerTick(time())
