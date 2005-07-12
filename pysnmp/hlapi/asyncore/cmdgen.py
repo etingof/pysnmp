@@ -117,7 +117,7 @@ class AsynCommandGenerator:
                 self.mibViewController, varName
                 )
             varBinds.append((name + oid, self._null))
-        return cmdgen.GetCmdGen().sendReq(
+        return cmdgen.GetCommandGenerator().sendReq(
             self.snmpEngine, addrName, varBinds, cbFun, cbCtx
             )
 
@@ -133,7 +133,7 @@ class AsynCommandGenerator:
                 self.mibViewController, varName
                 )
             varBinds.append((name + oid, self._null))
-        return cmdgen.NextCmdGen().sendReq(
+        return cmdgen.NextCommandGenerator().sendReq(
             self.snmpEngine, addrName, varBinds, cbFun, cbCtx
             )
 
@@ -150,7 +150,7 @@ class AsynCommandGenerator:
                 self.mibViewController, varName
                 )
             varBinds.append((name + oid, self._null))
-        return cmdgen.BulkCmdGen().sendReq(
+        return cmdgen.BulkCommandGenerator().sendReq(
             self.snmpEngine, addrName, nonRepeaters, maxRepetitions,
             varBinds, cbFun, cbCtx
             )
