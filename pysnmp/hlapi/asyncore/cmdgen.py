@@ -44,7 +44,7 @@ class UdpTransportTarget:
             socket.gethostbyname(transportAddr[0]), transportAddr[1]
             )
 
-class AsynCmdGen:
+class AsynCommandGenerator:
     _null = univ.Null()
     def __init__(self, snmpEngine=None):
         if snmpEngine is None:
@@ -157,7 +157,7 @@ class AsynCmdGen:
 
     def asyncSetCmd(self): pass
 
-class CmdGen(AsynCmdGen):
+class CommandGenerator(AsynCommandGenerator):
     def __cbFun(
         self, sendRequestHandle, errorIndication, errorStatus, errorIndex,
         varBinds, cbCtx

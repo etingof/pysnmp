@@ -6,7 +6,7 @@ import pysnmp.smi.error
 vacmID = 3
 
 # 3.2
-class CmdRspBase:
+class CommandResponderBase:
     pduTypes = ()
 
     def __init__(self, snmpEngine, snmpContext):
@@ -205,7 +205,7 @@ class CmdRspBase:
                     'Unknown ACM error %s' % errorIndication
                     )
         
-class GetCmdRsp(CmdRspBase):
+class GetCommandResponder(CommandResponderBase):
     pduTypes = ( rfc1905.GetRequestPDU.tagSet, )
 
     # rfc1905: 4.2.1
@@ -217,7 +217,7 @@ class GetCmdRsp(CmdRspBase):
             v2c.apiPDU.getVarBinds(PDU), (acFun, acCtx)
             )
 
-class NextCmdRsp(CmdRspBase):
+class NextCommandResponder(CommandResponderBase):
     pduTypes = ( rfc1905.GetNextRequestPDU.tagSet, )
 
     # rfc1905: 4.2.2
@@ -228,7 +228,7 @@ class NextCmdRsp(CmdRspBase):
             v2c.apiPDU.getVarBinds(PDU), (acFun, acCtx)
             )
 
-class BulkCmdRsp(CmdRspBase):
+class BulkCommandResponder(CommandResponderBase):
     pduTypes = ( rfc1905.GetBulkRequestPDU.tagSet, )
     maxVarBinds = 64
     

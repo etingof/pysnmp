@@ -65,7 +65,7 @@ def getTargetInfo(snmpEngine, snmpTargetAddrName):
              snmpTargetParamsSecurityName.syntax,
              snmpTargetParamsSecurityLevel.syntax )
 
-class CmdGenBase:
+class CommandGeneratorBase:
     def __init__(self):
         self.__pendingReqs = {}
         self._sendRequestHandleSource = 0L
@@ -232,7 +232,7 @@ class CmdGenBase:
             sendRequestHandle,
             )
 
-class GetCmdGen(CmdGenBase):
+class GetCommandGenerator(CommandGeneratorBase):
     def sendReq(
         self,
         snmpEngine,
@@ -309,7 +309,7 @@ class GetCmdGen(CmdGenBase):
               pMod.apiPDU.getVarBinds(rspPDU),
               cbCtx)
 
-class SetCmdGen(CmdGenBase):
+class SetCommandGenerator(CommandGeneratorBase):
     def sendReq(
         self,
         snmpEngine,
@@ -390,7 +390,7 @@ class SetCmdGen(CmdGenBase):
               pMod.apiPDU.getVarBinds(rspPDU),
               cbCtx)
 
-class NextCmdGen(CmdGenBase):
+class NextCommandGenerator(CommandGeneratorBase):
     def sendReq(
         self,
         snmpEngine,
@@ -493,7 +493,7 @@ class NextCmdGen(CmdGenBase):
             (self.processResponsePdu, (cbFun, cbCtx))            
             )
 
-class BulkCmdGen(CmdGenBase):
+class BulkCommandGenerator(CommandGeneratorBase):
     def sendReq(
         self,
         snmpEngine,
