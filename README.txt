@@ -70,7 +70,8 @@ from pysnmp.entity.rfc3413.oneliner import cmdgen
 userData = cmdgen.UsmUserData('test-user', 'authkey1', 'privkey1')
 targetAddr = cmdgen.UdpTransportTarget(('localhost', 161))
 
-errorIndication, errorStatus, errorIndex, varBinds = cmdgen.CmdGen().getCmd(
+errorIndication, errorStatus, \
+                 errorIndex, varBinds = cmdgen.CommandGenerator().getCmd(
     userData, targetAddr, (('SNMPv2-MIB', 'sysDescr'), 0)
     )
 
