@@ -191,10 +191,32 @@ class MibViewController:
         return self.getNodeNameByOid(oid, modName)
 
     def getNodeName(self, nodeName, modName=''):
-        if type(nodeName) == TupleType:
-            return self.getNodeNameByOid(nodeName, modName)
+        if modName:
+            oid, label, suffix = self.getNodeNameByDesc(
+                nodeName[0], modName
+                )
+            if len(nodeName) == 1:
+                return oid, label, suffix
+            else:
+                return self.getNodeNameByOid(
+                    oid + suffix + nodeName[1:], modName
+                    )
         else:
-            return self.getNodeNameByDesc(nodeName, modName)
+            try:
+                return self.getNodeNameByOid(nodeName)
+            except error.NoSuchInstanceError:
+                oid, label, suffix = self.getNodeNameByDesc(nodeName[0])
+                if len(nodeName) == 1:
+                    return oid, label, suffix
+                else:
+                    return self.getNodeNameByOid(
+                        oid + suffix + nodeName[1:], modName
+                        )
+
+#        if type(nodeName) == TupleType:
+#            return self.getNodeNameByOid(nodeName, modName)
+#        else:
+#            return self.getNodeNameByDesc(nodeName, modName)
 
     def getFirstNodeName(self, modName=''):
         self.__indexMib()        
