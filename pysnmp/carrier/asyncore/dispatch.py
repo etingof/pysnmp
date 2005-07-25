@@ -45,9 +45,13 @@ class AsynsockDispatcher(base.AbstractTransportDispatcher):
         self.getTransport(tDomain).unregisterSocket(self.__sockMap)
         base.AbstractTransportDispatcher.unregisterTransport(self, tDomain)
 
+    def transportsAreWorking(self):
+        for transport in self.__sockMap.values():
+            if transport.writable():
+                return 1
+        return 0
+    
     def runDispatcher(self):
-        while 1:
+        while self.jobsArePending() or self.transportsAreWorking():
             poll(self.timeout, self.__sockMap)
             self.handleTimerTick(time())
-            if not self._doDispatchFlag:
-                break
