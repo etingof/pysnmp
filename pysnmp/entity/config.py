@@ -216,8 +216,10 @@ def addTargetParams(
         securityModel = 1
     elif mpModel == 1 or mpModel == 2:
         securityModel = 2
-    else:
+    elif mpModel == 3:
         securityModel = 3
+    else:
+        raise error.PySnmpError('Unknown MP model %s' % mpModel)
     
     # Fill entries
     snmpTargetParamsName = snmpTargetParamsEntry.getNode(
