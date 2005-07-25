@@ -157,7 +157,14 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 securityLevel = 1
                 # Clear possible auth&priv flags
                 headerData.setComponentByPosition(2, chr(msgFlags & 0xfc))
-#                scopedPDU.setComponentByPosition(2, rfc1905.PDUs()) # XXX
+                # XXX
+                scopedPDU = ScopedPDU()
+                scopedPDU.setComponentByPosition(0)
+                scopedPDU.setComponentByPosition(1)
+                scopedPDU.setComponentByPosition(2)
+                scopedPDU.getComponentByPosition(2).setComponentByType(
+                    pdu.tagSet, pdu
+                    )
             else:
                 securityEngineID = peerSnmpEngineData['securityEngineID']
                 
