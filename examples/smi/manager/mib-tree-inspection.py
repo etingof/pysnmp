@@ -20,8 +20,8 @@ oid, label, suffix = mibView.getNodeName((1,3,6,1,2,'mib-2',1,'sysDescr'))
 print oid, label, suffix
 
 print 'MIB symbol name lookup by symbol description: ',
-oid, label, suffix = mibView.getNodeName('sysDescr')
-oid, label, suffix = mibView.getNodeName('snmpEngineID', 'SNMP-FRAMEWORK-MIB')
+oid, label, suffix = mibView.getNodeName(('sysDescr',))
+oid, label, suffix = mibView.getNodeName(('snmpEngineID',), 'SNMP-FRAMEWORK-MIB')
 print oid, label, suffix
 
 print 'MIB object value pretty print: ',
@@ -29,7 +29,7 @@ mibNode, = mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 print mibNode.syntax
 
 print 'MIB symbol location lookup by name: ',
-modName, symName = mibView.getNodeLocation('snmpCommunityEntry')
+modName, symName, suffix = mibView.getNodeLocation(('snmpCommunityEntry',))
 print symName, modName
 
 print 'MIB node lookup by location: ',
@@ -46,7 +46,7 @@ print 'MIB tree traversal'
 oid, label, suffix = mibView.getFirstNodeName()
 while 1:
     try:
-        modName, nodeDesc = mibView.getNodeLocation(oid)
+        modName, nodeDesc, suffix = mibView.getNodeLocation(oid)
         print '%s::%s == %s' % (modName, nodeDesc, oid)
         oid, label, suffix = mibView.getNextNodeName(oid)
     except error.NoSuchInstanceError:
@@ -58,5 +58,5 @@ while 1:
     if modName: print modName
     try:
         modName = mibView.getNextModuleName(modName)
-    except error.NoSuchModuleError:
+    except error.SmiError:
         break
