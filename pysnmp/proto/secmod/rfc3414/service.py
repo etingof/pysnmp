@@ -194,7 +194,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                           usmUserAuthKeyLocalized,
                           usmUserPrivProtocol,
                           usmUserPrivKeyLocalized ) = self.__cloneUserInfo(
-                            snmpEngine.msgAndPduDsp.mibInstrumController,securityEngineID, securityName
+                            snmpEngine.msgAndPduDsp.mibInstrumController, securityEngineID, securityName
                             )
                     except NoSuchInstanceError:
                         __reportUnknownName = 1
@@ -443,9 +443,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         errorIndication = 'unknownEngineID'
                         )
 
-        snmpEngineID = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
-            'SNMP-FRAMEWORK-MIB', 'snmpEngineID'
-            )[0].syntax
+        snmpEngineID = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')[0].syntax
  
         msgAuthoritativeEngineID = securityParameters.getComponentByPosition(0)
         msgUserName = securityParameters.getComponentByPosition(3)
@@ -668,7 +666,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 maxSizeResponseScopedPDU=maxSizeResponseScopedPDU,
                 PDU=scopedPDU
                 )
-                
+
         # 3.2.12
         return ( securityEngineID,
                  securityName,
