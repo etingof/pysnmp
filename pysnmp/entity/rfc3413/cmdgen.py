@@ -103,8 +103,10 @@ class CommandGeneratorBase:
           ) = self.__pendingReqs[sendPduHandle]
         del self.__pendingReqs[sendPduHandle]
 
+        snmpEngine.transportDispatcher.jobFinished(id(self))
+
         # 3.1.3
-        if statusInformation: # and statusInformation.has_key('errorIndication'):
+        if statusInformation:
             if origRetries == origRetryCount:
                 cbFun(origSendRequestHandle,
                       statusInformation['errorIndication'], 0, 0, (),
@@ -167,7 +169,7 @@ class CommandGeneratorBase:
             origSendRequestHandle,
             (cbFun, cbCtx),
             )
-        
+
     def sendReq(
         self,
         snmpEngine,
@@ -214,6 +216,8 @@ class CommandGeneratorBase:
             reqPDU,
             (processResponsePdu, timeout/1000 + time.time(), cbCtx)
             )
+
+        snmpEngine.transportDispatcher.jobStarted(id(self))
 
         self.__pendingReqs[sendPduHandle] = (
             transportDomain,
@@ -279,7 +283,7 @@ class GetCommandGenerator(CommandGeneratorBase):
             self._sendRequestHandleSource,
             (self.processResponsePdu, (cbFun, cbCtx))            
             )
-        
+
         return self._sendRequestHandleSource
     
     def _handleResponse(
@@ -462,11 +466,12 @@ class NextCommandGenerator(CommandGeneratorBase):
         ):
         varBindTable = pMod.apiPDU.getVarBindTable(PDU, rspPDU)
 
-        cbFun(sendRequestHandle, None,
-              pMod.apiPDU.getErrorStatus(rspPDU),
-              pMod.apiPDU.getErrorIndex(rspPDU),
-              varBindTable, cbCtx)
-
+        if not cbFun(sendRequestHandle, None,
+                     pMod.apiPDU.getErrorStatus(rspPDU),
+                     pMod.apiPDU.getErrorIndex(rspPDU),
+                     varBindTable, cbCtx):
+            return  # app says enough
+        
         pMod.apiPDU.setRequestID(PDU, pMod.getNextRequestID())
         pMod.apiPDU.setVarBinds(
             PDU, map(lambda (x,y),n=pMod.Null(): (x,n), varBindTable[-1])
@@ -571,10 +576,11 @@ class BulkCommandGenerator(CommandGeneratorBase):
         ):
         varBindTable = pMod.apiBulkPDU.getVarBindTable(PDU, rspPDU)
             
-        cbFun(sendRequestHandle, None,
-              pMod.apiBulkPDU.getErrorStatus(rspPDU),
-              pMod.apiBulkPDU.getErrorIndex(rspPDU),
-              varBindTable, cbCtx)
+        if not cbFun(sendRequestHandle, None,
+                     pMod.apiBulkPDU.getErrorStatus(rspPDU),
+                     pMod.apiBulkPDU.getErrorIndex(rspPDU),
+                     varBindTable, cbCtx):
+            return # app says enough
 
         pMod.apiBulkPDU.setRequestID(PDU, pMod.getNextRequestID())
         pMod.apiBulkPDU.setVarBinds(

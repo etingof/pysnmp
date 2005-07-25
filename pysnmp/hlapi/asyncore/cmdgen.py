@@ -3,7 +3,6 @@ from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdgen, mibvar
 from pysnmp.carrier.asynsock.dgram import udp
 from pysnmp.smi import view
-from pysnmp.entity.rfc3413.error import ApplicationReturn
 from pysnmp import error
 from pyasn1.type import univ
 
@@ -160,97 +159,93 @@ class AsynCommandGenerator:
 class CommandGenerator(AsynCommandGenerator):
     def __cbFun(
         self, sendRequestHandle, errorIndication, errorStatus, errorIndex,
-        varBinds, cbCtx
+        varBinds, appReturn
         ):
-        raise ApplicationReturn(
-            errorIndication=errorIndication,
-            errorStatus=errorStatus,
-            errorIndex=errorIndex,
-            varBinds=varBinds
-            )
+        appReturn['errorIndication'] = errorIndication
+        appReturn['errorStatus'] = errorStatus
+        appReturn['errorIndex'] = errorIndex
+        appReturn['varBinds'] = varBinds
         
     def getCmd(self, authData, transportTarget, *varNames):
+        appReturn = {}
         self.asyncGetCmd(
-            authData, transportTarget, varNames, (self.__cbFun, None)
+            authData, transportTarget, varNames, (self.__cbFun, appReturn)
             )
-        try:
-            self.snmpEngine.transportDispatcher.runDispatcher()
-        except ApplicationReturn, applicationReturn:
-            return (
-                applicationReturn['errorIndication'],
-                applicationReturn['errorStatus'],
-                applicationReturn['errorIndex'],
-                applicationReturn['varBinds']
-                )
+        self.snmpEngine.transportDispatcher.runDispatcher()
+        return (
+            appReturn['errorIndication'],
+            appReturn['errorStatus'],
+            appReturn['errorIndex'],
+            appReturn['varBinds']
+            )
 
     def nextCmd(self, authData, transportTarget, *varNames):
         def __cbFun(
             sendRequestHandle, errorIndication, errorStatus, errorIndex,
-            varBindTable, (varBindHead, varBindTotalTable)
+            varBindTable, (varBindHead, varBindTotalTable, appReturn)
             ):
             if errorIndication or errorStatus:
                 if varBindTable:
                     varBinds=varBindTable[-1]
                 else:
                     varBinds = []
-                raise ApplicationReturn(
-                    errorIndication=errorIndication,
-                    errorStatus=errorStatus,
-                    errorIndex=errorIndex,
-                    varBinds=varBinds,
-                    varBindTable=varBindTotalTable
-                    )
+                appReturn['errorIndication'] = errorIndication
+                appReturn['errorStatus'] = errorStatus
+                appReturn['errorIndex'] = errorIndex
+                appReturn['varBinds'] = varBinds
+                appReturn['varBindTable'] = varBindTable
+                return
             else:
                 varBindTableRow = varBindTable[-1]
                 for idx in range(len(varBindTableRow)):
                     name, val = varBindTableRow[idx]
-                    if head[idx].isPrefixOf(name):  # XXX this causes extra rows
+                    if head[idx].isPrefixOf(name):  # XXX causes extra rows
                         break
                 else:
-                    raise ApplicationReturn(
-                        errorIndication=errorIndication,
-                        errorStatus=errorStatus,
-                        errorIndex=errorIndex,
-                        varBinds=varBindTable[-1],
-                        varBindTable=varBindTotalTable
-                        )
+                    appReturn['errorIndication'] = errorIndication
+                    appReturn['errorStatus'] = errorStatus
+                    appReturn['errorIndex'] = errorIndex
+                    appReturn['varBinds'] = varBindTable[-1],
+                    appReturn['varBindTable'] = varBindTotalTable
+                    return
                 varBindTotalTable.extend(varBindTable)
 
+            return 1 # continue table retrieval
+        
         head = map(lambda (x,y): univ.ObjectIdentifier(x+y), map(lambda x,self=self: mibvar.instanceNameToOid(self.mibViewController, x), varNames))
 
+        appReturn = {}
         self.asyncNextCmd(
-            authData, transportTarget, varNames, (__cbFun, (head, []))
+            authData, transportTarget, varNames, (__cbFun, (head,[],appReturn))
             )
-        try:
-            while 1:
-                self.snmpEngine.transportDispatcher.runDispatcher()
-        except ApplicationReturn, applicationReturn:
-            return (
-                applicationReturn['errorIndication'],
-                applicationReturn['errorStatus'],
-                applicationReturn['errorIndex'],
-                applicationReturn['varBinds'],
-                applicationReturn['varBindTable'],
-                )
+
+        self.snmpEngine.transportDispatcher.runDispatcher()
+
+        return (
+            appReturn['errorIndication'],
+            appReturn['errorStatus'],
+            appReturn['errorIndex'],
+            appReturn['varBinds'],
+            appReturn['varBindTable']
+            )
 
     def bulkCmd(self, authData, transportTarget,
                 nonRepeaters, maxRepetitions, *varNames):
         def __cbFun(
             sendRequestHandle, errorIndication, errorStatus, errorIndex,
-            varBindTable, (varBindHead, varBindTotalTable)
+            varBindTable, (varBindHead, varBindTotalTable, appReturn)
             ):
             if errorIndication or errorStatus:
                 if varBindTable:
                     varBinds=varBindTable[-1]
                 else:
                     varBinds = []
-                raise ApplicationReturn(
-                    errorIndication=errorIndication,
-                    errorStatus=errorStatus,
-                    errorIndex=errorIndex,
-                    varBinds=varBinds,
-                    varBindTable=varBindTotalTable
-                    )
+                appReturn['errorIndication'] = errorIndication
+                appReturn['errorStatus'] = errorStatus
+                appReturn['errorIndex'] = errorIndex
+                appReturn['varBinds'] = varBinds
+                appReturn['varBindTable'] = varBindTable
+                return
             else:
                 varBindTotalTable.extend(varBindTable) # XXX out of table 
                                                        # rows possible
@@ -260,28 +255,28 @@ class CommandGenerator(AsynCommandGenerator):
                     if head[idx].isPrefixOf(name):
                         break
                 else:
-                    raise ApplicationReturn(
-                        errorIndication=errorIndication,
-                        errorStatus=errorStatus,
-                        errorIndex=errorIndex,
-                        varBinds=varBindTable[-1],
-                        varBindTable=varBindTotalTable
-                        )
-
+                    appReturn['errorIndication'] = errorIndication
+                    appReturn['errorStatus'] = errorStatus
+                    appReturn['errorIndex'] = errorIndex
+                    appReturn['varBinds'] = varBindTable[-1],
+                    appReturn['varBindTable'] = varBindTotalTable
+                    return
+                
+            return 1 # continue table retrieval
+        
         head = map(lambda (x,y): univ.ObjectIdentifier(x+y), map(lambda x,self=self: mibvar.instanceNameToOid(self.mibViewController, x), varNames))
                    
         self.asyncBulkCmd(
             authData, transportTarget, nonRepeaters, maxRepetitions,
-            varNames, (__cbFun, (head, []))
+            varNames, (__cbFun, (head, [], appReturn))
             )
-        try:
-            while 1:
-                self.snmpEngine.transportDispatcher.runDispatcher()
-        except ApplicationReturn, applicationReturn:
-            return (
-                applicationReturn['errorIndication'],
-                applicationReturn['errorStatus'],
-                applicationReturn['errorIndex'],
-                applicationReturn['varBinds'],
-                applicationReturn['varBindTable']                
-                )
+
+        self.snmpEngine.transportDispatcher.runDispatcher()
+        
+        return (
+            appReturn['errorIndication'],
+            appReturn['errorStatus'],
+            appReturn['errorIndex'],
+            appReturn['varBinds'],
+            appReturn['varBindTable']
+            )
