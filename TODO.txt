@@ -64,3 +64,7 @@ Sparse notes on major existing problems/plans
 * Implement by-transportTag search at secmod/rfc2576
 
 * Review PDU components coercion code at proxy/rfc2576
+
+* TextualConvention subclassing order now depends upon DisplayHint 
+  clause presense in MIB definition (for useful prettyIn/Out()). Maybe 
+  this should be re-worked.
