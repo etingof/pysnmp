@@ -1,4 +1,4 @@
-from string import join, split
+import string
 from pysnmp.smi.indices import OidOrderedDict
 from pysnmp.smi import exval, error
 from pysnmp.proto import rfc1902
@@ -610,7 +610,7 @@ class MibTableRow(MibTree):
         if self.__intValue.isSuperTypeOf(obj):
             return obj.clone(value[0]), value[1:]
         elif self.__ipaddrValue.isSuperTypeOf(obj):
-            return obj.clone(join(map(str, value[:4]), '.')), value[4:]
+            return obj.clone(string.join(map(str, value[:4]), '.')), value[4:]
         elif self.__strValue.isSuperTypeOf(obj):
             if impliedFlag:
                 s = reduce(lambda x,y: x+y, map(lambda x: chr(x), value))
@@ -645,7 +645,7 @@ class MibTableRow(MibTree):
             else:
                 return (len(self.name),) + tuple(obj)
         elif self.__ipaddrValue.isSuperTypeOf(obj):
-            return tuple(map(int, obj))
+            return tuple(map(ord, obj))
         else:
             raise error.SmiError('Unknown value type for index %s' % repr(obj))
 #            return obj
