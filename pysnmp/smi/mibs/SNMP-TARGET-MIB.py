@@ -15,11 +15,11 @@ from pyasn1.type import constraint, namedval
 
 # Types
 
-class SnmpTagList(TextualConvention, OctetString):
+class SnmpTagList(OctetString, TextualConvention):
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(0,255)
     pass
 
-class SnmpTagValue(TextualConvention, OctetString):
+class SnmpTagValue(OctetString, TextualConvention):
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(0,255)
     pass
 

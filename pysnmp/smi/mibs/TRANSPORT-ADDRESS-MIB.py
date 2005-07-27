@@ -17,27 +17,27 @@ class TransportAddress(OctetString):
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(0,255)
     pass
 
-class TransportAddressDns(TextualConvention, OctetString):
+class TransportAddressDns(OctetString, TextualConvention):
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(1,255)
     pass
 
-class TransportAddressIPv4(TextualConvention, OctetString):
+class TransportAddressIPv4(OctetString, TextualConvention):
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(6,6)
     pass
 
-class TransportAddressIPv4z(TextualConvention, OctetString):
+class TransportAddressIPv4z(OctetString, TextualConvention):
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(10,10)
     pass
 
-class TransportAddressIPv6(TextualConvention, OctetString):
+class TransportAddressIPv6(OctetString, TextualConvention):
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(18,18)
     pass
 
-class TransportAddressIPv6z(TextualConvention, OctetString):
+class TransportAddressIPv6z(OctetString, TextualConvention):
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(22,22)
     pass
 
-class TransportAddressLocal(TextualConvention, OctetString):
+class TransportAddressLocal(OctetString, TextualConvention):
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(1,255)
     pass
 

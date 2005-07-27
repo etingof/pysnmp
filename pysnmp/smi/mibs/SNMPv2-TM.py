@@ -31,7 +31,7 @@ class SnmpOSIAddress(TextualConvention, OctetString):
     
 snmpDDPDomain = ObjectIdentity(snmpDomains.name + (4,))
 
-class SnmpNBPAddress(TextualConvention, OctetString):
+class SnmpNBPAddress(OctetString, TextualConvention):
     subtypeSpec = OctetString.subtypeSpec + constraint.ValueSizeConstraint(3, 99)
     
 snmpIPXDomain = ObjectIdentity(snmpDomains.name + (5,))

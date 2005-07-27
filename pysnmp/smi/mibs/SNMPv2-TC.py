@@ -160,11 +160,11 @@ class MacAddress(TextualConvention, OctetString):
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(6,6)
     displayHint = "1x:"
 
-class TruthValue(TextualConvention, Integer):
+class TruthValue(Integer, TextualConvention):
     subtypeSpec = Integer.subtypeSpec+constraint.SingleValueConstraint(1, 2)
     namedValues = namedval.NamedValues(('true', 1), ('false', 2))
     
-class TestAndIncr(Integer):
+class TestAndIncr(Integer, TextualConvention):
     subtypeSpec = Integer.subtypeSpec+constraint.ValueRangeConstraint(0, 2147483647)
     def clone(self, value=None, tagSet=None, subtypeSpec=None):
         if value is None:
@@ -178,13 +178,13 @@ class TestAndIncr(Integer):
             value = 0
         return Integer.clone(self, value, tagSet, subtypeSpec)
 
-class AutonomousType(TextualConvention, ObjectIdentifier): pass
-class InstancePointer(TextualConvention,ObjectIdentifier):
+class AutonomousType(ObjectIdentifier, TextualConvention): pass
+class InstancePointer(ObjectIdentifier, TextualConvention):
     status = 'obsolete'
-class VariablePointer(TextualConvention, ObjectIdentifier): pass
-class RowPointer(TextualConvention, ObjectIdentifier): pass
+class VariablePointer(ObjectIdentifier, TextualConvention): pass
+class RowPointer(ObjectIdentifier, TextualConvention): pass
     
-class RowStatus(TextualConvention, Integer):
+class RowStatus(Integer, TextualConvention):
     """A special kind of scalar MIB variable responsible for
        MIB table row creation/destruction.
     """
@@ -287,25 +287,25 @@ class RowStatus(TextualConvention, Integer):
             raise err
         return self
 
-class TimeStamp(TextualConvention, TimeTicks): pass
+class TimeStamp(TimeTicks, TextualConvention): pass
 
-class TimeInterval(TextualConvention, Integer):
+class TimeInterval(Integer, TextualConvention):
     subtypeSpec = Integer.subtypeSpec+constraint.ValueRangeConstraint(0, 2147483647)
 
 class DateAndTime(TextualConvention, OctetString):
     subtypeSpec = Integer.subtypeSpec+constraint.ValueSizeConstraint(8, 11)
     displayHint = "2d-1d-1d,1d:1d:1d.1d,1a1d:1d"
 
-class StorageType(TextualConvention, Integer):
+class StorageType(Integer, TextualConvention):
     subtypeSpec = Integer.subtypeSpec+constraint.SingleValueConstraint(1, 2, 3, 4, 5)
     namedValues = namedval.NamedValues(
         ('other', 1), ('volatile', 2), ('nonVolatile', 3),
         ('permanent', 4), ('readOnly', 5)
         )
 
-class TDomain(TextualConvention, ObjectIdentifier): pass
+class TDomain(ObjectIdentifier, TextualConvention): pass
 
-class TAddress(TextualConvention, OctetString):
+class TAddress(OctetString, TextualConvention):
     subtypeSpec = Integer.subtypeSpec+constraint.ValueSizeConstraint(1, 255)
 
 mibBuilder.exportSymbols(

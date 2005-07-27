@@ -24,7 +24,7 @@ class SnmpAdminString(TextualConvention, OctetString):
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(0,255)
     displayHint = "255a"
 
-class SnmpEngineID(TextualConvention, OctetString):
+class SnmpEngineID(OctetString, TextualConvention):
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(5,32)
     try:
         # Attempt to base engine ID on local IP address
@@ -37,14 +37,14 @@ class SnmpEngineID(TextualConvention, OctetString):
         # ...otherwise, use rudimentary text ID
         defaultValue = '80004fb8' + '4' + 'mozhinka'
 
-class SnmpMessageProcessingModel(TextualConvention, Integer32):
+class SnmpMessageProcessingModel(Integer32, TextualConvention):
     subtypeSpec = Integer32.subtypeSpec+constraint.ValueRangeConstraint(0,2147483647L)
 
-class SnmpSecurityLevel(TextualConvention, Integer):
+class SnmpSecurityLevel(Integer, TextualConvention):
     subtypeSpec = Integer.subtypeSpec+constraint.SingleValueConstraint(1,3,2,)
     namedValues = namedval.NamedValues(("noAuthNoPriv", 1), ("authNoPriv", 2), ("authPriv", 3), )
 
-class SnmpSecurityModel(TextualConvention, Integer32):
+class SnmpSecurityModel(Integer32, TextualConvention):
     subtypeSpec = Integer32.subtypeSpec+constraint.ValueRangeConstraint(0,2147483647L)
 
 # Objects
