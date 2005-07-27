@@ -1,3 +1,13 @@
+Revision 4.1.3a
+---------------
+
+- UNSTABLE ALPHA RELEASE.
+- rfc3413 applications API changes (related to callback function
+  behaviour).
+- TransportDispatcher now provides "jobs" interface to clients
+  for better control of dispatcher's execution.
+- Many minor fixes.
+
 Revision 4.1.2a
 ---------------
 
