@@ -16,6 +16,14 @@ Sparse notes on major existing problems/plans
 
   Subtree registration at MIB tree objects may be obsolete
 
+  Another issue showed up in MIBVIEW object model: MIB module name,
+  MIB object name and object instance should be clearly separated.
+  Dedicated, simple API for table cells mangling should be provided.
+  The whole thing should be simpler, including API.
+
+* Trap application code is still 90% finished. Also, examples & apps
+  needed.
+
 * At MibViewController, do not index intance objects
 
 * Implement 'oneliner' API for v1arch
