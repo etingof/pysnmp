@@ -118,7 +118,7 @@ class Bits(univ.OctetString):
                     names.append(name)
                 j = j - 1
             i = i + 1
-        return tuple(names)
+        return string.join(map(lambda x: str(x), names), ', ')
 
     def clone(self, value=None, tagSet=None, subtypeSpec=None,
               namedValues=None):
