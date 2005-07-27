@@ -18,14 +18,14 @@ system = MibIdentifier((1, 3, 6, 1, 2, 1, 1))
 sysDescr = MibVariable((1, 3, 6, 1, 2, 1, 1, 1), DisplayString("PySNMP engine version %s, Python %s" % (majorVersionId, version)).subtype(subtypeSpec=constraint.ValueSizeConstraint(0, 255))).setMaxAccess("readonly")
 sysObjectID = MibVariable((1, 3, 6, 1, 2, 1, 1, 2), ObjectIdentifier((1,3,6,1,4,1,20408))).setMaxAccess("readonly")
 
-class __SysUpTime(TimeTicks):
+class SysUpTime(TimeTicks):
     birthday = time()
     def clone(self, value=None, tagSet=None, subtypeSpec=None):
         if value is None:
             value = int(time()-self.birthday)*100
         return TimeTicks.clone(self, value)
 
-sysUpTime = MibVariable((1, 3, 6, 1, 2, 1, 1, 3), __SysUpTime()).setMaxAccess("readonly")
+sysUpTime = MibVariable((1, 3, 6, 1, 2, 1, 1, 3), SysUpTime()).setMaxAccess("readonly")
 sysContact = MibVariable((1, 3, 6, 1, 2, 1, 1, 4), DisplayString().subtype(subtypeSpec=constraint.ValueSizeConstraint(0, 255))).setMaxAccess("readwrite")
 sysName = MibVariable((1, 3, 6, 1, 2, 1, 1, 5), DisplayString().subtype(subtypeSpec=constraint.ValueSizeConstraint(0, 255))).setMaxAccess("readwrite")
 sysLocation = MibVariable((1, 3, 6, 1, 2, 1, 1, 6), DisplayString().subtype(subtypeSpec=constraint.ValueSizeConstraint(0, 255))).setMaxAccess("readwrite")
