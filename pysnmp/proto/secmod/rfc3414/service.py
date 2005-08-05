@@ -1,7 +1,7 @@
 # SNMP v3 USM model services
 from pysnmp.proto.secmod.base import AbstractSecurityModel
-from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
-from pysnmp.proto.secmod.rfc3414.priv import des
+from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha, noauth
+from pysnmp.proto.secmod.rfc3414.priv import des, nopriv
 from pysnmp.proto.secmod.rfc3414 import localkey
 from pysnmp.smi.error import NoSuchInstanceError
 from pysnmp.proto import rfc1155, error
@@ -25,10 +25,13 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
     securityModelID = 3
     authServices = {
         hmacmd5.HmacMd5.serviceID: hmacmd5.HmacMd5(),
-        hmacsha.HmacSha.serviceID: hmacsha.HmacSha()
+        hmacsha.HmacSha.serviceID: hmacsha.HmacSha(),
+        noauth.NoAuth.serviceID: noauth.NoAuth()
+        
         }
     privServices = {
-        des.Des.serviceID: des.Des()
+        des.Des.serviceID: des.Des(),
+        nopriv.NoPriv.serviceID: nopriv.NoPriv()
         }
     _securityParametersSpec = UsmSecurityParameters()
     def __init__(self):
@@ -133,11 +136,46 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         pysnmpUsmKeyAuthLocalized = pysnmpUsmKeyEntry.getNode(
             pysnmpUsmKeyEntry.name + (1,) + tblIdx
             )
-        pysnmpUsmKeyAuthLocalized.syntax = pysnmpUsmKeyAuthLocalized.syntax.clone(localkey.localizeKey(pysnmpUsmKeyAuth.syntax, securityEngineID))
+        if usmUserAuthProtocol.syntax == hmacsha.HmacSha.serviceID:
+            localAuthKey = localkey.localizeKeySHA(
+                pysnmpUsmKeyAuth.syntax, securityEngineID
+                )
+        elif usmUserAuthProtocol.syntax == hmacmd5.HmacMd5.serviceID:
+            localAuthKey = localkey.localizeKeyMD5(
+                pysnmpUsmKeyAuth.syntax, securityEngineID
+                )
+        elif usmUserAuthProtocol.syntax == noauth.NoAuth.serviceID:
+            localAuthKey = None
+        else:
+            raise error.StatusInformation(
+                errorIndication = 'unsupportedAuthProtocol'
+                )
+        if localAuthKey is not None:
+            pysnmpUsmKeyAuthLocalized.syntax = pysnmpUsmKeyAuthLocalized.syntax.clone(
+                localAuthKey
+                )
         pysnmpUsmKeyPrivLocalized = pysnmpUsmKeyEntry.getNode(
             pysnmpUsmKeyEntry.name + (2,) + tblIdx
             )
-        pysnmpUsmKeyPrivLocalized.syntax = pysnmpUsmKeyPrivLocalized.syntax.clone(localkey.localizeKey(pysnmpUsmKeyPriv.syntax, securityEngineID))
+        if usmUserPrivProtocol.syntax == des.Des.serviceID:
+            if usmUserAuthProtocol.syntax == hmacsha.HmacSha.serviceID:
+                localPrivKey = localkey.localizeKeySHA(
+                    pysnmpUsmKeyPriv.syntax, securityEngineID
+                    )
+            else:
+                localPrivKey = localkey.localizeKeyMD5(
+                    pysnmpUsmKeyPriv.syntax, securityEngineID
+                    )
+        elif usmUserPrivProtocol.syntax == nopriv.NoPriv.serviceID:
+            localPrivKey = None
+        else:
+            raise error.StatusInformation(
+                errorIndication = 'unsupportedPrivProtocol'
+                )
+        if localPrivKey is not None:
+            pysnmpUsmKeyPrivLocalized.syntax = pysnmpUsmKeyPrivLocalized.syntax.clone(
+                localPrivKey
+                )
         return (
             usmUserSecurityName.syntax,  # XXX function needed?
             usmUserAuthProtocol.syntax,
@@ -194,7 +232,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                           usmUserAuthKeyLocalized,
                           usmUserPrivProtocol,
                           usmUserPrivKeyLocalized ) = self.__cloneUserInfo(
-                            snmpEngine.msgAndPduDsp.mibInstrumController, securityEngineID, securityName
+                            snmpEngine.msgAndPduDsp.mibInstrumController,
+                            securityEngineID,
+                            securityName
                             )
                     except NoSuchInstanceError:
                         __reportUnknownName = 1
@@ -468,7 +508,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                           usmUserAuthKeyLocalized,
                           usmUserPrivProtocol,
                           usmUserPrivKeyLocalized ) = self.__cloneUserInfo(
-                            snmpEngine.msgAndPduDsp.mibInstrumController,securityEngineID, msgUserName
+                            snmpEngine.msgAndPduDsp.mibInstrumController,
+                            securityEngineID,
+                            msgUserName
                             )
                     except NoSuchInstanceError:
                         __reportUnknownName = 1
