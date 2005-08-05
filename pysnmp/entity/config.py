@@ -67,8 +67,7 @@ def addV1System(snmpEngine, securityName, communityName,
         snmpCommunityTransportTag.syntax = snmpCommunityTransportTag.syntax.clone(snmpCommunityTransportTag)
     
 def addV3User(snmpEngine, securityName, authKey=None, authProtocol=None,
-              privKey=None, privProtocol=None, hashedAuthKey=None,
-              hashedPrivKey=None):
+              privKey=None, privProtocol=None):
     # v3 setup
     snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
@@ -99,79 +98,110 @@ def addV3User(snmpEngine, securityName, authKey=None, authProtocol=None,
         )
     usmUserCloneFrom.syntax = usmUserCloneFrom.syntax.clone(zeroDotZero.name)
 
+    ( usmNoAuthProtocol,
+      usmHMACMD5AuthProtocol,
+      usmHMACSHAAuthProtocol ) = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmNoAuthProtocol', 'usmHMACMD5AuthProtocol', 'usmHMACSHAAuthProtocol')
+    
+    if authProtocol is None:
+        authProtocol = usmNoAuthProtocol
+    elif string.find('MD5', string.upper(authProtocol)) != -1:
+        authProtocol = usmHMACMD5AuthProtocol
+    elif string.find('SHA', string.upper(authProtocol)) != -1:
+        authProtocol = usmHMACSHAAuthProtocol
+    else:
+        raise error.PySnmpError('Unknown auth protocol %s' % authProtocol)        
+        
     # Commit auth protocol
     usmUserAuthProtocol = usmUserEntry.getNode(
         usmUserEntry.name + (5,) + tblIdx
         )
-    if authProtocol is None:
-        usmNoAuthProtocol, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmNoAuthProtocol')
+    if authProtocol is usmNoAuthProtocol:
         usmUserAuthProtocol.syntax = usmUserAuthProtocol.syntax.clone(
             usmNoAuthProtocol.name
             )
-    elif string.find('MD5', string.upper(authProtocol)) != -1:
-        usmHMACMD5AuthProtocol, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmHMACMD5AuthProtocol')
+    elif authProtocol is usmHMACMD5AuthProtocol:
         usmUserAuthProtocol.syntax = usmUserAuthProtocol.syntax.clone(
             usmHMACMD5AuthProtocol.name
             )
-    elif string.find('SHA', string.upper(authProtocol)) != -1:
-        usmHMACSHAAuthProtocol, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmHMACSHAAuthProtocol')
+        hashedAuthPassphrase = localkey.hashPassphraseMD5(authKey)
+        localAuthKey = localkey.localizeKeyMD5(
+            hashedAuthPassphrase, snmpEngineID.syntax
+            )
+    elif authProtocol is usmHMACSHAAuthProtocol:
         usmUserAuthProtocol.syntax = usmUserAuthProtocol.syntax.clone(
             usmHMACSHAAuthProtocol.name
+            )
+        hashedAuthPassphrase = localkey.hashPassphraseSHA(authKey)
+        localAuthKey = localkey.localizeKeySHA(
+            hashedAuthPassphrase, snmpEngineID.syntax
             )
     else:
         raise error.PySnmpError('Unknown auth protocol %s' % authProtocol)
 
+    ( usmNoPrivProtocol,
+      usmDESPrivProtocol ) = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmNoPrivProtocol', 'usmDESPrivProtocol')
+
+    if privProtocol is None:
+        privProtocol = usmNoPrivProtocol
+    elif string.find('DES', string.upper(privProtocol)) != -1:
+        privProtocol = usmDESPrivProtocol
+    else:
+        raise error.PySnmpError('Unknown priv protocol %s' % privProtocol)
+    
     # Commit priv protocol
     usmUserPrivProtocol = usmUserEntry.getNode(
         usmUserEntry.name + (8,) + tblIdx
         )
-    if privProtocol is None:
-        usmNoPrivProtocol, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmNoPrivProtocol')
+    if privProtocol is usmNoPrivProtocol:
         usmUserPrivProtocol.syntax = usmUserPrivProtocol.syntax.clone(
             usmNoPrivProtocol.name
             )
-    elif string.find('DES', string.upper(privProtocol)) != -1:
-        usmDESPrivProtocol, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmDESPrivProtocol')
+    elif privProtocol is usmDESPrivProtocol:
         usmUserPrivProtocol.syntax = usmUserPrivProtocol.syntax.clone(
             usmDESPrivProtocol.name
             )
+        if authProtocol is usmHMACMD5AuthProtocol:
+            hashedPrivPassphrase = localkey.hashPassphraseMD5(privKey)
+            localPrivKey = localkey.localizeKeyMD5(
+                hashedPrivPassphrase, snmpEngineID.syntax
+                )
+        elif authProtocol is usmHMACSHAAuthProtocol:
+            hashedPrivPassphrase = localkey.hashPassphraseSHA(privKey)
+            localPrivKey = localkey.localizeKeySHA(
+                hashedPrivPassphrase, snmpEngineID.syntax
+                )
+        else:
+            raise error.PySnmpError('Unknown auth protocol %s' % authProtocol)
     else:
         raise error.PySnmpError('Unknown priv protocol %s' % privProtocol)
 
     # Localize and commit localized keys
-    if authKey is not None or hashedAuthKey is not None:
+    if authProtocol is not usmNoAuthProtocol:
         pysnmpUsmKeyAuth = pysnmpUsmKeyEntry.getNode(
             pysnmpUsmKeyEntry.name + (3,) + tblIdx
             )
-        if hashedAuthKey is not None:
-            pysnmpUsmKeyAuth.syntax = pysnmpUsmKeyAuth.syntax.clone(
-                hashedAuthKey
-                )
-        else:
-            pysnmpUsmKeyAuth.syntax = pysnmpUsmKeyAuth.syntax.clone(
-                localkey.hashPassphrase(authKey)
-                )
+        pysnmpUsmKeyAuth.syntax = pysnmpUsmKeyAuth.syntax.clone(
+            hashedAuthPassphrase
+            )
         pysnmpUsmKeyAuthLocalized = pysnmpUsmKeyEntry.getNode(
             pysnmpUsmKeyEntry.name + (1,) + tblIdx
             )
-        pysnmpUsmKeyAuthLocalized.syntax = pysnmpUsmKeyAuthLocalized.syntax.clone(localkey.localizeKey(pysnmpUsmKeyAuth.syntax, snmpEngineID.syntax))
-    if privKey is not None or hashedPrivKey is not None:
+        pysnmpUsmKeyAuthLocalized.syntax = pysnmpUsmKeyAuthLocalized.syntax.clone(
+            localAuthKey
+            )
+    if privProtocol is not usmNoPrivProtocol:
         pysnmpUsmKeyPriv = pysnmpUsmKeyEntry.getNode(
             pysnmpUsmKeyEntry.name + (4,) + tblIdx
             )
-        if hashedPrivKey is not None:
-            pysnmpUsmKeyPriv.syntax = pysnmpUsmKeyPriv.syntax.clone(
-                hashedPrivKey
-                )
-        else:
-            pysnmpUsmKeyPriv.syntax = pysnmpUsmKeyPriv.syntax.clone(
-                localkey.hashPassphrase(privKey)
-                )
+        pysnmpUsmKeyPriv.syntax = pysnmpUsmKeyPriv.syntax.clone(
+            hashedPrivPassphrase
+            )
         pysnmpUsmKeyPrivLocalized = pysnmpUsmKeyEntry.getNode(
             pysnmpUsmKeyEntry.name + (2,) + tblIdx
             )
-        pysnmpUsmKeyPrivLocalized.syntax = pysnmpUsmKeyPrivLocalized.syntax.clone(localkey.localizeKey(pysnmpUsmKeyPriv.syntax, snmpEngineID.syntax))
-
+        pysnmpUsmKeyPrivLocalized.syntax = pysnmpUsmKeyPrivLocalized.syntax.clone(
+            localPrivKey
+            )
     # Commit passphrases
     pysnmpUsmSecretEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('PYSNMP-USM-MIB', 'pysnmpUsmSecretEntry')
     tblIdx = pysnmpUsmSecretEntry.getInstIdFromIndices(
@@ -181,14 +211,14 @@ def addV3User(snmpEngine, securityName, authKey=None, authProtocol=None,
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((pysnmpUsmSecretEntry.name + (4,) + tblIdx, 4),)
         )
-    if authKey is not None:
+    if authProtocol is not usmNoAuthProtocol:
         pysnmpUsmSecretAuthKey = pysnmpUsmSecretEntry.getNode(
             pysnmpUsmSecretEntry.name + (2,) + tblIdx
             )
         pysnmpUsmSecretAuthKey.syntax = pysnmpUsmSecretAuthKey.syntax.clone(
             authKey
             )
-    if privKey is not None:
+    if privProtocol is not usmNoPrivProtocol:
         pysnmpUsmSecretPrivKey = pysnmpUsmSecretEntry.getNode(
             pysnmpUsmSecretEntry.name + (3,) + tblIdx
             )
