@@ -103,10 +103,3 @@ class HmacSha(base.AbstractAuthenticationService):
                 )
         
         return authenticatedWholeMsg
-
-# print repr(
-#     HmacSha().authenticateOutgoingMsg('12345678901234567890', 'adsd\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00afadff')
-#     )
-# print repr(
-#     HmacSha().authenticateIncomingMsg('12345678901234567890', '0\x9c\x98g\xdb\xfd\xcd\xb0\xf9y\xc7b', 'adsd0\x9c\x98g\xdb\xfd\xcd\xb0\xf9y\xc7bafadff')
-#     )

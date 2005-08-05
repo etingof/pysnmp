@@ -104,10 +104,3 @@ class HmacMd5(base.AbstractAuthenticationService):
                 )
 
         return authenticatedWholeMsg
-
-# print repr(
-#     HmacMd5().authenticateOutgoingMsg('1234567890123456', 'adsd\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00afadff')
-#     )
-# print repr(
-#     HmacMd5().authenticateIncomingMsg('1234567890123456', '\xc2i\x9bu\x92\x96\x00vR\xed$@', 'adsd\xc2i\x9bu\x92\x96\x00vR\xed$@afadff')
-#     )
