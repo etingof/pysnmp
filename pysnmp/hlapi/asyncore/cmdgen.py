@@ -22,17 +22,19 @@ class UsmUserData:
     securityLevel='noAuthNoPriv'
     securityModel=3
     mpModel=2
-    authProtocol='md5'
-    privProtocol='des'
-    def __init__(self, securityName, authKey=None, privKey=None):
+    authProtocol = privProtocol = None
+    def __init__(self, securityName, authKey=None, authProtocol='md5',
+                 privKey=None, privProtocol='des'):
         self.securityName = securityName
         if authKey is not None:
             self.authKey = authKey
+            self.authProtocol = authProtocol
             if self.securityLevel != 'authPriv':
                 self.securityLevel = 'authNoPriv'
         if privKey is not None:
             self.privKey = privKey
             self.securityLevel = 'authPriv'
+            self.privProtocol = privProtocol
 
 class UdpTransportTarget:
     transportDomain = udp.domainName
