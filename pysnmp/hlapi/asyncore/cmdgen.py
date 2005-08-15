@@ -6,6 +6,15 @@ from pysnmp.smi import view
 from pysnmp import error
 from pyasn1.type import univ
 
+# Auth protocol
+usmHMACMD5AuthProtocol = config.usmHMACMD5AuthProtocol
+usmHMACSHAAuthProtocol = config.usmHMACSHAAuthProtocol
+usmNoAuthProtocol = config.usmNoAuthProtocol
+
+# Privacy protocol
+usmDESPrivProtocol = config.usmDESPrivProtocol
+usmNoPrivProtocol = config.usmNoPrivProtocol
+
 class CommunityData:
     mpModel=1 # Default is SMIv2
     securityModel=mpModel+1
@@ -18,23 +27,33 @@ class CommunityData:
             self.securityModel = mpModel + 1
 
 class UsmUserData:
-    authKey = privKey = None
+    authKey = privKey = ''
     securityLevel='noAuthNoPriv'
     securityModel=3
     mpModel=2
     authProtocol = privProtocol = None
-    def __init__(self, securityName, authKey=None, authProtocol='md5',
-                 privKey=None, privProtocol='des'):
+    def __init__(self, securityName,
+                 authKey='', privKey='',
+                 authProtocol=usmNoAuthProtocol,
+                 privProtocol=usmNoPrivProtocol):
         self.securityName = securityName
-        if authKey is not None:
+        if authKey:
             self.authKey = authKey
-            self.authProtocol = authProtocol
+            if authProtocol == usmNoAuthProtocol:
+                self.authProtocol = usmHMACMD5AuthProtocol
+            else:
+                self.authProtocol = authProtocol
             if self.securityLevel != 'authPriv':
                 self.securityLevel = 'authNoPriv'
-        if privKey is not None:
+        if privKey:
             self.privKey = privKey
+            if self.authProtocol == usmNoAuthProtocol:
+                raise error.PySnmpError('Privacy implies authenticity')
             self.securityLevel = 'authPriv'
-            self.privProtocol = privProtocol
+            if privProtocol == usmNoPrivProtocol:
+                self.privProtocol = usmDESPrivProtocol
+            else:
+                self.privProtocol = privProtocol
 
 class UdpTransportTarget:
     transportDomain = udp.domainName
@@ -76,8 +95,8 @@ class AsynCommandGenerator:
                 config.addV3User(
                     self.snmpEngine,
                     authData.securityName,
-                    authData.authKey, authData.authProtocol,
-                    authData.privKey, authData.privProtocol
+                    authData.authProtocol, authData.authKey,
+                    authData.privProtocol, authData.privKey
                     )
                 config.addTargetParams(
                     self.snmpEngine, paramsName,
