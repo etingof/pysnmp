@@ -151,9 +151,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 errorIndication = 'unsupportedAuthProtocol'
                 )
         if localAuthKey is not None:
-            pysnmpUsmKeyAuthLocalized.syntax = pysnmpUsmKeyAuthLocalized.syntax.clone(
-                localAuthKey
-                )
+            pysnmpUsmKeyAuthLocalized.syntax = pysnmpUsmKeyAuthLocalized.syntax.clone(localAuthKey)
         pysnmpUsmKeyPrivLocalized = pysnmpUsmKeyEntry.getNode(
             pysnmpUsmKeyEntry.name + (2,) + tblIdx
             )
@@ -173,9 +171,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 errorIndication = 'unsupportedPrivProtocol'
                 )
         if localPrivKey is not None:
-            pysnmpUsmKeyPrivLocalized.syntax = pysnmpUsmKeyPrivLocalized.syntax.clone(
-                localPrivKey
-                )
+            pysnmpUsmKeyPrivLocalized.syntax = pysnmpUsmKeyPrivLocalized.syntax.clone(localPrivKey)
         return (
             usmUserSecurityName.syntax,  # XXX function needed?
             usmUserAuthProtocol.syntax,
@@ -220,7 +216,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                   usmUserAuthKeyLocalized,
                   usmUserPrivProtocol,
                   usmUserPrivKeyLocalized ) = self.__getUserInfo(
-                    snmpEngine.msgAndPduDsp.mibInstrumController, securityEngineID, securityName
+                    snmpEngine.msgAndPduDsp.mibInstrumController,
+                    securityEngineID, securityName
                     )
             except NoSuchInstanceError:
                 pysnmpUsmDiscovery, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('PYSNMP-USM-MIB', 'pysnmpUsmDiscovery')
@@ -280,7 +277,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             try:
                 ( encryptedData,
                   privParameters ) = privHandler.encryptData(
-                    snmpEngine.msgAndPduDsp.mibInstrumController, usmUserPrivKeyLocalized, dataToEncrypt
+                    snmpEngine.msgAndPduDsp.mibInstrumController,
+                    usmUserPrivKeyLocalized, dataToEncrypt
                     )
             except error.StatusInformation, statusInformation:
                 raise
