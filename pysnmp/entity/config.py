@@ -23,7 +23,7 @@ snmpUDPDomain = udp.snmpUDPDomain
 
 # Auth protocol
 usmHMACMD5AuthProtocol = hmacmd5.HmacMd5.serviceID
-usmHMACSHAAuthProtocol = hmacmd5.HmacSha.serviceID
+usmHMACSHAAuthProtocol = hmacsha.HmacSha.serviceID
 usmNoAuthProtocol = noauth.NoAuth.serviceID
 
 # Privacy protocol
@@ -127,8 +127,10 @@ def addV3User(snmpEngine, securityName,
         localAuthKey = localkey.localizeKeySHA(
             hashedAuthPassphrase, snmpEngineID.syntax
             )
+    elif authProtocol == usmNoAuthProtocol:
+        pass
     else:
-        raise error.PySnmpError('Unknown auth protocol %s' % authProtocol)
+        raise error.PySnmpError('Unknown auth protocol %s' % (authProtocol,))
 
     # Commit priv protocol
     usmUserPrivProtocol = usmUserEntry.getNode(
@@ -147,9 +149,15 @@ def addV3User(snmpEngine, securityName,
                 hashedPrivPassphrase, snmpEngineID.syntax
                 )
         else:
-            raise error.PySnmpError('Unknown auth protocol %s' %authProtocol)
+            raise error.PySnmpError(
+                'Unknown auth protocol %s' % (authProtocol,)
+                )
+    elif privProtocol == usmNoPrivProtocol:
+        pass
     else:
-        raise error.PySnmpError('Unknown priv protocol %s' % privProtocol)
+        raise error.PySnmpError(
+            'Unknown priv protocol %s' % (privProtocol,)
+            )
 
     # Localize and commit localized keys
     if authProtocol != usmNoAuthProtocol:
