@@ -286,7 +286,9 @@ class CommandGenerator(AsynCommandGenerator):
             return 1 # continue table retrieval
         
         head = map(lambda (x,y): univ.ObjectIdentifier(x+y), map(lambda x,self=self: mibvar.instanceNameToOid(self.mibViewController, x), varNames))
-                   
+
+        appReturn = {}
+        
         self.asyncBulkCmd(
             authData, transportTarget, nonRepeaters, maxRepetitions,
             varNames, (__cbFun, (head, [], appReturn))
