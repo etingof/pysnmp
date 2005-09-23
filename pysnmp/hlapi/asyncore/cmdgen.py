@@ -175,22 +175,22 @@ class AsynCommandGenerator:
             varBinds, cbFun, cbCtx
             )
 
-    def asyncSetCmd(self): pass
+    def asyncSetCmd(self): pass # XXX
 
 class CommandGenerator(AsynCommandGenerator):
-    def __cbFun(
-        self, sendRequestHandle, errorIndication, errorStatus, errorIndex,
-        varBinds, appReturn
-        ):
-        appReturn['errorIndication'] = errorIndication
-        appReturn['errorStatus'] = errorStatus
-        appReturn['errorIndex'] = errorIndex
-        appReturn['varBinds'] = varBinds
-        
     def getCmd(self, authData, transportTarget, *varNames):
+        def __cbFun(
+            sendRequestHandle, errorIndication, errorStatus, errorIndex,
+            varBinds, appReturn
+            ):
+            appReturn['errorIndication'] = errorIndication
+            appReturn['errorStatus'] = errorStatus
+            appReturn['errorIndex'] = errorIndex
+            appReturn['varBinds'] = varBinds
+
         appReturn = {}
         self.asyncGetCmd(
-            authData, transportTarget, varNames, (self.__cbFun, appReturn)
+            authData, transportTarget, varNames, (__cbFun, appReturn)
             )
         self.snmpEngine.transportDispatcher.runDispatcher()
         return (
@@ -206,14 +206,9 @@ class CommandGenerator(AsynCommandGenerator):
             varBindTable, (varBindHead, varBindTotalTable, appReturn)
             ):
             if errorIndication or errorStatus:
-                if varBindTable:
-                    varBinds=varBindTable[-1]
-                else:
-                    varBinds = []
                 appReturn['errorIndication'] = errorIndication
                 appReturn['errorStatus'] = errorStatus
                 appReturn['errorIndex'] = errorIndex
-                appReturn['varBinds'] = varBinds
                 appReturn['varBindTable'] = varBindTable
                 return
             else:
@@ -226,7 +221,6 @@ class CommandGenerator(AsynCommandGenerator):
                     appReturn['errorIndication'] = errorIndication
                     appReturn['errorStatus'] = errorStatus
                     appReturn['errorIndex'] = errorIndex
-                    appReturn['varBinds'] = varBindTable[-1],
                     appReturn['varBindTable'] = varBindTotalTable
                     return
                 varBindTotalTable.extend(varBindTable)
@@ -246,7 +240,6 @@ class CommandGenerator(AsynCommandGenerator):
             appReturn['errorIndication'],
             appReturn['errorStatus'],
             appReturn['errorIndex'],
-            appReturn['varBinds'],
             appReturn['varBindTable']
             )
 
@@ -257,14 +250,9 @@ class CommandGenerator(AsynCommandGenerator):
             varBindTable, (varBindHead, varBindTotalTable, appReturn)
             ):
             if errorIndication or errorStatus:
-                if varBindTable:
-                    varBinds=varBindTable[-1]
-                else:
-                    varBinds = []
                 appReturn['errorIndication'] = errorIndication
                 appReturn['errorStatus'] = errorStatus
                 appReturn['errorIndex'] = errorIndex
-                appReturn['varBinds'] = varBinds
                 appReturn['varBindTable'] = varBindTable
                 return
             else:
@@ -279,7 +267,6 @@ class CommandGenerator(AsynCommandGenerator):
                     appReturn['errorIndication'] = errorIndication
                     appReturn['errorStatus'] = errorStatus
                     appReturn['errorIndex'] = errorIndex
-                    appReturn['varBinds'] = varBindTable[-1],
                     appReturn['varBindTable'] = varBindTotalTable
                     return
                 
@@ -300,6 +287,5 @@ class CommandGenerator(AsynCommandGenerator):
             appReturn['errorIndication'],
             appReturn['errorStatus'],
             appReturn['errorIndex'],
-            appReturn['varBinds'],
             appReturn['varBindTable']
             )
