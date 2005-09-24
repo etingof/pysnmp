@@ -141,6 +141,22 @@ class AsynCommandGenerator:
             self.snmpEngine, addrName, varBinds, cbFun, cbCtx
             )
 
+    def asyncSetCmd(
+        self, authData, transportTarget, varBinds, (cbFun, cbCtx)
+        ):
+        addrName = self.__configure(
+            authData, transportTarget
+            )
+        __varBinds = []
+        for varName, varVal in varBinds:
+            name, oid = mibvar.instanceNameToOid(
+                self.mibViewController, varName
+                )
+            __varBinds.append((name + oid, varVal))
+        return cmdgen.SetCommandGenerator().sendReq(
+            self.snmpEngine, addrName, __varBinds, cbFun, cbCtx
+            )
+        
     def asyncNextCmd(
         self, authData, transportTarget, varNames, (cbFun, cbCtx)
         ):
@@ -175,8 +191,6 @@ class AsynCommandGenerator:
             varBinds, cbFun, cbCtx
             )
 
-    def asyncSetCmd(self): pass # XXX
-
 class CommandGenerator(AsynCommandGenerator):
     def getCmd(self, authData, transportTarget, *varNames):
         def __cbFun(
@@ -191,6 +205,28 @@ class CommandGenerator(AsynCommandGenerator):
         appReturn = {}
         self.asyncGetCmd(
             authData, transportTarget, varNames, (__cbFun, appReturn)
+            )
+        self.snmpEngine.transportDispatcher.runDispatcher()
+        return (
+            appReturn['errorIndication'],
+            appReturn['errorStatus'],
+            appReturn['errorIndex'],
+            appReturn['varBinds']
+            )
+
+    def setCmd(self, authData, transportTarget, *varBinds):
+        def __cbFun(
+            sendRequestHandle, errorIndication, errorStatus, errorIndex,
+            varBinds, appReturn
+            ):
+            appReturn['errorIndication'] = errorIndication
+            appReturn['errorStatus'] = errorStatus
+            appReturn['errorIndex'] = errorIndex
+            appReturn['varBinds'] = varBinds
+
+        appReturn = {}
+        self.asyncSetCmd(
+            authData, transportTarget, varBinds, (__cbFun, appReturn)
             )
         self.snmpEngine.transportDispatcher.runDispatcher()
         return (
