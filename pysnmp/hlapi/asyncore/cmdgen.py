@@ -76,6 +76,7 @@ class AsynCommandGenerator:
             )
         self.__knownAuths = {}
         self.__knownTransports = {}
+        self.__knownTransportAddrs = {}
 
     def __configure(self, authData, transportTarget):
         paramsName = '%s-params' % (authData.securityName,)
@@ -106,21 +107,24 @@ class AsynCommandGenerator:
                 raise error.PySnmpError('Unsupported SNMP version')
             self.__knownAuths[authData] = 1
 
-        addrName = str(transportTarget.transportAddr)
-        if not self.__knownTransports.has_key(transportTarget):
+        if not self.__knownTransports.has_key(transportTarget.transport):
             config.addSocketTransport(
                 self.snmpEngine,
                 transportTarget.transportDomain,
                 transportTarget.transport
                 )
-            self.__knownTransports[transportTarget] = 1
-    
+            self.__knownTransports[transportTarget.transport] = 1
+            
+        addrName = str(transportTarget.transportAddr)
+        if not self.__knownTransportAddrs.has_key(addrName):
             config.addTargetAddr(
                 self.snmpEngine, addrName,
                 transportTarget.transportDomain,
                 transportTarget.transportAddr,
                 paramsName
                 )
+            self.__knownTransportAddrs[addrName] = 1
+            
         return addrName
 
     # Async SNMP apps
