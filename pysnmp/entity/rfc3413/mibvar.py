@@ -5,7 +5,7 @@ from pysnmp.smi.error import NoSuchInstanceError
 
 # Name
 
-def instanceNameToOid(mibView, name):
+def mibNameToOid(mibView, name):
     if type(name[0]) == types.TupleType:
         modName, symName = apply(lambda x='',y='': (x,y), name[0])
         if modName: # load module if needed
@@ -32,7 +32,7 @@ def instanceNameToOid(mibView, name):
 
 __scalarSuffix = (univ.Integer(0),)
 
-def oidToInstanceName(mibView, oid):
+def oidToMibName(mibView, oid):
     _oid, label, suffix = mibView.getNodeNameByOid(tuple(oid))
     modName, symName, __suffix = mibView.getNodeLocation(_oid)
     mibNode, = mibView.mibBuilder.importSymbols(

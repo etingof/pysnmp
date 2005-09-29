@@ -137,7 +137,7 @@ class AsynCommandGenerator:
             )
         varBinds = []
         for varName in varNames:
-            name, oid = mibvar.instanceNameToOid(
+            name, oid = mibvar.mibNameToOid(
                 self.mibViewController, varName
                 )
             varBinds.append((name + oid, self._null))
@@ -153,7 +153,7 @@ class AsynCommandGenerator:
             )
         __varBinds = []
         for varName, varVal in varBinds:
-            name, oid = mibvar.instanceNameToOid(
+            name, oid = mibvar.mibNameToOid(
                 self.mibViewController, varName
                 )
             __varBinds.append((name + oid, varVal))
@@ -169,7 +169,7 @@ class AsynCommandGenerator:
             )
         varBinds = []
         for varName in varNames:
-            name, oid = mibvar.instanceNameToOid(
+            name, oid = mibvar.mibNameToOid(
                 self.mibViewController, varName
                 )
             varBinds.append((name + oid, self._null))
@@ -186,7 +186,7 @@ class AsynCommandGenerator:
             )
         varBinds = []
         for varName in varNames:
-            name, oid = mibvar.instanceNameToOid(
+            name, oid = mibvar.mibNameToOid(
                 self.mibViewController, varName
                 )
             varBinds.append((name + oid, self._null))
@@ -267,7 +267,7 @@ class CommandGenerator(AsynCommandGenerator):
 
             return 1 # continue table retrieval
         
-        head = map(lambda (x,y): univ.ObjectIdentifier(x+y), map(lambda x,self=self: mibvar.instanceNameToOid(self.mibViewController, x), varNames))
+        head = map(lambda (x,y): univ.ObjectIdentifier(x+y), map(lambda x,self=self: mibvar.mibNameToOid(self.mibViewController, x), varNames))
 
         appReturn = {}
         self.asyncNextCmd(
@@ -312,7 +312,7 @@ class CommandGenerator(AsynCommandGenerator):
                 
             return 1 # continue table retrieval
         
-        head = map(lambda (x,y): univ.ObjectIdentifier(x+y), map(lambda x,self=self: mibvar.instanceNameToOid(self.mibViewController, x), varNames))
+        head = map(lambda (x,y): univ.ObjectIdentifier(x+y), map(lambda x,self=self: mibvar.mibNameToOid(self.mibViewController, x), varNames))
 
         appReturn = {}
         
