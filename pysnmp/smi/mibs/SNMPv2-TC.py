@@ -23,7 +23,7 @@ class TextualConvention:
 
     def prettyOut(self, value):  # override asn1 type method
         """Implements DISPLAY-HINT evaluation"""
-        if self.displayHint and self.__integer.isSuperTypeOf(value):
+        if self.displayHint and self.__integer.isSuperTypeOf(self):
             t, f = apply(lambda t, f=0: (t, f), split(self.displayHint, '-'))
             if t == 'x':
                 return '0x%x' % value
@@ -46,7 +46,7 @@ class TextualConvention:
                 raise error.SmiError(
                     'Unsupported numeric type spec: %s' % t
                     )
-        elif self.displayHint and self.__octetString.isSuperTypeOf(value):
+        elif self.displayHint and self.__octetString.isSuperTypeOf(self):
             r = ''
             v = str(value)
             d = self.displayHint
@@ -131,7 +131,7 @@ class TextualConvention:
 #                     'Unparsed display hint left: %s' % d
 #                     )
             return r
-        elif self.displayHint and self.__objectIdentifier.isSuperTypeOf(value):
+        elif self.displayHint and self.__objectIdentifier.isSuperTypeOf(self):
             return str(value)
         else:
             return str(value)
