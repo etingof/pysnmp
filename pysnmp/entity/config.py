@@ -198,7 +198,7 @@ def addV3User(snmpEngine, securityName,
         pysnmpUsmSecretAuthKey.syntax = pysnmpUsmSecretAuthKey.syntax.clone(
             authKey
             )
-    if privProtocol != usmDESPrivProtocol:
+    if privProtocol != usmNoPrivProtocol:
         pysnmpUsmSecretPrivKey = pysnmpUsmSecretEntry.getNode(
             pysnmpUsmSecretEntry.name + (3,) + tblIdx
             )
