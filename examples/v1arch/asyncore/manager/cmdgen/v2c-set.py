@@ -42,7 +42,7 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
             else:
                 for oid, val in pMod.apiPDU.getVarBinds(rspPDU):
                     print oid, val
-            transportDispatcher.stopDispatcher()
+            transportDispatcher.jobFinished(1)
     return wholeMsg
 
 transportDispatcher = AsynsockDispatcher()
@@ -54,4 +54,6 @@ transportDispatcher.registerTimerCbFun(cbTimerFun)
 transportDispatcher.sendMessage(
     encoder.encode(reqMsg), udp.domainName, ('localhost', 161)
     )
+transportDispatcher.jobStarted(1)
 transportDispatcher.runDispatcher()
+transportDispatcher.closeDispatcher()

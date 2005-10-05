@@ -54,7 +54,7 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
                 if val is not None:
                     break
             else:
-                transportDispatcher.stopDispatcher()
+                transportDispatcher.jobFinished(1)
                 
             # Generate request for next row
             pMod.apiPDU.setVarBinds(
@@ -79,4 +79,6 @@ transportDispatcher.registerTimerCbFun(cbTimerFun)
 transportDispatcher.sendMessage(
     encoder.encode(reqMsg), udp.domainName, ('localhost', 161)
     )
+transportDispatcher.jobStarted(1)
 transportDispatcher.runDispatcher()
+transportDispatcher.closeDispatcher()

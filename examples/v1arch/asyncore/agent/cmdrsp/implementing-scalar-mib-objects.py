@@ -82,4 +82,5 @@ transportDispatcher.registerTransport(
     udp.domainName, udp.UdpSocketTransport().openServerMode(('localhost', 161))
     )
 transportDispatcher.registerRecvCbFun(cbFun)
+transportDispatcher.jobStarted(1) # this job would never finish
 transportDispatcher.runDispatcher()
