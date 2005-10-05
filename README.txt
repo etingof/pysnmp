@@ -47,7 +47,7 @@ INSTALLATION
 ------------
 
 The PySNMP package uses distutils for package management. The PyASN1 [8]
-package is required. For secure SNMPv3 communication, PyyCrypto [9]
+package is required. For secure SNMPv3 communication, PyCrypto [9]
 should also be installed.
 
 OPERATION
