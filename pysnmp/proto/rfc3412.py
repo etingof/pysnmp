@@ -16,8 +16,8 @@ class MsgAndPduDispatcher:
             builder.MibBuilder()
             )
         self.mibInstrumController.mibBuilder.loadModules(
-            'SNMPv2-MIB', 'SNMP-MPD-MIB', 'SNMP-COMMUNITY-MIB', 'SNMP-TARGET-MIB',
-            'SNMP-USER-BASED-SM-MIB'
+            'SNMPv2-MIB', 'SNMP-MPD-MIB', 'SNMP-COMMUNITY-MIB',
+            'SNMP-TARGET-MIB', 'SNMP-USER-BASED-SM-MIB'
             )
         
         # Registered context engine IDs
