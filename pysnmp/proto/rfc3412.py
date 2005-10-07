@@ -1,7 +1,6 @@
 """SNMP v3 Message Processing and Dispatching (RFC3412)"""
 import time
 from pysnmp.smi import builder, instrum
-from pysnmp.smi.error import NoSuchInstanceError
 from pysnmp.proto import error
 from pysnmp.proto.api import verdec # XXX
 from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
