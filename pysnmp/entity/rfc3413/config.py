@@ -1,5 +1,6 @@
 # Shortcuts to MIB instrumentation items used internally in SNMP applications
 import string
+from pysnmp.smi.error import NoSuchInstanceError
 
 def getVersionSpecifics(snmpVersion): pass
 
@@ -35,6 +36,7 @@ def getTargetAddr(snmpEngine, snmpTargetAddrName):
              snmpTargetAddrParams.syntax )
 
 def getTargetParams(snmpEngine, paramsName):
+    mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController    
     snmpTargetParamsEntry, = mibInstrumController.mibBuilder.importSymbols(
         'SNMP-TARGET-MIB', 'snmpTargetParamsEntry'
         )
@@ -54,11 +56,7 @@ def getTargetParams(snmpEngine, paramsName):
         snmpTargetParamsEntry.name + (5,) + tblIdx
         )
 
-    return ( snmpTargetAddrTDomain.syntax,
-             snmpTargetAddrTAddress.syntax.getNativeValue(),
-             snmpTargetAddrTimeout.syntax,
-             snmpTargetAddrRetryCount.syntax,
-             snmpTargetParamsMPModel.syntax,
+    return ( snmpTargetParamsMPModel.syntax,
              snmpTargetParamsSecurityModel.syntax,
              snmpTargetParamsSecurityName.syntax,
              snmpTargetParamsSecurityLevel.syntax )
@@ -78,25 +76,27 @@ def getNotificationInfo(snmpEngine, notificationTarget):
     snmpNotifyType = snmpNotifyEntry.getNode(
         snmpNotifyEntry.name + (3,) + tblIdx
         )
-    return snmpNotifyTag, snmpNotifyType
+    return snmpNotifyTag.syntax, snmpNotifyType.syntax
 
 def getTargetNames(snmpEngine, tag):
     mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
     # Transport endpoint
-    snmpTargetAddrEntry, = mibInstrumController.mibBuilder.importSymbols(
-        'SNMP-TARGET-MIB', 'snmpTargetAddrEntry'
+    ( snmpTargetAddrEntry,
+      snmpTargetAddrTagList ) = mibInstrumController.mibBuilder.importSymbols(
+        'SNMP-TARGET-MIB', 'snmpTargetAddrEntry', 'snmpTargetAddrTagList'
         )
     targetNames = []
-    nextName =  snmpTargetAddrEntry.name + (6,)
+    nextName =  snmpTargetAddrTagList.name
     while 1:
         try:
-            mibNode = snmpTargetAddrEntry.getNextNode(nextName)
+            mibNode = snmpTargetAddrTagList.getNextNode(nextName)
         except NoSuchInstanceError:
             break
         # XXX stop on eot
         if tag in string.split(str(mibNode.syntax)): # XXX add __split__()
+            idx = mibNode.name[len(snmpTargetAddrTagList.name):]
             targetNames.append(
-                snmpTargetAddrEntry.getIndicesFromInstId(mibNode.name)[0]
+                snmpTargetAddrEntry.getIndicesFromInstId(idx)[0]
                 )
         nextName = mibNode.name
     return targetNames
