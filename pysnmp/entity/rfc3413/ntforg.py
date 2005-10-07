@@ -1,5 +1,5 @@
 from pysnmp.entity import config
-from pysnmp.entity.rfc3413 import config, context
+from pysnmp.entity.rfc3413 import config
 
 vacmID = 3
 
@@ -7,10 +7,7 @@ class NotificationOriginator:
     def __init__(self, snmpContext=None):
         self.__pendingReqs = {}
         self.__sendRequestHandleSource = 0L
-        if snmpContext is None:
-            self.snmpContext = context.SnmpContext
-        else:
-            self.snmpContext = snmpContext
+        self.snmpContext = snmpContext
             
     def processResponsePdu(
         self,
@@ -99,17 +96,18 @@ class NotificationOriginator:
               transportAddress,
               timeout,
               retryCount,
-              params ) = config.getTargetAddr(snmpEngine, notifyTag)
+              params ) = config.getTargetAddr(snmpEngine, targetAddrName)
             ( messageProcessingModel,
               securityModel,
               securityName,
               securityLevel ) = config.getTargetParams(snmpEngine, params)
-        
-            filterProfileName = config.getNotifyFilterProfile(params)
 
-            ( filterSubtree,
-              filterMask,
-              filterType ) = config.getNotifyFilter(filterProfileName)
+# XXX filtering's yet to be implemented
+#             filterProfileName = config.getNotifyFilterProfile(params)
+
+#             ( filterSubtree,
+#               filterMask,
+#               filterType ) = config.getNotifyFilter(filterProfileName)
 
             contextMibInstrumCtl = self.snmpContext.getMibInstrum(
                 contextName
