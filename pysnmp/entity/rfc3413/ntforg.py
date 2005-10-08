@@ -1,13 +1,14 @@
-from pysnmp.entity import config
 from pysnmp.entity.rfc3413 import config
+from pysnmp.proto.api import v2c
+from pysnmp.smi import error
 
 vacmID = 3
 
 class NotificationOriginator:
-    def __init__(self, snmpContext=None):
+    def __init__(self, snmpContext):
         self.__pendingReqs = {}
         self.__sendRequestHandleSource = 0L
-        self.snmpContext = snmpContext
+        self.__context = snmpContext
             
     def processResponsePdu(
         self,
@@ -48,6 +49,7 @@ class NotificationOriginator:
         if statusInformation: #and statusInformation.has_key('errorIndication')
             if origRetries == origRetryCount:
                 if cbFun and not pendingReqsCount[0]:
+                    # XXX
                     cbFun(sendRequestHandle, cbCtx)
                 return 
             self._sendPdu(
@@ -72,6 +74,7 @@ class NotificationOriginator:
 
         # 3.3.6c
         if cbFun and not pendingReqsCount[0]:
+            # XXX
             cbFun(sendRequestHandle, cbCtx)
         return
         
@@ -102,6 +105,7 @@ class NotificationOriginator:
               securityName,
               securityLevel ) = config.getTargetParams(snmpEngine, params)
 
+            # 3.3.1 XXX
 # XXX filtering's yet to be implemented
 #             filterProfileName = config.getNotifyFilterProfile(params)
 
@@ -109,21 +113,19 @@ class NotificationOriginator:
 #               filterMask,
 #               filterType ) = config.getNotifyFilter(filterProfileName)
 
-            contextMibInstrumCtl = self.snmpContext.getMibInstrum(
+            contextMibInstrumCtl = self.__context.getMibInstrum(
                 contextName
                 )
             
-            # 3.3.1 XXX
-    
             # 3.3.2
     
             # Get notification objects names
-            mibTree, = contextMibInstrumCtl.mibBuilder.importSymbols(
-                'SNMPv2-SMI', 'iso'
+            snmpTrapOid, = apply(
+                contextMibInstrumCtl.mibBuilder.importSymbols,
+                notificationName
                 )
             varNames = []
-            mibNode = mibTree.getNode(tuple(notificationName))
-            for notificationObject in mibNode.getObjects():
+            for notificationObject in snmpTrapOid.getObjects():
                 mibNode = contextMibInstrumCtl.mibBuilder.importSymbol(
                     notificationObject #, mibNode.moduleName # XXX
                     )
@@ -138,28 +140,43 @@ class NotificationOriginator:
                         snmpEngine, securityModel, securityName,
                         securityLevel, 'notify', contextName, varName
                         )
-                except pysnmp.smi.error.SmiError:
+                except error.SmiError:
                     return
-    
+
             # 3.3.3
             try:
                 snmpEngine.accessControlModel[vacmID].isAccessAllowed(
                     snmpEngine, securityModel, securityName,
-                    securityLevel, 'notify', contextName, mibNode.name
+                    securityLevel, 'notify', contextName, snmpTrapOid.name
                     )
-            except pysnmp.smi.error.SmiError:
+            except error.SmiError:
                 return
-    
+
+            mibTree = contextMibInstrumCtl.mibBuilder.importSymbols(
+                'SNMPv2-SMI', 'iso'
+                )
+            varBinds = []
+            for varName in varNames:
+                mibNode = mibTree.getNode(varName)
+                varBinds.append((varName, mibNode.syntax))
+                
             # 3.3.4
-            if snmpNotifyType == 1:            
+            if notifyType == 1:
                 pdu = v2c.SNMPv2TrapPDU()
             else:
                 pdu = v2c.InformRequestPDU()
-            pMod.apiPDU.setDefaults(reqPDU)            
-            v1c.apiTrapPDU.setVarBinds(pdu, varBinds)
+            v2c.apiPDU.setDefaults(pdu)
+            v2c.apiPDU.setVarBinds(pdu, varBinds)
+
+            # User-side API assumes SMIv2
+            if messageProcessingModel == 0:
+                pdu = rfc2576.v2ToV1(pdu)
+                pduVersion = 0
+            else:
+                pduVersion = 1
             
             # 3.3.5
-            if snmpNotifyType == 1:
+            if notifyType == 1:
                 snmpEngine.msgAndPduDsp.sendPdu(
                     snmpEngine,
                     transportDomain,
@@ -168,7 +185,7 @@ class NotificationOriginator:
                     securityModel,
                     securityName,
                     securityLevel,
-                    self.__context.contextEngineID,
+                    self.__context.contextEngineId,
                     contextName,
                     pduVersion,
                     pdu,
@@ -211,7 +228,7 @@ class NotificationOriginator:
                     )
 
         if cbFun and not pendingReqsCount[0]:
-            cbFun(None, cbCtx)
+            cbFun(None, None, 0, 0, (), cbCtx)
 
 # XXX
 # move/group/implement config setting/retrieval at a stand-alone module
