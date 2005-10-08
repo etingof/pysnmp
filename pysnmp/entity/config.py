@@ -529,6 +529,21 @@ def addRwUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
 
 # Notification configuration
 
+def addTrapUser(snmpEngine,securityModel,securityName,securityLevel,subTree):
+    groupName = '%s-grp-%d' % (securityName, securityModel)
+    SnmpSecurityLevel, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'SnmpSecurityLevel')
+    securityLevel = SnmpSecurityLevel(securityLevel)
+    addVacmGroup(
+        snmpEngine, groupName, securityModel, securityName
+        )
+    addVacmAccess(
+        snmpEngine, groupName, '', securityModel, securityLevel, 1,
+        '', '', groupName+'-view-trap',
+        )
+    addVacmView(
+        snmpEngine, groupName+'-view-trap', 1, subTree, ''
+        )
+
 def addNotificationTarget(snmpEngine, notificationName, paramsName,
                           transportTag, notifyType=None, filterSubtree=None,
                           filterMask=None, filterType=None):
