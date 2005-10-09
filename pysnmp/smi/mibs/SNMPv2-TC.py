@@ -101,7 +101,7 @@ class TextualConvention:
                         while vv:
                             n = n << 8
                             try:
-                                n = n | ord(vv)
+                                n = n | ord(vv[0])
                                 vv = vv[1:]
                             except StandardError, why:
                                 raise error.SmiError(
