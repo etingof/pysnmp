@@ -145,15 +145,19 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
     pduType = v2Pdu.tagSet
 
     v1Pdu = __v2ToV1PduMap[pduType].clone()
-    v1.apiPDU.setDefaults(v1Pdu)
 
     v2VarBinds = v2c.apiPDU.getVarBinds(v2Pdu)
     v1VarBinds = []
 
+    if rfc3411.notificationClassPDUs.has_key(pduType):
+        v1.apiTrapPDU.setDefaults(v1Pdu)
+    else:
+        v1.apiPDU.setDefaults(v1Pdu)
+        
     # 3.2
     if rfc3411.notificationClassPDUs.has_key(pduType):
         # 3.2.1
-        snmpTrapOID = v2VarBinds[0][0]
+        snmpTrapOID = v2VarBinds[1][0]
         if __v2ToV1TrapMap.has_key(snmpTrapOID):
             for oid, val in v2VarBinds:
                 # snmpTrapEnterprise
@@ -173,10 +177,10 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         for oid, val in v2VarBinds:
             # snmpTrapAddress
             if oid == (1, 3, 6, 1, 6, 3, 18, 1, 3, 0):
-                v1.apiTrapPDU.setAgentAddress(v1Pdu, val)
+                v1.apiTrapPDU.setAgentAddr(v1Pdu, val)
                 break
         else:
-            v1.apiTrapPDU.setAgentAddress(v1Pdu, '0.0.0.0')
+            v1.apiTrapPDU.setAgentAddr(v1Pdu, '0.0.0.0')
 
         # 3.2.3
         if __v2ToV1TrapMap.has_key(snmpTrapOID):
@@ -191,7 +195,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
             v1.apiTrapPDU.setSpecificTrap(v1Pdu, snmpTrapOID[-1])
 
         # 3.2.5
-        v1.apiTrapPDU.setTimeStamp(v1Pdu, v2c.apiTrapPDU.getTimeStamp(v2Pdu))
+        v1.apiTrapPDU.setTimeStamp(v1Pdu, v2VarBinds[0][1])
 
         # 3.2.6 --> done below
 
@@ -233,6 +237,9 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
             (oid, __v2ToV1ValueMap[v2Val.tagSet].clone(v2Val))
             )
 
-    v1.apiPDU.setVarBinds(v1Pdu, v1VarBinds)
-    
+    if rfc3411.notificationClassPDUs.has_key(pduType):
+        v1.apiTrapPDU.setVarBinds(v1Pdu, v1VarBinds)
+    else:
+        v1.apiPDU.setVarBinds(v1Pdu, v1VarBinds)
+        
     return v1Pdu
