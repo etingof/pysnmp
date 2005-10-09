@@ -24,6 +24,9 @@ Sparse notes on major existing problems/plans
 * Trap application code is still 90% finished. Also, examples & apps
   needed.
 
+* MsgAndPduDispatcher should use TransportDispatcher jobs interface
+  to handle SNMPv3 handshake
+
 * At MibViewController, do not index intance objects
 
 * Implement 'oneliner' API for v1arch
