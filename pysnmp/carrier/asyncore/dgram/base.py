@@ -34,7 +34,7 @@ class DgramSocketTransport(AbstractSocketTransport):
 
     def sendMessage(self, outgoingMessage, transportAddress):
         self.__outQueue.append(
-            (outgoingMessage, transportAddress)
+            (outgoingMessage, tuple(transportAddress))  # address syntax proto
             )
 
     # asyncore API
