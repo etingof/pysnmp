@@ -1,4 +1,5 @@
 from pysnmp.entity.rfc3413 import config
+from pysnmp.proto.proxy import rfc2576
 from pysnmp.proto.api import v2c
 from pysnmp.smi import error
 
@@ -23,7 +24,7 @@ class NotificationOriginator:
         PDU,
         statusInformation,
         sendPduHandle,
-        (cbFun, cbCtx)
+        cbCtx
         ):
         # 3.3.6d
         ( origTransportDomain,
@@ -39,19 +40,13 @@ class NotificationOriginator:
           origTimeout,
           origRetryCount,
           origRetries,
-          sendRequestHandle,
-          pendingReqsCount,
+          origSendRequestHandle
           ) = self.__pendingReqs[sendPduHandle]
         del self.__pendingReqs[sendPduHandle]
 
-        pendingReqsCount[0] = pendingReqsCount[0] - 1
+        snmpEngine.transportDispatcher.jobFinished(id(self))
         
-        if statusInformation: #and statusInformation.has_key('errorIndication')
-            if origRetries == origRetryCount:
-                if cbFun and not pendingReqsCount[0]:
-                    # XXX
-                    cbFun(sendRequestHandle, cbCtx)
-                return 
+        if statusInformation and origRetries != origRetryCount:
             self._sendPdu(
                 snmpEngine,
                 origTransportDomain,
@@ -68,24 +63,20 @@ class NotificationOriginator:
                 origRetryCount,
                 origRetries,
                 origSendRequestHandle,
-                (self.processResponsePdu, (cbFun, cbCtx))
+                (self.processResponsePdu, cbCtx)
                 )
             return
 
         # 3.3.6c
-        if cbFun and not pendingReqsCount[0]:
-            # XXX
-            cbFun(sendRequestHandle, cbCtx)
-        return
-        
+        pass
+    
     def sendNotification(
         self,
         snmpEngine,
         notificationTarget,
         notificationName,
-        additionalNames=None,
+        additionalVarBinds=None,
         contextName='',
-        cbFun=None,
         cbCtx=None
         ):
         # 3.3
@@ -93,7 +84,9 @@ class NotificationOriginator:
           notifyType ) = config.getNotificationInfo(
             snmpEngine, notificationTarget
             )
-        pendingReqsCount = { 0: 0 }
+        contextMibInstrumCtl = self.__context.getMibInstrum(
+            contextName
+            )
         for targetAddrName in config.getTargetNames(snmpEngine, notifyTag):
             ( transportDomain,
               transportAddress,
@@ -113,28 +106,31 @@ class NotificationOriginator:
 #               filterMask,
 #               filterType ) = config.getNotifyFilter(filterProfileName)
 
-            contextMibInstrumCtl = self.__context.getMibInstrum(
-                contextName
-                )
+            varBinds = []
             
-            # 3.3.2
-    
-            # Get notification objects names
+            # 3.3.2 & 3.3.3
+            sysUpTime, = contextMibInstrumCtl.mibBuilder.importSymbols(
+                'SNMPv2-MIB', 'sysUpTime'
+                )
+            varBinds.append((sysUpTime.name, sysUpTime.syntax))
+
             snmpTrapOid, = apply(
                 contextMibInstrumCtl.mibBuilder.importSymbols,
                 notificationName
                 )
-            varNames = []
+            varBinds.append((snmpTrapOid.name, v2c.Null()))
+            
+            # Get notification objects names
             for notificationObject in snmpTrapOid.getObjects():
-                mibNode = contextMibInstrumCtl.mibBuilder.importSymbol(
+                mibNode, = contextMibInstrumCtl.mibBuilder.importSymbols(
                     notificationObject #, mibNode.moduleName # XXX
                     )
-                varNames.append(mibNode.name)
-    
-            if additionalNames:
-                varNames.extend(additionalNames)
-            
-            for varName in varNames:
+                varBinds.append((mibNode.name, mibNode.syntax))
+
+            if additionalVarBinds:
+                varBinds.extend(additionalVarBinds)
+
+            for varName, varVal in varBinds:
                 try:
                     snmpEngine.accessControlModel[vacmID].isAccessAllowed(
                         snmpEngine, securityModel, securityName,
@@ -143,23 +139,6 @@ class NotificationOriginator:
                 except error.SmiError:
                     return
 
-            # 3.3.3
-            try:
-                snmpEngine.accessControlModel[vacmID].isAccessAllowed(
-                    snmpEngine, securityModel, securityName,
-                    securityLevel, 'notify', contextName, snmpTrapOid.name
-                    )
-            except error.SmiError:
-                return
-
-            mibTree = contextMibInstrumCtl.mibBuilder.importSymbols(
-                'SNMPv2-SMI', 'iso'
-                )
-            varBinds = []
-            for varName in varNames:
-                mibNode = mibTree.getNode(varName)
-                varBinds.append((varName, mibNode.syntax))
-                
             # 3.3.4
             if notifyType == 1:
                 pdu = v2c.SNMPv2TrapPDU()
@@ -207,7 +186,7 @@ class NotificationOriginator:
                     pdu,
                     (self.processResponsePdu, (cbFun, cbCtx))
                     )
-                pendingReqsCount[0] = pendingReqsCount[0] + 1                
+                
                 # 3.3.6b
                 self.__pendingReqs[sendPduHandle] = (
                     transportDomain,
@@ -223,12 +202,10 @@ class NotificationOriginator:
                     timeout,
                     retryCount,
                     retries + 1,
-                    self.__sendRequestHandleSource,
-                    pendingReqsCount
+                    self.__sendRequestHandleSource
                     )
-
-        if cbFun and not pendingReqsCount[0]:
-            cbFun(None, None, 0, 0, (), cbCtx)
+                
+                snmpEngine.transportDispatcher.jobStarted(id(self))
 
 # XXX
 # move/group/implement config setting/retrieval at a stand-alone module
