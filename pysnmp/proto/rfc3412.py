@@ -130,9 +130,10 @@ class MsgAndPduDispatcher:
 
         # 4.1.1.3
         sendPduHandle = self.__newSendPduHandle()
-        self.__cacheAdd(
-            sendPduHandle, expectResponse=expectResponse
-            )
+        if expectResponse:
+            self.__cacheAdd(
+                sendPduHandle, expectResponse=expectResponse
+                )
 
         # 4.1.1.4 & 4.1.1.5
         try:
@@ -165,21 +166,22 @@ class MsgAndPduDispatcher:
             )
         
         # Update cache with orignal req params (used for retrying)
-        self.__cacheUpdate(
-            sendPduHandle,
-            transportDomain=transportDomain,
-            transportAddress=transportAddress,
-            messageProcessingModel=messageProcessingModel,
-            securityModel=securityModel,
-            securityName=securityName,
-            securityLevel=securityLevel,
-            contextEngineID=contextEngineID,
-            contextName=contextName,
-            pduVersion=pduVersion,
-            PDU=PDU,
-            expectResponse=expectResponse,
-            sendPduHandle=sendPduHandle,
-            )
+        if expectResponse:
+            self.__cacheUpdate(
+                sendPduHandle,
+                transportDomain=transportDomain,
+                transportAddress=transportAddress,
+                messageProcessingModel=messageProcessingModel,
+                securityModel=securityModel,
+                securityName=securityName,
+                securityLevel=securityLevel,
+                contextEngineID=contextEngineID,
+                contextName=contextName,
+                pduVersion=pduVersion,
+                PDU=PDU,
+                expectResponse=expectResponse,
+                sendPduHandle=sendPduHandle,
+                )
 
         return sendPduHandle
 
