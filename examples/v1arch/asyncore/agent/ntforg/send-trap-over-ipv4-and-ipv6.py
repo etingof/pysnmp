@@ -30,6 +30,6 @@ transportDispatcher.registerTransport(
 transportDispatcher.sendMessage(
     encoder.encode(trapMsg), udp.domainName, ('localhost', 162)
     )
-transportDispatcher.stopDispatcher() # XXX run only once
+transportDispatcher.jobStarted(1)
 transportDispatcher.runDispatcher()
 transportDispatcher.closeDispatcher()
