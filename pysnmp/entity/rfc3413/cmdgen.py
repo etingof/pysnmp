@@ -57,7 +57,7 @@ def getTargetInfo(snmpEngine, snmpTargetAddrName):
         )
 
     return ( snmpTargetAddrTDomain.syntax,
-             snmpTargetAddrTAddress.syntax.getNativeValue(),
+             snmpTargetAddrTAddress.syntax,
              snmpTargetAddrTimeout.syntax,
              snmpTargetAddrRetryCount.syntax,
              snmpTargetParamsMPModel.syntax,
