@@ -10,7 +10,7 @@ def getVersionSpecifics(snmpVersion):
         pduVersion = 1
     return pduVersion, api.protoModules[pduVersion]
 
-# XXX remove
+# XXX move to rfc3413/config
 def getTargetInfo(snmpEngine, snmpTargetAddrName):
     mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
     # Transport endpoint
@@ -57,7 +57,7 @@ def getTargetInfo(snmpEngine, snmpTargetAddrName):
         )
 
     return ( snmpTargetAddrTDomain.syntax,
-             snmpTargetAddrTAddress.syntax,
+             tuple(snmpTargetAddrTAddress.syntax),
              snmpTargetAddrTimeout.syntax,
              snmpTargetAddrRetryCount.syntax,
              snmpTargetParamsMPModel.syntax,

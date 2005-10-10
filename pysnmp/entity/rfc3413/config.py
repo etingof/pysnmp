@@ -30,7 +30,7 @@ def getTargetAddr(snmpEngine, snmpTargetAddrName):
         )
 
     return ( snmpTargetAddrTDomain.syntax,
-             snmpTargetAddrTAddress.syntax,
+             tuple(snmpTargetAddrTAddress.syntax),
              snmpTargetAddrTimeout.syntax,
              snmpTargetAddrRetryCount.syntax,
              snmpTargetAddrParams.syntax )
