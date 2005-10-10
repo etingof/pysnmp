@@ -78,7 +78,7 @@ class AsynCommandGenerator:
         self.__knownTransports = {}
         self.__knownTransportAddrs = {}
 
-    def __configure(self, authData, transportTarget):
+    def _configure(self, authData, transportTarget, tagList=''):
         paramsName = '%s-params' % (authData.securityName,)
         if not self.__knownAuths.has_key(authData):
             if isinstance(authData, CommunityData):
@@ -121,18 +121,19 @@ class AsynCommandGenerator:
                 self.snmpEngine, addrName,
                 transportTarget.transportDomain,
                 transportTarget.transportAddr,
-                paramsName
+                paramsName,
+                tagList=tagList
                 )
             self.__knownTransportAddrs[addrName] = 1
             
-        return addrName
+        return addrName, paramsName
 
     # Async SNMP apps
     
     def asyncGetCmd(
         self, authData, transportTarget, varNames, (cbFun, cbCtx)
         ):
-        addrName = self.__configure(
+        addrName, paramsName = self._configure(
             authData, transportTarget
             )
         varBinds = []
@@ -148,7 +149,7 @@ class AsynCommandGenerator:
     def asyncSetCmd(
         self, authData, transportTarget, varBinds, (cbFun, cbCtx)
         ):
-        addrName = self.__configure(
+        addrName, paramsName = self._configure(
             authData, transportTarget
             )
         __varBinds = []
@@ -164,7 +165,7 @@ class AsynCommandGenerator:
     def asyncNextCmd(
         self, authData, transportTarget, varNames, (cbFun, cbCtx)
         ):
-        addrName = self.__configure(
+        addrName, paramsName = self._configure(
             authData, transportTarget
             )
         varBinds = []
@@ -181,7 +182,7 @@ class AsynCommandGenerator:
         self, authData, transportTarget, nonRepeaters, maxRepetitions,
         varNames, (cbFun, cbCtx)
         ):
-        addrName = self.__configure(
+        addrName, paramsName = self._configure(
             authData, transportTarget
             )
         varBinds = []
