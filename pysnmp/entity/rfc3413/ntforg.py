@@ -23,8 +23,7 @@ class NotificationOriginator:
         pduVersion,
         PDU,
         statusInformation,
-        sendPduHandle,
-        cbCtx
+        sendPduHandle
         ):
         # 3.3.6d
         ( origTransportDomain,
@@ -63,7 +62,7 @@ class NotificationOriginator:
                 origRetryCount,
                 origRetries,
                 origSendRequestHandle,
-                (self.processResponsePdu, cbCtx)
+                self.processResponsePdu
                 )
             return
 
@@ -76,8 +75,7 @@ class NotificationOriginator:
         notificationTarget,
         notificationName,
         additionalVarBinds=None,
-        contextName='',
-        cbCtx=None
+        contextName=''
         ):
         # 3.3
         ( notifyTag,
@@ -184,7 +182,7 @@ class NotificationOriginator:
                     contextName,
                     pduVersion,
                     pdu,
-                    (self.processResponsePdu, (cbFun, cbCtx))
+                    self.processResponsePdu
                     )
                 
                 # 3.3.6b
