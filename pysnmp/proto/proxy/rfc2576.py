@@ -120,12 +120,16 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
         
         # 3.1.4 --> done below
 
+        varBinds = v1.apiTrapPDU.getVarBinds(v1Pdu)
+    else:
+        varBinds = v1.apiPDU.getVarBinds(v1Pdu)
+        
     # Translate Var-Binds
-    for oid, v1Val in v1.apiPDU.getVarBinds(v1Pdu):
+    for oid, v1Val in varBinds:
         v2VarBinds.append(
             (oid, __v1ToV2ValueMap[v1Val.tagSet].clone(v1Val))
             )
-
+        
     if rfc3411.responseClassPDUs.has_key(pduType):
         # 4.1.2.2 --> one-to-one mapping
         v2c.apiPDU.setErrorStatus(
