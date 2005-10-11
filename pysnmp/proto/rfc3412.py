@@ -63,10 +63,13 @@ class MsgAndPduDispatcher:
     def registerContextEngineId(self, contextEngineId, pduTypes, processPdu):
         """Register application with dispatcher"""
         # 4.3.2 -> noop
-        if contextEngineId is None:
-            # Default to local snmpEngineId
-            contextEngineId,= self.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
-            contextEngineId = contextEngineId.syntax
+
+        # Default to local snmpEngineID
+# XXX
+#        if contextEngineId is None:
+#            # Default to local snmpEngineId
+#            contextEngineId,= self.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+#            contextEngineId = contextEngineId.syntax
 
         # 4.3.3
         for pduType in pduTypes:
@@ -93,9 +96,12 @@ class MsgAndPduDispatcher:
                 del self.__appsRegistration[k]
 
     def getRegisteredApp(self, contextEngineId, pduType):
-        return self.__appsRegistration.get(
-            (str(contextEngineId), pduType)
-            )
+        k = ( str(contextEngineId), pduType )
+        if self.__appsRegistration.has_key(k):
+            return self.__appsRegistration[k]
+        k = ( '', pduType )
+        if self.__appsRegistration.has_key(k):
+            return self.__appsRegistration[k] # wildcard
 
     # Dispatcher <-> application API
     
@@ -340,6 +346,8 @@ class MsgAndPduDispatcher:
                     'val': snmpUnknownPDUHandlers.syntax
                     }                    
 
+                # XXX fails on unknown PDU
+                
                 try:
                     ( destTransportDomain,
                       destTransportAddress,
