@@ -22,7 +22,8 @@ responseClassPDUs = {
 
 notificationClassPDUs = {
     rfc1157.TrapPDU.tagSet: 1,
-    rfc1905.SNMPv2TrapPDU.tagSet: 1
+    rfc1905.SNMPv2TrapPDU.tagSet: 1,
+    rfc1905.InformRequestPDU.tagSet: 1
     }
 
 internalClassPDUs = {
@@ -36,7 +37,8 @@ confirmedClassPDUs = {
     rfc1905.GetRequestPDU.tagSet: 1,
     rfc1905.GetNextRequestPDU.tagSet: 1,
     rfc1905.GetBulkRequestPDU.tagSet: 1,
-    rfc1905.SetRequestPDU.tagSet: 1    
+    rfc1905.SetRequestPDU.tagSet: 1,
+    rfc1905.InformRequestPDU.tagSet: 1
     }
 
 unconfirmedClassPDUs = {
