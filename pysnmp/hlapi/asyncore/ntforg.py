@@ -1,5 +1,5 @@
 from pysnmp.entity import config
-from pysnmp.entity.rfc3413 import ntforg, context
+from pysnmp.entity.rfc3413 import ntforg, context, mibvar
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 
 # Auth protocol
@@ -25,7 +25,8 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
         self.__knownAuths = {}
         
     def asyncSendNotification(
-        self, authData, transportTarget, notificationType, varBinds=None
+        self, authData, transportTarget, notifyType,
+        notificationType, varBinds=None
         ):
         tagList = 'notify-list'
         addrName, paramsName = cmdgen.AsynCommandGenerator._configure(
@@ -38,7 +39,8 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                 self.snmpEngine,
                 notifyName,
                 paramsName,
-                tagList
+                tagList,
+                notifyType
                 )
             config.addContext(
                 self.snmpEngine, ''
@@ -63,17 +65,18 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                 __varBinds.append((name + oid, varVal))
         else:
             __varBinds = None
-            
-        return ntforg.NotificationOriginator(snmpContext).sendNotification(
+
+        return ntforg.NotificationOriginator(self.snmpContext).sendNotification(
             self.snmpEngine, notifyName, notificationType, __varBinds
             )
 
 class NotificationOriginator(AsynNotificationOriginator):
     def sendNotification(
-        self, authData, transportTarget, notificationType, varBinds=None
+        self, authData, transportTarget, notifyType,
+        notificationType, varBinds=None
         ):
         errorIndication = self.asyncSendNotification(
-            authData, transportTarget, notificationType, varBinds
+            authData, transportTarget, notifyType, notificationType, varBinds
             )
         if errorIndication:
             return errorIndication
