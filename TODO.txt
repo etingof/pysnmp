@@ -21,8 +21,9 @@ Sparse notes on major existing problems/plans
   Dedicated, simple API for table cells mangling should be provided.
   The whole thing should be simpler, including API.
 
-* Trap application code is still 90% finished. Also, examples & apps
-  needed.
+* Trap applications needed
+
+* Notification filtering (RFC3413) not implemented.
 
 * MsgAndPduDispatcher should use TransportDispatcher jobs interface
   to handle SNMPv3 handshake
