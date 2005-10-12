@@ -31,7 +31,6 @@ class UsmUserData:
     securityLevel='noAuthNoPriv'
     securityModel=3
     mpModel=2
-    authProtocol = privProtocol = None
     def __init__(self, securityName,
                  authKey='', privKey='',
                  authProtocol=usmNoAuthProtocol,
@@ -45,6 +44,9 @@ class UsmUserData:
                 self.authProtocol = authProtocol
             if self.securityLevel != 'authPriv':
                 self.securityLevel = 'authNoPriv'
+        else:
+            self.authProtocol = usmNoAuthProtocol
+            self.privProtocol = usmNoPrivProtocol
         if privKey:
             self.privKey = privKey
             if self.authProtocol == usmNoAuthProtocol:
@@ -54,7 +56,9 @@ class UsmUserData:
                 self.privProtocol = usmDESPrivProtocol
             else:
                 self.privProtocol = privProtocol
-
+        else:
+            self.privProtocol = usmNoPrivProtocol
+            
 class UdpTransportTarget:
     transportDomain = udp.domainName
     transport = udp.UdpSocketTransport().openClientMode()
