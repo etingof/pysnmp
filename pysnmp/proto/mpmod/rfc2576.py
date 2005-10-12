@@ -24,7 +24,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         securityModel,
         securityName,
         securityLevel,
-        contextEngineID,
+        contextEngineId,
         contextName,
         pduVersion,
         pdu,
@@ -43,16 +43,16 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             
         # rfc3412: 7.1.4
         # Since there's no SNMP engine identification in v1/2c,
-        # set destination contextEngineID to ours
-        if not contextEngineID:
-            contextEngineID = snmpEngineID
+        # set destination contextEngineId to ours
+        if not contextEngineId:
+            contextEngineId = snmpEngineID
 
         # rfc3412: 7.1.5
         if not contextName:
             contextName = ''
 
         # rfc3412: 7.1.6
-        scopedPDU = ( contextEngineID, contextName, pdu )
+        scopedPDU = ( contextEngineId, contextName, pdu )
 
         msg = self._snmpMsgSpec.clone()
         msg.setComponentByPosition(0, self.messageProcessingModelID)
@@ -97,7 +97,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                 securityModel=securityModel,
                 securityName=securityName,
                 securityLevel=securityLevel,
-                contextEngineID=contextEngineID,
+                contextEngineId=contextEngineId,
                 contextName=contextName,
                 transportDomain=transportDomain,
                 transportAddress=transportAddress
@@ -113,7 +113,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         securityModel,
         securityName,
         securityLevel,
-        contextEngineID,
+        contextEngineId,
         contextName,
         pduVersion,
         pdu,
@@ -127,7 +127,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.1.2.b
         cachedParams = self._cachePopByStateRef(stateReference)
         msgID = cachedParams['msgID']
-        contextEngineID = cachedParams['contextEngineID']
+        contextEngineId = cachedParams['contextEngineId']
         contextName = cachedParams['contextName']
         securityModel = cachedParams['securityModel']
         securityName = cachedParams['securityName']
@@ -148,16 +148,16 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
         # rfc3412: 7.1.4
         # Since there's no SNMP engine identification in v1/2c,
-        # set destination contextEngineID to ours
-        if not contextEngineID:
-            contextEngineID = snmpEngineID
+        # set destination contextEngineId to ours
+        if not contextEngineId:
+            contextEngineId = snmpEngineID
 
         # rfc3412: 7.1.5
         if not contextName:
             contextName = ''
 
         # rfc3412: 7.1.6
-        scopedPDU = ( contextEngineID, contextName, pdu )
+        scopedPDU = ( contextEngineId, contextName, pdu )
 
         msg = self._snmpMsgSpec.clone()
         msg.setComponentByPosition(0, messageProcessingModel)
@@ -259,7 +259,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.2.6a --> noop
 
         # rfc3412: 7.2.7
-        contextEngineID, contextName, pdu = scopedPDU
+        contextEngineId, contextName, pdu = scopedPDU
 
         # rfc2576: 5.2.1
         pduVersion = msgVersion
@@ -297,7 +297,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             if securityModel != cachedReqParams['securityModel'] or \
                securityName != cachedReqParams['securityName'] or \
                securityLevel != cachedReqParams['securityLevel'] or \
-               contextEngineID != cachedReqParams['contextEngineID'] or \
+               contextEngineId != cachedReqParams['contextEngineId'] or \
                contextName != cachedReqParams['contextName']:
                 raise error.StatusInformation(
                     errorIndication = 'dataMismatch'
@@ -310,7 +310,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                      securityModel,
                      securityName,
                      securityLevel,
-                     contextEngineID,
+                     contextEngineId,
                      contextName,
                      pduVersion,
                      pdu,
@@ -335,7 +335,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                 stateReference,
                 msgVersion=messageProcessingModel,
                 msgID=msgID,
-                contextEngineID=contextEngineID,
+                contextEngineId=contextEngineId,
                 contextName=contextName,
                 securityModel=securityModel,
                 securityName=securityName,
@@ -352,7 +352,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                      securityModel,
                      securityName,
                      securityLevel,
-                     contextEngineID,
+                     contextEngineId,
                      contextName,
                      pduVersion,
                      pdu,
@@ -368,7 +368,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                      securityModel,
                      securityName,
                      securityLevel,
-                     contextEngineID,
+                     contextEngineId,
                      contextName,
                      pduVersion,
                      pdu,

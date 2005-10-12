@@ -13,7 +13,7 @@ pMod = api.protoModules[api.protoVersion2c]
 
 class ScopedPDU(univ.Sequence):
     componentType = namedtype.NamedTypes(
-        namedtype.NamedType('contextEngineID', univ.OctetString()),
+        namedtype.NamedType('contextEngineId', univ.OctetString()),
         namedtype.NamedType('contextName', univ.OctetString()),
         namedtype.NamedType('data', rfc1905.PDUs())
         )
@@ -67,7 +67,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         securityModel,
         securityName,
         securityLevel,
-        contextEngineID,
+        contextEngineId,
         contextName,
         pduVersion,
         pdu,
@@ -85,11 +85,11 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             )
 
         # 7.1.4
-        if contextEngineID is None:
+        if contextEngineId is None:
             if peerSnmpEngineData is None:
-                contextEngineID = snmpEngineID
+                contextEngineId = snmpEngineID
             else:
-                contextEngineID = peerSnmpEngineData['contextEngineID']
+                contextEngineId = peerSnmpEngineData['contextEngineId']
 
         # 7.1.5
         if not contextName:
@@ -97,7 +97,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
 
         # 7.1.6
         scopedPDU = ScopedPDU()
-        scopedPDU.setComponentByPosition(0, contextEngineID)
+        scopedPDU.setComponentByPosition(0, contextEngineId)
         scopedPDU.setComponentByPosition(1, contextName)
         scopedPDU.setComponentByPosition(2)
         scopedPDU.getComponentByPosition(2).setComponentByType(
@@ -197,7 +197,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 securityModel=securityModel,
                 securityName=securityName,
                 securityLevel=securityLevel,
-                contextEngineID=contextEngineID,
+                contextEngineId=contextEngineId,
                 contextName=contextName,
                 transportDomain=transportDomain,
                 transportAddress=transportAddress
@@ -214,7 +214,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         securityModel,
         securityName,
         securityLevel,
-        contextEngineID,
+        contextEngineId,
         contextName,
         pduVersion,
         pdu,
@@ -228,7 +228,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         # 7.1.2.b
         cachedParams = self._cachePopByStateRef(stateReference)
         msgID = cachedParams['msgID']
-        contextEngineID = cachedParams['contextEngineID']
+        contextEngineId = cachedParams['contextEngineId']
         contextName = cachedParams['contextName']
         securityModel = cachedParams['securityModel']
         securityName = cachedParams['securityName']
@@ -276,10 +276,10 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 securityLevel = 1
 
             # 7.1.3d.2
-            if statusInformation.has_key('contextEngineID'):
-                contextEngineID = statusInformation['contextEngineID']
+            if statusInformation.has_key('contextEngineId'):
+                contextEngineId = statusInformation['contextEngineId']
             else:
-                contextEngineID = snmpEngineID
+                contextEngineId = snmpEngineID
 
             # 7.1.3d.3
             if statusInformation.has_key('contextName'):
@@ -291,8 +291,8 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             pdu = reportPDU
 
         # 7.1.4
-        if not contextEngineID:
-            contextEngineID = snmpEngineID  # XXX impl-dep manner
+        if not contextEngineId:
+            contextEngineId = snmpEngineID  # XXX impl-dep manner
 
         # 7.1.5
         if not contextName:
@@ -300,7 +300,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
 
         # 7.1.6
         scopedPDU = ScopedPDU()
-        scopedPDU.setComponentByPosition(0, contextEngineID)
+        scopedPDU.setComponentByPosition(0, contextEngineId)
         scopedPDU.setComponentByPosition(1, contextName)
         scopedPDU.setComponentByPosition(2)
         scopedPDU.getComponentByPosition(2).setComponentByType(
@@ -454,7 +454,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                     securityStateReference = statusInformation[
                         'securityStateReference'
                         ]
-                    contextEngineID = statusInformation['contextEngineID']
+                    contextEngineId = statusInformation['contextEngineId']
                     contextName = statusInformation['contextName']
                     scopedPDU = statusInformation.get('scopedPDU')
                     if scopedPDU is not None:
@@ -472,7 +472,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                         stateReference,
                         msgVersion=messageProcessingModel,
                         msgID=msgID,
-                        contextEngineID=contextEngineID,
+                        contextEngineId=contextEngineId,
                         contextName=contextName,
                         securityModel=securityModel,
                         securityName=securityName,
@@ -493,7 +493,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                             securityModel,
                             securityName,
                             securityLevel,
-                            contextEngineID,
+                            contextEngineId,
                             contextName,
                             1,
                             pdu,
@@ -510,10 +510,10 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             # Sniff for engineIDs
             k = (transportDomain, transportAddress)
             if not self.__engineIDs.has_key(k):
-                contextEngineID, contextName, pdu = scopedPDU
+                contextEngineId, contextName, pdu = scopedPDU
                 self.__engineIDs[k] = {
                     'securityEngineID': securityEngineID,
-                    'contextEngineID': contextEngineID,
+                    'contextEngineId': contextEngineId,
                     'contextName': contextName
                     }
 
@@ -523,7 +523,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         snmpEngineID = snmpEngineID.syntax
 
         # 7.2.7 XXX PDU would be parsed here?
-        contextEngineID, contextName, pdu = scopedPDU
+        contextEngineId, contextName, pdu = scopedPDU
         pdu = pdu.getComponent() # PDUs
             
         # 7.2.8
@@ -582,7 +582,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             if securityModel != cachedReqParams['securityModel'] or \
                securityName != cachedReqParams['securityName'] or \
                securityLevel != cachedReqParams['securityLevel'] or \
-               contextEngineID != cachedReqParams['contextEngineID'] or \
+               contextEngineId != cachedReqParams['contextEngineId'] or \
                contextName != cachedReqParams['contextName']:
                 raise error.StatusInformation(
                     errorIndication = 'dataMispatch'
@@ -596,7 +596,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                      securityModel,
                      securityName,
                      securityLevel,
-                     contextEngineID,
+                     contextEngineId,
                      contextName,
                      pduVersion,
                      pdu,
@@ -621,7 +621,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 stateReference,
                 msgVersion=messageProcessingModel,
                 msgID=msgID,
-                contextEngineID=contextEngineID,
+                contextEngineId=contextEngineId,
                 contextName=contextName,
                 securityModel=securityModel,
                 securityName=securityName,
@@ -639,7 +639,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                      securityModel,
                      securityName,
                      securityLevel,
-                     contextEngineID,
+                     contextEngineId,
                      contextName,
                      pduVersion,
                      pdu,
@@ -655,7 +655,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                      securityModel,
                      securityName,
                      securityLevel,
-                     contextEngineID,
+                     contextEngineId,
                      contextName,
                      pduVersion,
                      pdu,
@@ -663,7 +663,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                      sendPduHandle,
                      maxSizeResponseScopedPDU,
                      statusInformation,
-                     stateReference )
+                     None )
 
         raise error.StatusInformation(
             errorIndication = 'unknownPDU'

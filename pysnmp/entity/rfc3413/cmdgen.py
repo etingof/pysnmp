@@ -77,7 +77,7 @@ class CommandGeneratorBase:
         securityModel,
         securityName,
         securityLevel,
-        contextEngineID,
+        contextEngineId,
         contextName,
         pduVersion,
         PDU,
@@ -92,7 +92,7 @@ class CommandGeneratorBase:
           origSecurityModel,
           origSecurityName,
           origSecurityLevel,
-          origContextEngineID,
+          origContextEngineId,
           origContextName,
           origPduVersion,
           origPdu,
@@ -120,7 +120,7 @@ class CommandGeneratorBase:
                 origSecurityModel,
                 origSecurityName,
                 origSecurityLevel,
-                origContextEngineID,
+                origContextEngineId,
                 origContextName,
                 origPduVersion,
                 origPdu,
@@ -135,7 +135,7 @@ class CommandGeneratorBase:
         if origMessageProcessingModel != messageProcessingModel or \
            origSecurityModel != securityModel or \
            origSecurityName != origSecurityName or \
-           origContextEngineID and origContextEngineID != contextEngineID or \
+           origContextEngineId and origContextEngineId != contextEngineId or \
            origContextName and origContextName != contextName or \
            origPduVersion != pduVersion:
             return
@@ -158,7 +158,7 @@ class CommandGeneratorBase:
             origSecurityModel,
             origSecurityName,
             origSecurityLevel,
-            origContextEngineID,
+            origContextEngineId,
             origContextName,
             origPduVersion,
             origPdu,
@@ -177,7 +177,7 @@ class CommandGeneratorBase:
         varBinds,
         cbFun,
         cbCtx=None,
-        contextEngineID=None,
+        contextEngineId=None,
         contextName=''
         ):
         raise error.ProtocolError('Method not implemented')
@@ -191,7 +191,7 @@ class CommandGeneratorBase:
         securityModel,
         securityName,
         securityLevel,
-        contextEngineID,
+        contextEngineId,
         contextName,
         pduVersion,
         reqPDU,
@@ -210,7 +210,7 @@ class CommandGeneratorBase:
             securityModel,
             securityName,
             securityLevel,
-            contextEngineID,
+            contextEngineId,
             contextName,
             pduVersion,
             reqPDU,
@@ -226,7 +226,7 @@ class CommandGeneratorBase:
             securityModel,
             securityName,
             securityLevel,
-            contextEngineID,
+            contextEngineId,
             contextName,
             pduVersion,
             reqPDU,
@@ -244,7 +244,7 @@ class GetCommandGenerator(CommandGeneratorBase):
         varBinds,
         cbFun,
         cbCtx=None,
-        contextEngineID=None,
+        contextEngineId=None,
         contextName=''
         ):
         ( transportDomain,
@@ -273,7 +273,7 @@ class GetCommandGenerator(CommandGeneratorBase):
             securityModel,
             securityName,
             securityLevel,
-            contextEngineID,
+            contextEngineId,
             contextName,
             pduVersion,
             reqPDU,
@@ -295,7 +295,7 @@ class GetCommandGenerator(CommandGeneratorBase):
         securityModel,
         securityName,
         securityLevel,
-        contextEngineID,
+        contextEngineId,
         contextName,
         pduVersion,
         PDU,
@@ -321,7 +321,7 @@ class SetCommandGenerator(CommandGeneratorBase):
         varBinds,
         cbFun,
         cbCtx=None,
-        contextEngineID=None,
+        contextEngineId=None,
         contextName=''
         ):
         ( transportDomain,
@@ -354,7 +354,7 @@ class SetCommandGenerator(CommandGeneratorBase):
             securityModel,
             securityName,
             securityLevel,
-            contextEngineID,
+            contextEngineId,
             contextName,
             pduVersion,
             reqPDU,
@@ -376,7 +376,7 @@ class SetCommandGenerator(CommandGeneratorBase):
         securityModel,
         securityName,
         securityLevel,
-        contextEngineID,
+        contextEngineId,
         contextName,
         pduVersion,
         PDU,
@@ -402,7 +402,7 @@ class NextCommandGenerator(CommandGeneratorBase):
         varBinds,
         cbFun,
         cbCtx=None,
-        contextEngineID=None,
+        contextEngineId=None,
         contextName=''
         ):
         ( transportDomain,
@@ -431,7 +431,7 @@ class NextCommandGenerator(CommandGeneratorBase):
             securityModel,
             securityName,
             securityLevel,
-            contextEngineID,
+            contextEngineId,
             contextName,
             pduVersion,
             reqPDU,
@@ -453,7 +453,7 @@ class NextCommandGenerator(CommandGeneratorBase):
         securityModel,
         securityName,
         securityLevel,
-        contextEngineID,
+        contextEngineId,
         contextName,
         pduVersion,
         PDU,
@@ -487,7 +487,7 @@ class NextCommandGenerator(CommandGeneratorBase):
             securityModel,
             securityName,
             securityLevel,
-            contextEngineID,
+            contextEngineId,
             contextName,
             pduVersion,
             PDU,
@@ -508,7 +508,7 @@ class BulkCommandGenerator(CommandGeneratorBase):
         varBinds,
         cbFun,
         cbCtx=None,
-        contextEngineID=None,
+        contextEngineId=None,
         contextName=''
         ):
         ( transportDomain,
@@ -541,7 +541,7 @@ class BulkCommandGenerator(CommandGeneratorBase):
             securityModel,
             securityName,
             securityLevel,
-            contextEngineID,
+            contextEngineId,
             contextName,
             pduVersion,
             reqPDU,
@@ -563,7 +563,7 @@ class BulkCommandGenerator(CommandGeneratorBase):
         securityModel,
         securityName,
         securityLevel,
-        contextEngineID,
+        contextEngineId,
         contextName,
         pduVersion,
         PDU,
@@ -597,7 +597,7 @@ class BulkCommandGenerator(CommandGeneratorBase):
             securityModel,
             securityName,
             securityLevel,
-            contextEngineID,
+            contextEngineId,
             contextName,
             pduVersion,
             PDU,

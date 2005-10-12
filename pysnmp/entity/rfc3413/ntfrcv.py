@@ -29,7 +29,7 @@ class NotificationReceiver:
         securityModel,
         securityName,
         securityLevel,
-        contextEngineID,
+        contextEngineId,
         contextName,
         pduVersion,
         PDU,
@@ -65,7 +65,7 @@ class NotificationReceiver:
                     securityModel,
                     securityName,
                     securityLevel,
-                    contextEngineID,
+                    contextEngineId,
                     contextName,
                     pduVersion,
                     rspPDU,
@@ -83,5 +83,5 @@ class NotificationReceiver:
             raise error.ProtocolError('Unexpected PDU class %s' % PDU.tagSet)
 
         self.__cbFun(
-            self.snmpEngine, contextEngineID, contextName, varBinds, cbCtx
+            snmpEngine, contextEngineId, contextName, varBinds, self.__cbCtx
             )
