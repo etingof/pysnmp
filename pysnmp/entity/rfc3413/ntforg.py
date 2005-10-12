@@ -25,7 +25,7 @@ class NotificationOriginator:
         PDU,
         statusInformation,
         sendPduHandle,
-        cbData
+        (cbFun, cbCtx)
         ):
         # 3.3.6d
         ( origTransportDomain,
@@ -47,7 +47,13 @@ class NotificationOriginator:
 
         snmpEngine.transportDispatcher.jobFinished(id(self))
 
-        if statusInformation and origRetries != origRetryCount:
+        if statusInformation:
+            if origRetries == origRetryCount:
+                cbFun(origSendRequestHandle,
+                      statusInformation['errorIndication'],
+                      cbCtx)
+                return
+                
             # 3.3.6a
             sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(
                 snmpEngine,
@@ -61,7 +67,8 @@ class NotificationOriginator:
                 origContextName,
                 origPduVersion,
                 origPdu,
-                (self.processResponsePdu, origTimeout/1000 + time.time(), None)
+                (self.processResponsePdu, origTimeout/1000 + time.time(),
+                 (cbFun, cbCtx))
                 )
 
             snmpEngine.transportDispatcher.jobStarted(id(self))
@@ -86,7 +93,7 @@ class NotificationOriginator:
             return
 
         # 3.3.6c
-        pass
+        cbFun(origSendRequestHandle, None, cbCtx)
     
     def sendNotification(
         self,
@@ -94,6 +101,8 @@ class NotificationOriginator:
         notificationTarget,
         notificationName,
         additionalVarBinds=None,
+        cbFun=None,
+        cbCtx=None,
         contextName=''
         ):
         # 3.3
@@ -209,7 +218,8 @@ class NotificationOriginator:
                     contextName,
                     pduVersion,
                     pdu,
-                    (self.processResponsePdu, timeout/1000 + time.time(), None)
+                    (self.processResponsePdu, timeout/1000 + time.time(),
+                     (cbFun, cbCtx))
                     )
                 
                 # 3.3.6b

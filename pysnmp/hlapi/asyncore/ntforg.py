@@ -26,7 +26,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
         
     def asyncSendNotification(
         self, authData, transportTarget, notifyType,
-        notificationType, varBinds=None
+        notificationType, varBinds=None, cbFun=None, cbCtx=None
         ):
         tagList = 'notify-list'
         addrName, paramsName = cmdgen.AsynCommandGenerator._configure(
@@ -66,19 +66,22 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
         else:
             __varBinds = None
 
-        return ntforg.NotificationOriginator(self.snmpContext).sendNotification(
-            self.snmpEngine, notifyName, notificationType, __varBinds
-            )
+        return ntforg.NotificationOriginator(self.snmpContext).sendNotification(self.snmpEngine, notifyName, notificationType, __varBinds, cbFun, cbCtx)
 
 class NotificationOriginator(AsynNotificationOriginator):
     def sendNotification(
         self, authData, transportTarget, notifyType,
         notificationType, varBinds=None
         ):
+        def __cbFun(sendRequestHandle, errorIndication, appReturn):
+            appReturn['errorIndication'] = errorIndication
+
+        appReturn = {}
         errorIndication = self.asyncSendNotification(
-            authData, transportTarget, notifyType, notificationType, varBinds
+            authData, transportTarget, notifyType, notificationType, varBinds,
+            __cbFun, appReturn
             )
         if errorIndication:
             return errorIndication
         self.snmpEngine.transportDispatcher.runDispatcher()
-        
+        return appReturn.get('errorIndication')
