@@ -31,7 +31,7 @@ usmDESPrivProtocol = des.Des.serviceID
 usmNoPrivProtocol = nopriv.NoPriv.serviceID
 
 def addV1System(snmpEngine, securityName, communityName,
-                contextEngineID=None, contextName=None,
+                contextEngineId=None, contextName=None,
                 transportTag=None):
     snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
@@ -59,13 +59,13 @@ def addV1System(snmpEngine, securityName, communityName,
         securityName
         )
 
-    if contextEngineID is None:
-        contextEngineID = snmpEngineID.syntax
+    if contextEngineId is None:
+        contextEngineId = snmpEngineID.syntax
 
-    snmpCommunityContextEngineID = snmpCommunityEntry.getNode(
+    snmpCommunityContextEngineId = snmpCommunityEntry.getNode(
         snmpCommunityEntry.name + (4,) + tblIdx
         )
-    snmpCommunityContextEngineID.syntax = snmpCommunityContextEngineID.syntax.clone(contextEngineID)
+    snmpCommunityContextEngineId.syntax = snmpCommunityContextEngineId.syntax.clone(contextEngineId)
 
     if contextName is not None:
         snmpCommunityContextName = snmpCommunityEntry.getNode(
@@ -81,14 +81,19 @@ def addV1System(snmpEngine, securityName, communityName,
     
 def addV3User(snmpEngine, securityName,
               authProtocol=usmNoAuthProtocol, authKey='',
-              privProtocol=usmNoPrivProtocol, privKey=''):
+              privProtocol=usmNoPrivProtocol, privKey='',
+              contextEngineId=None):
     # v3 setup
-    snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+    if contextEngineId is None:
+        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+        snmpEngineID = snmpEngineID.syntax
+    else:
+        snmpEngineID = contextEngineId
 
     # Build entry index
     usmUserEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmUserEntry')
     tblIdx = usmUserEntry.getInstIdFromIndices(
-        snmpEngineID.syntax, securityName
+        snmpEngineID, securityName
         )
 
     # Load augmenting table before creating new row in base one
@@ -120,12 +125,12 @@ def addV3User(snmpEngine, securityName,
     if authProtocol == usmHMACMD5AuthProtocol:
         hashedAuthPassphrase = localkey.hashPassphraseMD5(authKey)
         localAuthKey = localkey.localizeKeyMD5(
-            hashedAuthPassphrase, snmpEngineID.syntax
+            hashedAuthPassphrase, snmpEngineID
             )
     elif authProtocol == usmHMACSHAAuthProtocol:
         hashedAuthPassphrase = localkey.hashPassphraseSHA(authKey)
         localAuthKey = localkey.localizeKeySHA(
-            hashedAuthPassphrase, snmpEngineID.syntax
+            hashedAuthPassphrase, snmpEngineID
             )
     elif authProtocol == usmNoAuthProtocol:
         pass
@@ -141,12 +146,12 @@ def addV3User(snmpEngine, securityName,
         if authProtocol == usmHMACMD5AuthProtocol:
             hashedPrivPassphrase = localkey.hashPassphraseMD5(privKey)
             localPrivKey = localkey.localizeKeyMD5(
-                hashedPrivPassphrase, snmpEngineID.syntax
+                hashedPrivPassphrase, snmpEngineID
                 )
         elif authProtocol == usmHMACSHAAuthProtocol:
             hashedPrivPassphrase = localkey.hashPassphraseSHA(privKey)
             localPrivKey = localkey.localizeKeySHA(
-                hashedPrivPassphrase, snmpEngineID.syntax
+                hashedPrivPassphrase, snmpEngineID
                 )
         else:
             raise error.PySnmpError(
