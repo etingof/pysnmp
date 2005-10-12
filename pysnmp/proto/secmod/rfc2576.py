@@ -6,7 +6,7 @@ from pysnmp.proto import error
 
 class SnmpV1SecurityModel(base.AbstractSecurityModel):
     securityModelID = 1
-    # According to rfc2576, community name <-> contextEngineID/contextName
+    # According to rfc2576, community name <-> contextEngineId/contextName
     # mapping is up to MP module for notifications but belongs to secmod
     # responsibility for other PDU types. Since I do not yet understand
     # the reason for this de-coupling, I've moved this code from MP-scope
@@ -19,18 +19,18 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         globalData,
         maxMessageSize,
         securityModel,
-        securityEngineID,
+        securityEngineId,
         securityName,
         securityLevel,
         scopedPDU
         ):
         msg, = globalData
-        contextEngineID, contextName, pdu = scopedPDU
+        contextEngineId, contextName, pdu = scopedPDU
         
         # rfc2576: 5.2.3
         ( snmpCommunityName,
           snmpCommunitySecurityName, 
-          snmpCommunityContextEngineID, 
+          snmpCommunityContextEngineId, 
           snmpCommunityContextName ) = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
             'SNMP-COMMUNITY-MIB',
             'snmpCommunityName',
@@ -49,10 +49,10 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
             if mibNodeIdx.syntax != securityName:
                 continue
             instId = mibNodeIdx.name[len(snmpCommunitySecurityName.name):]
-            mibNode = snmpCommunityContextEngineID.getNode(
-                snmpCommunityContextEngineID.name + instId
+            mibNode = snmpCommunityContextEngineId.getNode(
+                snmpCommunityContextEngineId.name + instId
                 )
-            if mibNode.syntax != contextEngineID:
+            if mibNode.syntax != contextEngineId:
                 continue
             mibNode = snmpCommunityContextName.getNode(
                 snmpCommunityContextName.name + instId
@@ -89,7 +89,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         ):
         # rfc2576: 5.2.2
         msg, = globalData
-        contextEngineID, contextName, pdu = scopedPDU
+        contextEngineId, contextName, pdu = scopedPDU
         cachedSecurityData = self._cachePop(securityStateReference)
         communityName = cachedSecurityData['communityName']
         msg.setComponentByPosition(1, communityName)
@@ -114,7 +114,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         ( communityName, srcTransport, destTransport ) = securityParameters
         ( snmpCommunityName,
           snmpCommunitySecurityName,
-          snmpCommunityContextEngineID,
+          snmpCommunityContextEngineId,
           snmpCommunityContextName
           ) = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
             'SNMP-COMMUNITY-MIB',
@@ -149,8 +149,8 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         securityName = snmpCommunitySecurityName.getNode(
             snmpCommunitySecurityName.name + instId
             )
-        contextEngineID = snmpCommunityContextEngineID.getNode(
-            snmpCommunityContextEngineID.name + instId
+        contextEngineId = snmpCommunityContextEngineId.getNode(
+            snmpCommunityContextEngineId.name + instId
             )
         contextName = snmpCommunityContextName.getNode(
             snmpCommunityContextName.name + instId
@@ -166,7 +166,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         securityEngineID = snmpEngineID.syntax
         securityName = securityName.syntax
         scopedPDU = (
-            contextEngineID.syntax, contextName.syntax,
+            contextEngineId.syntax, contextName.syntax,
             msg.getComponentByPosition(2).getComponent()
             )
         maxSizeResponseScopedPDU = maxMessageSize - 128

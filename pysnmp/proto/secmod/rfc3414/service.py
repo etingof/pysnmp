@@ -447,7 +447,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             )
 
         # Used for error reporting
-        contextEngineID = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')[0].syntax
+        contextEngineId = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')[0].syntax
         contextName = ''
 
         # 3.2.3
@@ -471,7 +471,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         val=usmStatsUnknownEngineIDs.syntax,
                         securityStateReference=securityStateReference,
                         securityLevel=securityLevel,
-                        contextEngineID=contextEngineID,
+                        contextEngineId=contextEngineId,
                         contextName=contextName,
                         maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
                         )
@@ -521,7 +521,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                             val = usmStatsUnknownUserNames.syntax,
                             securityStateReference=securityStateReference,
                             securityLevel=securityLevel,
-                            contextEngineID=contextEngineID,
+                            contextEngineId=contextEngineId,
                             contextName=contextName,
                             maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
                             )
@@ -548,7 +548,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 val=usmStatsUnknownEngineIDs.syntax,
                 securityStateReference=securityStateReference,
                 securityLevel=securityLevel,
-                contextEngineID=contextEngineID,
+                contextEngineId=contextEngineId,
                 contextName=contextName,
                 maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
                 )
@@ -575,7 +575,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     val=usmStatsWrongDigests.syntax,
                     securityStateReference=securityStateReference,
                     securityLevel=securityLevel,
-                    contextEngineID=contextEngineID,
+                    contextEngineId=contextEngineId,
                     contextName=contextName,
                     maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
                     )
@@ -607,7 +607,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         val=usmStatsNotInTimeWindows.syntax,
                         securityStateReference=securityStateReference,
                         securityLevel=2,
-                        contextEngineID=contextEngineID,
+                        contextEngineId=contextEngineId,
                         contextName=contextName,
                         maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
                         )
@@ -661,7 +661,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     val=usmStatsDecryptionErrors.syntax,
                     securityStateReference=securityStateReference,
                     securityLevel=securityLevel,
-                    contextEngineID=contextEngineID,
+                    contextEngineId=contextEngineId,
                     contextName=contextName,
                     maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
                     )
@@ -701,7 +701,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 securityStateReference=securityStateReference,
                 securityEngineID=securityEngineID,
                 securityLevel=securityLevel,
-                contextEngineID=contextEngineID,
+                contextEngineId=contextEngineId,
                 contextName=contextName,
                 maxSizeResponseScopedPDU=maxSizeResponseScopedPDU,
                 PDU=scopedPDU
