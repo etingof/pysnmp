@@ -1,3 +1,4 @@
+import time
 from pysnmp.entity.rfc3413 import config
 from pysnmp.proto.proxy import rfc2576
 from pysnmp.proto.api import v2c
@@ -10,7 +11,7 @@ class NotificationOriginator:
         self.__pendingReqs = {}
         self.__sendRequestHandleSource = 0L
         self.__context = snmpContext
-            
+
     def processResponsePdu(
         self,
         snmpEngine,
@@ -18,12 +19,13 @@ class NotificationOriginator:
         securityModel,
         securityName,
         securityLevel,
-        contextEngineID,
+        contextEngineId,
         contextName,
         pduVersion,
         PDU,
         statusInformation,
-        sendPduHandle
+        sendPduHandle,
+        cbData
         ):
         # 3.3.6d
         ( origTransportDomain,
@@ -32,7 +34,7 @@ class NotificationOriginator:
           origSecurityModel,
           origSecurityName,
           origSecurityLevel,
-          origContextEngineID,
+          origContextEngineId,
           origContextName,
           origPduVersion,
           origPdu,
@@ -44,9 +46,10 @@ class NotificationOriginator:
         del self.__pendingReqs[sendPduHandle]
 
         snmpEngine.transportDispatcher.jobFinished(id(self))
-        
+
         if statusInformation and origRetries != origRetryCount:
-            self._sendPdu(
+            # 3.3.6a
+            sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(
                 snmpEngine,
                 origTransportDomain,
                 origTransportAddress,
@@ -54,15 +57,31 @@ class NotificationOriginator:
                 origSecurityModel,
                 origSecurityName,
                 origSecurityLevel,
-                origContextEngineID,
+                origContextEngineId,
+                origContextName,
+                origPduVersion,
+                origPdu,
+                (self.processResponsePdu, origTimeout/1000 + time.time(), None)
+                )
+
+            snmpEngine.transportDispatcher.jobStarted(id(self))
+
+            # 3.3.6b
+            self.__pendingReqs[sendPduHandle] = (
+                origTransportDomain,
+                origTransportAddress,
+                origMessageProcessingModel,
+                origSecurityModel,
+                origSecurityName,
+                origSecurityLevel,
+                origContextEngineId,
                 origContextName,
                 origPduVersion,
                 origPdu,
                 origTimeout,
                 origRetryCount,
-                origRetries,
-                origSendRequestHandle,
-                self.processResponsePdu
+                origRetries + 1,
+                sendPduHandle
                 )
             return
 
@@ -110,20 +129,26 @@ class NotificationOriginator:
             sysUpTime, = contextMibInstrumCtl.mibBuilder.importSymbols(
                 'SNMPv2-MIB', 'sysUpTime'
                 )
-            varBinds.append((sysUpTime.name, sysUpTime.syntax))
+            varBinds.append((sysUpTime.name + (0,), sysUpTime.syntax))
 
-            snmpTrapOid, = apply(
+            snmpTrapOid, = contextMibInstrumCtl.mibBuilder.importSymbols(
+                'SNMPv2-MIB', 'snmpTrapOID'
+                )
+
+            snmpTrapVal, = apply(
                 contextMibInstrumCtl.mibBuilder.importSymbols,
                 notificationName
                 )
-            varBinds.append((snmpTrapOid.name, v2c.Null()))
+            varBinds.append(
+                (snmpTrapOid.name + (0,), v2c.ObjectIdentifier(snmpTrapVal.name))
+                )
             
             # Get notification objects names
-            for notificationObject in snmpTrapOid.getObjects():
+            for notificationObject in snmpTrapVal.getObjects():
                 mibNode, = contextMibInstrumCtl.mibBuilder.importSymbols(
                     notificationObject #, mibNode.moduleName # XXX
                     )
-                varBinds.append((mibNode.name, mibNode.syntax))
+                varBinds.append((mibNode.name + (0,), mibNode.syntax))
 
             if additionalVarBinds:
                 varBinds.extend(additionalVarBinds)
@@ -140,8 +165,10 @@ class NotificationOriginator:
             # 3.3.4
             if notifyType == 1:
                 pdu = v2c.SNMPv2TrapPDU()
-            else:
+            elif notifyType == 2:
                 pdu = v2c.InformRequestPDU()
+            else:
+                raise RuntimeError()
             v2c.apiPDU.setDefaults(pdu)
             v2c.apiPDU.setVarBinds(pdu, varBinds)
 
@@ -178,11 +205,11 @@ class NotificationOriginator:
                     securityModel,
                     securityName,
                     securityLevel,
-                    self.__context.contextEngineID,
+                    self.__context.contextEngineId,
                     contextName,
                     pduVersion,
                     pdu,
-                    self.processResponsePdu
+                    (self.processResponsePdu, timeout/1000 + time.time(), None)
                     )
                 
                 # 3.3.6b
@@ -193,13 +220,13 @@ class NotificationOriginator:
                     securityModel,
                     securityName,
                     securityLevel,
-                    self.__context.contextEngineID,
+                    self.__context.contextEngineId,
                     contextName,
                     pduVersion,
                     pdu,
                     timeout,
                     retryCount,
-                    retries + 1,
+                    1,
                     self.__sendRequestHandleSource
                     )
                 
