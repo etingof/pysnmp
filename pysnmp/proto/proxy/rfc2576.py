@@ -48,6 +48,9 @@ __v2ToV1PduMap = {
     v2c.GetBulkRequestPDU.tagSet: v1.GetNextRequestPDU() # 4.1.1
     }
 
+__sysUpTime = (1,3,6,1,2,1,1,3)
+__null = v1.Null()
+
 # Trap map
 
 __v1ToV2TrapMap = {
@@ -115,8 +118,8 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
         else:
             snmpTrapOID = __v1ToV2TrapMap[genericTrap]
 
-        v2VarBinds.append((sysUpTime, None))
-        v2VarBinds.append((snmpTrapOID, None))
+        v2VarBinds.append((__sysUpTime, sysUpTime))
+        v2VarBinds.append((snmpTrapOID, __null))
         
         # 3.1.4 --> done below
 
@@ -201,6 +204,8 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         # 3.2.5
         v1.apiTrapPDU.setTimeStamp(v1Pdu, v2VarBinds[0][1])
 
+        v2VarBinds = v2VarBinds[2:]
+        
         # 3.2.6 --> done below
 
     if rfc3411.responseClassPDUs.has_key(pduType):
