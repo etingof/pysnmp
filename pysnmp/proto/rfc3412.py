@@ -64,13 +64,6 @@ class MsgAndPduDispatcher:
         """Register application with dispatcher"""
         # 4.3.2 -> noop
 
-        # Default to local snmpEngineID
-# XXX
-#        if contextEngineId is None:
-#            # Default to local snmpEngineId
-#            contextEngineId,= self.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
-#            contextEngineId = contextEngineId.syntax
-
         # 4.3.3
         for pduType in pduTypes:
             k = (str(contextEngineId), pduType)
@@ -116,7 +109,7 @@ class MsgAndPduDispatcher:
         securityModel,
         securityName,
         securityLevel,
-        contextEngineID,
+        contextEngineId,
         contextName,
         pduVersion,
         PDU,
@@ -124,7 +117,7 @@ class MsgAndPduDispatcher:
         ):
         """PDU dispatcher -- prepare and serialize a request or notification"""
 #        print 'sendPdu', PDU
-#        print transportDomain, transportAddress, messageProcessingModel, securityModel, securityName, securityLevel, contextEngineID, contextName, pduVersion
+#        print transportDomain, transportAddress, messageProcessingModel, securityModel, securityName, securityLevel, contextEngineId, contextName, pduVersion
         # 4.1.1.2
         mpHandler = snmpEngine.messageProcessingSubsystems.get(
             int(messageProcessingModel)
@@ -153,7 +146,7 @@ class MsgAndPduDispatcher:
                 securityModel,
                 securityName,
                 securityLevel,
-                contextEngineID,
+                contextEngineId,
                 contextName,
                 pduVersion,
                 PDU,
@@ -181,7 +174,7 @@ class MsgAndPduDispatcher:
                 securityModel=securityModel,
                 securityName=securityName,
                 securityLevel=securityLevel,
-                contextEngineID=contextEngineID,
+                contextEngineId=contextEngineId,
                 contextName=contextName,
                 pduVersion=pduVersion,
                 PDU=PDU,
@@ -199,7 +192,7 @@ class MsgAndPduDispatcher:
         securityModel,
         securityName,
         securityLevel,
-        contextEngineID,
+        contextEngineId,
         contextName,
         pduVersion,
         PDU,
@@ -228,7 +221,7 @@ class MsgAndPduDispatcher:
                 securityModel,
                 securityName,
                 securityLevel,
-                contextEngineID,
+                contextEngineId,
                 contextName,
                 pduVersion,
                 PDU,
@@ -300,7 +293,7 @@ class MsgAndPduDispatcher:
               securityModel,
               securityName,
               securityLevel,
-              contextEngineID,
+              contextEngineId,
               contextName,
               pduVersion,
               PDU,
@@ -331,7 +324,7 @@ class MsgAndPduDispatcher:
             # 4.2.2.1 (request or notification)
 
             # 4.2.2.1.1
-            processPdu = self.getRegisteredApp(contextEngineID, pduType)
+            processPdu = self.getRegisteredApp(contextEngineId, pduType)
 
             # 4.2.2.1.2
             if processPdu is None:
@@ -357,7 +350,7 @@ class MsgAndPduDispatcher:
                         securityModel,
                         securityName,
                         securityLevel,
-                        contextEngineID,
+                        contextEngineId,
                         contextName,
                         pduVersion,
                         PDU,
@@ -388,7 +381,7 @@ class MsgAndPduDispatcher:
                     securityModel,
                     securityName,
                     securityLevel,
-                    contextEngineID,
+                    contextEngineId,
                     contextName,
                     pduVersion,
                     PDU,
@@ -421,7 +414,7 @@ class MsgAndPduDispatcher:
                 securityModel,
                 securityName,
                 securityLevel,
-                contextEngineID,
+                contextEngineId,
                 contextName,
                 pduVersion,
                 PDU,
