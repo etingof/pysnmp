@@ -9,13 +9,13 @@ from time import time
 pMod = api.protoModules[api.protoVersion1]
 
 # Build PDU
-reqPDU =  pMod.GetRequestPDU()
+reqPDU =  pMod.SetRequestPDU()
 pMod.apiPDU.setDefaults(reqPDU)
 pMod.apiPDU.setVarBinds(
     reqPDU,
     # A list of Var-Binds to SET
-    (((1,3,6,1,2,1,1,1,0), pMod.Integer(123456)),
-     ((1,3,6,1,2,1,1,2,0), pMod.IpAddress('127.0.0.1')))
+    (((1,3,6,1,2,1,1,1,0), pMod.OctetString('New system description')),
+     ((1,3,6,1,2,1,1,3,0), pMod.TimeTicks(12)))
     )
 
 # Build message
@@ -38,10 +38,10 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
             # Check for SNMP errors reported
             errorStatus = pMod.apiPDU.getErrorStatus(rspPDU)
             if errorStatus:
-                print 'Error: ', errorStatus
+                print errorStatus.prettyOut(errorStatus)
             else:
                 for oid, val in pMod.apiPDU.getVarBinds(rspPDU):
-                    print oid, val
+                    print oid, val.prettyOut(val)
             transportDispatcher.jobFinished(1)
     return wholeMsg
 
