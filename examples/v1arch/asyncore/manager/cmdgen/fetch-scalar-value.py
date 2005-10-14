@@ -13,7 +13,7 @@ reqPDU =  pMod.GetRequestPDU()
 pMod.apiPDU.setDefaults(reqPDU)
 pMod.apiPDU.setVarBinds(
     reqPDU, (((1,3,6,1,2,1,1,1,0), pMod.Null()),
-             ((1,3,6,1,2,1,1,2,0), pMod.Null()))
+             ((1,3,6,1,2,1,1,3,0), pMod.Null()))
     )
 
 # Build message
@@ -36,10 +36,10 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
             # Check for SNMP errors reported
             errorStatus = pMod.apiPDU.getErrorStatus(rspPDU)
             if errorStatus:
-                print 'Error: ', errorStatus
+                print errorStatus.prettyOut(errorStatus)
             else:
                 for oid, val in pMod.apiPDU.getVarBinds(rspPDU):
-                    print oid, val
+                    print oid, val.prettyOut(val)
             transportDispatcher.jobFinished(1)
     return wholeMsg
 
