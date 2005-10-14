@@ -2,8 +2,10 @@ Revision 4.1.5a
 ---------------
 
 - UNSTABLE ALPHA RELEASE.
+- Multi-lingual SNMP Trap/Inform Applications completed; examples added
 - SNMP SET Application support completed
 - Minor, though backward incompatible, changes to one-liner API
+- Many bugfixes
 
 Revision 4.1.4a
 ---------------

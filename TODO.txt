@@ -21,8 +21,6 @@ Sparse notes on major existing problems/plans
   Dedicated, simple API for table cells mangling should be provided.
   The whole thing should be simpler, including API.
 
-* Trap applications needed
-
 * Notification filtering (RFC3413) not implemented.
 
 * MsgAndPduDispatcher should use TransportDispatcher jobs interface
@@ -60,8 +58,8 @@ Sparse notes on major existing problems/plans
 
 * Implement SNMP engine-scope debug mode logging
 
-* Convert symbolic constants into integers for performance and typing
-  reliablity
+* Convert symbolic constants (keys, SNMP errors) into singular, hashable
+  objects for performance and typing reliablity
 
 * Expire discovered snmpEngineIds at mpmod/rfc3412
 
