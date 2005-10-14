@@ -48,6 +48,8 @@ class NotificationReceiver:
         if rfc3411.confirmedClassPDUs.has_key(PDU.tagSet):
             # 3.4.1 --> no-op
             
+            rspPDU = v2c.apiPDU.getResponse(PDU)
+            
             # 3.4.2
             v2c.apiPDU.setErrorStatus(rspPDU, errorStatus)
             v2c.apiPDU.setErrorIndex(rspPDU, errorIndex)
