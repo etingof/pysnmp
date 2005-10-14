@@ -267,3 +267,16 @@ class BulkCommandResponder(CommandResponderBase):
             rspVarBinds = rspVarBinds[:self.maxVarBinds]
 
         return 0, 0, rspVarBinds
+
+class SetCommandResponder(CommandResponderBase):
+    pduTypes = ( rfc1905.SetRequestPDU.tagSet, )
+
+    # rfc1905: 4.2.5
+    def _handleManagementOperation(
+        self, snmpEngine, contextMibInstrumCtl, PDU, (acFun, acCtx)
+        ):
+        # rfc1905: 4.2.5.1-13
+        return 0, 0, contextMibInstrumCtl.writeVars(
+            v2c.apiPDU.getVarBinds(PDU), (acFun, acCtx)
+            )
+
