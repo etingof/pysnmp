@@ -36,10 +36,10 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
             # Check for SNMP errors reported
             errorStatus = pMod.apiPDU.getErrorStatus(rspPDU)
             if errorStatus:
-                print errorStatus.prettyOut(errorStatus)
+                print errorStatus.prettyPrint()
             else:
                 for oid, val in pMod.apiPDU.getVarBinds(rspPDU):
-                    print oid, val.prettyOut(val)
+                    print oid.prettyPrint(), val.prettyPrint()
             transportDispatcher.jobFinished(1)
     return wholeMsg
 

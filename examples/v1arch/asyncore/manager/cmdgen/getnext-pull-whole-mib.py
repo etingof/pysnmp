@@ -48,8 +48,8 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
                 for name, val in tableRow:
                     if val is None:
                         continue
-                    print 'from: %s, %s = %s' % (
-                        transportAddress, name.prettyOut(name), val.prettyOut(val)
+                    print 'from: %s, %s=%s' % (
+                        transportAddress, name.prettyPrint(), val.prettyPrint()
                         )
             # Stop on EOM
             for oid, val in varBindTable[-1]:
