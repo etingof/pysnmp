@@ -33,7 +33,11 @@ for mibVar in mibInstr:
 def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
     while wholeMsg:
         msgVer = api.decodeMessageVersion(wholeMsg)
-        pMod = api.protoModules[msgVer]
+        if api.protoModules.has_key(msgVer):
+            pMod = api.protoModules[msgVer]
+        else:
+            print 'Unsupported SNMP version %s' % msgVer
+            return
         reqMsg, wholeMsg = decoder.decode(
             wholeMsg, asn1Spec=pMod.Message(),
             )
