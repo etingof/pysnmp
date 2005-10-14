@@ -97,10 +97,6 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
     v2Pdu = __v1ToV2PduMap[pduType].clone()
     v2c.apiPDU.setDefaults(v2Pdu)
     
-    if not rfc3411.notificationClassPDUs.has_key(pduType):
-        requestId = v1.apiPDU.getRequestID(v1Pdu)
-        v2c.apiPDU.setRequestID(v2Pdu, long(v1.apiPDU.getRequestID(v1Pdu)))
-
     v2VarBinds = []
 
     # 3.1
@@ -143,6 +139,9 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
             )
 
         # 4.1.2.1 --> no-op
+
+    if not rfc3411.notificationClassPDUs.has_key(pduType):
+        v2c.apiPDU.setRequestID(v2Pdu, long(v1.apiPDU.getRequestID(v1Pdu)))
 
     v2c.apiPDU.setVarBinds(v2Pdu, v2VarBinds)
         
