@@ -250,5 +250,9 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         v1.apiTrapPDU.setVarBinds(v1Pdu, v1VarBinds)
     else:
         v1.apiPDU.setVarBinds(v1Pdu, v1VarBinds)
+
+        v1.apiPDU.setRequestID(
+            v1Pdu, v2c.apiPDU.getRequestID(v2Pdu)
+            )
         
     return v1Pdu
