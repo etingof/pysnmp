@@ -30,6 +30,5 @@ transportDispatcher.registerTransport(
 transportDispatcher.sendMessage(
     encoder.encode(trapMsg), udp.domainName, ('localhost', 162)
     )
-transportDispatcher.jobStarted(1)
 transportDispatcher.runDispatcher()
 transportDispatcher.closeDispatcher()
