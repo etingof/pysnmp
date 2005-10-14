@@ -46,8 +46,10 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
             # Report SNMP table
             for tableRow in varBindTable:
                 for name, val in tableRow:
+                    if val is None:
+                        continue
                     print 'from: %s, %s = %s' % (
-                        transportAddress, name, val
+                        transportAddress, name.prettyOut(name), val.prettyOut(val)
                         )
             # Stop on EOM
             for oid, val in varBindTable[-1]:
