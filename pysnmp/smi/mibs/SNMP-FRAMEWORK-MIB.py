@@ -15,7 +15,7 @@ from pyasn1.type import constraint, namedval
 
 ( Integer, ObjectIdentifier, OctetString, ) = mibBuilder.importSymbols("ASN1", "Integer", "ObjectIdentifier", "OctetString")
 ( ModuleCompliance, ObjectGroup, ) = mibBuilder.importSymbols("SNMPv2-CONF", "ModuleCompliance", "ObjectGroup")
-( Bits, Integer32, ModuleIdentity, MibIdentifier, ObjectIdentity, MibVariable, MibTable, MibTableRow, MibTableColumn, TimeTicks, snmpModules, ) = mibBuilder.importSymbols("SNMPv2-SMI", "Bits", "Integer32", "ModuleIdentity", "MibIdentifier", "ObjectIdentity", "MibVariable", "MibTable", "MibTableRow", "MibTableColumn", "TimeTicks", "snmpModules")
+( Bits, Integer32, ModuleIdentity, MibIdentifier, ObjectIdentity, MibScalar, MibTable, MibTableRow, MibTableColumn, TimeTicks, snmpModules, ) = mibBuilder.importSymbols("SNMPv2-SMI", "Bits", "Integer32", "ModuleIdentity", "MibIdentifier", "ObjectIdentity", "MibScalar", "MibTable", "MibTableRow", "MibTableColumn", "TimeTicks", "snmpModules")
 ( TextualConvention, ) = mibBuilder.importSymbols("SNMPv2-TC", "TextualConvention")
 
 # Types
@@ -55,10 +55,10 @@ snmpAuthProtocols = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 1, 1))
 snmpPrivProtocols = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 1, 2))
 snmpFrameworkMIBObjects = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 2))
 snmpEngine = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 2, 1))
-snmpEngineID = MibVariable((1, 3, 6, 1, 6, 3, 10, 2, 1, 1), SnmpEngineID()).setMaxAccess("readonly")
-snmpEngineBoots = MibVariable((1, 3, 6, 1, 6, 3, 10, 2, 1, 2), Integer32().subtype(subtypeSpec=constraint.ValueRangeConstraint(1, 2147483647L))).setMaxAccess("readonly")
-snmpEngineTime = MibVariable((1, 3, 6, 1, 6, 3, 10, 2, 1, 3), Integer32().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 2147483647L))).setMaxAccess("readonly").setUnits("seconds")
-snmpEngineMaxMessageSize = MibVariable((1, 3, 6, 1, 6, 3, 10, 2, 1, 4), Integer32().subtype(subtypeSpec=constraint.ValueRangeConstraint(484, 2147483647L))).setMaxAccess("readonly")
+snmpEngineID = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 1), SnmpEngineID()).setMaxAccess("readonly")
+snmpEngineBoots = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 2), Integer32().subtype(subtypeSpec=constraint.ValueRangeConstraint(1, 2147483647L))).setMaxAccess("readonly")
+snmpEngineTime = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 3), Integer32().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 2147483647L))).setMaxAccess("readonly").setUnits("seconds")
+snmpEngineMaxMessageSize = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 4), Integer32().subtype(subtypeSpec=constraint.ValueRangeConstraint(484, 2147483647L))).setMaxAccess("readonly")
 snmpFrameworkMIBConformance = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 3))
 snmpFrameworkMIBCompliances = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 3, 1))
 snmpFrameworkMIBGroups = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 3, 2))
