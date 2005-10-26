@@ -79,7 +79,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         self, mibInstrumController, securityEngineID, securityName
         ):
         snmpEngineID, = mibInstrumController.mibBuilder.importSymbols(
-            'SNMP-FRAMEWORK-MIB', 'snmpEngineID'
+            '__SNMP-FRAMEWORK-MIB', 'snmpEngineID'
             )
         # Proto entry
         usmUserEntry, = mibInstrumController.mibBuilder.importSymbols(
@@ -193,7 +193,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         scopedPDU,
         securityStateReference
         ):
-        snmpEngineID = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')[0].syntax
+        snmpEngineID = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')[0].syntax
         # 3.1.1
         if securityStateReference is not None:
             # 3.1.1a
@@ -220,7 +220,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     securityEngineID, securityName
                     )
             except NoSuchInstanceError:
-                pysnmpUsmDiscovery, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('PYSNMP-USM-MIB', 'pysnmpUsmDiscovery')
+                pysnmpUsmDiscovery, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__PYSNMP-USM-MIB', 'pysnmpUsmDiscovery')
                 __reportUnknownName = not pysnmpUsmDiscovery.syntax
                 if not __reportUnknownName:
                     try:
@@ -309,7 +309,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         # 3.1.6.b
         elif securityStateReference is not None:  # XXX Report?
             ( snmpEngineBoots,
-              snmpEngineTime ) = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineBoots', 'snmpEngineTime')
+              snmpEngineTime ) = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineBoots', 'snmpEngineTime')
             snmpEngineBoots = snmpEngineBoots.syntax
             snmpEngineTime = snmpEngineTime.syntax
         # 3.1.6.c
@@ -428,7 +428,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 asn1Spec=self._securityParametersSpec
                 )
         except PyAsn1Error:
-           snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-MIB', 'snmpInASNParseErrs')
+           snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
            snmpInASNParseErrs.syntax = snmpInASNParseErrs.syntax + 1
            raise error.StatusInformation(
                errorIndication='parseError'
@@ -447,7 +447,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             )
 
         # Used for error reporting
-        contextEngineId = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')[0].syntax
+        contextEngineId = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')[0].syntax
         contextName = ''
 
         # 3.2.3
@@ -461,9 +461,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     )
             else:
                 # 3.2.3b
-                usmStatsUnknownEngineIDs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownEngineIDs')
+                usmStatsUnknownEngineIDs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownEngineIDs')
                 usmStatsUnknownEngineIDs.syntax = usmStatsUnknownEngineIDs.syntax+1
-                pysnmpUsmDiscoverable, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('PYSNMP-USM-MIB', 'pysnmpUsmDiscoverable')
+                pysnmpUsmDiscoverable, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__PYSNMP-USM-MIB', 'pysnmpUsmDiscoverable')
                 if pysnmpUsmDiscoverable.syntax:
                     raise error.StatusInformation(
                         errorIndication = 'unknownEngineID',
@@ -481,7 +481,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         errorIndication = 'unknownEngineID'
                         )
 
-        snmpEngineID = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')[0].syntax
+        snmpEngineID = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')[0].syntax
  
         msgAuthoritativeEngineID = securityParameters.getComponentByPosition(0)
         msgUserName = securityParameters.getComponentByPosition(3)
@@ -497,7 +497,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     snmpEngine.msgAndPduDsp.mibInstrumController, msgAuthoritativeEngineID, msgUserName
                     )
             except NoSuchInstanceError:
-                pysnmpUsmDiscoverable, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('PYSNMP-USM-MIB', 'pysnmpUsmDiscoverable')
+                pysnmpUsmDiscoverable, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__PYSNMP-USM-MIB', 'pysnmpUsmDiscoverable')
                 __reportUnknownName = not pysnmpUsmDiscoverable.syntax
                 if not __reportUnknownName:
                     try:
@@ -513,7 +513,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     except NoSuchInstanceError:
                         __reportUnknownName = 1
                 if __reportUnknownName:
-                        usmStatsUnknownUserNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownUserNames')
+                        usmStatsUnknownUserNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownUserNames')
                         usmStatsUnknownUserNames.syntax = usmStatsUnknownUserNames.syntax+1
                         raise error.StatusInformation(
                             errorIndication = 'unknownSecurityName',
@@ -540,7 +540,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 if not usmUserAuthProtocol:
                     __reportError = 1
         if __reportError:
-            usmStatsUnsupportedSecLevels, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmStatsUnsupportedSecLevels')
+            usmStatsUnsupportedSecLevels, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnsupportedSecLevels')
             usmStatsUnsupportedSecLevels.syntax = usmStatsUnsupportedSecLevels.syntax + 1
             raise error.StatusInformation(
                 errorIndication='unsupportedSecurityLevel',
@@ -567,7 +567,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     wholeMsg
                     )
             except error.StatusInformation:
-                usmStatsWrongDigests, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmStatsWrongDigests')
+                usmStatsWrongDigests, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsWrongDigests')
                 usmStatsWrongDigests.syntax = usmStatsWrongDigests.syntax+1
                 raise error.StatusInformation(
                     errorIndication = 'authenticationFailure',
@@ -599,7 +599,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 if snmpEngineBoots == 2147483647 or \
                    snmpEngineBoots != msgAuthoritativeEngineBoots or \
                    abs(int(snmpEngineTime)-int(msgAuthoritativeEngineTime)) > 150:
-                    usmStatsNotInTimeWindows, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmStatsNotInTimeWindows')
+                    usmStatsNotInTimeWindows, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsNotInTimeWindows')
                     usmStatsNotInTimeWindows.syntax = usmStatsNotInTimeWindows.syntax+1
                     raise error.StatusInformation(
                         errorIndication = 'notInTimeWindow',
@@ -653,7 +653,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     encryptedPDU
                     )
             except error.StatusInformation:
-                usmStatsDecryptionErrors, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmStatsDecryptionErrors')
+                usmStatsDecryptionErrors, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsDecryptionErrors')
                 usmStatsDecryptionErrors.syntax = usmStatsDecryptionErrors.syntax+1
                 raise error.StatusInformation(
                     errorIndication = 'decryptionError',
@@ -692,7 +692,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         # Delayed to include details
         if not msgUserName and not securityEngineID:
-            usmStatsUnknownUserNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownUserNames')
+            usmStatsUnknownUserNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownUserNames')
             usmStatsUnknownUserNames.syntax = usmStatsUnknownUserNames.syntax+1
             raise error.StatusInformation(
                 errorIndication='unknownSecurityName',
