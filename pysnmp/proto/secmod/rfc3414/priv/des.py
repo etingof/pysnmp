@@ -21,7 +21,7 @@ class Des(base.AbstractEncryptionService):
         preIV = privKey[8:16]
 
         snmpEngineBoots, = mibInstrumController.mibBuilder.importSymbols(
-            'SNMP-FRAMEWORK-MIB', 'snmpEngineBoots'
+            '__SNMP-FRAMEWORK-MIB', 'snmpEngineBoots'
             )
         securityEngineBoots = long(snmpEngineBoots.syntax)
 

@@ -135,7 +135,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                 continue
             break
         else:
-            snmpInBadCommunityNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-COMMUNITY-MIB', 'snmpInBadCommunityNames')
+            snmpInBadCommunityNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-COMMUNITY-MIB', 'snmpInBadCommunityNames')
             snmpInBadCommunityNames.syntax = snmpInBadCommunityNames.syntax+1
             raise error.StatusInformation(
                 errorIndication = 'unknownCommunityName'
@@ -155,9 +155,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         contextName = snmpCommunityContextName.getNode(
             snmpCommunityContextName.name + instId
             )
-        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
-            'SNMP-FRAMEWORK-MIB', 'snmpEngineID'
-            )
+        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
         stateReference = self._cachePush(
             communityName=communityName.syntax

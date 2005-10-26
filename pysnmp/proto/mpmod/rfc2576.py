@@ -31,7 +31,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         expectResponse,
         sendPduHandle
         ):
-        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
         snmpEngineID = snmpEngineID.syntax
         
         # rfc3412: 7.1.1b
@@ -70,7 +70,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
         # rfc3412: 7.1.9.a & rfc2576: 5.2.1 --> no-op
 
-        snmpEngineMaxMessageSize, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
+        snmpEngineMaxMessageSize, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
             
         # rfc3412: 7.1.9.b
         ( securityParameters,
@@ -121,7 +121,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         stateReference,
         statusInformation
         ):
-        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
         snmpEngineID = snmpEngineID.syntax
 
         # rfc3412: 7.1.2.b
@@ -209,7 +209,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                 wholeMsg, asn1Spec=self._snmpMsgSpec
                 )
         except PyAsn1Error:
-            snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-MIB', 'snmpInASNParseErrs')
+            snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
             snmpInASNParseErrs.syntax = snmpInASNParseErrs.syntax + 1
             raise error.StatusInformation(
                 errorIndication = 'parseError'
@@ -222,7 +222,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         msgID = pdu.getComponentByPosition(0)
 
         # rfc2576: 5.2.1
-        snmpEngineMaxMessageSize, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
+        snmpEngineMaxMessageSize, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
         securityParameters = (
             msg.getComponentByPosition(1),
             (transportDomain, transportAddress),
@@ -323,7 +323,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.2.13
         if rfc3411.confirmedClassPDUs.has_key(pduType):
             # rfc3412: 7.2.13a
-            snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+            snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
             if securityEngineID != snmpEngineID.syntax:
                 raise error.StatusInformation(
                     errorIndication = 'engineIDMispatch'

@@ -81,7 +81,7 @@ class MsgAndPduDispatcher:
         # 4.3.4
         if contextEngineId is None:
             # Default to local snmpEngineId
-            contextEngineId, = self.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+            contextEngineId, = self.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
         for pduType in pduTypes:
             k = (str(contextEngineId), pduType)
@@ -234,10 +234,10 @@ class MsgAndPduDispatcher:
             raise
 
         # Handle oversized messages XXX transport constrains?
-        snmpEngineMaxMessageSize, = self.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
+        snmpEngineMaxMessageSize, = self.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
         if snmpEngineMaxMessageSize.syntax and \
                len(outgoingMessage) > snmpEngineMaxMessageSize.syntax:
-            snmpSilentDrops, = self.mibInstrumController.mibBuilder.importSymbols('SNMPv2-MIB', 'snmpSilentDrops')
+            snmpSilentDrops, = self.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpSilentDrops')
             snmpSilentDrops.syntax = snmpSilentDrops.syntax + 1
             raise error.MessageTooBigError()
         
@@ -260,7 +260,7 @@ class MsgAndPduDispatcher:
 #        print 'receiveMessage', time.time() #, repr(wholeMsg)
         # 4.2.1.1
         snmpInPkts, = self.mibInstrumController.mibBuilder.importSymbols(
-            'SNMPv2-MIB', 'snmpInPkts'
+            '__SNMPv2-MIB', 'snmpInPkts'
             )
         snmpInPkts.syntax = snmpInPkts.syntax + 1
 
@@ -269,7 +269,7 @@ class MsgAndPduDispatcher:
             restOfWholeMsg = '' # XXX fix decoder non-recursive return
             msgVersion = verdec.decodeMessageVersion(wholeMsg)
         except PySnmpError:
-            snmpInAsn1ParseErrs, = self.mibInstrumController.mibBuilder.importSymbols('SNMPv2-MIB', 'snmpInAsn1ParseErrs')
+            snmpInAsn1ParseErrs, = self.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInAsn1ParseErrs')
             snmpInAsn1ParseErrs.syntax = snmpInAsn1ParseErrs.syntax + 1
             return ''  # n.b the whole buffer gets dropped
 
@@ -280,7 +280,7 @@ class MsgAndPduDispatcher:
             )
         if mpHandler is None:
             snmpInBadVersions, = self.mibInstrumController.mibBuilder.importSymbols(
-                'SNMPv2-MIB', 'snmpInBadVersions'
+                '__SNMPv2-MIB', 'snmpInBadVersions'
                 )
             snmpInBadVersions.syntax = snmpInBadVersions.syntax + 1
             return restOfWholeMsg
@@ -329,7 +329,7 @@ class MsgAndPduDispatcher:
             # 4.2.2.1.2
             if processPdu is None:
                 # 4.2.2.1.2.a
-                snmpUnknownPDUHandlers, = self.mibInstrumController.mibBuilder.importSymbols('SNMP-MPD-MIB', 'snmpUnknownPDUHandlers')
+                snmpUnknownPDUHandlers, = self.mibInstrumController.mibBuilder.importSymbols('__SNMP-MPD-MIB', 'snmpUnknownPDUHandlers')
                 snmpUnknownPDUHandlers.syntax = snmpUnknownPDUHandlers.syntax+1
 
                 # 4.2.2.1.2.b
@@ -397,7 +397,7 @@ class MsgAndPduDispatcher:
 
             # 4.2.2.2.2
             if cachedParams is None:
-                snmpUnknownPDUHandlers, = self.mibInstrumController.mibBuilder.importSymbols('SNMP-MPD-MIB', 'snmpUnknownPDUHandlers')
+                snmpUnknownPDUHandlers, = self.mibInstrumController.mibBuilder.importSymbols('__SNMP-MPD-MIB', 'snmpUnknownPDUHandlers')
                 snmpUnknownPDUHandlers.syntax = snmpUnknownPDUHandlers.syntax+1
                 return restOfWholeMsg
 

@@ -5,7 +5,7 @@ class SnmpContext:
     def __init__(self, snmpEngine, contextEngineId=None):
         if contextEngineId is None:
             # Default to local snmpEngineId
-            contextEngineId,= snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+            contextEngineId,= snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
             contextEngineId = contextEngineId.syntax
         self.contextEngineId = contextEngineId
         self.contextNames = {

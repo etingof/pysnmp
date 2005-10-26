@@ -65,7 +65,7 @@ class CommandResponderBase:
                 statusInformation
                 )
         except error.StatusInformation:
-            snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-MIB', 'snmpSilentDrops')
+            snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpSilentDrops')
             snmpSilentDrops.syntax = snmpSilentDrops.syntax + 1
 
     _getRequestType = rfc1905.GetRequestPDU.tagSet
@@ -190,7 +190,7 @@ class CommandResponderBase:
             elif errorIndication == 'otherError':
                 raise pysnmp.smi.error.GenError(name=name, idx=idx)
             elif errorIndication == 'noSuchContext':
-                snmpUnknownContexts, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-TARGET-MIB', 'snmpUnknownContexts')
+                snmpUnknownContexts, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-TARGET-MIB', 'snmpUnknownContexts')
                 snmpUnknownContexts.syntax = snmpUnknownContexts.syntax + 1
                 # Request REPORT generation
                 raise pysnmp.smi.error.GenError(

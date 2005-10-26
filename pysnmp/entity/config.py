@@ -33,7 +33,7 @@ usmNoPrivProtocol = nopriv.NoPriv.serviceID
 def addV1System(snmpEngine, securityName, communityName,
                 contextEngineId=None, contextName=None,
                 transportTag=None):
-    snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+    snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
     # Build entry index
     snmpCommunityEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-COMMUNITY-MIB', 'snmpCommunityEntry')
@@ -85,7 +85,7 @@ def addV3User(snmpEngine, securityName,
               contextEngineId=None):
     # v3 setup
     if contextEngineId is None:
-        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
         snmpEngineID = snmpEngineID.syntax
     else:
         snmpEngineID = contextEngineId

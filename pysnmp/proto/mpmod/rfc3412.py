@@ -74,7 +74,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         expectResponse,
         sendPduHandle
         ):
-        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
         snmpEngineID = snmpEngineID.syntax
 
         # 7.1.1b
@@ -115,7 +115,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         # 7.1.7b
         headerData.setComponentByPosition(0, msgID)
 
-        snmpEngineMaxMessageSize, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
+        snmpEngineMaxMessageSize, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
 
         # 7.1.7c
         headerData.setComponentByPosition(1, snmpEngineMaxMessageSize.syntax)
@@ -222,7 +222,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         stateReference,
         statusInformation
         ):
-        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
         snmpEngineID = snmpEngineID.syntax
 
         # 7.1.2.b
@@ -318,7 +318,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         # 7.1.7b
         headerData.setComponentByPosition(0, msgID)
 
-        snmpEngineMaxMessageSize, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
+        snmpEngineMaxMessageSize, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
 
         # 7.1.7c
         headerData.setComponentByPosition(1, snmpEngineMaxMessageSize.syntax)
@@ -390,7 +390,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 wholeMsg, asn1Spec=self._snmpMsgSpec
                 )
         except PyAsn1Error:
-            snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-MIB', 'snmpInASNParseErrs')
+            snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
             snmpInASNParseErrs.syntax = snmpInASNParseErrs.syntax + 1
             raise error.StatusInformation(
                 errorIndication = 'parseError'
@@ -407,7 +407,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         
         # 7.2.4
         if not snmpEngine.securityModels.has_key(securityModel):
-            snmpUnknownSecurityModels, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-MIB', 'snmpUnknownSecurityModels')
+            snmpUnknownSecurityModels, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpUnknownSecurityModels')
             snmpUnknownSecurityModels.syntax = snmpUnknownSecurityModels.syntax + 1
             raise error.StatusInformation(
                 errorIndication = 'unsupportedSecurityModel'
@@ -421,7 +421,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         elif (msgFlags & 0x03) == 0x03:
             securityLevel = 3
         else:
-            snmpInvalidMsgs = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-MIB', 'snmpInvalidMsgs')
+            snmpInvalidMsgs = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInvalidMsgs')
             snmpInvalidMsgs.syntax = snmpInvalidMsgs.syntax + 1
             raise error.StatusInformation(
                 errorIndication = 'invalidMsg'
@@ -517,9 +517,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                     'contextName': contextName
                     }
 
-        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
-            'SNMP-FRAMEWORK-MIB', 'snmpEngineID'
-            )
+        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
         snmpEngineID = snmpEngineID.syntax
 
         # 7.2.7 XXX PDU would be parsed here?

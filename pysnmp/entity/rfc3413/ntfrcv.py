@@ -76,7 +76,7 @@ class NotificationReceiver:
                     statusInformation
                     )
             except error.StatusInformation:
-                snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-MIB', 'snmpSilentDrops')
+                snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpSilentDrops')
                 snmpSilentDrops.syntax = snmpSilentDrops.syntax + 1
 
         elif rfc3411.unconfirmedClassPDUs.has_key(PDU.tagSet):
