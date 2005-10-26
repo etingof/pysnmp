@@ -1,26 +1,50 @@
-# SNMP agent backend
-from pysnmp.smi import builder, instrum, exval
+# Managed Objects implementation
+from pysnmp.smi import builder
 
-print 'Loading MIB modules...',
-mibBuilder = builder.MibBuilder().loadModules(
-    'SNMPv2-MIB', 'SNMP-FRAMEWORK-MIB', 'SNMP-COMMUNITY-MIB'
-    )
-print 'done'
+# MIB Builder is normally pre-created by SNMP engine
+mibBuilder = builder.MibBuilder()
 
-print 'Building MIB tree...',
-mibInstrum = instrum.MibInstrumController(mibBuilder)
-print 'done'
+#
+# This may be done in a stand-alone file and then loaded up
+# by SNMP Agent
+#
 
-print 'Remote manager write/create access to MIB instrumentation: ',
-print mibInstrum.writeVars(
-    (((1,3,6,1,6,3,18,1,1,1,2,109,121,110,109,115), 'mycomm'),
-     ((1,3,6,1,6,3,18,1,1,1,3,109,121,110,109,115), 'mynmsname'))
+# A base class for a custom Managed Object
+MibScalarInstance, = mibBuilder.importSymbols(
+    'SNMPv2-SMI', 'MibScalarInstance'
     )
 
-print 'Remote manager read access to MIB instrumentation (table walk)'
-oid, val = (), None
-while 1:
-    oid, val = mibInstrum.readNextVars(((oid, val),))[0]
-    if exval.endOfMib.isSameTypeWith(val):
-        break
-    print oid, val
+# Managed object specification
+sysLocation, = mibBuilder.importSymbols('SNMPv2-MIB', 'sysLocation')
+
+# Custom Managed Object
+class MySysLocationInstance(MibScalarInstance):
+    def readGet(self, name, val, idx, (acFun, acCtx)):
+        # Just return a custom value
+        return name, self.syntax.clone('The Leaky Cauldron')
+    
+sysLocationInstance = MySysLocationInstance(
+    sysLocation.name, (0,), sysLocation.syntax
+    )
+
+# Register Managed Object with a MIB tree
+mibBuilder.exportSymbols(
+    # '__' prefixed MIB modules take precedence on indexing
+    '__MY-LOCATION-MIB', sysLocationInstance=sysLocationInstance
+    )
+
+if __name__ == '__main__':
+    #
+    # This is what is done internally by Agent.
+    #
+    from pysnmp.smi import instrum, exval
+
+    mibInstrum = instrum.MibInstrumController(mibBuilder)
+
+    print 'Remote manager read access to MIB instrumentation (table walk)'
+    oid, val = (), None
+    while 1:
+        oid, val = mibInstrum.readNextVars(((oid, val),))[0]
+        if exval.endOfMib.isSameTypeWith(val):
+            break
+        print oid, val
