@@ -306,11 +306,6 @@ class MibTree(ObjectType):
                 raise error.NotWritableError(idx=idx, name=name)
         else:
             node = self.getBranch(name, idx)
-# XXX
-#            if not isinstance(node, ObjectType): # XXX
-#                raise error.NoAccessError(
-#                    'Not ObjectType macro instance at %s' % self
-#                    )
             node.writeTest(name, val, idx, (acFun, acCtx))
     
     def writeCommit(self, name, val, idx, (acFun, acCtx)):
@@ -831,4 +826,4 @@ mibBuilder.exportSymbols(
 
 # XXX
 # getAsName/setFromName goes out of MibRow?
-# revisit getNextNode() & getBranch() -- these need optimization
+# revisit getNextNode() -- needs optimization
