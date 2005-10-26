@@ -1,32 +1,19 @@
 
 Sparse notes on major existing problems/plans
 
-* Re-design SMI model aiming at more consistent design
-  and better performance. One problem with current model
-  is that MIB variable and variable instance is not clarly
-  separated. Scalar vars and table cells should share the
-  same mechanics. For example, MibVariable may be a subtree
-  with a single leaf -- MibVarInstance; MibColumn would also
-  hold a ref to MibVarInstance then.
+* SMI issues remained include:
 
-  Linear search for subtree constributes to poor performance,
-
-  Possibly, MIB tree should be a single-level dictionary of
-  MIB objects.
-
-  Subtree registration at MIB tree objects may be obsolete
-
-  Another issue showed up in MIBVIEW object model: MIB module name,
-  MIB object name and object instance should be clearly separated.
-  Dedicated, simple API for table cells mangling should be provided.
-  The whole thing should be simpler, including API.
+  1) multiple OID registration should be posible for
+     customizing Managed Objects classes
+  2) in MIBVIEW object model: MIB module name, MIB object 
+     name and object instance should be clearly separated.
+     Dedicated, simple API for table cells mangling should be 
+     provided.
 
 * Notification filtering (RFC3413) not implemented.
 
 * MsgAndPduDispatcher should use TransportDispatcher jobs interface
   to handle SNMPv3 handshake
-
-* At MibViewController, do not index intance objects
 
 * Implement 'oneliner' API for v1arch
 
@@ -41,7 +28,9 @@ Sparse notes on major existing problems/plans
 
 * Re-work ACL to get rid of linear search there
 
-* Implement SNMP trap and proxy apps; complete example apps
+* Implement SNMP trap app
+
+* Implement SNMP proxy example & app
 
 * Check for memory leaks esp. on failed requests
 
