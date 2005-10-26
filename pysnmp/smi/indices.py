@@ -13,7 +13,7 @@ if version_info < (2, 2):
         def __init__(self, **kwargs):
             self.__dict = {}
             self.__keys = []
-            self.__dirty = 0
+            self.__dirty = 1
             self.__sortingFun = cmp
             if kwargs:
                 self.update(kwargs)
@@ -57,6 +57,12 @@ if version_info < (2, 2):
         def __order(self):
             if self.__sortingFun:
                 self.__keys.sort(self.__sortingFun)
+            d = {}
+            for k in self.__keys:
+                d[len(k)] = 1
+            l = d.keys()
+            l.sort(); l.reverse()
+            self.__keysLens = tuple(l)
             self.__dirty = 0
         def setSortingFun(self, fun):
             self.__sortingFun = fun
@@ -70,12 +76,16 @@ if version_info < (2, 2):
             if nextIdx < len(keys):
                 return keys[nextIdx]
             else:
-                raise KeyError(key)            
+                raise KeyError(key)
+        def getKeysLens(self):
+            if self.__dirty:
+                self.__order()
+            return self.__keysLens
 else:
     class OrderedDict(DictType):
         def __init__(self, **kwargs):
             self.__keys = []
-            self.__dirty = 0
+            self.__dirty = 1
             self.__sortingFun = cmp
             super(OrderedDict, self).__init__()
             if kwargs:
@@ -115,6 +125,12 @@ else:
         def __order(self):
             if self.__sortingFun:
                 self.__keys.sort(self.__sortingFun)
+            d = {}
+            for k in self.__keys:
+                d[len(k)] = 1
+            l = d.keys()
+            l.sort(); l.reverse()
+            self.__keysLens = tuple(l)
             self.__dirty = 0
         def setSortingFun(self, fun):
             self.__sortingFun = fun
@@ -129,6 +145,11 @@ else:
                 return keys[nextIdx]
             else:
                 raise KeyError(key)
+
+        def getKeysLens(self):
+            if self.__dirty:
+                self.__order()
+            return self.__keysLens
 
 class OidOrderedDict(OrderedDict):
     def __init__(self, **kwargs):
