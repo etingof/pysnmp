@@ -26,7 +26,7 @@ class InconsistentNameError(MibOperationError): pass
 
 # Aligned with SNMPv2 Var-Bind exceptions
 class NoSuchObjectError(MibOperationError): pass
-class NoSuchInstanceError(MibOperationError): pass
+class NoSuchInstanceError(NoSuchObjectError): pass
 class EndOfMibViewError(MibOperationError): pass
 
 # Row management
