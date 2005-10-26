@@ -41,7 +41,7 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
                 varBinds = pMod.apiPDU.getVarBindList(reqPDU)
             print 'Var-binds:'
             for oid, val in varBinds:
-                print oid.prettyPrint(), val.prettyPrint()
+                print '%s = %s' % (oid.prettyPrint(), val.prettyPrint())
     return wholeMsg
 
 transportDispatcher = AsynsockDispatcher()
