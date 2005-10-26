@@ -9,7 +9,10 @@ except ImportError:
 class MibBuilder:
     def __init__(self):
         self.lastBuildId = 0L
-        paths = (os.path.join(os.path.split(error.__file__)[0], 'mibs'),)
+        paths = (
+            os.path.join(os.path.split(error.__file__)[0], 'mibs', 'instances'),
+            os.path.join(os.path.split(error.__file__)[0], 'mibs')
+            )
         if os.environ.has_key('PYSNMP_MIB_DIR'):
             paths = paths + (
                 os.path.join(os.path.split(os.environ['PYSNMP_MIB_DIR'])[0]),
@@ -20,7 +23,8 @@ class MibBuilder:
                 )
         apply(self.setMibPath, paths)
         self.mibSymbols = {}
-
+        self.__modPathsSeen = {}
+        
     # MIB modules management
     
     def setMibPath(self, *mibPaths):
@@ -46,34 +50,28 @@ class MibBuilder:
                 'No MIB module to load at %s' % (self,)
                 )
         for modName in modNames:
-            if self.mibSymbols.has_key(modName):
-                continue
             for mibPath in self.__mibPaths:
                 modPath = os.path.join(
                     mibPath, modName + '.py'
                     )
                 try:
                     open(modPath).close()
-                except IOError, why:
+                except IOError:
                     continue
-                break
-            else:
-                raise error.SmiError(
-                    'MIB module %s open error' % modPath
-                    )
-            g = { 'mibBuilder': self }
+                if self.__modPathsSeen.has_key(modPath):
+                    continue
+                else:
+                    self.__modPathsSeen[modPath] = 1
 
-            self.mibSymbols[modName] = {} # to stop recursion
+                g = { 'mibBuilder': self }
 
-            try:
-                execfile(modPath, g)
-            except StandardError, why:
-                raise error.SmiError(
-                    'MIB module %s load error: %s' % (modPath, why)
-                )
+                try:
+                    execfile(modPath, g)
+                except StandardError, why:
+                    raise error.SmiError(
+                        'MIB module %s load error: %s' % (modPath, why)
+                        )
 
-        self.lastBuildId = self.lastBuildId + 1
-        
         return self
                 
     def unloadModule(self, *modNames):
@@ -106,3 +104,5 @@ class MibBuilder:
             if hasattr(symObj, 'label') and symObj.label:
                 symName = symObj.label
             self.mibSymbols[modName][symName] = symObj
+
+        self.lastBuildId = self.lastBuildId + 1
