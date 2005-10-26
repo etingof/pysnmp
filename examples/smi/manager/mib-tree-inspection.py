@@ -49,7 +49,7 @@ while 1:
         modName, nodeDesc, suffix = mibView.getNodeLocation(oid)
         print '%s::%s == %s' % (modName, nodeDesc, oid)
         oid, label, suffix = mibView.getNextNodeName(oid)
-    except error.NoSuchInstanceError:
+    except error.NoSuchObjectError:
         break
 
 print 'Modules traversal'
