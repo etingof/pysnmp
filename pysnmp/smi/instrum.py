@@ -87,8 +87,13 @@ class MibInstrumController:
         # constants can't be SNMP managed so we drop them.
         #
         scalars = {}; instances = {}; tables = {}; rows = {}; cols = {}
+
+        # Sort by module name to give user a chance to slip-in
+        # custom MIB modules (that would sorted out first)
+        mibSymbols = self.mibBuilder.mibSymbols.items()
+        mibSymbols.sort(lambda x,y: cmp(y[0], x[0]))
         
-        for mibMod in self.mibBuilder.mibSymbols.values():
+        for modName, mibMod in mibSymbols:
             for symObj in mibMod.values():
                 if type(symObj) != InstanceType:
                     continue
@@ -114,8 +119,6 @@ class MibInstrumController:
                     'Orphan MIB scalar instance %s at %s' % (inst, self)
                     )
 
-        # XXX Need to somehow ignore same-oid registration...?
-        
         # Attach Table Columns to Table Rows
         for col in cols.values():
             rowName = col.name[:-1] # XXX
