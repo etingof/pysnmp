@@ -49,44 +49,95 @@ class MibInstrumController:
         if self.lastBuildId == self.mibBuilder.lastBuildId:
             return
 
-        MibVariable, = self.mibBuilder.importSymbols('SNMPv2-SMI', 'MibVariable')
-        MibTree, = self.mibBuilder.importSymbols('SNMPv2-SMI', 'MibTree')
-        MibTableRow, = self.mibBuilder.importSymbols('SNMPv2-SMI', 'MibTableRow')
-        MibTableColumn, = self.mibBuilder.importSymbols(
-            'SNMPv2-SMI', 'MibTableColumn'
+        ( MibScalarInstance,
+          MibScalar,
+          MibTableColumn,
+          MibTableRow,
+          MibTable,
+          MibTree ) = self.mibBuilder.importSymbols(
+            'SNMPv2-SMI',
+            'MibScalarInstance',
+            'MibScalar',
+            'MibTableColumn',
+            'MibTableRow',
+            'MibTable',
+            'MibTree'
             )
-
+            
         mibTree, = self.mibBuilder.importSymbols('SNMPv2-SMI', 'iso')
-        
-        rows = {}; cols = {}
+
+        #
+        # Management Instrumentation gets organized as follows:
+        #
+        # MibTree
+        #   |
+        #   +----MibScalar
+        #   |        |
+        #   |        +-----MibScalarInstance
+        #   |
+        #   +----MibTable
+        #   |
+        #   +----MibTableRow
+        #          |
+        #          +-------MibTableColumn
+        #                        |
+        #                        +------MibScalarInstance(s)
+        #
+        # Mind you, only Managed Objects get indexed here, various MIB defs and
+        # constants can't be SNMP managed so we drop them.
+        #
+        scalars = {}; instances = {}; tables = {}; rows = {}; cols = {}
         
         for mibMod in self.mibBuilder.mibSymbols.values():
             for symObj in mibMod.values():
                 if type(symObj) != InstanceType:
                     continue
-                if symObj is mibTree:
-                    continue
-                if not isinstance(symObj, MibTree) and \
-                       not isinstance(symObj, MibVariable):
-                    continue                
-                if isinstance(symObj, MibTableRow):
+                if isinstance(symObj, MibTable):
+                    tables[symObj.name] = symObj
+                elif isinstance(symObj, MibTableRow):
                     rows[symObj.name] = symObj
                 elif isinstance(symObj, MibTableColumn):
                     cols[symObj.name] = symObj
-                else:
-                    mibTree.registerSubtrees(symObj)
+                elif isinstance(symObj, MibScalarInstance):
+                    instances[symObj.name] = symObj
+                elif isinstance(symObj, MibScalar):
+                    scalars[symObj.name] = symObj
 
-        for colName, colObj in cols.items():
-            rowName = colObj.name[:-1]
-            if rows.has_key(rowName):
-                rows[rowName].registerSubtrees(colObj)
+        # Attach Managed Objects Instances to Managed Objects
+        for inst in instances.values():
+            if scalars.has_key(inst.typeName):
+                scalars[inst.typeName].registerSubtrees(inst)
+            elif cols.has_key(inst.typeName):
+                cols[inst.typeName].registerSubtrees(inst)
             else:
                 raise error.SmiError(
-                    'Orphan MIB table column %s at %s' % (colName, self)
+                    'Orphan MIB scalar instance %s at %s' % (inst, self)
                     )
-        for rowObj in rows.values():
-            mibTree.registerSubtrees(rowObj)
 
+        # XXX Need to somehow ignore same-oid registration...?
+        
+        # Attach Table Columns to Table Rows
+        for col in cols.values():
+            rowName = col.name[:-1] # XXX
+            if rows.has_key(rowName):
+                rows[rowName].registerSubtrees(col)
+            else:
+                raise error.SmiError(
+                    'Orphan MIB table column %s at %s' % (col, self)
+                    )
+
+        # Attach Table Rows to MIB tree
+        for row in rows.values():
+            mibTree.registerSubtrees(row)
+
+        # Attach Tables to MIB tree
+        for table in tables.values():
+            mibTree.registerSubtrees(table)
+
+        # Attach Scalars to MIB tree
+        for scalar in scalars.values():
+            mibTree.registerSubtrees(scalar)
+            
         self.lastBuildId = self.mibBuilder.lastBuildId
         
     # MIB instrumentation
