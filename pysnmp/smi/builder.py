@@ -54,14 +54,16 @@ class MibBuilder:
                 modPath = os.path.join(
                     mibPath, modName + '.py'
                     )
-                try:
-                    open(modPath).close()
-                except IOError:
-                    continue
+
                 if self.__modPathsSeen.has_key(modPath):
                     continue
                 else:
                     self.__modPathsSeen[modPath] = 1
+
+                try:
+                    open(modPath).close()
+                except IOError:
+                    continue
 
                 g = { 'mibBuilder': self }
 
