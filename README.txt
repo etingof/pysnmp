@@ -11,7 +11,8 @@ FEATURES
 --------
 
 * Complete SNMPv1/v2c and SNMPv3 support
-* SMI framework for resolving MIB information and managing MIB objects
+* SMI framework for resolving MIB information and implementing SMI 
+  Managed Objects
 * Complete SNMP entity implementation
 * Extensible network transports framework (UDP and UNIX domain implemented)
 * Asynchronous socket-based IO API support
@@ -112,7 +113,8 @@ package.[2]
 AVAILABILITY
 ------------
 
-The PySNMP software is freely available for download from project's homepage.[1]
+The PySNMP software is freely available for download from project
+homepage.[1]
 
 GETTING HELP
 ------------
