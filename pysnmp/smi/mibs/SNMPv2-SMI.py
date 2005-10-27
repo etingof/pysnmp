@@ -606,7 +606,6 @@ class MibTableRow(MibTree):
                 return obj.clone(value[1:value[0]+1]), value[value[0]+1:]
         else:
             raise error.SmiError('Unknown value type for index %s' % repr(obj))
-#            return obj.clone(value), ()
 
     def getAsName(self, obj, impliedFlag=None):
         if self.__intValue.isSuperTypeOf(obj):
@@ -628,7 +627,6 @@ class MibTableRow(MibTree):
             return tuple(map(ord, obj))
         else:
             raise error.SmiError('Unknown value type for index %s' % repr(obj))
-#            return obj
             
     # Fate sharing mechanics
 
