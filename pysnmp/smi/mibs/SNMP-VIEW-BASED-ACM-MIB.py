@@ -15,7 +15,7 @@ from pyasn1.type import constraint, namedval
 
 # Objects
 
-snmpVacmMIB = ModuleIdentity((1, 3, 6, 1, 6, 3, 16))
+snmpVacmMIB = ModuleIdentity((1, 3, 6, 1, 6, 3, 16)).setRevisions(("2002-10-16 00:00",))
 vacmMIBObjects = MibIdentifier((1, 3, 6, 1, 6, 3, 16, 1))
 vacmContextTable = MibTable((1, 3, 6, 1, 6, 3, 16, 1, 1))
 vacmContextEntry = MibTableRow((1, 3, 6, 1, 6, 3, 16, 1, 1, 1)).setIndexNames((0, "SNMP-VIEW-BASED-ACM-MIB", "vacmContextName"))
@@ -59,6 +59,9 @@ vacmMIBGroups = MibIdentifier((1, 3, 6, 1, 6, 3, 16, 2, 2))
 vacmBasicGroup = ObjectGroup((1, 3, 6, 1, 6, 3, 16, 2, 2, 1)).setObjects(("SNMP-VIEW-BASED-ACM-MIB", "vacmViewTreeFamilyStorageType"), ("SNMP-VIEW-BASED-ACM-MIB", "vacmAccessStatus"), ("SNMP-VIEW-BASED-ACM-MIB", "vacmViewTreeFamilyStatus"), ("SNMP-VIEW-BASED-ACM-MIB", "vacmAccessNotifyViewName"), ("SNMP-VIEW-BASED-ACM-MIB", "vacmGroupName"), ("SNMP-VIEW-BASED-ACM-MIB", "vacmViewSpinLock"), ("SNMP-VIEW-BASED-ACM-MIB", "vacmAccessContextMatch"), ("SNMP-VIEW-BASED-ACM-MIB", "vacmSecurityToGroupStorageType"), ("SNMP-VIEW-BASED-ACM-MIB", "vacmViewTreeFamilyMask"), ("SNMP-VIEW-BASED-ACM-MIB", "vacmViewTreeFamilyType"), ("SNMP-VIEW-BASED-ACM-MIB", "vacmAccessReadViewName"), ("SNMP-VIEW-BASED-ACM-MIB", "vacmSecurityToGroupStatus"), ("SNMP-VIEW-BASED-ACM-MIB", "vacmAccessStorageType"), ("SNMP-VIEW-BASED-ACM-MIB", "vacmContextName"), ("SNMP-VIEW-BASED-ACM-MIB", "vacmAccessWriteViewName"), )
 
 # Exports
+
+# Module identity
+mibBuilder.exportSymbols("SNMP-VIEW-BASED-ACM-MIB", PYSNMP_MODULE_ID=snmpVacmMIB)
 
 # Objects
 mibBuilder.exportSymbols("SNMP-VIEW-BASED-ACM-MIB", snmpVacmMIB=snmpVacmMIB, vacmMIBObjects=vacmMIBObjects, vacmContextTable=vacmContextTable, vacmContextEntry=vacmContextEntry, vacmContextName=vacmContextName, vacmSecurityToGroupTable=vacmSecurityToGroupTable, vacmSecurityToGroupEntry=vacmSecurityToGroupEntry, vacmSecurityModel=vacmSecurityModel, vacmSecurityName=vacmSecurityName, vacmGroupName=vacmGroupName, vacmSecurityToGroupStorageType=vacmSecurityToGroupStorageType, vacmSecurityToGroupStatus=vacmSecurityToGroupStatus, vacmAccessTable=vacmAccessTable, vacmAccessEntry=vacmAccessEntry, vacmAccessContextPrefix=vacmAccessContextPrefix, vacmAccessSecurityModel=vacmAccessSecurityModel, vacmAccessSecurityLevel=vacmAccessSecurityLevel, vacmAccessContextMatch=vacmAccessContextMatch, vacmAccessReadViewName=vacmAccessReadViewName, vacmAccessWriteViewName=vacmAccessWriteViewName, vacmAccessNotifyViewName=vacmAccessNotifyViewName, vacmAccessStorageType=vacmAccessStorageType, vacmAccessStatus=vacmAccessStatus, vacmMIBViews=vacmMIBViews, vacmViewSpinLock=vacmViewSpinLock, vacmViewTreeFamilyTable=vacmViewTreeFamilyTable, vacmViewTreeFamilyEntry=vacmViewTreeFamilyEntry, vacmViewTreeFamilyViewName=vacmViewTreeFamilyViewName, vacmViewTreeFamilySubtree=vacmViewTreeFamilySubtree, vacmViewTreeFamilyMask=vacmViewTreeFamilyMask, vacmViewTreeFamilyType=vacmViewTreeFamilyType, vacmViewTreeFamilyStorageType=vacmViewTreeFamilyStorageType, vacmViewTreeFamilyStatus=vacmViewTreeFamilyStatus, vacmMIBConformance=vacmMIBConformance, vacmMIBCompliances=vacmMIBCompliances, vacmMIBGroups=vacmMIBGroups)

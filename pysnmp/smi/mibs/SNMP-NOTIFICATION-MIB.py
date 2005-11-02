@@ -16,7 +16,7 @@ from pyasn1.type import constraint, namedval
 
 # Objects
 
-snmpNotificationMIB = ModuleIdentity((1, 3, 6, 1, 6, 3, 13))
+snmpNotificationMIB = ModuleIdentity((1, 3, 6, 1, 6, 3, 13)).setRevisions(("2002-10-14 00:00",))
 snmpNotifyObjects = MibIdentifier((1, 3, 6, 1, 6, 3, 13, 1))
 snmpNotifyTable = MibTable((1, 3, 6, 1, 6, 3, 13, 1, 1))
 snmpNotifyEntry = MibTableRow((1, 3, 6, 1, 6, 3, 13, 1, 1, 1)).setIndexNames((1, "SNMP-NOTIFICATION-MIB", "snmpNotifyName"))
@@ -49,6 +49,9 @@ snmpNotifyFilterGroup = ObjectGroup((1, 3, 6, 1, 6, 3, 13, 3, 2, 2)).setObjects(
 snmpNotifyGroup = ObjectGroup((1, 3, 6, 1, 6, 3, 13, 3, 2, 1)).setObjects(("SNMP-NOTIFICATION-MIB", "snmpNotifyTag"), ("SNMP-NOTIFICATION-MIB", "snmpNotifyRowStatus"), ("SNMP-NOTIFICATION-MIB", "snmpNotifyStorageType"), ("SNMP-NOTIFICATION-MIB", "snmpNotifyType"), )
 
 # Exports
+
+# Module identity
+mibBuilder.exportSymbols("SNMP-NOTIFICATION-MIB", PYSNMP_MODULE_ID=snmpNotificationMIB)
 
 # Objects
 mibBuilder.exportSymbols("SNMP-NOTIFICATION-MIB", snmpNotificationMIB=snmpNotificationMIB, snmpNotifyObjects=snmpNotifyObjects, snmpNotifyTable=snmpNotifyTable, snmpNotifyEntry=snmpNotifyEntry, snmpNotifyName=snmpNotifyName, snmpNotifyTag=snmpNotifyTag, snmpNotifyType=snmpNotifyType, snmpNotifyStorageType=snmpNotifyStorageType, snmpNotifyRowStatus=snmpNotifyRowStatus, snmpNotifyFilterProfileTable=snmpNotifyFilterProfileTable, snmpNotifyFilterProfileEntry=snmpNotifyFilterProfileEntry, snmpNotifyFilterProfileName=snmpNotifyFilterProfileName, snmpNotifyFilterProfileStorType=snmpNotifyFilterProfileStorType, snmpNotifyFilterProfileRowStatus=snmpNotifyFilterProfileRowStatus, snmpNotifyFilterTable=snmpNotifyFilterTable, snmpNotifyFilterEntry=snmpNotifyFilterEntry, snmpNotifyFilterSubtree=snmpNotifyFilterSubtree, snmpNotifyFilterMask=snmpNotifyFilterMask, snmpNotifyFilterType=snmpNotifyFilterType, snmpNotifyFilterStorageType=snmpNotifyFilterStorageType, snmpNotifyFilterRowStatus=snmpNotifyFilterRowStatus, snmpNotifyConformance=snmpNotifyConformance, snmpNotifyCompliances=snmpNotifyCompliances, snmpNotifyGroups=snmpNotifyGroups)

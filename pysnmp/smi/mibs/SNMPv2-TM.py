@@ -9,7 +9,7 @@ OctetString, = mibBuilder.importSymbols('ASN1', 'OctetString')
     )
 TextualConvention, = mibBuilder.importSymbols('SNMPv2-TC', 'TextualConvention')
 
-snmpv2tm = ModuleIdentity(snmpModules.name + (19,))
+snmpv2tm = ModuleIdentity(snmpModules.name + (19,)).setRevisions(("2002-10-16 00:00",))
 
 snmpUDPDomain = ObjectIdentity(snmpDomains.name + (1,))
 
@@ -50,6 +50,9 @@ class SnmpIPXAddress(TextualConvention, OctetString):
 
 rfc1157Proxy = MibIdentifier(snmpProxys.name + (1,))
 rfc1157Domain = MibIdentifier(rfc1157Proxy.name + (1,))
+
+# Module identity
+mibBuilder.exportSymbols("SNMPv2-TM", PYSNMP_MODULE_ID=snmpv2tm)
 
 mibBuilder.exportSymbols(
     'SNMPv2-TM', snmpv2tm=snmpv2tm, snmpUDPDomain=snmpUDPDomain,

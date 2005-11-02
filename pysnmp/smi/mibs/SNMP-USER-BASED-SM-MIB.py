@@ -26,7 +26,7 @@ usmHMACMD5AuthProtocol = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 1, 1, 2))
 usmHMACSHAAuthProtocol = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 1, 1, 3))
 usmNoPrivProtocol = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 1, 2, 1))
 usmDESPrivProtocol = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 1, 2, 2))
-snmpUsmMIB = ModuleIdentity((1, 3, 6, 1, 6, 3, 15))
+snmpUsmMIB = ModuleIdentity((1, 3, 6, 1, 6, 3, 15)).setRevisions(("2002-10-14 00:00",))
 usmMIBObjects = MibIdentifier((1, 3, 6, 1, 6, 3, 15, 1))
 usmStats = MibIdentifier((1, 3, 6, 1, 6, 3, 15, 1, 1))
 usmStatsUnsupportedSecLevels = MibScalar((1, 3, 6, 1, 6, 3, 15, 1, 1, 1), Counter32()).setMaxAccess("readonly")
@@ -63,6 +63,9 @@ usmMIBGroups = MibIdentifier((1, 3, 6, 1, 6, 3, 15, 2, 2))
 usmMIBBasicGroup = ObjectGroup((1, 3, 6, 1, 6, 3, 15, 2, 2, 1)).setObjects(("SNMP-USER-BASED-SM-MIB", "usmStatsUnknownEngineIDs"), ("SNMP-USER-BASED-SM-MIB", "usmUserOwnAuthKeyChange"), ("SNMP-USER-BASED-SM-MIB", "usmStatsNotInTimeWindows"), ("SNMP-USER-BASED-SM-MIB", "usmStatsUnknownUserNames"), ("SNMP-USER-BASED-SM-MIB", "usmUserSecurityName"), ("SNMP-USER-BASED-SM-MIB", "usmStatsUnsupportedSecLevels"), ("SNMP-USER-BASED-SM-MIB", "usmStatsDecryptionErrors"), ("SNMP-USER-BASED-SM-MIB", "usmUserStatus"), ("SNMP-USER-BASED-SM-MIB", "usmUserPrivKeyChange"), ("SNMP-USER-BASED-SM-MIB", "usmUserOwnPrivKeyChange"), ("SNMP-USER-BASED-SM-MIB", "usmUserStorageType"), ("SNMP-USER-BASED-SM-MIB", "usmUserSpinLock"), ("SNMP-USER-BASED-SM-MIB", "usmUserAuthKeyChange"), ("SNMP-USER-BASED-SM-MIB", "usmUserCloneFrom"), ("SNMP-USER-BASED-SM-MIB", "usmUserPrivProtocol"), ("SNMP-USER-BASED-SM-MIB", "usmUserAuthProtocol"), ("SNMP-USER-BASED-SM-MIB", "usmStatsWrongDigests"), ("SNMP-USER-BASED-SM-MIB", "usmUserPublic"), )
 
 # Exports
+
+# Module identity
+mibBuilder.exportSymbols("SNMP-USER-BASED-SM-MIB", PYSNMP_MODULE_ID=snmpUsmMIB)
 
 # Types
 mibBuilder.exportSymbols("SNMP-USER-BASED-SM-MIB", KeyChange=KeyChange)

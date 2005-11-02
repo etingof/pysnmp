@@ -13,7 +13,7 @@ from pyasn1.type import constraint, namedval
 
 # Objects
 
-snmpMPDMIB = ModuleIdentity((1, 3, 6, 1, 6, 3, 11))
+snmpMPDMIB = ModuleIdentity((1, 3, 6, 1, 6, 3, 11)).setRevisions(("2002-10-14 00:00",))
 snmpMPDAdmin = MibIdentifier((1, 3, 6, 1, 6, 3, 11, 1))
 snmpMPDMIBObjects = MibIdentifier((1, 3, 6, 1, 6, 3, 11, 2))
 snmpMPDStats = MibIdentifier((1, 3, 6, 1, 6, 3, 11, 2, 1))
@@ -31,6 +31,9 @@ snmpMPDMIBGroups = MibIdentifier((1, 3, 6, 1, 6, 3, 11, 3, 2))
 snmpMPDGroup = ObjectGroup((1, 3, 6, 1, 6, 3, 11, 3, 2, 1)).setObjects(("SNMP-MPD-MIB", "snmpInvalidMsgs"), ("SNMP-MPD-MIB", "snmpUnknownPDUHandlers"), ("SNMP-MPD-MIB", "snmpUnknownSecurityModels"), )
 
 # Exports
+
+# Module identity
+mibBuilder.exportSymbols("SNMP-MPD-MIB", PYSNMP_MODULE_ID=snmpMPDMIB)
 
 # Objects
 mibBuilder.exportSymbols("SNMP-MPD-MIB", snmpMPDMIB=snmpMPDMIB, snmpMPDAdmin=snmpMPDAdmin, snmpMPDMIBObjects=snmpMPDMIBObjects, snmpMPDStats=snmpMPDStats, snmpUnknownSecurityModels=snmpUnknownSecurityModels, snmpInvalidMsgs=snmpInvalidMsgs, snmpUnknownPDUHandlers=snmpUnknownPDUHandlers, snmpMPDMIBConformance=snmpMPDMIBConformance, snmpMPDMIBCompliances=snmpMPDMIBCompliances, snmpMPDMIBGroups=snmpMPDMIBGroups)

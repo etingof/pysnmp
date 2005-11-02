@@ -49,7 +49,7 @@ class SnmpSecurityModel(Integer32, TextualConvention):
 
 # Objects
 
-snmpFrameworkMIB = ModuleIdentity((1, 3, 6, 1, 6, 3, 10))
+snmpFrameworkMIB = ModuleIdentity((1, 3, 6, 1, 6, 3, 10)).setRevisions(("2002-10-14 00:00",))
 snmpFrameworkAdmin = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 1))
 snmpAuthProtocols = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 1, 1))
 snmpPrivProtocols = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 1, 2))
@@ -70,6 +70,10 @@ snmpFrameworkMIBGroups = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 3, 2))
 snmpEngineGroup = ObjectGroup((1, 3, 6, 1, 6, 3, 10, 3, 2, 1)).setObjects(("SNMP-FRAMEWORK-MIB", "snmpEngineID"), ("SNMP-FRAMEWORK-MIB", "snmpEngineBoots"), ("SNMP-FRAMEWORK-MIB", "snmpEngineMaxMessageSize"), ("SNMP-FRAMEWORK-MIB", "snmpEngineTime"), )
 
 # Exports
+
+# Module identity
+mibBuilder.exportSymbols("SNMP-FRAMEWORK-MIB", PYSNMP_MODULE_ID=snmpFrameworkMIB)
+
 
 # Types
 mibBuilder.exportSymbols("SNMP-FRAMEWORK-MIB", SnmpAdminString=SnmpAdminString, SnmpEngineID=SnmpEngineID, SnmpMessageProcessingModel=SnmpMessageProcessingModel, SnmpSecurityLevel=SnmpSecurityLevel, SnmpSecurityModel=SnmpSecurityModel)

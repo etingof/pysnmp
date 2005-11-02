@@ -16,7 +16,7 @@ from pyasn1.type import constraint, namedval
 
 # Objects
 
-pysnmpUsmMIB = ModuleIdentity((1, 3, 6, 1, 4, 1, 20408, 3, 1, 1))
+pysnmpUsmMIB = ModuleIdentity((1, 3, 6, 1, 4, 1, 20408, 3, 1, 1)).setRevisions(("2005-05-14 00:00",))
 pysnmpUsmMIBObjects = MibIdentifier((1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1))
 pysnmpUsmCfg = MibIdentifier((1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 1))
 pysnmpUsmDiscoverable = MibScalar((1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 1, 1), Integer().subtype(subtypeSpec=constraint.SingleValueConstraint(1,0,)).subtype(namedValues=namedval.NamedValues(("notDiscoverable", 0), ("discoverable", 1), )).subtype(1)).setMaxAccess("readwrite")
@@ -43,6 +43,9 @@ usmUserEntry.registerAugmentions(("PYSNMP-USM-MIB", "pysnmpUsmKeyEntry"))
 apply(pysnmpUsmKeyEntry.setIndexNames, usmUserEntry.getIndexNames())
 
 # Exports
+
+# Module identity
+mibBuilder.exportSymbols("PYSNMP-USM-MIB", PYSNMP_MODULE_ID=pysnmpUsmMIB)
 
 # Objects
 mibBuilder.exportSymbols("PYSNMP-USM-MIB", pysnmpUsmMIB=pysnmpUsmMIB, pysnmpUsmMIBObjects=pysnmpUsmMIBObjects, pysnmpUsmCfg=pysnmpUsmCfg, pysnmpUsmDiscoverable=pysnmpUsmDiscoverable, pysnmpUsmDiscovery=pysnmpUsmDiscovery, pysnmpUsmSecretTable=pysnmpUsmSecretTable, pysnmpUsmSecretEntry=pysnmpUsmSecretEntry, pysnmpUsmSecretUserName=pysnmpUsmSecretUserName, pysnmpUsmSecretAuthKey=pysnmpUsmSecretAuthKey, pysnmpUsmSecretPrivKey=pysnmpUsmSecretPrivKey, pysnmpUsmSecretStatus=pysnmpUsmSecretStatus, pysnmpUsmUser=pysnmpUsmUser, pysnmpUsmKeyEntry=pysnmpUsmKeyEntry, pysnmpUsmKeyAuthLocalized=pysnmpUsmKeyAuthLocalized, pysnmpUsmKeyPrivLocalized=pysnmpUsmKeyPrivLocalized, pysnmpUsmKeyAuth=pysnmpUsmKeyAuth, pysnmpUsmKeyPriv=pysnmpUsmKeyPriv, pysnmpUsmMIBConformance=pysnmpUsmMIBConformance, pysnmpUsmMIBCompliances=pysnmpUsmMIBCompliances, pysnmpUsmMIBGroups=pysnmpUsmMIBGroups)

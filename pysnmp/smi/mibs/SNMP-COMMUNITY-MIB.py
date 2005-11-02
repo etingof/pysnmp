@@ -16,7 +16,7 @@ from pyasn1.type import constraint, namedval
 
 # Objects
 
-snmpCommunityMIB = ModuleIdentity((1, 3, 6, 1, 6, 3, 18))
+snmpCommunityMIB = ModuleIdentity((1, 3, 6, 1, 6, 3, 18)).setRevisions(("2000-03-06 00:00",))
 snmpCommunityMIBObjects = MibIdentifier((1, 3, 6, 1, 6, 3, 18, 1))
 snmpCommunityTable = MibTable((1, 3, 6, 1, 6, 3, 18, 1, 1))
 snmpCommunityEntry = MibTableRow((1, 3, 6, 1, 6, 3, 18, 1, 1, 1)).setIndexNames((1, "SNMP-COMMUNITY-MIB", "snmpCommunityIndex"))
@@ -48,6 +48,10 @@ snmpProxyTrapForwardGroup = ObjectGroup((1, 3, 6, 1, 6, 3, 18, 2, 2, 3)).setObje
 snmpCommunityGroup = ObjectGroup((1, 3, 6, 1, 6, 3, 18, 2, 2, 1)).setObjects(("SNMP-COMMUNITY-MIB", "snmpCommunityStorageType"), ("SNMP-COMMUNITY-MIB", "snmpTargetAddrTMask"), ("SNMP-COMMUNITY-MIB", "snmpCommunityContextEngineID"), ("SNMP-COMMUNITY-MIB", "snmpCommunityStatus"), ("SNMP-COMMUNITY-MIB", "snmpCommunityContextName"), ("SNMP-COMMUNITY-MIB", "snmpCommunitySecurityName"), ("SNMP-COMMUNITY-MIB", "snmpCommunityName"), ("SNMP-COMMUNITY-MIB", "snmpTargetAddrMMS"), ("SNMP-COMMUNITY-MIB", "snmpCommunityTransportTag"), )
 
 # Exports
+
+# Module identity
+mibBuilder.exportSymbols("SNMP-COMMUNITY-MIB", PYSNMP_MODULE_ID=snmpCommunityMIB)
+
 
 # Objects
 mibBuilder.exportSymbols("SNMP-COMMUNITY-MIB", snmpCommunityMIB=snmpCommunityMIB, snmpCommunityMIBObjects=snmpCommunityMIBObjects, snmpCommunityTable=snmpCommunityTable, snmpCommunityEntry=snmpCommunityEntry, snmpCommunityIndex=snmpCommunityIndex, snmpCommunityName=snmpCommunityName, snmpCommunitySecurityName=snmpCommunitySecurityName, snmpCommunityContextEngineID=snmpCommunityContextEngineID, snmpCommunityContextName=snmpCommunityContextName, snmpCommunityTransportTag=snmpCommunityTransportTag, snmpCommunityStorageType=snmpCommunityStorageType, snmpCommunityStatus=snmpCommunityStatus, snmpTargetAddrExtTable=snmpTargetAddrExtTable, snmpTargetAddrExtEntry=snmpTargetAddrExtEntry, snmpTargetAddrTMask=snmpTargetAddrTMask, snmpTargetAddrMMS=snmpTargetAddrMMS, snmpTrapAddress=snmpTrapAddress, snmpTrapCommunity=snmpTrapCommunity, snmpCommunityMIBConformance=snmpCommunityMIBConformance, snmpCommunityMIBCompliances=snmpCommunityMIBCompliances, snmpCommunityMIBGroups=snmpCommunityMIBGroups)

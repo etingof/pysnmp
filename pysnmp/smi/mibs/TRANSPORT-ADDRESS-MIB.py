@@ -52,7 +52,7 @@ class TransportDomain(ObjectIdentifier):
 
 # Objects
 
-transportAddressMIB = ModuleIdentity((1, 3, 6, 1, 2, 1, 100))
+transportAddressMIB = ModuleIdentity((1, 3, 6, 1, 2, 1, 100)).setRevisions(("2002-10-16 00:00",))
 transportDomains = MibIdentifier((1, 3, 6, 1, 2, 1, 100, 1))
 transportDomainUdpIpv4 = MibIdentifier((1, 3, 6, 1, 2, 1, 100, 1, 1))
 transportDomainUdpIpv6 = MibIdentifier((1, 3, 6, 1, 2, 1, 100, 1, 2))
@@ -74,6 +74,9 @@ transportDomainSctpDns = MibIdentifier((1, 3, 6, 1, 2, 1, 100, 1, 16))
 # Augmentions
 
 # Exports
+
+# Module identity
+mibBuilder.exportSymbols("TRANSPORT-ADDRESS-MIB", PYSNMP_MODULE_ID=transportAddressMIB)
 
 # Types
 mibBuilder.exportSymbols("TRANSPORT-ADDRESS-MIB", TransportAddress=TransportAddress, TransportAddressDns=TransportAddressDns, TransportAddressIPv4=TransportAddressIPv4, TransportAddressIPv4z=TransportAddressIPv4z, TransportAddressIPv6=TransportAddressIPv6, TransportAddressIPv6z=TransportAddressIPv6z, TransportAddressLocal=TransportAddressLocal, TransportAddressType=TransportAddressType, TransportDomain=TransportDomain)

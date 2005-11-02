@@ -53,7 +53,7 @@ snmpOutTraps = MibScalar((1, 3, 6, 1, 2, 1, 11, 29), Counter32()).setMaxAccess("
 snmpEnableAuthenTraps = MibScalar((1, 3, 6, 1, 2, 1, 11, 30), Integer().subtype(subtypeSpec=constraint.SingleValueConstraint(2,1,)).subtype(namedValues=namedval.NamedValues(("enabled", 1), ("disabled", 2), ))).setMaxAccess("readwrite")
 snmpSilentDrops = MibScalar((1, 3, 6, 1, 2, 1, 11, 31), Counter32()).setMaxAccess("readonly")
 snmpProxyDrops = MibScalar((1, 3, 6, 1, 2, 1, 11, 32), Counter32()).setMaxAccess("readonly")
-snmpMIB = ModuleIdentity((1, 3, 6, 1, 6, 3, 1))
+snmpMIB = ModuleIdentity((1, 3, 6, 1, 6, 3, 1)).setRevisions(("2002-10-16 00:00",))
 snmpMIBObjects = MibIdentifier((1, 3, 6, 1, 6, 3, 1, 1))
 snmpTrap = MibIdentifier((1, 3, 6, 1, 6, 3, 1, 1, 4))
 snmpTrapOID = MibScalar((1, 3, 6, 1, 6, 3, 1, 1, 4, 1), ObjectIdentifier()).setMaxAccess("notifyonly")
@@ -85,6 +85,9 @@ systemGroup = ObjectGroup((1, 3, 6, 1, 6, 3, 1, 2, 2, 6)).setObjects(("SNMPv2-MI
 snmpSetGroup = ObjectGroup((1, 3, 6, 1, 6, 3, 1, 2, 2, 5)).setObjects(("SNMPv2-MIB", "snmpSetSerialNo"), )
 
 # Exports
+
+# Module identity
+mibBuilder.exportSymbols("SNMPv2-MIB", PYSNMP_MODULE_ID=snmpMIB)
 
 # Objects
 mibBuilder.exportSymbols("SNMPv2-MIB", system=system, sysDescr=sysDescr, sysObjectID=sysObjectID, sysUpTime=sysUpTime, sysContact=sysContact, sysName=sysName, sysLocation=sysLocation, sysServices=sysServices, sysORLastChange=sysORLastChange, sysORTable=sysORTable, sysOREntry=sysOREntry, sysORIndex=sysORIndex, sysORID=sysORID, sysORDescr=sysORDescr, sysORUpTime=sysORUpTime, snmp=snmp, snmpInPkts=snmpInPkts, snmpOutPkts=snmpOutPkts, snmpInBadVersions=snmpInBadVersions, snmpInBadCommunityNames=snmpInBadCommunityNames, snmpInBadCommunityUses=snmpInBadCommunityUses, snmpInASNParseErrs=snmpInASNParseErrs, snmpInTooBigs=snmpInTooBigs, snmpInNoSuchNames=snmpInNoSuchNames, snmpInBadValues=snmpInBadValues, snmpInReadOnlys=snmpInReadOnlys, snmpInGenErrs=snmpInGenErrs, snmpInTotalReqVars=snmpInTotalReqVars, snmpInTotalSetVars=snmpInTotalSetVars, snmpInGetRequests=snmpInGetRequests, snmpInGetNexts=snmpInGetNexts, snmpInSetRequests=snmpInSetRequests, snmpInGetResponses=snmpInGetResponses, snmpInTraps=snmpInTraps, snmpOutTooBigs=snmpOutTooBigs, snmpOutNoSuchNames=snmpOutNoSuchNames, snmpOutBadValues=snmpOutBadValues, snmpOutGenErrs=snmpOutGenErrs, snmpOutGetRequests=snmpOutGetRequests, snmpOutGetNexts=snmpOutGetNexts, snmpOutSetRequests=snmpOutSetRequests, snmpOutGetResponses=snmpOutGetResponses, snmpOutTraps=snmpOutTraps, snmpEnableAuthenTraps=snmpEnableAuthenTraps, snmpSilentDrops=snmpSilentDrops, snmpProxyDrops=snmpProxyDrops, snmpMIB=snmpMIB, snmpMIBObjects=snmpMIBObjects, snmpTrap=snmpTrap, snmpTrapOID=snmpTrapOID, snmpTrapEnterprise=snmpTrapEnterprise, snmpTraps=snmpTraps, snmpSet=snmpSet, snmpSetSerialNo=snmpSetSerialNo, snmpMIBConformance=snmpMIBConformance, snmpMIBCompliances=snmpMIBCompliances, snmpMIBGroups=snmpMIBGroups)

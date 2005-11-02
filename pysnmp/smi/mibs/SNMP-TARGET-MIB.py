@@ -26,7 +26,7 @@ class SnmpTagValue(OctetString, TextualConvention):
 
 # Objects
 
-snmpTargetMIB = ModuleIdentity((1, 3, 6, 1, 6, 3, 12))
+snmpTargetMIB = ModuleIdentity((1, 3, 6, 1, 6, 3, 12)).setRevisions(("2002-10-14 00:00",))
 snmpTargetObjects = MibIdentifier((1, 3, 6, 1, 6, 3, 12, 1))
 snmpTargetSpinLock = MibScalar((1, 3, 6, 1, 6, 3, 12, 1, 1), TestAndIncr()).setMaxAccess("readwrite")
 snmpTargetAddrTable = MibTable((1, 3, 6, 1, 6, 3, 12, 1, 2))
@@ -64,6 +64,9 @@ snmpTargetCommandResponderGroup = ObjectGroup((1, 3, 6, 1, 6, 3, 12, 3, 2, 3)).s
 snmpTargetBasicGroup = ObjectGroup((1, 3, 6, 1, 6, 3, 12, 3, 2, 1)).setObjects(("SNMP-TARGET-MIB", "snmpTargetAddrTDomain"), ("SNMP-TARGET-MIB", "snmpTargetAddrParams"), ("SNMP-TARGET-MIB", "snmpTargetParamsRowStatus"), ("SNMP-TARGET-MIB", "snmpTargetParamsMPModel"), ("SNMP-TARGET-MIB", "snmpTargetAddrStorageType"), ("SNMP-TARGET-MIB", "snmpTargetParamsSecurityName"), ("SNMP-TARGET-MIB", "snmpTargetAddrRowStatus"), ("SNMP-TARGET-MIB", "snmpTargetAddrTAddress"), ("SNMP-TARGET-MIB", "snmpTargetParamsStorageType"), ("SNMP-TARGET-MIB", "snmpTargetAddrTagList"), ("SNMP-TARGET-MIB", "snmpTargetSpinLock"), ("SNMP-TARGET-MIB", "snmpTargetParamsSecurityLevel"), ("SNMP-TARGET-MIB", "snmpTargetParamsSecurityModel"), )
 
 # Exports
+
+# Module identity
+mibBuilder.exportSymbols("SNMP-TARGET-MIB", PYSNMP_MODULE_ID=snmpTargetMIB)
 
 # Types
 mibBuilder.exportSymbols("SNMP-TARGET-MIB", SnmpTagList=SnmpTagList, SnmpTagValue=SnmpTagValue)

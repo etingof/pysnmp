@@ -12,7 +12,7 @@ from pyasn1.type import constraint, namedval
 
 # Objects
 
-pysnmp = ModuleIdentity((1, 3, 6, 1, 4, 1, 20408))
+pysnmp = ModuleIdentity((1, 3, 6, 1, 4, 1, 20408)).setRevisions(("2005-05-14 00:00",))
 pysnmpObjects = MibIdentifier((1, 3, 6, 1, 4, 1, 20408, 1))
 pysnmpExamples = MibIdentifier((1, 3, 6, 1, 4, 1, 20408, 2))
 pysnmpEnumerations = MibIdentifier((1, 3, 6, 1, 4, 1, 20408, 3))
@@ -30,6 +30,9 @@ pysnmpExperimental = MibIdentifier((1, 3, 6, 1, 4, 1, 20408, 9999))
 # Augmentions
 
 # Exports
+
+# Module identity
+mibBuilder.exportSymbols("PYSNMP-MIB", PYSNMP_MODULE_ID=pysnmp)
 
 # Objects
 mibBuilder.exportSymbols("PYSNMP-MIB", pysnmp=pysnmp, pysnmpObjects=pysnmpObjects, pysnmpExamples=pysnmpExamples, pysnmpEnumerations=pysnmpEnumerations, pysnmpModuleIDs=pysnmpModuleIDs, pysnmpAgentOIDs=pysnmpAgentOIDs, pysnmpDomains=pysnmpDomains, pysnmpNotificationPrefix=pysnmpNotificationPrefix, pysnmpNotifications=pysnmpNotifications, pysnmpNotificationObjects=pysnmpNotificationObjects, pysnmpConformance=pysnmpConformance, pysnmpCompliances=pysnmpCompliances, pysnmpGroups=pysnmpGroups, pysnmpExperimental=pysnmpExperimental)

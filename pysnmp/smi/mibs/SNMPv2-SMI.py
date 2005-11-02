@@ -74,7 +74,7 @@ class ModuleIdentity(MibNode):
         return self
     def getRevisions(self):
         return getattr(self, 'revisions', ())
-    def setRevisions(self, *args):
+    def setRevisions(self, args):
         self.revisions = args
         return self
 
@@ -115,7 +115,7 @@ class NotificationType(MibNode):
         return self
     def getRevisions(self):
         return getattr(self, 'revisions', ())
-    def setRevisions(self, *args):
+    def setRevisions(self, args):
         self.revisions = args
         return self
 
