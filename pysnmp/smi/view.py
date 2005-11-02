@@ -26,10 +26,28 @@ class MibViewController:
         
         # Module name -> module-scope indices
         self.__mibSymbolsIdx = OrderedDict()
+
         # Oid <-> label indices
-        
+
+        # This is potentionally ambiguous mapping. Sort modules in
+        # ascending age for resolution
+        def __sortFun(x, y, s=self.mibBuilder.mibSymbols):
+            m1 = s[x].get("PYSNMP_MODULE_ID")
+            m2 = s[y].get("PYSNMP_MODULE_ID")
+            r1 = r2 = "1970-01-01 00:00"
+            if m1:
+                r = m1.getRevisions()
+                if r: r1 = r[0]
+            if m2:
+                r = m2.getRevisions()
+                if r: r2 = r[0]
+            return cmp(r1, r2)
+
+        modNames = self.mibBuilder.mibSymbols.keys()
+        modNames.sort(__sortFun)
+            
         # Index modules names
-        for modName in [ '' ] + self.mibBuilder.mibSymbols.keys():
+        for modName in [ '' ] + modNames:
             # Modules index
             self.__mibSymbolsIdx[modName] = mibMod = {
                 'oidToLabelIdx': OidOrderedDict(),
@@ -51,8 +69,7 @@ class MibViewController:
                             'Duplicate SMI type %s::%s, has %s' % \
                             (modName, n, mibMod['typeToModIdx'][n])
                             )
-                    if not globMibMod['typeToModIdx'].has_key(n):
-                        globMibMod['typeToModIdx'][n] = modName
+                    globMibMod['typeToModIdx'][n] = modName
                     mibMod['typeToModIdx'][n] = modName
                 elif type(v) == InstanceType:
                     if isinstance(v, MibScalarInstance):
@@ -62,14 +79,12 @@ class MibViewController:
                             'Duplicate MIB variable %s::%s has %s' % \
                             (modName, n, mibMod['varToNameIdx'][n])
                             )
-                    if not globMibMod['varToNameIdx'].has_key(n):
-                        globMibMod['varToNameIdx'][n] = v.name
+                    globMibMod['varToNameIdx'][n] = v.name
                     mibMod['varToNameIdx'][n] = v.name
-                    if not globMibMod['oidToModIdx'].has_key(v.name):
-                        globMibMod['oidToModIdx'][v.name] = modName
+                    # Potentionally ambiguous mapping ahead
+                    globMibMod['oidToModIdx'][v.name] = modName
                     mibMod['oidToModIdx'][v.name] = modName
-                    if not globMibMod['oidToLabelIdx'].has_key(v.name):
-                        globMibMod['oidToLabelIdx'][v.name] = (n, )
+                    globMibMod['oidToLabelIdx'][v.name] = (n, )
                     mibMod['oidToLabelIdx'][v.name] = (n, )
 # XXX complain
 #                         raise error.SmiError(
