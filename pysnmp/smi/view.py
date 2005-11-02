@@ -43,8 +43,6 @@ class MibViewController:
                 globMibMod = mibMod
                 continue
 
-            __status = {}
-            
             # Types & MIB vars indices
             for n, v in self.mibBuilder.mibSymbols[modName].items():
                 if type(v) == ClassType:
@@ -67,13 +65,6 @@ class MibViewController:
                     if not globMibMod['varToNameIdx'].has_key(n):
                         globMibMod['varToNameIdx'][n] = v.name
                     mibMod['varToNameIdx'][n] = v.name
-                    # Build OID->everything index using most up-to-date spec
-                    if __status.has_key(v.name):
-                        if __status[v.name] == 'current' or \
-                               __status[v.name] == 'mandatory':
-                            continue
-                    if hasattr(v, 'getStatus'):
-                        __status[v.name] = v.getStatus()
                     if not globMibMod['oidToModIdx'].has_key(v.name):
                         globMibMod['oidToModIdx'][v.name] = modName
                     mibMod['oidToModIdx'][v.name] = modName
