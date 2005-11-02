@@ -10,7 +10,7 @@ class MibBuilder:
     def __init__(self):
         self.lastBuildId = 0L
         paths = (
-            os.path.join(os.path.split(error.__file__)[0], 'mibs', 'instances'),
+            os.path.join(os.path.split(error.__file__)[0], 'mibs','instances'),
             os.path.join(os.path.split(error.__file__)[0], 'mibs')
             )
         if os.environ.has_key('PYSNMP_MIB_DIR'):
