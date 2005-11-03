@@ -9,6 +9,7 @@ Null = univ.Null
 ObjectIdentifier = univ.ObjectIdentifier
 
 IpAddress = rfc1155.IpAddress
+NetworkAddress = rfc1155.NetworkAddress
 Counter = rfc1155.Counter
 Gauge = rfc1155.Gauge
 TimeTicks = rfc1155.TimeTicks
