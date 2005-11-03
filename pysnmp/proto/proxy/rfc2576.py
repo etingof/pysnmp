@@ -125,6 +125,9 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
         
     # Translate Var-Binds
     for oid, v1Val in varBinds:
+        # 2.1.1.11
+        if v1Val.tagSet == v1.NetworkAddress.tagSet:
+            v1Val = v1Val.getComponent()
         v2VarBinds.append(
             (oid, __v1ToV2ValueMap[v1Val.tagSet].clone(v1Val))
             )
@@ -241,9 +244,14 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
             
     # Translate Var-Binds
     for oid, v2Val in v2VarBinds:
-        v1VarBinds.append(
-            (oid, __v2ToV1ValueMap[v2Val.tagSet].clone(v2Val))
-            )
+        # 2.1.1.11
+        if v2Val.tagSet == v2c.IpAddress.tagSet:
+            v1Val = v1.NetworkAddress().setComponentByPosition(
+                0, __v2ToV1ValueMap[v2Val.tagSet].clone(v2Val)
+                )
+        else:
+            v1Val = __v2ToV1ValueMap[v2Val.tagSet].clone(v2Val)
+        v1VarBinds.append((oid, v1Val))
 
     if rfc3411.notificationClassPDUs.has_key(pduType):
         v1.apiTrapPDU.setVarBinds(v1Pdu, v1VarBinds)
