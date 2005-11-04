@@ -58,7 +58,9 @@ class NotificationReceiver:
             # Agent-side API complies with SMIv2
             if messageProcessingModel == 0:
                 rspPDU = rfc2576.v2ToV1(rspPDU)
-        
+
+            statusInformation = {}
+            
             # 3.4.3
             try:
                 snmpEngine.msgAndPduDsp.returnResponsePdu(
