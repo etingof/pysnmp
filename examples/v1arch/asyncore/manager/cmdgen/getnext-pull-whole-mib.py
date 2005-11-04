@@ -1,4 +1,4 @@
-"""Command Generator Application (GETNEXT)"""
+# GETNEXT Command Generator
 from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
 from pysnmp.carrier.asynsock.dgram import udp
 from pyasn1.codec.ber import encoder, decoder

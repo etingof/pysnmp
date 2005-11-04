@@ -1,4 +1,4 @@
-"""Command Responder Application (GETNEXT PDU)"""
+# Command Responder Application (GET/GETNEXT)
 from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
 from pysnmp.carrier.asynsock.dgram import udp
 from pyasn1.codec.ber import encoder, decoder

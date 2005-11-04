@@ -1,4 +1,4 @@
-"""Notification Receiver Application (TRAP PDU)"""
+# Notification Receiver (TRAP PDU)
 from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
 from pysnmp.carrier.asynsock.dgram import udp
 from pyasn1.codec.ber import decoder
