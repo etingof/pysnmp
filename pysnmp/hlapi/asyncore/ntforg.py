@@ -71,7 +71,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
 class NotificationOriginator(AsynNotificationOriginator):
     def sendNotification(
         self, authData, transportTarget, notifyType,
-        notificationType, varBinds=None
+        notificationType, *varBinds
         ):
         def __cbFun(sendRequestHandle, errorIndication, appReturn):
             appReturn['errorIndication'] = errorIndication
