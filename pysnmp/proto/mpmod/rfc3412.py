@@ -427,7 +427,10 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 errorIndication = 'invalidMsg'
                 )
 
-        reportableFlag = bool(msgFlags & 0x04)
+        if msgFlags & 0x04:
+            reportableFlag = 1
+        else:
+            reportableFlag = 0
 
         # 7.2.6
         smHandler = snmpEngine.securityModels[securityModel]
