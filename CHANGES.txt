@@ -4,6 +4,7 @@ Revision 4.1.6a
 - UNSTABLE ALPHA RELEASE.
 - pysnmpUsmSecretAuthKey and pysnmpUsmSecretPrivKey length increased
   up to 256 octets. There seems no limit on this in RFC, though.
+- Minor fixes towards Python 1.5 compatibility
 
 Revision 4.1.5a
 ---------------
