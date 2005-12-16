@@ -165,7 +165,7 @@ class TruthValue(Integer, TextualConvention):
     namedValues = namedval.NamedValues(('true', 1), ('false', 2))
     
 class TestAndIncr(Integer, TextualConvention):
-    subtypeSpec = Integer.subtypeSpec+constraint.ValueRangeConstraint(0, 2147483647)
+    subtypeSpec = Integer.subtypeSpec+constraint.ValueRangeConstraint(0, 2147483647L)
     def clone(self, value=None, tagSet=None, subtypeSpec=None):
         if value is None:
             return self
@@ -290,7 +290,7 @@ class RowStatus(Integer, TextualConvention):
 class TimeStamp(TimeTicks, TextualConvention): pass
 
 class TimeInterval(Integer, TextualConvention):
-    subtypeSpec = Integer.subtypeSpec+constraint.ValueRangeConstraint(0, 2147483647)
+    subtypeSpec = Integer.subtypeSpec+constraint.ValueRangeConstraint(0, 2147483647L)
 
 class DateAndTime(TextualConvention, OctetString):
     subtypeSpec = Integer.subtypeSpec+constraint.ValueSizeConstraint(8, 11)

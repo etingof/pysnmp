@@ -2,7 +2,7 @@ from pyasn1.type import univ, tag, constraint, namedtype, namedval
 from pysnmp.proto import rfc1902
 
 # Value reference -- max bindings in VarBindList
-max_bindings = rfc1902.Integer(2147483647)
+max_bindings = rfc1902.Integer(2147483647L)
 
 class _BindValue(univ.Choice): # Made a separate class for better readability
     componentType = namedtype.NamedTypes(

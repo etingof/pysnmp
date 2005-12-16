@@ -14,8 +14,8 @@ from pyasn1.error import PyAsn1Error
 class UsmSecurityParameters(rfc1155.TypeCoercionHackMixIn, univ.Sequence):
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('msgAuthoritativeEngineID', univ.OctetString()),
-        namedtype.NamedType('msgAuthoritativeEngineBoots', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 2147483647))),
-        namedtype.NamedType('msgAuthoritativeEngineTime', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 2147483647))),
+        namedtype.NamedType('msgAuthoritativeEngineBoots', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 2147483647L))),
+        namedtype.NamedType('msgAuthoritativeEngineTime', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 2147483647L))),
         namedtype.NamedType('msgUserName', univ.OctetString().subtype(subtypeSpec=constraint.ValueSizeConstraint(0, 32))),
         namedtype.NamedType('msgAuthenticationParameters', univ.OctetString()),
         namedtype.NamedType('msgPrivacyParameters', univ.OctetString())
@@ -596,7 +596,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
             # 3.2.7a
             if msgAuthoritativeEngineID == snmpEngineID:
-                if snmpEngineBoots == 2147483647 or \
+                if snmpEngineBoots == 2147483647L or \
                    snmpEngineBoots != msgAuthoritativeEngineBoots or \
                    abs(int(snmpEngineTime)-int(msgAuthoritativeEngineTime)) > 150:
                     usmStatsNotInTimeWindows, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsNotInTimeWindows')
@@ -624,7 +624,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         )
                     
                 # 3.2.7b.2
-                if snmpEngineBoots == 2147483647 or \
+                if snmpEngineBoots == 2147483647L or \
                    msgAuthoritativeEngineBoots < snmpEngineBoots or \
                    msgAuthoritativeEngineBoots == snmpEngineBoots and \
                    msgAuthoritativeEngineTime - snmpEngineTime < -150:
