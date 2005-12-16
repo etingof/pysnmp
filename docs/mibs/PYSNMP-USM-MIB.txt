@@ -97,7 +97,7 @@ pysnmpUsmSecretUserName OBJECT-TYPE
     ::= { pysnmpUsmSecretEntry 1 }
 
 pysnmpUsmSecretAuthKey OBJECT-TYPE
-    SYNTAX       OCTET STRING (SIZE(8..256))
+    SYNTAX       OCTET STRING (SIZE(8..65535)) -- no upper limit in RFC
     MAX-ACCESS   not-accessible
     STATUS       current
     DESCRIPTION
@@ -105,7 +105,7 @@ pysnmpUsmSecretAuthKey OBJECT-TYPE
     ::= { pysnmpUsmSecretEntry 2 }
 
 pysnmpUsmSecretPrivKey OBJECT-TYPE
-    SYNTAX       OCTET STRING (SIZE(8..256))
+    SYNTAX       OCTET STRING (SIZE(8..65535)) -- no upper limit in RFC
     MAX-ACCESS   not-accessible
     STATUS       current
     DESCRIPTION
