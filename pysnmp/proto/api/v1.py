@@ -29,11 +29,11 @@ class VarBindAPI:
     def setOIDVal(self, varBind, (oid, val)):
         varBind.setComponentByPosition(0, oid)
         if val is None: val = self._null
-        varBind.setComponentByPosition(1).getComponentByPosition(1).setComponentByType(val.getTagSet(), val, True)
+        varBind.setComponentByPosition(1).getComponentByPosition(1).setComponentByType(val.getTagSet(), val, 1)
         return varBind
     
     def getOIDVal(self, varBind):
-        return varBind[0], varBind[1].getComponent(True)
+        return varBind[0], varBind[1].getComponent(1)
 
 apiVarBind = VarBindAPI()
 
@@ -177,7 +177,7 @@ class MessageAPI:
         
     def getPDU(self, msg): return msg.getComponentByPosition(2).getComponent()
     def setPDU(self, msg, value):
-        msg.setComponentByPosition(2).getComponentByPosition(2).setComponentByType(value.getTagSet(), value, True)
+        msg.setComponentByPosition(2).getComponentByPosition(2).setComponentByType(value.getTagSet(), value, 1)
 
     def getResponse(self, reqMsg):
         rspMsg = Message()
