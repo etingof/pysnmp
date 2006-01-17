@@ -90,6 +90,11 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 contextEngineId = snmpEngineID
             else:
                 contextEngineId = peerSnmpEngineData['contextEngineId']
+                # Defaulting contextEngineID to securityEngineID should
+                # probably be done on Agent side (see 7.1.3.d.2,) so this
+                # is a sort of workaround.
+                if not contextEngineId:
+                    contextEngineId = peerSnmpEngineData['securityEngineID']
 
         # 7.1.5
         if not contextName:
