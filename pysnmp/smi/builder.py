@@ -50,6 +50,7 @@ class MibBuilder:
                 'No MIB module to load at %s' % (self,)
                 )
         for modName in modNames:
+            __modLoaded = 0
             for mibPath in self.__mibPaths:
                 modPath = os.path.join(
                     mibPath, modName + '.py'
@@ -71,8 +72,15 @@ class MibBuilder:
                     execfile(modPath, g)
                 except StandardError, why:
                     raise error.SmiError(
-                        'MIB module %s load error: %s' % (modPath, why)
+                        'MIB module \"%s\" load error: %s' % (modPath, why)
                         )
+
+                __modLoaded = 1
+
+            if not __modLoaded:
+                raise error.SmiError(
+                    'MIB file \"%s.py\" not found in search path' % modName
+                    )
 
         return self
                 
