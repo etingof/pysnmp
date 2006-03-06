@@ -7,6 +7,9 @@ Revision 4.1.6a
 - A workaround for probably broken Agents: SNMPv3 Manager code defaults
   ContextEngineId to SecurityEngineId whenever ContextEngineId is not 
   reported by authoritative SNMP engine on discovery.
+- MibBuilder.loadModules() now fails on missing MIB files.
+- Types/Notifications/Groups exportSymbols() call chunking implemented
+  in tools/libsmi2pysnmp
 - Minor fixes towards Python 1.5 compatibility
 
 Revision 4.1.5a
