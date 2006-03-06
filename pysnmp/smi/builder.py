@@ -57,6 +57,7 @@ class MibBuilder:
                     )
 
                 if self.__modPathsSeen.has_key(modPath):
+                    __modLoaded = 1 # XXX
                     continue
                 else:
                     self.__modPathsSeen[modPath] = 1
