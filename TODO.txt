@@ -59,3 +59,7 @@ Sparse notes on major existing problems/plans
 * TextualConvention subclassing order now depends upon DisplayHint 
   clause presense in MIB definition (for useful prettyIn/Out()). Maybe 
   this should be re-worked.
+
+* Implement snmptranslate tool
+
+* rework buildmibs for a more friendly interface
