@@ -21,13 +21,15 @@ class MibBuilder:
             paths = paths + (
                 os.path.join(os.path.split(pysnmp_mibs.__file__)[0]),
                 )
-        apply(self.setMibPath, paths)
         self.mibSymbols = {}
+        self.__modSeen = {}
         self.__modPathsSeen = {}
+        apply(self.setMibPath, paths)
         
     # MIB modules management
     
     def setMibPath(self, *mibPaths):
+        self.__modSeen.clear()
         self.__mibPaths = map(os.path.normpath, mibPaths)
 
     def getMibPath(self): return tuple(self.__mibPaths)
@@ -50,35 +52,34 @@ class MibBuilder:
                 'No MIB module to load at %s' % (self,)
                 )
         for modName in modNames:
-            __modLoaded = 0
             for mibPath in self.__mibPaths:
                 modPath = os.path.join(
                     mibPath, modName + '.py'
                     )
-
-                if self.__modPathsSeen.has_key(modPath):
-                    __modLoaded = 1 # XXX
-                    continue
-                else:
-                    self.__modPathsSeen[modPath] = 1
 
                 try:
                     open(modPath).close()
                 except IOError:
                     continue
 
+                if self.__modPathsSeen.has_key(modPath):
+                    continue
+                else:
+                    self.__modPathsSeen[modPath] = 1
+
                 g = { 'mibBuilder': self }
 
                 try:
                     execfile(modPath, g)
                 except StandardError, why:
+                    del self.__modPathsSeen[modPath]
                     raise error.SmiError(
                         'MIB module \"%s\" load error: %s' % (modPath, why)
                         )
 
-                __modLoaded = 1
+                self.__modSeen[modName] = 1
 
-            if not __modLoaded:
+            if not self.__modSeen.has_key(modName):
                 raise error.SmiError(
                     'MIB file \"%s.py\" not found in search path' % modName
                     )
