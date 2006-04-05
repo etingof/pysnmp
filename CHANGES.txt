@@ -7,6 +7,7 @@ Revision 4.1.6a
 - A workaround for probably broken Agents: SNMPv3 Manager code defaults
   ContextEngineId to SecurityEngineId whenever ContextEngineId is not 
   reported by authoritative SNMP engine on discovery.
+- Use empty PDU in engine-discovery report at mpmod/rfc3412.py.
 - MibBuilder.loadModules() now fails on missing MIB files.
 - MibBuilder.exportSymbols() now accepts unnamed objects (likely Managed
   Objects Instances)
