@@ -61,5 +61,3 @@ Sparse notes on major existing problems/plans
   this should be re-worked.
 
 * Implement snmptranslate tool
-
-* rework buildmibs for a more friendly interface
