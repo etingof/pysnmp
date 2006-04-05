@@ -167,9 +167,14 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 scopedPDU.setComponentByPosition(0)
                 scopedPDU.setComponentByPosition(1)
                 scopedPDU.setComponentByPosition(2)
+
+                # Use dead-empty PDU for engine-discovery report
+                emptyPdu = pdu.clone()
+                pMod.apiPDU.setDefaults(emptyPdu)
+
                 scopedPDU.getComponentByPosition(2).setComponentByType(
-                    pdu.tagSet, pdu
-                    )
+                    emptyPdu.tagSet, emptyPdu
+                )
             else:
                 securityEngineID = peerSnmpEngineData['securityEngineID']
                 
