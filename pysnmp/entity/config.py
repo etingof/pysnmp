@@ -630,3 +630,29 @@ def addNotificationTarget(snmpEngine, notificationName, paramsName,
     snmpNotifyFilterType.syntax = snmpNotifyFilterType.syntax.clone(
         filterType
         )
+
+# rfc3415: A.1
+def setInitialVacmParameters(snmpEngine):
+    # rfc3415: A.1.1 --> initial-semi-security-configuration
+    
+    # rfc3415: A.1.2
+    addContext(snmpEngine, "")
+
+    # rfc3415: A.1.3
+    addVacmGroup(snmpEngine, "initial", 3, "initial")
+
+    # rfc3415: A.1.4
+    addVacmAccess(snmpEngine, "initial", "", 3, "noAuthNoPriv", "exact",
+                  "restricted", None, "restricted")
+    addVacmAccess(snmpEngine, "initial", "", 3, "authNoPriv", "exact",
+                  "internet", "internet", "internet")
+    addVacmAccess(snmpEngine, "initial", "", 3, "authPriv", "exact",
+                  "internet", "internet", "internet")
+
+    # rfc3415: A.1.5 (semi-secure)
+    addVacmView(snmpEngine, "internet", "included", (1,3,6,1),"")
+    addVacmView(snmpEngine, "restricted", "included", (1,3,6,1,2,1,1),"")
+    addVacmView(snmpEngine, "restricted", "included", (1,3,6,1,2,1,11),"")
+    addVacmView(snmpEngine, "restricted", "included", (1,3,6,1,6,3,10,2,1),"")
+    addVacmView(snmpEngine, "restricted", "included", (1,3,6,1,6,3,11,2,1),"")
+    addVacmView(snmpEngine, "restricted", "included", (1,3,6,1,6,3,15,1,1),"")
