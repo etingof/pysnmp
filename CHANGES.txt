@@ -8,6 +8,10 @@ Revision 4.1.6a
   ContextEngineId to SecurityEngineId whenever ContextEngineId is not 
   reported by authoritative SNMP engine on discovery.
 - MibBuilder.loadModules() now fails on missing MIB files.
+- initial VACM configuration implemented according to rfc3415 Appendix 1
+- tools/buildmibs.sh split-up and re-implemented as tools/build-pysnmp-mib
+  and pysnmp-mibs/tools/rebuild-pysnmp-mibs for better usability. These
+  and libsmi2pysnmp scripts made installable.
 - Types/Notifications/Groups exportSymbols() call chunking implemented
   in tools/libsmi2pysnmp
 - Minor fixes towards Python 1.5 compatibility

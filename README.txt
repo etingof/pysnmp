@@ -104,8 +104,8 @@ of MIB text files into Python code. The code been generated relies upon
 PySNMP SMI library.
 
 In order to convert MIB text files into pysnmp.smi-compliant Python source,
-please, use the pysnmp/tools/buildmibs.sh utility. Review its source code
-before use.
+please, use build-pysnmp-mib utility as shipped along with PySNMP
+distribution.
 
 A large set of pre-compiled MIB files is shipped along the pysnmp-mibs
 package.[2]
