@@ -27,5 +27,7 @@ setup(name="pysnmp",
                    'pysnmp.v4.proto.acmod',
                    'pysnmp.v4.proto.proxy',
                    'pysnmp.v4.proto.api' ],
+      scripts = [ 'tools/libsmi2pysnmp',
+                  'tools/build-pysnmp-mib' ],
       license="BSD"
       )
