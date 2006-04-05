@@ -8,7 +8,7 @@ except ImportError:
 
 class MibBuilder:
     def __init__(self):
-        self.lastBuildId = 0L
+        self.lastBuildId = self._autoName = 0L
         paths = (
             os.path.join(os.path.split(error.__file__)[0], 'mibs','instances'),
             os.path.join(os.path.split(error.__file__)[0], 'mibs')
@@ -105,16 +105,22 @@ class MibBuilder:
             r = r + (self.mibSymbols[modName][symName],)
         return r
 
-    def exportSymbols(self, modName, **kwargs):
-        for symName, symObj in kwargs.items():
-            if not self.mibSymbols.has_key(modName):
-                self.mibSymbols[modName] = {}
-            if self.mibSymbols[modName].has_key(symName):
+    def exportSymbols(self, modName, *anonymousSyms, **namedSyms):
+        if not self.mibSymbols.has_key(modName):
+            self.mibSymbols[modName] = {}
+        mibSymbols = self.mibSymbols[modName]
+        
+        for symObj in anonymousSyms:
+            mibSymbols['__pysnmp_%ld' % self._autoName] = symObj
+            self._autoName = self._autoName + 1
+            
+        for symName, symObj in namedSyms.items():
+            if mibSymbols.has_key(symName):
                 raise error.SmiError(
                     'Symbol %s already exported at %s' % (symName, modName)
                     )
             if hasattr(symObj, 'label') and symObj.label:
                 symName = symObj.label
-            self.mibSymbols[modName][symName] = symObj
-
+            mibSymbols[symName] = symObj
+            
         self.lastBuildId = self.lastBuildId + 1
