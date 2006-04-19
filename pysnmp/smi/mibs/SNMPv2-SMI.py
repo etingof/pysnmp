@@ -26,17 +26,16 @@ class ExtUTCTime(OctetString):
 # MIB tree foundation classes
 
 class MibNode:
+    label = ''
     def __init__(self, name):
         self.name = name
-        self.label = ''
         
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__, self.name)
 
-    def setName(self, name):
-        self.name = name
-        return self
-
+    def getName(self): return self.name
+    
+    def getLabel(self): return self.label
     def setLabel(self, label):
         self.label = label
         return self
@@ -135,10 +134,7 @@ class ObjectType(MibNode):
             self.__class__.__name__, self.name, self.syntax
             )    
     def getSyntax(self):
-        return getattr(self, 'syntax', None)   # XXX
-    def setSyntax(self, v):
-        self.syntax = v
-        return self
+        return self.syntax
     def getUnits(self):
         return getattr(self, 'units', '')
     def setUnits(self, v):
