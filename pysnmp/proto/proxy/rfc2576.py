@@ -49,7 +49,7 @@ __v2ToV1PduMap = {
     }
 
 __sysUpTime = (1,3,6,1,2,1,1,3)
-__null = v1.Null()
+__null = v1.Null('')
 
 # Trap map
 
