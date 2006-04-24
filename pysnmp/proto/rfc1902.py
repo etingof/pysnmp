@@ -122,7 +122,10 @@ class Bits(univ.OctetString):
 
     def clone(self, value=None, tagSet=None, subtypeSpec=None,
               namedValues=None):
-        if value is None and self._value is not self.defaultValue:
+        if value is None and tagSet is None and subtypeSpec is None \
+               and namedValues is None:
+            return self
+        if value is None:
             value = self._value
         if tagSet is None:
             tagSet = self._tagSet
@@ -134,7 +137,7 @@ class Bits(univ.OctetString):
 
     def subtype(self, value=None, implicitTag=None, explicitTag=None,
                 subtypeSpec=None, namedValues=None):
-        if value is None and self._value is not self.defaultValue:
+        if value is None:
             value = self._value
         if implicitTag is not None:
             tagSet = self._tagSet.tagImplicitly(implicitTag)
