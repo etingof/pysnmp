@@ -17,6 +17,7 @@ Revision 4.1.6a
   and libsmi2pysnmp scripts made installable.
 - Types/Notifications/Groups exportSymbols() call chunking implemented
   in tools/libsmi2pysnmp
+- Initial values specified to pyasn1 types to comply with latest pyasn1 API.
 - Minor fixes towards Python 1.5 compatibility
 
 Revision 4.1.5a
