@@ -166,6 +166,7 @@ class TruthValue(Integer, TextualConvention):
     
 class TestAndIncr(Integer, TextualConvention):
     subtypeSpec = Integer.subtypeSpec+constraint.ValueRangeConstraint(0, 2147483647L)
+    defaultValue = 0
     def clone(self, value=None, tagSet=None, subtypeSpec=None):
         if value is None:
             return self
