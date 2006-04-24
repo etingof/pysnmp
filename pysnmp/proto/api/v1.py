@@ -25,7 +25,7 @@ TrapPDU = rfc1157.TrapPDU
 Message = rfc1157.Message
 
 class VarBindAPI:
-    _null = Null()
+    _null = Null('')
     def setOIDVal(self, varBind, (oid, val)):
         varBind.setComponentByPosition(0, oid)
         if val is None: val = self._null
@@ -51,8 +51,8 @@ getNextRequestID = __RequestIDSource()
 class PDUAPI:
     def setDefaults(self, pdu):
         pdu.setComponentByPosition(0, getNextRequestID())
-        pdu.setComponentByPosition(1)
-        pdu.setComponentByPosition(2)
+        pdu.setComponentByPosition(1, 0)
+        pdu.setComponentByPosition(2, 0)
         pdu.setComponentByPosition(3)
         
     def getRequestID(self, pdu): return pdu.getComponentByPosition(0)

@@ -15,7 +15,7 @@ headVars = [ pMod.ObjectIdentifier((1,3,6)) ]
 reqPDU =  pMod.GetNextRequestPDU()
 pMod.apiPDU.setDefaults(reqPDU)
 pMod.apiPDU.setVarBinds(
-    reqPDU, map(lambda x, pMod=pMod: (x, pMod.Null()), headVars)
+    reqPDU, map(lambda x, pMod=pMod: (x, pMod.Null('')), headVars)
     )
 
 # Build message
@@ -60,7 +60,7 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
                 
             # Generate request for next row
             pMod.apiPDU.setVarBinds(
-                reqPDU, map(lambda (x,y),n=pMod.Null(): (x,n), varBindTable[-1])
+                reqPDU, map(lambda (x,y),n=pMod.Null(''): (x,n), varBindTable[-1])
                 )
             pMod.apiPDU.setRequestID(reqPDU, pMod.getNextRequestID())
             transportDispatcher.sendMessage(

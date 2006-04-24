@@ -474,7 +474,7 @@ class NextCommandGenerator(CommandGeneratorBase):
         
         pMod.apiPDU.setRequestID(PDU, pMod.getNextRequestID())
         pMod.apiPDU.setVarBinds(
-            PDU, map(lambda (x,y),n=pMod.Null(): (x,n), varBindTable[-1])
+            PDU, map(lambda (x,y),n=pMod.Null(''): (x,n), varBindTable[-1])
             )
 
         self._sendRequestHandleSource = self._sendRequestHandleSource + 1
@@ -584,7 +584,7 @@ class BulkCommandGenerator(CommandGeneratorBase):
 
         pMod.apiBulkPDU.setRequestID(PDU, pMod.getNextRequestID())
         pMod.apiBulkPDU.setVarBinds(
-            PDU, map(lambda (x,y),n=pMod.Null(): (x,n), varBindTable[-1])
+            PDU, map(lambda (x,y),n=pMod.Null(''): (x,n), varBindTable[-1])
             )
 
         self._sendRequestHandleSource = self._sendRequestHandleSource + 1

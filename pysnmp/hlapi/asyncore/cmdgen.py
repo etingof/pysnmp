@@ -69,7 +69,7 @@ class UdpTransportTarget:
             )
 
 class AsynCommandGenerator:
-    _null = univ.Null()
+    _null = univ.Null('')
     def __init__(self, snmpEngine=None):
         if snmpEngine is None:
             self.snmpEngine = engine.SnmpEngine()

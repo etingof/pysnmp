@@ -12,8 +12,8 @@ pMod = api.protoModules[api.protoVersion1]
 reqPDU =  pMod.GetRequestPDU()
 pMod.apiPDU.setDefaults(reqPDU)
 pMod.apiPDU.setVarBinds(
-    reqPDU, (((1,3,6,1,2,1,1,1,0), pMod.Null()),
-             ((1,3,6,1,2,1,1,3,0), pMod.Null()))
+    reqPDU, (((1,3,6,1,2,1,1,1,0), pMod.Null('')),
+             ((1,3,6,1,2,1,1,3,0), pMod.Null('')))
     )
 
 # Build message
