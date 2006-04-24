@@ -68,6 +68,10 @@ class PDUAPI(v1.PDUAPI):
 apiPDU = PDUAPI()
 
 class BulkPDUAPI(PDUAPI):
+    def setDefaults(self, pdu):
+        PDUAPI.setDefaults(self, pdu)
+        pdu.setComponentByPosition(2, 10)
+
     def getNonRepeaters(self, pdu): return pdu.getComponentByPosition(1)
     def setNonRepeaters(self, pdu, value): pdu.setComponentByPosition(1, value)
 
