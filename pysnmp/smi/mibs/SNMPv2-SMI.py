@@ -374,7 +374,7 @@ class MibScalarInstance(MibTree):
         # Return current variable (name, value). This is the only API method
         # capable of returning anything!
         if name == self.name:
-            return self.name, self.syntax
+            return self.name, self.syntax.clone()
         else:
             raise error.NoSuchObjectError(idx=idx, name=name)
     
