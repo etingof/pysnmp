@@ -19,7 +19,7 @@ sysLocation, = mibBuilder.importSymbols('SNMPv2-MIB', 'sysLocation')
 
 # Custom Managed Object
 class MySysLocationInstance(MibScalarInstance):
-    def readGet(self, name, val, idx, (acFun, acCtx)):
+    def readGet(self, name, *args):
         # Just return a custom value
         return name, self.syntax.clone('The Leaky Cauldron')
     
