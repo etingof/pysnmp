@@ -378,7 +378,7 @@ class MibScalarInstance(MibTree):
         else:
             raise error.NoSuchObjectError(idx=idx, name=name)
     
-    # Two-phase commit implementation
+    # Write operation: two-phase commit
 
     def writeTest(self, name, val, idx, (acFun, acCtx)):
         # Make sure write's allowed
@@ -399,10 +399,35 @@ class MibScalarInstance(MibTree):
         # Revive previous value
         self.syntax, self.__newSyntax = self.__newSyntax, None
 
+    # Table column instance specifics
+
+    # Create operation
+
+    def createTest(self, name, val, idx, (acFun, acCtx)):
+        if val is not None:
+            self.writeTest(name, val, idx, (acFun, acCtx))
+    def createCommit(self, name, val, idx, (acFun, acCtx)):
+        if val is not None:
+            self.writeCommit(name, val, idx, (acFun, acCtx))
+    def createCleanup(self, name, val, idx, (acFun, acCtx)):
+        if val is not None:
+            self.writeCleanup(name, val, idx, (acFun, acCtx))
+    def createUndo(self, name, val, idx, (acFun, acCtx)):
+        if val is not None:
+            self.writeCleanup(name, val, idx, (acFun, acCtx))
+
+    # Destroy operation
+
+    def destroyTest(self, name, val, idx, (acFun, acCtx)): pass
+    def destroyCommit(self, name, val, idx, (acFun, acCtx)): pass
+    def destroyCleanup(self, name, val, idx, (acFun, acCtx)): pass
+    def destroyUndo(self, name, val, idx, (acFun, acCtx)): pass
+
 # Conceptual table classes
 
 class MibTableColumn(MibScalar):
     """MIB table column. Manages a set of column instance variables"""
+    protoInstance = MibScalarInstance
     def __init__(self, name, syntax):
         MibScalar.__init__(self, name, syntax)
         self.__createdInstances = {}; self.__destroyedInstances = {}
@@ -420,6 +445,8 @@ class MibTableColumn(MibScalar):
         except error.NoSuchObjectError:
             raise error.NoSuchInstanceError(idx=idx, name=name)
 
+    def setProtoInstance(self, protoInstance):
+        self.protoInstance = protoInstance
 
     # Column creation (this should probably be converted into some state
     # machine for clarity). Also, it might be a good idea to inidicate
@@ -437,30 +464,25 @@ class MibTableColumn(MibScalar):
                acFun and acFun(name, idx, 'write', acCtx):
             raise error.NoCreationError(idx=idx, name=name)
         if not self.__createdInstances.has_key(name):
-            self.__createdInstances[name] = MibScalarInstance(
+            self.__createdInstances[name] = self.protoInstance(
                 self.name, name[len(self.name):], self.syntax.clone()
                 )
-        if val is not None:
-            try:
-                self.__createdInstances[name].writeTest(
-                    name, val, idx, (acFun, acCtx)
-                    )
-            except (error.RowCreationWanted, error.RowDestructionWanted):
-                pass
+        try:
+            self.__createdInstances[name].createTest(
+                name, val, idx, (acFun, acCtx)
+                )
+        except (error.RowCreationWanted, error.RowDestructionWanted):
+            pass
             
     def createCommit(self, name, val, idx, (acFun, acCtx)):
         # Commit new instance value
-        if self._vars.has_key(name):
+        if self._vars.has_key(name): # XXX
             if self.__createdInstances.has_key(name):
-                if val is not None:
-                    self._vars[name].writeCommit(
-                        name, val, idx, (acFun, acCtx)
-                        )
+                self._vars[name].createCommit(name, val, idx, (acFun, acCtx))
             return
-        if val is not None:
-            self.__createdInstances[name].writeCommit(
-                name, val, idx, (acFun, acCtx)
-                )
+        self.__createdInstances[name].createCommit(
+            name, val, idx, (acFun, acCtx)
+            )
         # ...commit new column instance
         self._vars[name], self.__createdInstances[name] = \
                           self.__createdInstances[name], self._vars.get(name)
@@ -469,15 +491,13 @@ class MibTableColumn(MibScalar):
         # Drop previous column instance
         if self.__createdInstances.has_key(name):
             if self.__createdInstances[name] is not None:
-                self.__createdInstances[name].writeCleanup(
+                self.__createdInstances[name].cleanupCleanup(
                     name, val, idx, (acFun, acCtx)
                     )
             del self.__createdInstances[name]
         elif self._vars.has_key(name):
-            self._vars[name].writeCleanup(
-                name, val, idx, (acFun, acCtx)
-                )
-        
+            self._vars[name].createCleanup(name, val, idx, (acFun, acCtx))
+
     def createUndo(self, name, val, idx, (acFun, acCtx)):
         # Set back previous column instance, drop the new one
         if self.__createdInstances.has_key(name):
@@ -487,9 +507,7 @@ class MibTableColumn(MibScalar):
             if self._vars[name] is None:
                 del self._vars[name]
             else:
-                self._vars[name].writeUndo(
-                    name, val, idx, (acFun, acCtx)
-                    )
+                self._vars[name].createUndo(name, val, idx, (acFun, acCtx))
                 
     # Column destruction
         
@@ -502,22 +520,34 @@ class MibTableColumn(MibScalar):
                    self.maxAccess != 'readcreate' or \
                    acFun and acFun(name, idx, 'write', cbCtx):
                 raise error.NoAccessError(idx=idx, name=name)
+            self._vars[name].destroyTest(
+                name, val, idx, (acFun, acCtx)
+                )
 
     def destroyCommit(self, name, val, idx, (acFun, acCtx)):
         # Make a copy of column instance and take it off the tree
         if self._vars.has_key(name):
+            self._vars[name].destroyCommit(
+                name, val, idx, (acFun, acCtx)
+                )            
             self.__destroyedInstances[name] = self._vars[name]
             del self._vars[name]
         
     def destroyCleanup(self, name, val, idx, (acFun, acCtx)):
         # Drop instance copy
         if self.__destroyedInstances.has_key(name):
+            self._destroyedInstances[name].destroyCleanup(
+                name, val, idx, (acFun, acCtx)
+                )
             del self.__destroyedInstances[name]
             
     def destroyUndo(self, name, val, idx, (acFun, acCtx)):
         # Set back column instance
         if self.__destroyedInstances.has_key(name):
             self._vars[name] = self.__destroyedInstances[name]
+            self._vars[name].destroyUndo(
+                name, val, idx, (acFun, acCtx)
+                )            
             del self.__destroyedInstances[name]
             
     # Set/modify column
@@ -526,7 +556,9 @@ class MibTableColumn(MibScalar):
         # Besides common checks, request row creation on no-instance
         try:
             # First try the instance
-            MibScalar.writeTest(self, name, val, idx, (acFun, acCtx))
+            MibScalar.writeTest(
+                self, name, val, idx, (acFun, acCtx)
+                )
         # ...otherwise proceed with creating new column
         except (error.NoSuchObjectError, error.RowCreationWanted):
             self.__rowOpWanted[name] =  error.RowCreationWanted()
@@ -554,15 +586,21 @@ class MibTableColumn(MibScalar):
         raise self.__rowOpWanted[name]
 
     def writeCommit(self, name, val, idx, (acFun, acCtx)):
-        self.__delegateWrite('Commit', name, val, idx, (acFun, acCtx))
+        self.__delegateWrite(
+            'Commit', name, val, idx, (acFun, acCtx)
+            )
 
     def writeCleanup(self, name, val, idx, (acFun, acCtx)):
-        self.__delegateWrite('Cleanup', name, val, idx, (acFun, acCtx))
+        self.__delegateWrite(
+            'Cleanup', name, val, idx, (acFun, acCtx)
+            )
         if self.__rowOpWanted.has_key(name):
             del self.__rowOpWanted[name]
             
     def writeUndo(self, name, val, idx, (acFun, acCtx)):
-        self.__delegateWrite('Undo', name, val, idx, (acFun, acCtx))
+        self.__delegateWrite(
+            'Undo', name, val, idx, (acFun, acCtx)
+            )
         if self.__rowOpWanted.has_key(name):
             del self.__rowOpWanted[name]
 
@@ -706,7 +744,7 @@ class MibTableRow(MibTree):
                 None, idx, (acFun, acCtx)
                 )
             self.announceManagementEvent(
-                'destroy'+subAction, name, None, idx, (acFun, acCtx)
+                'destroy'+subAction, name, None, idx, (acFun,acCtx)
                 )
     
     def writeTest(self, name, val, idx, (acFun, acCtx)):
@@ -715,8 +753,8 @@ class MibTableRow(MibTree):
         self.__delegate('Commit', name, val, idx, (acFun, acCtx))
     def writeCleanup(self, name, val, idx, (acFun, acCtx)):
         self.__delegate('Cleanup', name, val, idx, (acFun, acCtx))
-    def writeUndo(self, name, val, idx, (acFun, acCtx)):
-        self.__delegate('Undo', name, val)
+    def writeUndo(self, name, val,  idx, (acFun, acCtx)):
+        self.__delegate('Undo', name, val, idx, (acFun, acCtx))
 
     # Table row management
     
