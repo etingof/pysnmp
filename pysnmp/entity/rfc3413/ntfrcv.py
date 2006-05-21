@@ -19,7 +19,7 @@ class NotificationReceiver:
 
     def close(self, snmpEngine):
         snmpEngine.msgAndPduDsp.unregisterContextEngineId(
-            self.snmpContext.contextEngineId, self.pduTypes
+            '', self.pduTypes
             )
 
     def processPdu(
