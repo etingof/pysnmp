@@ -25,7 +25,7 @@ snmpCommunityName = MibTableColumn((1, 3, 6, 1, 6, 3, 18, 1, 1, 1, 2), OctetStri
 snmpCommunitySecurityName = MibTableColumn((1, 3, 6, 1, 6, 3, 18, 1, 1, 1, 3), SnmpAdminString().subtype(subtypeSpec=constraint.ValueSizeConstraint(1, 32))).setMaxAccess("readcreate")
 snmpCommunityContextEngineID = MibTableColumn((1, 3, 6, 1, 6, 3, 18, 1, 1, 1, 4), SnmpEngineID()).setMaxAccess("readcreate")
 snmpCommunityContextName = MibTableColumn((1, 3, 6, 1, 6, 3, 18, 1, 1, 1, 5), SnmpAdminString().subtype(subtypeSpec=constraint.ValueSizeConstraint(0, 32)).subtype('')).setMaxAccess("readcreate")
-snmpCommunityTransportTag = MibTableColumn((1, 3, 6, 1, 6, 3, 18, 1, 1, 1, 6), SnmpTagValue()).setMaxAccess("readcreate")
+snmpCommunityTransportTag = MibTableColumn((1, 3, 6, 1, 6, 3, 18, 1, 1, 1, 6), SnmpTagValue('')).setMaxAccess("readcreate")
 snmpCommunityStorageType = MibTableColumn((1, 3, 6, 1, 6, 3, 18, 1, 1, 1, 7), StorageType()).setMaxAccess("readcreate")
 snmpCommunityStatus = MibTableColumn((1, 3, 6, 1, 6, 3, 18, 1, 1, 1, 8), RowStatus()).setMaxAccess("readcreate")
 snmpTargetAddrExtTable = MibTable((1, 3, 6, 1, 6, 3, 18, 1, 2))

@@ -21,7 +21,6 @@ class SnmpTagList(OctetString, TextualConvention):
 
 class SnmpTagValue(OctetString, TextualConvention):
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(0,255)
-    pass
 
 
 # Objects
@@ -36,9 +35,9 @@ snmpTargetAddrTDomain = MibTableColumn((1, 3, 6, 1, 6, 3, 12, 1, 2, 1, 2), TDoma
 snmpTargetAddrTAddress = MibTableColumn((1, 3, 6, 1, 6, 3, 12, 1, 2, 1, 3), TAddress()).setMaxAccess("readcreate")
 snmpTargetAddrTimeout = MibTableColumn((1, 3, 6, 1, 6, 3, 12, 1, 2, 1, 4), TimeInterval(1500)).setMaxAccess("readcreate")
 snmpTargetAddrRetryCount = MibTableColumn((1, 3, 6, 1, 6, 3, 12, 1, 2, 1, 5), Integer32(3).subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 255)).subtype(3)).setMaxAccess("readcreate")
-snmpTargetAddrTagList = MibTableColumn((1, 3, 6, 1, 6, 3, 12, 1, 2, 1, 6), SnmpTagList()).setMaxAccess("readcreate")
+snmpTargetAddrTagList = MibTableColumn((1, 3, 6, 1, 6, 3, 12, 1, 2, 1, 6), SnmpTagList("")).setMaxAccess("readcreate")
 snmpTargetAddrParams = MibTableColumn((1, 3, 6, 1, 6, 3, 12, 1, 2, 1, 7), SnmpAdminString().subtype(subtypeSpec=constraint.ValueSizeConstraint(1, 32))).setMaxAccess("readcreate")
-snmpTargetAddrStorageType = MibTableColumn((1, 3, 6, 1, 6, 3, 12, 1, 2, 1, 8), StorageType()).setMaxAccess("readcreate")
+snmpTargetAddrStorageType = MibTableColumn((1, 3, 6, 1, 6, 3, 12, 1, 2, 1, 8), StorageType('nonVolatile')).setMaxAccess("readcreate")
 snmpTargetAddrRowStatus = MibTableColumn((1, 3, 6, 1, 6, 3, 12, 1, 2, 1, 9), RowStatus()).setMaxAccess("readcreate")
 snmpTargetParamsTable = MibTable((1, 3, 6, 1, 6, 3, 12, 1, 3))
 snmpTargetParamsEntry = MibTableRow((1, 3, 6, 1, 6, 3, 12, 1, 3, 1)).setIndexNames((1, "SNMP-TARGET-MIB", "snmpTargetParamsName"))
@@ -47,7 +46,7 @@ snmpTargetParamsMPModel = MibTableColumn((1, 3, 6, 1, 6, 3, 12, 1, 3, 1, 2), Snm
 snmpTargetParamsSecurityModel = MibTableColumn((1, 3, 6, 1, 6, 3, 12, 1, 3, 1, 3), SnmpSecurityModel().subtype(subtypeSpec=constraint.ValueRangeConstraint(1, 2147483647L))).setMaxAccess("readcreate")
 snmpTargetParamsSecurityName = MibTableColumn((1, 3, 6, 1, 6, 3, 12, 1, 3, 1, 4), SnmpAdminString()).setMaxAccess("readcreate")
 snmpTargetParamsSecurityLevel = MibTableColumn((1, 3, 6, 1, 6, 3, 12, 1, 3, 1, 5), SnmpSecurityLevel()).setMaxAccess("readcreate")
-snmpTargetParamsStorageType = MibTableColumn((1, 3, 6, 1, 6, 3, 12, 1, 3, 1, 6), StorageType()).setMaxAccess("readcreate")
+snmpTargetParamsStorageType = MibTableColumn((1, 3, 6, 1, 6, 3, 12, 1, 3, 1, 6), StorageType('nonVolatile')).setMaxAccess("readcreate")
 snmpTargetParamsRowStatus = MibTableColumn((1, 3, 6, 1, 6, 3, 12, 1, 3, 1, 7), RowStatus()).setMaxAccess("readcreate")
 snmpUnavailableContexts = MibScalar((1, 3, 6, 1, 6, 3, 12, 1, 4), Counter32()).setMaxAccess("readonly")
 snmpUnknownContexts = MibScalar((1, 3, 6, 1, 6, 3, 12, 1, 5), Counter32()).setMaxAccess("readonly")
