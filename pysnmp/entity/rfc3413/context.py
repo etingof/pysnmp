@@ -18,13 +18,13 @@ class SnmpContext:
                 'Duplicate contextName %s' % contextName
                 )
         if mibInstrum is None:
-            self.contextName[contextName] = self.contextName['']
+            self.contextNames[contextName] = self.contextNames['']
         else:
-            self.contextName[contextName] = mibInstrum
+            self.contextNames[contextName] = mibInstrum
             
     def unregisterContextName(self, contextName):
         if self.contextNames.has_key(contextName):
-            del self.contextName[contextName]
+            del self.contextNames[contextName]
 
     def getMibInstrum(self, contextName):
         if not self.contextNames.has_key(contextName):
