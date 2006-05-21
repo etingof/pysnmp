@@ -11,13 +11,19 @@ Revision 4.1.6a
 - MibBuilder.loadModules() now fails on missing MIB files.
 - MibBuilder.exportSymbols() now accepts unnamed objects (likely Managed
   Objects Instances)
-- initial VACM configuration implemented according to rfc3415 Appendix 1
+- SNMPv2-SMI.MibScalarInstance objects now support create*/destroy*
+  Management Instrumentation methods to pass Columnar Object creation and
+  removal events. MibTableColumn class invoke these methods accordingly.
+- Fix to AsynNotificationOriginator.asyncSendNotification() callback
+  formal parameters
+- Initial VACM configuration implemented according to rfc3415 Appendix 1
 - tools/buildmibs.sh split-up and re-implemented as tools/build-pysnmp-mib
   and pysnmp-mibs/tools/rebuild-pysnmp-mibs for better usability. These
   and libsmi2pysnmp scripts made installable.
 - Types/Notifications/Groups exportSymbols() call chunking implemented
   in tools/libsmi2pysnmp
 - Initial values specified to pyasn1 types to comply with latest pyasn1 API.
+- Documentation improved
 - Minor fixes towards Python 1.5 compatibility
 
 Revision 4.1.5a

@@ -10,12 +10,14 @@ Sparse notes on major existing problems/plans
      Dedicated, simple API for table cells mangling should be 
      provided.
 
+* Walking over VACM shadowed OIDs is painfully slow
+
 * Notification filtering (RFC3413) not implemented.
 
 * MsgAndPduDispatcher should use TransportDispatcher jobs interface
   to handle SNMPv3 handshake
 
-* Implement 'oneliner' API for v1arch
+* Implement 'oneliner' API for v1arch, possibly compatible with v3arch API
 
 * Implement prettyIn value format parser at TC
 
@@ -61,3 +63,5 @@ Sparse notes on major existing problems/plans
   this should be re-worked.
 
 * Implement snmptranslate tool
+
+* exclude SNMP-COMMUNITY-MIB from view for better security
