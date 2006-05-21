@@ -79,6 +79,11 @@ def addV1System(snmpEngine, securityName, communityName,
             )
         snmpCommunityTransportTag.syntax = snmpCommunityTransportTag.syntax.clone(snmpCommunityTransportTag)
     
+    snmpCommunityStorageType = snmpCommunityEntry.getNode(
+        snmpCommunityEntry.name + (7,) + tblIdx
+        )
+    snmpCommunityStorageType.syntax = snmpCommunityStorageType.syntax.clone('nonVolatile')
+
 def addV3User(snmpEngine, securityName,
               authProtocol=usmNoAuthProtocol, authKey='',
               privProtocol=usmNoPrivProtocol, privKey='',
