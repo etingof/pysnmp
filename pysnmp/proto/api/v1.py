@@ -91,7 +91,7 @@ class PDUAPI:
         idx = 0
         for varBind in varBinds:
             if type(varBind) is types.InstanceType:
-                varBindList[idx] = varBind
+                varBindList.setComponentByPosition(idx, varBind)
             else:
                 varBindList.setComponentByPosition(idx)
                 apiVarBind.setOIDVal(
@@ -153,7 +153,7 @@ class TrapPDUAPI:
         idx = 0
         for varBind in varBinds:
             if type(varBind) is types.InstanceType:
-                varBindList[idx] = varBind
+                varBindList.setComponentByPosition(idx, varBind)
             else:
                 varBindList.setComponentByPosition(idx)
                 apiVarBind.setOIDVal(
