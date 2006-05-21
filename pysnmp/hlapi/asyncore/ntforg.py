@@ -26,7 +26,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
         
     def asyncSendNotification(
         self, authData, transportTarget, notifyType,
-        notificationType, varBinds=None, cbFun=None, cbCtx=None
+        notificationType, varBinds=None, (cbFun, cbCtx)=(None, None)
         ):
         tagList = 'notify-list'
         addrName, paramsName = cmdgen.AsynCommandGenerator._configure(
@@ -79,7 +79,7 @@ class NotificationOriginator(AsynNotificationOriginator):
         appReturn = {}
         errorIndication = self.asyncSendNotification(
             authData, transportTarget, notifyType, notificationType, varBinds,
-            __cbFun, appReturn
+            (__cbFun, appReturn)
             )
         if errorIndication:
             return errorIndication
