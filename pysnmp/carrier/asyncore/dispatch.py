@@ -51,7 +51,7 @@ class AsynsockDispatcher(base.AbstractTransportDispatcher):
                 return 1
         return 0
     
-    def runDispatcher(self):
+    def runDispatcher(self, timeout=0.0):
         while self.jobsArePending() or self.transportsAreWorking():
             poll(self.timeout, self.__sockMap)
             self.handleTimerTick(time())
