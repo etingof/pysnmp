@@ -58,12 +58,12 @@ class PDUAPI(v1.PDUAPI):
         return [ varBinds ]
 
     def setEndOfMibError(self, pdu, errorIndex):
-        varBindList = self.apiGetVarBindList(pdu)
-        varBindList[errorIndex-1][1] = exval.endOfMib
+        varBindList = self.getVarBindList(pdu)
+        varBindList[errorIndex-1].setComponentByPosition(1, exval.endOfMib)
 
     def setNoSuchInstanceError(self, pdu, errorIndex):
-        varBindList = self.apiGetVarBindList(pdu)
-        varBindList[errorIndex-1][1] = exval.noSuchInstance
+        varBindList = self.getVarBindList(pdu)
+        varBindList[errorIndex-1].setComponentByPosition(1,exval.noSuchInstance)
 
 apiPDU = PDUAPI()
 
