@@ -521,7 +521,9 @@ class BulkCommandGenerator(CommandGeneratorBase):
           securityLevel ) = getTargetInfo(snmpEngine, addrName)
 
         pduVersion, pMod = getVersionSpecifics(messageProcessingModel)
-        
+       
+        if not hasattr(pMod, 'GetBulkRequestPDU'):
+            raise error.ProtocolError('BULK PDU not implemented at %s' % pMod)
         reqPDU = pMod.GetBulkRequestPDU()
         
         pMod.apiBulkPDU.setNonRepeaters(reqPDU, nonRepeaters)
