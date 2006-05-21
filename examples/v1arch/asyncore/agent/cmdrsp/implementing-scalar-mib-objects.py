@@ -44,18 +44,21 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
         rspMsg = pMod.apiMessage.getResponse(reqMsg)
         rspPDU = pMod.apiMessage.getPDU(rspMsg)        
         reqPDU = pMod.apiMessage.getPDU(reqMsg)
-        varBinds = []; errorIndex = -1
+        varBinds = []; pendingErrors = []
+        errorIndex = 0
         # GETNEXT PDU
         if reqPDU.isSameTypeWith(pMod.GetNextRequestPDU()):
             # Produce response var-binds
-            errorIndex = -1
             for oid, val in pMod.apiPDU.getVarBinds(reqPDU):
                 errorIndex = errorIndex + 1
                 # Search next OID to report
                 nextIdx = bisect.bisect(mibInstr, oid)
                 if nextIdx == len(mibInstr):
                     # Out of MIB
-                    pMod.apiPDU.setEndOfMibError(rspPDU, errorIndex)
+                    varBinds.append((oid, val))
+                    pendingErrors.append(
+                        (pMod.apiPDU.setEndOfMibError, errorIndex)
+                        )
                 else:
                     # Report value if OID is found
                     varBinds.append(
@@ -64,18 +67,21 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
         elif reqPDU.isSameTypeWith(pMod.GetRequestPDU()):
             for oid, val in pMod.apiPDU.getVarBinds(reqPDU):
                 if mibInstrIdx.has_key(oid):
-                    varBinds.append(
-                        (oid, mibInstrIdx[oid](msgVer))
-                        )
+                    varBinds.append((oid, mibInstrIdx[oid](msgVer)))
                 else:
                     # No such instance
-                    pMod.apiPDU.setNoSuchInstanceError(rspPDU, errorIndex)
-                    varBinds = pMod.apiPDU.getVarBinds(reqPDU)
+                    varBinds.append((oid, val))
+                    pendingErrors.append(
+                        (pMod.apiPDU.setNoSuchInstanceError, errorIndex)
+                        )
                     break
         else:
             # Report unsupported request type
             pMod.apiPDU.setErrorStatus(rspPDU, 'genErr')
         pMod.apiPDU.setVarBinds(rspPDU, varBinds)
+        # Commit possible error indices to response PDU
+        for f, i in pendingErrors:
+            f(rspPDU, i)
         transportDispatcher.sendMessage(
             encoder.encode(rspMsg), transportDomain, transportAddress
             )
