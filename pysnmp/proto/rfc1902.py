@@ -97,7 +97,7 @@ class Bits(univ.OctetString):
                     )
             d, m = divmod(v, 8)
             if d >= len(octets):
-                octets.extend((0,) * (d - len(octets) + 1))
+                octets.extend([0] * (d - len(octets) + 1))
             octets[d] = octets[d] | 0x01 << (7-m)
         return string.join(map(lambda x: chr(x), octets))
 
