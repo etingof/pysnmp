@@ -108,7 +108,7 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
         genericTrap = v1.apiTrapPDU.getGenericTrap(v1Pdu)
         if genericTrap == 6:
             snmpTrapOID = v1.apiTrapPDU.getEnterprise(v1Pdu) + (0,) + \
-                          v1.apiTrapPDU.getSpecificTrap(v1Pdu)
+                          (v1.apiTrapPDU.getSpecificTrap(v1Pdu),)
 
         # 3.1.3
         else:
