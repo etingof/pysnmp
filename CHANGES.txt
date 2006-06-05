@@ -1,3 +1,10 @@
+Revision 4.1.7a
+---------------
+
+- UNSTABLE ALPHA RELEASE.
+- Fix to snmpTrapOID construction at ...proxy.rfc2576.v1ToV2() 
+  function.
+
 Revision 4.1.6a
 ---------------
 
