@@ -212,33 +212,21 @@ class MibViewController:
         return self.getNodeNameByOid(oid, modName)
 
     def getNodeName(self, nodeName, modName=''):
-        if modName:
+        # nodeName may be either an absolute OID/label or a
+        # ( MIB-symbol, su, ff, ix)
+        try:
+            # First try nodeName as an OID/label
+            return self.getNodeNameByOid(nodeName, modName)
+        except error.NoSuchObjectError:
+            # ...on failure, try as MIB symbol
             oid, label, suffix = self.getNodeNameByDesc(
                 nodeName[0], modName
                 )
-            if len(nodeName) == 1:
-                return oid, label, suffix
-            else:
-                return self.getNodeNameByOid(
+            # ...with trailing suffix
+            return self.getNodeNameByOid(
                     oid + suffix + nodeName[1:], modName
                     )
-        else:
-            try:
-                return self.getNodeNameByOid(nodeName)
-            except error.NoSuchObjectError:
-                oid, label, suffix = self.getNodeNameByDesc(nodeName[0])
-                if len(nodeName) == 1:
-                    return oid, label, suffix
-                else:
-                    return self.getNodeNameByOid(
-                        oid + suffix + nodeName[1:], modName
-                        )
-
-#        if type(nodeName) == TupleType:
-#            return self.getNodeNameByOid(nodeName, modName)
-#        else:
-#            return self.getNodeNameByDesc(nodeName, modName)
-
+        
     def getFirstNodeName(self, modName=''):
         self.__indexMib()        
         mibMod = self.__mibSymbolsIdx.get(modName)
@@ -257,8 +245,7 @@ class MibViewController:
         oid, label, suffix = self.getNodeName(nodeName, modName)
         try:
             return self.getNodeName(
-                self.__mibSymbolsIdx[modName]['oidToLabelIdx'].nextKey(oid) + suffix,
-                modName
+                self.__mibSymbolsIdx[modName]['oidToLabelIdx'].nextKey(oid) + suffix, modName
                 )
         except KeyError:
             raise error.NoSuchObjectError(
