@@ -4,6 +4,8 @@ Revision 4.1.7a
 - UNSTABLE ALPHA RELEASE.
 - Fix to snmpTrapOID construction at ...proxy.rfc2576.v1ToV2() 
   function.
+- Fix to MibViewController.getNodeName() to take MIB module name
+  into account (SF bug #1505847).
 
 Revision 4.1.6a
 ---------------
