@@ -1,6 +1,6 @@
 from string import split, digits
 from pysnmp.smi import error
-from pyasn1.type import constraint, namedval
+from pyasn1.type import univ, constraint, namedval
 
 OctetString, Integer, ObjectIdentifier = mibBuilder.importSymbols(
     'ASN1', 'OctetString', 'Integer', 'ObjectIdentifier'
@@ -13,9 +13,9 @@ class TextualConvention:
     description = ''
     reference = ''
     bits = ()
-    __integer = Integer()
-    __octetString = OctetString()
-    __objectIdentifier = ObjectIdentifier()
+    __integer = univ.Integer()
+    __octetString = univ.OctetString()
+    __objectIdentifier = univ.ObjectIdentifier()
     def getDisplayHint(self): return self.displayHint
     def getStatus(self): return self.status
     def getDescription(self): return self.description
