@@ -6,6 +6,10 @@ Revision 4.1.7a
   function.
 - Fix to MibViewController.getNodeName() to take MIB module name
   into account (SF bug #1505847).
+- Fundamental ASN.1 types (rather than rfc1902 subtypes) are now used 
+  in MibTableRow index convertion and in TextualConvention.prettyPrint()
+  methods to figure out if value type belongs to arbitrary ASN.1 type
+  (SF bug #1506341).
 
 Revision 4.1.6a
 ---------------
