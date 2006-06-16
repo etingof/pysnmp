@@ -2,7 +2,7 @@ import string
 from pysnmp.smi.indices import OidOrderedDict
 from pysnmp.smi import exval, error
 from pysnmp.proto import rfc1902
-from pyasn1.type import univ, constraint
+from pyasn1.type import constraint
 from pyasn1.error import ValueConstraintError
 
 ( Integer, ObjectIdentifier, Null ) = mibBuilder.importSymbols("ASN1", "Integer", "ObjectIdentifier", "Null")
@@ -615,15 +615,17 @@ class MibTableRow(MibTree):
 
     # Table indices resolution
 
-    __intValue = univ.Integer()
-    __strValue = univ.OctetString()
-    __oidValue = univ.ObjectIdentifier()
+    __intValue = Integer()
+    __uint32Value = Unsigned32()
+    __strValue = OctetString()
+    __oidValue = ObjectIdentifier()
     __ipaddrValue = IpAddress()
 
     def setFromName(self, obj, value, impliedFlag=None):
         if not value:
             raise error.SmiError('Short OID for index %s' % repr(obj))
-        if self.__intValue.isSuperTypeOf(obj):
+        if self.__intValue.isSuperTypeOf(obj) or \
+               self.__uint32Value.isSuperTypeOf(obj):
             return obj.clone(value[0]), value[1:]
         elif self.__ipaddrValue.isSuperTypeOf(obj):
             return obj.clone(string.join(map(str, value[:4]), '.')), value[4:]
@@ -644,7 +646,8 @@ class MibTableRow(MibTree):
             raise error.SmiError('Unknown value type for index %s' % repr(obj))
 
     def getAsName(self, obj, impliedFlag=None):
-        if self.__intValue.isSuperTypeOf(obj):
+        if self.__intValue.isSuperTypeOf(obj) or \
+               self.__uint32Value.isSuperTypeOf(obj):
             return (int(obj),)
         elif self.__ipaddrValue.isSuperTypeOf(obj):
             return tuple(map(ord, obj))

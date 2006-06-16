@@ -1,11 +1,13 @@
 from string import split, digits
 from pysnmp.smi import error
-from pyasn1.type import univ, constraint, namedval
+from pyasn1.type import constraint, namedval
 
 OctetString, Integer, ObjectIdentifier = mibBuilder.importSymbols(
     'ASN1', 'OctetString', 'Integer', 'ObjectIdentifier'
     )
-TimeTicks, = mibBuilder.importSymbols('SNMPv2-SMI', 'TimeTicks')
+Unsigned32, TimeTicks, = mibBuilder.importSymbols(
+    'SNMPv2-SMI', 'Unsigned32', 'TimeTicks'
+    )
 
 class TextualConvention:
     displayHint = ''
@@ -13,9 +15,10 @@ class TextualConvention:
     description = ''
     reference = ''
     bits = ()
-    __integer = univ.Integer()
-    __octetString = univ.OctetString()
-    __objectIdentifier = univ.ObjectIdentifier()
+    __integer = Integer()
+    __unsigned32 = Unsigned32()
+    __octetString = OctetString()
+    __objectIdentifier = ObjectIdentifier()
     def getDisplayHint(self): return self.displayHint
     def getStatus(self): return self.status
     def getDescription(self): return self.description
@@ -23,7 +26,10 @@ class TextualConvention:
 
     def prettyOut(self, value):  # override asn1 type method
         """Implements DISPLAY-HINT evaluation"""
-        if self.displayHint and self.__integer.isSuperTypeOf(self):
+        if self.displayHint and (
+            self.__integer.isSuperTypeOf(self) or
+            self.__unsigned32.isSuperTypeOf(self)
+            ):
             t, f = apply(lambda t, f=0: (t, f), split(self.displayHint, '-'))
             if t == 'x':
                 return '0x%x' % value
