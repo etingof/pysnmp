@@ -8,7 +8,7 @@ Revision 4.1.7a
   into account (SF bug #1505847).
 - Do explicit check for Unsigned32 value type in MibTableRow index 
   convertion and in TextualConvention.prettyPrint() methods 
-  (SF bug #1506341).
+  (SF bug #1506341). Handle Bits in indices as RFC2578 suggests.
 
 Revision 4.1.6a
 ---------------
