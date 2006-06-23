@@ -41,7 +41,7 @@ class MibBuilder:
             for mibPath in self.__mibPaths:
                 try:
                     for modName in os.listdir(mibPath):
-                        if modName[0] == '_' or modName[-3:] != '.py':
+                        if modName == '__init__.py' or modName[-3:] != '.py':
                             continue
                         modNames[modName[:-3]] = None
                 except OSError:
