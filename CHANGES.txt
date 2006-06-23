@@ -13,6 +13,10 @@ Revision 4.1.7a
   whenever MIB text specifies that (SF bug #1508955).
 - Honor and apply DISPLAY-HINT specification when building TextualConvention
   class at libsmi2pysnmp.
+- Managed Objects Instances files (smi/mibs/instances/) are now 
+  double-underscore prefixed to make them imported explicitly by these
+  prefixed names. They used to be imported as a side-effect of
+  Managed Objects files import what is way too hackerish.
 
 Revision 4.1.6a
 ---------------
