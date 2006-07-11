@@ -65,5 +65,3 @@ Sparse notes on major existing problems/plans
 * Implement snmptranslate tool
 
 * exclude SNMP-COMMUNITY-MIB from view for better security
-
-* libsmi2pysnmp does not generate displayHint
