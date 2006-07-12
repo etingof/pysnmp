@@ -18,8 +18,7 @@ Revision 4.1.7a
   prefixed names. They used to be imported as a side-effect of
   Managed Objects files import what is way too hackerish.
 - The libsmi2pysnmp now supports future libsmi bugfix that would generate 
-  "ranges" subtree along with the legacy and ambiguous "range" one. The
-  patch to libsmi-0.4.5 included for the transition period.
+  "ranges" subtree along with the legacy and ambiguous "range" one. 
 
 Revision 4.1.6a
 ---------------
