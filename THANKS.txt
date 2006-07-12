@@ -1,0 +1,25 @@
+Many people contributed to pysnmp by reporting problems, suggesting
+various improvements or submitting actual code. The list goes
+in a more-or-less chronological order:
+
+Cameron Laird
+Case Vanhorsen
+Jarkko Torppa
+Tim Kwiatkowski
+Carlos Ribeiro
+Chris Green
+Doobee R. Tzeck
+Jim Crumpler
+Roy Smith
+Mark Kilmartin
+Matthew W. Samsonoff
+John P Speno
+Mike C. Fletcher
+Wichert Akkerman
+Hernan Perez Masci
+Martin Jackson
+Ivan Zderadicka
+Randy Couey
+
+Thanks to Python Software Foundation for granting financial support 
+for the project.
