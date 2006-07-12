@@ -154,7 +154,8 @@ class MsgAndPduDispatcher:
                 sendPduHandle
                 )
         except error.StatusInformation, statusInformation:
-#            self.releaseStateInformation(snmpEngine, sendPduHandle)
+# XXX is it still needed here?
+#            self.releaseStateInformation(snmpEngine, sendPduHandle, messageProcessingModel)
             raise
 
         # 4.1.1.6
