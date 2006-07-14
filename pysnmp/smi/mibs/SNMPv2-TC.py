@@ -300,7 +300,7 @@ class TimeInterval(Integer, TextualConvention):
     subtypeSpec = Integer.subtypeSpec+constraint.ValueRangeConstraint(0, 2147483647L)
 
 class DateAndTime(TextualConvention, OctetString):
-    subtypeSpec = Integer.subtypeSpec+constraint.ValueSizeConstraint(8, 11)
+    subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(8, 11)
     displayHint = "2d-1d-1d,1d:1d:1d.1d,1a1d:1d"
 
 class StorageType(Integer, TextualConvention):
