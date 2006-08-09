@@ -86,8 +86,8 @@ class Bits(univ.OctetString):
             )
 
     def prettyIn(self, bits):
-        if type(bits) == types.StringType:
-            return bits # raw bitstring
+        if type(bits) not in (types.TupleType, types.ListType):
+            return str(bits) # raw bitstring
         octets = []
         for bit in bits: # tuple of named bits
             v = self.__namedValues.getValue(bit)
@@ -103,7 +103,7 @@ class Bits(univ.OctetString):
 
     def prettyOut(self, value):
         names = []
-        octets = tuple(map(None, value))
+        octets = tuple(map(None, str(value)))
         i = 0
         while i < len(octets):
             v = ord(octets[i])
