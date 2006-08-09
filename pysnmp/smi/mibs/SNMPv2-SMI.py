@@ -491,7 +491,7 @@ class MibTableColumn(MibScalar):
         # Drop previous column instance
         if self.__createdInstances.has_key(name):
             if self.__createdInstances[name] is not None:
-                self.__createdInstances[name].cleanupCleanup(
+                self.__createdInstances[name].createCleanup(
                     name, val, idx, (acFun, acCtx)
                     )
             del self.__createdInstances[name]
