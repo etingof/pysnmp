@@ -19,6 +19,8 @@ Revision 4.1.7a
   Managed Objects files import what is way too hackerish.
 - The libsmi2pysnmp now supports future libsmi bugfix that would generate 
   "ranges" subtree along with the legacy and ambiguous "range" one. 
+- A handful of minor fixes applied (SourceForge tracker IDs #1537592,
+  #1537600, #1537659).
 
 Revision 4.1.6a
 ---------------
