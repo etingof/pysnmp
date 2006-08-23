@@ -59,6 +59,6 @@ def cloneFromMibValue(mibView, modName, symName, value):
         modName, symName
         )
     if hasattr(mibNode, 'syntax'): # scalar
-        return mibNode.syntax.clone(value)
+        return mibNode.syntax.__class__(value)
     else:
         return   # identifier
