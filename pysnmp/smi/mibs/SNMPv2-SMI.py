@@ -369,12 +369,15 @@ class MibScalarInstance(MibTree):
     def readTest(self, name, val, idx, (acFun, acCtx)):
         if name != self.name:
             raise error.NoSuchObjectError(idx=idx, name=name)
-    
+
     def readGet(self, name, val, idx, (acFun, acCtx)):
         # Return current variable (name, value). This is the only API method
         # capable of returning anything!
         if name == self.name:
-            return self.name, self.syntax.clone()
+            if hasattr(self.syntax, 'smiRead'):
+                return self.name, self.syntax.smiRead(name, val)
+            else:
+                return self.name, self.syntax.clone()
         else:
             raise error.NoSuchObjectError(idx=idx, name=name)
     
@@ -383,7 +386,10 @@ class MibScalarInstance(MibTree):
     def writeTest(self, name, val, idx, (acFun, acCtx)):
         # Make sure write's allowed
         if name == self.name:
-            self.__newSyntax = self.syntax.clone(val)
+            if hasattr(self.syntax, 'smiWrite'):
+                self.__newSyntax = self.syntax.smiWrite(name, val)
+            else:
+                self.__newSyntax = self.syntax.clone(val)
         else:
             raise error.NoSuchObjectError(idx=idx, name=name)
 
@@ -464,8 +470,12 @@ class MibTableColumn(MibScalar):
                acFun and acFun(name, idx, 'write', acCtx):
             raise error.NoCreationError(idx=idx, name=name)
         if not self.__createdInstances.has_key(name):
+            if hasattr(self.syntax, 'smiCreate'):
+                syntax = self.syntax.smiCreate(name)
+            else:
+                syntax = self.syntax.clone()
             self.__createdInstances[name] = self.protoInstance(
-                self.name, name[len(self.name):], self.syntax.clone()
+                self.name, name[len(self.name):], syntax
                 )
         try:
             self.__createdInstances[name].createTest(
