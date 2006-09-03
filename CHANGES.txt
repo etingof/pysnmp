@@ -19,9 +19,12 @@ Revision 4.1.7a
   Managed Objects files import what is way too hackerish.
 - The libsmi2pysnmp now supports future libsmi bugfix that would generate 
   "ranges" subtree along with the legacy and ambiguous "range" one. 
-- In mibvar.py, do not use clone() for value duplication as it may 
-  invoke Agent specific code (such as in RowStatus). Do instantiation
-  instead, which is a kind of hack. Maybe there's a better solution...
+- Managed Object Instances may now have smiRead, smiWrite, smiCreate methods
+  to support specific value mangling. These methods, if present, would be 
+  invoked from SNMP [Agent] core instead of conventional clone() method.
+  The reason is to separate trivial value duplication from specific
+  Instance value mangling that may have Agent-specific side effects
+  (such as RowStatus).
 - A handful of minor fixes applied (SourceForge tracker IDs #1537592,
   #1537600, #1537659).
 
