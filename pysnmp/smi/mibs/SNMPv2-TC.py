@@ -173,9 +173,7 @@ class TruthValue(Integer, TextualConvention):
 class TestAndIncr(Integer, TextualConvention):
     subtypeSpec = Integer.subtypeSpec+constraint.ValueRangeConstraint(0, 2147483647L)
     defaultValue = 0
-    def clone(self, value=None, tagSet=None, subtypeSpec=None):
-        if value is None:
-            return self
+    def smiWrite(self, name, value):
         if value != self:
             raise error.InconsistentValueError(
                 'Old/new values mismatch %s: %s' % (self, value)
@@ -183,7 +181,7 @@ class TestAndIncr(Integer, TextualConvention):
         value = value + 1
         if value > 2147483646:
             value = 0
-        return Integer.clone(self, value, tagSet, subtypeSpec)
+        return self.clone(self, value)
 
 class AutonomousType(ObjectIdentifier, TextualConvention): pass
 class InstancePointer(ObjectIdentifier, TextualConvention):
@@ -277,9 +275,7 @@ class RowStatus(Integer, TextualConvention):
         }
     defaultValue = stNotExists
                                     
-    def clone(self, value=None, tagSet=None, subtypeSpec=None): # XXX
-        if value is None:
-            return self
+    def smiWrite(self, name, value):
         # Run through states transition matrix, resolve new instance value
         err, val = self.stateMatrix.get(
             (value, int(self)), (error.SmiError, None)
@@ -289,7 +285,7 @@ class RowStatus(Integer, TextualConvention):
                 msg='Exception at row state transition %s->%s' % (self, value)
                 )
         if val is not None:
-            return RowStatus(val)
+            return self.clone(val)
         if err is not None:
             raise err
         return self
