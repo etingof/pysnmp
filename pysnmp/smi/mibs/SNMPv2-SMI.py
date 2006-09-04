@@ -593,26 +593,31 @@ class MibTableColumn(MibScalar):
             getattr(self, 'destroy'+subAction)(
                 name, val, idx, (acFun, acCtx)
                 )
-        raise self.__rowOpWanted[name]
-
+        
     def writeCommit(self, name, val, idx, (acFun, acCtx)):
         self.__delegateWrite(
             'Commit', name, val, idx, (acFun, acCtx)
             )
+        if self.__rowOpWanted.has_key(name):
+            raise self.__rowOpWanted[name]
 
     def writeCleanup(self, name, val, idx, (acFun, acCtx)):
         self.__delegateWrite(
             'Cleanup', name, val, idx, (acFun, acCtx)
             )
         if self.__rowOpWanted.has_key(name):
+            e = self.__rowOpWanted[name]
             del self.__rowOpWanted[name]
+            raise e
             
     def writeUndo(self, name, val, idx, (acFun, acCtx)):
         self.__delegateWrite(
             'Undo', name, val, idx, (acFun, acCtx)
             )
         if self.__rowOpWanted.has_key(name):
+            e = self.__rowOpWanted[name]
             del self.__rowOpWanted[name]
+            raise e
 
 class MibTableRow(MibTree):
     """MIB table row (SMI 'Entry'). Manages a set of table columns.
