@@ -26,7 +26,7 @@ Revision 4.1.7a
   Instance value mangling that may have Agent-specific side effects
   (such as RowStatus).
 - A handful of minor fixes applied (SourceForge tracker IDs #1537592,
-  #1537600, #1537659).
+  #1537600, #1537659, #1548208).
 
 Revision 4.1.6a
 ---------------
