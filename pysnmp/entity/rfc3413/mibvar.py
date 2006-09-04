@@ -17,17 +17,18 @@ def mibNameToOid(mibView, name):
         else:
             oid, label, suffix = mibView.getFirstNodeName(modName)
         suffix = name[1:]
+        modName, symName, _s = mibView.getNodeLocation(oid)
+        mibNode, = mibView.mibBuilder.importSymbols(
+            modName, symName
+            )
+        if hasattr(mibNode, 'createTest'): # table column XXX
+            modName, symName, _s = mibView.getNodeLocation(oid[:-1])
+            rowNode, = mibView.mibBuilder.importSymbols(modName, symName)
+            return oid, apply(rowNode.getInstIdFromIndices, suffix)
+        else: # scalar or incomplete spec
+            return oid, suffix
     else:
         oid, label, suffix = mibView.getNodeNameByOid(name)
-    modName, symName, _s = mibView.getNodeLocation(oid)
-    mibNode, = mibView.mibBuilder.importSymbols(
-        modName, symName
-        )
-    if hasattr(mibNode, 'createTest'): # table column XXX
-        modName, symName, _s = mibView.getNodeLocation(oid[:-1])
-        rowNode, = mibView.mibBuilder.importSymbols(modName, symName)
-        return oid, apply(rowNode.getInstIdFromIndices, suffix)
-    else: # scalar or incomplete spec
         return oid, suffix
 
 __scalarSuffix = (univ.Integer(0),)
