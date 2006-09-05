@@ -5,6 +5,7 @@ try:
     import pysnmp_mibs
 except ImportError:
     pysnmp_mibs = None
+from pysnmp import debug
 
 class MibBuilder:
     def __init__(self):
@@ -31,6 +32,8 @@ class MibBuilder:
     def setMibPath(self, *mibPaths):
         self.__modSeen.clear()
         self.__mibPaths = map(os.path.normpath, mibPaths)
+        if debug.logger:
+            debug.logger(debug.flagSMI, 'new MIB path %s' % (self.__mibPaths,))
 
     def getMibPath(self): return tuple(self.__mibPaths)
         
@@ -57,12 +60,19 @@ class MibBuilder:
                     mibPath, modName + '.py'
                     )
 
+                if debug.logger:
+                    debug.logger(debug.flagSMI, 'trying %s' % modPath)
+
                 try:
                     open(modPath).close()
-                except IOError:
+                except IOError, why:
+                    if debug.logger:
+                        debug.logger(debug.flagSMI, 'open() %s' % why)
                     continue
 
                 if self.__modPathsSeen.has_key(modPath):
+                    if debug.logger:
+                        debug.logger(debug.flagSMI, 'seen %s' % modPath)
                     continue
                 else:
                     self.__modPathsSeen[modPath] = 1
@@ -78,6 +88,9 @@ class MibBuilder:
                         )
 
                 self.__modSeen[modName] = 1
+
+                if debug.logger:
+                    debug.logger(debug.flagSMI, 'loaded %s' % modPath)
 
             if not self.__modSeen.has_key(modName):
                 raise error.SmiError(
