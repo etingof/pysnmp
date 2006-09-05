@@ -131,7 +131,10 @@ class MsgAndPduDispatcher:
         sendPduHandle = self.__newSendPduHandle()
         if expectResponse:
             self.__cacheAdd(
-                sendPduHandle, expectResponse=expectResponse
+                sendPduHandle,
+                messageProcessingModel=messageProcessingModel,
+                sendPduHandle=sendPduHandle,
+                expectResponse=expectResponse
                 )
 
         # 4.1.1.4 & 4.1.1.5
@@ -171,16 +174,13 @@ class MsgAndPduDispatcher:
                 sendPduHandle,
                 transportDomain=transportDomain,
                 transportAddress=transportAddress,
-                messageProcessingModel=messageProcessingModel,
                 securityModel=securityModel,
                 securityName=securityName,
                 securityLevel=securityLevel,
                 contextEngineId=contextEngineId,
                 contextName=contextName,
                 pduVersion=pduVersion,
-                PDU=PDU,
-                expectResponse=expectResponse,
-                sendPduHandle=sendPduHandle,
+                PDU=PDU
                 )
 
         return sendPduHandle
