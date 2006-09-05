@@ -1,6 +1,11 @@
+from pysnmp.proto import error
+
 class AbstractEncryptionService:
     serviceID = None
     def encryptData(self, mibInstrumController, encryptKey,
-                    dataToEncrypt):pass
+                    dataToEncrypt):
+        raise error.ProtocolError('encryption not implemented')
+    
     def decryptData(self, mibInstrumController, decryptKey,
-                    privParameters, encryptedData): pass
+                    privParameters, encryptedData):
+        raise error.ProtocolError('encryption not implemented')
