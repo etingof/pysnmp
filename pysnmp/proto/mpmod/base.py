@@ -27,7 +27,8 @@ class AbstractMessageProcessingModel:
         pdu,
         expectResponse,
         sendPduHandle
-        ): pass
+        ):
+        raise error.ProtocolError('method not implemented')
         
     def prepareResponseMessage(
         self,
@@ -43,7 +44,8 @@ class AbstractMessageProcessingModel:
         maxSizeResponseScopedPDU,
         stateReference,
         statusInformation
-        ): pass
+        ):
+        raise error.ProtocolError('method not implemented')
 
     def prepareDataElements(
         self,
@@ -51,7 +53,8 @@ class AbstractMessageProcessingModel:
         transportDomain,
         transportAddress,
         wholeMsg
-        ): pass
+        ):
+        raise error.ProtocolError('method not implemented')
 
     def _newStateReference(self):
         AbstractMessageProcessingModel.__stateReference = (
