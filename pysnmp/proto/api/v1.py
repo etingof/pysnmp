@@ -65,7 +65,7 @@ class PDUAPI:
         errorIndex = pdu.getComponentByPosition(2)
         if errorIndex > len(pdu[3]):
             raise error.ProtocolError(
-                'Error index out of range: %s' % errorIndex
+                'Error index out of range: %s > %s' % (errorIndex, len(pdu[3]))
                 )
         return errorIndex
     def setErrorIndex(self, pdu, value):
