@@ -47,8 +47,6 @@ Sparse notes on major existing problems/plans
 * Sort out whether pyasn1 obejcts should probably have either clone() or 
   subtype() methods.
 
-* Implement SNMP engine-scope debug mode logging
-
 * Convert symbolic constants (keys, SNMP errors) into singular, hashable
   objects for performance and typing reliablity
 
