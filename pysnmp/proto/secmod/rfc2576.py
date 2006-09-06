@@ -3,6 +3,7 @@ from pyasn1.codec.ber import encoder
 from pysnmp.proto.secmod import base
 from pysnmp.smi.error import NoSuchInstanceError
 from pysnmp.proto import error
+from pysnmp import debug
 
 class SnmpV1SecurityModel(base.AbstractSecurityModel):
     securityModelID = 1
@@ -64,6 +65,9 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                 snmpCommunityName.name + instId
                 )
             securityParameters = mibNode.syntax
+            
+            debug.logger & debug.flagSM and debug.logger('generateRequestMsg: found community %s for securityName %s contextEngineId %s contextName %s' % (securityParameters, securityName, contextEngineId, contextName))
+            
             msg.setComponentByPosition(1, securityParameters)
             msg.setComponentByPosition(2)
             msg.getComponentByPosition(2).setComponentByType(pdu.tagSet, pdu)
@@ -92,6 +96,9 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         contextEngineId, contextName, pdu = scopedPDU
         cachedSecurityData = self._cachePop(securityStateReference)
         communityName = cachedSecurityData['communityName']
+
+        debug.logger & debug.flagSM and debug.logger('generateResponseMsg: recovered community %s by securityStateReference %s' % (communityName, securityStateReference))
+        
         msg.setComponentByPosition(1, communityName)
         msg.setComponentByPosition(2)
         msg.getComponentByPosition(2).setComponentByType(pdu.tagSet, pdu)
@@ -140,7 +147,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
             raise error.StatusInformation(
                 errorIndication = 'unknownCommunityName'
                 )
-
+        
         # XXX TODO: snmpCommunityTransportTag 
         instId = mibNodeIdx.name[len(snmpCommunityName.name):]
         communityName = snmpCommunityName.getNode(
@@ -157,6 +164,8 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
             )
         snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
+        debug.logger & debug.flagSM and debug.logger('processIncomingMsg: looked up securityName %s contextEngineId %s contextName %s by communityName %s' % (securityName, contextEngineId, contextName))
+
         stateReference = self._cachePush(
             communityName=communityName.syntax
             )
@@ -169,6 +178,8 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
             )
         maxSizeResponseScopedPDU = maxMessageSize - 128
         securityStateReference = stateReference
+
+        debug.logger & debug.flagSM and debug.logger('processIncomingMsg: generated maxSizeResponseScopedPDU %s securityStateReference %s' % (maxSizeResponseScopedPDU, securityStateReference))
         
         return ( securityEngineID,
                  securityName,

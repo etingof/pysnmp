@@ -32,8 +32,7 @@ class MibBuilder:
     def setMibPath(self, *mibPaths):
         self.__modSeen.clear()
         self.__mibPaths = map(os.path.normpath, mibPaths)
-        if debug.logger:
-            debug.logger(debug.flagSMI, 'new MIB path %s' % (self.__mibPaths,))
+        debug.logger & debug.flagBld and debug.logger('setMibPath: new MIB path %s' % (self.__mibPaths,))
 
     def getMibPath(self): return tuple(self.__mibPaths)
         
@@ -60,19 +59,16 @@ class MibBuilder:
                     mibPath, modName + '.py'
                     )
 
-                if debug.logger:
-                    debug.logger(debug.flagSMI, 'trying %s' % modPath)
+                debug.logger & debug.flagBld and debug.logger('loadModules: trying %s' % modPath)
 
                 try:
                     open(modPath).close()
                 except IOError, why:
-                    if debug.logger:
-                        debug.logger(debug.flagSMI, 'open() %s' % why)
+                    debug.logger & debug.flagBld and debug.logger('loadModules: open() %s' % why)
                     continue
 
                 if self.__modPathsSeen.has_key(modPath):
-                    if debug.logger:
-                        debug.logger(debug.flagSMI, 'seen %s' % modPath)
+                    debug.logger & debug.flagBld and debug.logger('loadModules: seen %s' % modPath)
                     continue
                 else:
                     self.__modPathsSeen[modPath] = 1
@@ -89,8 +85,7 @@ class MibBuilder:
 
                 self.__modSeen[modName] = 1
 
-                if debug.logger:
-                    debug.logger(debug.flagSMI, 'loaded %s' % modPath)
+                debug.logger & debug.flagBld and debug.logger('loadModules: loaded %s' % modPath)
 
             if not self.__modSeen.has_key(modName):
                 raise error.SmiError(
@@ -124,6 +119,7 @@ class MibBuilder:
         mibSymbols = self.mibSymbols[modName]
         
         for symObj in anonymousSyms:
+            debug.logger & debug.flagBld and debug.logger('exportSymbols: anonymous symbol %s::__pysnmp_%ld'  % (modName, self._autoName))
             mibSymbols['__pysnmp_%ld' % self._autoName] = symObj
             self._autoName = self._autoName + 1
             
@@ -135,5 +131,7 @@ class MibBuilder:
             if hasattr(symObj, 'label') and symObj.label:
                 symName = symObj.label
             mibSymbols[symName] = symObj
+            
+            debug.logger & debug.flagBld and debug.logger('exportSymbols: symbol %s::%s' % (modName, symName))
             
         self.lastBuildId = self.lastBuildId + 1

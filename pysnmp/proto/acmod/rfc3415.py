@@ -1,6 +1,7 @@
 # View-based Access Control Model
 from pysnmp.smi.error import NoSuchObjectError
 from pysnmp.proto import error
+from pysnmp import debug
 
 accessModelID = 3
 
@@ -15,7 +16,10 @@ def isAccessAllowed(
     viewType,
     contextName,
     variableName):
-    mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController 
+    mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
+
+    debug.logger & debug.flagACL and debug.logger('isAccessAllowed: viewType %s for variableName %s' % (viewType, variableName))
+
     # 3.2.1
     vacmContextEntry, = mibInstrumController.mibBuilder.importSymbols('SNMP-VIEW-BASED-ACM-MIB', 'vacmContextEntry')
     tblIdx = vacmContextEntry.getInstIdFromIndices(contextName)

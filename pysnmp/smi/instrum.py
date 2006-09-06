@@ -1,6 +1,7 @@
 # MIB modules management
 from types import InstanceType
 from pysnmp.smi import error
+from pysnmp import debug
 
 __all__ = [ 'MibInstrumController' ]
 
@@ -140,13 +141,16 @@ class MibInstrumController:
         # Attach Scalars to MIB tree
         for scalar in scalars.values():
             mibTree.registerSubtrees(scalar)
-            
+
+        debug.logger & debug.flagIns and debug.logger('__indexMib: rebuilt')
+        
         self.lastBuildId = self.mibBuilder.lastBuildId
         
     # MIB instrumentation
     
     def flipFlopFsm(self, fsmTable, inputNameVals, (acFun, acCtx)):
         self.__indexMib()
+        debug.logger & debug.flagIns and debug.logger('flipFlopFsm: inputNameVals %s' % inputNameVals)
         mibTree, = self.mibBuilder.importSymbols('SNMPv2-SMI', 'iso')
         outputNameVals = []
         state, status = 'start', 'ok'
@@ -159,6 +163,7 @@ class MibInstrumController:
                     raise error.SmiError(
                         'Unresolved FSM state %s, %s' % (state, status)
                         )
+            debug.logger & debug.flagIns and debug.logger('flipFlopFsm: state %s status %s -> fsmState %s' % (state, status, fsmState))
             state = fsmState
             status = 'ok'
             if state == 'stop':
@@ -175,11 +180,13 @@ class MibInstrumController:
                     # on subscription
                     rval = f(tuple(name), val, idx, (acFun, acCtx))
                 except error.SmiError, why:
+                    debug.logger & debug.flagIns and debug.logger('flipFlopFsm: fun %s failed %s for %s=%s' % (f, why, name, val))
                     if myErr is None:  # Take the first exception
                         myErr = why
                     status = 'err'
                     break
                 else:
+                    debug.logger & debug.flagIns and debug.logger('flipFlopFsm: fun %s suceeded for %s=%s' % (f, name, val))                    
                     if rval is not None:
                         outputNameVals.append((rval[0], rval[1]))
                 idx = idx + 1

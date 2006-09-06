@@ -6,6 +6,7 @@ from pysnmp.proto import rfc3411, error
 from pysnmp.proto.api import v1, v2c
 from pyasn1.type import univ
 from pyasn1.error import PyAsn1Error
+from pysnmp import debug
 
 # Since I have not found a detailed reference to v1MP/v2cMP
 # inner workings, the following has been patterned from v3MP. Most
@@ -50,6 +51,8 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.1.5
         if not contextName:
             contextName = ''
+
+        debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: using contextEngineId %s contextName %s' % (contextEngineId, contextName))
 
         # rfc3412: 7.1.6
         scopedPDU = ( contextEngineId, contextName, pdu )
@@ -137,6 +140,8 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         transportDomain = cachedParams['transportDomain']
         transportAddress = cachedParams['transportAddress']
 
+        debug.logger & debug.flagMP and debug.logger('prepareResponseMessage: cache read msgID %s transportDomain %s transportAddress %s by stateReference %s' % (msgID, transportDomain, transportAddress, stateReference))
+
         # rfc3412: 7.1.3
         if statusInformation:
             # rfc3412: 7.1.3a (N/A)
@@ -159,6 +164,8 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.1.6
         scopedPDU = ( contextEngineId, contextName, pdu )
 
+        debug.logger & debug.flagMP and debug.logger('prepareResponseMessage: using contextEngineId %s contextName %s' % (contextEngineId, contextName))
+        
         msg = self._snmpMsgSpec.clone()
         msg.setComponentByPosition(0, messageProcessingModel)
         msg.setComponentByPosition(2)
@@ -215,6 +222,8 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                 errorIndication = 'parseError'
                 )
 
+        debug.logger & debug.flagMP and debug.logger('prepareDataElements: msg decoded')
+
         # rfc3412: 7.2.3
         msgVersion = messageProcessingModel = msg.getComponentByPosition(0)
         pdu = msg.getComponentByPosition(2).getComponent()
@@ -255,6 +264,8 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             wholeMsg,
             msg
             )
+
+        debug.logger & debug.flagMP and debug.logger('prepareDataElements: SM returned securityEngineID %s securityName %s' % (securityEngineID, securityName))
 
         # rfc3412: 7.2.6a --> noop
 
@@ -345,7 +356,9 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                 maxSizeResponseScopedPDU=maxSizeResponseScopedPDU,
                 transportDomain=transportDomain,
                 transportAddress=transportAddress
-                )            
+                )
+
+            debug.logger & debug.flagMP and debug.logger('prepareDataElements: cached by new stateReference %s' % stateReference)
                 
             # rfc3412: 7.2.13c
             return ( messageProcessingModel,

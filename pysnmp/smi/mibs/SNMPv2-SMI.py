@@ -4,6 +4,7 @@ from pysnmp.smi import exval, error
 from pysnmp.proto import rfc1902
 from pyasn1.type import constraint
 from pyasn1.error import ValueConstraintError
+from pysnmp import debug
 
 ( Integer, ObjectIdentifier, Null ) = mibBuilder.importSymbols("ASN1", "Integer", "ObjectIdentifier", "Null")
 
@@ -374,6 +375,7 @@ class MibScalarInstance(MibTree):
         # Return current variable (name, value). This is the only API method
         # capable of returning anything!
         if name == self.name:
+            debug.logger & debug.flagIns and debug.logger('readGet: %s=%s' % (self.name, self.syntax))
             if hasattr(self.syntax, 'smiRead'):
                 return self.name, self.syntax.smiRead(name, val)
             else:
@@ -398,6 +400,7 @@ class MibScalarInstance(MibTree):
         self.syntax, self.__newSyntax = self.__newSyntax, self.syntax
         
     def writeCleanup(self, name, val, idx, (acFun, acCtx)):
+        debug.logger & debug.flagIns and debug.logger('writeCleanup: %s=%s' % (name, val))
         # Drop previous value
         self.__newSyntax = None
     
@@ -416,6 +419,7 @@ class MibScalarInstance(MibTree):
         if val is not None:
             self.writeCommit(name, val, idx, (acFun, acCtx))
     def createCleanup(self, name, val, idx, (acFun, acCtx)):
+        debug.logger & debug.flagIns and debug.logger('createCleanup: %s=%s' % (name, val))
         if val is not None:
             self.writeCleanup(name, val, idx, (acFun, acCtx))
     def createUndo(self, name, val, idx, (acFun, acCtx)):
@@ -755,6 +759,7 @@ class MibTableRow(MibTree):
     def __manageColumns(self, action, nameSuffix, val, idx, (acFun, acCtx)):
         for name, var in self._vars.items():
             getattr(var, action)(name + nameSuffix, val, idx, (acFun, acCtx))
+            debug.logger & debug.flagIns and debug.logger('__manageColumns: action %s name %s suffix %s' % (action, name, nameSuffix))
 
     def __delegate(self, subAction, name, val, idx, (acFun, acCtx)):
         # Relay operation request to column, expect row operation request.

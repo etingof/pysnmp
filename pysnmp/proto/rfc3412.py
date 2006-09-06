@@ -6,6 +6,7 @@ from pysnmp.proto.api import verdec # XXX
 from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
 from pysnmp.carrier.asynsock.dgram import udp
 from pysnmp.error import PySnmpError
+from pysnmp import debug
 
 class MsgAndPduDispatcher:
     """SNMP engine PDU & message dispatcher. Exchanges SNMP PDU's with
@@ -74,7 +75,8 @@ class MsgAndPduDispatcher:
 
             # 4.3.4
             self.__appsRegistration[k] = processPdu
-        
+
+        debug.logger & debug.flagDsp and debug.logger('registerContextEngineId: contextEngineId %s pduTypes %s' % (contextEngineId, pduTypes))
     # 4.4.1
     def unregisterContextEngineId(self, contextEngineId, pduTypes):
         """Unregister application with dispatcher"""
@@ -87,6 +89,8 @@ class MsgAndPduDispatcher:
             k = (str(contextEngineId), pduType)
             if self.__appsRegistration.has_key(k):
                 del self.__appsRegistration[k]
+
+        debug.logger & debug.flagDsp and debug.logger('unregisterContextEngineId: contextEngineId %s pduTypes %s' % (contextEngineId, pduTypes))
 
     def getRegisteredApp(self, contextEngineId, pduType):
         k = ( str(contextEngineId), pduType )
@@ -116,8 +120,6 @@ class MsgAndPduDispatcher:
         expectResponse
         ):
         """PDU dispatcher -- prepare and serialize a request or notification"""
-#        print 'sendPdu', PDU
-#        print transportDomain, transportAddress, messageProcessingModel, securityModel, securityName, securityLevel, contextEngineId, contextName, pduVersion
         # 4.1.1.2
         mpHandler = snmpEngine.messageProcessingSubsystems.get(
             int(messageProcessingModel)
@@ -136,6 +138,8 @@ class MsgAndPduDispatcher:
                 sendPduHandle=sendPduHandle,
                 expectResponse=expectResponse
                 )
+
+        debug.logger & debug.flagDsp and debug.logger('sendPdu: new sendPduHandle %s' % sendPduHandle)
 
         # 4.1.1.4 & 4.1.1.5
         try:
@@ -156,6 +160,7 @@ class MsgAndPduDispatcher:
                 expectResponse,
                 sendPduHandle
                 )
+            debug.logger & debug.flagDsp and debug.logger('sendPdu: MP succeeded')
         except error.StatusInformation, statusInformation:
 # XXX is it still needed here?
 #            self.releaseStateInformation(snmpEngine, sendPduHandle, messageProcessingModel)
@@ -202,7 +207,6 @@ class MsgAndPduDispatcher:
         statusInformation
         ):
         """PDU dispatcher -- prepare and serialize a response"""
-#        print 'returnResponsePdu', PDU, statusInformation
         # Extract input values and initialize defaults
         mpHandler = snmpEngine.messageProcessingSubsystems.get(
             int(messageProcessingModel)
@@ -230,6 +234,7 @@ class MsgAndPduDispatcher:
                 stateReference,
                 statusInformation
                 )
+            debug.logger & debug.flagDsp and debug.logger('returnResponsePdu: MP suceeded')
         except error.StatusInformation, statusInformation:
             # 4.1.2.3
             raise
@@ -258,7 +263,6 @@ class MsgAndPduDispatcher:
         wholeMsg
         ):
         """Message dispatcher -- de-serialize message into PDU"""
-#        print 'receiveMessage', time.time() #, repr(wholeMsg)
         # 4.2.1.1
         snmpInPkts, = self.mibInstrumController.mibBuilder.importSymbols(
             '__SNMPv2-MIB', 'snmpInPkts'
@@ -274,15 +278,15 @@ class MsgAndPduDispatcher:
             snmpInAsn1ParseErrs.syntax = snmpInAsn1ParseErrs.syntax + 1
             return ''  # n.b the whole buffer gets dropped
 
+        debug.logger & debug.flagDsp and debug.logger('receiveMessage: msgVersion %s, msg decoded' % msgVersion)
+
         messageProcessingModel = msgVersion
         
         mpHandler = snmpEngine.messageProcessingSubsystems.get(
             int(messageProcessingModel)
             )
         if mpHandler is None:
-            snmpInBadVersions, = self.mibInstrumController.mibBuilder.importSymbols(
-                '__SNMPv2-MIB', 'snmpInBadVersions'
-                )
+            snmpInBadVersions, = self.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInBadVersions')
             snmpInBadVersions.syntax = snmpInBadVersions.syntax + 1
             return restOfWholeMsg
 
@@ -308,10 +312,12 @@ class MsgAndPduDispatcher:
                 transportAddress,
                 wholeMsg
                 )
+            debug.logger & debug.flagDsp and debug.logger('receiveMessage: MP succeded')
         except error.StatusInformation, statusInformation:
             if statusInformation.has_key('sendPduHandle'):
                 # Dropped REPORT -- re-run pending reqs queue as some
                 # of them may be waiting for this REPORT
+                debug.logger & debug.flagDsp and debug.logger('receiveMessage: MP failed, statusInformation %s' % statusInformation)
                 self.__expireRequest(
                     snmpEngine,
                     self.__cachePop(statusInformation['sendPduHandle']),
@@ -319,14 +325,14 @@ class MsgAndPduDispatcher:
                     )
             return restOfWholeMsg
 
-#        print 'recv', PDU
         # 4.2.2
         if sendPduHandle is None:
             # 4.2.2.1 (request or notification)
 
+            debug.logger & debug.flagDsp and debug.logger('receiveMessage: pduType %s' % pduType)
             # 4.2.2.1.1
             processPdu = self.getRegisteredApp(contextEngineId, pduType)
-
+            
             # 4.2.2.1.2
             if processPdu is None:
                 # 4.2.2.1.2.a
@@ -340,6 +346,8 @@ class MsgAndPduDispatcher:
                     'val': snmpUnknownPDUHandlers.syntax
                     }                    
 
+                debug.logger & debug.flagDsp and debug.logger('receiveMessage: unhandled PDU type')
+                
                 # XXX fails on unknown PDU
                 
                 try:
@@ -360,6 +368,7 @@ class MsgAndPduDispatcher:
                         statusInformation
                         )
                 except error.StatusInformation, statusInformation:
+                    debug.logger & debug.flagDsp and debug.logger('receiveMessage: report failed, statusInformation %s' % statusInformation)
                     return restOfWholeMsg
                 
                 # 4.2.2.1.2.c
@@ -372,6 +381,8 @@ class MsgAndPduDispatcher:
                 except PySnmpError: # XXX
                     pass
 
+                debug.logger & debug.flagDsp and debug.logger('receiveMessage: reporting succeeded')
+                
                 # 4.2.2.1.2.d
                 return restOfWholeMsg
             else:
@@ -389,6 +400,7 @@ class MsgAndPduDispatcher:
                     maxSizeResponseScopedPDU,
                     stateReference
                     )
+                debug.logger & debug.flagDsp and debug.logger('receiveMessage: processPdu succeeded')
                 return restOfWholeMsg
         else:
             # 4.2.2.2 (response)
@@ -402,6 +414,8 @@ class MsgAndPduDispatcher:
                 snmpUnknownPDUHandlers.syntax = snmpUnknownPDUHandlers.syntax+1
                 return restOfWholeMsg
 
+            debug.logger & debug.flagDsp and debug.logger('receiveMessage: cache read by sendPduHandle %s' % sendPduHandle)
+            
             # 4.2.2.2.3
             # no-op ? XXX
 
@@ -423,7 +437,7 @@ class MsgAndPduDispatcher:
                 cachedParams['sendPduHandle'],
                 cbCtx
                 )
-
+            debug.logger & debug.flagDsp and debug.logger('receiveMessage: processResponsePdu succeeded')
             return restOfWholeMsg
 
     def releaseStateInformation(
@@ -440,6 +454,9 @@ class MsgAndPduDispatcher:
         processResponsePdu, timeoutAt, cbCtx = cachedParams['expectResponse']
         if statusInformation is None and time.time() < timeoutAt:
             return
+
+        debug.logger & debug.flagDsp and debug.logger('__expireRequest: req cachedParams %s' % cachedParams)
+
         # Fail timed-out requests        
         if not statusInformation:
             statusInformation = error.StatusInformation(

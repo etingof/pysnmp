@@ -2,6 +2,7 @@
 from types import ClassType, InstanceType, TupleType
 from pysnmp.smi.indices import OrderedDict, OidOrderedDict
 from pysnmp.smi import error
+from pysnmp import debug
 
 __all__ = [ 'MibViewController' ]
 
@@ -15,6 +16,8 @@ class MibViewController:
     def __indexMib(self):
         if self.lastBuildId == self.mibBuilder.lastBuildId:
             return
+
+        debug.logger & debug.flagMIB and debug.logger('__indexMib: re-indexing MIB view')
 
         MibScalarInstance, = self.mibBuilder.importSymbols(
             'SNMPv2-SMI', 'MibScalarInstance'
@@ -86,11 +89,6 @@ class MibViewController:
                     mibMod['oidToModIdx'][v.name] = modName
                     globMibMod['oidToLabelIdx'][v.name] = (n, )
                     mibMod['oidToLabelIdx'][v.name] = (n, )
-# XXX complain
-#                         raise error.SmiError(
-#                             'Duplicate MIB variable name %s::%s has %s' % 
-#                             (modName, v.name, globMibMod['oidToLabelIdx'][v.name])
-#                             )
                 else:
                     raise error.SmiError(
                         'Unexpected object %s::%s' % (modName, n)
@@ -195,6 +193,7 @@ class MibViewController:
                 str='Can\'t resolve node name %s::%s at %s' % 
                 (modName, nodeName, self)
                 )
+        debug.logger & debug.flagMIB and debug.logger('getNodeNameByOid: resolved %s:%s -> %s' % (modName, nodeName, label + suffix))
         return oid, label, suffix
 
     def getNodeNameByDesc(self, nodeName, modName=''):
@@ -209,6 +208,7 @@ class MibViewController:
             raise error.NoSuchObjectError(
                 str='No such symbol %s::%s at %s' % (modName, nodeName, self)
                 )
+        debug.logger & debug.flagMIB and debug.logger('getNodeNameByDesc: resolved %s:%s -> %s' % (modName, nodeName, oid))
         return self.getNodeNameByOid(oid, modName)
 
     def getNodeName(self, nodeName, modName=''):

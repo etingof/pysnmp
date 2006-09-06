@@ -2,6 +2,7 @@
 import socket, errno
 from pysnmp.carrier.asynsock.base import AbstractSocketTransport
 from pysnmp.carrier import error
+from pysnmp import debug
 
 sockErrors = {
     errno.ESHUTDOWN: 1,
@@ -47,10 +48,14 @@ class DgramSocketTransport(AbstractSocketTransport):
         except socket.error, why:
             if why[0] != errno.EWOULDBLOCK:
                 raise socket.error, why
+        else:
+            debug.logger & debug.flagIO and debug.logger('handle_write: transportAddress %s outgoingMessage %s' % (transportAddress, repr(outgoingMessage)))
+            
     def readable(self): return 1
     def handle_read(self):
         try:
             incomingMessage, transportAddress = self.socket.recvfrom(65535)
+            debug.logger & debug.flagIO and debug.logger('handle_read: transportAddress %s incomintMessage %s' % (transportAddress, repr(incomingMessage)))
             if not incomingMessage:
                 self.handle_close()
                 return
