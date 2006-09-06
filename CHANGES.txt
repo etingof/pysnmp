@@ -2,6 +2,7 @@ Revision 4.1.7a
 ---------------
 
 - UNSTABLE ALPHA RELEASE.
+- Low-level debugging facility implemented.
 - Fix to snmpTrapOID construction at ...proxy.rfc2576.v1ToV2() 
   function.
 - Fix to MibViewController.getNodeName() to take MIB module name
