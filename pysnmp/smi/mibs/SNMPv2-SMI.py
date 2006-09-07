@@ -78,6 +78,20 @@ class ModuleIdentity(MibNode):
         self.revisions = args
         return self
 
+    def asn1Print(self):
+        return '\
+MODULE-IDENTITY\n\
+  LAST-UPDATED %s\n\
+  ORGANIZATION \"%s\"\n\
+  CONTACT-INFO \"%s\"\n\
+  DESCRIPTION \"%s\"\n\
+  %s\
+' % (self.getLastUpdated(),
+     self.getOrganization(),
+     self.getContactInfo(),
+     self.getDescription(),
+     string.join(map(lambda x: "REVISON \"%s\"\n" % x, self.getRevisions())))
+
 class ObjectIdentity(MibNode):
     def getStatus(self):
         return getattr(self, 'status', 'current')
@@ -94,6 +108,16 @@ class ObjectIdentity(MibNode):
     def setReference(self, v):
         self.reference = v
         return self
+
+    def asn1Print(self):
+        return '\
+OBJECT-IDENTITY\n\
+  STATUS %s\n\
+  DESCRIPTION \"%s\"\n\
+  REFERENCE \"%s\"\
+' % (self.getStatus(),
+     self.getDescription(),
+     self.getReference())
 
 # definition for objects
 
@@ -119,7 +143,21 @@ class NotificationType(MibNode):
         self.revisions = args
         return self
 
-class MibIdentifier(MibNode): pass
+    def asn1Print(self):
+        return '\
+NOTIFICATION-TYPE\n\
+  OBJECTS { %s }\n\
+  STATUS %s\n\
+  DESCRIPTION \"%s\"\n\
+  %s\
+' % (reduce(lambda x,y: '%s, %s' % (x[1],y[1]), self.getObjects(), ("","")),
+     self.getStatus(),
+     self.getDescription(),
+     string.join(map(lambda x: "REVISON \"%s\"\n" % x, self.getRevisions())))
+
+class MibIdentifier(MibNode):
+    def asn1Print(self):
+        return 'OBJECT IDENTIFIER'
 
 class ObjectType(MibNode):
     maxAccess = None
@@ -162,6 +200,22 @@ class ObjectType(MibNode):
         self.reference = v
         return self
 
+    def asn1Print(self):
+        return '\
+OBJECT-TYPE\n\
+  SYNTAX %s\n\
+  UNITS \"%s\"\n\
+  MAX-ACCESS %s\n\
+  STATUS %s\n\
+  DESCRIPTION \"%s\"\n\
+  REFERENCE \"%s\"\
+' % (self.getSyntax().__class__.__name__,
+     self.getUnits(),
+     self.getMaxAccess(),
+     self.getStatus(),
+     self.getDescription(),
+     self.getReference())
+        
 class MibTree(ObjectType):
     branchVersionId = 0L    # increments on tree structure change XXX
     maxAccess = 'not-accessible'
