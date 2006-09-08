@@ -9,6 +9,7 @@ flagSM       = 0x0008
 flagBld      = 0x0010
 flagMIB      = 0x0020
 flagIns      = 0x0040
+flagACL      = 0x0080
 flagAll      = 0xffff
 
 flagMap = {
@@ -19,6 +20,7 @@ flagMap = {
     'mibbuild': flagBld,
     'mibview': flagMIB,
     'mibinstrum': flagIns,
+    'acl': flagACL,
     'all': flagAll
     }
 
