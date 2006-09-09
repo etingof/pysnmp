@@ -4,7 +4,9 @@ from pysnmp.error import PySnmpError
 class SmiError(PySnmpError, PyAsn1Error): pass
 class MibOperationError(SmiError):
     def __init__(self, **kwargs): self.__outArgs = kwargs
-    def __str__(self): return str(self.__outArgs)
+    def __str__(self): return '%s(%s)' % (
+        self.__class__.__name__, self.__outArgs
+        )
     def __getitem__(self, key): return self.__outArgs[key]
     def has_key(self, key): return self.__outArgs.has_key(key)
     def get(self, key, defVal=None): return self.__outArgs.get(key, defVal)
