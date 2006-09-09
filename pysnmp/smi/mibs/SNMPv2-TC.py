@@ -1,6 +1,7 @@
 from string import split, digits
 from pysnmp.smi import error
 from pyasn1.type import constraint, namedval
+from pysnmp import debug
 
 OctetString, Integer, ObjectIdentifier = mibBuilder.importSymbols(
     'ASN1', 'OctetString', 'Integer', 'ObjectIdentifier'
@@ -280,14 +281,15 @@ class RowStatus(Integer, TextualConvention):
         err, val = self.stateMatrix.get(
             (self.clone(value), int(self)), (error.MibOperationError, None)
             )
+        debug.logger & debug.flagIns and debug.logger('RowStatus state resolution: %s, %s -> %s, %s' % (value, int(self), err, val))
         if err is not None:
             err = err(
                 msg='Exception at row state transition %s->%s' % (self, value)
                 )
-        if val is not None:
-            return self.clone(val)
         if err is not None:
             raise err
+        if val is not None:
+            return self.clone(val)
         return self
 
 class TimeStamp(TimeTicks, TextualConvention): pass

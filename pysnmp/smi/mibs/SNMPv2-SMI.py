@@ -648,6 +648,7 @@ class MibTableColumn(MibScalar):
             self.__rowOpWanted[name] =  error.RowDestructionWanted()
             self.destroyTest(name, val, idx, (acFun, acCtx))
         if self.__rowOpWanted.has_key(name):
+            debug.logger & debug.flagIns and debug.logger('%s flagged by %s=%s' % (self.__rowOpWanted[name], name, val))
             raise self.__rowOpWanted[name]
 
     def __delegateWrite(self, subAction, name, val, idx, (acFun, acCtx)):
@@ -679,6 +680,7 @@ class MibTableColumn(MibScalar):
         if self.__rowOpWanted.has_key(name):
             e = self.__rowOpWanted[name]
             del self.__rowOpWanted[name]
+            debug.logger & debug.flagIns and debug.logger('%s dropped by %s=%s' % (e, name, val))
             raise e
             
     def writeUndo(self, name, val, idx, (acFun, acCtx)):
@@ -688,6 +690,7 @@ class MibTableColumn(MibScalar):
         if self.__rowOpWanted.has_key(name):
             e = self.__rowOpWanted[name]
             del self.__rowOpWanted[name]
+            debug.logger & debug.flagIns and debug.logger('%s dropped by %s=%s' % (e, name, val))
             raise e
 
 class MibTableRow(MibTree):
@@ -787,6 +790,7 @@ class MibTableRow(MibTree):
             return
         for modName, mibSym in self.augmentingRows.keys():
             mibObj, = mibBuilder.importSymbols(modName, mibSym)
+            debug.logger & debug.flagIns and debug.logger('announceManagementEvent %s to %s' % (action, mibObj))
             mibObj.receiveManagementEvent(
                 action, baseIndices, val, idx, (acFun, acCtx)
                 )
@@ -803,6 +807,7 @@ class MibTableRow(MibTree):
                 if name == mibObj.name:
                     newSuffix = newSuffix + self.getAsName(syntax, impliedFlag)
         if newSuffix:
+            debug.logger & debug.flagIns and debug.logger('receiveManagementEvent %s for suffix %s' % (action, newSuffix))
             self.__manageColumns(action, newSuffix, val, idx, (acFun, acCtx))
 
     def registerAugmentions(self, *names):
@@ -826,7 +831,7 @@ class MibTableRow(MibTree):
     def __manageColumns(self, action, nameSuffix, val, idx, (acFun, acCtx)):
         for name, var in self._vars.items():
             getattr(var, action)(name + nameSuffix, val, idx, (acFun, acCtx))
-            debug.logger & debug.flagIns and debug.logger('__manageColumns: action %s name %s suffix %s' % (action, name, nameSuffix))
+            debug.logger & debug.flagIns and debug.logger('__manageColumns: action %s name %s suffix %s value %s' % (action, name, nameSuffix, val))
 
     def __delegate(self, subAction, name, val, idx, (acFun, acCtx)):
         # Relay operation request to column, expect row operation request.
