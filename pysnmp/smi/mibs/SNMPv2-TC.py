@@ -278,7 +278,7 @@ class RowStatus(Integer, TextualConvention):
     def smiWrite(self, name, value):
         # Run through states transition matrix, resolve new instance value
         err, val = self.stateMatrix.get(
-            (value, int(self)), (error.SmiError, None)
+            (self.clone(value), int(self)), (error.MibOperationError, None)
             )
         if err is not None:
             err = err(
