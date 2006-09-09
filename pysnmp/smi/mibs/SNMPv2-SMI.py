@@ -616,7 +616,7 @@ class MibTableColumn(MibScalar):
     def destroyCleanup(self, name, val, idx, (acFun, acCtx)):
         # Drop instance copy
         if self.__destroyedInstances.has_key(name):
-            self._destroyedInstances[name].destroyCleanup(
+            self.__destroyedInstances[name].destroyCleanup(
                 name, val, idx, (acFun, acCtx)
                 )
             debug.logger & debug.flagIns and debug.logger('destroyCleanup: %s=%s' % (name, val))
