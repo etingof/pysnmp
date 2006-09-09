@@ -467,8 +467,13 @@ class MibScalarInstance(MibTree):
     # Create operation
 
     def createTest(self, name, val, idx, (acFun, acCtx)):
-        if val is not None:
-            self.writeTest(name, val, idx, (acFun, acCtx))
+        if name == self.name:
+            if hasattr(self.syntax, 'smiCreate'):
+                self.__newSyntax = self.syntax.smiCreate(name, val)
+            else:
+                self.__newSyntax = self.syntax.clone(val)
+        else:
+            raise error.NoSuchObjectError(idx=idx, name=name)
     def createCommit(self, name, val, idx, (acFun, acCtx)):
         if val is not None:
             self.writeCommit(name, val, idx, (acFun, acCtx))
@@ -482,7 +487,14 @@ class MibScalarInstance(MibTree):
 
     # Destroy operation
 
-    def destroyTest(self, name, val, idx, (acFun, acCtx)): pass
+    def destroyTest(self, name, val, idx, (acFun, acCtx)):
+        if name == self.name:
+            if hasattr(self.syntax, 'smiDestroy'):
+                self.__newSyntax = self.syntax.smiDestoy(name, val)
+            else:
+                self.__newSyntax = self.syntax.clone(val)
+        else:
+            raise error.NoSuchObjectError(idx=idx, name=name)
     def destroyCommit(self, name, val, idx, (acFun, acCtx)): pass
     def destroyCleanup(self, name, val, idx, (acFun, acCtx)): pass
     def destroyUndo(self, name, val, idx, (acFun, acCtx)): pass
@@ -607,6 +619,7 @@ class MibTableColumn(MibScalar):
             self._destroyedInstances[name].destroyCleanup(
                 name, val, idx, (acFun, acCtx)
                 )
+            debug.logger & debug.flagIns and debug.logger('destroyCleanup: %s=%s' % (name, val))
             del self.__destroyedInstances[name]
             
     def destroyUndo(self, name, val, idx, (acFun, acCtx)):
