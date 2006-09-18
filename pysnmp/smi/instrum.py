@@ -150,7 +150,7 @@ class MibInstrumController:
     
     def flipFlopFsm(self, fsmTable, inputNameVals, (acFun, acCtx)):
         self.__indexMib()
-        debug.logger & debug.flagIns and debug.logger('flipFlopFsm: inputNameVals %s' % inputNameVals)
+        debug.logger & debug.flagIns and debug.logger('flipFlopFsm: inputNameVals %s' % (inputNameVals,))
         mibTree, = self.mibBuilder.importSymbols('SNMPv2-SMI', 'iso')
         outputNameVals = []
         state, status = 'start', 'ok'
