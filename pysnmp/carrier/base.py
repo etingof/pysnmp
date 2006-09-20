@@ -6,6 +6,7 @@ class AbstractTransportDispatcher:
         self.__transports = {}
         self.__jobs = {}
         self.__recvCbFun = self.__timerCbFun = None
+        self.__timeToGo = 0
 
     def _cbFun(self, incomingTransport, transportAddress, incomingMessage):
         for name, transport in self.__transports.items():
@@ -76,8 +77,9 @@ class AbstractTransportDispatcher:
         transport.sendMessage(outgoingMessage, transportAddress)
 
     def handleTimerTick(self, timeNow):
-        if self.__timerCbFun:
+        if self.__timerCbFun and self.__timeToGo < timeNow:
             self.__timerCbFun(timeNow)
+            self.__timeToGo = timeNow + 1
 
     def jobStarted(self, jobId):
         self.__jobs[jobId] = self.__jobs.get(jobId, 0) + 1
