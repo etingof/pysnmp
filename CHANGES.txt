@@ -28,7 +28,7 @@ Revision 4.1.7a
   (such as RowStatus).
 - MIB table row destruction now works (SF bug #1555010).
 - A handful of minor fixes applied (SourceForge tracker IDs #1537592,
-  #1537600, #1537659, #1548208).
+  #1537600, #1537659, #1548208, #1560939).
 
 Revision 4.1.6a
 ---------------
