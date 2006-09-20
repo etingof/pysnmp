@@ -719,7 +719,8 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         if self.__engineIDsExpQueue.has_key(self.__expirationTimer):
             for engineKey in self.__engineIDsExpQueue[self.__expirationTimer]:
                 del self.__engineIDs[engineKey]
-                debug.logger & debug.flagMP and debug.logger('__expireEnginesInfo: expiring %s' % (engineKey,))                
+                debug.logger & debug.flagMP and debug.logger('__expireEnginesInfo: expiring %s' % (engineKey,))
+            del self.__engineIDsExpQueue[self.__expirationTimer]
         self.__expirationTimer = self.__expirationTimer + 1
         
     def receiveTimerTick(self, snmpEngine, timeNow):
