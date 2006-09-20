@@ -46,7 +46,7 @@ def addV1System(snmpEngine, securityName, communityName,
         ((snmpCommunityEntry.name + (8,) + tblIdx, 'destroy'),)
         )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((snmpCommunityEntry.name + (8,) + tblIdx, 4),) # XXX symbolic names
+        ((snmpCommunityEntry.name + (8,) + tblIdx, 'createAndGo'),)
         )
 
     # Commit table cell
@@ -112,7 +112,7 @@ def addV3User(snmpEngine, securityName,
         ((usmUserEntry.name + (13,) + tblIdx, 'destroy'),)
         )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((usmUserEntry.name + (13,) + tblIdx, 4),)
+        ((usmUserEntry.name + (13,) + tblIdx, 'createAndGo'),)
         )
     
     # Commit username (may not be needed)    
@@ -209,7 +209,7 @@ def addV3User(snmpEngine, securityName,
         ((pysnmpUsmSecretEntry.name + (4,) + tblIdx, 'destroy'),)
         )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((pysnmpUsmSecretEntry.name + (4,) + tblIdx, 4),)
+        ((pysnmpUsmSecretEntry.name + (4,) + tblIdx, 'createAndGo'),)
         )
     
     if authProtocol != usmNoAuthProtocol:
@@ -243,7 +243,7 @@ def addTargetParams(
         ((snmpTargetParamsEntry.name + (7,) + tblIdx, 'destroy'),)
         )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((snmpTargetParamsEntry.name + (7,) + tblIdx, 4),)
+        ((snmpTargetParamsEntry.name + (7,) + tblIdx, 'createAndGo'),)
         )
 
     if mpModel == 0:
@@ -306,7 +306,7 @@ def addTargetAddr(
         ((snmpTargetAddrEntry.name + (9,) + tblIdx, 'destroy'),)
         )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((snmpTargetAddrEntry.name + (9,) + tblIdx, 4),)
+        ((snmpTargetAddrEntry.name + (9,) + tblIdx, 'createAndGo'),)
         )
     
     # Fill entries
@@ -403,7 +403,7 @@ def addVacmGroup(snmpEngine, groupName, securityModel, securityName):
         ((vacmSecurityToGroupEntry.name + (5,) + tblIdx, 'destroy'),)
         )
     mibInstrumController.writeVars(
-        ((vacmSecurityToGroupEntry.name + (5,) + tblIdx, 4),)
+        ((vacmSecurityToGroupEntry.name + (5,) + tblIdx, 'createAndGo'),)
         )
 
     # Fill entries
@@ -441,7 +441,7 @@ def addVacmAccess(snmpEngine, groupName, contextName, securityModel,
         ((vacmAccessEntry.name + (9,) + tblIdx, 'destroy'),)
         )
     mibInstrumController.writeVars(
-        ((vacmAccessEntry.name + (9,) + tblIdx, 4),)
+        ((vacmAccessEntry.name + (9,) + tblIdx, 'createAndGo'),)
         )
 
     # Fill entries
@@ -505,7 +505,7 @@ def addVacmView(snmpEngine, viewName, viewType, subTree, mask):
         ((vacmViewTreeFamilyEntry.name + (6,) + tblIdx, 'destroy'),)
         )
     mibInstrumController.writeVars(
-        ((vacmViewTreeFamilyEntry.name + (6,) + tblIdx, 4),)
+        ((vacmViewTreeFamilyEntry.name + (6,) + tblIdx, 'createAndGo'),)
         )
 
     # Fill entries
@@ -602,7 +602,7 @@ def addNotificationTarget(snmpEngine, notificationName, paramsName,
         ((snmpNotifyEntry.name + (5,) + tblIdx, 'destroy'),)
         )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((snmpNotifyEntry.name + (5,) + tblIdx, 4),)
+        ((snmpNotifyEntry.name + (5,) + tblIdx, 'createAndGo'),)
         )
 
     # Commit table cell
@@ -628,7 +628,7 @@ def addNotificationTarget(snmpEngine, notificationName, paramsName,
         ((snmpNotifyFilterProfileEntry.name + (3,) + tblIdx, 'destroy'),)
         )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((snmpNotifyFilterProfileEntry.name + (3,) + tblIdx, 4),)
+        ((snmpNotifyFilterProfileEntry.name + (3,) + tblIdx, 'createAndGo'),)
         )
 
     profileName = '%s-filter' % notificationName
@@ -652,7 +652,7 @@ def addNotificationTarget(snmpEngine, notificationName, paramsName,
         ((snmpNotifyEntry.name + (5,) + tblIdx, 'destroy'),)
         )    
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((snmpNotifyEntry.name + (5,) + tblIdx, 4),)
+        ((snmpNotifyEntry.name + (5,) + tblIdx, 'createAndGo'),)
         )
     
     # Commit table cell
