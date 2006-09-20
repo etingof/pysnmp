@@ -275,23 +275,34 @@ class RowStatus(Integer, TextualConvention):
         )
         }
     defaultValue = stNotExists
-                                    
+    pendingError = None
+    
     def smiWrite(self, name, value):
         # Run through states transition matrix, resolve new instance value
         err, val = self.stateMatrix.get(
             (self.clone(value), int(self)), (error.MibOperationError, None)
             )
         debug.logger & debug.flagIns and debug.logger('RowStatus state resolution: %s, %s -> %s, %s' % (value, int(self), err, val))
+        if val is None:
+            val = self
+        else:
+            val = self.clone(val)
         if err is not None:
             err = err(
                 msg='Exception at row state transition %s->%s' % (self, value)
                 )
-        if err is not None:
-            raise err
-        if val is not None:
-            return self.clone(val)
-        return self
+            val.smiSetPendingError(err)
+        return val
 
+    def smiCreate(self, name, value): return self.smiWrite(name, value)
+        
+    def smiRaisePendingError(self):
+        if self.pendingError:
+            err, self.pendingError = self.pendingError, None
+            raise err
+    def smiSetPendingError(self, err):
+        self.pendingError = err
+        
 class TimeStamp(TimeTicks, TextualConvention): pass
 
 class TimeInterval(Integer, TextualConvention):
