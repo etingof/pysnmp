@@ -258,7 +258,6 @@ class MibTree(ObjectType):
                 subName = name[:keyLen]
                 if self._vars.has_key(subName):
                     return self._vars[subName]
-        
         raise error.NoSuchObjectError(name=name, idx=idx)
 
     def getNode(self, name, idx=None):
@@ -446,6 +445,8 @@ class MibScalarInstance(MibTree):
                 self.__newSyntax = self.syntax.smiWrite(name, val)
             else:
                 self.__newSyntax = self.syntax.clone(val)
+            if hasattr(self.__newSyntax, 'smiRaisePendingError'):
+                self.__newSyntax.smiRaisePendingError()
         else:
             raise error.NoSuchObjectError(idx=idx, name=name)
 
@@ -533,26 +534,16 @@ class MibTableColumn(MibScalar):
         # do not replace the old one
         if name == self.name:
             raise error.NoAccessError(idx=idx, name=name)
-        if self._vars.has_key(name):
-            return
         if val is not None and \
                self.maxAccess != 'readcreate' or \
                acFun and acFun(name, idx, 'write', acCtx):
             raise error.NoCreationError(idx=idx, name=name)
-        if not self.__createdInstances.has_key(name):
-            if hasattr(self.syntax, 'smiCreate'):
-                syntax = self.syntax.smiCreate(name)
-            else:
-                syntax = self.syntax.clone()
-            self.__createdInstances[name] = self.protoInstance(
-                self.name, name[len(self.name):], syntax
-                )
-        try:
-            self.__createdInstances[name].createTest(
-                name, val, idx, (acFun, acCtx)
-                )
-        except (error.RowCreationWanted, error.RowDestructionWanted):
-            pass
+        self.__createdInstances[name] = self.protoInstance(
+            self.name, name[len(self.name):], self.syntax.clone()
+            )
+        self.__createdInstances[name].createTest(
+            name, val, idx, (acFun, acCtx)
+            )
             
     def createCommit(self, name, val, idx, (acFun, acCtx)):
         # Commit new instance value
@@ -595,14 +586,14 @@ class MibTableColumn(MibScalar):
         # Make sure destruction is allowed
         if name == self.name:
             raise error.NoAccessError(idx=idx, name=name)        
-        if self._vars.has_key(name):
-            if val is not None and \
-                   self.maxAccess != 'readcreate' or \
-                   acFun and acFun(name, idx, 'write', cbCtx):
-                raise error.NoAccessError(idx=idx, name=name)
-            self._vars[name].destroyTest(
-                name, val, idx, (acFun, acCtx)
-                )
+        if not self._vars.has_key(name):
+            return
+        if val is not None and  self.maxAccess != 'readcreate' or \
+               acFun and acFun(name, idx, 'write', cbCtx):
+            raise error.NoAccessError(idx=idx, name=name)
+        self._vars[name].destroyTest(
+            name, val, idx, (acFun, acCtx)
+            )
 
     def destroyCommit(self, name, val, idx, (acFun, acCtx)):
         # Make a copy of column instance and take it off the tree
@@ -642,10 +633,10 @@ class MibTableColumn(MibScalar):
                 )
         # ...otherwise proceed with creating new column
         except (error.NoSuchObjectError, error.RowCreationWanted):
-            self.__rowOpWanted[name] =  error.RowCreationWanted()
+            self.__rowOpWanted[name] = error.RowCreationWanted()
             self.createTest(name, val, idx, (acFun, acCtx))
         except error.RowDestructionWanted:
-            self.__rowOpWanted[name] =  error.RowDestructionWanted()
+            self.__rowOpWanted[name] = error.RowDestructionWanted()
             self.destroyTest(name, val, idx, (acFun, acCtx))
         if self.__rowOpWanted.has_key(name):
             debug.logger & debug.flagIns and debug.logger('%s flagged by %s=%s' % (self.__rowOpWanted[name], name, val))
@@ -808,7 +799,8 @@ class MibTableRow(MibTree):
                     newSuffix = newSuffix + self.getAsName(syntax, impliedFlag)
         if newSuffix:
             debug.logger & debug.flagIns and debug.logger('receiveManagementEvent %s for suffix %s' % (action, newSuffix))
-            self.__manageColumns(action, newSuffix, val, idx, (acFun, acCtx))
+            self.__manageColumns(action, (), newSuffix, val, idx,
+                                 (acFun, acCtx))
 
     def registerAugmentions(self, *names):
         for modName, symName in names:
@@ -828,8 +820,11 @@ class MibTableRow(MibTree):
     def getIndexNames(self):
         return self.indexNames
                              
-    def __manageColumns(self, action, nameSuffix, val, idx, (acFun, acCtx)):
+    def __manageColumns(self, action, excludeName, nameSuffix,
+                        val, idx, (acFun, acCtx)):
         for name, var in self._vars.items():
+            if name == excludeName:
+                continue
             getattr(var, action)(name + nameSuffix, val, idx, (acFun, acCtx))
             debug.logger & debug.flagIns and debug.logger('__manageColumns: action %s name %s suffix %s value %s' % (action, name, nameSuffix, val))
 
@@ -841,16 +836,16 @@ class MibTableRow(MibTree):
                 )
         except error.RowCreationWanted, why:
             self.__manageColumns(
-                'create'+subAction, name[len(self.name)+1:],
-                None, idx, (acFun, acCtx)
+                'create'+subAction, name[:len(self.name)+1],
+                name[len(self.name)+1:], None, idx, (acFun, acCtx)
                 )
             self.announceManagementEvent(
                 'create'+subAction, name, None, idx, (acFun, acCtx)
                 )
         except error.RowDestructionWanted, why:
             self.__manageColumns(
-                'destroy'+subAction, name[len(self.name)+1:],
-                None, idx, (acFun, acCtx)
+                'destroy'+subAction, name[:len(self.name)+1],
+                name[len(self.name)+1:], None, idx, (acFun, acCtx)
                 )
             self.announceManagementEvent(
                 'destroy'+subAction, name, None, idx, (acFun,acCtx)
