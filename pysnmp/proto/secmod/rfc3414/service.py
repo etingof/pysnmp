@@ -38,6 +38,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
     def __init__(self):
         AbstractSecurityModel.__init__(self)
         self.__timeline = {}
+        self.__timelineExpQueue = {}
+        self.__expirationTimer = 0L
 
     def __getUserInfo(
         self, mibInstrumController, securityEngineID, securityName
@@ -485,6 +487,12 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     securityParameters.getComponentByPosition(2),
                     securityParameters.getComponentByPosition(2)
                     )
+                
+                expireAt = self.__expirationTimer + 1 #300
+                if not self.__timelineExpQueue.has_key(expireAt):
+                    self.__timelineExpQueue[expireAt] = []
+                self.__timelineExpQueue[expireAt].append(securityEngineID)
+                    
                 debug.logger & debug.flagSM and debug.logger('processIncomingMsg: store timeline')
             else:
                 # 3.2.3b
@@ -756,3 +764,14 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                  scopedPDU,
                  maxSizeResponseScopedPDU,
                  securityStateReference )
+
+    def __expireTimelineInfo(self):
+        if self.__timelineExpQueue.has_key(self.__expirationTimer):
+            for engineIdKey in self.__timelineExpQueue[self.__expirationTimer]:
+                del self.__timeline[engineIdKey]
+                debug.logger & debug.flagMP and debug.logger('__expireEnginesInfo: expiring %s' % (engineIdKey,))
+            del self.__timelineExpQueue[self.__expirationTimer]
+        self.__expirationTimer = self.__expirationTimer + 1
+        
+    def receiveTimerTick(self, snmpEngine, timeNow):
+        self.__expireTimelineInfo()
