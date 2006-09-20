@@ -57,6 +57,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
     def __init__(self):
         AbstractMessageProcessingModel.__init__(self)
         self.__engineIDs = {}
+        self.__expirationTimer = 0L
         
     # 7.1.1a
     def prepareOutgoingMessage(
@@ -548,7 +549,8 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 self.__engineIDs[k] = {
                     'securityEngineID': securityEngineID,
                     'contextEngineId': contextEngineId,
-                    'contextName': contextName
+                    'contextName': contextName,
+                    'expireAt': self.__expirationTimer + 300
                     }
                 debug.logger & debug.flagMP and debug.logger('prepareDataElements: cache securityEngineID %s for %s %s' % (securityEngineID, transportDomain, transportAddress))
 
@@ -705,3 +707,17 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         raise error.StatusInformation(
             errorIndication = 'unknownPDU'
             )
+
+    def __expireEnginesInfo(self):
+        keysToExpire = []
+        for engineKey in self.__engineIDs:
+            if self.__engineIDs[engineKey]['expireAt'] == \
+                   self.__expirationTimer:
+                keysToExpire.append(engineKey)
+        for engineKey in keysToExpire:
+            del self.__engineIDs[engineKey]
+            debug.logger & debug.flagMP and debug.logger('__expireEnginesInfo: expiring %s' % (engineKey,))
+        self.__expirationTimer = self.__expirationTimer + 1
+        
+    def receiveTimerTick(self, snmpEngine, timeNow):
+        self.__expireEnginesInfo()
