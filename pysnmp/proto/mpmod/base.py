@@ -155,3 +155,5 @@ class AbstractMessageProcessingModel:
         except error.ProtocolError:
             pass # XXX maybe these should all follow some scheme?
     
+    def receiveTimerTick(self, snmpEngine, timeNow):
+        pass

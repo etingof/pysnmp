@@ -58,7 +58,11 @@ class SnmpEngine:
                                          
     def __receiveTimerTickCbFun(self, timeNow):
         self.msgAndPduDsp.receiveTimerTick(self, timeNow)
-    
+        for mpHandler in self.messageProcessingSubsystems.values():
+            mpHandler.receiveTimerTick(self, timeNow)
+        for smHandler in self.securityModels.values():
+            smHandler.receiveTimerTick(self, timeNow)
+        
     def registerTransportDispatcher(self, transportDispatcher):
         if self.transportDispatcher is not None:
             raise error.ProtocolError(

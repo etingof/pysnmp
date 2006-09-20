@@ -74,3 +74,6 @@ class AbstractSecurityModel:
 
     def releaseStateInformation(self, stateReference):
         self._cachePop(stateReference)
+
+    def receiveTimerTick(self, snmpEngine, timeNow):
+        pass
