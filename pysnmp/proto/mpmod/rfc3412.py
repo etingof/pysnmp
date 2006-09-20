@@ -57,6 +57,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
     def __init__(self):
         AbstractMessageProcessingModel.__init__(self)
         self.__engineIDs = {}
+        self.__engineIDsExpQueue = {}
         self.__expirationTimer = 0L
         
     # 7.1.1a
@@ -546,12 +547,18 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             k = (transportDomain, transportAddress)
             if not self.__engineIDs.has_key(k):
                 contextEngineId, contextName, pdu = scopedPDU
+                
                 self.__engineIDs[k] = {
                     'securityEngineID': securityEngineID,
                     'contextEngineId': contextEngineId,
-                    'contextName': contextName,
-                    'expireAt': self.__expirationTimer + 300
+                    'contextName': contextName
                     }
+
+                expireAt = self.__expirationTimer + 300
+                if not self.__engineIDsExpQueue.has_key(expireAt):
+                    self.__engineIDsExpQueue[expireAt] = []
+                self.__engineIDsExpQueue[expireAt].append(k)
+                    
                 debug.logger & debug.flagMP and debug.logger('prepareDataElements: cache securityEngineID %s for %s %s' % (securityEngineID, transportDomain, transportAddress))
 
         snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
@@ -709,14 +716,10 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             )
 
     def __expireEnginesInfo(self):
-        keysToExpire = []
-        for engineKey in self.__engineIDs:
-            if self.__engineIDs[engineKey]['expireAt'] == \
-                   self.__expirationTimer:
-                keysToExpire.append(engineKey)
-        for engineKey in keysToExpire:
-            del self.__engineIDs[engineKey]
-            debug.logger & debug.flagMP and debug.logger('__expireEnginesInfo: expiring %s' % (engineKey,))
+        if self.__engineIDsExpQueue.has_key(self.__expirationTimer):
+            for engineKey in self.__engineIDsExpQueue[self.__expirationTimer]:
+                del self.__engineIDs[engineKey]
+                debug.logger & debug.flagMP and debug.logger('__expireEnginesInfo: expiring %s' % (engineKey,))                
         self.__expirationTimer = self.__expirationTimer + 1
         
     def receiveTimerTick(self, snmpEngine, timeNow):
