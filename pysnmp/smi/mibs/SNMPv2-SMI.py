@@ -538,6 +538,10 @@ class MibTableColumn(MibScalar):
                self.maxAccess != 'readcreate' or \
                acFun and acFun(name, idx, 'write', acCtx):
             raise error.NoCreationError(idx=idx, name=name)
+        # Create instances if either is does not yet exist (row creation)
+        # or a value is passed (multiple OIDs in SET PDU)
+        if val is None and self.__createdInstances.has_key(name):
+            return
         self.__createdInstances[name] = self.protoInstance(
             self.name, name[len(self.name):], self.syntax.clone()
             )
