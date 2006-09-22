@@ -29,7 +29,7 @@ Revision 4.1.7a
 - MIB table row destruction now works (SF bug #1555010).
 - Various SNMP engine-internal caches expiration implemented.
 - A handful of minor fixes applied (SourceForge tracker IDs #1537592,
-  #1537600, #1537659, #1548208, #1560939).
+  #1537600, #1537659, #1548208, #1560939, #1563715).
 
 Revision 4.1.6a
 ---------------
