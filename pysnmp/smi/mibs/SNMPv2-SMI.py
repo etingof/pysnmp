@@ -430,7 +430,7 @@ class MibScalarInstance(MibTree):
         if name == self.name:
             debug.logger & debug.flagIns and debug.logger('readGet: %s=%s' % (self.name, self.syntax))
             if hasattr(self.syntax, 'smiRead'):
-                return self.name, self.syntax.smiRead(name, val)
+                return self.name, self.syntax.smiRead(name, val, idx)
             else:
                 return self.name, self.syntax.clone()
         else:
@@ -442,7 +442,7 @@ class MibScalarInstance(MibTree):
         # Make sure write's allowed
         if name == self.name:
             if hasattr(self.syntax, 'smiWrite'):
-                self.__newSyntax = self.syntax.smiWrite(name, val)
+                self.__newSyntax = self.syntax.smiWrite(name, val, idx)
             else:
                 self.__newSyntax = self.syntax.clone(val)
             if hasattr(self.__newSyntax, 'smiRaisePendingError'):
@@ -470,7 +470,7 @@ class MibScalarInstance(MibTree):
     def createTest(self, name, val, idx, (acFun, acCtx)):
         if name == self.name:
             if hasattr(self.syntax, 'smiCreate'):
-                self.__newSyntax = self.syntax.smiCreate(name, val)
+                self.__newSyntax = self.syntax.smiCreate(name, val, idx)
             else:
                 self.__newSyntax = self.syntax.clone(val)
         else:

@@ -174,10 +174,11 @@ class TruthValue(Integer, TextualConvention):
 class TestAndIncr(Integer, TextualConvention):
     subtypeSpec = Integer.subtypeSpec+constraint.ValueRangeConstraint(0, 2147483647L)
     defaultValue = 0
-    def smiWrite(self, name, value):
+    def smiWrite(self, name, value, idx):
         if value != self:
             raise error.InconsistentValueError(
-                'Old/new values mismatch %s: %s' % (self, value)
+                'Old/new values mismatch %s: %s' % (self, value),
+                idx=idx
                 )
         value = value + 1
         if value > 2147483646:
@@ -277,7 +278,7 @@ class RowStatus(Integer, TextualConvention):
     defaultValue = stNotExists
     pendingError = None
     
-    def smiWrite(self, name, value):
+    def smiWrite(self, name, value, idx):
         # Run through states transition matrix, resolve new instance value
         err, val = self.stateMatrix.get(
             (self.clone(value), int(self)), (error.MibOperationError, None)
@@ -289,12 +290,14 @@ class RowStatus(Integer, TextualConvention):
             val = self.clone(val)
         if err is not None:
             err = err(
-                msg='Exception at row state transition %s->%s' % (self, value)
+                msg='Exception at row state transition %s->%s' % (self, value),
+                idx=idx
                 )
             val.smiSetPendingError(err)
         return val
 
-    def smiCreate(self, name, value): return self.smiWrite(name, value)
+    def smiCreate(self, name, value, idx):
+        return self.smiWrite(name, value, idx)
         
     def smiRaisePendingError(self):
         if self.pendingError:
