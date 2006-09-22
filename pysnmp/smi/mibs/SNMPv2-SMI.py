@@ -593,7 +593,7 @@ class MibTableColumn(MibScalar):
         if not self._vars.has_key(name):
             return
         if val is not None and  self.maxAccess != 'readcreate' or \
-               acFun and acFun(name, idx, 'write', cbCtx):
+               acFun and acFun(name, idx, 'write', acCtx):
             raise error.NoAccessError(idx=idx, name=name)
         self._vars[name].destroyTest(
             name, val, idx, (acFun, acCtx)
