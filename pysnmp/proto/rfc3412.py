@@ -129,6 +129,8 @@ class MsgAndPduDispatcher:
                 errorIndication='unsupportedMsgProcessingModel'
                 )
 
+        debug.logger & debug.flagDsp and debug.logger('sendPdu: PDU %s' % PDU.prettyPrint())
+
         # 4.1.1.3
         sendPduHandle = self.__newSendPduHandle()
         if expectResponse:
@@ -215,6 +217,8 @@ class MsgAndPduDispatcher:
             raise error.StatusInformation(
                 errorIndication='unsupportedMsgProcessingModel'
                 )
+
+        debug.logger & debug.flagDsp and debug.logger('returnResponsePdu: PDU %s' % PDU.prettyPrint())
 
         # 4.1.2.2
         try:
@@ -324,6 +328,8 @@ class MsgAndPduDispatcher:
                     statusInformation
                     )
             return restOfWholeMsg
+
+        debug.logger & debug.flagDsp and debug.logger('receiveMessage: PDU %s' % PDU.prettyPrint())
 
         # 4.2.2
         if sendPduHandle is None:
