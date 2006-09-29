@@ -2,6 +2,7 @@
 from pysnmp.proto import rfc3411, error
 from pysnmp.proto.api import v1, v2c
 from pysnmp.smi import exval
+from pysnmp import debug
 
 # 2.1.1
 
@@ -96,6 +97,8 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
     pduType = v1Pdu.tagSet
     v2Pdu = __v1ToV2PduMap[pduType].clone()
     v2c.apiPDU.setDefaults(v2Pdu)
+
+    debug.logger & debug.flagPrx and debug.logger('v1ToV2: v1Pdu %s' % v1Pdu.prettyPrint())
     
     v2VarBinds = []
 
@@ -147,10 +150,14 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
         v2c.apiPDU.setRequestID(v2Pdu, long(v1.apiPDU.getRequestID(v1Pdu)))
 
     v2c.apiPDU.setVarBinds(v2Pdu, v2VarBinds)
+
+    debug.logger & debug.flagPrx and debug.logger('v1ToV2: v2Pdu %s' % v2Pdu.prettyPrint())
         
     return v2Pdu
 
 def v2ToV1(v2Pdu, origV1Pdu=None):
+    debug.logger & debug.flagPrx and debug.logger('v2ToV1: v2Pdu %s' % v2Pdu.prettyPrint())
+    
     pduType = v2Pdu.tagSet
 
     v1Pdu = __v2ToV1PduMap[pduType].clone()
@@ -261,5 +268,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         v1.apiPDU.setRequestID(
             v1Pdu, v2c.apiPDU.getRequestID(v2Pdu)
             )
+
+    debug.logger & debug.flagPrx and debug.logger('v2ToV1: v1Pdu %s' % v1Pdu.prettyPrint())
         
     return v1Pdu
