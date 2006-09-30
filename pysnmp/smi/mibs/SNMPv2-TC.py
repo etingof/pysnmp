@@ -325,7 +325,7 @@ class StorageType(Integer, TextualConvention):
 class TDomain(ObjectIdentifier, TextualConvention): pass
 
 class TAddress(OctetString, TextualConvention):
-    subtypeSpec = Integer.subtypeSpec+constraint.ValueSizeConstraint(1, 255)
+    subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(1, 255)
 
 mibBuilder.exportSymbols(
     'SNMPv2-TC', TextualConvention=TextualConvention, DisplayString=DisplayString,
