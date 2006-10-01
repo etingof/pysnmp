@@ -30,6 +30,9 @@ Revision 4.1.7a
 - Notification type PDU proxy code fixed to produce symmetrical
   convertion.
 - Various SNMP engine-internal caches expiration implemented.
+- SMI-level access control now takes effect only if AC object is
+  passed to MIB instrumentation API.
+- LCD management code now uses generic MIB instrumentation features.
 - A handful of minor fixes applied (SourceForge tracker IDs #1537592,
   #1537600, #1537659, #1548208, #1560939, #1563715).
 

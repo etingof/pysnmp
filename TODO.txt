@@ -1,4 +1,3 @@
-
 Sparse notes on major existing problems/plans
 
 * SMI issues remained include:
@@ -30,17 +29,11 @@ Sparse notes on major existing problems/plans
 
 * Re-work ACL to get rid of linear search there
 
-* Implement SNMP trap app
-
 * Implement SNMP proxy example & app
 
 * Check for memory leaks esp. on failed requests
 
 * Implement partial context name match at isAccessAllowed()
-
-* Should managed objects be accessed through some dedicated,
-  non-SNMP-based API? A sort of backdoor which is basically
-  intrum minus transactions and AC.
 
 * Clean up cache management code at MsgAndPduDsp and MP
 
