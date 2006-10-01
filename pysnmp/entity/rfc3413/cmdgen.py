@@ -1,7 +1,8 @@
 import types, time
 from pysnmp.proto import rfc1157, rfc1905, api
-from pysnmp.proto import error
+from pysnmp.entity.rfc3413 import config
 from pysnmp.proto.proxy import rfc2576
+from pysnmp.proto import error
 
 def getVersionSpecifics(snmpVersion):
     if snmpVersion == 0:
@@ -9,61 +10,6 @@ def getVersionSpecifics(snmpVersion):
     else:
         pduVersion = 1
     return pduVersion, api.protoModules[pduVersion]
-
-# XXX move to rfc3413/config
-def getTargetInfo(snmpEngine, snmpTargetAddrName):
-    mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
-    # Transport endpoint
-    snmpTargetAddrEntry, = mibInstrumController.mibBuilder.importSymbols(
-        'SNMP-TARGET-MIB', 'snmpTargetAddrEntry'
-        )
-    tblIdx = snmpTargetAddrEntry.getInstIdFromIndices(
-        snmpTargetAddrName
-        )
-    snmpTargetAddrTDomain = snmpTargetAddrEntry.getNode(
-        snmpTargetAddrEntry.name + (2,) + tblIdx
-        )
-    snmpTargetAddrTAddress = snmpTargetAddrEntry.getNode(
-        snmpTargetAddrEntry.name + (3,) + tblIdx
-        )
-    snmpTargetAddrTimeout = snmpTargetAddrEntry.getNode(
-        snmpTargetAddrEntry.name + (4,) + tblIdx
-        )
-    snmpTargetAddrRetryCount = snmpTargetAddrEntry.getNode(
-        snmpTargetAddrEntry.name + (5,) + tblIdx
-        )
-    snmpTargetAddrParams = snmpTargetAddrEntry.getNode(
-        snmpTargetAddrEntry.name + (7,) + tblIdx
-        )
-    
-    # Target params
-    snmpTargetParamsEntry, = mibInstrumController.mibBuilder.importSymbols(
-        'SNMP-TARGET-MIB', 'snmpTargetParamsEntry'
-        )
-    tblIdx = snmpTargetParamsEntry.getInstIdFromIndices(
-        snmpTargetAddrParams.syntax
-        )
-    snmpTargetParamsMPModel = snmpTargetParamsEntry.getNode(
-        snmpTargetParamsEntry.name + (2,) + tblIdx
-        )
-    snmpTargetParamsSecurityModel = snmpTargetParamsEntry.getNode(
-        snmpTargetParamsEntry.name + (3,) + tblIdx
-        )
-    snmpTargetParamsSecurityName = snmpTargetParamsEntry.getNode(
-        snmpTargetParamsEntry.name + (4,) + tblIdx
-        )
-    snmpTargetParamsSecurityLevel = snmpTargetParamsEntry.getNode(
-        snmpTargetParamsEntry.name + (5,) + tblIdx
-        )
-
-    return ( snmpTargetAddrTDomain.syntax,
-             tuple(snmpTargetAddrTAddress.syntax),
-             snmpTargetAddrTimeout.syntax,
-             snmpTargetAddrRetryCount.syntax,
-             snmpTargetParamsMPModel.syntax,
-             snmpTargetParamsSecurityModel.syntax,
-             snmpTargetParamsSecurityName.syntax,
-             snmpTargetParamsSecurityLevel.syntax )
 
 class CommandGeneratorBase:
     def __init__(self):
@@ -254,7 +200,7 @@ class GetCommandGenerator(CommandGeneratorBase):
           messageProcessingModel,
           securityModel,
           securityName,
-          securityLevel ) = getTargetInfo(snmpEngine, addrName)
+          securityLevel ) = config.getTargetInfo(snmpEngine, addrName)
 
         pduVersion, pMod = getVersionSpecifics(messageProcessingModel)
         
@@ -331,7 +277,7 @@ class SetCommandGenerator(CommandGeneratorBase):
           messageProcessingModel,
           securityModel,
           securityName,
-          securityLevel ) = getTargetInfo(snmpEngine, addrName)
+          securityLevel ) = config.getTargetInfo(snmpEngine, addrName)
 
         pduVersion, pMod = getVersionSpecifics(messageProcessingModel)
         
@@ -412,7 +358,7 @@ class NextCommandGenerator(CommandGeneratorBase):
           messageProcessingModel,
           securityModel,
           securityName,
-          securityLevel ) = getTargetInfo(snmpEngine, addrName)
+          securityLevel ) = config.getTargetInfo(snmpEngine, addrName)
 
         pduVersion, pMod = getVersionSpecifics(messageProcessingModel)
         
@@ -518,7 +464,7 @@ class BulkCommandGenerator(CommandGeneratorBase):
           messageProcessingModel,
           securityModel,
           securityName,
-          securityLevel ) = getTargetInfo(snmpEngine, addrName)
+          securityLevel ) = config.getTargetInfo(snmpEngine, addrName)
 
         pduVersion, pMod = getVersionSpecifics(messageProcessingModel)
        
