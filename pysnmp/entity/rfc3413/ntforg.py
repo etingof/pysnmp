@@ -142,7 +142,7 @@ class NotificationOriginator:
             sysUpTime, = contextMibInstrumCtl.mibBuilder.importSymbols(
                 '__SNMPv2-MIB', 'sysUpTime'
                 )
-            varBinds.append((sysUpTime.name + (0,), sysUpTime.syntax))
+            varBinds.append((sysUpTime.name, sysUpTime.syntax))
 
             snmpTrapOid, = contextMibInstrumCtl.mibBuilder.importSymbols(
                 'SNMPv2-MIB', 'snmpTrapOID'
