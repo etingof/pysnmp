@@ -296,7 +296,8 @@ class MibTree(ObjectType):
     
     def readTest(self, name, val, idx, (acFun, acCtx)):
         if name == self.name:
-            if self.maxAccess != 'readonly' and \
+            if acFun and \
+                   self.maxAccess != 'readonly' and \
                    self.maxAccess != 'readwrite' and \
                    self.maxAccess != 'readcreate' or \
                    acFun and acFun(name, idx, 'read', acCtx):
@@ -350,7 +351,8 @@ class MibTree(ObjectType):
     def writeTest(self, name, val, idx, (acFun, acCtx)):
         if name == self.name:
             # Make sure variable is writable
-            if self.maxAccess != 'readwrite' and \
+            if acFun and \
+                   self.maxAccess != 'readwrite' and \
                    self.maxAccess != 'readcreate' or \
                    acFun and acFun(name, idx, 'write', acCtx):
                 raise error.NotWritableError(idx=idx, name=name)
@@ -381,7 +383,8 @@ class MibScalar(MibTree):
         else:
             MibTree.readTest(self, name, val, idx, (acFun, acCtx))
         # If instance exists, check permissions
-        if self.maxAccess != 'readonly' and \
+        if acFun and \
+               self.maxAccess != 'readonly' and \
                self.maxAccess != 'readwrite' and \
                self.maxAccess != 'readcreate' or \
                acFun and acFun(name, idx, 'read', acCtx):
@@ -395,7 +398,8 @@ class MibScalar(MibTree):
         else:
             MibTree.writeTest(self, name, val, idx, (acFun, acCtx))
         # If instance exists, check permissions
-        if self.maxAccess != 'readwrite' and \
+        if acFun and \
+               self.maxAccess != 'readwrite' and \
                self.maxAccess != 'readcreate' or \
                acFun and acFun(name, idx, 'write', acCtx):
             raise error.NotWritableError(idx=idx, name=name)
@@ -534,7 +538,7 @@ class MibTableColumn(MibScalar):
         # do not replace the old one
         if name == self.name:
             raise error.NoAccessError(idx=idx, name=name)
-        if val is not None and \
+        if acFun and \
                self.maxAccess != 'readcreate' or \
                acFun and acFun(name, idx, 'write', acCtx):
             raise error.NoCreationError(idx=idx, name=name)
@@ -592,7 +596,8 @@ class MibTableColumn(MibScalar):
             raise error.NoAccessError(idx=idx, name=name)        
         if not self._vars.has_key(name):
             return
-        if val is not None and  self.maxAccess != 'readcreate' or \
+        if acFun and \
+               self.maxAccess != 'readcreate' or \
                acFun and acFun(name, idx, 'write', acCtx):
             raise error.NoAccessError(idx=idx, name=name)
         self._vars[name].destroyTest(
