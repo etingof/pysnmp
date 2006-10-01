@@ -1,4 +1,4 @@
-import types
+import types, string
 from pyasn1.type import constraint
 
 OctetString, = mibBuilder.importSymbols('ASN1', 'OctetString')
@@ -20,15 +20,17 @@ class SnmpUDPAddress(TextualConvention, OctetString):
     def prettyIn(self, value):
         if type(value) == types.TupleType:
             # Wild hack -- need to implement TextualConvention.prettyIn
-            self.__nativeValue = value
-            return "\0"*6  # XXX
+            return reduce(lambda x,y: x+y, map(lambda x: chr(string.atoi(x)), string.split(value[0], '.'))) + chr((value[1] >> 8) & 0xff) +  chr((value[1] & 0xff))
         else:
-            return TextualConvention.prettyIn(self, value)
+            return OctetString.prettyIn(self, value)
 
     # Socket address syntax coercion
     def __getitem__(self, i):
-        # XXX This should work against base value through custom filter
-        return self.__nativeValue[i]
+        value = (
+            string.join(map(lambda x: str(ord(x)), self._value[:4]), '.'),
+            (ord(self._value[4:5])) << 8 | ord(self._value[5:6])
+            )
+        return value[i]
     
 snmpCLNSDomain = ObjectIdentity(snmpDomains.name + (2,))
 snmpCONSDomain = ObjectIdentity(snmpDomains.name + (3,))
