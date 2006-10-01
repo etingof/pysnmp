@@ -1,6 +1,7 @@
 # Shortcuts to MIB instrumentation items used internally in SNMP applications
 import string
 from pysnmp.smi.error import NoSuchObjectError
+from pysnmp.entity import config
 
 def getVersionSpecifics(snmpVersion): pass
 
@@ -13,27 +14,66 @@ def getTargetAddr(snmpEngine, snmpTargetAddrName):
     tblIdx = snmpTargetAddrEntry.getInstIdFromIndices(
         snmpTargetAddrName
         )
-    snmpTargetAddrTDomain = snmpTargetAddrEntry.getNode(
-        snmpTargetAddrEntry.name + (2,) + tblIdx
-        )
-    snmpTargetAddrTAddress = snmpTargetAddrEntry.getNode(
-        snmpTargetAddrEntry.name + (3,) + tblIdx
-        )
-    snmpTargetAddrTimeout = snmpTargetAddrEntry.getNode(
-        snmpTargetAddrEntry.name + (4,) + tblIdx
-        )
-    snmpTargetAddrRetryCount = snmpTargetAddrEntry.getNode(
-        snmpTargetAddrEntry.name + (5,) + tblIdx
-        )
-    snmpTargetAddrParams = snmpTargetAddrEntry.getNode(
-        snmpTargetAddrEntry.name + (7,) + tblIdx
+
+    ((v, snmpTargetAddrTDomain),
+     (v, snmpTargetAddrTAddress),
+     (v, snmpTargetAddrTimeout),
+     (v, snmpTargetAddrRetryCount),
+     (v, snmpTargetAddrParams)) = mibInstrumController.readVars(
+        ((snmpTargetAddrEntry.name + (2,) + tblIdx, None),
+         (snmpTargetAddrEntry.name + (3,) + tblIdx, None),
+         (snmpTargetAddrEntry.name + (4,) + tblIdx, None),
+         (snmpTargetAddrEntry.name + (5,) + tblIdx, None),
+         (snmpTargetAddrEntry.name + (7,) + tblIdx, None))       
         )
 
-    return ( snmpTargetAddrTDomain.syntax,
-             tuple(snmpTargetAddrTAddress.syntax),
-             snmpTargetAddrTimeout.syntax,
-             snmpTargetAddrRetryCount.syntax,
-             snmpTargetAddrParams.syntax )
+    if snmpTargetAddrTDomain == config.snmpUDPDomain:
+        SnmpUDPAddress, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-TM', 'SnmpUDPAddress')
+        snmpTargetAddrTAddress = tuple(
+            SnmpUDPAddress(snmpTargetAddrTAddress)
+            )
+
+    return ( snmpTargetAddrTDomain,
+             snmpTargetAddrTAddress,
+             snmpTargetAddrTimeout,
+             snmpTargetAddrRetryCount,
+             snmpTargetAddrParams )
+
+def getTargetInfo(snmpEngine, snmpTargetAddrName):
+    # Transport endpoint
+    ( snmpTargetAddrTDomain,
+      snmpTargetAddrTAddress,
+      snmpTargetAddrTimeout,
+      snmpTargetAddrRetryCount,
+      snmpTargetAddrParams ) = getTargetAddr(snmpEngine, snmpTargetAddrName)
+
+    mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
+
+    # Target params
+    snmpTargetParamsEntry, = mibInstrumController.mibBuilder.importSymbols(
+        'SNMP-TARGET-MIB', 'snmpTargetParamsEntry'
+        )
+    tblIdx = snmpTargetParamsEntry.getInstIdFromIndices(
+        snmpTargetAddrParams
+        )
+    ((v, snmpTargetParamsMPModel),
+     (v, snmpTargetParamsSecurityModel),
+     (v, snmpTargetParamsSecurityName),
+     (v, snmpTargetParamsSecurityLevel)) = mibInstrumController.readVars(
+        ((snmpTargetParamsEntry.name + (2,) + tblIdx, None),
+         (snmpTargetParamsEntry.name + (3,) + tblIdx, None),
+         (snmpTargetParamsEntry.name + (4,) + tblIdx, None),
+         (snmpTargetParamsEntry.name + (5,) + tblIdx, None))
+        )
+    
+    return ( snmpTargetAddrTDomain,
+             snmpTargetAddrTAddress,
+             snmpTargetAddrTimeout,
+             snmpTargetAddrRetryCount,
+             snmpTargetParamsMPModel,
+             snmpTargetParamsSecurityModel,
+             snmpTargetParamsSecurityName,
+             snmpTargetParamsSecurityLevel )
 
 def getTargetParams(snmpEngine, paramsName):
     mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController    
@@ -43,23 +83,20 @@ def getTargetParams(snmpEngine, paramsName):
     tblIdx = snmpTargetParamsEntry.getInstIdFromIndices(
         paramsName
         )
-    snmpTargetParamsMPModel = snmpTargetParamsEntry.getNode(
-        snmpTargetParamsEntry.name + (2,) + tblIdx
-        )
-    snmpTargetParamsSecurityModel = snmpTargetParamsEntry.getNode(
-        snmpTargetParamsEntry.name + (3,) + tblIdx
-        )
-    snmpTargetParamsSecurityName = snmpTargetParamsEntry.getNode(
-        snmpTargetParamsEntry.name + (4,) + tblIdx
-        )
-    snmpTargetParamsSecurityLevel = snmpTargetParamsEntry.getNode(
-        snmpTargetParamsEntry.name + (5,) + tblIdx
+    ((v, snmpTargetParamsMPModel),
+     (v, snmpTargetParamsSecurityModel),
+     (v, snmpTargetParamsSecurityName),
+     (v, snmpTargetParamsSecurityLevel)) = mibInstrumController.readVars(
+        ((snmpTargetParamsEntry.name + (2,) + tblIdx, None),
+         (snmpTargetParamsEntry.name + (3,) + tblIdx, None),
+         (snmpTargetParamsEntry.name + (4,) + tblIdx, None),
+         (snmpTargetParamsEntry.name + (5,) + tblIdx, None))
         )
 
-    return ( snmpTargetParamsMPModel.syntax,
-             snmpTargetParamsSecurityModel.syntax,
-             snmpTargetParamsSecurityName.syntax,
-             snmpTargetParamsSecurityLevel.syntax )
+    return ( snmpTargetParamsMPModel,
+             snmpTargetParamsSecurityModel,
+             snmpTargetParamsSecurityName,
+             snmpTargetParamsSecurityLevel )
 
 def getNotificationInfo(snmpEngine, notificationTarget):
     mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
@@ -70,13 +107,13 @@ def getNotificationInfo(snmpEngine, notificationTarget):
     tblIdx = snmpNotifyEntry.getInstIdFromIndices(
         notificationTarget
         )
-    snmpNotifyTag = snmpNotifyEntry.getNode(
-        snmpNotifyEntry.name + (2,) + tblIdx
+    ((v, snmpNotifyTag),
+     (v, snmpNotifyType)) = mibInstrumController.readVars(
+        ((snmpNotifyEntry.name + (2,) + tblIdx, None),
+         (snmpNotifyEntry.name + (3,) + tblIdx, None))
         )
-    snmpNotifyType = snmpNotifyEntry.getNode(
-        snmpNotifyEntry.name + (3,) + tblIdx
-        )
-    return snmpNotifyTag.syntax, snmpNotifyType.syntax
+
+    return snmpNotifyTag, snmpNotifyType
 
 def getTargetNames(snmpEngine, tag):
     mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
