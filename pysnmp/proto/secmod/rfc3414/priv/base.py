@@ -4,8 +4,8 @@ class AbstractEncryptionService:
     serviceID = None
     def encryptData(self, mibInstrumController, encryptKey,
                     dataToEncrypt):
-        raise error.ProtocolError('method not implemented')
+        raise error.ProtocolError('no encryption')
     
     def decryptData(self, mibInstrumController, decryptKey,
                     privParameters, encryptedData):
-        raise error.ProtocolError('method not implemented')
+        raise error.ProtocolError('no encryption')
