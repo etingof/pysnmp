@@ -51,6 +51,7 @@ __v2ToV1PduMap = {
 
 __sysUpTime = (1,3,6,1,2,1,1,3)
 __snmpTrapAddress = (1,3,6,1,6,3,18,1,3,0)
+__snmpTrapEnterprise = (1, 3, 6, 1, 6, 3, 1, 1, 4, 3, 0)
 __null = v1.Null('')
 
 # Trap map
@@ -120,6 +121,9 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
 
         v2VarBinds.append((__sysUpTime, sysUpTime))
         v2VarBinds.append((snmpTrapOID, __null))
+        v2VarBinds.append(
+            (__snmpTrapEnterprise, v1.apiTrapPDU.getEnterprise(v1Pdu))
+            )
 
         # 3.1.4
         v2VarBinds.append(
@@ -180,8 +184,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         snmpTrapOID = v2VarBinds[1][0]
         if __v2ToV1TrapMap.has_key(snmpTrapOID):
             for oid, val in v2VarBinds:
-                # snmpTrapEnterprise
-                if oid == (1, 3, 6, 1, 6, 3, 1, 1, 4, 3, 0):
+                if oid == __snmpTrapEnterprise:
                     v1.apiTrapPDU.setEnterprise(v1Pdu, val)
                     break
             else:
@@ -220,7 +223,8 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         __v2VarBinds = []
         for oid, val in v2VarBinds[2:]:
             if __v2ToV1TrapMap.has_key(oid) or \
-                   oid in (__sysUpTime, __snmpTrapAddress):
+                   oid in (__sysUpTime, __snmpTrapAddress,
+                           __snmpTrapEnterprise):
                 continue
             __v2VarBinds.append((oid, val))
         v2VarBinds = __v2VarBinds;
