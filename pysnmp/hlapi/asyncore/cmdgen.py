@@ -66,8 +66,11 @@ class UdpTransportTarget:
         self.transportAddr = (
             socket.gethostbyname(transportAddr[0]), transportAddr[1]
             )
-        self.transport = udp.UdpSocketTransport().openClientMode()
 
+    def openClientMode(self):
+        self.transport = udp.UdpSocketTransport().openClientMode()
+        return self.transport
+        
 class AsynCommandGenerator:
     _null = univ.Null('')
     def __init__(self, snmpEngine=None):
@@ -111,13 +114,13 @@ class AsynCommandGenerator:
                 raise error.PySnmpError('Unsupported SNMP version')
             self.__knownAuths[authData] = 1
 
-        if not self.__knownTransports.has_key(transportTarget.transport):
+        if not self.__knownTransports.has_key(transportTarget.transportDomain):
             config.addSocketTransport(
                 self.snmpEngine,
                 transportTarget.transportDomain,
-                transportTarget.transport
+                transportTarget.openClientMode()
                 )
-            self.__knownTransports[transportTarget.transport] = 1
+            self.__knownTransports[transportTarget.transportDomain] = 1
             
         addrName = str(transportTarget.transportAddr)
         if not self.__knownTransportAddrs.has_key(addrName):
