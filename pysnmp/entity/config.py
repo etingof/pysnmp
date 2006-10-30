@@ -238,7 +238,8 @@ def addTargetAddr(
 
 def addSocketTransport(snmpEngine, transportDomain, transport):
     """Add transport object to socket dispatcher of snmpEngine"""
-    snmpEngine.registerTransportDispatcher(dispatch.AsynsockDispatcher())
+    if not snmpEngine.transportDispatcher:
+        snmpEngine.registerTransportDispatcher(dispatch.AsynsockDispatcher())
     snmpEngine.transportDispatcher.registerTransport(
         transportDomain, transport
         )
