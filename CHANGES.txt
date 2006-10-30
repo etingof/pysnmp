@@ -33,6 +33,9 @@ Revision 4.1.7a
 - SMI-level access control now takes effect only if AC object is
   passed to MIB instrumentation API.
 - LCD management code now uses generic MIB instrumentation features.
+- Fix to oneliner manager code to have individual UdpSocketTransport
+  instance per each SnmpEngine. Multithreaded apps might fail otherwise.
+  (SF bug ID #1586420).
 - A handful of minor fixes applied (SourceForge tracker IDs #1537592,
   #1537600, #1537659, #1548208, #1560939, #1563715).
 
