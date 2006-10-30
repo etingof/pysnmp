@@ -61,12 +61,12 @@ class UsmUserData:
             
 class UdpTransportTarget:
     transportDomain = udp.domainName
-    transport = udp.UdpSocketTransport().openClientMode()
     retries = timeout = None  # XXX
     def __init__(self, transportAddr):
         self.transportAddr = (
             socket.gethostbyname(transportAddr[0]), transportAddr[1]
             )
+        self.transport = udp.UdpSocketTransport().openClientMode()
 
 class AsynCommandGenerator:
     _null = univ.Null('')
