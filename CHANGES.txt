@@ -3,6 +3,7 @@ Revision 4.1.7a
 
 - UNSTABLE ALPHA RELEASE.
 - Low-level debugging facility implemented.
+- Support UdpTransportTarget timeout and retries parameters in oneliner API.
 - Fix to snmpTrapOID construction at ...proxy.rfc2576.v1ToV2() 
   function.
 - Fix to MibViewController.getNodeName() to take MIB module name
@@ -33,7 +34,6 @@ Revision 4.1.7a
 - SMI-level access control now takes effect only if AC object is
   passed to MIB instrumentation API.
 - LCD management code now uses generic MIB instrumentation features.
-- Support timeout and retries parameters in oneliner API.
 - Fix to oneliner manager code to have individual UdpSocketTransport
   instance per each SnmpEngine. Multithreaded apps might fail otherwise.
   (SF bug ID #1586420).
