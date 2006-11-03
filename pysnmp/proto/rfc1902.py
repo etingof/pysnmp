@@ -17,10 +17,6 @@ class OctetString(univ.OctetString):
     subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueSizeConstraint(
         0, 65535
         )
-    isFixedLength = 0
-    def setFixedLength(self):
-        self.isFixedLength = 1
-        return self
 
 class IpAddress(univ.OctetString):
     tagSet = univ.OctetString.tagSet.tagImplicitly(
@@ -29,7 +25,6 @@ class IpAddress(univ.OctetString):
     subtypeSpec = univ.OctetString.subtypeSpec+constraint.ValueSizeConstraint(
         4, 4
         )
-    isFixedLength = 1
     def prettyIn(self, value): return rfc1155.ipAddressPrettyIn(value)
     def prettyOut(self, value): return rfc1155.ipAddressPrettyOut(value)
 
