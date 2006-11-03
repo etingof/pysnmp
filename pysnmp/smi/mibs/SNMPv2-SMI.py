@@ -722,7 +722,7 @@ class MibTableRow(MibTree):
         elif self.__ipaddrValue.isSuperTypeOf(obj):
             return obj.clone(string.join(map(str, value[:4]), '.')), value[4:]
         elif self.__strValue.isSuperTypeOf(obj):
-            if impliedFlag:
+            if impliedFlag or obj.isFixedLength:
                 s = reduce(lambda x,y: x+y, map(lambda x: chr(x), value))
                 return obj.clone(s), ()                
             else:
@@ -750,7 +750,7 @@ class MibTableRow(MibTree):
         elif self.__ipaddrValue.isSuperTypeOf(obj):
             return tuple(map(ord, obj))
         elif self.__strValue.isSuperTypeOf(obj):
-            if impliedFlag:
+            if impliedFlag or obj.isFixedLength:
                 initial = ()
             else:
                 initial = (len(obj),)
