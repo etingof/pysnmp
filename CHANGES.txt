@@ -8,9 +8,9 @@ Revision 4.1.7a
   function.
 - Fix to MibViewController.getNodeName() to take MIB module name
   into account (SF bug #1505847).
-- Do explicit check for Unsigned32 value type in MibTableRow index 
-  convertion and in TextualConvention.prettyPrint() methods 
-  (SF bug #1506341). Handle Bits in indices as RFC2578 suggests.
+- Do explicit check for Counter32,Unsigned32,TimeTicks,Counter64 value types
+  in MibTableRow index convertion and in TextualConvention.prettyPrint()
+  methods (SF bug #1506341). Handle Bits in indices as RFC2578 suggests.
 - Apply read-create column status to libsmi2pysnmp-generated code
   whenever MIB text specifies that (SF bug #1508955).
 - Honor and apply DISPLAY-HINT specification when building TextualConvention
