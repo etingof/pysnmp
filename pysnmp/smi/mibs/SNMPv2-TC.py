@@ -6,8 +6,8 @@ from pysnmp import debug
 OctetString, Integer, ObjectIdentifier = mibBuilder.importSymbols(
     'ASN1', 'OctetString', 'Integer', 'ObjectIdentifier'
     )
-Unsigned32, TimeTicks, = mibBuilder.importSymbols(
-    'SNMPv2-SMI', 'Unsigned32', 'TimeTicks'
+Counter32, Unsigned32, TimeTicks, Counter64 = mibBuilder.importSymbols(
+    'SNMPv2-SMI', 'Counter32', 'Unsigned32', 'TimeTicks', 'Counter64'
     )
 
 class TextualConvention:
@@ -17,7 +17,10 @@ class TextualConvention:
     reference = ''
     bits = ()
     __integer = Integer()
+    __counter32 = Counter32()
     __unsigned32 = Unsigned32()
+    __timeticks = TimeTicks()
+    __counter64 = Counter64()
     __octetString = OctetString()
     __objectIdentifier = ObjectIdentifier()
     def getDisplayHint(self): return self.displayHint
@@ -29,7 +32,10 @@ class TextualConvention:
         """Implements DISPLAY-HINT evaluation"""
         if self.displayHint and (
             self.__integer.isSuperTypeOf(self) or
-            self.__unsigned32.isSuperTypeOf(self)
+            self.__unsigned32.isSuperTypeOf(self) or
+            self.__timeticks.isSuperTypeOf(self) or
+            self.__counter32.isSuperTypeOf(self) or
+            self.__counter64.isSuperTypeOf(self)
             ):
             t, f = apply(lambda t, f=0: (t, f), split(self.displayHint, '-'))
             if t == 'x':
