@@ -707,7 +707,10 @@ class MibTableRow(MibTree):
     # Table indices resolution
 
     __intValue = Integer()
+    __counter32Value = Counter32()
     __uint32Value = Unsigned32()
+    __timeticksValue = TimeTicks()
+    __counter64value = Counter64()
     __strValue = OctetString()
     __oidValue = ObjectIdentifier()
     __ipaddrValue = IpAddress()
@@ -717,7 +720,10 @@ class MibTableRow(MibTree):
         if not value:
             raise error.SmiError('Short OID for index %s' % repr(obj))
         if self.__intValue.isSuperTypeOf(obj) or \
-               self.__uint32Value.isSuperTypeOf(obj):
+               self.__uint32Value.isSuperTypeOf(obj) or \
+               self.__timeticksValue.isSuperTypeOf(obj) or \
+               self.__counter32Value.isSuperTypeOf(obj) or \
+               self.__counter64Value.isSuperTypeOf(obj):
             return obj.clone(value[0]), value[1:]
         elif self.__ipaddrValue.isSuperTypeOf(obj):
             return obj.clone(string.join(map(str, value[:4]), '.')), value[4:]
@@ -745,7 +751,10 @@ class MibTableRow(MibTree):
 
     def getAsName(self, obj, impliedFlag=None):
         if self.__intValue.isSuperTypeOf(obj) or \
-               self.__uint32Value.isSuperTypeOf(obj):
+               self.__uint32Value.isSuperTypeOf(obj) or \
+               self.__timeticksValue.isSuperTypeOf(obj) or \
+               self.__counter32Value.isSuperTypeOf(obj) or \
+               self.__counter64Value.isSuperTypeOf(obj):
             return (int(obj),)
         elif self.__ipaddrValue.isSuperTypeOf(obj):
             return tuple(map(ord, obj))
