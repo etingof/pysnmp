@@ -107,7 +107,8 @@ class TextualConvention:
 
                 while repeatCount:
                     repeatCount = repeatCount - 1
-                    if displayFormat == 'a':
+                    # 't' stands for UTF-8, does it need any special support?
+                    if displayFormat == 'a' or displayFormat == 't':
                         r = r + v[:octetLength]
                     elif displayFormat in ('x', 'd', 'o'):
                         n = 0L; vv = v[:octetLength]
