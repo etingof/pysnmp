@@ -121,7 +121,7 @@ class Bits(univ.OctetString):
         while i < len(octets):
             v = ord(octets[i])
             j = 7
-            while j > 0:
+            while j >= 0:
                 if v & (0x01<<j):
                     name = self.__namedValues.getName(i*8+7-j)
                     if name is None:
