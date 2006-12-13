@@ -191,7 +191,7 @@ class TestAndIncr(Integer, TextualConvention):
         value = value + 1
         if value > 2147483646:
             value = 0
-        return self.clone(self, value)
+        return self.clone(value)
 
 class AutonomousType(ObjectIdentifier, TextualConvention): pass
 class InstancePointer(ObjectIdentifier, TextualConvention):
