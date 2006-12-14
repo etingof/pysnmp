@@ -184,10 +184,7 @@ class TestAndIncr(Integer, TextualConvention):
     defaultValue = 0
     def smiWrite(self, name, value, idx):
         if value != self:
-            raise error.InconsistentValueError(
-                'Old/new values mismatch %s: %s' % (self, value),
-                idx=idx
-                )
+            raise error.InconsistentValueError(idx=idx, name=name)
         value = value + 1
         if value > 2147483646:
             value = 0
