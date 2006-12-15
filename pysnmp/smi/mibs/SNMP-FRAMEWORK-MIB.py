@@ -28,14 +28,14 @@ class SnmpEngineID(OctetString, TextualConvention):
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(5,32)
     try:
         # Attempt to base engine ID on local IP address
-        defaultValue = '80004fb8' + '1' + string.join(
-            map(lambda x: ('%2.2x' % int(x)),
+        defaultValue = '\x80\x00\x4f\xb8' + '\x01' + string.join(
+            map(lambda x: chr(int(x)),
                 string.split(socket.gethostbyname(socket.gethostname()),'.')),
             ''
             )
     except:
         # ...otherwise, use rudimentary text ID
-        defaultValue = '80004fb8' + '4' + 'mozhinka'
+        defaultValue = '\x80\x00\x4f\xb8' + '\x04' + 'mozhinka'
 
 class SnmpMessageProcessingModel(Integer32):
     subtypeSpec = Integer32.subtypeSpec+constraint.ValueRangeConstraint(0,2147483647L)
