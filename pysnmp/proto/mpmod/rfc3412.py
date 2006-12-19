@@ -347,7 +347,8 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         snmpEngineMaxMessageSize, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
 
         # 7.1.7c
-        headerData.setComponentByPosition(1, snmpEngineMaxMessageSize.syntax)
+        # XXX need to coerce MIB value as it has incompatible constraints set
+        headerData.setComponentByPosition(1, int(snmpEngineMaxMessageSize.syntax))
 
         # 7.1.7d
         msgFlags = 0
