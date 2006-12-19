@@ -52,3 +52,6 @@ Sparse notes on major existing problems/plans
   this should be re-worked.
 
 * exclude SNMP-COMMUNITY-MIB from view for better security
+
+* re-design something to get rid of an ugly hack coercing MIB values into
+  SNMP message header as it has incompatible constraints set
