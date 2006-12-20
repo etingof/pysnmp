@@ -14,7 +14,6 @@ if version_info < (2, 2):
             self.__dict = {}
             self.__keys = []
             self.__dirty = 1
-            self.__sortingFun = cmp
             if kwargs:
                 self.update(kwargs)
                 self.__dirty = 1
@@ -54,9 +53,9 @@ if version_info < (2, 2):
             return map(lambda k, d=self.__dict: (k, d[k]), self.__keys)
         def update(self, d):
             map(lambda (k, v), self=self: self.__setitem__(k, v), d.items())
+        def sortingFun(self, keys): keys.sort()
         def __order(self):
-            if self.__sortingFun:
-                self.__keys.sort(self.__sortingFun)
+            self.sortingFun(self.__keys)
             d = {}
             for k in self.__keys:
                 d[len(k)] = 1
@@ -64,9 +63,6 @@ if version_info < (2, 2):
             l.sort(); l.reverse()
             self.__keysLens = tuple(l)
             self.__dirty = 0
-        def setSortingFun(self, fun):
-            self.__sortingFun = fun
-            self.__dirty = 1
         def nextKey(self, key):
             keys = self.keys()
             if self.has_key(key):
@@ -86,7 +82,6 @@ else:
         def __init__(self, **kwargs):
             self.__keys = []
             self.__dirty = 1
-            self.__sortingFun = cmp
             super(OrderedDict, self).__init__()
             if kwargs:
                 self.update(kwargs)
@@ -122,9 +117,9 @@ else:
             return map(lambda k, d=self: (k, d[k]), self.__keys)
         def update(self, d):
             map(lambda (k, v), self=self: self.__setitem__(k, v), d.items())
+        def sortingFun(self, keys): keys.sort()
         def __order(self):
-            if self.__sortingFun:
-                self.__keys.sort(self.__sortingFun)
+            self.sortingFun(self.__keys)
             d = {}
             for k in self.__keys:
                 d[len(k)] = 1
@@ -132,9 +127,6 @@ else:
             l.sort(); l.reverse()
             self.__keysLens = tuple(l)
             self.__dirty = 0
-        def setSortingFun(self, fun):
-            self.__sortingFun = fun
-            self.__dirty = 1            
         def nextKey(self, key):
             keys = self.keys()
             if self.has_key(key):
@@ -154,9 +146,7 @@ else:
 class OidOrderedDict(OrderedDict):
     def __init__(self, **kwargs):
         self.__keysCache = {}
-        apply(OrderedDict.__init__, [self], kwargs)        
-        self.setSortingFun(lambda o1, o2, self=self: cmp(
-            self.__keysCache[o1], self.__keysCache[o2]))
+        apply(OrderedDict.__init__, [self], kwargs)
 
     def __setitem__(self, key, value):
         if not self.__keysCache.has_key(key):
@@ -173,3 +163,8 @@ class OidOrderedDict(OrderedDict):
             del self.__keysCache[key]
         OrderedDict.__delitem__(self, key)
     __delattr__ = __delitem__
+
+    def sortingFun(self, keys):
+        def f(o1, o2):
+            return cmp(self.__keysCache[o1], self.__keysCache[o2])
+        keys.sort(f)
