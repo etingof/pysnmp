@@ -38,6 +38,8 @@ Revision 4.1.7a
 - Fix to oneliner manager code to have individual UdpSocketTransport
   instance per each SnmpEngine. Multithreaded apps might fail otherwise.
   (SF bug ID #1586420).
+- Exclude the PYSNMP_MODULE_ID symbol from MIB view index, as it may get
+  resolved into OID label instead of actual MIB object name.
 - Memory leak fixed in indices.OidOrderedDict implementation.
 - A handful of minor fixes applied (SourceForge tracker IDs #1537592,
   #1537600, #1537659, #1548208, #1560939, #1563715, #1575697, #1599220,
