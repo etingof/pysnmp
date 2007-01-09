@@ -66,6 +66,8 @@ class MibViewController:
 
             # Types & MIB vars indices
             for n, v in self.mibBuilder.mibSymbols[modName].items():
+                if n == "PYSNMP_MODULE_ID": # do not index this special symbol
+                    continue
                 if type(v) == ClassType:
                     if mibMod['typeToModIdx'].has_key(n):
                         raise error.SmiError(
