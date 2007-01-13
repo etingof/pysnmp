@@ -41,6 +41,8 @@ Revision 4.1.7a
 - Exclude the PYSNMP_MODULE_ID symbol from MIB view index, as it may get
   resolved into OID label instead of actual MIB object name.
 - Memory leak fixed in indices.OidOrderedDict implementation.
+- Fix to VACM shortcuts to let notifications and requests to co-exist 
+  for the same user otherwise.
 - A handful of minor fixes applied (SourceForge tracker IDs #1537592,
   #1537600, #1537659, #1548208, #1560939, #1563715, #1575697, #1599220,
   #1615077, #1615365, #1616579).
