@@ -332,7 +332,7 @@ def addVacmView(snmpEngine, viewName, viewType, subTree, mask):
 # VACM simplicity wrappers
 
 def addRoUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
-    groupName = '%s-grp-%d' % (securityName, securityModel)
+    groupName = '%s-view-ro-%d' % (securityName, securityModel)
     SnmpSecurityLevel, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'SnmpSecurityLevel')
     securityLevel = SnmpSecurityLevel(securityLevel)
     addVacmGroup(
@@ -340,14 +340,14 @@ def addRoUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
         )
     addVacmAccess(
         snmpEngine, groupName, '', securityModel, securityLevel, 1,
-        groupName+'-view-ro', '', ''
+        groupName, '', ''
         )
     addVacmView(
-        snmpEngine, groupName+'-view-ro', 1, subTree, '',
+        snmpEngine, groupName, 1, subTree, '',
         )
 
 def addRwUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
-    groupName = '%s-grp-%d' % (securityName, securityModel)
+    groupName = '%s-view-rw-%d' % (securityName, securityModel)
     SnmpSecurityLevel, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'SnmpSecurityLevel')
     securityLevel = SnmpSecurityLevel(securityLevel)
     addVacmGroup(
@@ -355,16 +355,16 @@ def addRwUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
         )
     addVacmAccess(
         snmpEngine, groupName, '', securityModel, securityLevel, 1,
-        groupName+'-view-rw', groupName+'-view-rw', ''
+        groupName, groupName, ''
         )
     addVacmView(
-        snmpEngine, groupName+'-view-rw', 1, subTree, ''
+        snmpEngine, groupName, 1, subTree, ''
         )
 
 # Notification configuration
 
 def addTrapUser(snmpEngine,securityModel,securityName,securityLevel,subTree):
-    groupName = '%s-grp-%d' % (securityName, securityModel)
+    groupName = '%s-trap-%d' % (securityName, securityModel)
     SnmpSecurityLevel, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'SnmpSecurityLevel')
     securityLevel = SnmpSecurityLevel(securityLevel)
     addVacmGroup(
@@ -372,10 +372,10 @@ def addTrapUser(snmpEngine,securityModel,securityName,securityLevel,subTree):
         )
     addVacmAccess(
         snmpEngine, groupName, '', securityModel, securityLevel, 1,
-        '', '', groupName+'-view-trap',
+        '', '', groupName,
         )
     addVacmView(
-        snmpEngine, groupName+'-view-trap', 1, subTree, ''
+        snmpEngine, groupName, 1, subTree, ''
         )
 
 def addNotificationTarget(snmpEngine, notificationName, paramsName,
