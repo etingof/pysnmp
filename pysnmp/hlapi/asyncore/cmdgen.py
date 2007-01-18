@@ -139,6 +139,40 @@ class AsynCommandGenerator:
             
         return addrName, paramsName
 
+    def flushConfig(self):
+        for authData in self.__knownAuths.keys():
+            paramsName = '%s-params' % (authData.securityName,)
+            if isinstance(authData, CommunityData):
+                config.delV1System(
+                    self.snmpEngine,
+                    authData.securityName
+                    )
+                config.delTargetParams(
+                    self.snmpEngine, paramsName
+                    )
+            elif isinstance(authData, UsmUserData):
+                config.delV3User(
+                    self.snmpEngine, authData.securityName
+                    )
+                config.delTargetParams(
+                    self.snmpEngine, paramsName
+                    )
+            else:
+                raise error.PySnmpError('Unsupported SNMP version')
+        self.__knownAuths.clear()
+
+        for transportDomain in self.__knownTransports.keys():
+            config.delSocketTransport(
+                self.snmpEngine, transportDomain
+                )
+        self.__knownTransports.clear()
+
+        for addrName in self.__knownTransportAddrs.keys():
+            config.delTargetAddr(
+                self.snmpEngine, addrName
+                )
+        self.__knownTransportAddrs.clear()
+                
     # Async SNMP apps
     
     def asyncGetCmd(
