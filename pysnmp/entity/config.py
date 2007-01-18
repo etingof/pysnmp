@@ -30,15 +30,21 @@ usmNoAuthProtocol = noauth.NoAuth.serviceID
 usmDESPrivProtocol = des.Des.serviceID
 usmNoPrivProtocol = nopriv.NoPriv.serviceID
 
-def addV1System(snmpEngine, securityName, communityName,
-                contextEngineId=None, contextName=None,
-                transportTag=None):
+def __cookV1SystemInfo(snmpEngine, securityName):
     snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
-    # Build entry index
     snmpCommunityEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-COMMUNITY-MIB', 'snmpCommunityEntry')
     tblIdx = snmpCommunityEntry.getInstIdFromIndices(
         snmpEngineID.syntax, securityName
+        )
+
+    return snmpCommunityEntry, tblIdx, snmpEngineID
+    
+def addV1System(snmpEngine, securityName, communityName,
+                contextEngineId=None, contextName=None,
+                transportTag=None):
+    snmpCommunityEntry, tblIdx, snmpEngineID = __cookV1SystemInfo(
+        snmpEngine, securityName
         )
 
     if contextEngineId is None:
@@ -46,7 +52,6 @@ def addV1System(snmpEngine, securityName, communityName,
     if contextName is not None:
         contextName = communityName
 
-    # Destroy&Create new row
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpCommunityEntry.name + (8,) + tblIdx, 'destroy'),)
         )
@@ -60,21 +65,38 @@ def addV1System(snmpEngine, securityName, communityName,
          (snmpCommunityEntry.name + (7,) + tblIdx, 'nonVolatile'))
         )
 
-def addV3User(snmpEngine, securityName,
-              authProtocol=usmNoAuthProtocol, authKey=None,
-              privProtocol=usmNoPrivProtocol, privKey=None,
-              contextEngineId=None):
-    # v3 setup
+def delV1System(snmpEngine, securityName):
+    snmpCommunityEntry, tblIdx, snmpEngineID = __cookV1SystemInfo(
+        snmpEngine, securityName
+        )
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
+        ((snmpCommunityEntry.name + (8,) + tblIdx, 'destroy'),)
+        )
+
+def __cookV3UserInfo(snmpEngine, securityName, contextEngineId):
     if contextEngineId is None:
         snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
         snmpEngineID = snmpEngineID.syntax
     else:
         snmpEngineID = contextEngineId
 
-    # Build entry index
     usmUserEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmUserEntry')
-    tblIdx = usmUserEntry.getInstIdFromIndices(
+    tblIdx1 = usmUserEntry.getInstIdFromIndices(
         snmpEngineID, securityName
+        )
+
+    pysnmpUsmSecretEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('PYSNMP-USM-MIB', 'pysnmpUsmSecretEntry')
+    tblIdx2 = pysnmpUsmSecretEntry.getInstIdFromIndices(securityName)
+
+    return snmpEngineID, usmUserEntry, tblIdx1, pysnmpUsmSecretEntry, tblIdx2
+
+def addV3User(snmpEngine, securityName,
+              authProtocol=usmNoAuthProtocol, authKey=None,
+              privProtocol=usmNoPrivProtocol, privKey=None,
+              contextEngineId=None):
+    ( snmpEngineID, usmUserEntry, tblIdx1,
+      pysnmpUsmSecretEntry, tblIdx2 ) = __cookV3UserInfo(
+        snmpEngine, securityName, contextEngineId
         )
 
     # Load augmenting table before creating new row in base one
@@ -83,20 +105,15 @@ def addV3User(snmpEngine, securityName,
     # Load clone-from (may not be needed)
     zeroDotZero, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-SMI', 'zeroDotZero')
 
-    # Destroy&Create new row
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((usmUserEntry.name + (13,) + tblIdx, 'destroy'),)
+        ((usmUserEntry.name + (13,) + tblIdx1, 'destroy'),)
         )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((usmUserEntry.name + (13,) + tblIdx, 'createAndGo'),
-         (usmUserEntry.name + (3,) + tblIdx, securityName),
-         (usmUserEntry.name + (4,) + tblIdx, zeroDotZero.name),
-         (usmUserEntry.name + (5,) + tblIdx, authProtocol),
-         (usmUserEntry.name + (8,) + tblIdx, privProtocol))
-        )
-
-    usmUserSecurityName = usmUserEntry.getNode(
-        usmUserEntry.name + (3,) + tblIdx
+        ((usmUserEntry.name + (13,) + tblIdx1, 'createAndGo'),
+         (usmUserEntry.name + (3,) + tblIdx1, securityName),
+         (usmUserEntry.name + (4,) + tblIdx1, zeroDotZero.name),
+         (usmUserEntry.name + (5,) + tblIdx1, authProtocol),
+         (usmUserEntry.name + (8,) + tblIdx1, privProtocol))
         )
 
     # Localize keys
@@ -147,28 +164,40 @@ def addV3User(snmpEngine, securityName,
 
     # Commit localized keys
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((pysnmpUsmKeyEntry.name + (1,) + tblIdx, localAuthKey),
-         (pysnmpUsmKeyEntry.name + (2,) + tblIdx, localPrivKey),
-         (pysnmpUsmKeyEntry.name + (3,) + tblIdx, hashedAuthPassphrase),
-         (pysnmpUsmKeyEntry.name + (4,) + tblIdx, hashedPrivPassphrase))
+        ((pysnmpUsmKeyEntry.name + (1,) + tblIdx1, localAuthKey),
+         (pysnmpUsmKeyEntry.name + (2,) + tblIdx1, localPrivKey),
+         (pysnmpUsmKeyEntry.name + (3,) + tblIdx1, hashedAuthPassphrase),
+         (pysnmpUsmKeyEntry.name + (4,) + tblIdx1, hashedPrivPassphrase))
         )
 
     # Commit passphrases
-    pysnmpUsmSecretEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('PYSNMP-USM-MIB', 'pysnmpUsmSecretEntry')
-    tblIdx = pysnmpUsmSecretEntry.getInstIdFromIndices(
-        usmUserSecurityName.syntax
-        )
 
-    # Destroy&Create new row
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((pysnmpUsmSecretEntry.name + (4,) + tblIdx, 'destroy'),)
+        ((pysnmpUsmSecretEntry.name + (4,) + tblIdx2, 'destroy'),)
         )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((pysnmpUsmSecretEntry.name + (4,) + tblIdx, 'createAndGo'),
-         (pysnmpUsmSecretEntry.name + (2,) + tblIdx, authKey),
-         (pysnmpUsmSecretEntry.name + (3,) + tblIdx, privKey),)
+        ((pysnmpUsmSecretEntry.name + (4,) + tblIdx2, 'createAndGo'),
+         (pysnmpUsmSecretEntry.name + (2,) + tblIdx2, authKey),
+         (pysnmpUsmSecretEntry.name + (3,) + tblIdx2, privKey),)
         )
 
+def delV3User(snmpEngine, securityName, contextEngineId=None):
+    ( snmpEngineID, usmUserEntry, tblIdx1,
+      pysnmpUsmSecretEntry, tblIdx2 ) = __cookV3UserInfo(
+        snmpEngine, securityName, contextEngineId
+        )
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
+        ((usmUserEntry.name + (13,) + tblIdx1, 'destroy'),)
+        )
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
+        ((pysnmpUsmSecretEntry.name + (4,) + tblIdx2, 'destroy'),)
+        )
+
+def __cookTargetParamsInfo(snmpEngine, name):
+    snmpTargetParamsEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-TARGET-MIB', 'snmpTargetParamsEntry')
+    tblIdx = snmpTargetParamsEntry.getInstIdFromIndices(name)
+    return snmpTargetParamsEntry, tblIdx
+    
 def addTargetParams(
     snmpEngine,
     name,
@@ -184,12 +213,9 @@ def addTargetParams(
         securityModel = 3
     else:
         raise error.PySnmpError('Unknown MP model %s' % mpModel)
-    
-    # Build entry index
-    snmpTargetParamsEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-TARGET-MIB', 'snmpTargetParamsEntry')
-    tblIdx = snmpTargetParamsEntry.getInstIdFromIndices(name)
 
-    # Destroy&Create new row
+    snmpTargetParamsEntry, tblIdx = __cookTargetParamsInfo(snmpEngine, name)
+    
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpTargetParamsEntry.name + (7,) + tblIdx, 'destroy'),)
         )
@@ -202,6 +228,19 @@ def addTargetParams(
          (snmpTargetParamsEntry.name + (5,) + tblIdx, securityLevel))
         )
 
+def delTargetParams(snmpEngine, name):
+    snmpTargetParamsEntry, tblIdx = __cookTargetParamsInfo(
+        snmpEngine, name
+        )
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
+        ((snmpTargetParamsEntry.name + (7,) + tblIdx, 'destroy'),)
+        )
+
+def __cookTargetAddrInfo(snmpEngine, addrName):
+    snmpTargetAddrEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-TARGET-MIB', 'snmpTargetAddrEntry')
+    tblIdx = snmpTargetAddrEntry.getInstIdFromIndices(addrName)
+    return snmpTargetAddrEntry, tblIdx
+
 def addTargetAddr(
     snmpEngine,
     addrName,
@@ -212,15 +251,14 @@ def addTargetAddr(
     retryCount=None,
     tagList=''
     ):
-    # Build entry index
-    snmpTargetAddrEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-TARGET-MIB', 'snmpTargetAddrEntry')
-    tblIdx = snmpTargetAddrEntry.getInstIdFromIndices(addrName)
-
+    snmpTargetAddrEntry, tblIdx = __cookTargetAddrInfo(
+        snmpEngine, addrName
+        )
+    
     if transportDomain == snmpUDPDomain:
         SnmpUDPAddress, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-TM', 'SnmpUDPAddress')
         transportAddress = SnmpUDPAddress(transportAddress)
 
-    # Destroy&Create new row
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpTargetAddrEntry.name + (9,) + tblIdx, 'destroy'),)
         )
@@ -236,6 +274,14 @@ def addTargetAddr(
         (snmpTargetAddrEntry.name + (7,) + tblIdx, params),)
         )
 
+def delTargetAddr(snmpEngine, addrName):
+    snmpTargetAddrEntry, tblIdx = __cookTargetAddrInfo(
+        snmpEngine, addrName
+        )
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
+        ((snmpTargetAddrEntry.name + (9,) + tblIdx, 'destroy'),)
+        )
+
 def addSocketTransport(snmpEngine, transportDomain, transport):
     """Add transport object to socket dispatcher of snmpEngine"""
     if not snmpEngine.transportDispatcher:
@@ -244,59 +290,79 @@ def addSocketTransport(snmpEngine, transportDomain, transport):
         transportDomain, transport
         )
 
+def delSocketTransport(snmpEngine, transportDomain):
+    """Unregister transport object at socket dispatcher of snmpEngine"""
+    if not snmpEngine.transportDispatcher:
+        return
+    snmpEngine.transportDispatcher.unregisterTransport(
+        transportDomain
+        )
+    snmpEngine.unregisterTransportDispatcher()
+
 # VACM shortcuts
 
 def addContext(snmpEngine, contextName):
-    # Create new row & fill entry
-    mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
-    vacmContextEntry, = mibInstrumController.mibBuilder.importSymbols(
+    vacmContextEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
         'SNMP-VIEW-BASED-ACM-MIB', 'vacmContextEntry'
         )
     tblIdx = vacmContextEntry.getInstIdFromIndices(contextName)
-    mibInstrumController.writeVars(
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmContextEntry.name + (1,) + tblIdx, contextName),)
         )
 
-def addVacmGroup(snmpEngine, groupName, securityModel, securityName):
-    mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
-    # Create new row
-    vacmSecurityToGroupEntry, = mibInstrumController.mibBuilder.importSymbols(
+def __cookVacmGroupInfo(snmpEngine, securityModel, securityName):
+    vacmSecurityToGroupEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
         'SNMP-VIEW-BASED-ACM-MIB', 'vacmSecurityToGroupEntry'
         )
     tblIdx = vacmSecurityToGroupEntry.getInstIdFromIndices(
         securityModel, securityName
         )
+    return vacmSecurityToGroupEntry, tblIdx
 
-    # Destroy&Create new row
-    mibInstrumController.writeVars(
+def addVacmGroup(snmpEngine, groupName, securityModel, securityName):
+    vacmSecurityToGroupEntry, tblIdx = __cookVacmGroupInfo(
+        snmpEngine, securityModel, securityName
+        )
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmSecurityToGroupEntry.name + (5,) + tblIdx, 'destroy'),)
         )
-    mibInstrumController.writeVars(
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmSecurityToGroupEntry.name + (5,) + tblIdx, 'createAndGo'),
         (vacmSecurityToGroupEntry.name + (1,) + tblIdx, securityModel),
         (vacmSecurityToGroupEntry.name + (2,) + tblIdx, securityName),
         (vacmSecurityToGroupEntry.name + (3,) + tblIdx, groupName),)
         )
 
-def addVacmAccess(snmpEngine, groupName, contextName, securityModel,
-                  securityLevel, prefix, readView, writeView, notifyView):
-    mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
+def delVacmGroup(snmpEngine, securityModel, securityName):
+    vacmSecurityToGroupEntry, tblIdx = __cookVacmGroupInfo(
+        snmpEngine, securityModel, securityName
+        )
+    snmpEngine.msgAndPduDsp.mibInstrumControlle.writeVars(
+        ((vacmSecurityToGroupEntry.name + (5,) + tblIdx, 'destroy'),)
+        )
 
-    addContext(snmpEngine, contextName)
-    
-    # Create new row
-    vacmAccessEntry, = mibInstrumController.mibBuilder.importSymbols(
+def __cookVacmAccessInfo(snmpEngine, groupName, contextName, securityModel,
+                         securityLevel):
+    vacmAccessEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
         'SNMP-VIEW-BASED-ACM-MIB', 'vacmAccessEntry'
         )
     tblIdx = vacmAccessEntry.getInstIdFromIndices(
         groupName, contextName, securityModel, securityLevel
         )
+    return vacmAccessEntry, tblIdx
 
-    # Destroy&Create new row
-    mibInstrumController.writeVars(
+def addVacmAccess(snmpEngine, groupName, contextName, securityModel,
+                  securityLevel, prefix, readView, writeView, notifyView):
+    vacmAccessEntry, tblIdx = __cookVacmAccessInfo(
+        snmpEngine, groupName, contextName, securityModel, securityLevel
+        )
+
+    addContext(snmpEngine, contextName) # this is immortal
+    
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmAccessEntry.name + (9,) + tblIdx, 'destroy'),)
         )
-    mibInstrumController.writeVars(
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmAccessEntry.name + (9,) + tblIdx, 'createAndGo'),
         (vacmAccessEntry.name + (1,) + tblIdx, contextName),
         (vacmAccessEntry.name + (2,) + tblIdx, securityModel),
@@ -307,26 +373,45 @@ def addVacmAccess(snmpEngine, groupName, contextName, securityModel,
         (vacmAccessEntry.name + (7,) + tblIdx, notifyView),)
         )
 
-def addVacmView(snmpEngine, viewName, viewType, subTree, mask):
-    mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
-    # Create new row
-    vacmViewTreeFamilyEntry, = mibInstrumController.mibBuilder.importSymbols(
+def delVacmAccess(snmpEngine, groupName, contextName, securityModel,
+                  securityLevel):
+    vacmAccessEntry, tblIdx = __cookVacmAccessInfo(
+        snmpEngine, groupName, contextName, securityModel, securityLevel
+        )    
+    snmpEngine.msgAndPduDsp.mibInstrumControlle.writeVars(
+        ((vacmAccessEntry.name + (9,) + tblIdx, 'destroy'),)
+        )
+
+def __cookVacmViewInfo(snmpEngine, viewName, subTree):
+    vacmViewTreeFamilyEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
         'SNMP-VIEW-BASED-ACM-MIB', 'vacmViewTreeFamilyEntry'
         )
     tblIdx = vacmViewTreeFamilyEntry.getInstIdFromIndices(
         viewName, subTree
         )
-    
-    # Destroy&Create new row
-    mibInstrumController.writeVars(
+    return vacmViewTreeFamilyEntry, tblIdx
+
+def addVacmView(snmpEngine, viewName, viewType, subTree, mask):
+    vacmViewTreeFamilyEntry, tblIdx = __cookVacmViewInfo(
+        snmpEngine, viewName, subTree
+        )
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmViewTreeFamilyEntry.name + (6,) + tblIdx, 'destroy'),)
         )
-    mibInstrumController.writeVars(
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmViewTreeFamilyEntry.name + (6,) + tblIdx, 'createAndGo'),
          (vacmViewTreeFamilyEntry.name + (1,) + tblIdx, viewName),
          (vacmViewTreeFamilyEntry.name + (2,) + tblIdx, subTree),
          (vacmViewTreeFamilyEntry.name + (3,) + tblIdx, mask),
          (vacmViewTreeFamilyEntry.name + (4,) + tblIdx, viewType),)
+        )
+
+def delVacmView(snmpEngine, viewName, subTree):
+    vacmViewTreeFamilyEntry, tblIdx = __cookVacmViewInfo(
+        snmpEngine, viewName, subTree
+        )
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
+        ((vacmViewTreeFamilyEntry.name + (6,) + tblIdx, 'destroy'),)
         )
 
 # VACM simplicity wrappers
@@ -378,62 +463,83 @@ def addTrapUser(snmpEngine,securityModel,securityName,securityLevel,subTree):
         snmpEngine, groupName, 1, subTree, ''
         )
 
-def addNotificationTarget(snmpEngine, notificationName, paramsName,
-                          transportTag, notifyType=None, filterSubtree=None,
-                          filterMask=None, filterType=None):
-    # Configure snmpNotifyTable
-    
-    # Build entry index
+def __cookNotificationTargetInfo(snmpEngine, notificationName, paramsName):
     snmpNotifyEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-NOTIFICATION-MIB', 'snmpNotifyEntry')
-    tblIdx = snmpNotifyEntry.getInstIdFromIndices(
+    tblIdx1 = snmpNotifyEntry.getInstIdFromIndices(
         notificationName
         )
 
-    # Destroy&Create new row
-    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((snmpNotifyEntry.name + (5,) + tblIdx, 'destroy'),)
-        )
-    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((snmpNotifyEntry.name + (5,) + tblIdx, 'createAndGo'),
-         (snmpNotifyEntry.name + (2,) + tblIdx, transportTag),
-         (snmpNotifyEntry.name + (3,) + tblIdx, notifyType),)
-        )
-
-    # Configure snmpNotifyFilterProfileTable
     snmpNotifyFilterProfileEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-NOTIFICATION-MIB', 'snmpNotifyFilterProfileEntry')
-    tblIdx = snmpNotifyFilterProfileEntry.getInstIdFromIndices(
+    tblIdx2 = snmpNotifyFilterProfileEntry.getInstIdFromIndices(
         paramsName
         )
 
     profileName = '%s-filter' % notificationName
     
-    # Destroy&Create new row
+    snmpNotifyFilterEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-NOTIFICATION-MIB', 'snmpNotifyFilterEntry')
+    tblIdx3 = snmpNotifyFilterProfileEntry.getInstIdFromIndices(profileName)
+
+    return ( snmpNotifyEntry, tblIdx1,
+             snmpNotifyFilterProfileEntry, tblIdx2, profileName,
+             snmpNotifyFilterEntry, tblIdx3 )
+
+def addNotificationTarget(snmpEngine, notificationName, paramsName,
+                          transportTag, notifyType=None, filterSubtree=None,
+                          filterMask=None, filterType=None):
+    ( snmpNotifyEntry, tblIdx1,
+      snmpNotifyFilterProfileEntry, tblIdx2, profileName,
+      snmpNotifyFilterEntry, tblIdx3 ) = __cookNotificationTargetInfo(
+        snmpEngine, notificationName, paramsName
+        )
+    
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((snmpNotifyFilterProfileEntry.name + (3,) + tblIdx, 'destroy'),)
+        ((snmpNotifyEntry.name + (5,) + tblIdx1, 'destroy'),)
         )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((snmpNotifyFilterProfileEntry.name + (3,) + tblIdx, 'createAndGo'),
-         (snmpNotifyFilterProfileEntry.name + (1,) + tblIdx, profileName),)
+        ((snmpNotifyEntry.name + (5,) + tblIdx1, 'createAndGo'),
+         (snmpNotifyEntry.name + (2,) + tblIdx1, transportTag),
+         (snmpNotifyEntry.name + (3,) + tblIdx1, notifyType),)
+        )
+
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
+        ((snmpNotifyFilterProfileEntry.name + (3,) + tblIdx2, 'destroy'),)
+        )
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
+        ((snmpNotifyFilterProfileEntry.name + (3,) + tblIdx2, 'createAndGo'),
+         (snmpNotifyFilterProfileEntry.name + (1,) + tblIdx2, profileName),)
         )
 
     if filterSubtree == filterMask == filterType == None:
         return
 
-    # Configure snmpNotifyFilterEntry
-
-    snmpNotifyFilterEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-NOTIFICATION-MIB', 'snmpNotifyFilterEntry')
-    tblIdx = snmpNotifyFilterProfileEntry.getInstIdFromIndices(profileName)
-    
-    # Destroy&Create new row
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((snmpNotifyFilterEntry.name + (5,) + tblIdx, 'destroy'),)
+        ((snmpNotifyFilterEntry.name + (5,) + tblIdx3, 'destroy'),)
         )    
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((snmpNotifyFilterEntry.name + (5,) + tblIdx, 'createAndGo'),
-         (snmpNotifyFilterEntry.name + (1,) + tblIdx, filterSubtree),
-         (snmpNotifyFilterEntry.name + (2,) + tblIdx, filterMask),
-         (snmpNotifyFilterEntry.name + (3,) + tblIdx, filterType),)
+        ((snmpNotifyFilterEntry.name + (5,) + tblIdx3, 'createAndGo'),
+         (snmpNotifyFilterEntry.name + (1,) + tblIdx3, filterSubtree),
+         (snmpNotifyFilterEntry.name + (2,) + tblIdx3, filterMask),
+         (snmpNotifyFilterEntry.name + (3,) + tblIdx3, filterType),)
         )
+
+def delNotificationTarget(snmpEngine, notificationName, paramsName):
+    ( snmpNotifyEntry, tblIdx1,
+      snmpNotifyFilterProfileEntry, tblIdx2, profileName,
+      snmpNotifyFilterEntry, tblIdx3 ) = __cookNotificationTargetInfo(
+        snmpEngine, notificationName, paramsName
+        )
+
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
+        ((snmpNotifyEntry.name + (5,) + tblIdx1, 'destroy'),)
+        )
+
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
+        ((snmpNotifyFilterProfileEntry.name + (3,) + tblIdx2, 'destroy'),)
+        )
+
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
+        ((snmpNotifyFilterEntry.name + (5,) + tblIdx3, 'destroy'),)
+        )    
     
 # rfc3415: A.1
 def setInitialVacmParameters(snmpEngine):
