@@ -23,7 +23,21 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
         cmdgen.AsynCommandGenerator.__init__(self, snmpEngine)
         self.snmpContext = snmpContext
         self.__knownAuths = {}
-        
+
+    def flushConfig(self):
+        cmdgen.AsynCommandGenerator.flushConfig(self)
+        for notifyName, paramsName in self.__knownAuths.values():
+            config.delNotificationTarget(
+                self.snmpEngine, notifyName, paramsName
+                )
+            config.delTrapUser(
+                self.snmpEngine,
+                authData.securityModel,
+                authData.securityName,
+                authData.securityLevel,
+                (1,3,6)
+                )
+
     def asyncSendNotification(
         self, authData, transportTarget, notifyType,
         notificationType, varBinds=None, (cbFun, cbCtx)=(None, None)
@@ -43,7 +57,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                 notifyType
                 )
             config.addContext(
-                self.snmpEngine, ''
+                self.snmpEngine, ''  # this is leaky
                 )
             config.addTrapUser(
                 self.snmpEngine,
@@ -54,7 +68,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                 )
             if self.snmpContext is None:
                 self.snmpContext = context.SnmpContext(self.snmpEngine)
-            self.__knownAuths[authData] = 1
+            self.__knownAuths[authData] = notifyName, paramsName
         
         if varBinds:
             __varBinds = []
