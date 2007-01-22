@@ -337,7 +337,7 @@ def delVacmGroup(snmpEngine, securityModel, securityName):
     vacmSecurityToGroupEntry, tblIdx = __cookVacmGroupInfo(
         snmpEngine, securityModel, securityName
         )
-    snmpEngine.msgAndPduDsp.mibInstrumControlle.writeVars(
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmSecurityToGroupEntry.name + (5,) + tblIdx, 'destroy'),)
         )
 
@@ -378,7 +378,7 @@ def delVacmAccess(snmpEngine, groupName, contextName, securityModel,
     vacmAccessEntry, tblIdx = __cookVacmAccessInfo(
         snmpEngine, groupName, contextName, securityModel, securityLevel
         )    
-    snmpEngine.msgAndPduDsp.mibInstrumControlle.writeVars(
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmAccessEntry.name + (9,) + tblIdx, 'destroy'),)
         )
 
@@ -512,7 +512,8 @@ def delTrapUser(snmpEngine,securityModel,securityName,securityLevel,subTree):
         snmpEngine, groupName, subTree
         )
 
-def __cookNotificationTargetInfo(snmpEngine, notificationName, paramsName):
+def __cookNotificationTargetInfo(snmpEngine, notificationName, paramsName,
+                                 filterSubtree=None):
     snmpNotifyEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-NOTIFICATION-MIB', 'snmpNotifyEntry')
     tblIdx1 = snmpNotifyEntry.getInstIdFromIndices(
         notificationName
@@ -525,8 +526,13 @@ def __cookNotificationTargetInfo(snmpEngine, notificationName, paramsName):
 
     profileName = '%s-filter' % notificationName
     
-    snmpNotifyFilterEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-NOTIFICATION-MIB', 'snmpNotifyFilterEntry')
-    tblIdx3 = snmpNotifyFilterProfileEntry.getInstIdFromIndices(profileName)
+    if filterSubtree:
+        snmpNotifyFilterEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-NOTIFICATION-MIB', 'snmpNotifyFilterEntry')
+        tblIdx3 = snmpNotifyFilterEntry.getInstIdFromIndices(
+            profileName, filterSubtree
+            )
+    else:
+        snmpNotifyFilterEntry = tblIdx3 = None
 
     return ( snmpNotifyEntry, tblIdx1,
              snmpNotifyFilterProfileEntry, tblIdx2, profileName,
@@ -538,7 +544,7 @@ def addNotificationTarget(snmpEngine, notificationName, paramsName,
     ( snmpNotifyEntry, tblIdx1,
       snmpNotifyFilterProfileEntry, tblIdx2, profileName,
       snmpNotifyFilterEntry, tblIdx3 ) = __cookNotificationTargetInfo(
-        snmpEngine, notificationName, paramsName
+        snmpEngine, notificationName, paramsName, filterSubtree
         )
     
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
@@ -558,7 +564,7 @@ def addNotificationTarget(snmpEngine, notificationName, paramsName,
          (snmpNotifyFilterProfileEntry.name + (1,) + tblIdx2, profileName),)
         )
 
-    if filterSubtree == filterMask == filterType == None:
+    if not snmpNotifyFilterEntry:
         return
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
@@ -571,11 +577,12 @@ def addNotificationTarget(snmpEngine, notificationName, paramsName,
          (snmpNotifyFilterEntry.name + (3,) + tblIdx3, filterType),)
         )
 
-def delNotificationTarget(snmpEngine, notificationName, paramsName):
+def delNotificationTarget(snmpEngine, notificationName, paramsName,
+                          filterSubtree=None):
     ( snmpNotifyEntry, tblIdx1,
       snmpNotifyFilterProfileEntry, tblIdx2, profileName,
       snmpNotifyFilterEntry, tblIdx3 ) = __cookNotificationTargetInfo(
-        snmpEngine, notificationName, paramsName
+        snmpEngine, notificationName, paramsName, filterSubtree
         )
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
@@ -585,6 +592,9 @@ def delNotificationTarget(snmpEngine, notificationName, paramsName):
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpNotifyFilterProfileEntry.name + (3,) + tblIdx2, 'destroy'),)
         )
+
+    if not snmpNotifyFilterEntry:
+        return
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpNotifyFilterEntry.name + (5,) + tblIdx3, 'destroy'),)
