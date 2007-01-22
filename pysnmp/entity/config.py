@@ -357,7 +357,7 @@ def addVacmAccess(snmpEngine, groupName, contextName, securityModel,
         snmpEngine, groupName, contextName, securityModel, securityLevel
         )
 
-    addContext(snmpEngine, contextName) # this is immortal
+    addContext(snmpEngine, contextName) # this is leaky
     
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmAccessEntry.name + (9,) + tblIdx, 'destroy'),)
@@ -416,10 +416,17 @@ def delVacmView(snmpEngine, viewName, subTree):
 
 # VACM simplicity wrappers
 
-def addRoUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
-    groupName = '%s-view-ro-%d' % (securityName, securityModel)
+def __cookVacmUserInfo(snmpEngine, securityModel, securityName,
+                       securityLevel, mode):
+    groupName = '%s-view-%s-%d' % (securityName, mode, securityModel)
     SnmpSecurityLevel, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'SnmpSecurityLevel')
     securityLevel = SnmpSecurityLevel(securityLevel)
+    return groupName, securityLevel
+
+def addRoUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
+    groupName, securityLevel = __cookVacmUserInfo(
+        snmpEngine, securityModel, securityName, securityLevel, 'ro'
+        )
     addVacmGroup(
         snmpEngine, groupName, securityModel, securityName
         )
@@ -431,10 +438,24 @@ def addRoUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
         snmpEngine, groupName, 1, subTree, '',
         )
 
+def delRoUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
+    groupName, securityLevel = __cookVacmUserInfo(
+        snmpEngine, securityModel, securityName, securityLevel, 'ro'
+        )
+    delVacmGroup(
+        snmpEngine, securityModel, securityName
+        )
+    delVacmAccess(
+        snmpEngine, groupName, '', securityModel, securityLevel
+        )
+    delVacmView(
+        snmpEngine, groupName, subTree
+        )
+
 def addRwUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
-    groupName = '%s-view-rw-%d' % (securityName, securityModel)
-    SnmpSecurityLevel, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'SnmpSecurityLevel')
-    securityLevel = SnmpSecurityLevel(securityLevel)
+    groupName, securityLevel = __cookVacmUserInfo(
+        snmpEngine, securityModel, securityName, securityLevel, 'rw'
+        )
     addVacmGroup(
         snmpEngine, groupName, securityModel, securityName
         )
@@ -446,12 +467,26 @@ def addRwUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
         snmpEngine, groupName, 1, subTree, ''
         )
 
+def delRwUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
+    groupName, securityLevel = __cookVacmUserInfo(
+        snmpEngine, securityModel, securityName, securityLevel, 'rw'
+        )
+    delVacmGroup(
+        snmpEngine, securityModel, securityName
+        )
+    delVacmAccess(
+        snmpEngine, groupName, '', securityModel, securityLevel
+        )
+    delVacmView(
+        snmpEngine, groupName, subTree
+        )
+
 # Notification configuration
 
 def addTrapUser(snmpEngine,securityModel,securityName,securityLevel,subTree):
-    groupName = '%s-trap-%d' % (securityName, securityModel)
-    SnmpSecurityLevel, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'SnmpSecurityLevel')
-    securityLevel = SnmpSecurityLevel(securityLevel)
+    groupName, securityLevel = __cookVacmUserInfo(
+        snmpEngine, securityModel, securityName, securityLevel, 'trap'
+        )
     addVacmGroup(
         snmpEngine, groupName, securityModel, securityName
         )
@@ -461,6 +496,20 @@ def addTrapUser(snmpEngine,securityModel,securityName,securityLevel,subTree):
         )
     addVacmView(
         snmpEngine, groupName, 1, subTree, ''
+        )
+
+def delTrapUser(snmpEngine,securityModel,securityName,securityLevel,subTree):
+    groupName, securityLevel = __cookVacmUserInfo(
+        snmpEngine, securityModel, securityName, securityLevel, 'trap'
+        )
+    delVacmGroup(
+        snmpEngine, securityModel, securityName
+        )
+    delVacmAccess(
+        snmpEngine, groupName, '', securityModel, securityLevel
+        )
+    delVacmView(
+        snmpEngine, groupName, subTree
         )
 
 def __cookNotificationTargetInfo(snmpEngine, notificationName, paramsName):
