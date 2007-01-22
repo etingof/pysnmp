@@ -26,7 +26,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
 
     def flushConfig(self):
         cmdgen.AsynCommandGenerator.flushConfig(self)
-        for notifyName, paramsName in self.__knownAuths.values():
+        for authData, (notifyName, paramsName) in self.__knownAuths.items():
             config.delNotificationTarget(
                 self.snmpEngine, notifyName, paramsName
                 )
