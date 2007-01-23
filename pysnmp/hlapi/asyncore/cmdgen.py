@@ -86,7 +86,7 @@ class AsynCommandGenerator:
         self.__knownTransports = {}
         self.__knownTransportAddrs = {}
 
-    def _configure(self, authData, transportTarget, tagList=''):
+    def cfgCmdGen(self, authData, transportTarget, tagList=''):
         paramsName = '%s-params' % (authData.securityName,)
         if not self.__knownAuths.has_key(authData):
             if isinstance(authData, CommunityData):
@@ -139,7 +139,7 @@ class AsynCommandGenerator:
             
         return addrName, paramsName
 
-    def flushConfig(self):
+    def uncfgCmdGen(self):
         for authData in self.__knownAuths.keys():
             paramsName = '%s-params' % (authData.securityName,)
             if isinstance(authData, CommunityData):
@@ -178,7 +178,7 @@ class AsynCommandGenerator:
     def asyncGetCmd(
         self, authData, transportTarget, varNames, (cbFun, cbCtx)
         ):
-        addrName, paramsName = self._configure(
+        addrName, paramsName = self.cfgCmdGen(
             authData, transportTarget
             )
         varBinds = []
@@ -194,7 +194,7 @@ class AsynCommandGenerator:
     def asyncSetCmd(
         self, authData, transportTarget, varBinds, (cbFun, cbCtx)
         ):
-        addrName, paramsName = self._configure(
+        addrName, paramsName = self.cfgCmdGen(
             authData, transportTarget
             )
         __varBinds = []
@@ -210,7 +210,7 @@ class AsynCommandGenerator:
     def asyncNextCmd(
         self, authData, transportTarget, varNames, (cbFun, cbCtx)
         ):
-        addrName, paramsName = self._configure(
+        addrName, paramsName = self.cfgCmdGen(
             authData, transportTarget
             )
         varBinds = []
@@ -227,7 +227,7 @@ class AsynCommandGenerator:
         self, authData, transportTarget, nonRepeaters, maxRepetitions,
         varNames, (cbFun, cbCtx)
         ):
-        addrName, paramsName = self._configure(
+        addrName, paramsName = self.cfgCmdGen(
             authData, transportTarget
             )
         varBinds = []

@@ -24,29 +24,9 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
         self.snmpContext = snmpContext
         self.__knownAuths = {}
 
-    def flushConfig(self):
-        cmdgen.AsynCommandGenerator.flushConfig(self)
-        for authData, (notifyName, paramsName) in self.__knownAuths.items():
-            config.delNotificationTarget(
-                self.snmpEngine, notifyName, paramsName
-                )
-            config.delTrapUser(
-                self.snmpEngine,
-                authData.securityModel,
-                authData.securityName,
-                authData.securityLevel,
-                (1,3,6)
-                )
-
-    def asyncSendNotification(
-        self, authData, transportTarget, notifyType,
-        notificationType, varBinds=None, (cbFun, cbCtx)=(None, None)
-        ):
-        tagList = 'notify-list'
-        addrName, paramsName = cmdgen.AsynCommandGenerator._configure(
-            self, authData, transportTarget, tagList
-            )
-        
+    def cfgNtfOrg(self, authData, transportTarget, notifyType, tagList=''):
+        addrName, paramsName = self.cfgCmdGen(authData, transportTarget,
+                                              tagList)
         notifyName = '%s-name' % tagList
         if not self.__knownAuths.has_key(authData):
             config.addNotificationTarget(
@@ -59,17 +39,40 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
             config.addContext(
                 self.snmpEngine, ''  # this is leaky
                 )
+            subTree = (1,3,6)
             config.addTrapUser(
                 self.snmpEngine,
                 authData.securityModel,
                 authData.securityName,
                 authData.securityLevel,
-                (1,3,6)
+                subTree
                 )
             if self.snmpContext is None:
                 self.snmpContext = context.SnmpContext(self.snmpEngine)
-            self.__knownAuths[authData] = notifyName, paramsName
-        
+            self.__knownAuths[authData] = notifyName, paramsName, subTree
+        return notifyName
+    
+    def uncfgNtfOrg(self):
+        self.uncfgCmdGen()
+        for authData, (notifyName, paramsName, subTree) in self.__knownAuths.items():
+            config.delNotificationTarget(
+                self.snmpEngine, notifyName, paramsName
+                )
+            config.delTrapUser(
+                self.snmpEngine,
+                authData.securityModel,
+                authData.securityName,
+                authData.securityLevel,
+                subTree
+                )
+
+    def asyncSendNotification(
+        self, authData, transportTarget, notifyType,
+        notificationType, varBinds=None, (cbFun, cbCtx)=(None, None)
+        ):
+        tagList = 'notify-list'
+        notifyName = self.cfgNtfOrg(authData, transportTarget,
+                                    notifyType, tagList)
         if varBinds:
             __varBinds = []
             for varName, varVal in varBinds:
