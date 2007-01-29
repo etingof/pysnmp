@@ -158,8 +158,9 @@ class NotificationOriginator:
             
             # Get notification objects names
             for notificationObject in snmpTrapVal.getObjects():
-                mibNode, = contextMibInstrumCtl.mibBuilder.importSymbols(
-                    notificationObject #, mibNode.moduleName # XXX
+                mibNode, = apply(
+                    contextMibInstrumCtl.mibBuilder.importSymbols,
+                    notificationObject
                     )
                 varBinds.append((mibNode.name + (0,), mibNode.syntax))
 
