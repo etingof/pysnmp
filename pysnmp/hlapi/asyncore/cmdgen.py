@@ -27,37 +27,35 @@ class CommunityData:
             self.securityModel = mpModel + 1
 
 class UsmUserData:
-    authKey = privKey = ''
+    authKey = privKey = None
+    authProtocol = usmNoAuthProtocol
+    privProtocol = usmNoPrivProtocol
     securityLevel='noAuthNoPriv'
     securityModel=3
     mpModel=2
     def __init__(self, securityName,
-                 authKey='', privKey='',
-                 authProtocol=usmNoAuthProtocol,
-                 privProtocol=usmNoPrivProtocol):
+                 authKey=None, privKey=None,
+                 authProtocol=None, privProtocol=None):
         self.securityName = securityName
-        if authKey:
+        
+        if authKey is not None:
             self.authKey = authKey
-            if authProtocol == usmNoAuthProtocol:
+            if authProtocol is None:
                 self.authProtocol = usmHMACMD5AuthProtocol
             else:
                 self.authProtocol = authProtocol
             if self.securityLevel != 'authPriv':
                 self.securityLevel = 'authNoPriv'
-        else:
-            self.authProtocol = usmNoAuthProtocol
-            self.privProtocol = usmNoPrivProtocol
-        if privKey:
+
+        if privKey is not None:
             self.privKey = privKey
             if self.authProtocol == usmNoAuthProtocol:
                 raise error.PySnmpError('Privacy implies authenticity')
             self.securityLevel = 'authPriv'
-            if privProtocol == usmNoPrivProtocol:
+            if privProtocol is None:
                 self.privProtocol = usmDESPrivProtocol
             else:
                 self.privProtocol = privProtocol
-        else:
-            self.privProtocol = usmNoPrivProtocol
             
 class UdpTransportTarget:
     transportDomain = udp.domainName
