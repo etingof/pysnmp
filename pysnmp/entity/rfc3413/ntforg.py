@@ -145,24 +145,22 @@ class NotificationOriginator:
             varBinds.append((sysUpTime.name, sysUpTime.syntax))
 
             snmpTrapOid, = contextMibInstrumCtl.mibBuilder.importSymbols(
-                'SNMPv2-MIB', 'snmpTrapOID'
+                '__SNMPv2-MIB', 'snmpTrapOID'
                 )
+            varBinds.append((snmpTrapOid.name, snmpTrapOid.syntax))
 
-            snmpTrapVal, = apply(
-                contextMibInstrumCtl.mibBuilder.importSymbols,
-                notificationName
-                )
-            varBinds.append(
-                (snmpTrapOid.name + (0,), v2c.ObjectIdentifier(snmpTrapVal.name))
-                )
-            
-            # Get notification objects names
-            for notificationObject in snmpTrapVal.getObjects():
-                mibNode, = apply(
-                    contextMibInstrumCtl.mibBuilder.importSymbols,
-                    notificationObject
-                    )
-                varBinds.append((mibNode.name + (0,), mibNode.syntax))
+# XXX it's still not clear how to instantiate OBJECTS clause
+#             # Get notification objects names
+#             for notificationObject in snmpTrapVal.getObjects():
+#                 mibNode, = apply(
+#                     contextMibInstrumCtl.mibBuilder.importSymbols,
+#                     notificationObject
+#                     )
+#                 try:
+#                     objectInstance = mibNode.getNode(mibNode.name + (0,))
+#                 except error.SmiError:
+#                     return
+#                 varBinds.append((objectInstance.name, objectInstance.syntax))
 
             if additionalVarBinds:
                 if version_info < (1, 6):
