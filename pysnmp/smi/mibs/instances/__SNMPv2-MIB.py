@@ -45,6 +45,8 @@ from pysnmp import majorVersionId
   snmpEnableAuthenTraps,
   snmpSilentDrops,
   snmpProxyDrops,
+  snmpTrapOID,
+  coldStart,
   snmpSetSerialNo ) = mibBuilder.importSymbols(
     'SNMPv2-MIB',
     'sysDescr',
@@ -83,6 +85,8 @@ from pysnmp import majorVersionId
     'snmpEnableAuthenTraps',
     'snmpSilentDrops',
     'snmpProxyDrops',
+    'snmpTrapOID',
+    'coldStart',
     'snmpSetSerialNo'
     )
 
@@ -127,6 +131,7 @@ __snmpOutTraps = MibScalarInstance(snmpOutTraps.name, (0,), snmpOutTraps.syntax.
 __snmpEnableAuthenTraps = MibScalarInstance(snmpEnableAuthenTraps.name, (0,), snmpEnableAuthenTraps.syntax.clone(1))
 __snmpSilentDrops = MibScalarInstance(snmpSilentDrops.name, (0,), snmpSilentDrops.syntax.clone(0))
 __snmpProxyDrops = MibScalarInstance(snmpProxyDrops.name, (0,), snmpProxyDrops.syntax.clone(0))
+__snmpTrapOID = MibScalarInstance(snmpTrapOID.name, (0,), snmpTrapOID.syntax.clone(coldStart.name))
 __snmpSetSerialNo = MibScalarInstance(snmpSetSerialNo.name, (0,), snmpSetSerialNo.syntax.clone(0))
 
 mibBuilder.exportSymbols(
@@ -167,5 +172,6 @@ mibBuilder.exportSymbols(
     snmpEnableAuthenTraps = __snmpEnableAuthenTraps,
     snmpSilentDrops = __snmpSilentDrops,
     snmpProxyDrops = __snmpProxyDrops,
+    snmpTrapOID = __snmpTrapOID,
     snmpSetSerialNo = __snmpSetSerialNo
     )
