@@ -26,3 +26,9 @@ while 1:
     if exval.endOfMib.isSameTypeWith(val):
         break
     print oid, val
+
+print 'Unloading MIB modules...',
+mibBuilder.unloadModules(
+    'SNMPv2-MIB', 'SNMP-FRAMEWORK-MIB', 'SNMP-COMMUNITY-MIB'
+    )
+print 'done'
