@@ -30,6 +30,7 @@ Revision 4.1.7a
   (such as RowStatus).
 - MIB table row destruction now works (SF bug #1555010).
 - LCD unconfiguration functions for oneliners implemented (SF bug #1635270).
+- unloadModules() and unexportSymbols() implemented at MibBuilder
 - Notification type PDU proxy code fixed to produce symmetrical
   convertion.
 - Various SNMP engine-internal caches expiration implemented.
