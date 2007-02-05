@@ -83,9 +83,11 @@ class MibBuilder:
                         'MIB module \"%s\" load error: %s' % (modPath, why)
                         )
 
-                self.__modSeen[modName] = 1
+                self.__modSeen[modName] = modPath
 
                 debug.logger & debug.flagBld and debug.logger('loadModules: loaded %s' % modPath)
+
+                break
 
             if not self.__modSeen.has_key(modName):
                 raise error.SmiError(
@@ -94,7 +96,22 @@ class MibBuilder:
 
         return self
                 
-    def unloadModule(self, *modNames):
+    def unloadModules(self, *modNames):
+        if not modNames:
+            modNames = self.mibSymbols.keys()
+        for modName in modNames:
+            if not self.mibSymbols.has_key(modName):
+                raise error.SmiError(
+                    'No module %s at %s' % (modName, self)
+                    )
+            apply(self.unexportSymbols,
+                  [modName] + self.mibSymbols[modName].keys())
+            del self.mibSymbols[modName]
+            del self.__modPathsSeen[self.__modSeen[modName]]
+            del self.__modSeen[modName]
+            
+            debug.logger & debug.flagBld and debug.logger('unloadModules: ' % (modName))
+            
         return self
 
     def importSymbols(self, modName, *symNames):
@@ -135,3 +152,21 @@ class MibBuilder:
             debug.logger & debug.flagBld and debug.logger('exportSymbols: symbol %s::%s' % (modName, symName))
             
         self.lastBuildId = self.lastBuildId + 1
+
+    def unexportSymbols(self, modName, *symNames):
+        if not self.mibSymbols.has_key(modName):
+            raise error.SmiError(
+                'No module %s at %s' % (modName, self)
+                )
+        mibSymbols = self.mibSymbols[modName]
+        for symName in symNames:
+            if not mibSymbols.has_key(symName):
+                raise error.SmiError(
+                    'No symbol %s::%s at %s' % (modName, symName, self)
+                    )
+            del mibSymbols[symName]
+            
+            debug.logger & debug.flagBld and debug.logger('unexportSymbols: symbol %s::%s' % (modName, symName))
+            
+        self.lastBuildId = self.lastBuildId + 1
+            
