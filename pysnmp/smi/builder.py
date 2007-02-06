@@ -104,9 +104,7 @@ class MibBuilder:
                 raise error.SmiError(
                     'No module %s at %s' % (modName, self)
                     )
-            apply(self.unexportSymbols,
-                  [modName] + self.mibSymbols[modName].keys())
-            del self.mibSymbols[modName]
+            self.unexportSymbols(modName)
             del self.__modPathsSeen[self.__modSeen[modName]]
             del self.__modSeen[modName]
             
@@ -159,6 +157,8 @@ class MibBuilder:
                 'No module %s at %s' % (modName, self)
                 )
         mibSymbols = self.mibSymbols[modName]
+        if not symNames:
+            symNames = mibSymbols.keys()
         for symName in symNames:
             if not mibSymbols.has_key(symName):
                 raise error.SmiError(
