@@ -28,7 +28,5 @@ while 1:
     print oid, val
 
 print 'Unloading MIB modules...',
-mibBuilder.unloadModules(
-    'SNMPv2-MIB', 'SNMP-FRAMEWORK-MIB', 'SNMP-COMMUNITY-MIB'
-    )
+mibBuilder.unloadModules()
 print 'done'
