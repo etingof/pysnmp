@@ -21,7 +21,8 @@ Revision 4.1.7a
   Managed Objects files import what is way too hackerish.
 - The libsmi2pysnmp now supports future libsmi bugfix that would generate 
   "ranges" subtree along with the legacy and ambiguous "range" one.
-- SMI support for fixed-length string indices implemented (SF bug 1584799).
+- SMI support for fixed-length string indices implemented (SF bug #1584799,
+  #1653908).
 - Managed Object Instances may now have smiRead, smiWrite, smiCreate methods
   to support specific value mangling. These methods, if present, would be 
   invoked from SNMP [Agent] core instead of conventional clone() method.
