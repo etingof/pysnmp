@@ -21,14 +21,17 @@ class OctetString(univ.OctetString):
     # having zero-range size constraint applied. The following is
     # supposed to be used for setting and querying this property.
     
-    isFixedLengthFlag = 0
+    fixedLength = None
     
-    def setFixedLength(self):
-        self.isFixedLengthFlag = 1
+    def setFixedLength(self, value):
+        self.fixedLength = value
         return self
     
     def isFixedLength(self):
-        return self.isFixedLengthFlag
+        return self.fixedLength is not None
+
+    def getFixedLength(self):
+        return self.fixedLength
 
 class IpAddress(univ.OctetString):
     tagSet = univ.OctetString.tagSet.tagImplicitly(
@@ -37,7 +40,7 @@ class IpAddress(univ.OctetString):
     subtypeSpec = univ.OctetString.subtypeSpec+constraint.ValueSizeConstraint(
         4, 4
         )
-    isFixedLengthFlag = 1
+    fixedLength = 4
     def prettyIn(self, value): return rfc1155.ipAddressPrettyIn(value)
     def prettyOut(self, value): return rfc1155.ipAddressPrettyOut(value)
 

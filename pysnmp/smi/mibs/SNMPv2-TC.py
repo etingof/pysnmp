@@ -173,7 +173,7 @@ class PhysAddress(TextualConvention, OctetString):
 class MacAddress(TextualConvention, OctetString):
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(6,6)
     displayHint = "1x:"
-    isFixedLengthFlag = 1
+    fixedLength = 6
 
 class TruthValue(Integer, TextualConvention):
     subtypeSpec = Integer.subtypeSpec+constraint.SingleValueConstraint(1, 2)

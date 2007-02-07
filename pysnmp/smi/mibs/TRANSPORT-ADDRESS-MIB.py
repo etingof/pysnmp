@@ -25,25 +25,25 @@ class TransportAddressDns(TextualConvention, OctetString):
 class TransportAddressIPv4(TextualConvention, OctetString):
     displayHint = "1d.1d.1d.1d:2d"
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(6,6)
-    isFixedLengthFlag = 1
+    fixedLength = 6
     pass
 
 class TransportAddressIPv4z(TextualConvention, OctetString):
     displayHint = "1d.1d.1d.1d%4d:2d"
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(10,10)
-    isFixedLengthFlag = 1
+    fixedLength = 10
     pass
 
 class TransportAddressIPv6(TextualConvention, OctetString):
     displayHint = "0a[2x:2x:2x:2x:2x:2x:2x:2x]0a:2d"
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(18,18)
-    isFixedLengthFlag = 1
+    fixedLength = 18
     pass
 
 class TransportAddressIPv6z(TextualConvention, OctetString):
     displayHint = "0a[2x:2x:2x:2x:2x:2x:2x:2x%4d]0a:2d"
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(22,22)
-    isFixedLengthFlag = 1
+    fixedLength = 22
     pass
 
 class TransportAddressLocal(TextualConvention, OctetString):
