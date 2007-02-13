@@ -47,6 +47,7 @@ Revision 4.1.7a
 - Fix to VACM shortcuts to let notifications and requests to co-exist 
   for the same user otherwise.
 - Fix to ...oneliner.cmdgen.UsmUserData to support non-default cyphers.
+- Security fix to USM time-window verification (SF bug #1649032).
 - Fix to notification objects resolution code at
   NotificationOriginator.sendNotification()
 - A handful of minor fixes applied (SourceForge tracker IDs #1537592,
