@@ -631,18 +631,28 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             debug.logger & debug.flagSM and debug.logger('processIncomingMsg: incoming msg authed')
         # 3.2.7
         if securityLevel == 3 or securityLevel == 2:
-            if self.__timeline.has_key(securityEngineID):
+            if msgAuthoritativeEngineID == snmpEngineID:
+                # Authoritative SNMP engine: use local notion (SF bug #1649032)
                 ( snmpEngineBoots,
-                  snmpEngineTime,
-                  latestReceivedEngineTime,
-                  latestUpdateTimestamp ) = self.__timeline[
-                    msgAuthoritativeEngineID
-                    ]
-                # time passed since last communication with this SNMP engine
-                idleTime = int(time.time())-latestUpdateTimestamp
-                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: read timeline snmpEngineBoots %s snmpEngineTime %s for msgAuthoritativeEngineID %s, idle time %s secs' % (snmpEngineBoots, snmpEngineTime, msgAuthoritativeEngineID, idleTime))
+                  snmpEngineTime ) = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineBoots', 'snmpEngineTime')
+                snmpEngineBoots = snmpEngineBoots.syntax
+                snmpEngineTime = snmpEngineTime.syntax
+                idleTime = 0
+                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: read snmpEngineBoots (%s), snmpEngineTime (%s) from LCD' % (snmpEngineBoots, snmpEngineTime))
             else:
-                raise error.ProtocolError('Peer SNMP engine info missing')
+                # Non-authoritative SNMP engine: use cached estimates
+                if self.__timeline.has_key(securityEngineID):
+                    ( snmpEngineBoots,
+                      snmpEngineTime,
+                      latestReceivedEngineTime,
+                      latestUpdateTimestamp ) = self.__timeline[
+                        msgAuthoritativeEngineID
+                        ]
+                    # time passed since last talk with this SNMP engine
+                    idleTime = int(time.time())-latestUpdateTimestamp
+                    debug.logger & debug.flagSM and debug.logger('processIncomingMsg: read timeline snmpEngineBoots %s snmpEngineTime %s for msgAuthoritativeEngineID %s, idle time %s secs' % (snmpEngineBoots, snmpEngineTime, msgAuthoritativeEngineID, idleTime))
+                else:
+                    raise error.ProtocolError('Peer SNMP engine info missing')
 
             msgAuthoritativeEngineBoots = securityParameters.getComponentByPosition(1)
             msgAuthoritativeEngineTime = securityParameters.getComponentByPosition(2)
