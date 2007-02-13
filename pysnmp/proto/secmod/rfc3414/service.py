@@ -9,6 +9,7 @@ from pyasn1.type import univ, namedtype, constraint
 from pyasn1.codec.ber import encoder, decoder
 from pyasn1.error import PyAsn1Error
 from pysnmp import debug
+import time
 
 # USM security params
 
@@ -315,7 +316,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             if self.__timeline.has_key(securityEngineID):
                 ( snmpEngineBoots,
                   snmpEngineTime,
-                  latestReceivedEngineTime ) = self.__timeline[
+                  latestReceivedEngineTime,
+                  latestUpdateTimestamp) = self.__timeline[
                     securityEngineID
                     ]
                 debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: read snmpEngineBoots, snmpEngineTime from timeline')
@@ -485,7 +487,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 self.__timeline[securityEngineID] = (
                     securityParameters.getComponentByPosition(1),
                     securityParameters.getComponentByPosition(2),
-                    securityParameters.getComponentByPosition(2)
+                    securityParameters.getComponentByPosition(2),
+                    int(time.time())
                     )
                 
                 expireAt = self.__expirationTimer + 300
@@ -631,10 +634,13 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             if self.__timeline.has_key(securityEngineID):
                 ( snmpEngineBoots,
                   snmpEngineTime,
-                  latestReceivedEngineTime ) = self.__timeline[
+                  latestReceivedEngineTime,
+                  latestUpdateTimestamp ) = self.__timeline[
                     msgAuthoritativeEngineID
                     ]
-                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: read timeline snmpEngineBoots %s snmpEngineTime %s for msgAuthoritativeEngineID %s' % (snmpEngineBoots, snmpEngineTime, msgAuthoritativeEngineID))
+                # time passed since last communication with this SNMP engine
+                idleTime = int(time.time())-latestUpdateTimestamp
+                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: read timeline snmpEngineBoots %s snmpEngineTime %s for msgAuthoritativeEngineID %s, idle time %s secs' % (snmpEngineBoots, snmpEngineTime, msgAuthoritativeEngineID, idleTime))
             else:
                 raise error.ProtocolError('Peer SNMP engine info missing')
 
@@ -645,7 +651,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             if msgAuthoritativeEngineID == snmpEngineID:
                 if snmpEngineBoots == 2147483647L or \
                    snmpEngineBoots != msgAuthoritativeEngineBoots or \
-                   abs(int(snmpEngineTime)-int(msgAuthoritativeEngineTime)) > 150:
+                   idleTime + abs(int(snmpEngineTime) - \
+                                  int(msgAuthoritativeEngineTime)) > 150:
                     usmStatsNotInTimeWindows, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsNotInTimeWindows')
                     usmStatsNotInTimeWindows.syntax = usmStatsNotInTimeWindows.syntax+1
                     raise error.StatusInformation(
@@ -667,7 +674,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     self.__timeline[msgAuthoritativeEngineID] = (
                         msgAuthoritativeEngineBoots,
                         msgAuthoritativeEngineTime,
-                        msgAuthoritativeEngineTime
+                        msgAuthoritativeEngineTime,
+                        int(time.time())
                         )
                     debug.logger & debug.flagSM and debug.logger('processIncomingMsg: stored timeline msgAuthoritativeEngineBoots %s msgAuthoritativeEngineTime %s for msgAuthoritativeEngineID %s' % (msgAuthoritativeEngineBoots, msgAuthoritativeEngineTime, msgAuthoritativeEngineID))
                     
@@ -675,7 +683,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 if snmpEngineBoots == 2147483647L or \
                    msgAuthoritativeEngineBoots < snmpEngineBoots or \
                    msgAuthoritativeEngineBoots == snmpEngineBoots and \
-                   msgAuthoritativeEngineTime - snmpEngineTime < -150:
+                   idleTime + abs(int(snmpEngineTime) - \
+                                  int(msgAuthoritativeEngineTime)) > 150:
                     raise error.StatusInformation(
                         errorIndication = 'notInTimeWindow'
                         )
