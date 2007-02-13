@@ -488,7 +488,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     securityParameters.getComponentByPosition(2)
                     )
                 
-                expireAt = self.__expirationTimer + 1 #300
+                expireAt = self.__expirationTimer + 300
                 if not self.__timelineExpQueue.has_key(expireAt):
                     self.__timelineExpQueue[expireAt] = []
                 self.__timelineExpQueue[expireAt].append(securityEngineID)
