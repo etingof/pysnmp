@@ -358,6 +358,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 4, '\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
                 )
 
+            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: %s' % (securityParameters.prettyPrint(),))
+            
             msg.setComponentByPosition(2, encoder.encode(securityParameters))
 
             wholeMsg = encoder.encode(msg)
@@ -373,6 +375,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         # 3.1.8b
         else:
             securityParameters.setComponentByPosition(4, '')
+            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: %s' % (securityParameters.prettyPrint(),))
             msg.setComponentByPosition(2, encoder.encode(securityParameters))
             authenticatedWholeMsg = encoder.encode(msg)
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: plain outgoing msg')
@@ -459,8 +462,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                errorIndication='parseError'
                )
 
-        debug.logger & debug.flagSM and debug.logger('processIncomingMsg: securityParams parsed')
-       
+        debug.logger & debug.flagSM and debug.logger('processIncomingMsg: %s' % (securityParameters.prettyPrint(),))
+
         # 3.2.9 -- moved up here to be able to report
         # maxSizeResponseScopedPDU on error
         maxSizeResponseScopedPDU = maxMessageSize - 512   # XXX
