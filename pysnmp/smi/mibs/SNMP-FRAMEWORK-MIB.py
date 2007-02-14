@@ -40,9 +40,8 @@ class SnmpEngineID(OctetString, TextualConvention):
 
 class SnmpEngineTime(Integer32):
     def clone(self, value=None, tagSet=None, subtypeSpec=None):
-        # XXX
-#        if value is None and self._value is not None:
-#            value = int(time.time())-self._value
+        if value is None and self._value is not None:
+            value = int(time.time())-self._value
         return Integer32.clone(self, value, tagSet, subtypeSpec)
     
 class SnmpMessageProcessingModel(Integer32):
