@@ -7,7 +7,8 @@ try:
 except ImportError:
     pass
 import string
-        
+import time
+
 # Imported just in case new ASN.1 types would be created
 from pyasn1.type import constraint, namedval
 
@@ -37,6 +38,13 @@ class SnmpEngineID(OctetString, TextualConvention):
         # ...otherwise, use rudimentary text ID
         defaultValue = '\x80\x00\x4f\xb8' + '\x04' + 'mozhinka'
 
+class SnmpEngineTime(Integer32):
+    def clone(self, value=None, tagSet=None, subtypeSpec=None):
+        # XXX
+#        if value is None and self._value is not None:
+#            value = int(time.time())-self._value
+        return Integer32.clone(self, value, tagSet, subtypeSpec)
+    
 class SnmpMessageProcessingModel(Integer32):
     subtypeSpec = Integer32.subtypeSpec+constraint.ValueRangeConstraint(0,2147483647L)
 
@@ -57,7 +65,7 @@ snmpFrameworkMIBObjects = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 2))
 snmpEngine = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 2, 1))
 snmpEngineID = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 1), SnmpEngineID()).setMaxAccess("readonly")
 snmpEngineBoots = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 2), Integer32().subtype(subtypeSpec=constraint.ValueRangeConstraint(1, 2147483647L))).setMaxAccess("readonly")
-snmpEngineTime = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 3), Integer32().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 2147483647L))).setMaxAccess("readonly").setUnits("seconds")
+snmpEngineTime = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 3), SnmpEngineTime().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 2147483647L))).setMaxAccess("readonly").setUnits("seconds")
 snmpEngineMaxMessageSize = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 4), Integer32().subtype(subtypeSpec=constraint.ValueRangeConstraint(484, 2147483647L))).setMaxAccess("readonly")
 snmpFrameworkMIBConformance = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 3))
 snmpFrameworkMIBCompliances = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 3, 1))
