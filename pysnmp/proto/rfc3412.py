@@ -218,7 +218,7 @@ class MsgAndPduDispatcher:
                 errorIndication='unsupportedMsgProcessingModel'
                 )
 
-        debug.logger & debug.flagDsp and debug.logger('returnResponsePdu: PDU %s' % PDU.prettyPrint())
+        debug.logger & debug.flagDsp and debug.logger('returnResponsePdu: PDU %s' % (PDU and PDU.prettyPrint() or "<empty>",))
 
         # 4.1.2.2
         try:
