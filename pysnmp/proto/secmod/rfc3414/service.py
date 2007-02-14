@@ -330,7 +330,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             ( snmpEngineBoots,
               snmpEngineTime ) = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineBoots', 'snmpEngineTime')
             snmpEngineBoots = snmpEngineBoots.syntax
-            snmpEngineTime = snmpEngineTime.syntax
+            snmpEngineTime = snmpEngineTime.syntax.clone()
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: read snmpEngineBoots, snmpEngineTime from LCD')
         # 3.1.6.c
         else:
