@@ -471,12 +471,11 @@ class BulkCommandGenerator(CommandGeneratorBase):
         if not hasattr(pMod, 'GetBulkRequestPDU'):
             raise error.ProtocolError('BULK PDU not implemented at %s' % pMod)
         reqPDU = pMod.GetBulkRequestPDU()
+        pMod.apiBulkPDU.setDefaults(reqPDU)
         
         pMod.apiBulkPDU.setNonRepeaters(reqPDU, nonRepeaters)
         pMod.apiBulkPDU.setMaxRepetitions(reqPDU, maxRepetitions)
-        
-        pMod.apiBulkPDU.setDefaults(reqPDU)
-        
+
         pMod.apiBulkPDU.setVarBinds(reqPDU, varBinds)
 
         self._sendRequestHandleSource = self._sendRequestHandleSource + 1
