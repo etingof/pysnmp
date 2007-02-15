@@ -484,7 +484,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         # 3.2.3
         if not self.__timeline.has_key(securityEngineID):
-            debug.logger & debug.flagSM and debug.logger('processIncomingMsg: known securityEngineID %s' % securityEngineID)
+            debug.logger & debug.flagSM and debug.logger('processIncomingMsg: unknown securityEngineID %s' % securityEngineID)
             if securityEngineID:
                 # 3.2.3a XXX any other way to get auth engine in cache?
                 self.__timeline[securityEngineID] = (
@@ -499,12 +499,12 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     self.__timelineExpQueue[expireAt] = []
                 self.__timelineExpQueue[expireAt].append(securityEngineID)
                     
-                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: store timeline')
+                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: store timeline for securityEngineID %s' % (securityEngineID,))
             else:
                 # 3.2.3b
                 usmStatsUnknownEngineIDs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownEngineIDs')
                 usmStatsUnknownEngineIDs.syntax = usmStatsUnknownEngineIDs.syntax+1
-                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: unknown securityEngineID %s' % securityEngineID)
+                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: null securityEngineID')
                 pysnmpUsmDiscoverable, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__PYSNMP-USM-MIB', 'pysnmpUsmDiscoverable')
                 if pysnmpUsmDiscoverable.syntax:
                     debug.logger & debug.flagSM and debug.logger('processIncomingMsg: request EngineID discovery')
