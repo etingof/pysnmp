@@ -513,7 +513,6 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         oid=usmStatsUnknownEngineIDs.name,
                         val=usmStatsUnknownEngineIDs.syntax,
                         securityStateReference=securityStateReference,
-                        securityLevel=securityLevel,
                         contextEngineId=contextEngineId,
                         contextName=contextName,
                         maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
@@ -569,7 +568,6 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                             oid = usmStatsUnknownUserNames.name,
                             val = usmStatsUnknownUserNames.syntax,
                             securityStateReference=securityStateReference,
-                            securityLevel=securityLevel,
                             contextEngineId=contextEngineId,
                             contextName=contextName,
                             maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
@@ -598,7 +596,6 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 oid=usmStatsUnknownEngineIDs.name,
                 val=usmStatsUnknownEngineIDs.syntax,
                 securityStateReference=securityStateReference,
-                securityLevel=securityLevel,
                 contextEngineId=contextEngineId,
                 contextName=contextName,
                 maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
@@ -625,7 +622,6 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     oid=usmStatsWrongDigests.name,
                     val=usmStatsWrongDigests.syntax,
                     securityStateReference=securityStateReference,
-                    securityLevel=securityLevel,
                     contextEngineId=contextEngineId,
                     contextName=contextName,
                     maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
@@ -731,7 +727,6 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     oid=usmStatsDecryptionErrors.name,
                     val=usmStatsDecryptionErrors.syntax,
                     securityStateReference=securityStateReference,
-                    securityLevel=securityLevel,
                     contextEngineId=contextEngineId,
                     contextName=contextName,
                     maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
@@ -773,7 +768,6 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 val=usmStatsUnknownUserNames.syntax,
                 securityStateReference=securityStateReference,
                 securityEngineID=securityEngineID,
-                securityLevel=securityLevel,
                 contextEngineId=contextEngineId,
                 contextName=contextName,
                 maxSizeResponseScopedPDU=maxSizeResponseScopedPDU,
