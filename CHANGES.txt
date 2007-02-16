@@ -52,6 +52,8 @@ Revision 4.1.7a
   time-window verification (SF bug #1649032).
 - Fix to notification objects resolution code at
   NotificationOriginator.sendNotification()
+- Do not raise securityLevel for USM error reports that lacks user
+  information, as these reports could never be cyphered (SF bug #1624720).
 - Non-default BULK PDU params now actually applied.
 - Documentation updated.
 - A handful of minor fixes applied (SourceForge tracker IDs #1537592,
