@@ -165,6 +165,6 @@ class OidOrderedDict(OrderedDict):
     __delattr__ = __delitem__
 
     def sortingFun(self, keys):
-        def f(o1, o2):
+        def f(o1, o2, self=self):
             return cmp(self.__keysCache[o1], self.__keysCache[o2])
         keys.sort(f)
