@@ -4,6 +4,7 @@
 
 try:
     import socket
+    import os
 except ImportError:
     pass
 import string
@@ -29,14 +30,18 @@ class SnmpEngineID(OctetString, TextualConvention):
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(5,32)
     try:
         # Attempt to base engine ID on local IP address
-        defaultValue = '\x80\x00\x4f\xb8' + '\x01' + string.join(
+        defaultValue = '\x80\x00\x4f\xb8' + '\x05' + string.join(
             map(lambda x: chr(int(x)),
                 string.split(socket.gethostbyname(socket.gethostname()),'.')),
             ''
-            )
+            ) + chr(os.getpid() >> 8) + chr(os.getpid() & 0xff)
     except:
         # ...otherwise, use rudimentary text ID
-        defaultValue = '\x80\x00\x4f\xb8' + '\x04' + 'mozhinka'
+        defaultValue = '\x80\x00\x4f\xb8' + '\x05'
+        t = int(time.time())
+        while t:
+            defaultValue = defaultValue + chr(t & 0xff)
+            t = t >> 8
 
 class SnmpEngineTime(Integer32):
     def clone(self, value=None, tagSet=None, subtypeSpec=None):
