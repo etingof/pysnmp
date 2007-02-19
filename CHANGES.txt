@@ -55,6 +55,8 @@ Revision 4.1.7a
 - Do not raise securityLevel for USM error reports that lacks user
   information, as these reports could never be cyphered (SF bug #1624720).
 - Non-default BULK PDU params now actually applied.
+- SnmpEngineID default value generation algorithmic function changed
+  to allow multiple SNMP engines running on the same host.
 - Documentation updated.
 - A handful of minor fixes applied (SourceForge tracker IDs #1537592,
   #1537600, #1537659, #1548208, #1560939, #1563715, #1575697, #1599220,
