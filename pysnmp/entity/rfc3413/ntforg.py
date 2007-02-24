@@ -71,7 +71,7 @@ class NotificationOriginator:
                 origContextName,
                 origPduVersion,
                 origPdu,
-                (self.processResponsePdu, origTimeout/1000 + time.time(),
+                (self.processResponsePdu, origTimeout/100 + time.time(),
                  (cbFun, cbCtx))
                 )
 
@@ -223,7 +223,7 @@ class NotificationOriginator:
                     contextName,
                     pduVersion,
                     pdu,
-                    (self.processResponsePdu, timeout/1000 + time.time(),
+                    (self.processResponsePdu, timeout/100 + time.time(),
                      (cbFun, cbCtx))
                     )
                 

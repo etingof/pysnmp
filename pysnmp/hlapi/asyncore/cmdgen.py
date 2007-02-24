@@ -59,7 +59,7 @@ class UsmUserData:
             
 class UdpTransportTarget:
     transportDomain = udp.domainName
-    def __init__(self, transportAddr, timeout=None, retries=None):
+    def __init__(self, transportAddr, timeout=1, retries=5):
         self.transportAddr = (
             socket.gethostbyname(transportAddr[0]), transportAddr[1]
             )
@@ -128,8 +128,7 @@ class AsynCommandGenerator:
                 transportTarget.transportDomain,
                 transportTarget.transportAddr,
                 paramsName,
-                transportTarget.timeout and transportTarget.timeout * 1000 \
-                or None,
+                transportTarget.timeout * 100,
                 transportTarget.retries,
                 tagList                
                 )
