@@ -66,7 +66,7 @@ class UdpTransportTarget:
         self.timeout = timeout
         self.retries = retries
 
-    def __str__(self): return '%s(("%s", %s), %s, %s)' % (
+    def __repr__(self): return '%s(("%s", %s), %s, %s)' % (
         self.__class__.__name__,
         self.transportAddr[0], self.transportAddr[1],
         self.timeout, self.retries
