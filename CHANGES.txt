@@ -4,6 +4,7 @@ Revision 4.1.8a
 - UNSTABLE ALPHA RELEASE.
 - SMI/dispatcher timeout convertion multiplier is actually 100 (1/100 sec)
   rather than 1/1000. This fix affects timeouts specified through SMI.
+- UdpTransportTarget.__repr__() implemented
 
 Revision 4.1.7a
 ---------------
