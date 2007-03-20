@@ -7,7 +7,8 @@ from pysnmp import debug
 sockErrors = {
     errno.ESHUTDOWN: 1,
     errno.ENOTCONN: 1,
-    errno.ECONNRESET: 1
+    errno.ECONNRESET: 1,
+    errno.EBADFD: 1 # bad FD may happen upon FD closure on n-1 select() event
     }
     
 class DgramSocketTransport(AbstractSocketTransport):
@@ -55,7 +56,7 @@ class DgramSocketTransport(AbstractSocketTransport):
     def handle_read(self):
         try:
             incomingMessage, transportAddress = self.socket.recvfrom(65535)
-            debug.logger & debug.flagIO and debug.logger('handle_read: transportAddress %s incomintMessage %s' % (transportAddress, repr(incomingMessage)))
+            debug.logger & debug.flagIO and debug.logger('handle_read: transportAddress %s incomingMessage %s' % (transportAddress, repr(incomingMessage)))
             if not incomingMessage:
                 self.handle_close()
                 return
