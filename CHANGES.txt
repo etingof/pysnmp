@@ -7,6 +7,9 @@ Revision 4.1.8a
 - UdpTransportTarget.__repr__() implemented
 - Fix to carrier code: ignore BADFD socket error as it may happen upon 
   FD closure on n-1 select() event.
+- Fix to MibBuilder.setMibPath() to preserve previously loaded modules
+  intact. Otherwise loadModules() called after setMibPath() might fail
+  with 'MIB file not found in search path' exception.
 
 Revision 4.1.7a
 ---------------
