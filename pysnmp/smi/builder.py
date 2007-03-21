@@ -30,7 +30,6 @@ class MibBuilder:
     # MIB modules management
     
     def setMibPath(self, *mibPaths):
-        self.__modSeen.clear()
         self.__mibPaths = map(os.path.normpath, mibPaths)
         debug.logger & debug.flagBld and debug.logger('setMibPath: new MIB path %s' % (self.__mibPaths,))
 
