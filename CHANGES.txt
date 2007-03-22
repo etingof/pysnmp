@@ -10,6 +10,8 @@ Revision 4.1.8a
 - Fix to MibBuilder.setMibPath() to preserve previously loaded modules
   intact. Otherwise loadModules() called after setMibPath() might fail
   with 'MIB file not found in search path' exception.
+- Fix to oneliner classes that now invoke unconfiguration methods on
+  destruction. This might have caused memory leaks.
 
 Revision 4.1.7a
 ---------------
