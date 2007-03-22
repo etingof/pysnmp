@@ -90,6 +90,8 @@ class AsynCommandGenerator:
         self.__knownTransports = {}
         self.__knownTransportAddrs = {}
 
+    def __del__(self): self.uncfgCmdGen()
+
     def cfgCmdGen(self, authData, transportTarget, tagList=''):
         paramsName = '%s-params' % (authData.securityName,)
         if not self.__knownAuths.has_key(authData):

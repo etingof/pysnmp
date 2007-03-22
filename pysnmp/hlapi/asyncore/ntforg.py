@@ -24,6 +24,8 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
         self.snmpContext = snmpContext
         self.__knownAuths = {}
 
+    def __del__(self): self.uncfgNtfOrg()
+
     def cfgNtfOrg(self, authData, transportTarget, notifyType, tagList=''):
         addrName, paramsName = self.cfgCmdGen(authData, transportTarget,
                                               tagList)
