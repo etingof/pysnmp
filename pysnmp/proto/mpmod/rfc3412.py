@@ -167,7 +167,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             securityEngineID = snmpEngineID
         else:
             if peerSnmpEngineData is None:
-                # Force engineID discovery
+                # Force engineID discovery (rfc3414, 4)
                 securityEngineID = securityName = ''
                 securityLevel = 1
                 # Clear possible auth&priv flags
