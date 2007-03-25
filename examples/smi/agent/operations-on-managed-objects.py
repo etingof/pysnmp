@@ -13,8 +13,7 @@ print 'done'
 
 print 'Remote manager write/create access to MIB instrumentation: ',
 print mibInstrum.writeVars(
-    (((1,3,6,1,6,3,18,1,1,1,1,109,121,110,109,115), 'mynms'),
-     ((1,3,6,1,6,3,18,1,1,1,2,109,121,110,109,115), 'mycomm'),
+    (((1,3,6,1,6,3,18,1,1,1,2,109,121,110,109,115), 'mycomm'),
      ((1,3,6,1,6,3,18,1,1,1,3,109,121,110,109,115), 'mynmsname'),
      ((1,3,6,1,6,3,18,1,1,1,7,109,121,110,109,115), 'volatile'))
     )
