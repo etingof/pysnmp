@@ -850,11 +850,24 @@ class MibTableRow(MibTree):
                              
     def __manageColumns(self, action, excludeName, nameSuffix,
                         val, idx, (acFun, acCtx)):
+        # Build a map of index names and values for automatic initialization
+        indexVals = {}; instId = nameSuffix
+        for impliedFlag, modName, symName in self.indexNames:
+            mibObj, = mibBuilder.importSymbols(modName, symName)
+            syntax, instId = self.setFromName(
+                mibObj.syntax, instId, impliedFlag
+                )
+            indexVals[mibObj.name] = syntax
         for name, var in self._vars.items():
             if name == excludeName:
                 continue
-            getattr(var, action)(name + nameSuffix, val, idx, (acFun, acCtx))
-            debug.logger & debug.flagIns and debug.logger('__manageColumns: action %s name %s suffix %s value %s' % (action, name, nameSuffix, val))
+            if indexVals.has_key(name):
+                getattr(var, action)(name + nameSuffix, indexVals[name], idx,
+                                     (None, None))
+            else:
+                getattr(var, action)(name + nameSuffix, val, idx,
+                                     (acFun, acCtx))
+            debug.logger & debug.flagIns and debug.logger('__manageColumns: action %s name %s suffix %s %svalue %s' % (action, name, nameSuffix, indexVals.has_key(name) and "index " or "", indexVals.get(name, val)))
 
     def __delegate(self, subAction, name, val, idx, (acFun, acCtx)):
         # Relay operation request to column, expect row operation request.
