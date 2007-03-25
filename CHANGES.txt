@@ -5,6 +5,8 @@ Revision 4.1.8a
 - SMI/dispatcher timeout convertion multiplier is actually 100 (1/100 sec)
   rather than 1/1000. This fix affects timeouts specified through SMI.
 - UdpTransportTarget.__repr__() implemented
+- Automatically initialize table index values on table management
+  operations (SF bug ID #1671989).
 - Fix to carrier code: ignore BADFD socket error as it may happen upon 
   FD closure on n-1 select() event.
 - Fix to MibBuilder.setMibPath() to preserve previously loaded modules
