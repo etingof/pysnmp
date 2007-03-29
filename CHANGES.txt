@@ -14,6 +14,9 @@ Revision 4.1.8a
   with 'MIB file not found in search path' exception.
 - Fix to oneliner classes that now invoke unconfiguration methods on
   destruction. This might have caused memory leaks.
+- Automatically initialize SNMP-USER-BASED-SM-MIB::UsmUserSecurityName
+  columnar object instance on creation, as stated in DESCRIPTION (SF
+  tracker ID #1620392).
 
 Revision 4.1.7a
 ---------------
