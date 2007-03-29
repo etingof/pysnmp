@@ -41,7 +41,33 @@ usmUserTable = MibTable((1, 3, 6, 1, 6, 3, 15, 1, 2, 2))
 usmUserEntry = MibTableRow((1, 3, 6, 1, 6, 3, 15, 1, 2, 2, 1)).setIndexNames((0, "SNMP-USER-BASED-SM-MIB", "usmUserEngineID"), (0, "SNMP-USER-BASED-SM-MIB", "usmUserName"))
 usmUserEngineID = MibTableColumn((1, 3, 6, 1, 6, 3, 15, 1, 2, 2, 1, 1), SnmpEngineID()).setMaxAccess("noaccess")
 usmUserName = MibTableColumn((1, 3, 6, 1, 6, 3, 15, 1, 2, 2, 1, 2), SnmpAdminString().subtype(subtypeSpec=constraint.ValueSizeConstraint(1, 32))).setMaxAccess("noaccess")
-usmUserSecurityName = MibTableColumn((1, 3, 6, 1, 6, 3, 15, 1, 2, 2, 1, 3), SnmpAdminString()).setMaxAccess("readonly")
+# Automatically initialize this column value from index name
+class UsmUserSecurityName(MibTableColumn):
+    def __getUsmUserName(self, name):
+        __usmUserEntry, = mibBuilder.importSymbols(
+            'SNMP-USER-BASED-SM-MIB', 'usmUserEntry'
+            )
+        __usmUserEngineID, __usmUserName = __usmUserEntry.getIndicesFromInstId(
+            name[len(self.name):]
+            )
+        return __usmUserName        
+    def createTest(self, name, val, idx, (acFun, acCtx)):
+        return MibTableColumn.createTest(
+            self, name, self.__getUsmUserName(name), idx, (acFun, acCtx)
+            )
+    def createCommit(self, name, val, idx, (acFun, acCtx)):
+        return MibTableColumn.createCommit(
+            self, name, self.__getUsmUserName(name), idx, (acFun, acCtx)
+            )
+    def createCleanup(self, name, val, idx, (acFun, acCtx)):
+        return MibTableColumn.createCleanup(
+            self, name, self.__getUsmUserName(name), idx, (acFun, acCtx)
+            )
+    def createUndo(self, name, val, idx, (acFun, acCtx)):
+        return MibTableColumn.createUndo(
+            self, name, self.__getUsmUserName(name), idx, (acFun, acCtx)
+            )
+usmUserSecurityName = UsmUserSecurityName((1, 3, 6, 1, 6, 3, 15, 1, 2, 2, 1, 3), SnmpAdminString()).setMaxAccess("readonly")
 usmUserCloneFrom = MibTableColumn((1, 3, 6, 1, 6, 3, 15, 1, 2, 2, 1, 4), RowPointer()).setMaxAccess("readcreate")
 usmUserAuthProtocol = MibTableColumn((1, 3, 6, 1, 6, 3, 15, 1, 2, 2, 1, 5), AutonomousType().clone('1.3.6.1.6.3.10.1.1.1')).setMaxAccess("readcreate")
 usmUserAuthKeyChange = MibTableColumn((1, 3, 6, 1, 6, 3, 15, 1, 2, 2, 1, 6), KeyChange().clone('')).setMaxAccess("readcreate")
