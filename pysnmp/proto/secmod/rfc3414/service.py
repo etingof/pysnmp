@@ -9,15 +9,7 @@ from pyasn1.type import univ, namedtype, constraint
 from pyasn1.codec.ber import encoder, decoder
 from pyasn1.error import PyAsn1Error
 from pysnmp import debug
-import os
-
-if os.times()[-1]: # this is not affected by system clock reset
-    def _getTimestamp():
-        return abs(int(os.times()[-1]))
-else:
-    import time
-    def _getTimestamp():
-        return int(time.time())
+import time
     
 # USM security params
 
@@ -499,7 +491,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     securityParameters.getComponentByPosition(1),
                     securityParameters.getComponentByPosition(2),
                     securityParameters.getComponentByPosition(2),
-                    _getTimestamp()
+                    int(time.time())
                     )
                 
                 expireAt = self.__expirationTimer + 300
@@ -656,7 +648,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         msgAuthoritativeEngineID
                         ]
                     # time passed since last talk with this SNMP engine
-                    idleTime = abs(_getTimestamp()-latestUpdateTimestamp)
+                    idleTime = int(time.time())-latestUpdateTimestamp
                     debug.logger & debug.flagSM and debug.logger('processIncomingMsg: read timeline snmpEngineBoots %s snmpEngineTime %s for msgAuthoritativeEngineID %s, idle time %s secs' % (snmpEngineBoots, snmpEngineTime, msgAuthoritativeEngineID, idleTime))
                 else:
                     raise error.ProtocolError('Peer SNMP engine info missing')
@@ -692,7 +684,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         msgAuthoritativeEngineBoots,
                         msgAuthoritativeEngineTime,
                         msgAuthoritativeEngineTime,
-                        _getTimestamp()
+                        int(time.time())
                         )
                     debug.logger & debug.flagSM and debug.logger('processIncomingMsg: stored timeline msgAuthoritativeEngineBoots %s msgAuthoritativeEngineTime %s for msgAuthoritativeEngineID %s' % (msgAuthoritativeEngineBoots, msgAuthoritativeEngineTime, msgAuthoritativeEngineID))
                     
