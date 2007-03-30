@@ -660,8 +660,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             if msgAuthoritativeEngineID == snmpEngineID:
                 if snmpEngineBoots == 2147483647L or \
                    snmpEngineBoots != msgAuthoritativeEngineBoots or \
-                   idleTime + abs(int(snmpEngineTime) - \
-                                  int(msgAuthoritativeEngineTime)) > 150:
+                   abs(idleTime + int(snmpEngineTime) - \
+                       int(msgAuthoritativeEngineTime)) > 150:
                     usmStatsNotInTimeWindows, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsNotInTimeWindows')
                     usmStatsNotInTimeWindows.syntax = usmStatsNotInTimeWindows.syntax+1
                     raise error.StatusInformation(
@@ -692,8 +692,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 if snmpEngineBoots == 2147483647L or \
                    msgAuthoritativeEngineBoots < snmpEngineBoots or \
                    msgAuthoritativeEngineBoots == snmpEngineBoots and \
-                   idleTime + abs(int(snmpEngineTime) - \
-                                  int(msgAuthoritativeEngineTime)) > 150:
+                   abs(idleTime + int(snmpEngineTime) - \
+                       int(msgAuthoritativeEngineTime)) > 150:
                     raise error.StatusInformation(
                         errorIndication = 'notInTimeWindow'
                         )
