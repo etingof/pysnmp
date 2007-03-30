@@ -17,6 +17,7 @@ Revision 4.1.8a
 - Automatically initialize SNMP-USER-BASED-SM-MIB::UsmUserSecurityName
   columnar object instance on creation, as stated in DESCRIPTION (SF
   tracker ID #1620392).
+- Fix to USM timeframe arithmetics (SF bug #1649032).
 
 Revision 4.1.7a
 ---------------
