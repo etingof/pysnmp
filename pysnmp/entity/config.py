@@ -416,101 +416,101 @@ def delVacmView(snmpEngine, viewName, subTree):
 
 # VACM simplicity wrappers
 
-def __cookVacmUserInfo(snmpEngine, securityModel, securityName,
-                       securityLevel, mode):
-    groupName = '%s-view-%s-%d' % (securityName, mode, securityModel)
+def __cookVacmUserInfo(snmpEngine, securityModel, securityName, securityLevel):
+    groupName = 'v-%s-%d' % (securityName, securityModel)
     SnmpSecurityLevel, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'SnmpSecurityLevel')
     securityLevel = SnmpSecurityLevel(securityLevel)
-    return groupName, securityLevel
+    return ( groupName, securityLevel,
+             'r' + groupName, 'w' + groupName, 'n' + groupName )
 
-def addRoUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
-    groupName, securityLevel = __cookVacmUserInfo(
-        snmpEngine, securityModel, securityName, securityLevel, 'ro'
+def addVacmUser(snmpEngine, securityModel, securityName, securityLevel,
+                readSubTree=(), writeSubTree=(), notifySubTree=()):
+    ( groupName, securityLevel,
+      readView, writeView, notifyView ) = __cookVacmUserInfo(
+        snmpEngine, securityModel, securityName, securityLevel,
         )
     addVacmGroup(
         snmpEngine, groupName, securityModel, securityName
         )
     addVacmAccess(
         snmpEngine, groupName, '', securityModel, securityLevel, 1,
-        groupName, '', ''
+        readView, writeView, notifyView
         )
-    addVacmView(
-        snmpEngine, groupName, 1, subTree, '',
+    if readSubTree:
+        addVacmView(
+            snmpEngine, readView, "included", readSubTree, '',
+            )
+    if writeSubTree:
+        addVacmView(
+            snmpEngine, writeView, "included", writeSubTree, '',
+            )
+    if notifySubTree:
+        addVacmView(
+            snmpEngine, notifyView, "included", notifySubTree, '',
+            )
+
+def delVacmUser(snmpEngine, securityModel, securityName, securityLevel,
+                readSubTree=(), writeSubTree=(), notifySubTree=()):
+    ( groupName, securityLevel,
+      readView, writeView, notifyView ) = __cookVacmUserInfo(
+        snmpEngine, securityModel, securityName, securityLevel,
+        )
+    delVacmGroup(
+        snmpEngine, securityModel, securityName
+        )
+    delVacmAccess(
+        snmpEngine, groupName, '', securityModel, securityLevel
+        )
+    if readSubTree:
+        delVacmView(
+            snmpEngine, readView, readSubTree
+            )
+    if writeSubTree:
+        delVacmView(
+            snmpEngine, writeView, writeSubTree
+            )
+    if notifySubTree:
+        delVacmView(
+            snmpEngine, notifyView, notifySubTree
+            )
+
+# Obsolete shortcuts for add/delVacmUser() wrappers
+
+def addRoUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
+    addVacmUser(
+        snmpEngine, securityModel, securityName, securityLevel, subTree
         )
 
 def delRoUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
-    groupName, securityLevel = __cookVacmUserInfo(
-        snmpEngine, securityModel, securityName, securityLevel, 'ro'
-        )
-    delVacmGroup(
-        snmpEngine, securityModel, securityName
-        )
-    delVacmAccess(
-        snmpEngine, groupName, '', securityModel, securityLevel
-        )
-    delVacmView(
-        snmpEngine, groupName, subTree
+    delVacmUser(
+        snmpEngine, securityModel, securityName, securityLevel, subTree
         )
 
 def addRwUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
-    groupName, securityLevel = __cookVacmUserInfo(
-        snmpEngine, securityModel, securityName, securityLevel, 'rw'
-        )
-    addVacmGroup(
-        snmpEngine, groupName, securityModel, securityName
-        )
-    addVacmAccess(
-        snmpEngine, groupName, '', securityModel, securityLevel, 1,
-        groupName, groupName, ''
-        )
-    addVacmView(
-        snmpEngine, groupName, 1, subTree, ''
+    addVacmUser(
+        snmpEngine, securityModel, securityName, securityLevel,
+        subTree, subTree
         )
 
 def delRwUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
-    groupName, securityLevel = __cookVacmUserInfo(
-        snmpEngine, securityModel, securityName, securityLevel, 'rw'
+    delVacmUser(
+        snmpEngine, securityModel, securityName, securityLevel,
+        subTree, subTree
         )
-    delVacmGroup(
-        snmpEngine, securityModel, securityName
-        )
-    delVacmAccess(
-        snmpEngine, groupName, '', securityModel, securityLevel
-        )
-    delVacmView(
-        snmpEngine, groupName, subTree
-        )
-
-# Notification configuration
 
 def addTrapUser(snmpEngine,securityModel,securityName,securityLevel,subTree):
-    groupName, securityLevel = __cookVacmUserInfo(
-        snmpEngine, securityModel, securityName, securityLevel, 'trap'
-        )
-    addVacmGroup(
-        snmpEngine, groupName, securityModel, securityName
-        )
-    addVacmAccess(
-        snmpEngine, groupName, '', securityModel, securityLevel, 1,
-        '', '', groupName,
-        )
-    addVacmView(
-        snmpEngine, groupName, 1, subTree, ''
+    addVacmUser(
+        snmpEngine, securityModel, securityName, securityLevel,
+        (), (), subTree,
         )
 
 def delTrapUser(snmpEngine,securityModel,securityName,securityLevel,subTree):
-    groupName, securityLevel = __cookVacmUserInfo(
-        snmpEngine, securityModel, securityName, securityLevel, 'trap'
+    delVacmUser(
+        snmpEngine, securityModel, securityName, securityLevel,
+        (), (), subTree,
         )
-    delVacmGroup(
-        snmpEngine, securityModel, securityName
-        )
-    delVacmAccess(
-        snmpEngine, groupName, '', securityModel, securityLevel
-        )
-    delVacmView(
-        snmpEngine, groupName, subTree
-        )
+
+# Notification target setup
 
 def __cookNotificationTargetInfo(snmpEngine, notificationName, paramsName,
                                  filterSubtree=None):
