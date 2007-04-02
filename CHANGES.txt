@@ -18,6 +18,8 @@ Revision 4.1.8a
   columnar object instance on creation, as stated in DESCRIPTION (SF
   tracker ID #1620392).
 - Fix to USM timeframe arithmetics (SF bug #1649032).
+- VACM shortcuts merged into universal add/delVacmUser() to let notifications
+  and requests to co-exist for the same user.
 
 Revision 4.1.7a
 ---------------
