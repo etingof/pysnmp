@@ -417,7 +417,7 @@ def delVacmView(snmpEngine, viewName, subTree):
 # VACM simplicity wrappers
 
 def __cookVacmUserInfo(snmpEngine, securityModel, securityName, securityLevel):
-    groupName = 'v-%s-%d' % (securityName, securityModel)
+    groupName = 'v-%s-%d' % (hash(securityName), securityModel)
     SnmpSecurityLevel, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'SnmpSecurityLevel')
     securityLevel = SnmpSecurityLevel(securityLevel)
     return ( groupName, securityLevel,
@@ -524,7 +524,7 @@ def __cookNotificationTargetInfo(snmpEngine, notificationName, paramsName,
         paramsName
         )
 
-    profileName = '%s-filter' % notificationName
+    profileName = '%s-filter' % hash(notificationName)
     
     if filterSubtree:
         snmpNotifyFilterEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-NOTIFICATION-MIB', 'snmpNotifyFilterEntry')
