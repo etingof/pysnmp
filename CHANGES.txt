@@ -4,7 +4,8 @@ Revision 4.1.8a
 - UNSTABLE ALPHA RELEASE.
 - SMI/dispatcher timeout convertion multiplier is actually 100 (1/100 sec)
   rather than 1/1000. This fix affects timeouts specified through SMI.
-- UdpTransportTarget.__repr__() implemented
+- __repr__() implemented for UdpTransportTarget, CommunityData, UsmUserData
+  in oneliner module.
 - Automatically initialize table index values on table management
   operations (SF bug ID #1671989).
 - Fix to carrier code: ignore BADFD socket error as it may happen upon 
