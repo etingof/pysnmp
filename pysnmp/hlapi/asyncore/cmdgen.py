@@ -25,6 +25,12 @@ class CommunityData:
         if mpModel is not None:
             self.mpModel = mpModel
             self.securityModel = mpModel + 1
+            
+    def __repr__(self): return '%s("%s", <COMMUNITY>, %s)' % (
+        self.__class__.__name__,
+        self.securityName,
+        self.mpModel
+        )
 
 class UsmUserData:
     authKey = privKey = None
@@ -56,6 +62,13 @@ class UsmUserData:
                 self.privProtocol = usmDESPrivProtocol
             else:
                 self.privProtocol = privProtocol
+
+    def __repr__(self): return '%s("%s", <AUTHKEY>, <PRIVKEY>, %s, %s)' % (
+        self.__class__.__name__,
+        self.securityName,
+        self.authProtocol,
+        self.privProtocol
+        )
             
 class UdpTransportTarget:
     transportDomain = udp.domainName
