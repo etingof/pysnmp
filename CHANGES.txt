@@ -24,6 +24,7 @@ Revision 4.1.8a
 - At oneliners, build LCD tables keys from a hashed mix of input parameters
   to make sure these automatic entries won't interfere or exceed constraints
   on keys values.
+- Multi-target oneliner API-based example script added.
 
 Revision 4.1.7a
 ---------------
