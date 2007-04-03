@@ -106,7 +106,7 @@ class AsynCommandGenerator:
     def __del__(self): self.uncfgCmdGen()
 
     def cfgCmdGen(self, authData, transportTarget, tagList=''):
-        paramsName = str(hash(authData.securityName))
+        paramsName = 'p-%s' % hash(authData.securityName)
         if not self.__knownAuths.has_key(authData):
             if isinstance(authData, CommunityData):
                 config.addV1System(
@@ -142,7 +142,7 @@ class AsynCommandGenerator:
                 )
             self.__knownTransports[transportTarget.transportDomain] = 1
             
-        addrName = str(hash((paramsName, transportTarget.transportAddr)))
+        addrName = 'a-%s' % hash((paramsName, transportTarget.transportAddr))
         if not self.__knownTransportAddrs.has_key(addrName):
             config.addTargetAddr(
                 self.snmpEngine, addrName,
@@ -159,7 +159,7 @@ class AsynCommandGenerator:
 
     def uncfgCmdGen(self):
         for authData in self.__knownAuths.keys():
-            paramsName = str(hash(authData.securityName))
+            paramsName = 'p-%s' % hash(authData.securityName)
             if isinstance(authData, CommunityData):
                 config.delV1System(
                     self.snmpEngine,

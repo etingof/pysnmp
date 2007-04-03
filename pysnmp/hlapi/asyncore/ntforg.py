@@ -29,7 +29,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
     def cfgNtfOrg(self, authData, transportTarget, notifyType, tagList=''):
         addrName, paramsName = self.cfgCmdGen(authData, transportTarget,
                                               tagList)
-        notifyName = str(hash(tagList))
+        notifyName = 'n-%s' % hash(tagList)
         if not self.__knownAuths.has_key(authData):
             config.addNotificationTarget(
                 self.snmpEngine,
