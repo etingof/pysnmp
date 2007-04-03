@@ -21,6 +21,9 @@ Revision 4.1.8a
 - Fix to USM timeframe arithmetics (SF bug #1649032).
 - VACM shortcuts merged into universal add/delVacmUser() to let notifications
   and requests to co-exist for the same user.
+- At oneliners, build LCD tables keys from a hashed mix of input parameters
+  to make sure these automatic entries won't interfere or exceed constraints
+  on keys values.
 
 Revision 4.1.7a
 ---------------
