@@ -4,10 +4,13 @@ from pysnmp.carrier.asynsock.base import AbstractSocketTransport
 from pysnmp.carrier import error
 from pysnmp import debug
 
-sockErrors = {
+sockErrors = { # Ignore these socket errors
     errno.ESHUTDOWN: 1,
     errno.ENOTCONN: 1,
-    errno.ECONNRESET: 1,
+    errno.ECONNRESET: 0,
+    errno.ECONNREFUSED: 0,
+    errno.EAGAIN: 0,
+    errno.EWOULDBLOCK: 0,
     errno.EBADFD: 1 # bad FD may happen upon FD closure on n-1 select() event
     }
     
@@ -44,13 +47,14 @@ class DgramSocketTransport(AbstractSocketTransport):
     def writable(self): return self.__outQueue
     def handle_write(self):
         outgoingMessage, transportAddress = self.__outQueue.pop()
+        debug.logger & debug.flagIO and debug.logger('handle_write: transportAddress %s outgoingMessage %s' % (transportAddress, repr(outgoingMessage)))
         try:
             self.socket.sendto(outgoingMessage, transportAddress)
         except socket.error, why:
-            if why[0] != errno.EWOULDBLOCK:
+            if sockErrors.has_key(why[0]):
+                debug.logger & debug.flagIO and debug.logger('handle_write: ignoring socket error %s' % (why))
+            else:
                 raise socket.error, why
-        else:
-            debug.logger & debug.flagIO and debug.logger('handle_write: transportAddress %s outgoingMessage %s' % (transportAddress, repr(outgoingMessage)))
             
     def readable(self): return 1
     def handle_read(self):
@@ -65,7 +69,8 @@ class DgramSocketTransport(AbstractSocketTransport):
                 return
         except socket.error, why:
             if sockErrors.has_key(why[0]):
-                self.handle_close()
+                debug.logger & debug.flagIO and debug.logger('handle_read: known socket error %s' % (why))
+                sockErrors[why[0]] and self.handle_close()
                 return
             else:
                 raise socket.error, why
