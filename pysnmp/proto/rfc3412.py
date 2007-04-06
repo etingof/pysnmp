@@ -3,8 +3,6 @@ import time
 from pysnmp.smi import builder, instrum
 from pysnmp.proto import error
 from pysnmp.proto.api import verdec # XXX
-from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
-from pysnmp.carrier.asynsock.dgram import udp
 from pysnmp.error import PySnmpError
 from pysnmp import debug
 
