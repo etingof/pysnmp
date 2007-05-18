@@ -89,6 +89,8 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             (transportDomain, transportAddress)
             )
 
+        debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: peer SNMP engine data %s for transport %s, address %s' % (peerSnmpEngineData, transportDomain, transportAddress))
+        
         # 7.1.4
         if contextEngineId is None:
             if peerSnmpEngineData is None:
