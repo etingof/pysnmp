@@ -75,6 +75,11 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
         tagList = 'notify-list'
         notifyName = self.cfgNtfOrg(authData, transportTarget,
                                     notifyType, tagList)
+        if notificationType:
+            name, oid = mibvar.mibNameToOid(
+                self.mibViewController, notificationType
+                )
+            notificationType = name + oid
         if varBinds:
             __varBinds = []
             for varName, varVal in varBinds:

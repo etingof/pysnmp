@@ -147,7 +147,10 @@ class NotificationOriginator:
             snmpTrapOid, = contextMibInstrumCtl.mibBuilder.importSymbols(
                 '__SNMPv2-MIB', 'snmpTrapOID'
                 )
-            varBinds.append((snmpTrapOid.name, snmpTrapOid.syntax))
+            if notificationName:
+                varBinds.append((snmpTrapOid.name, snmpTrapOid.syntax.clone(notificationName)))
+            else:
+                varBinds.append((snmpTrapOid.name, snmpTrapOid.syntax))
 
 # XXX it's still not clear how to instantiate OBJECTS clause
 #             # Get notification objects names
