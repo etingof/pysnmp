@@ -220,6 +220,18 @@ class AsynCommandGenerator:
             name, oid = mibvar.mibNameToOid(
                 self.mibViewController, varName
                 )
+            if not type(varVal) == types.InstanceType:
+                ((symName, modName), suffix) = mibvar.oidToMibName(
+                    self.mibViewController, name + oid
+                    )
+                syntax = mibvar.cloneFromMibValue(
+                    self.mibViewController, modName, symName, varVal
+                    )
+                if syntax is None:
+                    raise error.PySnmpError(
+                        'Value type MIB lookup failed for %s' % repr(varName)
+                        )
+                varVal = syntax.clone(varVal)
             __varBinds.append((name + oid, varVal))
         return cmdgen.SetCommandGenerator().sendReq(
             self.snmpEngine, addrName, __varBinds, cbFun, cbCtx
