@@ -28,6 +28,9 @@ Revision 4.1.8a
   in NotificationGenerator applications. This parameter used to be
   ignored in the past. Note, that previously used (and ignored) syntax
   has been changed in an incompatible way.
+- Allow plain Python values in setCmd() and sendNotification()
+  methods in CommandGenerator and NotificationGenerator applications
+  respectively.
 - Multi-target oneliner API-based example script added.
 - Ignore more socket errors in datagram-type async socket code.
 
