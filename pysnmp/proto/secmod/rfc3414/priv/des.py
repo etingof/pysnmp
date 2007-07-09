@@ -16,14 +16,11 @@ class Des(base.AbstractEncryptionService):
     serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 2) # usmDESPrivProtocol
     _localInt = long(random.random()*0xffffffffL)
     # 8.1.1.1
-    def __getEncryptionKey(self, mibInstrumController, privKey):
+    def __getEncryptionKey(self, privKey, snmpEngineBoots):
         desKey = privKey[:8]
         preIV = privKey[8:16]
 
-        snmpEngineBoots, = mibInstrumController.mibBuilder.importSymbols(
-            '__SNMP-FRAMEWORK-MIB', 'snmpEngineBoots'
-            )
-        securityEngineBoots = long(snmpEngineBoots.syntax)
+        securityEngineBoots = long(snmpEngineBoots)
 
         salt = [
             securityEngineBoots>>24&0xff,
@@ -44,28 +41,30 @@ class Des(base.AbstractEncryptionService):
                string.join(map(lambda x: chr(x), salt), ''), \
                string.join(map(lambda x,y: chr(x^ord(y)), salt, preIV), '')
 
-    def __getDecryptionKey(self, mibInstrumController, privKey, salt):
+    def __getDecryptionKey(self, privKey, salt):
         return privKey[:8], string.join(
             map(lambda x,y: chr(ord(x)^ord(y)), salt, privKey[8:16]), ''
             )
         
     # 8.2.4.1
-    def encryptData(self, mibInstrumController, encryptKey, dataToEncrypt):
+    def encryptData(self, encryptKey, privParameters, dataToEncrypt):
         if DES is None:
             raise error.StatusInformation(
                 errorIndication='encryptionError'
                 )
+
+        snmpEngineBoots, snmpEngineTime, salt = privParameters
         
         # 8.3.1.1
         desKey, salt, iv = self.__getEncryptionKey(
-            mibInstrumController, str(encryptKey)
+            str(encryptKey), snmpEngineBoots
             )
 
         # 8.3.1.2
         privParameters = univ.OctetString(salt)
 
         # 8.1.1.2
-        desObj = DES.new(desKey, DES.MODE_CBC, iv) # XXX
+        desObj = DES.new(desKey, DES.MODE_CBC, iv)
         plaintext =  dataToEncrypt + '\x00' * (8 - len(dataToEncrypt) % 8)
         ciphertext = desObj.encrypt(plaintext)
 
@@ -73,26 +72,25 @@ class Des(base.AbstractEncryptionService):
         return univ.OctetString(ciphertext), privParameters
         
     # 8.2.4.2
-    def decryptData(self, mibInstrumController, decryptKey,
-                    privParameters, encryptedData):
+    def decryptData(self, decryptKey, privParameters, encryptedData):
         if DES is None:
             raise error.StatusInformation(
                 errorIndication='decryptionError'
                 )
+
+        snmpEngineBoots, snmpEngineTime, salt = privParameters
         
         # 8.3.2.1
-        if len(privParameters) != 8:
+        if len(salt) != 8:
             raise error.StatusInformation(
                 errorIndication='decryptionError'
                 )
             
         # 8.3.2.2
-        salt = str(privParameters)
+        salt = str(salt)
 
         # 8.3.2.3
-        desKey, iv = self.__getDecryptionKey(
-            mibInstrumController, str(decryptKey), salt
-            )
+        desKey, iv = self.__getDecryptionKey(str(decryptKey), salt)
 
         # 8.3.2.4 -> 8.1.1.3
         if len(encryptedData) % 8 != 0:

@@ -2,6 +2,7 @@
 from pysnmp.proto.secmod.base import AbstractSecurityModel
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha, noauth
 from pysnmp.proto.secmod.rfc3414.priv import des, nopriv
+from pysnmp.proto.secmod.rfc3826.priv import aes
 from pysnmp.proto.secmod.rfc3414 import localkey
 from pysnmp.smi.error import NoSuchInstanceError
 from pysnmp.proto import rfc1155, error
@@ -33,6 +34,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         }
     privServices = {
         des.Des.serviceID: des.Des(),
+        aes.Aes.serviceID: aes.Aes(),
         nopriv.NoPriv.serviceID: nopriv.NoPriv()
         }
     _securityParametersSpec = UsmSecurityParameters()
@@ -159,7 +161,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         pysnmpUsmKeyPrivLocalized = pysnmpUsmKeyEntry.getNode(
             pysnmpUsmKeyEntry.name + (2,) + tblIdx
             )
-        if usmUserPrivProtocol.syntax == des.Des.serviceID:
+        if usmUserPrivProtocol.syntax == des.Des.serviceID or \
+           usmUserPrivProtocol.syntax == aes.Aes.serviceID:
             if usmUserAuthProtocol.syntax == hmacsha.HmacSha.serviceID:
                 localPrivKey = localkey.localizeKeySHA(
                     pysnmpUsmKeyPriv.syntax, securityEngineID
@@ -277,38 +280,6 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         scopedPDUData = msg.setComponentByPosition(3).getComponentByPosition(3)
         scopedPDUData.setComponentByPosition(0, scopedPDU)
         
-        # 3.1.4a
-        if securityLevel == 3:
-            privHandler = self.privServices.get(usmUserPrivProtocol)
-            if privHandler is None:
-                raise error.StatusInformation(
-                    errorIndication = 'encryptionError'
-                    )
-            dataToEncrypt = encoder.encode(scopedPDU)
-            
-            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: scopedPDU encoded')
-            
-            try:
-                ( encryptedData,
-                  privParameters ) = privHandler.encryptData(
-                    snmpEngine.msgAndPduDsp.mibInstrumController,
-                    usmUserPrivKeyLocalized, dataToEncrypt
-                    )
-            except error.StatusInformation, statusInformation:
-                raise
-
-            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: scopedPDU cyphered')
-
-            securityParameters.setComponentByPosition(5, privParameters)
-            scopedPDUData.setComponentByPosition(1, encryptedData)
-
-        # 3.1.4b
-        elif securityLevel == 1 or securityLevel == 2:
-            securityParameters.setComponentByPosition(5, '')
-            
-        # 3.1.5
-        securityParameters.setComponentByPosition(0, securityEngineID)
-
         # 3.1.6a
         if securityStateReference is None and (  # request type check added
             securityLevel == 3 or securityLevel == 2
@@ -338,7 +309,41 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: assuming zero snmpEngineBoots, snmpEngineTime')
 
         debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: use snmpEngineBoots %s snmpEngineTime %s for securityEngineID %s' % (snmpEngineBoots, snmpEngineTime, securityEngineID))
+
+        # 3.1.4a
+        if securityLevel == 3:
+            privHandler = self.privServices.get(usmUserPrivProtocol)
+            if privHandler is None:
+                raise error.StatusInformation(
+                    errorIndication = 'encryptionError'
+                    )
+            dataToEncrypt = encoder.encode(scopedPDU)
+            
+            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: scopedPDU encoded')
+
+            try:
+                ( encryptedData,
+                  privParameters ) = privHandler.encryptData(
+                    usmUserPrivKeyLocalized,
+                    ( snmpEngineBoots, snmpEngineTime, None ),
+                    dataToEncrypt
+                    )
+            except error.StatusInformation, statusInformation:
+                raise
+
+            securityParameters.setComponentByPosition(5, privParameters)
+            scopedPDUData.setComponentByPosition(1, encryptedData)
+
+            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: scopedPDU ciphered')
+
+        # 3.1.4b
+        elif securityLevel == 1 or securityLevel == 2:
+            securityParameters.setComponentByPosition(5, '')
+
+        debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: %s' % scopedPDUData.prettyPrint())
         
+        # 3.1.5
+        securityParameters.setComponentByPosition(0, securityEngineID)
         securityParameters.setComponentByPosition(1, snmpEngineBoots)
         securityParameters.setComponentByPosition(2, snmpEngineTime)
     
@@ -699,7 +704,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         )
 
         scopedPduData = msg.getComponentByPosition(3)
-        
+
         # 3.2.8a
         if securityLevel == 3:
             privHandler = self.privServices.get(usmUserPrivProtocol)
@@ -709,16 +714,19 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     )
             encryptedPDU = scopedPduData.getComponentByPosition(1)
             if encryptedPDU is None: # no ciphertext
-               raise error.StatusInformation(
+                raise error.StatusInformation(
                     errorIndication = 'decryptionError'
-                    ) 
+                    )
+
             try:
-                decryptedData = privHandler.decryptData(
-                    snmpEngine.msgAndPduDsp.mibInstrumController, usmUserPrivKeyLocalized,
-                    securityParameters.getComponentByPosition(5),
+               decryptedData = privHandler.decryptData(
+                    usmUserPrivKeyLocalized,
+                    ( securityParameters.getComponentByPosition(1),
+                      securityParameters.getComponentByPosition(2),
+                      securityParameters.getComponentByPosition(5) ),
                     encryptedPDU
                     )
-                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: PDU decyphered')
+               debug.logger & debug.flagSM and debug.logger('processIncomingMsg: PDU deciphered')
             except error.StatusInformation:
                 usmStatsDecryptionErrors, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsDecryptionErrors')
                 usmStatsDecryptionErrors.syntax = usmStatsDecryptionErrors.syntax+1
@@ -732,9 +740,15 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
                     )
             scopedPduSpec = scopedPduData.setComponentByPosition(0).getComponentByPosition(0)
-            scopedPDU, rest = decoder.decode(
-                decryptedData, asn1Spec=scopedPduSpec
-                )
+            try:
+                scopedPDU, rest = decoder.decode(
+                    decryptedData, asn1Spec=scopedPduSpec
+                    )
+            except PyAsn1Error, why:
+               debug.logger & debug.flagSM and debug.logger('processIncomingMsg: PDU decoder failed %s' % why)                
+               raise error.StatusInformation(
+                   errorIndication = 'decryptionError'
+                   )
         else:
             # 3.2.8b
             scopedPDU = scopedPduData.getComponentByPosition(0)

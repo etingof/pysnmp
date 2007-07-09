@@ -13,6 +13,7 @@ usmNoAuthProtocol = config.usmNoAuthProtocol
 
 # Privacy protocol
 usmDESPrivProtocol = config.usmDESPrivProtocol
+usmAesCfb128Protocol = config.usmAesCfb128Protocol
 usmNoPrivProtocol = config.usmNoPrivProtocol
 
 class CommunityData:

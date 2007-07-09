@@ -13,6 +13,7 @@ from pysnmp.proto.secmod.rfc3414 import localkey
 from pysnmp.entity import engine
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha, noauth
 from pysnmp.proto.secmod.rfc3414.priv import des, nopriv
+from pysnmp.proto.secmod.rfc3826.priv import aes
 from pysnmp.smi.error import NotWritableError
 from pysnmp import error
 
@@ -28,6 +29,7 @@ usmNoAuthProtocol = noauth.NoAuth.serviceID
 
 # Privacy protocol
 usmDESPrivProtocol = des.Des.serviceID
+usmAesCfb128Protocol = aes.Aes.serviceID
 usmNoPrivProtocol = nopriv.NoPriv.serviceID
 
 def __cookV1SystemInfo(snmpEngine, securityName):
@@ -136,7 +138,8 @@ def addV3User(snmpEngine, securityName,
     else:
         raise error.PySnmpError('Unknown auth protocol %s' % (authProtocol,))
 
-    if privProtocol == usmDESPrivProtocol:
+    if privProtocol == usmDESPrivProtocol or \
+       privProtocol == usmAesCfb128Protocol:
         if authProtocol == usmHMACMD5AuthProtocol:
             hashedPrivPassphrase = localkey.hashPassphraseMD5(
                 privKey and privKey or ''

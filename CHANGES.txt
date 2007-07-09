@@ -33,6 +33,7 @@ Revision 4.1.8a
   respectively.
 - Multi-target oneliner API-based example script added.
 - Ignore more socket errors in datagram-type async socket code.
+- AES cipher now supported (rfc3826).
 
 Revision 4.1.7a
 ---------------
@@ -82,14 +83,14 @@ Revision 4.1.7a
 - Memory leak fixed in indices.OidOrderedDict implementation.
 - Fix to VACM shortcuts to let notifications and requests to co-exist 
   for the same user otherwise.
-- Fix to ...oneliner.cmdgen.UsmUserData to support non-default cyphers.
+- Fix to ...oneliner.cmdgen.UsmUserData to support non-default ciphers.
 - USM now uses local notion of snmpEngineBoots/Time when authoritative
   and cached estimate otherwise. Also, a security fix applied to to USM 
   time-window verification (SF bug #1649032).
 - Fix to notification objects resolution code at
   NotificationOriginator.sendNotification()
 - Do not raise securityLevel for USM error reports that lacks user
-  information, as these reports could never be cyphered (SF bug #1624720).
+  information, as these reports could never be ciphered (SF bug #1624720).
 - Non-default BULK PDU params now actually applied.
 - SnmpEngineID default value generation algorithmic function changed
   to allow multiple SNMP engines running on the same host.
