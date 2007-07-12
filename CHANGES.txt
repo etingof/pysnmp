@@ -34,6 +34,7 @@ Revision 4.1.8a
 - Multi-target oneliner API-based example script added.
 - Ignore more socket errors in datagram-type async socket code.
 - AES cipher now supported (rfc3826).
+- Fix to messed up tagIDs of noSuchInstance and noSuchObject types.
 
 Revision 4.1.7a
 ---------------
