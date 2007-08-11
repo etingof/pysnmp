@@ -181,6 +181,7 @@ class CommandResponderBase:
         # Map ACM errors onto SMI ones
         except error.StatusInformation, statusInformation:
             errorIndication = statusInformation['errorIndication']
+            # 3.2.5...
             if errorIndication == 'noSuchView' or \
                errorIndication == 'noAccessEntry' or \
                errorIndication == 'noGroupName':
@@ -276,7 +277,12 @@ class SetCommandResponder(CommandResponderBase):
         self, snmpEngine, contextMibInstrumCtl, PDU, (acFun, acCtx)
         ):
         # rfc1905: 4.2.5.1-13
-        return 0, 0, contextMibInstrumCtl.writeVars(
-            v2c.apiPDU.getVarBinds(PDU), (acFun, acCtx)
-            )
-
+        try:
+            return 0, 0, contextMibInstrumCtl.writeVars(
+                v2c.apiPDU.getVarBinds(PDU), (acFun, acCtx)
+                )
+        except ( pysnmp.smi.error.NoSuchObjectError,
+                 pysnmp.smi.error.NoSuchInstanceError ), errorIndication:
+            e = pysnmp.smi.error.NotWritableError()
+            e.update(errorIndication)
+            raise e
