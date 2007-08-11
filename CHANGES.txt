@@ -35,6 +35,8 @@ Revision 4.1.8a
 - Ignore more socket errors in datagram-type async socket code.
 - AES cipher now supported (rfc3826).
 - Fix to messed up tagIDs of noSuchInstance and noSuchObject types.
+- SET Command Responder fixed to obscure access to non-existing variables
+  by returning notWritable error.
 
 Revision 4.1.7a
 ---------------
