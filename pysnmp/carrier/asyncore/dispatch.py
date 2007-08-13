@@ -4,7 +4,8 @@ except ImportError:
     version_info = ( 0, 0 )   # a really early version
 from time import time
 from select import select
-from pysnmp.carrier import base
+from asyncore import socket_map
+from pysnmp.carrier.base import AbstractTransportDispatcher
 
 # Old asyncore doesn't allow socket_map param at poll
 if version_info < (2, 0):
@@ -30,20 +31,22 @@ if version_info < (2, 0):
 else:
     from asyncore import poll
 
-class AsynsockDispatcher(base.AbstractTransportDispatcher):
+class AsynsockDispatcher(AbstractTransportDispatcher):
     """Implements I/O over asynchronous sockets"""
     def __init__(self):
-        self.__sockMap = {}
+        self.__sockMap = socket_map
         self.timeout = 1.0
-        base.AbstractTransportDispatcher.__init__(self)
+        AbstractTransportDispatcher.__init__(self)
 
+    def setSocketMap(self, sockMap=socket_map): self.__sockMap = sockMap
+        
     def registerTransport(self, tDomain, t):
-        base.AbstractTransportDispatcher.registerTransport(self, tDomain, t)
+        AbstractTransportDispatcher.registerTransport(self, tDomain, t)
         t.registerSocket(self.__sockMap)
 
     def unregisterTransport(self, tDomain):
         self.getTransport(tDomain).unregisterSocket(self.__sockMap)
-        base.AbstractTransportDispatcher.unregisterTransport(self, tDomain)
+        AbstractTransportDispatcher.unregisterTransport(self, tDomain)
 
     def transportsAreWorking(self):
         for transport in self.__sockMap.values():
