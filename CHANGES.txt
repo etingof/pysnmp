@@ -37,6 +37,8 @@ Revision 4.1.8a
 - Fix to messed up tagIDs of noSuchInstance and noSuchObject types.
 - SET Command Responder fixed to obscure access to non-existing variables
   by returning notWritable error (SF bug #1764839).
+- AsynsockDispatcher.setSocketMap() method added to facilitate pysnmp
+  transport integration into third-party asyncore-based applications.
 
 Revision 4.1.7a
 ---------------
