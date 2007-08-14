@@ -35,8 +35,6 @@ Sparse notes on major existing problems/plans
 
 * Implement partial context name match at isAccessAllowed()
 
-* Clean up cache management code at MsgAndPduDsp and MP
-
 * Sort out whether pyasn1 objects should probably have either clone() or 
   subtype() methods.
 
