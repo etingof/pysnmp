@@ -10,10 +10,15 @@ sockErrors = { # Ignore these socket errors
     errno.ECONNRESET: 0,
     errno.ECONNREFUSED: 0,
     errno.EAGAIN: 0,
-    errno.EWOULDBLOCK: 0,
-    errno.EBADFD: 1 # bad FD may happen upon FD closure on n-1 select() event
+    errno.EWOULDBLOCK: 0
     }
-    
+try:
+    # bad FD may happen upon FD closure on n-1 select() event
+    sockErrors[errno.EBADFD] = 1
+except AttributeError:
+    # Windows sockets do not have EBADFD
+    pass
+
 class DgramSocketTransport(AbstractSocketTransport):
     sockType = socket.SOCK_DGRAM
     retryCount = 3; retryInterval = 1
