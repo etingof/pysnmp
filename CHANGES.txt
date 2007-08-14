@@ -39,6 +39,8 @@ Revision 4.1.8a
   by returning notWritable error (SF bug #1764839).
 - AsynsockDispatcher.setSocketMap() method added to facilitate pysnmp
   transport integration into third-party asyncore-based applications.
+- Fix to errorIndex generation at CommandResponder application, the value
+  should be a one-based.
 
 Revision 4.1.7a
 ---------------
