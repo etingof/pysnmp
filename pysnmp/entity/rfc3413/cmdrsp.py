@@ -142,29 +142,30 @@ class CommandResponderBase:
 
         # PDU-level SMI errors
         except pysnmp.smi.error.NoAccessError, errorIndication:
-            errorStatus, errorIndex = 'noAccess', errorIndication['idx']
+            errorStatus, errorIndex = 'noAccess', errorIndication['idx'] + 1
         except pysnmp.smi.error.WrongTypeError, errorIndication:
-            errorStatus, errorIndex = 'wrongType', errorIndication['idx']
+            errorStatus, errorIndex = 'wrongType', errorIndication['idx'] + 1
         except pysnmp.smi.error.WrongValueError, errorIndication:
-            errorStatus, errorIndex = 'wrongValue', errorIndication['idx']
+            errorStatus, errorIndex = 'wrongValue', errorIndication['idx'] + 1
         except pysnmp.smi.error.NoCreationError, errorIndication:
-            errorStatus, errorIndex = 'noCreation', errorIndication['idx']
+            errorStatus, errorIndex = 'noCreation', errorIndication['idx'] + 1
         except pysnmp.smi.error.InconsistentValueError, errorIndication:
-            errorStatus, errorIndex = 'inconsistentValue', errorIndication['idx']
+            errorStatus, errorIndex = 'inconsistentValue', errorIndication['idx'] + 1
         except pysnmp.smi.error.ResourceUnavailableError, errorIndication:
-            errorStatus, errorIndex = 'resourceUnavailable', errorIndication['idx']
+            errorStatus, errorIndex = 'resourceUnavailable', errorIndication['idx'] + 1
         except pysnmp.smi.error.CommitFailedError, errorIndication:
-            errorStatus, errorIndex = 'commitFailedError', errorIndication['idx']
+            errorStatus, errorIndex = 'commitFailedError', errorIndication['idx'] + 1
         except pysnmp.smi.error.UndoFailedError, errorIndication:
-            errorStatus, errorIndex = 'undoFailedError', errorIndication['idx']
+            errorStatus, errorIndex = 'undoFailedError', errorIndication['idx'] + 1
         except pysnmp.smi.error.AuthorizationError, errorIndication:
-            errorStatus, errorIndex = 'authorizationError', errorIndication['idx']
+            errorStatus, errorIndex = 'authorizationError', errorIndication['idx'] + 1
         except pysnmp.smi.error.NotWritableError, errorIndication:
-            errorStatus, errorIndex = 'notWritable', errorIndication['idx']
+            errorStatus, errorIndex = 'notWritable', errorIndication['idx'] + 1
         except pysnmp.smi.error.InconsistentNameError, errorIndication:
-            errorStatus, errorIndex = 'inconsistentName', errorIndication['idx']
+            errorStatus, errorIndex = 'inconsistentName', errorIndication['idx'] + 1
         except pysnmp.smi.error.SmiError, errorIndication:
-            errorStatus, errorIndex = 'genErr', errorIndication['idx']
+            errorStatus, errorIndex = 'genErr', errorIndication['idx'] + 1
+            
         self.__sendResponse(
             snmpEngine, errorStatus, errorIndex, varBinds, stateReference
             )
