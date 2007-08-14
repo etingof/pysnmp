@@ -20,7 +20,7 @@ Hernan Perez Masci
 Martin Jackson
 Ivan Zderadicka
 Randy Couey
-Brian Kyckelha
+Brian Kyckelhahn
 
 Thanks to Python Software Foundation for granting financial support 
 for the project.
