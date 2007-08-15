@@ -94,7 +94,8 @@ class CommandGeneratorBase:
 
         # User-side API assumes SMIv2
         if messageProcessingModel == 0:
-            PDU = rfc2576.v1ToV2(PDU)
+            PDU = rfc2576.v1ToV2(PDU, origPdu)
+            pMod = api.protoModules[api.protoVersion2c]
         
         self._handleResponse(
             snmpEngine,
@@ -289,6 +290,7 @@ class SetCommandGenerator(CommandGeneratorBase):
         # User-side API assumes SMIv2
         if messageProcessingModel == 0:
             reqPDU = rfc2576.v2ToV1(reqPDU)
+            pMod = api.protoModules[api.protoVersion1]
         
         self._sendRequestHandleSource = self._sendRequestHandleSource + 1
         
