@@ -1,3 +1,10 @@
+Revision 4.1.9a
+---------------
+
+- UNSTABLE ALPHA RELEASE.
+- At onliner CommandGenerator, close transport on destruction to
+  prevent socket leak.
+
 Revision 4.1.8a
 ---------------
 
