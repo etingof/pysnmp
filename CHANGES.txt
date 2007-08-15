@@ -4,6 +4,8 @@ Revision 4.1.9a
 - UNSTABLE ALPHA RELEASE.
 - At onliner CommandGenerator, close transport on destruction to
   prevent socket leak.
+- Fix to rfc2576.v1ToV2c() PDU converter to perform noSuchName error code
+  translation.
 
 Revision 4.1.8a
 ---------------
