@@ -144,13 +144,21 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
             )
         
     if rfc3411.responseClassPDUs.has_key(pduType):
-        # 4.1.2.2 --> one-to-one mapping
-        v2c.apiPDU.setErrorStatus(
-            v2Pdu, int(v1.apiPDU.getErrorStatus(v1Pdu))
-            )
-        v2c.apiPDU.setErrorIndex(
-            v2Pdu, int(v1.apiPDU.getErrorIndex(v1Pdu))
-            )
+        # 4.1.2.2.1&2
+        errorStatus = int(v1.apiPDU.getErrorStatus(v1Pdu))
+        errorIndex = int(v1.apiPDU.getErrorIndex(v1Pdu))
+        if errorStatus == 2: # noSuchName
+            if origV2Pdu.tagSet == v2c.GetNextRequestPDU.tagSet:
+                v2VarBinds[errorIndex-1] = (
+                    v2VarBinds[errorIndex-1][0], exval.endOfMib
+                    )
+            else:
+                v2VarBinds[errorIndex-1] = (
+                    v2VarBinds[errorIndex-1][0], exval.noSuchObject
+                    )
+        else: # one-to-one mapping
+            v2c.apiPDU.setErrorStatus(v2Pdu, errorStatus)
+            v2c.apiPDU.setErrorIndex(v2Pdu, errorIndex)
 
         # 4.1.2.1 --> no-op
 
