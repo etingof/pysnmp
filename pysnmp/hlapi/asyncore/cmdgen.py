@@ -136,12 +136,13 @@ class AsynCommandGenerator:
             self.__knownAuths[authData] = 1
 
         if not self.__knownTransports.has_key(transportTarget.transportDomain):
+            transport = transportTarget.openClientMode()
             config.addSocketTransport(
                 self.snmpEngine,
                 transportTarget.transportDomain,
-                transportTarget.openClientMode()
+                transport
                 )
-            self.__knownTransports[transportTarget.transportDomain] = 1
+            self.__knownTransports[transportTarget.transportDomain] = transport
             
         addrName = 'a-%s' % hash((paramsName, transportTarget.transportAddr))
         if not self.__knownTransportAddrs.has_key(addrName):
@@ -180,10 +181,11 @@ class AsynCommandGenerator:
                 raise error.PySnmpError('Unsupported SNMP version')
         self.__knownAuths.clear()
 
-        for transportDomain in self.__knownTransports.keys():
+        for transportDomain, transport in self.__knownTransports.items():
             config.delSocketTransport(
                 self.snmpEngine, transportDomain
                 )
+            transport.closeTransport()
         self.__knownTransports.clear()
 
         for addrName in self.__knownTransportAddrs.keys():
