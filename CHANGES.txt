@@ -6,6 +6,8 @@ Revision 4.1.9a
   prevent socket leak.
 - Fix to rfc2576.v1ToV2c() PDU converter to perform noSuchName error code
   translation.
+- Fix to nonRepeaters object use as sequence slicer (must be int) at
+  cmdrsp.CommandResponderApplication
 
 Revision 4.1.8a
 ---------------
