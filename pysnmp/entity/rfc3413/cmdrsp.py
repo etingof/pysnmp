@@ -251,7 +251,7 @@ class BulkCommandResponder(CommandResponderBase):
         
         if nonRepeaters:
             rspVarBinds = contextMibInstrumCtl.readNextVars(
-                reqVarBinds[:nonRepeaters], (acFun, acCtx)
+                reqVarBinds[:int(nonRepeaters)], (acFun, acCtx)
                 )
         else:
             rspVarBinds = []
