@@ -16,6 +16,11 @@ class AbstractSocketTransport(asyncore.dispatcher):
                 sock = socket.socket(self.sockFamily, self.sockType)
             except socket.error, why:
                 raise error.CarrierError('socket() failed: %s' % why)
+        if sockMap is None:
+            # The socket map is managed by the AsynsockDispatcher on
+            # which this transport is registered, so this is a fake
+            # socket map to avoid registering with deafult asyncore map.
+            sockMap = {}
         # Old asyncore doesn't allow socket_map param in constructor
         if version_info < (2, 0):
             # Taken from dispatcher.__init__()
