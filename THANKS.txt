@@ -21,6 +21,7 @@ Martin Jackson
 Ivan Zderadicka
 Randy Couey
 Brian Kyckelhahn
+Mark M Evans
 
 Thanks to Python Software Foundation for granting financial support 
 for the project.
