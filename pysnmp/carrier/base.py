@@ -15,7 +15,7 @@ class AbstractTransportDispatcher:
                 break
         else:
             raise error.CarrierError(
-                'Unregistered transport %s' % incomingTransport
+                'Unregistered transport %s' % (incomingTransport,)
                 )
         if self.__recvCbFun is None:
             raise error.CarrierError(
@@ -50,7 +50,7 @@ class AbstractTransportDispatcher:
     def registerTransport(self, tDomain, transport):
         if self.__transports.has_key(tDomain):
             raise error.CarrierError(
-                'Transport %s already registered' % tDomain
+                'Transport %s already registered' % (tDomain,)
                 )
         transport.registerCbFun(self._cbFun)
         self.__transports[tDomain] = transport
@@ -58,7 +58,7 @@ class AbstractTransportDispatcher:
     def unregisterTransport(self, tDomain):
         if not self.__transports.has_key(tDomain):
             raise error.CarrierError(
-                'Transport %s not registered' % tDomain
+                'Transport %s not registered' % (tDomain,)
                 )
         self.__transports[tDomain].unregisterCbFun()
         del self.__transports[tDomain]
