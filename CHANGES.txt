@@ -8,6 +8,8 @@ Revision 4.1.9a
   effects.
 - Fix to rfc2576.v1ToV2c() PDU converter to perform noSuchName error code
   translation.
+- Fixes to Notification PDU convertion code at rfc2576 in part of
+  snmpTrapOID handling.
 - Fix to nonRepeaters object use as sequence slicer (must be int) at
   cmdrsp.CommandResponderApplication
 
