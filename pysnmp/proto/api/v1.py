@@ -113,10 +113,16 @@ class PDUAPI:
 
 apiPDU = PDUAPI()
 
+try:
+    import socket
+    _agentAddress = socket.gethostbyname(socket.gethostname())
+except:
+    _agentAddress = '0.0.0.0'
+
 class TrapPDUAPI:
     def setDefaults(self, pdu):
         pdu.setComponentByPosition(0, (1,3,6,1,4,1,20408))
-        pdu.setComponentByPosition(1).getComponentByPosition(1).setComponentByPosition(0, '127.0.0.1')
+        pdu.setComponentByPosition(1).getComponentByPosition(1).setComponentByPosition(0, _agentAddress)
         pdu.setComponentByPosition(2, 0)
         pdu.setComponentByPosition(3, 0)
         pdu.setComponentByPosition(4, 0)
