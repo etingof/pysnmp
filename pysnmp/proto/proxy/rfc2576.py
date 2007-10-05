@@ -51,8 +51,13 @@ __v2ToV1PduMap = {
 
 __sysUpTime = (1,3,6,1,2,1,1,3)
 __snmpTrapAddress = (1,3,6,1,6,3,18,1,3,0)
-__snmpTrapEnterprise = (1, 3, 6, 1, 6, 3, 1, 1, 4, 3, 0)
-__null = v1.Null('')
+__snmpTrapOID = (1,3,6,1,6,3,1,1,4,1,0)
+__snmpTrapEnterprise = (1,3,6,1,6,3,1,1,4,3,0)
+try:
+    import socket
+    __agentAddress = v1.IpAddress(socket.gethostbyname(socket.gethostname()))
+except:
+    __agentAddress = v1.IpAddress('0.0.0.0')
 
 # Trap map
 
@@ -112,15 +117,17 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
         # 3.1.2
         genericTrap = v1.apiTrapPDU.getGenericTrap(v1Pdu)
         if genericTrap == 6:
-            snmpTrapOID = v1.apiTrapPDU.getEnterprise(v1Pdu) + (0,) + \
-                          (v1.apiTrapPDU.getSpecificTrap(v1Pdu),)
+            snmpTrapOIDParam = v1.apiTrapPDU.getEnterprise(v1Pdu) + (0,) + \
+                               (v1.apiTrapPDU.getSpecificTrap(v1Pdu),)
 
         # 3.1.3
         else:
-            snmpTrapOID = __v1ToV2TrapMap[genericTrap]
+            snmpTrapOIDParam = v2c.ObjectIdentifier(
+                                   __v1ToV2TrapMap[genericTrap]
+                               )
 
         v2VarBinds.append((__sysUpTime, sysUpTime))
-        v2VarBinds.append((snmpTrapOID, __null))
+        v2VarBinds.append((__snmpTrapOID, snmpTrapOIDParam))
         v2VarBinds.append(
             (__snmpTrapEnterprise, v1.apiTrapPDU.getEnterprise(v1Pdu))
             )
@@ -175,7 +182,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
     debug.logger & debug.flagPrx and debug.logger('v2ToV1: v2Pdu %s' % v2Pdu.prettyPrint())
     
     pduType = v2Pdu.tagSet
-
+    
     v1Pdu = __v2ToV1PduMap[pduType].clone()
 
     v2VarBinds = v2c.apiPDU.getVarBinds(v2Pdu)
@@ -189,8 +196,11 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
     # 3.2
     if rfc3411.notificationClassPDUs.has_key(pduType):
         # 3.2.1
-        snmpTrapOID = v2VarBinds[1][0]
-        if __v2ToV1TrapMap.has_key(snmpTrapOID):
+        (snmpTrapOID, snmpTrapOIDParam) = v2VarBinds[1]
+        if snmpTrapOID != __snmpTrapOID:
+            raise error.ProtocolError('Second OID not snmpTrapOID')
+
+        if __v2ToV1TrapMap.has_key(snmpTrapOIDParam):
             for oid, val in v2VarBinds:
                 if oid == __snmpTrapEnterprise:
                     v1.apiTrapPDU.setEnterprise(v1Pdu, val)
@@ -199,10 +209,10 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
                 # snmpTraps
                 v1.apiTrapPDU.setEnterprise(v1Pdu, (1, 3, 6, 1, 6, 3, 1, 1, 5))
         else:
-            if snmpTrapOID[-2] == 0:
-                v1.apiTrapPDU.setEnterprise(v1Pdu, snmpTrapOID[:-2])
+            if snmpTrapOIDParam[-2] == 0:
+                v1.apiTrapPDU.setEnterprise(v1Pdu, snmpTrapOIDParam[:-2])
             else:
-                v1.apiTrapPDU.setEnterprise(v1Pdu, snmpTrapOID[:-1])
+                v1.apiTrapPDU.setEnterprise(v1Pdu, snmpTrapOIDParam[:-1])
 
         # 3.2.2
         for oid, val in v2VarBinds:
@@ -211,19 +221,19 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
                 v1.apiTrapPDU.setAgentAddr(v1Pdu, val)
                 break
         else:
-            v1.apiTrapPDU.setAgentAddr(v1Pdu, '0.0.0.0')
+            v1.apiTrapPDU.setAgentAddr(v1Pdu, __agentAddress)
 
         # 3.2.3
-        if __v2ToV1TrapMap.has_key(snmpTrapOID):
-            v1.apiTrapPDU.setGenericTrap(v1Pdu, __v2ToV1TrapMap[snmpTrapOID])
+        if __v2ToV1TrapMap.has_key(snmpTrapOIDParam):
+            v1.apiTrapPDU.setGenericTrap(v1Pdu, __v2ToV1TrapMap[snmpTrapOIDParam])
         else:
-            v1.apiTrapPDU.setGenericTrap(v1Pdu, 0)
+            v1.apiTrapPDU.setGenericTrap(v1Pdu, 6)
 
         # 3.2.4
-        if __v2ToV1TrapMap.has_key(snmpTrapOID):
+        if __v2ToV1TrapMap.has_key(snmpTrapOIDParam):
             v1.apiTrapPDU.setSpecificTrap(v1Pdu, 0)
         else:
-            v1.apiTrapPDU.setSpecificTrap(v1Pdu, snmpTrapOID[-1])
+            v1.apiTrapPDU.setSpecificTrap(v1Pdu, snmpTrapOIDParam[-1])
 
         # 3.2.5
         v1.apiTrapPDU.setTimeStamp(v1Pdu, v2VarBinds[0][1])
