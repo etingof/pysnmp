@@ -12,6 +12,11 @@ Revision 4.1.9a
   snmpTrapOID handling.
 - Fix to nonRepeaters object use as sequence slicer (must be int) at
   cmdrsp.CommandResponderApplication
+- Make AsynsockDispatcher using its own socket map by default for 
+  threading safety. This will break asyncore apps that rely on pysnmp 
+  sharing the same socket map with them. A solution would  be to either
+  set asyncore map to pysnmp (AsynsockDispatcher.setSocketMap()) or pass
+  pysnmp map (AsynsockDispatcher.getSocketMap()) to asyncore.
 
 Revision 4.1.8a
 ---------------
