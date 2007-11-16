@@ -34,12 +34,13 @@ else:
 class AsynsockDispatcher(AbstractTransportDispatcher):
     """Implements I/O over asynchronous sockets"""
     def __init__(self):
-        self.__sockMap = socket_map
+        self.__sockMap = {} # use own map for MT safety
         self.timeout = 1.0
         AbstractTransportDispatcher.__init__(self)
 
+    def getSocketMap(self): return self.__sockMap
     def setSocketMap(self, sockMap=socket_map): self.__sockMap = sockMap
-        
+    
     def registerTransport(self, tDomain, t):
         AbstractTransportDispatcher.registerTransport(self, tDomain, t)
         t.registerSocket(self.__sockMap)
