@@ -57,7 +57,7 @@ class NotificationOriginator:
                       statusInformation['errorIndication'],
                       cbCtx)
                 return
-                
+               
             # 3.3.6a
             sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(
                 snmpEngine,
@@ -71,7 +71,7 @@ class NotificationOriginator:
                 origContextName,
                 origPduVersion,
                 origPdu,
-                (self.processResponsePdu, origTimeout/100 + time.time(),
+                (self.processResponsePdu, float(origTimeout)/100 + time.time(),
                  (cbFun, cbCtx))
                 )
 
@@ -226,7 +226,7 @@ class NotificationOriginator:
                     contextName,
                     pduVersion,
                     pdu,
-                    (self.processResponsePdu, timeout/100 + time.time(),
+                    (self.processResponsePdu, float(timeout)/100 + time.time(),
                      (cbFun, cbCtx))
                     )
                 

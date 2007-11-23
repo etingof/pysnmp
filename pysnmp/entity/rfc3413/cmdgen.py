@@ -161,7 +161,7 @@ class CommandGeneratorBase:
             contextName,
             pduVersion,
             reqPDU,
-            (processResponsePdu, timeout/100 + time.time(), cbCtx)
+            (processResponsePdu, float(timeout)/100 + time.time(), cbCtx)
             )
 
         snmpEngine.transportDispatcher.jobStarted(id(self))
