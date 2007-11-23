@@ -19,6 +19,9 @@ Revision 4.1.9a
   pysnmp map (AsynsockDispatcher.getSocketMap()) to asyncore.
 - Fix to response timeout roundup bug at CommandGenerator and
   NotificationOriginator code.
+- Oneline configuration classes made hashable to prevent memory leaks
+  when committing them into CommandGenerator/NotificationOriginator
+  internal repository.
 
 Revision 4.1.8a
 ---------------
