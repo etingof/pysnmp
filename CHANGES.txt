@@ -17,6 +17,8 @@ Revision 4.1.9a
   sharing the same socket map with them. A solution would  be to either
   set asyncore map to pysnmp (AsynsockDispatcher.setSocketMap()) or pass
   pysnmp map (AsynsockDispatcher.getSocketMap()) to asyncore.
+- Fix to response timeout roundup bug at CommandGenerator and
+  NotificationOriginator code.
 
 Revision 4.1.8a
 ---------------
