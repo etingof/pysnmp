@@ -31,7 +31,7 @@ internalClassPDUs = {
     }
 
 confirmedClassPDUs = {
-    rfc1157.GetResponsePDU.tagSet: 1,
+    rfc1157.GetRequestPDU.tagSet: 1,
     rfc1157.GetNextRequestPDU.tagSet: 1,
     rfc1157.SetRequestPDU.tagSet: 1,
     rfc1905.GetRequestPDU.tagSet: 1,
