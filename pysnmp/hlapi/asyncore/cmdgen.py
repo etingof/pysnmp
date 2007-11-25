@@ -35,6 +35,7 @@ class CommunityData:
         )
 
     def __hash__(self): return self.__hash
+    def __cmp__(self, other): return cmp(self.__hash, other)
 
 class UsmUserData:
     authKey = privKey = None
@@ -77,7 +78,8 @@ class UsmUserData:
         )
 
     def __hash__(self): return self.__hash
-            
+    def __cmp__(self, other): return cmp(self.__hash, other)
+    
 class UdpTransportTarget:
     transportDomain = udp.domainName
     def __init__(self, transportAddr, timeout=1, retries=5):
