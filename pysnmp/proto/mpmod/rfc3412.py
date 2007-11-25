@@ -590,6 +590,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             try:
                 cachedReqParams = self._cachePopByMsgId(msgID)
             except error.ProtocolError:
+                smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(
                     errorIndication = 'dataMismatch'
                     )
@@ -617,7 +618,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             # 7.2.11b (incomplete implementation)
 
             # 7.2.11c
-# XXX            smHandler.releaseStateInformation(securityStateRerefence)
+            smHandler.releaseStateInformation(securityStateReference)
 
             # 7.2.11d
             stateReference = None
@@ -642,6 +643,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                     )
                         
             # 7.2.12c
+            smHandler.releaseStateInformation(securityStateReference)
             stateReference = None
 
             # 7.2.12d
@@ -706,6 +708,8 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
 
         # 7.2.14
         if rfc3411.unconfirmedClassPDUs.has_key(pduType):
+            # This is not specified explicitly in RFC
+            smHandler.releaseStateInformation(securityStateReference)
             return ( messageProcessingModel,
                      securityModel,
                      securityName,
