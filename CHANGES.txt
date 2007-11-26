@@ -22,7 +22,7 @@ Revision 4.1.9a
 - Oneline configuration classes made hashable to prevent memory leaks
   when committing them into CommandGenerator/NotificationOriginator
   internal repository.
-- Security information is now released properly in SNMPv3 MP module.
+- Security information is now released properly in all MP modules.
   This might fix a significant memory leak.
 - Typo fix to rfc3411 confirmed class PDU members.
 
