@@ -288,6 +288,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             try:
                 cachedReqParams = self._cachePopByMsgId(long(msgID))
             except error.ProtocolError:
+                smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(
                     errorIndication = 'dataMismatch'
                     )
@@ -310,11 +311,13 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                securityLevel != cachedReqParams['securityLevel'] or \
                contextEngineId != cachedReqParams['contextEngineId'] or \
                contextName != cachedReqParams['contextName']:
+                smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(
                     errorIndication = 'dataMismatch'
                     )
             
-            # rfc3412: 7.2.12c -> noop
+            # rfc3412: 7.2.12c
+            smHandler.releaseStateInformation(securityStateReference)
 
             # rfc3412: 7.2.12d
             return ( messageProcessingModel,
@@ -336,6 +339,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             # rfc3412: 7.2.13a
             snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
             if securityEngineID != snmpEngineID.syntax:
+                smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(
                     errorIndication = 'engineIDMispatch'
                     )
@@ -377,6 +381,8 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
         # rfc3412: 7.2.14
         if rfc3411.unconfirmedClassPDUs.has_key(pduType):
+            # This is not specified explicitly in RFC
+            smHandler.releaseStateInformation(securityStateReference)
             return ( messageProcessingModel,
                      securityModel,
                      securityName,
@@ -391,6 +397,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                      statusInformation,
                      stateReference )
 
+        smHandler.releaseStateInformation(securityStateReference)
         raise error.StatusInformation(
             errorIndication = 'unsupportedPDUtype'
             )
