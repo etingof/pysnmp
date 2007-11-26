@@ -638,6 +638,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                securityLevel != cachedReqParams['securityLevel'] or \
                contextEngineId != cachedReqParams['contextEngineId'] or \
                contextName != cachedReqParams['contextName']:
+                smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(
                     errorIndication = 'dataMispatch'
                     )
@@ -724,6 +725,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                      statusInformation,
                      None )
 
+        smHandler.releaseStateInformation(securityStateReference)
         raise error.StatusInformation(
             errorIndication = 'unknownPDU'
             )
