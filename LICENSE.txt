@@ -1,4 +1,4 @@
-Copyright (c) 1999-2006, Ilya Etingof <ilya@glas.net>, all rights reserved.
+Copyright (c) 1999-2007, Ilya Etingof <ilya@glas.net>, all rights reserved.
 
 THIS SOFTWARE IS NOT FAULT TOLERANT AND SHOULD NOT BE USED IN ANY SITUATION
 ENDANGERING HUMAN LIFE OR PROPERTY.
