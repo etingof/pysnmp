@@ -13,11 +13,11 @@ class MibViewController:
 
     # Indexing part
     
-    def __indexMib(self):
+    def indexMib(self):
         if self.lastBuildId == self.mibBuilder.lastBuildId:
             return
 
-        debug.logger & debug.flagMIB and debug.logger('__indexMib: re-indexing MIB view')
+        debug.logger & debug.flagMIB and debug.logger('indexMib: re-indexing MIB view')
 
         MibScalarInstance, = self.mibBuilder.importSymbols(
             'SNMPv2-SMI', 'MibScalarInstance'
@@ -137,14 +137,14 @@ class MibViewController:
     # Module management
     
     def getFirstModuleName(self):
-        self.__indexMib()
+        self.indexMib()
         modNames = self.__mibSymbolsIdx.keys()
         if modNames:
             return modNames[0]
         raise error.SmiError('No modules loaded at %s' % self)
 
     def getNextModuleName(self, modName):
-        self.__indexMib()
+        self.indexMib()
         try:
             return self.__mibSymbolsIdx.nextKey(modName)
         except KeyError:
@@ -181,7 +181,7 @@ class MibViewController:
         return oid, label, suffix
 
     def getNodeNameByOid(self, nodeName, modName=''):
-        self.__indexMib()        
+        self.indexMib()        
         mibMod = self.__mibSymbolsIdx.get(modName)
         if mibMod is None:
             raise error.SmiError(
@@ -199,7 +199,7 @@ class MibViewController:
         return oid, label, suffix
 
     def getNodeNameByDesc(self, nodeName, modName=''):
-        self.__indexMib()        
+        self.indexMib()        
         mibMod = self.__mibSymbolsIdx.get(modName)
         if mibMod is None:
             raise error.SmiError(
@@ -230,7 +230,7 @@ class MibViewController:
                     )
         
     def getFirstNodeName(self, modName=''):
-        self.__indexMib()        
+        self.indexMib()        
         mibMod = self.__mibSymbolsIdx.get(modName)
         if mibMod is None:
             raise error.SmiError(
@@ -270,7 +270,7 @@ class MibViewController:
     # MIB type management
 
     def getTypeName(self, typeName, modName=''):
-        self.__indexMib()
+        self.indexMib()
         mibMod = self.__mibSymbolsIdx.get(modName)
         if mibMod is None:
             raise error.SmiError(
@@ -284,7 +284,7 @@ class MibViewController:
         return m, typeName
         
     def getFirstTypeName(self, modName=''):
-        self.__indexMib()
+        self.indexMib()
         mibMod = self.__mibSymbolsIdx.get(modName)
         if mibMod is None:
             raise error.SmiError(
