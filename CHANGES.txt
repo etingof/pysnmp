@@ -1,3 +1,9 @@
+Revision 4.1.9b
+---------------
+
+- Internal MIB indexing method __indexMib() unmangled to facilitate
+  setting up mutex there for sharing MIB stuff between threads.
+
 Revision 4.1.9a
 ---------------
 
