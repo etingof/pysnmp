@@ -3,6 +3,7 @@ Revision 4.1.9b
 
 - Internal MIB indexing method __indexMib() unmangled to facilitate
   setting up mutex there for sharing MIB stuff between threads.
+- Fixed broken IpAddress value handling in SET operation.
 
 Revision 4.1.9a
 ---------------
