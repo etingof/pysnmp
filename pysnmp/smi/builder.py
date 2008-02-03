@@ -8,6 +8,7 @@ except ImportError:
 from pysnmp import debug
 
 class MibBuilder:
+    loadTexts = 0
     def __init__(self):
         self.lastBuildId = self._autoName = 0L
         paths = (
@@ -136,7 +137,6 @@ class MibBuilder:
             debug.logger & debug.flagBld and debug.logger('exportSymbols: anonymous symbol %s::__pysnmp_%ld'  % (modName, self._autoName))
             mibSymbols['__pysnmp_%ld' % self._autoName] = symObj
             self._autoName = self._autoName + 1
-            
         for symName, symObj in namedSyms.items():
             if mibSymbols.has_key(symName):
                 raise error.SmiError(
@@ -144,6 +144,7 @@ class MibBuilder:
                     )
             if hasattr(symObj, 'label') and symObj.label:
                 symName = symObj.label
+            
             mibSymbols[symName] = symObj
             
             debug.logger & debug.flagBld and debug.logger('exportSymbols: symbol %s::%s' % (modName, symName))
