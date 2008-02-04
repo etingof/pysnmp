@@ -1,5 +1,5 @@
 # MIB modules loader
-import os
+import os, types
 from pysnmp.smi import error
 try:
     import pysnmp_mibs
@@ -142,8 +142,11 @@ class MibBuilder:
                 raise error.SmiError(
                     'Symbol %s already exported at %s' % (symName, modName)
                     )
-            if hasattr(symObj, 'label') and symObj.label:
-                symName = symObj.label
+
+            if hasattr(symObj, 'label'):
+                symName = symObj.label or symName # class
+            if type(symObj) == types.InstanceType:
+                symName = symObj.getLabel() or symName # class instance
             
             mibSymbols[symName] = symObj
             
