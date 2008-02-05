@@ -105,6 +105,7 @@ class MibBuilder:
                     'No module %s at %s' % (modName, self)
                     )
             self.unexportSymbols(modName)
+            del self.mibSymbols[modName]            
             del self.__modPathsSeen[self.__modSeen[modName]]
             del self.__modSeen[modName]
             
