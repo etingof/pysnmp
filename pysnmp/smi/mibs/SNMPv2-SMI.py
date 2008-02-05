@@ -153,7 +153,7 @@ NOTIFICATION-TYPE\n\
 ' % (reduce(lambda x,y: '%s, %s' % (x[1],y[1]), self.getObjects(), ("","")),
      self.getStatus(),
      self.getDescription(),
-     string.join(map(lambda x: "REVISON \"%s\"\n" % x, self.getRevisions())))
+     string.join(map(lambda x: "REVISION \"%s\"\n" % x, self.getRevisions())))
 
 class MibIdentifier(MibNode):
     def asn1Print(self):
