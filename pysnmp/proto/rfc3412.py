@@ -10,10 +10,14 @@ class MsgAndPduDispatcher:
     """SNMP engine PDU & message dispatcher. Exchanges SNMP PDU's with
        applications and serialized messages with transport level.
     """
-    def __init__(self):
-        self.mibInstrumController = instrum.MibInstrumController(
-            builder.MibBuilder()
-            )
+    def __init__(self, mibInstrumController=None):
+        if mibInstrumController is None:
+            self.mibInstrumController = instrum.MibInstrumController(
+                builder.MibBuilder()
+                )
+        else:
+            self.mibInstrumController = mibInstrumController
+            
         self.mibInstrumController.mibBuilder.loadModules(
             'SNMPv2-MIB', 'SNMP-MPD-MIB', 'SNMP-COMMUNITY-MIB',
             'SNMP-TARGET-MIB', 'SNMP-USER-BASED-SM-MIB'
