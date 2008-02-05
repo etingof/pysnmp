@@ -100,12 +100,11 @@ visualisation purposes (SNMP manager side) and/or become management targets
 
 While MIB parser/codegenerator has not been implemented in PySNMP, the
 smidump tool of libsmi library [6] could be used for automatic convertion
-of MIB text files into Python code. The code been generated relies upon
-PySNMP SMI library.
+of MIB text files into Python code. The produced code relies on PySNMP
+SMI library.
 
 In order to convert MIB text files into pysnmp.smi-compliant Python source,
-please, use build-pysnmp-mib utility as shipped along with PySNMP
-distribution.
+please, use build-pysnmp-mib utility as shipped with PySNMP distribution.
 
 A large set of pre-compiled MIB files is shipped along the pysnmp-mibs
 package.[2]
@@ -150,6 +149,8 @@ REFERENCES
 
 [6] libsmi homepage
     http://www.ibr.cs.tu-bs.de/projects/libsmi/
+    Use libsmi version > 0.4.5, possibly from libsmi SVN:
+    svn checkout http://www.ibr.cs.tu-bs.de/svn/libsmi
 
 [7] PySNMP mailing list archives:
     http://sourceforge.net/mail/?group_id=14735

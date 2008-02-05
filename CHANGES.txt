@@ -1,14 +1,21 @@
-Revision 4.1.9b
----------------
+Revision 4.1.10a
+----------------
 
 - Internal MIB indexing method __indexMib() unmangled to facilitate
   setting up mutex there for sharing MIB stuff between threads.
 - Fixed broken IpAddress value handling in SET operation.
+- Broken MibBuilder.unloadModules() method now works.
 - Use getLabel() SMI object method when building MIB tree (in builder.py)
   in addition to direct attribute access for clearer object protocol.
+- The MIB building tools updated to match significantly improved
+  smidump tool (libsmi version > 0.4.5).
 - Made libsmi2pysnmp tool optionally building MIB text fields into pysnmp
   MIB code (enabled by default) and MibBuilder conditionally loading them 
   up (disabled by default).
+- SnmpEngine and MsgAndPduDispatcher constructors now optionally
+  take msgAndPduDspr and mibInstrumController class instances
+  respectively to facilitate these objects sharing within a process.
+- Built-in MIBs re-generated to include text fields.
 
 Revision 4.1.9a
 ---------------
