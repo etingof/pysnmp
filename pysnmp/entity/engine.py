@@ -10,8 +10,12 @@ from pysnmp.proto.acmod import rfc3415
 from pysnmp import error
 
 class SnmpEngine:
-    def __init__(self, snmpEngineID=None, maxMessageSize=65507):
-        self.msgAndPduDsp = MsgAndPduDispatcher()
+    def __init__(self, snmpEngineID=None, maxMessageSize=65507,
+                 msgAndPduDsp=None):
+        if msgAndPduDsp is None:
+            self.msgAndPduDsp = MsgAndPduDispatcher()
+        else:
+            self.msgAndPduDsp = msgAndPduDsp
         self.messageProcessingSubsystems = {
             SnmpV1MessageProcessingModel.messageProcessingModelID:
             SnmpV1MessageProcessingModel(),
