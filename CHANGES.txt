@@ -15,6 +15,9 @@ Revision 4.1.10a
 - SnmpEngine and MsgAndPduDispatcher constructors now optionally
   take msgAndPduDspr and mibInstrumController class instances
   respectively to facilitate these objects sharing within a process.
+- Unique integers, for various parts of the system, are now generated
+  by a nextid.py module. This fixes possible issues with duplicate
+  request IDs and handlers.
 - Built-in MIBs re-generated to include text fields.
 
 Revision 4.1.9a
