@@ -3,7 +3,10 @@ from pysnmp.proto import rfc1157, rfc1905, api
 from pysnmp.entity.rfc3413 import config
 from pysnmp.proto.proxy import rfc2576
 from pysnmp.proto import error
+from pysnmp import nextid
 
+getNextHandle = nextid.Integer(0x7fffffff)
+                             
 def getVersionSpecifics(snmpVersion):
     if snmpVersion == 0:
         pduVersion = 0
@@ -14,7 +17,6 @@ def getVersionSpecifics(snmpVersion):
 class CommandGeneratorBase:
     def __init__(self):
         self.__pendingReqs = {}
-        self._sendRequestHandleSource = 0L
             
     def processResponsePdu(
         self,
@@ -210,7 +212,7 @@ class GetCommandGenerator(CommandGeneratorBase):
         
         pMod.apiPDU.setVarBinds(reqPDU, varBinds)
 
-        self._sendRequestHandleSource = self._sendRequestHandleSource + 1
+        requestHandle = getNextHandle()
         
         self._sendPdu(
             snmpEngine,
@@ -227,11 +229,11 @@ class GetCommandGenerator(CommandGeneratorBase):
             timeout,
             retryCount,
             0,
-            self._sendRequestHandleSource,
+            requestHandle,
             (self.processResponsePdu, (cbFun, cbCtx))            
             )
 
-        return self._sendRequestHandleSource
+        return requestHandle
     
     def _handleResponse(
         self,
@@ -291,8 +293,8 @@ class SetCommandGenerator(CommandGeneratorBase):
         if messageProcessingModel == 0:
             reqPDU = rfc2576.v2ToV1(reqPDU)
             pMod = api.protoModules[api.protoVersion1]
-        
-        self._sendRequestHandleSource = self._sendRequestHandleSource + 1
+
+        requestHandle = getNextHandle()        
         
         self._sendPdu(
             snmpEngine,
@@ -309,11 +311,11 @@ class SetCommandGenerator(CommandGeneratorBase):
             timeout,
             retryCount,
             0,
-            self._sendRequestHandleSource,
+            requestHandle,
             (self.processResponsePdu, (cbFun, cbCtx))            
             )
 
-        return self._sendRequestHandleSource
+        return requestHandle
 
     def _handleResponse(
         self,
@@ -369,7 +371,7 @@ class NextCommandGenerator(CommandGeneratorBase):
         
         pMod.apiPDU.setVarBinds(reqPDU, varBinds)
 
-        self._sendRequestHandleSource = self._sendRequestHandleSource + 1
+        requestHandle = getNextHandle()        
         
         self._sendPdu(
             snmpEngine,
@@ -386,11 +388,11 @@ class NextCommandGenerator(CommandGeneratorBase):
             timeout,
             retryCount,
             0,
-            self._sendRequestHandleSource,
+            requestHandle,
             (self.processResponsePdu, (cbFun, cbCtx))            
             )
 
-        return self._sendRequestHandleSource
+        return requestHandle
     
     def _handleResponse(
         self,
@@ -425,8 +427,6 @@ class NextCommandGenerator(CommandGeneratorBase):
             PDU, map(lambda (x,y),n=pMod.Null(''): (x,n), varBindTable[-1])
             )
 
-        self._sendRequestHandleSource = self._sendRequestHandleSource + 1
-
         self._sendPdu(
             snmpEngine,
             transportDomain,
@@ -442,7 +442,7 @@ class NextCommandGenerator(CommandGeneratorBase):
             timeout,
             retryCount,
             0,
-            self._sendRequestHandleSource,
+            getNextHandle(),
             (self.processResponsePdu, (cbFun, cbCtx))            
             )
 
@@ -480,7 +480,7 @@ class BulkCommandGenerator(CommandGeneratorBase):
 
         pMod.apiBulkPDU.setVarBinds(reqPDU, varBinds)
 
-        self._sendRequestHandleSource = self._sendRequestHandleSource + 1
+        requestHandle = getNextHandle()        
         
         self._sendPdu(
             snmpEngine,
@@ -497,11 +497,11 @@ class BulkCommandGenerator(CommandGeneratorBase):
             timeout,
             retryCount,
             0,
-            self._sendRequestHandleSource,
+            requestHandle,
             (self.processResponsePdu, (cbFun, cbCtx))            
             )
 
-        return self._sendRequestHandleSource
+        return requestHandle
     
     def _handleResponse(
         self,
@@ -535,8 +535,6 @@ class BulkCommandGenerator(CommandGeneratorBase):
         pMod.apiBulkPDU.setVarBinds(
             PDU, map(lambda (x,y),n=pMod.Null(''): (x,n), varBindTable[-1])
             )
-
-        self._sendRequestHandleSource = self._sendRequestHandleSource + 1
         
         self._sendPdu(
             snmpEngine,
@@ -553,6 +551,6 @@ class BulkCommandGenerator(CommandGeneratorBase):
             timeout,
             retryCount,
             0,
-            self._sendRequestHandleSource,
+            getNextHandle(),
             (self.processResponsePdu, (cbFun, cbCtx))            
             )

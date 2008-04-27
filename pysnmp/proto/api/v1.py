@@ -1,6 +1,7 @@
 import types
 from pyasn1.type import univ
 from pysnmp.proto import rfc1155, rfc1157, error
+from pysnmp import nextid
 
 # Shortcuts to SNMP types
 Integer = univ.Integer
@@ -37,16 +38,7 @@ class VarBindAPI:
 
 apiVarBind = VarBindAPI()
 
-class __RequestIDSource:
-    requestId = 0
-    def __call__(self):
-        if self.requestId > 0xfffe:
-            self.requestId = 0
-        else:
-            self.requestId = self.requestId + 1
-        return self.requestId
-
-getNextRequestID = __RequestIDSource()
+getNextRequestID = nextid.Integer(0xffff)
 
 class PDUAPI:
     def setDefaults(self, pdu):

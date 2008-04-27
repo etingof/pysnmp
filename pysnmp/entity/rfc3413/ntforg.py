@@ -7,13 +7,15 @@ from pysnmp.entity.rfc3413 import config
 from pysnmp.proto.proxy import rfc2576
 from pysnmp.proto.api import v2c
 from pysnmp.smi import error
+from pysnmp import nextid
 
 vacmID = 3
+
+getNextHandle = nextid.Integer(0x7fffffff)
 
 class NotificationOriginator:
     def __init__(self, snmpContext):
         self.__pendingReqs = {}
-        self.__sendRequestHandleSource = 0L
         self.__context = snmpContext
 
     def processResponsePdu(
@@ -245,7 +247,7 @@ class NotificationOriginator:
                     timeout,
                     retryCount,
                     1,
-                    self.__sendRequestHandleSource
+                    getNextHandle()
                     )
                 
                 snmpEngine.transportDispatcher.jobStarted(id(self))
