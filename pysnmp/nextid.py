@@ -27,4 +27,4 @@ class Integer:
             if e > self.__maximum:
                 e = 0
             self.__bank.extend(range(e, e+self.__increment))
-            return self()
+            return v
