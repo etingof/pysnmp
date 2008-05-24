@@ -53,3 +53,6 @@ Sparse notes on major existing problems/plans
 
 * re-design something to get rid of an ugly hack coercing MIB values into
   SNMP message header as it has incompatible constraints set
+
+* Implement OID prefix to MIB module mapping then dynamic MIB modules
+  loading on OID to MIB symbol resolution
