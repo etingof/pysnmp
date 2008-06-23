@@ -1,3 +1,9 @@
+Revision 4.1.11a
+----------------
+
+- Fix to config.addV1System() to allow multiple systems to co-exist in LCD.
+
+
 Revision 4.1.10a
 ----------------
 
