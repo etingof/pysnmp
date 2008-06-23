@@ -36,10 +36,7 @@ def __cookV1SystemInfo(snmpEngine, securityName):
     snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
     snmpCommunityEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-COMMUNITY-MIB', 'snmpCommunityEntry')
-    tblIdx = snmpCommunityEntry.getInstIdFromIndices(
-        snmpEngineID.syntax, securityName
-        )
-
+    tblIdx = snmpCommunityEntry.getInstIdFromIndices(securityName)
     return snmpCommunityEntry, tblIdx, snmpEngineID
     
 def addV1System(snmpEngine, securityName, communityName,
