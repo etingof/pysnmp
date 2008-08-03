@@ -137,16 +137,13 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                     mibNodeIdx.name
                     )
             except NoSuchInstanceError:
+                snmpInBadCommunityNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInBadCommunityNames')
+                snmpInBadCommunityNames.syntax = snmpInBadCommunityNames.syntax+1
+                raise error.StatusInformation(
+                    errorIndication = 'unknownCommunityName'
+                    )
+            if mibNodeIdx.syntax == communityName:
                 break
-            if mibNodeIdx.syntax != communityName:
-                continue
-            break
-        else:
-            snmpInBadCommunityNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-COMMUNITY-MIB', 'snmpInBadCommunityNames')
-            snmpInBadCommunityNames.syntax = snmpInBadCommunityNames.syntax+1
-            raise error.StatusInformation(
-                errorIndication = 'unknownCommunityName'
-                )
         
         # XXX TODO: snmpCommunityTransportTag 
         instId = mibNodeIdx.name[len(snmpCommunityName.name):]
