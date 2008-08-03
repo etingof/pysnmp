@@ -2,7 +2,8 @@ Revision 4.1.11a
 ----------------
 
 - Fix to config.addV1System() to allow multiple systems to co-exist in LCD.
-
+- Fix to wrongly succeeding user-parameters-by-community-name searching code
+  in rfc2576 processIncomingMsg() method.
 
 Revision 4.1.10a
 ----------------
