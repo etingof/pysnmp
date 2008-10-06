@@ -1,6 +1,7 @@
 # Shortcuts to MIB instrumentation items used internally in SNMP applications
 import string
-from pysnmp.smi.error import NoSuchObjectError
+from pysnmp.smi.error import SmiError, NoSuchObjectError
+from pysnmp.smi.exval import noSuchInstance
 from pysnmp.entity import config
 
 def getVersionSpecifics(snmpVersion): pass
@@ -26,6 +27,9 @@ def getTargetAddr(snmpEngine, snmpTargetAddrName):
          (snmpTargetAddrEntry.name + (5,) + tblIdx, None),
          (snmpTargetAddrEntry.name + (7,) + tblIdx, None))       
         )
+
+    if noSuchInstance.isSameTypeWith(snmpTargetAddrParams):
+        raise SmiError('Target %s not configured at SMI' % snmpTargetAddrName)
 
     if snmpTargetAddrTDomain == config.snmpUDPDomain:
         SnmpUDPAddress, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-TM', 'SnmpUDPAddress')
@@ -53,6 +57,7 @@ def getTargetInfo(snmpEngine, snmpTargetAddrName):
     snmpTargetParamsEntry, = mibInstrumController.mibBuilder.importSymbols(
         'SNMP-TARGET-MIB', 'snmpTargetParamsEntry'
         )
+
     tblIdx = snmpTargetParamsEntry.getInstIdFromIndices(
         snmpTargetAddrParams
         )
@@ -66,6 +71,9 @@ def getTargetInfo(snmpEngine, snmpTargetAddrName):
          (snmpTargetParamsEntry.name + (5,) + tblIdx, None))
         )
     
+    if noSuchInstance.isSameTypeWith(snmpTargetParamsSecurityName):
+        raise SmiError('Parameters %s not configured at SMI' % snmpTargetAddrParams)
+
     return ( snmpTargetAddrTDomain,
              snmpTargetAddrTAddress,
              snmpTargetAddrTimeout,
@@ -93,6 +101,9 @@ def getTargetParams(snmpEngine, paramsName):
          (snmpTargetParamsEntry.name + (5,) + tblIdx, None))
         )
 
+    if noSuchInstance.isSameTypeWith(snmpTargetParamsMPModel):
+        raise SmiError('Parameters %s not configured at SMI' % paramsName)
+
     return ( snmpTargetParamsMPModel,
              snmpTargetParamsSecurityModel,
              snmpTargetParamsSecurityName,
@@ -112,6 +123,9 @@ def getNotificationInfo(snmpEngine, notificationTarget):
         ((snmpNotifyEntry.name + (2,) + tblIdx, None),
          (snmpNotifyEntry.name + (3,) + tblIdx, None))
         )
+
+    if noSuchInstance.isSameTypeWith(snmpNotifyTag):
+        raise SmiError('Target %s not configured at SMI' % notificationTarget)
 
     return snmpNotifyTag, snmpNotifyType
 
