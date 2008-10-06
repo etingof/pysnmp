@@ -4,6 +4,10 @@ Revision 4.1.11a
 - Fix to config.addV1System() to allow multiple systems to co-exist in LCD.
 - Fix to wrongly succeeding user-parameters-by-community-name searching code
   in rfc2576 processIncomingMsg() method.
+- Do sanity checking on PYSNMP_MODULE_ID, Groups and Notifications in
+  libsmi2pysnmp (SF bug #2122489).
+- in SMI configuration wrapper functions, catch access to non-configured
+  entries and raise an exception.
 
 Revision 4.1.10a
 ----------------
