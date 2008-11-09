@@ -6,7 +6,10 @@ Revision 4.1.11a
   in rfc2576 processIncomingMsg() method.
 - Do sanity checking on PYSNMP_MODULE_ID, Groups and Notifications in
   libsmi2pysnmp (SF bug #2122489).
-- in SMI configuration wrapper functions, catch access to non-configured
+- Fix to oneliner Notification Originator that sometimes used to send multiple
+  requests at once.
+- Oneliners LCD names generation code reworked to avoid accidental clashes.
+- In SMI configuration wrapper functions, catch access to non-configured
   entries and raise an exception.
 
 Revision 4.1.10a
