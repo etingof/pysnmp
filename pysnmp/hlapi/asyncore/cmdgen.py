@@ -3,7 +3,7 @@ from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdgen, mibvar
 from pysnmp.carrier.asynsock.dgram import udp
 from pysnmp.smi import view
-from pysnmp import error
+from pysnmp import nextid, error
 from pyasn1.type import univ
 
 # Auth protocol
@@ -16,6 +16,8 @@ usmDESPrivProtocol = config.usmDESPrivProtocol
 usmAesCfb128Protocol = config.usmAesCfb128Protocol
 usmNoPrivProtocol = config.usmNoPrivProtocol
 
+nextID = nextid.Integer(0xffffffff)
+
 class CommunityData:
     mpModel=1 # Default is SMIv2
     securityModel=mpModel+1
@@ -26,7 +28,8 @@ class CommunityData:
         if mpModel is not None:
             self.mpModel = mpModel
             self.securityModel = mpModel + 1
-        self.__hash = hash((self.mpModel, self.securityModel, self.securityLevel, self.securityName, self.communityName))
+        self.__cmp = self.mpModel, self.securityModel, self.securityLevel, self.securityName, self.communityName
+        self.__hash = hash(self.__cmp)
             
     def __repr__(self): return '%s("%s", <COMMUNITY>, %s)' % (
         self.__class__.__name__,
@@ -35,7 +38,7 @@ class CommunityData:
         )
 
     def __hash__(self): return self.__hash
-    def __cmp__(self, other): return cmp(self.__hash, other)
+    def __cmp__(self, other): return cmp(self.__cmp, other)
 
 class UsmUserData:
     authKey = privKey = None
@@ -68,7 +71,8 @@ class UsmUserData:
             else:
                 self.privProtocol = privProtocol
 
-        self.__hash = hash((self.mpModel, self.securityModel, self.securityLevel, self.securityName, self.authProtocol, self.authKey, self.privProtocol, self.privKey))
+        self.__cmp = self.mpModel, self.securityModel, self.securityLevel, self.securityName, self.authProtocol, self.authKey, self.privProtocol, self.privKey
+        self.__hash = hash(self.__cmp)
 
     def __repr__(self): return '%s("%s", <AUTHKEY>, <PRIVKEY>, %s, %s)' % (
         self.__class__.__name__,
@@ -78,7 +82,7 @@ class UsmUserData:
         )
 
     def __hash__(self): return self.__hash
-    def __cmp__(self, other): return cmp(self.__hash, other)
+    def __cmp__(self, other): return cmp(self.__cmp, other)
     
 class UdpTransportTarget:
     transportDomain = udp.domainName
@@ -94,6 +98,9 @@ class UdpTransportTarget:
         self.transportAddr[0], self.transportAddr[1],
         self.timeout, self.retries
         )
+
+    def __hash__(self): return hash(self.transportAddr)
+    def __cmp__(self, other): return cmp(self.transportAddr, other)
     
     def openClientMode(self):
         self.transport = udp.UdpSocketTransport().openClientMode()
@@ -116,8 +123,10 @@ class AsynCommandGenerator:
     def __del__(self): self.uncfgCmdGen()
 
     def cfgCmdGen(self, authData, transportTarget, tagList=''):
-        paramsName = 'p-%s' % hash(authData.securityName)
-        if not self.__knownAuths.has_key(authData):
+        if self.__knownAuths.has_key(authData):
+            paramsName = self.__knownAuths[authData]
+        else:
+            paramsName = 'p%s' % nextID()
             if isinstance(authData, CommunityData):
                 config.addV1System(
                     self.snmpEngine,
@@ -142,7 +151,7 @@ class AsynCommandGenerator:
                     )
             else:
                 raise error.PySnmpError('Unsupported SNMP version')
-            self.__knownAuths[authData] = 1
+            self.__knownAuths[authData] = paramsName
 
         if not self.__knownTransports.has_key(transportTarget.transportDomain):
             transport = transportTarget.openClientMode()
@@ -152,9 +161,12 @@ class AsynCommandGenerator:
                 transport
                 )
             self.__knownTransports[transportTarget.transportDomain] = transport
-            
-        addrName = 'a-%s' % hash((paramsName, transportTarget.transportAddr))
-        if not self.__knownTransportAddrs.has_key(addrName):
+
+        k = transportTarget, tagList
+        if self.__knownTransportAddrs.has_key(k):
+            addrName = self.__knownTransportAddrs[k]
+        else:
+            addrName = 'a%s' % nextID()
             config.addTargetAddr(
                 self.snmpEngine, addrName,
                 transportTarget.transportDomain,
@@ -164,13 +176,12 @@ class AsynCommandGenerator:
                 transportTarget.retries,
                 tagList                
                 )
-            self.__knownTransportAddrs[addrName] = 1
-            
+            self.__knownTransportAddrs[k] = addrName
+
         return addrName, paramsName
 
     def uncfgCmdGen(self):
-        for authData in self.__knownAuths.keys():
-            paramsName = 'p-%s' % hash(authData.securityName)
+        for authData, paramsName in self.__knownAuths.items():
             if isinstance(authData, CommunityData):
                 config.delV1System(
                     self.snmpEngine,
@@ -197,7 +208,7 @@ class AsynCommandGenerator:
             transport.closeTransport()
         self.__knownTransports.clear()
 
-        for addrName in self.__knownTransportAddrs.keys():
+        for addrName in self.__knownTransportAddrs.values():
             config.delTargetAddr(
                 self.snmpEngine, addrName
                 )
