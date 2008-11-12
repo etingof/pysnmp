@@ -94,10 +94,13 @@ __sysDescr = MibScalarInstance(sysDescr.name, (0,), sysDescr.syntax.clone("PySNM
 __sysObjectID = MibScalarInstance(sysObjectID.name, (0,), sysObjectID.syntax.clone((1,3,6,1,4,1,20408)))
 
 class SysUpTime(TimeTicks):
-    def smiRead(self, name, value, idx):
-        return self.clone(int(time()-self._value)*100)
+    createdAt = time()
+    def clone(self, **kwargs):
+        if kwargs.get('value') is None:
+            kwargs['value'] = int((time()-self.createdAt)*100)
+        return apply(TimeTicks.clone, [self], kwargs)
 
-__sysUpTime = MibScalarInstance(sysUpTime.name, (0,), SysUpTime(time()))
+__sysUpTime = MibScalarInstance(sysUpTime.name, (0,), SysUpTime(0))
 __sysContact = MibScalarInstance(sysContact.name, (0,), sysContact.syntax.clone(''))
 __sysName = MibScalarInstance(sysName.name, (0,), sysName.syntax.clone(''))
 __sysLocation = MibScalarInstance(sysLocation.name, (0,), sysLocation.syntax.clone(''))

@@ -433,10 +433,7 @@ class MibScalarInstance(MibTree):
         # capable of returning anything!
         if name == self.name:
             debug.logger & debug.flagIns and debug.logger('readGet: %s=%s' % (self.name, self.syntax))
-            if hasattr(self.syntax, 'smiRead'):
-                return self.name, self.syntax.smiRead(name, val, idx)
-            else:
-                return self.name, self.syntax.clone()
+            return self.name, self.syntax.clone()
         else:
             raise error.NoSuchObjectError(idx=idx, name=name)
     
