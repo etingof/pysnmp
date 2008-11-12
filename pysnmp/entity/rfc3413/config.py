@@ -144,7 +144,7 @@ def getTargetNames(snmpEngine, tag):
         except NoSuchObjectError:
             break
         # XXX stop on eot
-        if tag in string.split(str(mibNode.syntax)): # XXX add __split__()
+        if tag in string.split(str(mibNode.syntax), ' '): # XXX add __split__()
             idx = mibNode.name[len(snmpTargetAddrTagList.name):]
             targetNames.append(
                 snmpTargetAddrEntry.getIndicesFromInstId(idx)[0]

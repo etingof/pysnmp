@@ -1,4 +1,4 @@
-import types
+import types, string
 from pysnmp.entity import config
 from pysnmp.entity.rfc3413 import ntforg, context, mibvar
 from pysnmp.entity.rfc3413.oneliner import cmdgen
@@ -82,7 +82,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
         self, authData, transportTarget, notifyType,
         notificationType, varBinds=None, (cbFun, cbCtx)=(None, None)
         ):
-        tagList = str(transportTarget.transportAddr)
+        tagList = string.replace(str(transportTarget.transportAddr), ' ', '_')
         notifyName = self.cfgNtfOrg(authData, transportTarget,
                                     notifyType, tagList)
         if notificationType:
