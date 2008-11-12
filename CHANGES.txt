@@ -9,6 +9,7 @@ Revision 4.1.11a
 - Fix to oneliner Notification Originator that sometimes used to send multiple
   requests at once.
 - Oneliners LCD names generation code reworked to avoid accidental clashes.
+- Fix and re-work of sysUpTime value management in LCD.
 - In SMI configuration wrapper functions, catch access to non-configured
   entries and raise an exception.
 
