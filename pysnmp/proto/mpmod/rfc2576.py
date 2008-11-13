@@ -36,9 +36,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         snmpEngineID = snmpEngineID.syntax
         
         # rfc3412: 7.1.1b
-        if rfc3411.notificationClassPDUs.has_key(pdu.tagSet):
-            msgID = v1.getNextRequestID()
-        else:
+        if rfc3411.confirmedClassPDUs.has_key(pdu.tagSet):
             pdu.setComponentByPosition(1)
             msgID = pdu.getComponentByPosition(0)
             
