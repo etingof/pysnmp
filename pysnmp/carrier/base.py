@@ -5,7 +5,8 @@ class AbstractTransportDispatcher:
     def __init__(self):
         self.__transports = {}
         self.__jobs = {}
-        self.__recvCbFun = self.__timerCbFun = None
+        self.__recvCbFun = None
+        self.__timerCbFuns = []
         self.__timeToGo = 0
 
     def _cbFun(self, incomingTransport, transportAddress, incomingMessage):
@@ -38,14 +39,13 @@ class AbstractTransportDispatcher:
         self.__recvCbFun = None
 
     def registerTimerCbFun(self, timerCbFun):
-        if self.__timerCbFun is not None:
-            raise error.CarrierError(
-                'Callback already registered: %s' % self.__timerCbFun
-                )
-        self.__timerCbFun = timerCbFun
+        self.__timerCbFuns.append(timerCbFun)
 
-    def unregisterTimerCbFun(self):
-        self.__timerCbFun = None
+    def unregisterTimerCbFun(self, timerCbFun=None):
+        if timerCbFun is None:
+            self.__timerCbFuns = []
+        else:
+            self.__timerCbFuns.remove(timerCbFun)
 
     def registerTransport(self, tDomain, transport):
         if self.__transports.has_key(tDomain):
@@ -77,8 +77,9 @@ class AbstractTransportDispatcher:
         transport.sendMessage(outgoingMessage, transportAddress)
 
     def handleTimerTick(self, timeNow):
-        if self.__timerCbFun and self.__timeToGo < timeNow:
-            self.__timerCbFun(timeNow)
+        if self.__timerCbFuns and self.__timeToGo < timeNow:
+            for timerCbFun in self.__timerCbFuns:
+                timerCbFun(timeNow)
             self.__timeToGo = timeNow + 1
 
     def jobStarted(self, jobId):
