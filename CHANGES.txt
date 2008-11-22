@@ -14,6 +14,7 @@ Revision 4.1.11a
   code led to cache data corruption on multple outstanding requests.
 - In SMI configuration wrapper functions, catch access to non-configured
   entries and raise an exception.
+- Allow multuple callback timer functions in all transport dispatchers.
 
 Revision 4.1.10a
 ----------------
