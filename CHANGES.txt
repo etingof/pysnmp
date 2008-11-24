@@ -15,6 +15,9 @@ Revision 4.1.11a
 - In SMI configuration wrapper functions, catch access to non-configured
   entries and raise an exception.
 - Allow multuple callback timer functions in all transport dispatchers.
+- Fix to libsmi2pysnmp code to preserve more underscored object names and
+  to guess the right type between indistinguishable ObjectGroup &
+  NotificationGroup
 
 Revision 4.1.10a
 ----------------
