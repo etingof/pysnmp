@@ -18,6 +18,8 @@ Revision 4.1.11a
 - Fix to libsmi2pysnmp code to preserve more underscored object names and
   to guess the right type between indistinguishable ObjectGroup &
   NotificationGroup
+- Fix to MibScalarInstance value setting logic - previous code failed
+  when modifying the same OID multiple times within a single SET operation.
 
 Revision 4.1.10a
 ----------------
