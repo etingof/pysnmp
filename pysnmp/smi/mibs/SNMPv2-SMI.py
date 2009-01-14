@@ -410,6 +410,7 @@ class MibScalarInstance(MibTree):
         MibTree.__init__(self, typeName+instId, syntax)
         self.typeName = typeName
         self.instId = instId
+        self.__oldSyntax = None
         
     def getNode(self, name, idx=None):
         # Recursion terminator
@@ -452,17 +453,21 @@ class MibScalarInstance(MibTree):
             raise error.NoSuchObjectError(idx=idx, name=name)
 
     def writeCommit(self, name, val, idx, (acFun, acCtx)):
-        # Commit new value
-        self.syntax, self.__newSyntax = self.__newSyntax, self.syntax
+        # Backup original value
+        if self.__oldSyntax is None:
+            self.__oldSyntax = self.syntax
+        # Commit new value            
+        self.syntax = self.__newSyntax
         
     def writeCleanup(self, name, val, idx, (acFun, acCtx)):
         debug.logger & debug.flagIns and debug.logger('writeCleanup: %s=%s' % (name, val))
         # Drop previous value
-        self.__newSyntax = None
+        self.__newSyntax = self.__oldSyntax = None
     
     def writeUndo(self, name, val, idx, (acFun, acCtx)):
         # Revive previous value
-        self.syntax, self.__newSyntax = self.__newSyntax, None
+        self.syntax = self.__oldSyntax
+        self.__newSyntax = self.__oldSyntax = None
 
     # Table column instance specifics
 
