@@ -91,7 +91,7 @@ class MibBuilder:
 
             if not self.__modSeen.has_key(modName):
                 raise error.SmiError(
-                    'MIB file \"%s.py\" not found in search path' % modName
+                    'MIB file \"%s\" not found in search path' % (modName and modName + ".py")
                     )
 
         return self
