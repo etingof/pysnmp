@@ -114,6 +114,10 @@ class MibBuilder:
         return self
 
     def importSymbols(self, modName, *symNames):
+        if not modName:
+            raise error.SmiError(
+                'importSymbols: empty MIB module name'
+            )
         r = ()
         for symName in symNames:
             if not self.mibSymbols.has_key(modName):
