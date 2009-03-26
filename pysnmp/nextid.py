@@ -26,5 +26,5 @@ class Integer:
             e = self.__bank[-1]+1
             if e > self.__maximum:
                 e = 0
-            self.__bank.extend(range(e, e+self.__increment))
+            self.__bank.extend(range(e, e+self.__threshold))
             return v
