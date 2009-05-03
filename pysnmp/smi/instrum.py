@@ -105,7 +105,7 @@ class MibInstrumController:
                     symObj.unregisterSubtrees()
                     rows[symObj.name] = symObj
                 elif isinstance(symObj, MibTableColumn):
-                    symObj.unregisterSubtrees()
+# XXX                    symObj.unregisterSubtrees()
                     cols[symObj.name] = symObj
                 elif isinstance(symObj, MibScalarInstance):
                     symObj.unregisterSubtrees()
