@@ -243,6 +243,9 @@ class MibTree(ObjectType):
 
     def unregisterSubtrees(self, *subTrees):
         """Detach subtrees from this tree"""
+        if not subTrees:
+          MibTree.branchVersionId = MibTree.branchVersionId + len(self._vars)
+          self._vars.clear()
         for subTree in subTrees:
             if self._vars.has_key(subTree.name):
                 del self._vars[subTree.name]

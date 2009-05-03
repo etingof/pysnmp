@@ -99,14 +99,19 @@ class MibInstrumController:
                 if type(symObj) != InstanceType:
                     continue
                 if isinstance(symObj, MibTable):
+                    symObj.unregisterSubtrees()
                     tables[symObj.name] = symObj
                 elif isinstance(symObj, MibTableRow):
+                    symObj.unregisterSubtrees()
                     rows[symObj.name] = symObj
                 elif isinstance(symObj, MibTableColumn):
+                    symObj.unregisterSubtrees()
                     cols[symObj.name] = symObj
                 elif isinstance(symObj, MibScalarInstance):
+                    symObj.unregisterSubtrees()
                     instances[symObj.name] = symObj
                 elif isinstance(symObj, MibScalar):
+                    symObj.unregisterSubtrees()
                     scalars[symObj.name] = symObj
 
         # Attach Managed Objects Instances to Managed Objects
