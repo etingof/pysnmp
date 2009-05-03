@@ -176,5 +176,8 @@ class MibBuilder:
             
             debug.logger & debug.flagBld and debug.logger('unexportSymbols: symbol %s::%s' % (modName, symName))
             
+        if not self.mibSymbols[modName]:
+            del self.mibSymbols[modName]
+
         self.lastBuildId = self.lastBuildId + 1
             
