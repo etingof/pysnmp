@@ -164,7 +164,7 @@ class CommandResponderBase:
         except pysnmp.smi.error.InconsistentNameError, errorIndication:
             errorStatus, errorIndex = 'inconsistentName', errorIndication['idx'] + 1
         except pysnmp.smi.error.SmiError, errorIndication:
-            errorStatus, errorIndex = 'genErr', errorIndication['idx'] + 1
+            errorStatus, errorIndex = 'genErr', 1
             
         self.__sendResponse(
             snmpEngine, errorStatus, errorIndex, varBinds, stateReference
