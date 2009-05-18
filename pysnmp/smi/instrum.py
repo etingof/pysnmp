@@ -42,6 +42,7 @@ class MibInstrumController:
     def __init__(self, mibBuilder):
         self.mibBuilder = mibBuilder
         self.lastBuildId = -1
+        self.lastBuildSyms = {}
             
     # MIB indexing
 
@@ -90,7 +91,7 @@ class MibInstrumController:
         scalars = {}; instances = {}; tables = {}; rows = {}; cols = {}
 
         # Sort by module name to give user a chance to slip-in
-        # custom MIB modules (that would sorted out first)
+        # custom MIB modules (that would be sorted out first)
         mibSymbols = self.mibBuilder.mibSymbols.items()
         mibSymbols.sort(lambda x,y: cmp(y[0], x[0]))
         
@@ -99,21 +100,29 @@ class MibInstrumController:
                 if type(symObj) != InstanceType:
                     continue
                 if isinstance(symObj, MibTable):
-                    symObj.unregisterSubtrees()
                     tables[symObj.name] = symObj
                 elif isinstance(symObj, MibTableRow):
-                    symObj.unregisterSubtrees()
                     rows[symObj.name] = symObj
                 elif isinstance(symObj, MibTableColumn):
-# XXX                    symObj.unregisterSubtrees()
                     cols[symObj.name] = symObj
                 elif isinstance(symObj, MibScalarInstance):
-                    symObj.unregisterSubtrees()
                     instances[symObj.name] = symObj
                 elif isinstance(symObj, MibScalar):
-                    symObj.unregisterSubtrees()
                     scalars[symObj.name] = symObj
 
+        # Detach items from each other
+        for symName, parentName in self.lastBuildSyms.items():
+            if scalars.has_key(parentName):
+                scalars[parentName].unregisterSubtrees(symName)
+            elif cols.has_key(parentName):
+                cols[parentName].unregisterSubtrees(symName)
+            elif rows.has_key(parentName):
+                rows[parentName].unregisterSubtrees(symName)
+            else:
+                mibTree.unregisterSubtrees(symName)
+                
+        lastBuildSyms = {}
+        
         # Attach Managed Objects Instances to Managed Objects
         for inst in instances.values():
             if scalars.has_key(inst.typeName):
@@ -124,6 +133,7 @@ class MibInstrumController:
                 raise error.SmiError(
                     'Orphan MIB scalar instance %s at %s' % (inst, self)
                     )
+            lastBuildSyms[inst.name] = inst.typeName
 
         # Attach Table Columns to Table Rows
         for col in cols.values():
@@ -134,22 +144,28 @@ class MibInstrumController:
                 raise error.SmiError(
                     'Orphan MIB table column %s at %s' % (col, self)
                     )
-
+            lastBuildSyms[col.name] = rowName
+            
         # Attach Table Rows to MIB tree
         for row in rows.values():
             mibTree.registerSubtrees(row)
+            lastBuildSyms[row.name] = mibTree.name
 
         # Attach Tables to MIB tree
         for table in tables.values():
             mibTree.registerSubtrees(table)
-
+            lastBuildSyms[table.name] = mibTree.name
+            
         # Attach Scalars to MIB tree
         for scalar in scalars.values():
             mibTree.registerSubtrees(scalar)
+            lastBuildSyms[scalar.name] = mibTree.name
 
-        debug.logger & debug.flagIns and debug.logger('__indexMib: rebuilt')
+        self.lastBuildSyms = lastBuildSyms
         
         self.lastBuildId = self.mibBuilder.lastBuildId
+        
+        debug.logger & debug.flagIns and debug.logger('__indexMib: rebuilt')
         
     # MIB instrumentation
     
