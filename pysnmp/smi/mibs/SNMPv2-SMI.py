@@ -230,26 +230,23 @@ class MibTree(ObjectType):
            at the level of this tree, not subtrees."""
         for subTree in subTrees:
             if self._vars.has_key(subTree.name):
-                continue
-# XXX complain?
-#                 if self._vars[subTree.name] is subTree:
-#                     continue
-#                 raise error.SmiError(
-#                     'MIB subtree %s already registered %s' % \
-#                     (subTree.name, self)
-#                     )
+                raise error.SmiError(
+                    'MIB subtree %s already registered at %s' %  (subTree.name, self)
+                    )
             self._vars[subTree.name] = subTree
             MibTree.branchVersionId = MibTree.branchVersionId + 1
 
-    def unregisterSubtrees(self, *subTrees):
+    def unregisterSubtrees(self, *names):
         """Detach subtrees from this tree"""
-        if not subTrees:
-          MibTree.branchVersionId = MibTree.branchVersionId + len(self._vars)
-          self._vars.clear()
-        for subTree in subTrees:
-            if self._vars.has_key(subTree.name):
-                del self._vars[subTree.name]
-                MibTree.branchVersionId = MibTree.branchVersionId + 1
+        for name in names:
+            # This may fail if you fill a table by exporting MibScalarInstances
+            # but later drop them through SNMP.
+            if not self._vars.has_key(name):
+                raise  error.SmiError(
+                    'MIB subtree %s not registered at %s' %  (name, self)
+                    )
+            del self._vars[name]
+            MibTree.branchVersionId = MibTree.branchVersionId + 1
 
     # Tree traversal
 
