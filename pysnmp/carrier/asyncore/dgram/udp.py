@@ -6,3 +6,5 @@ domainName = snmpUDPDomain = (1, 3, 6, 1, 6, 1, 1)
 
 class UdpSocketTransport(DgramSocketTransport):
     sockFamily = AF_INET
+
+UdpTransport = UdpSocketTransport
