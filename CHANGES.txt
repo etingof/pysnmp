@@ -20,6 +20,7 @@ Revision 4.1.11a
   NotificationGroup
 - Fix to MibScalarInstance value setting logic - previous code failed
   when modifying the same OID multiple times within a single SET operation.
+- Made MIB objects unexport feature operational.
 
 Revision 4.1.10a
 ----------------
