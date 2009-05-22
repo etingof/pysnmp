@@ -709,8 +709,12 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
 
         # 7.2.14
         if rfc3411.unconfirmedClassPDUs.has_key(pduType):
+            # Pass new stateReference to let app browse request details
+            stateReference = self._newStateReference()
+            
             # This is not specified explicitly in RFC
             smHandler.releaseStateInformation(securityStateReference)
+            
             return ( messageProcessingModel,
                      securityModel,
                      securityName,
@@ -723,7 +727,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                      sendPduHandle,
                      maxSizeResponseScopedPDU,
                      statusInformation,
-                     None )
+                     stateReference )
 
         smHandler.releaseStateInformation(securityStateReference)
         raise error.StatusInformation(

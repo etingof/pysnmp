@@ -30,6 +30,9 @@ class MsgAndPduDispatcher:
         self.__sendPduHandle = 0L
         self.__cacheRepository = {}
 
+        # To pass transport info to app
+        self.__transportInfo = {}
+
     # These routines manage cache of management apps
 
     def __newSendPduHandle(self):
@@ -60,6 +63,14 @@ class MsgAndPduDispatcher:
                 if cbFun(snmpEngine, cachedParams):
                     del self.__cacheRepository[index]                    
 
+    def getTransportInfo(self, stateReference):
+        if self.__transportInfo.has_key(stateReference):
+            return self.__transportInfo[stateReference]
+        else:
+            raise error.ProtocolError(
+                'No data for stateReference %s' % stateReference
+                )
+        
     # Application registration with dispatcher
 
     # 4.3.1
@@ -394,6 +405,11 @@ class MsgAndPduDispatcher:
                 # 4.2.2.1.2.d
                 return restOfWholeMsg
             else:
+                # Pass transport info to app
+                if stateReference is not None:
+                    self.__transportInfo[stateReference] = (
+                        transportDomain, transportAddress
+                        )
                 # 4.2.2.1.3
                 processPdu(
                     snmpEngine,
@@ -408,6 +424,8 @@ class MsgAndPduDispatcher:
                     maxSizeResponseScopedPDU,
                     stateReference
                     )
+                if stateReference is not None:
+                    del self.__transportInfo[stateReference]
                 debug.logger & debug.flagDsp and debug.logger('receiveMessage: processPdu succeeded')
                 return restOfWholeMsg
         else:
