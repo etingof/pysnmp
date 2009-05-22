@@ -1,6 +1,8 @@
 Revision 4.1.11a
 ----------------
 
+- Let NotificationReceiver and CommandResponder Apps browsing request details
+  (transport information at the moment) at SNMP engine.
 - Fix to config.addV1System() to allow multiple systems to co-exist in LCD.
 - Fix to wrongly succeeding user-parameters-by-community-name searching code
   in rfc2576 processIncomingMsg() method.
@@ -99,11 +101,11 @@ Revision 4.1.8a
   to make sure these automatic entries won't interfere or exceed constraints
   on keys values.
 - Made use of notificationType parameter of the sendNotification method
-  in NotificationGenerator applications. This parameter used to be
+  in NotificationOriginator applications. This parameter used to be
   ignored in the past. Note, that previously used (and ignored) syntax
   has been changed in an incompatible way.
 - Allow plain Python values in setCmd() and sendNotification()
-  methods in CommandGenerator and NotificationGenerator applications
+  methods in CommandGenerator and NotificationOriginator applications
   respectively.
 - Multi-target oneliner API-based example script added.
 - Ignore more socket errors in datagram-type async socket code.
