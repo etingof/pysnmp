@@ -22,16 +22,12 @@ Sparse notes on major existing problems/plans
 
 * Disallow SNMP access to USM objects
 
-* Make sure objects shutdown methods work alright
-
 * Maybe MibInstrumentationController should be async what
   implies callback function interface.
 
 * Re-work ACL to get rid of linear search there
 
 * Implement SNMP proxy example & app
-
-* Check for memory leaks esp. on failed requests
 
 * Implement partial context name match at isAccessAllowed()
 
@@ -56,3 +52,5 @@ Sparse notes on major existing problems/plans
 
 * Implement OID prefix to MIB module mapping then dynamic MIB modules
   loading on OID to MIB symbol resolution
+
+* Implement OID-to-MIB cache mapping for dynamic MIB loading
