@@ -55,9 +55,11 @@ class NotificationOriginator:
 
         if statusInformation:
             if origRetries == origRetryCount:
-                cbFun(origSendRequestHandle,
-                      statusInformation['errorIndication'],
-                      cbCtx)
+                self._handleResponse(
+                    origSendRequestHandle,
+                    statusInformation['errorIndication'],
+                    cbFun,
+                    cbCtx)
                 return
                
             # 3.3.6a
@@ -99,7 +101,15 @@ class NotificationOriginator:
             return
 
         # 3.3.6c
-        cbFun(origSendRequestHandle, None, cbCtx)
+        self._handleResponse(origSendRequestHandle, None, cbFun, cbCtx)
+
+    def _handleResponse(
+        self,
+        sendRequestHandle,
+        errorIndication,
+        cbFun,
+        cbCtx):
+        cbFun(sendRequestHandle, errorIndication, cbCtx)
     
     def sendNotification(
         self,
@@ -256,6 +266,8 @@ class NotificationOriginator:
                     )
                 
                 snmpEngine.transportDispatcher.jobStarted(id(self))
+
+                return sendPduHandle
 
 # XXX
 # move/group/implement config setting/retrieval at a stand-alone module
