@@ -16,7 +16,8 @@ FEATURES
 * Complete SNMP entity implementation
 * Extensible network transports framework (UDP and UNIX domain implemented)
 * Asynchronous socket-based IO API support
-* 100% Python, works with Python 1.5 and later
+* Twisted (http://twistedmatrix.com) integration
+* 100% Python, works with Python 1.5 though 2.x
 * MT-safe
 
 Features, specific to SNMPv3 model include:

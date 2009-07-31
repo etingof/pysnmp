@@ -1,6 +1,7 @@
 Revision 4.1.11a
 ----------------
 
+- Twisted integration implemented.
 - Let NotificationReceiver and CommandResponder Apps browsing request details
   (transport information at the moment) at SNMP engine.
 - Fix to config.addV1System() to allow multiple systems to co-exist in LCD.
@@ -22,6 +23,7 @@ Revision 4.1.11a
   NotificationGroup
 - Fix to MibScalarInstance value setting logic - previous code failed
   when modifying the same OID multiple times within a single SET operation.
+- Minor usability improvements to tools/build-pysnmp-mib.
 - Made MIB objects unexport feature operational.
 
 Revision 4.1.10a
