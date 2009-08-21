@@ -16,7 +16,7 @@ usmDESPrivProtocol = config.usmDESPrivProtocol
 usmAesCfb128Protocol = config.usmAesCfb128Protocol
 usmNoPrivProtocol = config.usmNoPrivProtocol
 
-nextID = nextid.Integer(0xffffffff)
+nextID = nextid.Integer(0xffffffffL)
 
 class CommunityData:
     mpModel=1 # Default is SMIv2
