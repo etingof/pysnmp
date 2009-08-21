@@ -1,4 +1,9 @@
-import string, md5
+try:
+    from hashlib import md5
+except ImportError:
+    import md5
+    md5 = md5.new                    
+import string
 from pysnmp.proto.secmod.rfc3414.auth import base
 from pysnmp.proto import error
 
@@ -44,10 +49,10 @@ class HmacMd5(base.AbstractAuthenticationService):
             )
         
         # 6.3.1.3
-        d1 = md5.md5(k1+wholeMsg).digest()
+        d1 = md5(k1+wholeMsg).digest()
         
         # 6.3.1.4
-        d2 = md5.md5(k2+d1).digest()
+        d2 = md5(k2+d1).digest()
         mac = d2[:12]
 
         # 6.3.1.5 & 6
@@ -89,10 +94,10 @@ class HmacMd5(base.AbstractAuthenticationService):
             )
 
         # 6.3.2.5a
-        d1 = md5.md5(k1+authenticatedWholeMsg).digest()
+        d1 = md5(k1+authenticatedWholeMsg).digest()
 
         # 6.3.2.5b
-        d2 = md5.md5(k2+d1).digest()
+        d2 = md5(k2+d1).digest()
         
         # 6.3.2.5c
         mac = d2[:12]
