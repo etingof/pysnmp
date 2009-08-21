@@ -3,6 +3,7 @@ Revision 4.1.11a
 
 - Twisted integration implemented.
 - Attempt to use hashlib whenever available.
+- Fix to oneliner Manager code on < Python 2.4.
 - Let NotificationReceiver and CommandResponder Apps browsing request details
   (transport information at the moment) at SNMP engine.
 - Fix to config.addV1System() to allow multiple systems to co-exist in LCD.
