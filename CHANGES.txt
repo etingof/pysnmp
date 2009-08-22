@@ -1,3 +1,8 @@
+Revision 4.1.12a
+----------------
+
+- API versioning mechanics retired (pysnmp.v4 -> pysnmp).
+
 Revision 4.1.11a
 ----------------
 
