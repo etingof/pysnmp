@@ -36,15 +36,6 @@ MISFEATURES
 * Much slower than C implementations. Some optimization still possible.
 * No pure-Python MIB compiler. But there's a workaround, read on.
 
-PRECAUTIONS
------------
-
-The 4.x revision of PySNMP brings an alpha-quality code, unstable APIs and
-appears to run rather slow. Also, the 4.x APIs are quite incompatible
-with their 2.x/3.x counterparts as of this early release. Chances are that,
-at least, high-level compatibility interfaces would appear in future stable
-releases.
-
 INSTALLATION
 ------------
 
