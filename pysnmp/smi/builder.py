@@ -1,82 +1,144 @@
 # MIB modules loader
-import os, types
+import os, types, string
 from pysnmp.smi import error
-try:
-    import pysnmp_mibs
-except ImportError:
-    pysnmp_mibs = None
 from pysnmp import debug
+
+class __BaseMibSource:
+    def __init__(self, srcName):
+        self._srcName = srcName        
+        debug.logger & debug.flagBld and debug.logger('trying %s' % self)
+
+    def __repr__(self):
+        return '%s(\'%s\')' % (self.__class__.__name__, self._srcName)
+
+    def fullPath(self, f=''):
+        return self._srcName + (f and (os.path.sep + f + '.py') or '')
+
+    def init(self): raise Exception('Method not implemented')
+    def listdir(self): raise Exception('Method not implemented')
+    def read(self, path): raise Exception('Method not implemented')
+
+class ZipMibSource(__BaseMibSource):
+    def init(self):
+        p = __import__(
+            self._srcName, fromlist=string.split(self._srcName, '.')
+            )
+        if hasattr(p, '__loader__'):
+            self.__loader = p.__loader__
+            self._srcName = string.replace(self._srcName, '.', os.path.sep)
+            return self
+        else:
+            return DirMibSource(os.path.split(p.__file__)[0]).init()
+        
+    def listdir(self):
+        l = []
+        for f in self.__loader._files.keys():
+            d, f = os.path.split(f)
+            if d == self._srcName and f != '__init__.py' and f[-3:] == '.py':
+                l.append(f[:-3])
+        return tuple(l)
+
+    def read(self, f):
+        return self.__loader.get_data(os.path.join(self._srcName, f) + '.py')
+    
+class DirMibSource(__BaseMibSource):
+    def init(self):
+        self._srcName = os.path.normpath(self._srcName)
+        return self
+    
+    def listdir(self):
+        l = []
+        for f in os.listdir(self._srcName):
+            if f != '__init__.py' and f[-3:] == '.py':
+                l.append(f[:-3])
+        return tuple(l)
+    
+    def read(self, f):
+        return open(os.path.join(self._srcName, f) + '.py').read()
 
 class MibBuilder:
     loadTexts = 0
+    defaultCoreMibs = 'pysnmp.smi.mibs.instances:pysnmp.smi.mibs'
+    defaultMiscMibs = 'pysnmp_mibs'
     def __init__(self):
         self.lastBuildId = self._autoName = 0L
-        paths = (
-            os.path.join(os.path.split(error.__file__)[0], 'mibs','instances'),
-            os.path.join(os.path.split(error.__file__)[0], 'mibs')
-            )
+        sources = []
+        for m in string.split(
+            os.environ.get('PYSNMP_MIB_PKGS', self.defaultCoreMibs), ':'
+            ):
+            sources.append(ZipMibSource(m).init())
+        # Compatibility variable
         if os.environ.has_key('PYSNMP_MIB_DIR'):
-            paths = paths + (
-                os.path.join(os.path.split(os.environ['PYSNMP_MIB_DIR'])[0]),
-                )
-        if pysnmp_mibs:
-            paths = paths + (
-                os.path.join(os.path.split(pysnmp_mibs.__file__)[0]),
-                )
+            os.environ['PYSNMP_MIB_DIRS'] = os.environ['PYSNMP_MIB_DIR']
+        if os.environ.has_key('PYSNMP_MIB_DIRS'):
+            for m in string.split(os.environ['PYSNMP_MIB_DIRS'], ':'):
+                sources.append(DirMibSource(m).init())
+        if self.defaultMiscMibs:
+            for m in string.split(self.defaultMiscMibs, ':'):
+                try:
+                    sources.append(ZipMibSource(m).init())
+                except ImportError:
+                    pass
         self.mibSymbols = {}
         self.__modSeen = {}
         self.__modPathsSeen = {}
-        apply(self.setMibPath, paths)
+        apply(self.setMibSources, sources)
         
     # MIB modules management
-    
-    def setMibPath(self, *mibPaths):
-        self.__mibPaths = map(os.path.normpath, mibPaths)
-        debug.logger & debug.flagBld and debug.logger('setMibPath: new MIB path %s' % (self.__mibPaths,))
 
-    def getMibPath(self): return tuple(self.__mibPaths)
+    def setMibSources(self, *mibSources):
+        self.__mibSources = mibSources
+        debug.logger & debug.flagBld and debug.logger('setMibPath: new MIB sources %s' % (self.__mibSources,))
+
+    def getMibSources(self): return self.__mibSources
+
+    # Legacy/compatibility methods
+    def setMibPath(self, *mibPaths):
+        apply(self.setMibSources, map(DirMibSource, mibPaths))
+
+    def getMibPath(self):
+        l = []
+        for mibSource in self.getMibSources():
+            if isinstance(mibSource, DirMibSource):
+                l.append(mibSource.fullPath())
+        return tuple(l)
         
     def loadModules(self, *modNames):
         # Build a list of available modules
         if not modNames:
             modNames = {}
-            for mibPath in self.__mibPaths:
-                try:
-                    for modName in os.listdir(mibPath):
-                        if modName == '__init__.py' or modName[-3:] != '.py':
-                            continue
-                        modNames[modName[:-3]] = None
-                except OSError:
-                    continue
+            for mibSource in self.__mibSources:
+                for modName in mibSource.listdir():
+                    modNames[modName] = None
             modNames = modNames.keys()
         if not modNames:
             raise error.SmiError(
                 'No MIB module to load at %s' % (self,)
                 )
+        
         for modName in modNames:
-            for mibPath in self.__mibPaths:
-                modPath = os.path.join(
-                    mibPath, modName + '.py'
-                    )
-
-                debug.logger & debug.flagBld and debug.logger('loadModules: trying %s' % modPath)
-
+            for mibSource in self.__mibSources:
+                debug.logger & debug.flagBld and debug.logger('loadModules: trying %s at %s' % (modName, mibSource))
                 try:
-                    open(modPath).close()
+                    modData = mibSource.read(modName)
                 except IOError, why:
-                    debug.logger & debug.flagBld and debug.logger('loadModules: open() %s' % why)
+                    debug.logger & debug.flagBld and debug.logger('loadModules: read %s from %s failed: %s' % (modName, mibSource, why))
                     continue
 
+                modPath = mibSource.fullPath(modName)
+                
                 if self.__modPathsSeen.has_key(modPath):
                     debug.logger & debug.flagBld and debug.logger('loadModules: seen %s' % modPath)
                     continue
                 else:
                     self.__modPathsSeen[modPath] = 1
 
+                debug.logger & debug.flagBld and debug.logger('loadModules: evaluating %s' % modPath)
+                
                 g = { 'mibBuilder': self }
 
                 try:
-                    execfile(modPath, g)
+                    exec(modData, g)
                 except StandardError, why:
                     del self.__modPathsSeen[modPath]
                     raise error.SmiError(
@@ -105,7 +167,6 @@ class MibBuilder:
                     'No module %s at %s' % (modName, self)
                     )
             self.unexportSymbols(modName)
-            del self.mibSymbols[modName]            
             del self.__modPathsSeen[self.__modSeen[modName]]
             del self.__modSeen[modName]
             
