@@ -3,6 +3,7 @@ Revision 4.1.12a
 
 - API versioning mechanics retired (pysnmp.v4 -> pysnmp).
 - MIB loading mechanics re-designed to allow ZIP import.
+- Attempt to use setuptools for package management whenever available.
 
 Revision 4.1.11a
 ----------------
