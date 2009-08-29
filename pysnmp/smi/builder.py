@@ -21,7 +21,7 @@ class __BaseMibSource:
 class ZipMibSource(__BaseMibSource):
     def init(self):
         p = __import__(
-            self._srcName, fromlist=string.split(self._srcName, '.')
+            self._srcName, globals(), locals(), string.split(self._srcName, '.')
             )
         if hasattr(p, '__loader__'):
             self.__loader = p.__loader__
