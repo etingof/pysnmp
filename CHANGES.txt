@@ -4,6 +4,8 @@ Revision 4.1.12a
 - API versioning mechanics retired (pysnmp.v4 -> pysnmp).
 - MIB loading mechanics re-designed to allow ZIP import.
 - Attempt to use setuptools for package management whenever available.
+- The libsmi2pysnmp tool improved to build constraints of more than
+   256 items (Python has a limit on the number of function params).
 
 Revision 4.1.11a
 ----------------
