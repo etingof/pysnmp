@@ -12,7 +12,7 @@ class __BaseMibSource:
         return '%s(\'%s\')' % (self.__class__.__name__, self._srcName)
 
     def fullPath(self, f=''):
-        return self._srcName + (f and (os.path.sep + f + '.py') or '')
+        return self._srcName + (f and (os.sep + f + '.py') or '')
 
     def init(self): raise Exception('Method not implemented')
     def listdir(self): raise Exception('Method not implemented')
@@ -25,7 +25,7 @@ class ZipMibSource(__BaseMibSource):
             )
         if hasattr(p, '__loader__'):
             self.__loader = p.__loader__
-            self._srcName = string.replace(self._srcName, '.', os.path.sep)
+            self._srcName = string.replace(self._srcName, '.', os.sep)
             return self
         else:
             return DirMibSource(os.path.split(p.__file__)[0]).init()
