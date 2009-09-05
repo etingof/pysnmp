@@ -2,7 +2,7 @@
 PYTHON SNMP FRAMEWORK
 ---------------------
 
-This is an alpha-quality revision of pure-Python, open source and free
+This is a beta-quality revision of pure-Python, open source and free
 implementation of v1/v2c/v3 SNMP engine.
 
 The PySNMP project has been sponsored by a PSF grant [10]. Thanks!
@@ -17,6 +17,7 @@ FEATURES
 * Extensible network transports framework (UDP and UNIX domain implemented)
 * Asynchronous socket-based IO API support
 * Twisted (http://twistedmatrix.com) integration
+* Python eggs and py2exe friendly
 * 100% Python, works with Python 1.5 though 2.x
 * MT-safe
 
