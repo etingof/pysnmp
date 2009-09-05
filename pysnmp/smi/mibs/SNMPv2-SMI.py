@@ -90,7 +90,7 @@ MODULE-IDENTITY\n\
      self.getOrganization(),
      self.getContactInfo(),
      self.getDescription(),
-     string.join(map(lambda x: "REVISON \"%s\"\n" % x, self.getRevisions())))
+     string.join(map(lambda x: "REVISION \"%s\"\n" % x, self.getRevisions())))
 
 class ObjectIdentity(MibNode):
     def getStatus(self):
