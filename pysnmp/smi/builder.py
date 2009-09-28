@@ -44,7 +44,7 @@ class __AbstractMibSource:
         else:
             if self.__magic == pycData[:4]:
                 pycData = pycData[4:]
-                pycTime = struct.unpack('L', pycData[:4])[0]
+                pycTime = struct.unpack('<L', pycData[:4])[0]
                 pycData = pycData[4:]
             else:
                 debug.logger & debug.flagBld and debug.logger(
