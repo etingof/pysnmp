@@ -107,7 +107,7 @@ apiPDU = PDUAPI()
 
 class TrapPDUAPI:
     try:
-        from socket import gethostbyname
+        import socket
         agentAddress = IpAddress(socket.gethostbyname(socket.gethostname()))
     except:
         agentAddress = IpAddress('0.0.0.0')
