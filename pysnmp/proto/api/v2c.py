@@ -115,6 +115,22 @@ class BulkPDUAPI(PDUAPI):
 
 apiBulkPDU = BulkPDUAPI()
 
+class TrapPDUAPI(v1.PDUAPI):
+    sysUpTime = (1,3,6,1,2,1,1,3,0)
+    snmpTrapAddress = (1,3,6,1,6,3,18,1,3,0)
+    snmpTrapOID = (1,3,6,1,6,3,1,1,4,1,0)
+    snmpTrapEnterprise = (1,3,6,1,6,3,1,1,4,3,0)
+    def setDefaults(self, pdu):
+        v1.PDUAPI.setDefaults(self, pdu)
+        varBinds = [
+            ( self.sysUpTime, TimeTicks(0)),
+            # generic trap
+            ( self.snmpTrapOID, ObjectIdentifier((1,3,6,1,6,3,1,1,5,1)))
+            ]
+        self.setVarBinds(pdu, varBinds)        
+
+apiTrapPDU = TrapPDUAPI()
+
 class MessageAPI(v1.MessageAPI):
     def setDefaults(self, msg):
         msg.setComponentByPosition(0, 1)

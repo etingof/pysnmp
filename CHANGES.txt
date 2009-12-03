@@ -7,6 +7,9 @@ Revision 4.1.12a
 - Installer now uses setuptools for package management whenever available.
 - The libsmi2pysnmp tool improved to build constraints of more than
   256 items (Python has a limit on the number of function params).
+- Missing SNMPTrap PDU API implemented at proto.api.v2c, RFC2576 proxy
+  code reworked.
+- Fix to sysUpTime OID at SNMPv2 TRAP PDU.
 
 Revision 4.1.11a
 ----------------

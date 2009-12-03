@@ -5,7 +5,7 @@ from pyasn1.codec.ber import encoder
 from pysnmp.proto import api
 
 # Protocol version to use
-verID = api.protoVersion1
+verID = api.protoVersion2c
 pMod = api.protoModules[verID]
 
 # Build PDU
