@@ -53,4 +53,6 @@ Sparse notes on major existing problems/plans
 * Implement OID prefix to MIB module mapping then dynamic MIB modules
   loading on OID to MIB symbol resolution
 
-* Implement OID-to-MIB cache mapping for dynamic MIB loading
+* Implement IPv6 support
+
+* Implement TCP transport support
