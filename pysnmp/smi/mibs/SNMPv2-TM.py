@@ -26,11 +26,12 @@ class SnmpUDPAddress(TextualConvention, OctetString):
 
     # Socket address syntax coercion
     def __getitem__(self, i):
-        value = (
-            string.join(map(lambda x: str(ord(x)), self._value[:4]), '.'),
-            (ord(self._value[4:5])) << 8 | ord(self._value[5:6])
-            )
-        return value[i]
+        if not hasattr(self, '__tuple_value'):
+            self.__tuple_value = (
+                string.join(map(lambda x: str(ord(x)), self._value[:4]), '.'),
+                ord(self._value[4:5]) << 8 | ord(self._value[5:6])
+                )
+        return self.__tuple_value[i]
     
 snmpCLNSDomain = ObjectIdentity(snmpDomains.name + (2,))
 snmpCONSDomain = ObjectIdentity(snmpDomains.name + (3,))
