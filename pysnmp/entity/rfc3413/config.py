@@ -36,6 +36,11 @@ def getTargetAddr(snmpEngine, snmpTargetAddrName):
         snmpTargetAddrTAddress = tuple(
             SnmpUDPAddress(snmpTargetAddrTAddress)
             )
+    elif snmpTargetAddrTDomain == config.snmpUDP6Domain:
+        TransportAddressIPv6, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('TRANSPORT-ADDRESS-MIB', 'TransportAddressIPv6')
+        snmpTargetAddrTAddress = tuple(
+            TransportAddressIPv6(snmpTargetAddrTAddress)
+            )
 
     return ( snmpTargetAddrTDomain,
              snmpTargetAddrTAddress,

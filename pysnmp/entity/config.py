@@ -2,7 +2,7 @@
 # SNMP engine might be configured remotely (through SNMP).
 import string
 from pysnmp.carrier.asynsock import dispatch
-from pysnmp.carrier.asynsock.dgram import udp
+from pysnmp.carrier.asynsock.dgram import udp, udp6
 try:
     from pysnmp.carrier.asynsock.dgram import unix
     snmpLocalDomain = unix.snmpLocalDomain
@@ -21,6 +21,7 @@ from pysnmp import error
 
 # Transports
 snmpUDPDomain = udp.snmpUDPDomain
+snmpUDP6Domain = udp6.snmpUDP6Domain
 
 # Auth protocol
 usmHMACMD5AuthProtocol = hmacmd5.HmacMd5.serviceID
@@ -258,6 +259,9 @@ def addTargetAddr(
     if transportDomain == snmpUDPDomain:
         SnmpUDPAddress, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-TM', 'SnmpUDPAddress')
         transportAddress = SnmpUDPAddress(transportAddress)
+    elif transportDomain == snmpUDP6Domain:
+        TransportAddressIPv6, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('TRANSPORT-ADDRESS-MIB', 'TransportAddressIPv6')
+        transportAddress = TransportAddressIPv6(transportAddress)
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpTargetAddrEntry.name + (9,) + tblIdx, 'destroy'),)

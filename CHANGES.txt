@@ -1,3 +1,8 @@
+Revision 4.1.13a
+----------------
+
+- UDP over IPv6 transport implemented.
+
 Revision 4.1.12a
 ----------------
 

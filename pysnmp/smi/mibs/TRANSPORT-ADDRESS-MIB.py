@@ -2,6 +2,9 @@
 # by libsmi2pysnmp-0.0.9-alpha at Thu Mar 26 20:58:12 2009,
 # Python version (2, 4, 4, 'final', 0)
 
+import socket
+import types
+
 # Imported just in case new ASN.1 types would be created
 from pyasn1.type import constraint, namedval
 
@@ -26,7 +29,21 @@ class TransportAddressIPv4(TextualConvention, OctetString):
     displayHint = "1d.1d.1d.1d:2d"
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(6,6)
     fixedLength = 6
-    pass
+
+    def prettyIn(self, value):
+        if type(value) == types.TupleType:
+            return reduce(lambda x,y: x+y, map(lambda x: chr(string.atoi(x)), string.split(value[0], '.'))) + chr((value[1] >> 8) & 0xff) +  chr((value[1] & 0xff))
+        else:
+            return OctetString.prettyIn(self, value)
+
+    # Socket address syntax coercion
+    def __getitem__(self, i):
+        if not hasattr(self, '__tuple_value'):
+            self.__tuple_value = (
+                string.join(map(lambda x: str(ord(x)), self._value[:4]), '.'),
+                ord(self._value[4:5]) << 8 | ord(self._value[5:6])
+                )
+        return self.__tuple_value[i]
 
 class TransportAddressIPv4z(TextualConvention, OctetString):
     displayHint = "1d.1d.1d.1d%4d:2d"
@@ -38,7 +55,22 @@ class TransportAddressIPv6(TextualConvention, OctetString):
     displayHint = "0a[2x:2x:2x:2x:2x:2x:2x:2x]0a:2d"
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(18,18)
     fixedLength = 18
-    pass
+
+    def prettyIn(self, value):
+        if type(value) == types.TupleType:
+            return socket.inet_pton(socket.AF_INET6, value[0]) + chr((value[1] >> 8) & 0xff) +  chr((value[1] & 0xff))
+        else:
+            return OctetString.prettyIn(self, value)
+
+    # Socket address syntax coercion
+    def __getitem__(self, i):
+        if not hasattr(self, '__tuple_value'):
+            self.__tuple_value = (
+                socket.inet_ntop(socket.AF_INET6, self._value[:16]),
+                ord(self._value[16:17]) << 8 | ord(self._value[17:18]),
+                0,
+                0)
+        return self.__tuple_value[i]
 
 class TransportAddressIPv6z(TextualConvention, OctetString):
     displayHint = "0a[2x:2x:2x:2x:2x:2x:2x:2x%4d]0a:2d"

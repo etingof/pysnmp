@@ -17,6 +17,7 @@ FEATURES
 * Extensible network transports framework (UDP and UNIX domain implemented)
 * Asynchronous socket-based IO API support
 * Twisted (http://twistedmatrix.com) integration
+* IPv6 transport support
 * Python eggs and py2exe friendly
 * 100% Python, works with Python 1.5 though 2.x
 * MT-safe
