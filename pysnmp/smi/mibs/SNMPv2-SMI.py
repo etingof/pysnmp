@@ -544,6 +544,7 @@ class MibTableColumn(MibScalar):
                val is not None and \
                self.maxAccess != 'readcreate' or \
                acFun and acFun(name, idx, 'write', acCtx):
+            debug.logger & debug.flagACL and debug.logger('createTest: %s=%s %s at %s' % (name, val, self.maxAccess, self.name))
             raise error.NoCreationError(idx=idx, name=name)
         # Create instances if either it does not yet exist (row creation)
         # or a value is passed (multiple OIDs in SET PDU)
