@@ -12,6 +12,14 @@ class AbstractSocketTransport(asyncore.dispatcher):
     retryCount = 0; retryInterval = 0
     def __init__(self, sock=None, sockMap=None):
         if sock is None:
+            if self.sockFamily is None:
+                raise error.CarrierError(
+                    'Address family %s not supported' % self.__class__.__name__
+                    )
+            if self.sockType is None:
+                raise error.CarrierError(
+                    'Socket type %s not supported' % self.__class__.__name__
+                    )
             try:
                 sock = socket.socket(self.sockFamily, self.sockType)
             except socket.error, why:
