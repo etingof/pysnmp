@@ -220,7 +220,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                 errorIndication = 'parseError'
                 )
 
-        debug.logger & debug.flagMP and debug.logger('prepareDataElements: msg decoded')
+        debug.logger & debug.flagMP and debug.logger('prepareDataElements: %s' % (msg.prettyPrint(),))
 
         # rfc3412: 7.2.3
         msgVersion = messageProcessingModel = msg.getComponentByPosition(0)

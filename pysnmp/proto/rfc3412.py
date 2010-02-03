@@ -142,7 +142,7 @@ class MsgAndPduDispatcher:
                 errorIndication='unsupportedMsgProcessingModel'
                 )
 
-        debug.logger & debug.flagDsp and debug.logger('sendPdu: PDU %s' % PDU.prettyPrint())
+        debug.logger & debug.flagDsp and debug.logger('sendPdu: securityName %s, PDU\n%s' % (securityName, PDU.prettyPrint()))
 
         # 4.1.1.3
         sendPduHandle = self.__newSendPduHandle()

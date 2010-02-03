@@ -71,6 +71,9 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
             msg.setComponentByPosition(1, securityParameters)
             msg.setComponentByPosition(2)
             msg.getComponentByPosition(2).setComponentByType(pdu.tagSet, pdu)
+
+            debug.logger & debug.flagMP and debug.logger('generateRequestMsg: %s' % (msg.prettyPrint(),))
+
             wholeMsg = encoder.encode(msg)
             return ( securityParameters, wholeMsg )
 
@@ -103,6 +106,8 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         msg.setComponentByPosition(2)
         msg.getComponentByPosition(2).setComponentByType(pdu.tagSet, pdu)
         
+        debug.logger & debug.flagMP and debug.logger('generateResponseMsg: %s' % (msg.prettyPrint(),))
+
         wholeMsg = encoder.encode(msg)
         return ( communityName, wholeMsg )
 
