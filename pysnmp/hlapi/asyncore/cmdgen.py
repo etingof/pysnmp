@@ -162,7 +162,7 @@ class AsynCommandGenerator:
                 )
             self.__knownTransports[transportTarget.transportDomain] = transport
 
-        k = transportTarget, tagList
+        k = paramsName, transportTarget, tagList
         if self.__knownTransportAddrs.has_key(k):
             addrName = self.__knownTransportAddrs[k]
         else:
