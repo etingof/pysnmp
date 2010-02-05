@@ -123,6 +123,8 @@ class AsynCommandGenerator:
     def __del__(self): self.uncfgCmdGen()
 
     def cfgCmdGen(self, authData, transportTarget, tagList=''):
+        if isinstance(authData, CommunityData):
+            tagList = '%s %s' % (tagList, authData.securityName)
         if self.__knownAuths.has_key(authData):
             paramsName = self.__knownAuths[authData]
         else:
@@ -131,7 +133,8 @@ class AsynCommandGenerator:
                 config.addV1System(
                     self.snmpEngine,
                     authData.securityName,
-                    authData.communityName
+                    authData.communityName,
+                    transportTag=tagList
                     )
                 config.addTargetParams(
                     self.snmpEngine, paramsName,
