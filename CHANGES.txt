@@ -4,6 +4,8 @@ Revision 4.1.13a
 - UDP over IPv6 transport implemented.
 - Fix to MIB tree walking code that used to fail on table columns where
   indices have identical leading parts.
+- SNMPv1/v2c snmpCommunityTransportTag-based imcoming message filtering
+  implemented (rfc2576).
 
 Revision 4.1.12a
 ----------------
