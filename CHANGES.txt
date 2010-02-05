@@ -2,6 +2,8 @@ Revision 4.1.13a
 ----------------
 
 - UDP over IPv6 transport implemented.
+- Fix to MIB tree walking code that used to fail on table columns where
+  indices have identical leading parts.
 
 Revision 4.1.12a
 ----------------
