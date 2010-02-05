@@ -516,6 +516,13 @@ class MibTableColumn(MibScalar):
         self.__createdInstances = {}; self.__destroyedInstances = {}
         self.__rowOpWanted = {}
 
+    # No branches here, terminal OIDs only
+    def getBranch(self, name, idx):
+        if len(self.name) < len(name):
+            if self._vars.has_key(name):
+                return self._vars[name]
+        raise error.NoSuchObjectError(name=name, idx=idx)
+
     def getNode(self, name, idx=None):
         try:
             return MibScalar.getNode(self, name, idx=None)
