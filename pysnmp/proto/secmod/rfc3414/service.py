@@ -471,10 +471,11 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         # 3.2.9 -- moved up here to be able to report
         # maxSizeResponseScopedPDU on error
-        maxSizeResponseScopedPDU = maxMessageSize - 512   # XXX
-        if maxSizeResponseScopedPDU < 0:
+        try:
+            maxSizeResponseScopedPDU = maxMessageSize - len(securityParameters) - 48  # maximum SNMPv3 header length
+        except PyAsn1Error:
             maxSizeResponseScopedPDU = 0
-        
+
         # 3.2.2
         securityEngineID = securityParameters.getComponentByPosition(0)
         securityStateReference = self._cachePush(
