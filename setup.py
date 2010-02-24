@@ -19,7 +19,7 @@ except ImportError:
     from distutils.core import setup
 
 setup(name="pysnmp",
-      version="4.1.13a",
+      version="4.1.14a",
       description="SNMP framework for Python",
       author="Ilya Etingof",
       author_email="ilya@glas.net ",

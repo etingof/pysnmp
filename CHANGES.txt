@@ -1,3 +1,9 @@
+Revision 4.1.14a
+----------------
+
+- Fix to maxSizeResponseScopedPDU calculation at USM security module: now
+  more precise and robust against screwed values on input.
+
 Revision 4.1.13a
 ----------------
 
