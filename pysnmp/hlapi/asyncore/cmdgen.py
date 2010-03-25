@@ -109,6 +109,9 @@ class UdpTransportTarget:
 class AsynCommandGenerator:
     _null = univ.Null('')
     def __init__(self, snmpEngine=None):
+        self.__knownAuths = {}
+        self.__knownTransports = {}
+        self.__knownTransportAddrs = {}
         if snmpEngine is None:
             self.snmpEngine = engine.SnmpEngine()
         else:
@@ -116,9 +119,6 @@ class AsynCommandGenerator:
         self.mibViewController = view.MibViewController(
             self.snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
             )
-        self.__knownAuths = {}
-        self.__knownTransports = {}
-        self.__knownTransportAddrs = {}
 
     def __del__(self): self.uncfgCmdGen()
 
