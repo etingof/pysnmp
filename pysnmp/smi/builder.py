@@ -203,7 +203,7 @@ class MibBuilder:
                 
                 if self.__modPathsSeen.has_key(modPath):
                     debug.logger & debug.flagBld and debug.logger('loadModules: seen %s' % modPath)
-                    continue
+                    break
                 else:
                     self.__modPathsSeen[modPath] = 1
 

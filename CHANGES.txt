@@ -3,6 +3,8 @@ Revision 4.1.14a
 
 - Fix to maxSizeResponseScopedPDU calculation at USM security module: now
   more precise and robust against screwed values on input.
+- Fix to MIB loading logic that used to load same-name modules at
+  disticts search paths on each loadModules() call.
 
 Revision 4.1.13a
 ----------------
