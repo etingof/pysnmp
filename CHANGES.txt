@@ -7,6 +7,10 @@ Revision 4.1.14a
   disticts search paths on each loadModules() call.
 - Fix to AsynsockDispatcher.runDispatcher() to make use of optional
   non-default select() timeout value.
+- AbstractTransportDispatcher now allows user application registering
+  multiple timer callbacks each with dedicated call period.
+- Asynsock mainloop default idle period reduced to 0.5 sec for better
+  timer resolution.
 
 Revision 4.1.13a
 ----------------
