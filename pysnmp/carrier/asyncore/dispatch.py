@@ -35,7 +35,7 @@ class AsynsockDispatcher(AbstractTransportDispatcher):
     """Implements I/O over asynchronous sockets"""
     def __init__(self):
         self.__sockMap = {} # use own map for MT safety
-        self.timeout = 1.0
+        self.timeout = 0.5
         AbstractTransportDispatcher.__init__(self)
 
     def getSocketMap(self): return self.__sockMap
