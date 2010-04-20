@@ -1,13 +1,26 @@
 """Abstract I/O dispatcher. Defines standard dispatcher API"""
 from pysnmp.carrier import error
 
+class TimerCallable:
+    def __init__(self, cbFun, callInterval):
+        self.__cbFun = cbFun
+        self.__callInterval = callInterval
+        self.__nextCall = 0
+        
+    def __call__(self, timeNow):
+        if self.__nextCall <= timeNow:
+            self.__cbFun(timeNow)
+            self.__nextCall = timeNow + self.__callInterval
+
+    def __cmp__(self, cbFun):
+        return cmp(self.__cbFun, cbFun)
+    
 class AbstractTransportDispatcher:
     def __init__(self):
         self.__transports = {}
         self.__jobs = {}
         self.__recvCbFun = None
-        self.__timerCbFuns = []
-        self.__timeToGo = 0
+        self.__timerCallables = []
 
     def _cbFun(self, incomingTransport, transportAddress, incomingMessage):
         for name, transport in self.__transports.items():
@@ -38,14 +51,14 @@ class AbstractTransportDispatcher:
     def unregisterRecvCbFun(self):
         self.__recvCbFun = None
 
-    def registerTimerCbFun(self, timerCbFun):
-        self.__timerCbFuns.append(timerCbFun)
+    def registerTimerCbFun(self, timerCbFun, tickInterval=1.0):
+        self.__timerCallables.append(TimerCallable(timerCbFun, tickInterval))
 
     def unregisterTimerCbFun(self, timerCbFun=None):
         if timerCbFun is None:
-            self.__timerCbFuns = []
+            self.__timerCallables = []
         else:
-            self.__timerCbFuns.remove(timerCbFun)
+            self.__timerCallables.remove(timerCbFun)
 
     def registerTransport(self, tDomain, transport):
         if self.__transports.has_key(tDomain):
@@ -77,10 +90,8 @@ class AbstractTransportDispatcher:
         transport.sendMessage(outgoingMessage, transportAddress)
 
     def handleTimerTick(self, timeNow):
-        if self.__timerCbFuns and self.__timeToGo < timeNow:
-            for timerCbFun in self.__timerCbFuns:
-                timerCbFun(timeNow)
-            self.__timeToGo = timeNow + 1
+        for timerCallable in self.__timerCallables:
+            timerCallable(timeNow)
 
     def jobStarted(self, jobId):
         self.__jobs[jobId] = self.__jobs.get(jobId, 0) + 1
