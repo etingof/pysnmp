@@ -152,9 +152,9 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
                 v2VarBinds[errorIndex-1] = (
                     v2VarBinds[errorIndex-1][0], exval.noSuchObject
                     )
-        else: # one-to-one mapping
-            v2c.apiPDU.setErrorStatus(v2Pdu, errorStatus)
-            v2c.apiPDU.setErrorIndex(v2Pdu, errorIndex)
+        # one-to-one mapping
+        v2c.apiPDU.setErrorStatus(v2Pdu, errorStatus)
+        v2c.apiPDU.setErrorIndex(v2Pdu, errorIndex)
 
         # 4.1.2.1 --> no-op
 

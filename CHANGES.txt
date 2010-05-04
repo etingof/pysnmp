@@ -11,6 +11,9 @@ Revision 4.1.14a
   multiple timer callbacks each with dedicated call period.
 - Asynsock mainloop default idle period reduced to 0.5 sec for better
   timer resolution.
+- Fix to SNMPv1->SNMPv2c error status handling at proxy module. This
+  defect may have caused an infinite loop on a multiple var-bind
+  SNMPv1 GetNext operation.
 
 Revision 4.1.13a
 ----------------
