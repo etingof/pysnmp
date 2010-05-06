@@ -349,9 +349,15 @@ class CommandGenerator(AsynCommandGenerator):
             ):
             if errorIndication or errorStatus:
                 appReturn['errorIndication'] = errorIndication
-                appReturn['errorStatus'] = errorStatus
-                appReturn['errorIndex'] = errorIndex
-                appReturn['varBindTable'] = varBindTable
+                if errorStatus == 2:
+                    # Hide SNMPv1 noSuchName error which leaks in here
+                    # from SNMPv1 Agent through internal pysnmp proxy.
+                    appReturn['errorStatus'] = errorStatus.clone(0)
+                    appReturn['errorIndex'] = errorIndex.clone(0)
+                else:
+                    appReturn['errorStatus'] = errorStatus
+                    appReturn['errorIndex'] = errorIndex
+                appReturn['varBindTable'] = varBindTotalTable
                 return
             else:
                 varBindTableRow = varBindTable[-1]
