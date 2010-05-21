@@ -49,7 +49,7 @@ def addV1System(snmpEngine, securityName, communityName,
 
     if contextEngineId is None:
         contextEngineId = snmpEngineID.syntax
-    if contextName is not None:
+    if contextName is None:
         contextName = communityName
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
@@ -428,7 +428,8 @@ def __cookVacmUserInfo(snmpEngine, securityModel, securityName, securityLevel):
              'r' + groupName, 'w' + groupName, 'n' + groupName )
 
 def addVacmUser(snmpEngine, securityModel, securityName, securityLevel,
-                readSubTree=(), writeSubTree=(), notifySubTree=()):
+                readSubTree=(), writeSubTree=(), notifySubTree=(),
+                contextName=''):
     ( groupName, securityLevel,
       readView, writeView, notifyView ) = __cookVacmUserInfo(
         snmpEngine, securityModel, securityName, securityLevel,
@@ -437,7 +438,7 @@ def addVacmUser(snmpEngine, securityModel, securityName, securityLevel,
         snmpEngine, groupName, securityModel, securityName
         )
     addVacmAccess(
-        snmpEngine, groupName, '', securityModel, securityLevel, 1,
+        snmpEngine, groupName, contextName, securityModel, securityLevel, 1,
         readView, writeView, notifyView
         )
     if readSubTree:
