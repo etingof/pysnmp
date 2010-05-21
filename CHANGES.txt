@@ -14,6 +14,11 @@ Revision 4.1.14a
 - Fix to SNMPv1->SNMPv2c error status handling at proxy module. This
   defect may have caused an infinite loop on a multiple var-bind
   SNMPv1 GetNext operation.
+- Fix to contextName processing at config.addV1System -- typo rendered
+  passed contextName not committed into LCD.
+- config.addVacmUser() now accepts an optional contextName what makes
+  it usable for configuring multiple contextName-bound bases of Managed
+  Objects to SnmpEngine.
 
 Revision 4.1.13a
 ----------------
