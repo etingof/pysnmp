@@ -50,7 +50,7 @@ def addV1System(snmpEngine, securityName, communityName,
     if contextEngineId is None:
         contextEngineId = snmpEngineID.syntax
     if contextName is None:
-        contextName = communityName
+        contextName = ''
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpCommunityEntry.name + (8,) + tblIdx, 'destroy'),)
