@@ -70,7 +70,7 @@ class AbstractMessageProcessingModel:
                 'Cache dup for stateReference=%s at %s' %
                 (stateReference, self)
                 )
-        expireAt = self.__expirationTimer+50
+        expireAt = self.__expirationTimer+1000
         self.__stateReferenceIndex[stateReference] = ( msgInfo, expireAt )
 
         # Schedule to expire
@@ -106,7 +106,7 @@ class AbstractMessageProcessingModel:
             raise error.ProtocolError(
                 'Cache dup for msgId=%s at %s' % (msgId, self)
                 )
-        expireAt = self.__expirationTimer+50
+        expireAt = self.__expirationTimer+1000
         self.__msgIdIndex[msgId] = ( msgInfo, expireAt )
 
         self.__sendPduHandleIdx[msgInfo['sendPduHandle']] = msgId
