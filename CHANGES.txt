@@ -19,8 +19,8 @@ Revision 4.1.14a
 - config.addVacmUser() now accepts an optional contextName what makes
   it usable for configuring multiple contextName-bound bases of Managed
   Objects to SnmpEngine.
-- Pending states cache management fixed so that SNMP engine will now handle
-  up to 1000 request/responses.
+- MP pending states cache management re-worked so that SNMP engine will
+  now handle an unlimited number of pending request/responses.
 
 Revision 4.1.13a
 ----------------

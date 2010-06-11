@@ -744,3 +744,6 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         
     def receiveTimerTick(self, snmpEngine, timeNow):
         self.__expireEnginesInfo()
+        AbstractMessageProcessingModel.receiveTimerTick(
+            self, snmpEngine, timeNow
+            )

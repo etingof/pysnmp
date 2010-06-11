@@ -70,7 +70,7 @@ class AbstractMessageProcessingModel:
                 'Cache dup for stateReference=%s at %s' %
                 (stateReference, self)
                 )
-        expireAt = self.__expirationTimer+1000
+        expireAt = self.__expirationTimer+60
         self.__stateReferenceIndex[stateReference] = ( msgInfo, expireAt )
 
         # Schedule to expire
@@ -79,7 +79,6 @@ class AbstractMessageProcessingModel:
         if not self.__expirationQueue[expireAt].has_key('stateReference'):
             self.__expirationQueue[expireAt]['stateReference'] = {}
         self.__expirationQueue[expireAt]['stateReference'][stateReference] = 1
-        self.__expireCaches()
         
     def _cachePopByStateRef(self, stateReference):
         cacheInfo = self.__stateReferenceIndex.get(stateReference)
@@ -106,7 +105,7 @@ class AbstractMessageProcessingModel:
             raise error.ProtocolError(
                 'Cache dup for msgId=%s at %s' % (msgId, self)
                 )
-        expireAt = self.__expirationTimer+1000
+        expireAt = self.__expirationTimer+60
         self.__msgIdIndex[msgId] = ( msgInfo, expireAt )
 
         self.__sendPduHandleIdx[msgInfo['sendPduHandle']] = msgId
@@ -117,7 +116,6 @@ class AbstractMessageProcessingModel:
         if not self.__expirationQueue[expireAt].has_key('msgId'):
             self.__expirationQueue[expireAt]['msgId'] = {}
         self.__expirationQueue[expireAt]['msgId'][msgId] = 1
-        self.__expireCaches()
         
     def _cachePopByMsgId(self, msgId):
         cacheInfo = self.__msgIdIndex.get(msgId)
@@ -156,4 +154,4 @@ class AbstractMessageProcessingModel:
             pass # XXX maybe these should all follow some scheme?
     
     def receiveTimerTick(self, snmpEngine, timeNow):
-        pass
+        self.__expireCaches()
