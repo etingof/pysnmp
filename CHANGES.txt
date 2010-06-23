@@ -22,6 +22,8 @@ Revision 4.1.14a
   Objects to SnmpEngine.
 - MP pending states cache management re-worked so that SNMP engine will
   now handle an unlimited number of pending request/responses.
+- Fix to SNMP discovery procedure: include ContentName in SNMP discovery
+  messaging
 
 Revision 4.1.13a
 ----------------
