@@ -257,7 +257,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             usmUserPrivProtocol = usmUserPrivKeyLocalized = None
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: use empty USM data')
             
-        debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: local user usmUserName %s usmUserAuthProtocol %s usmUserPrivProtocol %s by securityEngineID %s securityName %s' % (usmUserName, usmUserAuthProtocol, usmUserPrivProtocol, securityEngineID, securityName))
+        debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: local user usmUserName %s usmUserAuthProtocol %s usmUserPrivProtocol %s by securityEngineID %s securityName %s' % (usmUserName, usmUserAuthProtocol, usmUserPrivProtocol, repr(securityEngineID), securityName))
 
         msg = globalData
         
@@ -295,7 +295,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             else:
                 # 2.3 XXX is this correct?
                 snmpEngineBoots = snmpEngineTime = 0
-                debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: no timeline for securityEngineID %s' % securityEngineID)
+                debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: no timeline for securityEngineID %s' % repr(securityEngineID))
         # 3.1.6.b
         elif securityStateReference is not None:  # XXX Report?
             ( snmpEngineBoots,
@@ -308,7 +308,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             snmpEngineBoots = snmpEngineTime = 0
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: assuming zero snmpEngineBoots, snmpEngineTime')
 
-        debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: use snmpEngineBoots %s snmpEngineTime %s for securityEngineID %s' % (snmpEngineBoots, snmpEngineTime, securityEngineID))
+        debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: use snmpEngineBoots %s snmpEngineTime %s for securityEngineID %s' % (snmpEngineBoots, snmpEngineTime, repr(securityEngineID)))
 
         # 3.1.4a
         if securityLevel == 3:
@@ -317,19 +317,19 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 raise error.StatusInformation(
                     errorIndication = 'encryptionError'
                     )
+
+            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: scopedPDU %s' % scopedPDU.prettyPrint())
+
             dataToEncrypt = encoder.encode(scopedPDU)
             
-            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: scopedPDU encoded')
+            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: scopedPDU encoded into %s' % repr(dataToEncrypt))
 
-            try:
-                ( encryptedData,
-                  privParameters ) = privHandler.encryptData(
-                    usmUserPrivKeyLocalized,
-                    ( snmpEngineBoots, snmpEngineTime, None ),
-                    dataToEncrypt
-                    )
-            except error.StatusInformation, statusInformation:
-                raise
+            ( encryptedData,
+              privParameters ) = privHandler.encryptData(
+                usmUserPrivKeyLocalized,
+                ( snmpEngineBoots, snmpEngineTime, None ),
+                dataToEncrypt
+                )
 
             securityParameters.setComponentByPosition(5, privParameters)
             scopedPDUData.setComponentByPosition(1, encryptedData)
@@ -367,24 +367,24 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             
             msg.setComponentByPosition(2, encoder.encode(securityParameters))
 
+            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: auth outgoing msg: %s' % msg.prettyPrint())
+
             wholeMsg = encoder.encode(msg)
 
-            try:
-                authenticatedWholeMsg = authHandler.authenticateOutgoingMsg(
-                    usmUserAuthKeyLocalized, wholeMsg
-                    )
-            except error.StatusInformation, statusInformation:
-                raise
-            
-            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: auth outgoing msg')
+            authenticatedWholeMsg = authHandler.authenticateOutgoingMsg(
+                usmUserAuthKeyLocalized, wholeMsg
+                )
         # 3.1.8b
         else:
             securityParameters.setComponentByPosition(4, '')
-            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: %s' % (securityParameters.prettyPrint(),))
-            msg.setComponentByPosition(2, encoder.encode(securityParameters))
-            authenticatedWholeMsg = encoder.encode(msg)
-            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: plain outgoing msg')
 
+            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: %s' % (securityParameters.prettyPrint(),))
+
+            msg.setComponentByPosition(2, encoder.encode(securityParameters))
+
+            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: plain outgoing msg: %s' % msg.prettyPrint())
+
+            authenticatedWholeMsg = encoder.encode(msg)
         # 3.1.9
         return (
             msg.getComponentByPosition(2),
@@ -490,7 +490,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         # 3.2.3
         if not self.__timeline.has_key(securityEngineID):
-            debug.logger & debug.flagSM and debug.logger('processIncomingMsg: unknown securityEngineID %s' % securityEngineID)
+            debug.logger & debug.flagSM and debug.logger('processIncomingMsg: unknown securityEngineID %s' % repr(securityEngineID))
             if securityEngineID:
                 # 3.2.3a XXX any other way to get auth engine in cache?
                 self.__timeline[securityEngineID] = (
@@ -505,7 +505,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     self.__timelineExpQueue[expireAt] = []
                 self.__timelineExpQueue[expireAt].append(securityEngineID)
                     
-                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: store timeline for securityEngineID %s' % (securityEngineID,))
+                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: store timeline for securityEngineID %s' % repr(securityEngineID))
             else:
                 # 3.2.3b
                 usmStatsUnknownEngineIDs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownEngineIDs')
@@ -535,7 +535,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         msgAuthoritativeEngineID = securityParameters.getComponentByPosition(0)
         msgUserName = securityParameters.getComponentByPosition(3)
 
-        debug.logger & debug.flagSM and debug.logger('processIncomingMsg: read from securityParams msgAuthoritativeEngineID %s msgUserName %s' % (msgAuthoritativeEngineID, msgUserName))
+        debug.logger & debug.flagSM and debug.logger('processIncomingMsg: read from securityParams msgAuthoritativeEngineID %s msgUserName %s' % (repr(msgAuthoritativeEngineID), msgUserName))
         
         if msgUserName:
             # 3.2.4
@@ -565,7 +565,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: cloned user info')
                     except NoSuchInstanceError:
                         __reportUnknownName = 1
-                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: unknown securityEngineID %s msgUserName %s' % (securityEngineID, msgUserName))
+                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: unknown securityEngineID %s msgUserName %s' % (repr(securityEngineID), msgUserName))
                 if __reportUnknownName:
                         usmStatsUnknownUserNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownUserNames')
                         usmStatsUnknownUserNames.syntax = usmStatsUnknownUserNames.syntax+1
@@ -633,7 +633,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
                     )
             
-            debug.logger & debug.flagSM and debug.logger('processIncomingMsg: incoming msg authed')
+            debug.logger & debug.flagSM and debug.logger('processIncomingMsg: incoming msg authenticated')
         # 3.2.7
         if securityLevel == 3 or securityLevel == 2:
             if msgAuthoritativeEngineID == snmpEngineID:
@@ -655,7 +655,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         ]
                     # time passed since last talk with this SNMP engine
                     idleTime = int(time.time())-latestUpdateTimestamp
-                    debug.logger & debug.flagSM and debug.logger('processIncomingMsg: read timeline snmpEngineBoots %s snmpEngineTime %s for msgAuthoritativeEngineID %s, idle time %s secs' % (snmpEngineBoots, snmpEngineTime, msgAuthoritativeEngineID, idleTime))
+                    debug.logger & debug.flagSM and debug.logger('processIncomingMsg: read timeline snmpEngineBoots %s snmpEngineTime %s for msgAuthoritativeEngineID %s, idle time %s secs' % (snmpEngineBoots, snmpEngineTime, repr(msgAuthoritativeEngineID), idleTime))
                 else:
                     raise error.ProtocolError('Peer SNMP engine info missing')
 
@@ -692,7 +692,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         msgAuthoritativeEngineTime,
                         int(time.time())
                         )
-                    debug.logger & debug.flagSM and debug.logger('processIncomingMsg: stored timeline msgAuthoritativeEngineBoots %s msgAuthoritativeEngineTime %s for msgAuthoritativeEngineID %s' % (msgAuthoritativeEngineBoots, msgAuthoritativeEngineTime, msgAuthoritativeEngineID))
+                    debug.logger & debug.flagSM and debug.logger('processIncomingMsg: stored timeline msgAuthoritativeEngineBoots %s msgAuthoritativeEngineTime %s for msgAuthoritativeEngineID %s' % (msgAuthoritativeEngineBoots, msgAuthoritativeEngineTime, repr(msgAuthoritativeEngineID)))
                     
                 # 3.2.7b.2
                 if snmpEngineBoots == 2147483647L or \
@@ -727,7 +727,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                       securityParameters.getComponentByPosition(5) ),
                     encryptedPDU
                     )
-               debug.logger & debug.flagSM and debug.logger('processIncomingMsg: PDU deciphered')
+               debug.logger & debug.flagSM and debug.logger('processIncomingMsg: PDU deciphered into %s' % repr(decryptedData))
             except error.StatusInformation:
                 usmStatsDecryptionErrors, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsDecryptionErrors')
                 usmStatsDecryptionErrors.syntax = usmStatsDecryptionErrors.syntax+1
@@ -746,10 +746,10 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     decryptedData, asn1Spec=scopedPduSpec
                     )
             except PyAsn1Error, why:
-               debug.logger & debug.flagSM and debug.logger('processIncomingMsg: PDU decoder failed %s' % why)                
-               raise error.StatusInformation(
-                   errorIndication = 'decryptionError'
-                   )
+                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: scopedPDU decoder failed %s' % why)                
+                raise error.StatusInformation(
+                    errorIndication = 'decryptionError'
+                    )
         else:
             # 3.2.8b
             scopedPDU = scopedPduData.getComponentByPosition(0)
@@ -757,6 +757,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 raise error.StatusInformation(
                     errorIndication = 'decryptionError'
                     )
+
+        debug.logger & debug.flagSM and debug.logger('processIncomingMsg: scopedPDU decoded %s' % scopedPDU.prettyPrint()) 
 
         # 3.2.10
         securityName = usmUserSecurityName
@@ -800,7 +802,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         if self.__timelineExpQueue.has_key(self.__expirationTimer):
             for engineIdKey in self.__timelineExpQueue[self.__expirationTimer]:
                 del self.__timeline[engineIdKey]
-                debug.logger & debug.flagMP and debug.logger('__expireEnginesInfo: expiring %s' % (engineIdKey,))
+                debug.logger & debug.flagSM and debug.logger('__expireEnginesInfo: expiring %s' % (engineIdKey,))
             del self.__timelineExpQueue[self.__expirationTimer]
         self.__expirationTimer = self.__expirationTimer + 1
         

@@ -16,6 +16,7 @@ Revision 4.1.14a
   SNMPv1 GetNext operation.
 - Fix to contextName processing at config.addV1System -- typo rendered
   passed contextName not committed into LCD.
+- Fix to unknown ContextName exception handling at CommandResponder App.
 - config.addVacmUser() now accepts an optional contextName what makes
   it usable for configuring multiple contextName-bound bases of Managed
   Objects to SnmpEngine.
