@@ -484,6 +484,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: cache read securityStateReference %s by msgUserName %s' % (securityStateReference, securityParameters.getComponentByPosition(3)))
         
+        scopedPduData = msg.getComponentByPosition(3)
+
         # Used for error reporting
         contextEngineId = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')[0].syntax
         contextName = ''
@@ -514,6 +516,10 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 pysnmpUsmDiscoverable, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__PYSNMP-USM-MIB', 'pysnmpUsmDiscoverable')
                 if pysnmpUsmDiscoverable.syntax:
                     debug.logger & debug.flagSM and debug.logger('processIncomingMsg: request EngineID discovery')
+
+                    # Report original contextName
+                    contextName = scopedPduData.getComponent().getComponentByPosition(1)
+
                     raise error.StatusInformation(
                         errorIndication = 'unknownEngineID',
                         oid=usmStatsUnknownEngineIDs.name,
@@ -703,8 +709,6 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     raise error.StatusInformation(
                         errorIndication = 'notInTimeWindow'
                         )
-
-        scopedPduData = msg.getComponentByPosition(3)
 
         # 3.2.8a
         if securityLevel == 3:

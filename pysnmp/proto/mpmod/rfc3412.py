@@ -177,7 +177,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 # XXX
                 scopedPDU = ScopedPDU()
                 scopedPDU.setComponentByPosition(0, '')
-                scopedPDU.setComponentByPosition(1, '')
+                scopedPDU.setComponentByPosition(1, contextName)
                 scopedPDU.setComponentByPosition(2)
 
                 # Use dead-empty PDU for engine-discovery report
