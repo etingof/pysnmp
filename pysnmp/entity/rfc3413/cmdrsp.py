@@ -119,8 +119,6 @@ class CommandResponderBase:
             statusInformation
             )
 
-        contextMibInstrumCtl = self.snmpContext.getMibInstrum(contextName)
-
         acCtx = (
             snmpEngine, securityModel, securityName, securityLevel, contextName
             )
@@ -130,7 +128,7 @@ class CommandResponderBase:
         errorStatus, errorIndex = 'noError', 0
         try:
             errorStatus, errorIndex, varBinds = self._handleManagementOperation(
-                snmpEngine, contextMibInstrumCtl, PDU,
+                snmpEngine, self.snmpContext.getMibInstrum(contextName), PDU,
                 (self.__verifyAccess, acCtx)
                 )
         # SNMPv2 SMI exceptions
@@ -164,6 +162,8 @@ class CommandResponderBase:
         except pysnmp.smi.error.InconsistentNameError, errorIndication:
             errorStatus, errorIndex = 'inconsistentName', errorIndication['idx'] + 1
         except pysnmp.smi.error.SmiError, errorIndication:
+            errorStatus, errorIndex = 'genErr', 1
+        except pysnmp.error.PySnmpError, errorIndication:
             errorStatus, errorIndex = 'genErr', 1
             
         self.__sendResponse(
