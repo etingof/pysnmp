@@ -518,6 +518,12 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     debug.logger & debug.flagSM and debug.logger('processIncomingMsg: request EngineID discovery')
 
                     # Report original contextName
+                    if scopedPduData.getName() != 'plaintext':
+                        debug.logger & debug.flagSM and debug.logger('processIncomingMsg: scopedPduData not plaintext %s' % scopedPduData.prettyPrint())
+                        raise error.StatusInformation(
+                            errorIndication = 'unknownEngineID'
+                            )
+                      
                     contextName = scopedPduData.getComponent().getComponentByPosition(1)
 
                     raise error.StatusInformation(
