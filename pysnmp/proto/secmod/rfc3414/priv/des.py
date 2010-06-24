@@ -4,6 +4,11 @@ from pyasn1.type import univ
 from pysnmp.proto import error
 
 try:
+    from sys import version_info
+except ImportError:
+    version_info = ( 0, 0 )   # a really early version
+
+try:
     from Crypto.Cipher import DES
 except ImportError:
     DES = None
@@ -14,7 +19,10 @@ random.seed()
 
 class Des(base.AbstractEncryptionService):
     serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 2) # usmDESPrivProtocol
-    _localInt = long(random.random()*0xffffffffL)
+    if version_info < (2, 3):
+        _localInt = long(random.random()*0xffffffffL)
+    else:
+        _localInt = random.randrange(0, 0xffffffffL)
     # 8.1.1.1
     def __getEncryptionKey(self, privKey, snmpEngineBoots):
         desKey = privKey[:8]
@@ -38,7 +46,7 @@ class Des(base.AbstractEncryptionService):
             self._localInt = self._localInt + 1
 
         return desKey, \
-               string.join(map(lambda x: chr(x), salt), ''), \
+               string.join(map(chr, salt), ''), \
                string.join(map(lambda x,y: chr(x^ord(y)), salt, preIV), '')
 
     def __getDecryptionKey(self, privKey, salt):
