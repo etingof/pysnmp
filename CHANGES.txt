@@ -24,6 +24,7 @@ Revision 4.1.14a
   now handle an unlimited number of pending request/responses.
 - Fix to SNMP discovery procedure: include ContentName in SNMP discovery
   messaging.
+- Many fixes to AES crypto code that makes it actually working.
 - Debugging printout now escapes non-printable characters.
 
 Revision 4.1.13a
