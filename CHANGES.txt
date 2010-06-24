@@ -23,7 +23,8 @@ Revision 4.1.14a
 - MP pending states cache management re-worked so that SNMP engine will
   now handle an unlimited number of pending request/responses.
 - Fix to SNMP discovery procedure: include ContentName in SNMP discovery
-  messaging
+  messaging.
+- Debugging printout now escapes non-printable characters.
 
 Revision 4.1.13a
 ----------------
