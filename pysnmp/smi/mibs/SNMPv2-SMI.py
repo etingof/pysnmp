@@ -433,7 +433,7 @@ class MibScalarInstance(MibTree):
         # Return current variable (name, value). This is the only API method
         # capable of returning anything!
         if name == self.name:
-            debug.logger & debug.flagIns and debug.logger('readGet: %s=%s' % (self.name, self.syntax))
+            debug.logger & debug.flagIns and debug.logger('readGet: %s=%s' % (self.name, repr(self.syntax)))
             return self.name, self.syntax.clone()
         else:
             raise error.NoSuchObjectError(idx=idx, name=name)
@@ -460,7 +460,7 @@ class MibScalarInstance(MibTree):
         self.syntax = self.__newSyntax
         
     def writeCleanup(self, name, val, idx, (acFun, acCtx)):
-        debug.logger & debug.flagIns and debug.logger('writeCleanup: %s=%s' % (name, val))
+        debug.logger & debug.flagIns and debug.logger('writeCleanup: %s=%s' % (name, repr(val)))
         # Drop previous value
         self.__newSyntax = self.__oldSyntax = None
     
@@ -485,7 +485,7 @@ class MibScalarInstance(MibTree):
         if val is not None:
             self.writeCommit(name, val, idx, (acFun, acCtx))
     def createCleanup(self, name, val, idx, (acFun, acCtx)):
-        debug.logger & debug.flagIns and debug.logger('createCleanup: %s=%s' % (name, val))
+        debug.logger & debug.flagIns and debug.logger('createCleanup: %s=%s' % (name, repr(val)))
         if val is not None:
             self.writeCleanup(name, val, idx, (acFun, acCtx))
     def createUndo(self, name, val, idx, (acFun, acCtx)):
@@ -551,7 +551,7 @@ class MibTableColumn(MibScalar):
                val is not None and \
                self.maxAccess != 'readcreate' or \
                acFun and acFun(name, idx, 'write', acCtx):
-            debug.logger & debug.flagACL and debug.logger('createTest: %s=%s %s at %s' % (name, val, self.maxAccess, self.name))
+            debug.logger & debug.flagACL and debug.logger('createTest: %s=%s %s at %s' % (name, repr(val), self.maxAccess, self.name))
             raise error.NoCreationError(idx=idx, name=name)
         # Create instances if either it does not yet exist (row creation)
         # or a value is passed (multiple OIDs in SET PDU)
@@ -631,7 +631,7 @@ class MibTableColumn(MibScalar):
             self.__destroyedInstances[name].destroyCleanup(
                 name, val, idx, (acFun, acCtx)
                 )
-            debug.logger & debug.flagIns and debug.logger('destroyCleanup: %s=%s' % (name, val))
+            debug.logger & debug.flagIns and debug.logger('destroyCleanup: %s=%s' % (name, repr(val)))
             del self.__destroyedInstances[name]
             
     def destroyUndo(self, name, val, idx, (acFun, acCtx)):
@@ -660,7 +660,7 @@ class MibTableColumn(MibScalar):
             self.__rowOpWanted[name] = error.RowDestructionWanted()
             self.destroyTest(name, val, idx, (acFun, acCtx))
         if self.__rowOpWanted.has_key(name):
-            debug.logger & debug.flagIns and debug.logger('%s flagged by %s=%s' % (self.__rowOpWanted[name], name, val))
+            debug.logger & debug.flagIns and debug.logger('%s flagged by %s=%s' % (self.__rowOpWanted[name], name, repr(val)))
             raise self.__rowOpWanted[name]
 
     def __delegateWrite(self, subAction, name, val, idx, (acFun, acCtx)):
@@ -692,7 +692,7 @@ class MibTableColumn(MibScalar):
         if self.__rowOpWanted.has_key(name):
             e = self.__rowOpWanted[name]
             del self.__rowOpWanted[name]
-            debug.logger & debug.flagIns and debug.logger('%s dropped by %s=%s' % (e, name, val))
+            debug.logger & debug.flagIns and debug.logger('%s dropped by %s=%s' % (e, name, repr(val)))
             raise e
             
     def writeUndo(self, name, val, idx, (acFun, acCtx)):
@@ -702,7 +702,7 @@ class MibTableColumn(MibScalar):
         if self.__rowOpWanted.has_key(name):
             e = self.__rowOpWanted[name]
             del self.__rowOpWanted[name]
-            debug.logger & debug.flagIns and debug.logger('%s dropped by %s=%s' % (e, name, val))
+            debug.logger & debug.flagIns and debug.logger('%s dropped by %s=%s' % (e, name, repr(val)))
             raise e
 
 class MibTableRow(MibTree):
@@ -877,7 +877,7 @@ class MibTableRow(MibTree):
             else:
                 getattr(var, action)(name + nameSuffix, val, idx,
                                      (acFun, acCtx))
-            debug.logger & debug.flagIns and debug.logger('__manageColumns: action %s name %s suffix %s %svalue %s' % (action, name, nameSuffix, indexVals.has_key(name) and "index " or "", indexVals.get(name, val)))
+            debug.logger & debug.flagIns and debug.logger('__manageColumns: action %s name %s suffix %s %svalue %s' % (action, name, nameSuffix, indexVals.has_key(name) and "index " or "", repr(indexVals.get(name, val))))
 
     def __delegate(self, subAction, name, val, idx, (acFun, acCtx)):
         # Relay operation request to column, expect row operation request.

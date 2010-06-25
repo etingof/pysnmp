@@ -9,7 +9,7 @@ class SnmpContext:
             contextEngineId,= snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
             contextEngineId = contextEngineId.syntax
         self.contextEngineId = contextEngineId
-        debug.logger & debug.flagIns and debug.logger('SnmpContext: contextEngineId \"%s\"' % contextEngineId)
+        debug.logger & debug.flagIns and debug.logger('SnmpContext: contextEngineId \"%s\"' % repr(contextEngineId))
         self.contextNames = {
             '': snmpEngine.msgAndPduDsp.mibInstrumController # Default name
             } 
