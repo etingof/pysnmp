@@ -25,6 +25,7 @@ Revision 4.1.14a
 - Fix to SNMP discovery procedure: include ContentName in SNMP discovery
   messaging.
 - Many fixes to AES crypto code that makes it actually working.
+- Fix to SNMPv2-SMI createUndo operations.
 - Debugging printout now escapes non-printable characters.
 
 Revision 4.1.13a
