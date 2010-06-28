@@ -3,7 +3,7 @@ from pysnmp.smi.indices import OidOrderedDict
 from pysnmp.smi import exval, error
 from pysnmp.proto import rfc1902
 from pyasn1.type import constraint
-from pyasn1.error import ValueConstraintError
+from pyasn1.error import ValueConstraintError, PyAsn1Error
 from pysnmp import debug
 
 ( Integer, ObjectIdentifier, Null ) = mibBuilder.importSymbols("ASN1", "Integer", "ObjectIdentifier", "Null")
@@ -490,7 +490,7 @@ class MibScalarInstance(MibTree):
             self.writeCleanup(name, val, idx, (acFun, acCtx))
     def createUndo(self, name, val, idx, (acFun, acCtx)):
         if val is not None:
-            self.writeCleanup(name, val, idx, (acFun, acCtx))
+            self.writeUndo(name, val, idx, (acFun, acCtx))
 
     # Destroy operation
 
@@ -592,12 +592,18 @@ class MibTableColumn(MibScalar):
         # Set back previous column instance, drop the new one
         if self.__createdInstances.has_key(name):
             self._vars[name] = self.__createdInstances[name]
-            del self.__createdInstances[name]            
+            del self.__createdInstances[name]
             # Remove new instance on rollback
             if self._vars[name] is None:
                 del self._vars[name]
             else:
-                self._vars[name].createUndo(name, val, idx, (acFun, acCtx))
+                # Catch half-created instances (hackerish)
+                try:
+                    self._vars[name] == 0
+                except PyAsn1Error:
+                    del self._vars[name]
+                else:
+                    self._vars[name].createUndo(name, val, idx, (acFun, acCtx))
                 
     # Column destruction
         
