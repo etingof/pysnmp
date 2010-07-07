@@ -123,11 +123,9 @@ class NotificationOriginator(AsynNotificationOriginator):
             appReturn['errorIndication'] = errorIndication
 
         appReturn = {}
-        errorIndication = self.asyncSendNotification(
+        self.asyncSendNotification(
             authData, transportTarget, notifyType, notificationType, varBinds,
             (__cbFun, appReturn)
             )
-        if errorIndication:
-            return errorIndication
         self.snmpEngine.transportDispatcher.runDispatcher()
         return appReturn.get('errorIndication')
