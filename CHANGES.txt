@@ -26,6 +26,7 @@ Revision 4.1.14a
   messaging.
 - Many fixes to AES crypto code that makes it actually working.
 - Fix to SNMPv2-SMI createUndo operations.
+- Fix to INFORM sending error handling at oneliner.
 - Debugging printout now escapes non-printable characters.
 
 Revision 4.1.13a
