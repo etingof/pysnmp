@@ -24,7 +24,7 @@ while 1:
     oid, val = mibInstrum.readNextVars(((oid, val),))[0]
     if exval.endOfMib.isSameTypeWith(val):
         break
-    print oid, val
+    print oid, val.prettyPrint()
 
 print 'Unloading MIB modules...',
 mibBuilder.unloadModules()

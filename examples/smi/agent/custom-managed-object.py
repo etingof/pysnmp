@@ -47,4 +47,4 @@ if __name__ == '__main__':
         oid, val = mibInstrum.readNextVars(((oid, val),))[0]
         if exval.endOfMib.isSameTypeWith(val):
             break
-        print oid, val
+        print oid, val.prettyPrint()
