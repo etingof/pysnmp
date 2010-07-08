@@ -18,12 +18,15 @@ except ImportError:
             sys.exit(1)
     from distutils.core import setup
 
-setup(name="pysnmp",
-      version="4.1.14a",
-      description="SNMP framework for Python",
-      author="Ilya Etingof",
-      author_email="ilya@glas.net ",
-      url="http://sourceforge.net/projects/pysnmp/",
+setup(name = 'pysnmp',
+      version = '4.1.14a',
+      description = 'SNMP framework',
+      author = 'Ilya Etingof',
+      author_email = 'ilya@glas.net',
+      url = 'http://sourceforge.net/projects/pysnmp/',
+      license='BSD',
+      requires = [ 'pyasn1' ],
+      provides = [ 'pysnmp' ],
       packages = [ 'pysnmp',
                    'pysnmp.smi',
                    'pysnmp.smi.mibs',
@@ -49,6 +52,5 @@ setup(name="pysnmp",
                    'pysnmp.proto.proxy',
                    'pysnmp.proto.api' ],
       scripts = [ 'tools/libsmi2pysnmp',
-                  'tools/build-pysnmp-mib' ],
-      license="BSD"
+                  'tools/build-pysnmp-mib' ]
       )
