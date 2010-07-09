@@ -14,7 +14,7 @@ try:
     from setuptools import setup
 except ImportError:
     for arg in sys.argv:
-        if string.find(arg, 'egg') == -1:
+        if string.find(arg, 'egg') != -1:
             howto_install_setuptools()
             sys.exit(1)
     from distutils.core import setup
