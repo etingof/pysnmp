@@ -90,6 +90,7 @@ class CommandGeneratorBase:
            origContextName and origContextName != contextName or \
            origPduVersion != pduVersion:
             debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendPduHandle %s, request/response data mismatch' % sendPduHandle)
+            cbFun(origSendRequestHandle, 'badResponse'], 0, 0, (), cbCtx)
             return
 
         pMod = api.protoModules[pduVersion]
@@ -97,6 +98,7 @@ class CommandGeneratorBase:
         # 3.1.2
         if pMod.apiPDU.getRequestID(PDU) != pMod.apiPDU.getRequestID(origPdu):
             debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendPduHandle %s, request-id/response-id mismatch' % sendPduHandle)
+            cbFun(origSendRequestHandle, 'badResponse'], 0, 0, (), cbCtx)
             return
 
         # User-side API assumes SMIv2
