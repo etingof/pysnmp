@@ -154,7 +154,7 @@ class MsgAndPduDispatcher:
                 expectResponse=expectResponse
                 )
 
-        debug.logger & debug.flagDsp and debug.logger('sendPdu: new sendPduHandle %s' % sendPduHandle)
+        debug.logger & debug.flagDsp and debug.logger('sendPdu: new sendPduHandle %s, context %s' % (sendPduHandle, expectResponse))
 
         # 4.1.1.4 & 4.1.1.5
         try:
