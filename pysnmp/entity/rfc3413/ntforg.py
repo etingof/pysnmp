@@ -8,6 +8,7 @@ from pysnmp.proto.proxy import rfc2576
 from pysnmp.proto.api import v2c
 from pysnmp.smi import error
 from pysnmp import nextid
+from pysnmp import debug
 
 vacmID = 3
 
@@ -54,7 +55,9 @@ class NotificationOriginator:
         snmpEngine.transportDispatcher.jobFinished(id(self))
 
         if statusInformation:
+            debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendPduHandle %s statusInformation %s' % (sendPduHandle, statusInformation))
             if origRetries == origRetryCount:
+                debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendPduHandle %s retry count %d exceeded' % (sendPduHandle, origRetries))
                 self._handleResponse(
                     origSendRequestHandle,
                     statusInformation['errorIndication'],
@@ -81,6 +84,8 @@ class NotificationOriginator:
 
             snmpEngine.transportDispatcher.jobStarted(id(self))
 
+            debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendPduHandle %s, timeout %d, retry %d of %d' % (sendPduHandle, origTimeout, origRetries, origRetryCount))
+        
             # 3.3.6b
             self.__pendingReqs[sendPduHandle] = (
                 origTransportDomain,
@@ -126,9 +131,13 @@ class NotificationOriginator:
           notifyType ) = config.getNotificationInfo(
             snmpEngine, notificationTarget
             )
+
+        debug.logger & debug.flagApp and debug.logger('sendNoification: notifyTag %s notifyType %s' % (notifyTag, notifyType))
+                
         contextMibInstrumCtl = self.__context.getMibInstrum(
             contextName
             )
+        
         for targetAddrName in config.getTargetNames(snmpEngine, notifyTag):
             ( transportDomain,
               transportAddress,
@@ -246,6 +255,8 @@ class NotificationOriginator:
                     (self.processResponsePdu, float(timeout)/100 + time.time(),
                      (cbFun, cbCtx))
                     )
+
+                debug.logger & debug.flagApp and debug.logger('sendNoification: sendPduHandle %s, timeout %d' % (sendPduHandle, timeout))
                 
                 # 3.3.6b
                 self.__pendingReqs[sendPduHandle] = (

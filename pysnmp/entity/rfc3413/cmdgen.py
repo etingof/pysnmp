@@ -4,6 +4,7 @@ from pysnmp.entity.rfc3413 import config
 from pysnmp.proto.proxy import rfc2576
 from pysnmp.proto import error
 from pysnmp import nextid
+from pysnmp import debug
 
 getNextHandle = nextid.Integer(0x7fffffff)
                              
@@ -55,7 +56,9 @@ class CommandGeneratorBase:
 
         # 3.1.3
         if statusInformation:
+            debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendPduHandle %s statusInformation %s' % (sendPduHandle, statusInformation))
             if origRetries == origRetryCount:
+                debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendPduHandle %s retry count %d exceeded' % (sendPduHandle, origRetries))
                 cbFun(origSendRequestHandle,
                       statusInformation['errorIndication'], 0, 0, (),
                       cbCtx)
@@ -86,12 +89,14 @@ class CommandGeneratorBase:
            origContextEngineId and origContextEngineId != contextEngineId or \
            origContextName and origContextName != contextName or \
            origPduVersion != pduVersion:
+            debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendPduHandle %s, request/response data mismatch' % sendPduHandle)
             return
 
         pMod = api.protoModules[pduVersion]
         
         # 3.1.2
         if pMod.apiPDU.getRequestID(PDU) != pMod.apiPDU.getRequestID(origPdu):
+            debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendPduHandle %s, request-id/response-id mismatch' % sendPduHandle)
             return
 
         # User-side API assumes SMIv2
@@ -167,6 +172,8 @@ class CommandGeneratorBase:
             )
 
         snmpEngine.transportDispatcher.jobStarted(id(self))
+
+        debug.logger & debug.flagApp and debug.logger('_sendPdu: sendPduHandle %s, timeout %d, retry %d of %d' % (sendPduHandle, timeout, retryCount, retries))
 
         self.__pendingReqs[sendPduHandle] = (
             transportDomain,
@@ -420,6 +427,7 @@ class NextCommandGenerator(CommandGeneratorBase):
                      pMod.apiPDU.getErrorStatus(rspPDU),
                      pMod.apiPDU.getErrorIndex(rspPDU),
                      varBindTable, cbCtx):
+            debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, app says to stop walking' % sendRequestHandle)
             return  # app says enough
         
         pMod.apiPDU.setRequestID(PDU, pMod.getNextRequestID())
@@ -529,6 +537,7 @@ class BulkCommandGenerator(CommandGeneratorBase):
                      pMod.apiBulkPDU.getErrorStatus(rspPDU),
                      pMod.apiBulkPDU.getErrorIndex(rspPDU),
                      varBindTable, cbCtx):
+            debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, app says to stop walking' % sendRequestHandle)
             return # app says enough
 
         pMod.apiBulkPDU.setRequestID(PDU, pMod.getNextRequestID())

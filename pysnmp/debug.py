@@ -11,6 +11,7 @@ flagMIB      = 0x0020
 flagIns      = 0x0040
 flagACL      = 0x0080
 flagPrx      = 0x0100
+flagApp      = 0x0200
 flagAll      = 0xffff
 
 flagMap = {
@@ -22,7 +23,8 @@ flagMap = {
     'mibview': flagMIB,
     'mibinstrum': flagIns,
     'acl': flagACL,
-    'proxy': flagPrx,    
+    'proxy': flagPrx,
+    'app': flagApp,
     'all': flagAll
     }
 

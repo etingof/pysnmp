@@ -27,6 +27,8 @@ Revision 4.1.14a
 - Many fixes to AES crypto code that makes it actually working.
 - Fix to SNMPv2-SMI createUndo operations.
 - Fix to INFORM sending error handling at oneliner.
+- Debug categoty 'app' (for Application) added to facilitate
+  Standard SNMP Applications debugging.
 - Debugging printout now escapes non-printable characters.
 
 Revision 4.1.13a
