@@ -77,7 +77,7 @@ class CommandGeneratorBase:
                 origPdu,
                 origTimeout,
                 origRetryCount,
-                origRetries,
+                origRetries + 1,
                 origSendRequestHandle,
                 (self.processResponsePdu, (cbFun, cbCtx))
                 )
@@ -175,7 +175,7 @@ class CommandGeneratorBase:
 
         snmpEngine.transportDispatcher.jobStarted(id(self))
 
-        debug.logger & debug.flagApp and debug.logger('_sendPdu: sendPduHandle %s, timeout %d, retry %d of %d' % (sendPduHandle, timeout, retryCount, retries))
+        debug.logger & debug.flagApp and debug.logger('_sendPdu: sendPduHandle %s, timeout %d, retry %d of %d' % (sendPduHandle, timeout, retries, retryCount))
 
         self.__pendingReqs[sendPduHandle] = (
             transportDomain,
@@ -190,7 +190,7 @@ class CommandGeneratorBase:
             reqPDU,
             timeout,
             retryCount,
-            retries + 1,
+            retries,
             sendRequestHandle,
             )
 
