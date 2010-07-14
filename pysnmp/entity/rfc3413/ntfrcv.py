@@ -1,6 +1,7 @@
 from pysnmp.proto import rfc3411, error
 from pysnmp.proto.api import v1, v2c  # backend is always SMIv2 compliant
 from pysnmp.proto.proxy import rfc2576
+from pysnmp import debug
 
 # 3.4
 class NotificationReceiver:
@@ -44,6 +45,8 @@ class NotificationReceiver:
 
         errorStatus = 'noError'; errorIndex = 0
         varBinds = v2c.apiPDU.getVarBinds(PDU)
+
+        debug.logger & debug.flagApp and debug.logger('processPdu: stateReference %s, varBinds %s' % (stateReference, varBinds))
         
         # 3.4
         if rfc3411.confirmedClassPDUs.has_key(PDU.tagSet):
@@ -56,12 +59,14 @@ class NotificationReceiver:
             v2c.apiPDU.setErrorIndex(rspPDU, errorIndex)
             v2c.apiPDU.setVarBinds(rspPDU, varBinds)
 
+            debug.logger & debug.flagApp and debug.logger('processPdu: stateReference %s, confirm PDU %s' % (stateReference, rspPDU.prettyPrint()))
+
             # Agent-side API complies with SMIv2
             if messageProcessingModel == 0:
                 rspPDU = rfc2576.v2ToV1(rspPDU)
 
             statusInformation = {}
-            
+
             # 3.4.3
             try:
                 snmpEngine.msgAndPduDsp.returnResponsePdu(
@@ -78,7 +83,8 @@ class NotificationReceiver:
                     stateReference,
                     statusInformation
                     )
-            except error.StatusInformation:
+            except error.StatusInformation, why:
+                debug.logger & debug.flagApp and debug.logger('processPdu: stateReference %s, statusInformation %s' % (stateReference, why))
                 snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpSilentDrops')
                 snmpSilentDrops.syntax = snmpSilentDrops.syntax + 1
 
@@ -86,6 +92,8 @@ class NotificationReceiver:
             pass
         else:
             raise error.ProtocolError('Unexpected PDU class %s' % PDU.tagSet)
+
+        debug.logger & debug.flagApp and debug.logger('processPdu: stateReference %s, user cbFun %s, cbCtx %s, varBinds %s' % (stateReference, self.__cbFun, self.__cbCtx, varBinds))
 
         if self.__cbFunVer:
             self.__cbFun(

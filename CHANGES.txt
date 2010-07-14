@@ -31,7 +31,7 @@ Revision 4.1.14a
 - Debug category 'app' (for Application) added to facilitate
   Standard SNMP Applications debugging.
 - The retryCount semantic of CommandGenerator application changed to include
-  solely retries and do not include initial request. Thus, retryCount=1 will
+  sole retries and do not include initial request. Thus, retryCount=1 will
   now send up to two packets, not just one as it used to be.
 - Debugging printout now escapes non-printable characters.
 

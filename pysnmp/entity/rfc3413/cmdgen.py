@@ -56,9 +56,9 @@ class CommandGeneratorBase:
 
         # 3.1.3
         if statusInformation:
-            debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendPduHandle %s statusInformation %s' % (sendPduHandle, statusInformation))
+            debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendPduHandle %s, statusInformation %s' % (sendPduHandle, statusInformation))
             if origRetries == origRetryCount:
-                debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendPduHandle %s retry count %d exceeded' % (sendPduHandle, origRetries))
+                debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendPduHandle %s, retry count %d exceeded' % (sendPduHandle, origRetries))
                 cbFun(origSendRequestHandle,
                       statusInformation['errorIndication'], 0, 0, (),
                       cbCtx)
