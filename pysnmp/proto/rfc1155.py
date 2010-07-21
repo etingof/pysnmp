@@ -75,7 +75,7 @@ class TimeTicks(univ.Integer):
         )
 
 class Opaque(univ.OctetString):
-    tagSet = univ.Integer.tagSet.tagImplicitly(
+    tagSet = univ.OctetString.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x04)
         )
 
