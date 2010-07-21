@@ -1,3 +1,8 @@
+Revision 4.1.15a
+----------------
+
+- Fix to Opaque value tagging at rfc1155.Opaque type.
+
 Revision 4.1.14a
 ----------------
 
