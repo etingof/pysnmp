@@ -2,6 +2,7 @@ Revision 4.1.15a
 ----------------
 
 - Fix to Opaque value tagging at rfc1155.Opaque type.
+- Fix to handle (fail gracefully) zero-length user password.
 
 Revision 4.1.14a
 ----------------

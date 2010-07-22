@@ -9,7 +9,7 @@ except ImportError:
 # RFC3414: A.2.1
 def hashPassphraseMD5(passphrase):
     md = md5()
-    ringBuffer = passphrase * (64/len(passphrase)+1)
+    ringBuffer = passphrase * (passphrase and (64/len(passphrase)+1) or 1)
     ringBufferLen = len(ringBuffer)
     count = 0
     mark = 0
