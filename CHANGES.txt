@@ -3,7 +3,7 @@ Revision 4.1.15a
 
 - Fix to Opaque value tagging at rfc1155.Opaque type.
 - Fix to handle (fail gracefully) zero-length user password.
-- Fix to SNMP error propagation at Twisted driver.
+- Fix to SNMP error propagation at Twisted driver (SF tracker ID #3054505).
 
 Revision 4.1.14a
 ----------------
