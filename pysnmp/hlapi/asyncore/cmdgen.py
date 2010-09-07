@@ -298,6 +298,7 @@ class AsynCommandGenerator:
             )
 
 class CommandGenerator(AsynCommandGenerator):
+    lexicographicMode = None
     def getCmd(self, authData, transportTarget, *varNames):
         def __cbFun(
             sendRequestHandle, errorIndication, errorStatus, errorIndex,
@@ -364,8 +365,13 @@ class CommandGenerator(AsynCommandGenerator):
                 for idx in range(len(varBindTableRow)):
                     name, val = varBindTableRow[idx]
                     # XXX extra rows
-                    if val is not None and varBindHead[idx].isPrefixOf(name):
-                        break
+                    if val is not None:
+                        if self.lexicographicMode:
+                            if varBindHead[idx] <= name:
+                                break
+                        else:
+                            if varBindHead[idx].isPrefixOf(name):
+                                break
                 else:
                     appReturn['errorIndication'] = errorIndication
                     appReturn['errorStatus'] = errorStatus
@@ -411,8 +417,13 @@ class CommandGenerator(AsynCommandGenerator):
                 varBindTableRow = varBindTable[-1]
                 for idx in range(len(varBindTableRow)):
                     name, val = varBindTableRow[idx]
-                    if val is not None and varBindHead[idx].isPrefixOf(name):
-                        break
+                    if val is not None:
+                        if self.lexicographicMode:
+                            if varBindHead[idx] <= name:
+                                break
+                        else:
+                            if varBindHead[idx].isPrefixOf(name):
+                                break
                 else:
                     appReturn['errorIndication'] = errorIndication
                     appReturn['errorStatus'] = errorStatus
