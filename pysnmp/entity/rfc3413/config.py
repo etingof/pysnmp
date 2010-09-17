@@ -31,12 +31,12 @@ def getTargetAddr(snmpEngine, snmpTargetAddrName):
     if noSuchInstance.isSameTypeWith(snmpTargetAddrParams):
         raise SmiError('Target %s not configured at SMI' % snmpTargetAddrName)
 
-    if snmpTargetAddrTDomain == config.snmpUDPDomain:
+    if snmpTargetAddrTDomain[:len(config.snmpUDPDomain)] == config.snmpUDPDomain:
         SnmpUDPAddress, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-TM', 'SnmpUDPAddress')
         snmpTargetAddrTAddress = tuple(
             SnmpUDPAddress(snmpTargetAddrTAddress)
             )
-    elif snmpTargetAddrTDomain == config.snmpUDP6Domain:
+    elif snmpTargetAddrTDomain[:len(config.snmpUDP6Domain)] == config.snmpUDP6Domain:
         TransportAddressIPv6, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('TRANSPORT-ADDRESS-MIB', 'TransportAddressIPv6')
         snmpTargetAddrTAddress = tuple(
             TransportAddressIPv6(snmpTargetAddrTAddress)

@@ -256,10 +256,10 @@ def addTargetAddr(
         snmpEngine, addrName
         )
     
-    if transportDomain == snmpUDPDomain:
+    if transportDomain[:len(snmpUDPDomain)] == snmpUDPDomain:
         SnmpUDPAddress, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-TM', 'SnmpUDPAddress')
         transportAddress = SnmpUDPAddress(transportAddress)
-    elif transportDomain == snmpUDP6Domain:
+    elif transportDomain[:len(snmpUDP6Domain)] == snmpUDP6Domain:
         TransportAddressIPv6, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('TRANSPORT-ADDRESS-MIB', 'TransportAddressIPv6')
         transportAddress = TransportAddressIPv6(transportAddress)
 

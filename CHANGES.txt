@@ -7,6 +7,7 @@ Revision 4.1.15a
 - Lexicographic walking mode is now supported at oneliner CommandGenerator.
 - ContextEngineId&ContextName parameters passing implemented at
   v3arch oneliner API.
+- Multiple instances of the same transport domain now supported.
 
 Revision 4.1.14a
 ----------------
