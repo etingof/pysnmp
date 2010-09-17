@@ -19,23 +19,31 @@ usmNoPrivProtocol = config.usmNoPrivProtocol
 nextID = nextid.Integer(0xffffffffL)
 
 class CommunityData:
-    mpModel=1 # Default is SMIv2
-    securityModel=mpModel+1
-    securityLevel='noAuthNoPriv'
-    def __init__(self, securityName, communityName, mpModel=None):
+    mpModel = 1 # Default is SMIv2
+    securityModel = mpModel+1
+    securityLevel = 'noAuthNoPriv'
+    contextName = ''
+    def __init__(self, securityName, communityName, mpModel=None,
+                 contextEngineId=None, contextName=None):
         self.securityName = securityName
         self.communityName = communityName
         if mpModel is not None:
             self.mpModel = mpModel
             self.securityModel = mpModel + 1
-        self.__cmp = self.mpModel, self.securityModel, self.securityLevel, self.securityName, self.communityName
+        self.contextEngineId = contextEngineId
+        if contextName is not None:
+            self.contextName = contextName
+        self.__cmp = self.mpModel, self.securityModel, self.securityLevel, self.securityName, self.communityName, self.contextEngineId, self.contextName
         self.__hash = hash(self.__cmp)
             
-    def __repr__(self): return '%s("%s", <COMMUNITY>, %s)' % (
-        self.__class__.__name__,
-        self.securityName,
-        self.mpModel
-        )
+    def __repr__(self):
+        return '%s("%s", <COMMUNITY>, %s, %s, %s)' % (
+            self.__class__.__name__,
+            self.securityName,
+            self.mpModel,
+            self.contextEngineId,
+            self.contextName
+            )
 
     def __hash__(self): return self.__hash
     def __cmp__(self, other): return cmp(self.__cmp, other)
@@ -44,12 +52,14 @@ class UsmUserData:
     authKey = privKey = None
     authProtocol = usmNoAuthProtocol
     privProtocol = usmNoPrivProtocol
-    securityLevel='noAuthNoPriv'
-    securityModel=3
-    mpModel=2
+    securityLevel = 'noAuthNoPriv'
+    securityModel = 3
+    mpModel = 2
+    contextName = ''
     def __init__(self, securityName,
                  authKey=None, privKey=None,
-                 authProtocol=None, privProtocol=None):
+                 authProtocol=None, privProtocol=None,
+                 contextEngineId=None, contextName=None):
         self.securityName = securityName
         
         if authKey is not None:
@@ -71,15 +81,22 @@ class UsmUserData:
             else:
                 self.privProtocol = privProtocol
 
-        self.__cmp = self.mpModel, self.securityModel, self.securityLevel, self.securityName, self.authProtocol, self.authKey, self.privProtocol, self.privKey
+        self.contextEngineId = contextEngineId
+        if contextName is not None:
+            self.contextName = contextName
+        
+        self.__cmp = self.mpModel, self.securityModel, self.securityLevel, self.securityName, self.authProtocol, self.authKey, self.privProtocol, self.privKey, self.contextEngineId
         self.__hash = hash(self.__cmp)
 
-    def __repr__(self): return '%s("%s", <AUTHKEY>, <PRIVKEY>, %s, %s)' % (
-        self.__class__.__name__,
-        self.securityName,
-        self.authProtocol,
-        self.privProtocol
-        )
+    def __repr__(self):
+        return '%s("%s", <AUTHKEY>, <PRIVKEY>, %s, %s, %s, %s)' % (
+            self.__class__.__name__,
+            self.securityName,
+            self.authProtocol,
+            self.privProtocol,
+            self.contextEngineId,
+            self.contextName
+            )
 
     def __hash__(self): return self.__hash
     def __cmp__(self, other): return cmp(self.__cmp, other)
@@ -134,7 +151,9 @@ class AsynCommandGenerator:
                     self.snmpEngine,
                     authData.securityName,
                     authData.communityName,
-                    transportTag=tagList
+                    authData.contextEngineId,
+                    authData.contextName,
+                    tagList
                     )
                 config.addTargetParams(
                     self.snmpEngine, paramsName,
@@ -146,7 +165,8 @@ class AsynCommandGenerator:
                     self.snmpEngine,
                     authData.securityName,
                     authData.authProtocol, authData.authKey,
-                    authData.privProtocol, authData.privKey
+                    authData.privProtocol, authData.privKey,
+                    authData.contextEngineId
                     )
                 config.addTargetParams(
                     self.snmpEngine, paramsName,
@@ -232,7 +252,8 @@ class AsynCommandGenerator:
                 )
             varBinds.append((name + oid, self._null))
         return cmdgen.GetCommandGenerator().sendReq(
-            self.snmpEngine, addrName, varBinds, cbFun, cbCtx
+            self.snmpEngine, addrName, varBinds, cbFun, cbCtx,
+            authData.contextEngineId, authData.contextName
             )
 
     def asyncSetCmd(
@@ -260,7 +281,8 @@ class AsynCommandGenerator:
                 varVal = syntax.clone(varVal)
             __varBinds.append((name + oid, varVal))
         return cmdgen.SetCommandGenerator().sendReq(
-            self.snmpEngine, addrName, __varBinds, cbFun, cbCtx
+            self.snmpEngine, addrName, __varBinds, cbFun, cbCtx,
+            authData.contextEngineId, authData.contextName
             )
         
     def asyncNextCmd(
@@ -276,7 +298,8 @@ class AsynCommandGenerator:
                 )
             varBinds.append((name + oid, self._null))
         return cmdgen.NextCommandGenerator().sendReq(
-            self.snmpEngine, addrName, varBinds, cbFun, cbCtx
+            self.snmpEngine, addrName, varBinds, cbFun, cbCtx,
+            authData.contextEngineId, authData.contextName
             )
 
     def asyncBulkCmd(
@@ -293,8 +316,9 @@ class AsynCommandGenerator:
                 )
             varBinds.append((name + oid, self._null))
         return cmdgen.BulkCommandGenerator().sendReq(
-            self.snmpEngine, addrName, nonRepeaters, maxRepetitions,
-            varBinds, cbFun, cbCtx
+            self.snmpEngine, addrName,
+            nonRepeaters, maxRepetitions, varBinds, cbFun, cbCtx,
+            authData.contextEngineId, authData.contextName
             )
 
 class CommandGenerator(AsynCommandGenerator):

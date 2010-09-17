@@ -5,6 +5,8 @@ Revision 4.1.15a
 - Fix to handle (fail gracefully) zero-length user password.
 - Fix to SNMP error propagation at Twisted driver (SF tracker ID #3054505).
 - Lexicographic walking mode is now supported at oneliner CommandGenerator.
+- ContextEngineId&ContextName parameters passing implemented at
+  v3arch oneliner API.
 
 Revision 4.1.14a
 ----------------
