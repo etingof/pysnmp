@@ -640,7 +640,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                contextName != cachedReqParams['contextName']:
                 smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(
-                    errorIndication = 'dataMispatch'
+                    errorIndication = 'dataMismatch'
                     )
                         
             # 7.2.12c
@@ -668,7 +668,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             if securityEngineID != snmpEngineID:
                 smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(
-                    errorIndication = 'engineIDMispatch'
+                    errorIndication = 'engineIDMismatch'
                     )
 
             # 7.2.13b
