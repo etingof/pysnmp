@@ -29,20 +29,24 @@ class SnmpAdminString(TextualConvention, OctetString):
 
 class SnmpEngineID(OctetString, TextualConvention):
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(5,32)
+    defaultValue = '\x80\x00\x4f\xb8' + '\x05'
     try:
         # Attempt to base engine ID on local IP address
-        defaultValue = '\x80\x00\x4f\xb8' + '\x05' + string.join(
+        defaultValue = defaultValue + string.join(
             map(lambda x: chr(int(x)),
                 string.split(socket.gethostbyname(socket.gethostname()),'.')),
             ''
-            ) + chr(os.getpid() >> 8) + chr(os.getpid() & 0xff)
+            )
     except:
-        # ...otherwise, use rudimentary text ID
-        defaultValue = '\x80\x00\x4f\xb8' + '\x05'
-        t = int(time.time())
-        while t:
-            defaultValue = defaultValue + chr(t & 0xff)
-            t = t >> 8
+        pass
+    try:
+        # Attempt to base engine ID on PID
+        defaultValue = defaultValue + chr(os.getpid() >> 8) + chr(os.getpid() & 0xff)
+    except:
+        pass
+    # ...in any case, use pseudo-random text ID
+    t = int(time.time())
+    defaultValue = defaultValue + chr(t >> 16 & 0xff) + chr(t >> 8 & 0xff) + chr(t & 0xff)
             
 class SnmpEngineTime(Integer32):
     def clone(self, value=None, tagSet=None, subtypeSpec=None):
