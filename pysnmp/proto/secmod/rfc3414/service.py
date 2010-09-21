@@ -257,7 +257,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             usmUserPrivProtocol = usmUserPrivKeyLocalized = None
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: use empty USM data')
             
-        debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: local user usmUserName %s usmUserAuthProtocol %s usmUserPrivProtocol %s by securityEngineID %s securityName %s' % (usmUserName, usmUserAuthProtocol, usmUserPrivProtocol, repr(securityEngineID), securityName))
+        debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: local user usmUserName %s usmUserAuthProtocol %s usmUserPrivProtocol %s securityEngineID %s securityName %s' % (usmUserName, usmUserAuthProtocol, usmUserPrivProtocol, repr(securityEngineID), securityName))
 
         msg = globalData
         
@@ -482,7 +482,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             msgUserName=securityParameters.getComponentByPosition(3)
             )
 
-        debug.logger & debug.flagSM and debug.logger('processIncomingMsg: cache read securityStateReference %s by msgUserName %s' % (securityStateReference, securityParameters.getComponentByPosition(3)))
+        debug.logger & debug.flagSM and debug.logger('processIncomingMsg: cache write securityStateReference %s by msgUserName %s' % (securityStateReference, securityParameters.getComponentByPosition(3)))
         
         scopedPduData = msg.getComponentByPosition(3)
 
@@ -531,8 +531,10 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         oid=usmStatsUnknownEngineIDs.name,
                         val=usmStatsUnknownEngineIDs.syntax,
                         securityStateReference=securityStateReference,
+                        securityLevel=securityLevel,
                         contextEngineId=contextEngineId,
                         contextName=contextName,
+                        scopedPDU=scopedPduData.getComponent(),
                         maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
                         )
                 else:
@@ -586,6 +588,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                             oid = usmStatsUnknownUserNames.name,
                             val = usmStatsUnknownUserNames.syntax,
                             securityStateReference=securityStateReference,
+                            securityLevel=securityLevel,
                             contextEngineId=contextEngineId,
                             contextName=contextName,
                             maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
@@ -597,6 +600,16 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             usmUserPrivProtocol = usmUserPrivKeyLocalized = None
 
         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: now have usmUserSecurityName %s usmUserAuthProtocol %s usmUserPrivProtocol %s for msgUserName %s' % (usmUserSecurityName, usmUserAuthProtocol, usmUserPrivProtocol, msgUserName))
+
+        # 3.2.11 (moved up here to let Reports be authenticated & encrypted)
+        self._cachePop(securityStateReference)
+        securityStateReference = self._cachePush(
+            msgUserName=securityParameters.getComponentByPosition(3),
+            usmUserAuthProtocol=usmUserAuthProtocol,
+            usmUserAuthKeyLocalized=usmUserAuthKeyLocalized,
+            usmUserPrivProtocol=usmUserPrivProtocol,
+            usmUserPrivKeyLocalized=usmUserPrivKeyLocalized
+            )
 
         # 3.2.5
         __reportError = 0
@@ -614,6 +627,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 oid=usmStatsUnknownEngineIDs.name,
                 val=usmStatsUnknownEngineIDs.syntax,
                 securityStateReference=securityStateReference,
+                securityLevel=securityLevel,
                 contextEngineId=contextEngineId,
                 contextName=contextName,
                 maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
@@ -640,6 +654,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     oid=usmStatsWrongDigests.name,
                     val=usmStatsWrongDigests.syntax,
                     securityStateReference=securityStateReference,
+                    securityLevel=securityLevel,
                     contextEngineId=contextEngineId,
                     contextName=contextName,
                     maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
@@ -746,6 +761,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     oid=usmStatsDecryptionErrors.name,
                     val=usmStatsDecryptionErrors.syntax,
                     securityStateReference=securityStateReference,
+                    securityLevel=securityLevel,
                     contextEngineId=contextEngineId,
                     contextName=contextName,
                     maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
@@ -773,16 +789,6 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         # 3.2.10
         securityName = usmUserSecurityName
         
-        # 3.2.11
-        self._cachePop(securityStateReference)
-        securityStateReference = self._cachePush(
-            msgUserName=securityParameters.getComponentByPosition(3),
-            usmUserAuthProtocol=usmUserAuthProtocol,
-            usmUserAuthKeyLocalized=usmUserAuthKeyLocalized,
-            usmUserPrivProtocol=usmUserPrivProtocol,
-            usmUserPrivKeyLocalized=usmUserPrivKeyLocalized
-            )
-
         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: cached msgUserName %s info by securityStateReference %s' % (msgUserName, securityStateReference))
         
         # Delayed to include details
@@ -795,6 +801,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 val=usmStatsUnknownUserNames.syntax,
                 securityStateReference=securityStateReference,
                 securityEngineID=securityEngineID,
+                securityLevel=securityLevel,
                 contextEngineId=contextEngineId,
                 contextName=contextName,
                 maxSizeResponseScopedPDU=maxSizeResponseScopedPDU,

@@ -8,6 +8,10 @@ Revision 4.1.15a
 - ContextEngineId&ContextName parameters passing implemented at
   v3arch oneliner API.
 - Multiple instances of the same transport domain now supported.
+- Default snmpEngineId value generation improved not to accidentally
+  conflict within an administrative domain.
+- Fix to Agent-role snmpEngineId discovery procedure that allows
+  authenticated ReportPDU generation.
 
 Revision 4.1.14a
 ----------------
