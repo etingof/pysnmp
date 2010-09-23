@@ -16,6 +16,8 @@ Revision 4.1.15a
   apps.
 - Fix to CommandResponder app to skip Counter64 SMI values when responding
   to SNMPv1 Manager.
+- Fix to protocol translator code (rfc2576) to handle Counter64 type
+  in v2c-to-v1 PDU translation.
 
 Revision 4.1.14a
 ----------------

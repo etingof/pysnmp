@@ -272,8 +272,13 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
             v1.apiPDU.setErrorIndex(v1Pdu, v2c.apiPDU.getErrorIndex(v2Pdu))
             
     # Translate Var-Binds
-    for oid, v2Val in v2VarBinds:
-        v1VarBinds.append((oid, __v2ToV1ValueMap[v2Val.tagSet].clone(v2Val)))
+    if v1.apiPDU.getErrorStatus(v1Pdu):
+        v1VarBinds = v1.apiPDU.getVarBinds(origV1Pdu)
+    else:
+        for oid, v2Val in v2VarBinds:
+            v1VarBinds.append(
+                (oid, __v2ToV1ValueMap[v2Val.tagSet].clone(v2Val))
+                )
 
     if rfc3411.notificationClassPDUs.has_key(pduType):
         v1.apiTrapPDU.setVarBinds(v1Pdu, v1VarBinds)
