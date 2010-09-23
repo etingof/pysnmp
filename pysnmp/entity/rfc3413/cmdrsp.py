@@ -1,4 +1,4 @@
-from pysnmp.proto import rfc1157, rfc1905, rfc3411, error
+from pysnmp.proto import rfc1157, rfc1902, rfc1905, rfc3411, error
 from pysnmp.proto.api import v2c  # backend is always SMIv2 compliant
 from pysnmp.proto.proxy import rfc2576
 import pysnmp.smi.error
@@ -76,6 +76,7 @@ class CommandResponderBase:
     _getRequestType = rfc1905.GetRequestPDU.tagSet
     _getNextRequestType = rfc1905.GetNextRequestPDU.tagSet
     _setRequestType = rfc1905.SetRequestPDU.tagSet
+    _counter64Type = rfc1902.Counter64.tagSet
     
     def processPdu(
         self,
@@ -126,7 +127,8 @@ class CommandResponderBase:
             )
 
         acCtx = (
-            snmpEngine, securityModel, securityName, securityLevel, contextName
+            snmpEngine, securityModel, securityName, securityLevel,
+            contextName, PDU.getTagSet()
             )
 
         # 3.2.5
@@ -180,9 +182,9 @@ class CommandResponderBase:
             snmpEngine, errorStatus, errorIndex, varBinds, stateReference
             )
 
-    def __verifyAccess(self, name, idx, viewType,
+    def __verifyAccess(self, name, syntax, idx, viewType,
                        (snmpEngine, securityModel, securityName,
-                        securityLevel, contextName)
+                        securityLevel, contextName, pduType)
                        ):
         try:
             snmpEngine.accessControlModel[vacmID].isAccessAllowed(
@@ -217,6 +219,13 @@ class CommandResponderBase:
                 raise error.ProtocolError(
                     'Unknown ACM error %s' % errorIndication
                     )
+        else:
+            # rfc2576: 4.1.2.1
+            if securityModel == 1 and \
+               self._counter64Type == syntax.getTagSet() and \
+               self._getNextRequestType == pduType:
+                # This will cause MibTree to skip this OID-value
+                raise pysnmp.smi.error.NoAccessError(name=name, idx=idx)
         
 class GetCommandResponder(CommandResponderBase):
     pduTypes = ( rfc1905.GetRequestPDU.tagSet, )

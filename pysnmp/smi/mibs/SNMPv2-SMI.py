@@ -300,7 +300,7 @@ class MibTree(ObjectType):
                    self.maxAccess != 'readonly' and \
                    self.maxAccess != 'readwrite' and \
                    self.maxAccess != 'readcreate' or \
-                   acFun and acFun(name, idx, 'read', acCtx):
+                   acFun and acFun(name, self.syntax, idx, 'read', acCtx):
                 raise error.NoAccessError(idx=idx, name=name)
         else:
             try:
@@ -354,7 +354,7 @@ class MibTree(ObjectType):
             if acFun and \
                    self.maxAccess != 'readwrite' and \
                    self.maxAccess != 'readcreate' or \
-                   acFun and acFun(name, idx, 'write', acCtx):
+                   acFun and acFun(name, self.syntax, idx, 'write', acCtx):
                 raise error.NotWritableError(idx=idx, name=name)
         else:
             node = self.getBranch(name, idx)
@@ -387,7 +387,7 @@ class MibScalar(MibTree):
                self.maxAccess != 'readonly' and \
                self.maxAccess != 'readwrite' and \
                self.maxAccess != 'readcreate' or \
-               acFun and acFun(name, idx, 'read', acCtx):
+               acFun and acFun(name, self.syntax, idx, 'read', acCtx):
             raise error.NoAccessError(idx=idx, name=name)
     
     # Two-phase commit implementation
@@ -401,7 +401,7 @@ class MibScalar(MibTree):
         if acFun and \
                self.maxAccess != 'readwrite' and \
                self.maxAccess != 'readcreate' or \
-               acFun and acFun(name, idx, 'write', acCtx):
+               acFun and acFun(name, self.syntax, idx, 'write', acCtx):
             raise error.NotWritableError(idx=idx, name=name)
 
 class MibScalarInstance(MibTree):
@@ -550,7 +550,7 @@ class MibTableColumn(MibScalar):
         if acFun and \
                val is not None and \
                self.maxAccess != 'readcreate' or \
-               acFun and acFun(name, idx, 'write', acCtx):
+               acFun and acFun(name, self.syntax, idx, 'write', acCtx):
             debug.logger & debug.flagACL and debug.logger('createTest: %s=%s %s at %s' % (name, repr(val), self.maxAccess, self.name))
             raise error.NoCreationError(idx=idx, name=name)
         # Create instances if either it does not yet exist (row creation)
@@ -616,7 +616,7 @@ class MibTableColumn(MibScalar):
         if acFun and \
                val is not None and \
                self.maxAccess != 'readcreate' or \
-               acFun and acFun(name, idx, 'write', acCtx):
+               acFun and acFun(name, self.syntax, idx, 'write', acCtx):
             raise error.NoAccessError(idx=idx, name=name)
         self._vars[name].destroyTest(
             name, val, idx, (acFun, acCtx)
