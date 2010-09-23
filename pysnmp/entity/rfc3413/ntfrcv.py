@@ -41,7 +41,10 @@ class NotificationReceiver:
 
         # Agent-side API complies with SMIv2
         if messageProcessingModel == 0:
+            origPdu = PDU
             PDU = rfc2576.v1ToV2(PDU)
+        else:
+            origPdu = None
 
         errorStatus = 'noError'; errorIndex = 0
         varBinds = v2c.apiPDU.getVarBinds(PDU)
@@ -63,7 +66,7 @@ class NotificationReceiver:
 
             # Agent-side API complies with SMIv2
             if messageProcessingModel == 0:
-                rspPDU = rfc2576.v2ToV1(rspPDU)
+                rspPDU = rfc2576.v2ToV1(rspPDU, origPdu)
 
             statusInformation = {}
 

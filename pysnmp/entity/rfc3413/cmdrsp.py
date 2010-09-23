@@ -36,6 +36,7 @@ class CommandResponderBase:
           contextName,
           pduVersion,
           PDU,
+          origPdu,
           maxSizeResponseScopedPDU,
           statusInformation ) = self.__pendingReqs[stateReference]
 
@@ -49,7 +50,7 @@ class CommandResponderBase:
 
         # Agent-side API complies with SMIv2
         if messageProcessingModel == 0:
-            PDU = rfc2576.v2ToV1(PDU)
+            PDU = rfc2576.v2ToV1(PDU, origPdu)
         
         # 3.2.6
         try:
@@ -93,7 +94,10 @@ class CommandResponderBase:
 
         # Agent-side API complies with SMIv2
         if messageProcessingModel == 0:
+            origPdu = PDU
             PDU = rfc2576.v1ToV2(PDU)
+        else:
+            origPdu = None
         
         # 3.2.1
         if rfc3411.readClassPDUs.has_key(PDU.tagSet):
@@ -119,6 +123,7 @@ class CommandResponderBase:
             contextName,
             pduVersion,
             rspPDU,
+            origPdu,
             maxSizeResponseScopedPDU,
             statusInformation
             )
