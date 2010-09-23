@@ -523,8 +523,11 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         raise error.StatusInformation(
                             errorIndication = 'unknownEngineID'
                             )
-                      
-                    contextName = scopedPduData.getComponent().getComponentByPosition(1)
+
+                    # 7.2.6.a.1 
+                    scopedPdu = scopedPduData.getComponent()
+                    contextEngineId = scopedPdu.getComponentByPosition(0)
+                    contextName = scopedPdu.getComponentByPosition(1)
 
                     raise error.StatusInformation(
                         errorIndication = 'unknownEngineID',
@@ -534,7 +537,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         securityLevel=securityLevel,
                         contextEngineId=contextEngineId,
                         contextName=contextName,
-                        scopedPDU=scopedPduData.getComponent(),
+                        scopedPDU=scopedPdu,
                         maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
                         )
                 else:
