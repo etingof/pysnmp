@@ -100,11 +100,8 @@ class CommandResponderBase:
             origPdu = None
         
         # 3.2.1
-        if rfc3411.readClassPDUs.has_key(PDU.tagSet):
-            viewType = 'read'
-        elif rfc3411.writeClassPDUs.has_key(PDU.tagSet):
-            viewType = 'write'
-        else:
+        if not rfc3411.readClassPDUs.has_key(PDU.tagSet) and \
+           not rfc3411.writeClassPDUs.has_key(PDU.tagSet):
             raise error.ProtocolError('Unexpected PDU class %s' % PDU.tagSet)
         
         # 3.2.2 --> no-op
