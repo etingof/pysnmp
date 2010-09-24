@@ -222,6 +222,7 @@ class CommandResponderBase:
         else:
             # rfc2576: 4.1.2.1
             if securityModel == 1 and \
+               syntax is not None and \
                self._counter64Type == syntax.getTagSet() and \
                self._getNextRequestType == pduType:
                 # This will cause MibTree to skip this OID-value
