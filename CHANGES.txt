@@ -7,6 +7,8 @@ Revision 4.1.15a
 - Multiple instances of the same transport domain now supported.
 - Initial snmpEngineId value generation improved not to accidentally
   collide within an administrative domain.
+- Fix to Next/Bulk CommandGenerators to catch a non-increasing OID
+  error condition (what prevents looping).
 - Fix to Opaque value tagging at rfc1155.Opaque type.
 - Fix to handle (fail gracefully) zero-length user password.
 - Fix to SNMP error propagation at Twisted driver (SF tracker ID #3054505).

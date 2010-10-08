@@ -425,7 +425,17 @@ class NextCommandGenerator(CommandGeneratorBase):
         ):
         varBindTable = pMod.apiPDU.getVarBindTable(PDU, rspPDU)
 
-        if not cbFun(sendRequestHandle, None,
+        if pMod.apiPDU.getErrorStatus(rspPDU):
+            errorIndication = None
+        else:
+            if map(lambda (o,v): o, pMod.apiPDU.getVarBinds(PDU)) < \
+                   map(lambda (o,v): o, varBindTable[-1]):
+                errorIndication = None
+            else:
+                debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, OID(s) not increasing!' % sendRequestHandle)            
+                errorIndication = 'oidNotIncreasing'
+        
+        if not cbFun(sendRequestHandle, errorIndication,
                      pMod.apiPDU.getErrorStatus(rspPDU),
                      pMod.apiPDU.getErrorIndex(rspPDU),
                      varBindTable, cbCtx):
@@ -534,7 +544,17 @@ class BulkCommandGenerator(CommandGeneratorBase):
         (cbFun, cbCtx)
         ):
         varBindTable = pMod.apiBulkPDU.getVarBindTable(PDU, rspPDU)
-            
+
+        if pMod.apiBulkPDU.getErrorStatus(rspPDU):
+            errorIndication = None
+        else:
+            if map(lambda (o,v): o, pMod.apiBulkPDU.getVarBinds(PDU)) < \
+                   map(lambda (o,v): o, varBindTable[-1]):
+                errorIndication = None
+            else:
+                debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, OID(s) not increasing!' % sendRequestHandle)            
+                errorIndication = 'oidNotIncreasing'
+
         if not cbFun(sendRequestHandle, None,
                      pMod.apiBulkPDU.getErrorStatus(rspPDU),
                      pMod.apiBulkPDU.getErrorIndex(rspPDU),
