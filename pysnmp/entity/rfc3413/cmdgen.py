@@ -555,7 +555,7 @@ class BulkCommandGenerator(CommandGeneratorBase):
                 debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, OID(s) not increasing!' % sendRequestHandle)            
                 errorIndication = 'oidNotIncreasing'
 
-        if not cbFun(sendRequestHandle, None,
+        if not cbFun(sendRequestHandle, errorIndication,
                      pMod.apiBulkPDU.getErrorStatus(rspPDU),
                      pMod.apiBulkPDU.getErrorIndex(rspPDU),
                      varBindTable, cbCtx):
