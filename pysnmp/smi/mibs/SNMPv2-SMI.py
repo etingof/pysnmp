@@ -515,7 +515,9 @@ class MibTableColumn(MibScalar):
         MibScalar.__init__(self, name, syntax)
         self.__createdInstances = {}; self.__destroyedInstances = {}
         self.__rowOpWanted = {}
-
+        self.__valIdx = {} # column instance value to OID index
+        self.__valIdxId = -1
+        
     # No branches here, terminal OIDs only
     def getBranch(self, name, idx):
         if len(self.name) < len(name):
@@ -538,6 +540,36 @@ class MibTableColumn(MibScalar):
     def setProtoInstance(self, protoInstance):
         self.protoInstance = protoInstance
 
+    # Value to instances map
+
+    def getNextNodeWithValue(self, name, value):
+        if not self.__valIdx or self.__valIdxId != self.branchVersionId:
+            # Build a value->oid index
+            node = self
+            while 1:
+                try:
+                    node = self.getNextNode(node.name)
+                except error.NoSuchInstanceError:
+                    break
+                if not self.__valIdx.has_key(node.syntax):
+                    self.__valIdx[node.syntax] = OidOrderedDict()
+                self.__valIdx[node.syntax][node.name] = 1
+
+            debug.logger & debug.flagIns and debug.logger('value index rebuilt at %s, %s entries' % (self.name,len(self.__valIdx)))
+
+            # Sync to tree version
+            self.__valIdxId = self.branchVersionId
+
+        if self.__valIdx.has_key(value):
+            try:
+                return self.getNode(
+                    self.__valIdx[value].nextKey(name)
+                    )
+            except KeyError:
+                raise error.NoSuchInstanceError(name=name)
+        else:
+            raise error.NoSuchInstanceError(name=name)
+            
     # Column creation (this should probably be converted into some state
     # machine for clarity). Also, it might be a good idea to inidicate
     # defaulted cols creation in a clearer way than just a val == None.
@@ -578,6 +610,9 @@ class MibTableColumn(MibScalar):
                           self.__createdInstances[name], self._vars.get(name)
 
     def createCleanup(self, name, val, idx, (acFun, acCtx)):
+        # Drop by-value index
+        self.__valIdx.clear()
+        
         # Drop previous column instance
         if self.__createdInstances.has_key(name):
             if self.__createdInstances[name] is not None:
@@ -632,6 +667,9 @@ class MibTableColumn(MibScalar):
             del self._vars[name]
         
     def destroyCleanup(self, name, val, idx, (acFun, acCtx)):
+        # Drop by-value index
+        self.__valIdx.clear()
+        
         # Drop instance copy
         if self.__destroyedInstances.has_key(name):
             self.__destroyedInstances[name].destroyCleanup(
@@ -692,6 +730,9 @@ class MibTableColumn(MibScalar):
             raise self.__rowOpWanted[name]
 
     def writeCleanup(self, name, val, idx, (acFun, acCtx)):
+        # Drop by-value index
+        self.__valIdx.clear()
+        
         self.__delegateWrite(
             'Cleanup', name, val, idx, (acFun, acCtx)
             )

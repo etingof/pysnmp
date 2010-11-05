@@ -46,13 +46,12 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         nextMibNode = snmpCommunitySecurityName
         while 1:
             try:
-                nextMibNode = snmpCommunitySecurityName.getNextNode(
-                    nextMibNode.name
+                nextMibNode = snmpCommunitySecurityName.getNextNodeWithValue(
+                    nextMibNode.name, securityName
                     )
             except NoSuchInstanceError:
                 break
-            if nextMibNode.syntax != securityName:
-                continue
+
             instId = nextMibNode.name[len(snmpCommunitySecurityName.name):]
             mibNode = snmpCommunityContextEngineId.getNode(
                 snmpCommunityContextEngineId.name + instId
@@ -145,8 +144,8 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         addrToTagMap = {} # cache to save on inner loop
         while 1:
             try:
-                nextMibNode = snmpCommunityName.getNextNode(
-                    nextMibNode.name
+                nextMibNode = snmpCommunityName.getNextNodeWithValue(
+                    nextMibNode.name, communityName
                     )
             except NoSuchInstanceError:
                 snmpInBadCommunityNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInBadCommunityNames')
@@ -154,8 +153,6 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                 raise error.StatusInformation(
                     errorIndication = 'unknownCommunityName'
                     )
-            if nextMibNode.syntax != communityName:
-                continue
 
             instId = nextMibNode.name[len(snmpCommunityName.name):]
 
