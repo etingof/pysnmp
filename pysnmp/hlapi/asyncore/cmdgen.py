@@ -173,7 +173,7 @@ class AsynCommandGenerator:
                     authData.securityName, authData.securityLevel
                     )
             else:
-                raise error.PySnmpError('Unsupported SNMP version')
+                raise error.PySnmpError('Unsupported authentication object')
             self.__knownAuths[authData] = paramsName
 
         if not self.__knownTransports.has_key(transportTarget.transportDomain):
@@ -221,7 +221,7 @@ class AsynCommandGenerator:
                     self.snmpEngine, paramsName
                     )
             else:
-                raise error.PySnmpError('Unsupported SNMP version')
+                raise error.PySnmpError('Unsupported authentication object')
         self.__knownAuths.clear()
 
         for transportDomain, transport in self.__knownTransports.items():

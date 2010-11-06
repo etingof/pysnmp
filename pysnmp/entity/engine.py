@@ -69,7 +69,7 @@ class SnmpEngine:
         
     def registerTransportDispatcher(self, transportDispatcher):
         if self.transportDispatcher is not None:
-            raise error.ProtocolError(
+            raise error.PySnmpError(
                 'Transport dispatcher already registered'
                 )
         transportDispatcher.registerRecvCbFun(
@@ -82,7 +82,7 @@ class SnmpEngine:
 
     def unregisterTransportDispatcher(self):
         if self.transportDispatcher is None:
-            raise error.ProtocolError(
+            raise error.PySnmpError(
                 'Transport dispatcher not registered'
                 )
         self.transportDispatcher.unregisterRecvCbFun()

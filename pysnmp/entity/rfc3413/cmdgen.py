@@ -2,9 +2,7 @@ import types, time
 from pysnmp.proto import rfc1157, rfc1905, api
 from pysnmp.entity.rfc3413 import config
 from pysnmp.proto.proxy import rfc2576
-from pysnmp.proto import error
-from pysnmp import nextid
-from pysnmp import debug
+from pysnmp import error, nextid, debug
 
 getNextHandle = nextid.Integer(0x7fffffff)
                              
@@ -136,7 +134,7 @@ class CommandGeneratorBase:
         contextEngineId=None,
         contextName=''
         ):
-        raise error.ProtocolError('Method not implemented')
+        raise error.PySnmpError('Method not implemented')
 
     def _sendPdu(
         self,
@@ -491,7 +489,7 @@ class BulkCommandGenerator(CommandGeneratorBase):
         pduVersion, pMod = getVersionSpecifics(messageProcessingModel)
        
         if not hasattr(pMod, 'GetBulkRequestPDU'):
-            raise error.ProtocolError('BULK PDU not implemented at %s' % pMod)
+            raise error.PySnmpError('BULK PDU not implemented at %s' % pMod)
         reqPDU = pMod.GetBulkRequestPDU()
         pMod.apiBulkPDU.setDefaults(reqPDU)
         

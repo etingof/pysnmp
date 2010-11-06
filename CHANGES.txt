@@ -22,6 +22,7 @@ Revision 4.1.15a
   to SNMPv1 Manager.
 - Fix to protocol translator code (rfc2576) to handle Counter64 type
   in v2c-to-v1 PDU translation.
+- Fix to wrong exceptions used in pysnmp/entity modules.
 
 Revision 4.1.14a
 ----------------
