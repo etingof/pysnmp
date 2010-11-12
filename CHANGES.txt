@@ -25,6 +25,8 @@ Revision 4.1.15a
 - Fix to wrong exceptions used in pysnmp/entity modules.
 - Fix to noauth/nopriv security module so that it would not crash SNMP
   engine if called accidentally.
+- Fix to CommandResponder not to return out-of-range errorIndex along
+  with genErr
 
 Revision 4.1.14a
 ----------------
