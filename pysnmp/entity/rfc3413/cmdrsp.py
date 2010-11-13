@@ -264,34 +264,36 @@ class BulkCommandResponder(CommandResponderBase):
         maxRepetitions = v2c.apiBulkPDU.getMaxRepetitions(PDU)
         if maxRepetitions < 0:
             maxRepetitions = 0
+
         reqVarBinds = v2c.apiPDU.getVarBinds(PDU)
 
-        N = min(nonRepeaters, len(reqVarBinds))
+        N = min(int(nonRepeaters), len(reqVarBinds))
         M = int(maxRepetitions)
         R = max(len(reqVarBinds)-N, 0)
 
+        if R: M = min(M, self.maxVarBinds/R)
+
         debug.logger & debug.flagApp and debug.logger('_handleManagementOperation: N %d, M %d, R %d' % (N, M, R))
         
-        if nonRepeaters:
+        if N:
             rspVarBinds = contextMibInstrumCtl.readNextVars(
-                reqVarBinds[:int(nonRepeaters)], (acFun, acCtx)
+                reqVarBinds[:N], (acFun, acCtx)
                 )
         else:
             rspVarBinds = []
 
-        if M and R:
-            for i in range(N,  R):
-                varBind = reqVarBinds[i]
-                for r in range(1, M):
-                    rspVarBinds.extend(contextMibInstrumCtl.readNextVars(
-                        (varBind,), (acFun, acCtx)
-                        ))
-                    varBind = rspVarBinds[-1]
+        varBinds = reqVarBinds[-R:]
+        while M and R:
+            rspVarBinds.extend(
+                contextMibInstrumCtl.readNextVars(varBinds, (acFun, acCtx))
+                )
+            varBinds = rspVarBinds[-R:]
+            M = M - 1
 
-        if len(rspVarBinds) > self.maxVarBinds:
-            rspVarBinds = rspVarBinds[:self.maxVarBinds]
-
-        return 0, 0, rspVarBinds
+        if len(rspVarBinds):
+            return 0, 0, rspVarBinds
+        else:
+            raise pysnmp.smi.error.SmiError()
 
 class SetCommandResponder(CommandResponderBase):
     pduTypes = ( rfc1905.SetRequestPDU.tagSet, )
