@@ -79,40 +79,34 @@ class BulkPDUAPI(PDUAPI):
     def setMaxRepetitions(self,pdu,value): pdu.setComponentByPosition(2,value)
 
     def getVarBindTable(self, reqPDU, rspPDU):
-        nonRepeaters = int(self.getNonRepeaters(reqPDU))
-        N = min(nonRepeaters, len(self.getVarBindList(reqPDU)))
-        R = max(len(self.getVarBindList(reqPDU))-N, 0)
-        if R == 0:
-            M = 0
-        else:
-            M = int(min(self.getMaxRepetitions(reqPDU),
-                        (len(apiPDU.getVarBindList(rspPDU))-N))/R)
-        varBindList = apiPDU.getVarBindList(rspPDU)
-        varBindRows = []; varBindTable = [ varBindRows ]
-#        __null = Null()
-        for idx in range(N):
-            oid, val = apiVarBind.getOIDVal(varBindList[idx])
-            if exval.endOfMib.isSameTypeWith(val):
-                val = None
-#                val = __null
-            varBindRows.append((oid, val))
-        for rowIdx in range(M):
-            if len(varBindTable) < rowIdx+1:
-                varBindTable.append([])
-            varBindRow = varBindTable[-1]
-            for colIdx in range(R):
-                while rowIdx and len(varBindRow) < N:
-                    varBindRow.append(varBindTable[-2][colIdx])
-                idx = N + rowIdx*R + colIdx
-                oid, val = apiVarBind.getOIDVal(varBindList[idx])
-                if exval.endOfMib.isSameTypeWith(val):
-                    val = None
-                if len(varBindRow) < colIdx+N+1:
-                    varBindRow.append((oid, val))
-                else:
-                    varBindRow[colIdx] = (oid, val)                
-        return varBindTable
+        nonRepeaters = self.getNonRepeaters(reqPDU)
+        maxRepetitions = self.getMaxRepetitions(reqPDU)
 
+        reqVarBinds = self.getVarBinds(reqPDU)
+
+        N = min(int(nonRepeaters), len(reqVarBinds))
+        M = int(maxRepetitions)
+        R = max(len(reqVarBinds)-N, 0)
+
+        rspVarBinds = self.getVarBinds(rspPDU)
+
+        varBindTable = []
+
+        if R:
+            for i in range(0, len(rspVarBinds)-N, R):
+                varBindRow = rspVarBinds[:N] + rspVarBinds[N+i:N+R+i]
+                varBindTable.append(varBindRow)
+        elif N:
+            varBindTable.append(rspVarBinds[:N])
+
+        for varBindRow in varBindTable:
+            for idx in range(len(varBindRow)):
+                oid, val = varBindRow[idx]
+                if exval.endOfMib.isSameTypeWith(val):
+                    varBindRow[idx] = (oid, None)
+
+        return varBindTable
+    
 apiBulkPDU = BulkPDUAPI()
 
 class TrapPDUAPI(v1.PDUAPI):
