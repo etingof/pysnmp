@@ -3,6 +3,7 @@ from pysnmp.proto import rfc1157, rfc1905, api
 from pysnmp.entity.rfc3413 import config
 from pysnmp.proto.proxy import rfc2576
 from pysnmp import error, nextid, debug
+from pyasn1.type import univ
 
 getNextHandle = nextid.Integer(0x7fffffff)
                              
@@ -14,6 +15,7 @@ def getVersionSpecifics(snmpVersion):
     return pduVersion, api.protoModules[pduVersion]
 
 class CommandGeneratorBase:
+    _null = univ.Null('')
     def __init__(self):
         self.__pendingReqs = {}
             
@@ -423,13 +425,13 @@ class NextCommandGenerator(CommandGeneratorBase):
         ):
         varBindTable = pMod.apiPDU.getVarBindTable(PDU, rspPDU)
 
-        if not varBindTable:
-            errorIndication = 'emptyResponse'
-        elif pMod.apiPDU.getErrorStatus(rspPDU):
+        if pMod.apiPDU.getErrorStatus(rspPDU):
             errorIndication = None
+        elif not varBindTable:
+            errorIndication = 'emptyResponse'
         else:
             if map(lambda (o,v): o, pMod.apiPDU.getVarBinds(PDU)) < \
-                   map(lambda (o,v): v is None and (9,) or o,varBindTable[-1]):
+                   map(lambda (o,v): isinstance(v, univ.Null) and (9,) or o,varBindTable[-1]):
                 errorIndication = None
             else:
                 debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, OID(s) not increasing!' % sendRequestHandle)            
@@ -441,10 +443,16 @@ class NextCommandGenerator(CommandGeneratorBase):
                      varBindTable, cbCtx):
             debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, app says to stop walking' % sendRequestHandle)
             return  # app says enough
-        
+
+        for o, v in varBindTable[-1]:
+            if not isinstance(v, univ.Null):
+                break
+        else:
+            return # no more objects available
+    
         pMod.apiPDU.setRequestID(PDU, pMod.getNextRequestID())
         pMod.apiPDU.setVarBinds(
-            PDU, map(lambda (x,y),n=pMod.Null(''): (x,n), varBindTable[-1])
+            PDU, map(lambda (x,y): (x,self._null), varBindTable[-1])
             )
 
         self._sendPdu(
@@ -545,13 +553,13 @@ class BulkCommandGenerator(CommandGeneratorBase):
         ):
         varBindTable = pMod.apiBulkPDU.getVarBindTable(PDU, rspPDU)
 
-        if not varBindTable:
+        if pMod.apiBulkPDU.getErrorStatus(rspPDU):
+            errorIndication = None            
+        elif not varBindTable:
             errorIndication = 'emptyResponse'
-        elif pMod.apiBulkPDU.getErrorStatus(rspPDU):
-            errorIndication = None
         else:
             if map(lambda (o,v): o, pMod.apiBulkPDU.getVarBinds(PDU)) < \
-                   map(lambda (o,v): v is None and (9,) or o,varBindTable[-1]):
+                   map(lambda (o,v): isinstance(v, univ.Null) and (9,) or o,varBindTable[-1]):
                 errorIndication = None
             else:
                 debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, OID(s) not increasing!' % sendRequestHandle)            
@@ -566,8 +574,14 @@ class BulkCommandGenerator(CommandGeneratorBase):
 
         pMod.apiBulkPDU.setRequestID(PDU, pMod.getNextRequestID())
 
+        for o, v in varBindTable[-1]:
+            if not isinstance(v, univ.Null):
+                break
+        else:
+            return # no more objects available
+        
         pMod.apiBulkPDU.setVarBinds(
-            PDU, map(lambda (x,y),n=pMod.Null(''): (x,n), varBindTable[-1])
+            PDU, map(lambda (x,y): (x,self._null), varBindTable[-1])
             )
         
         self._sendPdu(

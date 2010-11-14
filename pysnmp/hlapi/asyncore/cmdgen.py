@@ -389,7 +389,7 @@ class CommandGenerator(AsynCommandGenerator):
                 for idx in range(len(varBindTableRow)):
                     name, val = varBindTableRow[idx]
                     # XXX extra rows
-                    if val is not None:
+                    if not isinstance(val, univ.Null):
                         if self.lexicographicMode:
                             if varBindHead[idx] <= name:
                                 break
@@ -441,7 +441,7 @@ class CommandGenerator(AsynCommandGenerator):
                 varBindTableRow = varBindTable[-1]
                 for idx in range(len(varBindTableRow)):
                     name, val = varBindTableRow[idx]
-                    if val is not None:
+                    if not isinstance(val, univ.Null):
                         if self.lexicographicMode:
                             if varBindHead[idx] <= name:
                                 break

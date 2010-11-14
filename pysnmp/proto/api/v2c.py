@@ -1,6 +1,5 @@
 from pysnmp.proto import rfc1902, rfc1905, error
 from pysnmp.proto.api import v1
-from pysnmp.smi import exval
 from pyasn1.type import univ, namedtype, namedval
 
 # Shortcuts to SNMP types
@@ -50,20 +49,19 @@ class PDUAPI(v1.PDUAPI):
         return rspPDU
 
     def getVarBindTable(self, reqPDU, rspPDU):
-        varBinds = []
-        for oid, val in apiPDU.getVarBinds(rspPDU):
-            if exval.endOfMib.isSameTypeWith(val):
-                val = None
-            varBinds.append((oid, val))
-        return [ varBinds ]
+        return [ apiPDU.getVarBinds(rspPDU) ]
 
     def setEndOfMibError(self, pdu, errorIndex):
         varBindList = self.getVarBindList(pdu)
-        varBindList[errorIndex-1].setComponentByPosition(1, exval.endOfMib)
+        varBindList[errorIndex-1].setComponentByPosition(
+            1, rfc1905.endOfMibView
+            )
 
     def setNoSuchInstanceError(self, pdu, errorIndex):
         varBindList = self.getVarBindList(pdu)
-        varBindList[errorIndex-1].setComponentByPosition(1,exval.noSuchInstance)
+        varBindList[errorIndex-1].setComponentByPosition(
+            1, rfc1905.noSuchInstance
+            )
 
 apiPDU = PDUAPI()
 
@@ -98,12 +96,6 @@ class BulkPDUAPI(PDUAPI):
                 varBindTable.append(varBindRow)
         elif N:
             varBindTable.append(rspVarBinds[:N])
-
-        for varBindRow in varBindTable:
-            for idx in range(len(varBindRow)):
-                oid, val = varBindRow[idx]
-                if exval.endOfMib.isSameTypeWith(val):
-                    varBindRow[idx] = (oid, None)
 
         return varBindTable
     

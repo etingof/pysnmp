@@ -41,6 +41,8 @@ apiVarBind = VarBindAPI()
 getNextRequestID = nextid.Integer(0xffff)
 
 class PDUAPI:
+    _null = univ.Null('')
+    
     def setDefaults(self, pdu):
         pdu.setComponentByPosition(0, getNextRequestID())
         pdu.setComponentByPosition(1, 0)
@@ -99,7 +101,9 @@ class PDUAPI:
 
     def getVarBindTable(self, reqPDU, rspPDU):
         if apiPDU.getErrorStatus(rspPDU) == 2:
-            return [ map(lambda (x,y): (x, None), apiPDU.getVarBinds(reqPDU)) ]
+            return [
+                map(lambda (x,y): (x, self._null), apiPDU.getVarBinds(reqPDU))
+                ]
         else:
             return [ apiPDU.getVarBinds(rspPDU) ]
 

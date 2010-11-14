@@ -1,6 +1,15 @@
 Revision 4.1.15a
 ----------------
 
+- End-of-MIB condition detection reworked what caused backward
+  incompatibility at v1arch GETNEXT API. Previous pysnmp versions
+  used value = None in var-binds as returned by getVarBindTable()
+  API method. This version uses rfc1905 exception values (v2c/v3)
+  or pyasn1 Null (v1).
+  Built-in GETNEXT/GETBULK apps now do not require user to track
+  end-of-mib conditions anymore -- this is now done automatically.
+- SNMP exception values now exported from rfc1905 module, and made
+  pretty printable.
 - Lexicographic walking mode is now supported at oneliner CommandGenerator.
 - ContextEngineId&ContextName parameters passing implemented at
   v3arch oneliner API.
@@ -9,7 +18,6 @@ Revision 4.1.15a
   collide within an administrative domain.
 - MibTableColumn instances now build value-to-column-instance map
   to speedup by-value search.
-- SNMP exception values now exported from rfc1905 module, and made printable.
 - Fix to Next/Bulk CommandGenerators to catch a non-increasing OID
   error condition (what prevents looping).
 - Fix to Opaque value tagging at rfc1155.Opaque type.

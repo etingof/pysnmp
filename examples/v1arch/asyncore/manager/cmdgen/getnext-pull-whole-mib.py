@@ -7,6 +7,7 @@ from time import time
 
 # Protocol version to use
 pMod = api.protoModules[api.protoVersion1]
+#pMod = api.protoModules[api.protoVersion2c]
 
 # SNMP table header
 headVars = [ pMod.ObjectIdentifier((1,3,6)) ]
@@ -46,14 +47,12 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
             # Report SNMP table
             for tableRow in varBindTable:
                 for name, val in tableRow:
-                    if val is None:
-                        continue
                     print 'from: %s, %s = %s' % (
                         transportAddress, name.prettyPrint(), val.prettyPrint()
                         )
             # Stop on EOM
             for oid, val in varBindTable[-1]:
-                if val is not None:
+                if not isinstance(val, pMod.Null):
                     break
             else:
                 transportDispatcher.jobFinished(1)
