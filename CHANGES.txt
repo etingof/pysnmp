@@ -9,6 +9,7 @@ Revision 4.1.15a
   collide within an administrative domain.
 - MibTableColumn instances now build value-to-column-instance map
   to speedup by-value search.
+- SNMP exception values now exported from rfc1905 module, and made printable.
 - Fix to Next/Bulk CommandGenerators to catch a non-increasing OID
   error condition (what prevents looping).
 - Fix to Opaque value tagging at rfc1155.Opaque type.
