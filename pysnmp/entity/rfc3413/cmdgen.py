@@ -429,7 +429,7 @@ class NextCommandGenerator(CommandGeneratorBase):
             errorIndication = None
         else:
             if map(lambda (o,v): o, pMod.apiPDU.getVarBinds(PDU)) < \
-                   map(lambda (o,v): o, varBindTable[-1]):
+                   map(lambda (o,v): v is None and (9,) or o,varBindTable[-1]):
                 errorIndication = None
             else:
                 debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, OID(s) not increasing!' % sendRequestHandle)            
@@ -551,7 +551,7 @@ class BulkCommandGenerator(CommandGeneratorBase):
             errorIndication = None
         else:
             if map(lambda (o,v): o, pMod.apiBulkPDU.getVarBinds(PDU)) < \
-                   map(lambda (o,v): o, varBindTable[-1]):
+                   map(lambda (o,v): v is None and (9,) or o,varBindTable[-1]):
                 errorIndication = None
             else:
                 debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, OID(s) not increasing!' % sendRequestHandle)            
