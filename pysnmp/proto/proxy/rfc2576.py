@@ -1,7 +1,6 @@
 # PDU v1/v2c two-way proxy
-from pysnmp.proto import rfc3411, error
+from pysnmp.proto import rfc1905, rfc3411, error
 from pysnmp.proto.api import v1, v2c
-from pysnmp.smi import exval
 from pysnmp import debug
 
 # 2.1.1
@@ -146,11 +145,11 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
         if errorStatus == 2: # noSuchName
             if origV2Pdu.tagSet == v2c.GetNextRequestPDU.tagSet:
                 v2VarBinds[errorIndex-1] = (
-                    v2VarBinds[errorIndex-1][0], exval.endOfMib
+                    v2VarBinds[errorIndex-1][0], rfc1905.endOfMibView
                     )
             else:
                 v2VarBinds[errorIndex-1] = (
-                    v2VarBinds[errorIndex-1][0], exval.noSuchObject
+                    v2VarBinds[errorIndex-1][0], rfc1905.noSuchObject
                     )
         # one-to-one mapping
         v2c.apiPDU.setErrorStatus(v2Pdu, errorStatus)
@@ -255,9 +254,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
                     raise error.ProtocolError('Counter64 on the way')
 
             # 4.1.2.2.1&2
-            if exval.noSuchInstance.tagSet == val.tagSet or \
-               exval.noSuchObject.tagSet == val.tagSet or \
-               exval.endOfMib.tagSet == val.tagSet:
+            if isinstance(val, v2c.Null):
                 v1.apiPDU.setErrorStatus(v1Pdu, 2)
                 v1.apiPDU.setErrorIndex(v1Pdu, idx+1)
                 
