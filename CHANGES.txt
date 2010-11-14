@@ -28,6 +28,7 @@ Revision 4.1.15a
 - Fix to CommandResponder not to return out-of-range errorIndex along
   with genErr
 - Fix to GETBULK CommandResponder to do a by-column MIB walk, not by-raw.
+- Fix to getVarBindTable() API function logic.
 
 Revision 4.1.14a
 ----------------
