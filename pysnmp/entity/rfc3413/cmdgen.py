@@ -423,7 +423,9 @@ class NextCommandGenerator(CommandGeneratorBase):
         ):
         varBindTable = pMod.apiPDU.getVarBindTable(PDU, rspPDU)
 
-        if pMod.apiPDU.getErrorStatus(rspPDU):
+        if not varBindTable:
+            errorIndication = 'emptyResponse'
+        elif pMod.apiPDU.getErrorStatus(rspPDU):
             errorIndication = None
         else:
             if map(lambda (o,v): o, pMod.apiPDU.getVarBinds(PDU)) < \
@@ -543,7 +545,9 @@ class BulkCommandGenerator(CommandGeneratorBase):
         ):
         varBindTable = pMod.apiBulkPDU.getVarBindTable(PDU, rspPDU)
 
-        if pMod.apiBulkPDU.getErrorStatus(rspPDU):
+        if not varBindTable:
+            errorIndication = 'emptyResponse'
+        elif pMod.apiBulkPDU.getErrorStatus(rspPDU):
             errorIndication = None
         else:
             if map(lambda (o,v): o, pMod.apiBulkPDU.getVarBinds(PDU)) < \
@@ -561,6 +565,7 @@ class BulkCommandGenerator(CommandGeneratorBase):
             return # app says enough
 
         pMod.apiBulkPDU.setRequestID(PDU, pMod.getNextRequestID())
+
         pMod.apiBulkPDU.setVarBinds(
             PDU, map(lambda (x,y),n=pMod.Null(''): (x,n), varBindTable[-1])
             )
