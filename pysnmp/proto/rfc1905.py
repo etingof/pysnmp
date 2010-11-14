@@ -4,13 +4,34 @@ from pysnmp.proto import rfc1902
 # Value reference -- max bindings in VarBindList
 max_bindings = rfc1902.Integer(2147483647L)
 
-class _BindValue(univ.Choice): # Made a separate class for better readability
+# Take SNMP exception values out of BindValue structure for convenience
+
+noSuchObject = univ.Null().subtype(
+    implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x00)
+    )
+noSuchObject.prettyOut = lambda x: 'No Such Object currently exists at this OID'
+noSuchObject.prettyIn = lambda x: ''
+
+noSuchInstance = univ.Null().subtype(
+    implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x01)
+    )
+noSuchInstance.prettyOut = lambda x: 'No Such Instance currently exists at this OID'
+noSuchInstance.prettyIn = lambda x: ''
+
+endOfMibView = univ.Null().subtype(
+    implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x02)
+    )
+endOfMibView.prettyOut = lambda x: 'No more variables left in this MIB View'
+endOfMibView.prettyIn = lambda x: ''
+
+# Made a separate class for better readability
+class _BindValue(univ.Choice):
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('value', rfc1902.ObjectSyntax()),
         namedtype.NamedType('unSpecified', univ.Null()),
-        namedtype.NamedType('noSuchObject', univ.Null().subtype(implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x00))),
-        namedtype.NamedType('noSuchInstance', univ.Null().subtype(implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x01))),
-        namedtype.NamedType('endOfMibView', univ.Null().subtype(implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x02)))
+        namedtype.NamedType('noSuchObject', noSuchObject),
+        namedtype.NamedType('noSuchInstance', noSuchInstance),
+        namedtype.NamedType('endOfMibView', endOfMibView)
         )
         
 class VarBind(univ.Sequence):

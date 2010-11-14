@@ -1,6 +1,6 @@
-from pyasn1.type import univ, tag
+from pysnmp.proto import rfc1905
 
-noSuchObject = univ.Null('').subtype(implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x00))
-noSuchInstance = univ.Null('').subtype(implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x01))
-endOfMib = univ.Null('').subtype(implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x02))
+noSuchObject = rfc1905.noSuchObject
+noSuchInstance = rfc1905.noSuchInstance
+endOfMibView = endOfMib = rfc1905.endOfMibView
 
