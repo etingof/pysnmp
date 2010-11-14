@@ -6,23 +6,26 @@ max_bindings = rfc1902.Integer(2147483647L)
 
 # Take SNMP exception values out of BindValue structure for convenience
 
-noSuchObject = univ.Null().subtype(
-    implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x00)
-    )
-noSuchObject.prettyOut = lambda x: 'No Such Object currently exists at this OID'
-noSuchObject.prettyIn = lambda x: ''
+class NoSuchObject(univ.Null):
+    tagSet = univ.Null.tagSet.tagImplicitly(
+        tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x00)
+        )
+    def prettyPrint(self): return 'No Such Object currently exists at this OID'
+noSuchObject = NoSuchObject()
 
-noSuchInstance = univ.Null().subtype(
-    implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x01)
-    )
-noSuchInstance.prettyOut = lambda x: 'No Such Instance currently exists at this OID'
-noSuchInstance.prettyIn = lambda x: ''
+class NoSuchInstance(univ.Null):
+    tagSet = univ.Null.tagSet.tagImplicitly(
+        tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x01)
+        )
+    def prettyPrint(self): return 'No Such Instance currently exists at this OID'
+noSuchInstance = NoSuchInstance()
 
-endOfMibView = univ.Null().subtype(
-    implicitTag=tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x02)
-    )
-endOfMibView.prettyOut = lambda x: 'No more variables left in this MIB View'
-endOfMibView.prettyIn = lambda x: ''
+class EndOfMibView(univ.Null):
+    tagSet = univ.Null.tagSet.tagImplicitly(
+        tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x02)
+        )
+    def prettyPrint(self): return 'No more variables left in this MIB View'
+endOfMibView = EndOfMibView()
 
 # Made a separate class for better readability
 class _BindValue(univ.Choice):
