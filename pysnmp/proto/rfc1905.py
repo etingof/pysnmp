@@ -10,21 +10,24 @@ class NoSuchObject(univ.Null):
     tagSet = univ.Null.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x00)
         )
-    def prettyPrint(self): return 'No Such Object currently exists at this OID'
+    def prettyPrint(self, scope=0):
+        return 'No Such Object currently exists at this OID'
 noSuchObject = NoSuchObject()
 
 class NoSuchInstance(univ.Null):
     tagSet = univ.Null.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x01)
         )
-    def prettyPrint(self): return 'No Such Instance currently exists at this OID'
+    def prettyPrint(self, scope=0):
+        return 'No Such Instance currently exists at this OID'
 noSuchInstance = NoSuchInstance()
 
 class EndOfMibView(univ.Null):
     tagSet = univ.Null.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x02)
         )
-    def prettyPrint(self): return 'No more variables left in this MIB View'
+    def prettyPrint(self, scope=0):
+        return 'No more variables left in this MIB View'
 endOfMibView = EndOfMibView()
 
 # Made a separate class for better readability
