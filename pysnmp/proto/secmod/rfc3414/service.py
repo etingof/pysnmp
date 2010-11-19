@@ -454,6 +454,11 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         wholeMsg,
         msg  # XXX 
         ):
+        # 3.2.9 -- moved up here to be able to report
+        # maxSizeResponseScopedPDU on error
+        # (48 - maximum SNMPv3 header length)
+        maxSizeResponseScopedPDU = maxMessageSize - len(securityParameters)-48
+
         # 3.2.1 
         try:
             securityParameters, rest = decoder.decode(
@@ -469,15 +474,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: %s' % (securityParameters.prettyPrint(),))
 
-        # 3.2.9 -- moved up here to be able to report
-        # maxSizeResponseScopedPDU on error
-        try:
-            maxSizeResponseScopedPDU = maxMessageSize - len(securityParameters) - 48  # maximum SNMPv3 header length
-        except PyAsn1Error:
-            maxSizeResponseScopedPDU = 0
-
         # 3.2.2
-        securityEngineID = securityParameters.getComponentByPosition(0)
+        msgAuthoritativeEngineID = securityParameters.getComponentByPosition(0)
         securityStateReference = self._cachePush(
             msgUserName=securityParameters.getComponentByPosition(3)
             )
@@ -491,24 +489,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         contextName = ''
 
         # 3.2.3
-        if not self.__timeline.has_key(securityEngineID):
-            debug.logger & debug.flagSM and debug.logger('processIncomingMsg: unknown securityEngineID %s' % repr(securityEngineID))
-            if securityEngineID:
-                # 3.2.3a XXX any other way to get auth engine in cache?
-                self.__timeline[securityEngineID] = (
-                    securityParameters.getComponentByPosition(1),
-                    securityParameters.getComponentByPosition(2),
-                    securityParameters.getComponentByPosition(2),
-                    int(time.time())
-                    )
-                
-                expireAt = self.__expirationTimer + 300
-                if not self.__timelineExpQueue.has_key(expireAt):
-                    self.__timelineExpQueue[expireAt] = []
-                self.__timelineExpQueue[expireAt].append(securityEngineID)
-                    
-                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: store timeline for securityEngineID %s' % repr(securityEngineID))
-            else:
+        if not self.__timeline.has_key(msgAuthoritativeEngineID):
+            debug.logger & debug.flagSM and debug.logger('processIncomingMsg: unknown securityEngineID %s' % repr(msgAuthoritativeEngineID))
+            if not msgAuthoritativeEngineID:
                 # 3.2.3b
                 usmStatsUnknownEngineIDs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownEngineIDs')
                 usmStatsUnknownEngineIDs.syntax = usmStatsUnknownEngineIDs.syntax+1
@@ -549,7 +532,6 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         snmpEngineID = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')[0].syntax
  
-        msgAuthoritativeEngineID = securityParameters.getComponentByPosition(0)
         msgUserName = securityParameters.getComponentByPosition(3)
 
         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: read from securityParams msgAuthoritativeEngineID %s msgUserName %s' % (repr(msgAuthoritativeEngineID), msgUserName))
@@ -562,7 +544,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                   usmUserAuthKeyLocalized,
                   usmUserPrivProtocol,
                   usmUserPrivKeyLocalized ) = self.__getUserInfo(
-                    snmpEngine.msgAndPduDsp.mibInstrumController, msgAuthoritativeEngineID, msgUserName
+                    snmpEngine.msgAndPduDsp.mibInstrumController,
+                    msgAuthoritativeEngineID,
+                    msgUserName
                     )
                 debug.logger & debug.flagSM and debug.logger('processIncomingMsg: read user info from LCD')
             except NoSuchInstanceError:
@@ -576,13 +560,13 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                           usmUserPrivProtocol,
                           usmUserPrivKeyLocalized ) = self.__cloneUserInfo(
                             snmpEngine.msgAndPduDsp.mibInstrumController,
-                            securityEngineID,
+                            msgAuthoritativeEngineID,
                             msgUserName
                             )
                         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: cloned user info')
                     except NoSuchInstanceError:
                         __reportUnknownName = 1
-                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: unknown securityEngineID %s msgUserName %s' % (repr(securityEngineID), msgUserName))
+                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: unknown securityEngineID %s msgUserName %s' % (repr(msgAuthoritativeEngineID), msgUserName))
                 if __reportUnknownName:
                         usmStatsUnknownUserNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownUserNames')
                         usmStatsUnknownUserNames.syntax = usmStatsUnknownUserNames.syntax+1
@@ -664,6 +648,25 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     )
             
             debug.logger & debug.flagSM and debug.logger('processIncomingMsg: incoming msg authenticated')
+
+            if msgAuthoritativeEngineID:
+                # 3.2.3a moved down here to execute only for authed msg
+                self.__timeline[msgAuthoritativeEngineID] = (
+                    securityParameters.getComponentByPosition(1),
+                    securityParameters.getComponentByPosition(2),
+                    securityParameters.getComponentByPosition(2),
+                    int(time.time())
+                    )
+                
+                expireAt = self.__expirationTimer + 300
+                if not self.__timelineExpQueue.has_key(expireAt):
+                    self.__timelineExpQueue[expireAt] = []
+                self.__timelineExpQueue[expireAt].append(
+                    msgAuthoritativeEngineID
+                    )
+                    
+                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: store timeline for securityEngineID %s' % repr(msgAuthoritativeEngineID))
+            
         # 3.2.7
         if securityLevel == 3 or securityLevel == 2:
             if msgAuthoritativeEngineID == snmpEngineID:
@@ -676,7 +679,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 debug.logger & debug.flagSM and debug.logger('processIncomingMsg: read snmpEngineBoots (%s), snmpEngineTime (%s) from LCD' % (snmpEngineBoots, snmpEngineTime))
             else:
                 # Non-authoritative SNMP engine: use cached estimates
-                if self.__timeline.has_key(securityEngineID):
+                if self.__timeline.has_key(msgAuthoritativeEngineID):
                     ( snmpEngineBoots,
                       snmpEngineTime,
                       latestReceivedEngineTime,
@@ -795,7 +798,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: cached msgUserName %s info by securityStateReference %s' % (msgUserName, securityStateReference))
         
         # Delayed to include details
-        if not msgUserName and not securityEngineID:
+        if not msgUserName and not msgAuthoritativeEngineID:
             usmStatsUnknownUserNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownUserNames')
             usmStatsUnknownUserNames.syntax = usmStatsUnknownUserNames.syntax+1
             raise error.StatusInformation(
@@ -803,7 +806,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 oid=usmStatsUnknownUserNames.name,
                 val=usmStatsUnknownUserNames.syntax,
                 securityStateReference=securityStateReference,
-                securityEngineID=securityEngineID,
+                securityEngineID=msgAuthoritativeEngineID,
                 securityLevel=securityLevel,
                 contextEngineId=contextEngineId,
                 contextName=contextName,
@@ -812,7 +815,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 )
 
         # 3.2.12
-        return ( securityEngineID,
+        return ( msgAuthoritativeEngineID,
                  securityName,
                  scopedPDU,
                  maxSizeResponseScopedPDU,

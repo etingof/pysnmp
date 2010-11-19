@@ -18,6 +18,10 @@ Revision 4.1.15a
   collide within an administrative domain.
 - MibTableColumn instances now build value-to-column-instance map
   to speedup by-value search.
+- Fix to SNMPv3 security module to store peer SNMP engine timeline
+  only if taken from an authenticated message. Prior to this fix
+  SNMP engine was not been protected from spoofing.
+- Fix to maxSizeResponseScopedPDU calculation.
 - Fix to Next/Bulk CommandGenerators to catch a non-increasing OID
   error condition (what prevents looping).
 - Fix to Opaque value tagging at rfc1155.Opaque type.
