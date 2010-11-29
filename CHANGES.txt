@@ -8,6 +8,7 @@ Revision 4.1.15a
   or pyasn1 Null (v1).
   Built-in GETNEXT/GETBULK apps now do not require user to track
   end-of-mib conditions anymore -- this is now done automatically.
+- CommandResponder API now supports async mode of operation.
 - SNMP exception values now exported from rfc1905 module, and made
   pretty printable.
 - Lexicographic walking mode is now supported at oneliner CommandGenerator.
