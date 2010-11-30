@@ -18,7 +18,7 @@ class CommandResponderBase:
         self.__pendingReqs = {}
 
     def handleMgmtOperation(
-        self, snmpEngine, contextMibInstrumCtl, PDU, (acFun, acCtx)
+        self, snmpEngine, stateReference, contextName, PDU, (acFun, acCtx)
         ): pass
         
     def close(self, snmpEngine):
