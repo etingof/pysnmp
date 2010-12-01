@@ -4,10 +4,9 @@ from pysnmp.proto.proxy import rfc2576
 import pysnmp.smi.error
 from pysnmp import debug
 
-vacmID = 3
-
 # 3.2
 class CommandResponderBase:
+    acmID = 3  # default MIB access control method to use
     pduTypes = ()
 
     def __init__(self, snmpEngine, snmpContext):
@@ -189,7 +188,7 @@ class CommandResponderBase:
                         securityLevel, contextName, pduType)
                        ):
         try:
-            snmpEngine.accessControlModel[vacmID].isAccessAllowed(
+            snmpEngine.accessControlModel[self.acmID].isAccessAllowed(
                 snmpEngine, securityModel, securityName,
                 securityLevel, viewType, contextName, name
                 )

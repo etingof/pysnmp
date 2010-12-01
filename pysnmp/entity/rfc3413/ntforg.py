@@ -10,11 +10,10 @@ from pysnmp.smi import error
 from pysnmp import nextid
 from pysnmp import debug
 
-vacmID = 3
-
 getNextHandle = nextid.Integer(0x7fffffff)
 
 class NotificationOriginator:
+    acmID = 3  # default MIB access control method to use
     def __init__(self, snmpContext):
         self.__pendingReqs = {}
         self.__context = snmpContext
@@ -198,7 +197,7 @@ class NotificationOriginator:
 
             for varName, varVal in varBinds:
                 try:
-                    snmpEngine.accessControlModel[vacmID].isAccessAllowed(
+                    snmpEngine.accessControlModel[self.acmID].isAccessAllowed(
                         snmpEngine, securityModel, securityName,
                         securityLevel, 'notify', contextName, varName
                         )
