@@ -21,6 +21,7 @@ Revision 4.1.15a
   to speedup by-value search.
 - SNMPv2-CONF::AgentCapabilities macro implemented.
 - The libsmi2pysnmp tool handles some more MACROs.
+- Void access control module implemented to let apps disabling [default] VACM.
 - Fix to SNMPv3 security module to store peer SNMP engine timeline
   only if taken from an authenticated message. Prior to this fix
   SNMP engine was not been protected from spoofing.

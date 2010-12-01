@@ -6,7 +6,7 @@ from pysnmp.proto.mpmod.rfc3412 import SnmpV3MessageProcessingModel
 from pysnmp.proto.secmod.rfc2576 import SnmpV1SecurityModel, \
      SnmpV2cSecurityModel
 from pysnmp.proto.secmod.rfc3414 import SnmpUSMSecurityModel
-from pysnmp.proto.acmod import rfc3415
+from pysnmp.proto.acmod import rfc3415, void
 from pysnmp import error
 
 class SnmpEngine:
@@ -30,6 +30,7 @@ class SnmpEngine:
             SnmpUSMSecurityModel.securityModelID: SnmpUSMSecurityModel()
             }
         self.accessControlModel = {
+            void.accessModelID: void,
             rfc3415.accessModelID: rfc3415
             }
         
