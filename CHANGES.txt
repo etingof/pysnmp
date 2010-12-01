@@ -1,6 +1,7 @@
 Revision 4.1.15a
 ----------------
 
+- SNMP Proxy example added.
 - End-of-MIB condition detection reworked what caused backward
   incompatibility at v1arch GETNEXT API. Previous pysnmp versions
   used value = None in var-binds as returned by getVarBindTable()
