@@ -48,7 +48,7 @@ Revision 4.1.15a
 - Fix to GETBULK CommandResponder to do a by-column MIB walk, not by-raw.
 - Fix to getVarBindTable() API function logic.
 - Fix to example Manager scripts to use errorIndex when available.
-- Fix to nopriv.decryptData() API
+- Fix to dummy encryptData()/decryptData() API
 
 Revision 4.1.14a
 ----------------
