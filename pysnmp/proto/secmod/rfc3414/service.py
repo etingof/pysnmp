@@ -725,6 +725,13 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         msgAuthoritativeEngineTime,
                         int(time.time())
                         )
+                    expireAt = self.__expirationTimer + 300
+                    if not self.__timelineExpQueue.has_key(expireAt):
+                        self.__timelineExpQueue[expireAt] = []
+                    self.__timelineExpQueue[expireAt].append(
+                        msgAuthoritativeEngineID
+                        )
+
                     debug.logger & debug.flagSM and debug.logger('processIncomingMsg: stored timeline msgAuthoritativeEngineBoots %s msgAuthoritativeEngineTime %s for msgAuthoritativeEngineID %s' % (msgAuthoritativeEngineBoots, msgAuthoritativeEngineTime, repr(msgAuthoritativeEngineID)))
                     
                 # 3.2.7b.2
@@ -824,8 +831,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
     def __expireTimelineInfo(self):
         if self.__timelineExpQueue.has_key(self.__expirationTimer):
             for engineIdKey in self.__timelineExpQueue[self.__expirationTimer]:
-                del self.__timeline[engineIdKey]
-                debug.logger & debug.flagSM and debug.logger('__expireEnginesInfo: expiring %s' % (engineIdKey,))
+                if self.__timeline.has_key(engineIdKey):
+                    del self.__timeline[engineIdKey]
+                    debug.logger & debug.flagSM and debug.logger('__expireEnginesInfo: expiring %s' % (engineIdKey,))
             del self.__timelineExpQueue[self.__expirationTimer]
         self.__expirationTimer = self.__expirationTimer + 1
         
