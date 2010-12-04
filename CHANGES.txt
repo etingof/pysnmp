@@ -51,6 +51,8 @@ Revision 4.1.15a
 - Fix to getVarBindTable() API function logic.
 - Fix to example Manager scripts to use errorIndex when available.
 - Fix to dummy encryptData()/decryptData() API
+- Fix to oneliner GETBULK table collection code to make it stripping
+  uneven rows off table tail.
 
 Revision 4.1.14a
 ----------------

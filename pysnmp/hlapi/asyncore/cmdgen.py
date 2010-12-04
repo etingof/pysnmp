@@ -436,6 +436,13 @@ class CommandGenerator(AsynCommandGenerator):
                 appReturn['varBindTable'] = varBindTable
                 return
             else:
+                while varBindTable:
+                    if len(varBindTable[-1]) != len(varBindHead):
+                        # Fix possibly non-rectangular table
+                        del varBindTable[-1]
+                    else:
+                        break
+                    
                 varBindTotalTable.extend(varBindTable) # XXX out of table 
                                                        # rows possible
                 varBindTableRow = varBindTable[-1]
