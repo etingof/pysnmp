@@ -115,15 +115,15 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
                                    __v1ToV2TrapMap[genericTrap]
                                )
 
+        # 3.1.4 (XXX snmpTrapCommunity.0 is missing here)
         v2VarBinds.append((v2c.apiTrapPDU.sysUpTime, sysUpTime))
         v2VarBinds.append((v2c.apiTrapPDU.snmpTrapOID, snmpTrapOIDParam))
-        v2VarBinds.append((v2c.apiTrapPDU.snmpTrapEnterprise,
-                           v1.apiTrapPDU.getEnterprise(v1Pdu)))
-        
-        # 3.1.4 (XXX snmpTrapCommunity.0 is missing here)
         v2VarBinds.append(
             (v2c.apiTrapPDU.snmpTrapAddress, v1.apiTrapPDU.getAgentAddr(v1Pdu))
             )
+        v2VarBinds.append((v2c.apiTrapPDU.snmpTrapCommunity, v2c.OctetString("")))
+        v2VarBinds.append((v2c.apiTrapPDU.snmpTrapEnterprise,
+                           v1.apiTrapPDU.getEnterprise(v1Pdu)))
         
         varBinds = v1.apiTrapPDU.getVarBinds(v1Pdu)
     else:
@@ -170,8 +170,11 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
     debug.logger & debug.flagPrx and debug.logger('v2ToV1: v2Pdu %s' % v2Pdu.prettyPrint())
     
     pduType = v2Pdu.tagSet
-    
-    v1Pdu = __v2ToV1PduMap[pduType].clone()
+
+    if __v2ToV1PduMap.has_key(pduType):
+        v1Pdu = __v2ToV1PduMap[pduType].clone()
+    else:
+        raise error.ProtocolError('Unsupported PDU type')
 
     v2VarBinds = v2c.apiPDU.getVarBinds(v2Pdu)
     v1VarBinds = []
