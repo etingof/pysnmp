@@ -104,6 +104,7 @@ apiBulkPDU = BulkPDUAPI()
 class TrapPDUAPI(v1.PDUAPI):
     sysUpTime = (1,3,6,1,2,1,1,3,0)
     snmpTrapAddress = (1,3,6,1,6,3,18,1,3,0)
+    snmpTrapCommunity = (1,3,6,1,6,3,18,1,4,0)
     snmpTrapOID = (1,3,6,1,6,3,1,1,4,1,0)
     snmpTrapEnterprise = (1,3,6,1,6,3,1,1,4,3,0)
     def setDefaults(self, pdu):
