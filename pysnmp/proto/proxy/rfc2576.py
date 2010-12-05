@@ -120,7 +120,7 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
         v2VarBinds.append((v2c.apiTrapPDU.snmpTrapEnterprise,
                            v1.apiTrapPDU.getEnterprise(v1Pdu)))
         
-        # 3.1.4
+        # 3.1.4 (XXX snmpTrapCommunity.0 is missing here)
         v2VarBinds.append(
             (v2c.apiTrapPDU.snmpTrapAddress, v1.apiTrapPDU.getAgentAddr(v1Pdu))
             )
