@@ -10,7 +10,7 @@ class SysDescr:
     def __cmp__(self, other): return cmp(self.name, other)    
     def __call__(self, protoVer):
         return api.protoModules[protoVer].OctetString(
-            'PySNMP example command responder at %s' % __file__
+            'PySNMP example command responder'
             )
 
 class Uptime:
