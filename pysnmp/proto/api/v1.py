@@ -102,7 +102,7 @@ class PDUAPI:
     def getVarBindTable(self, reqPDU, rspPDU):
         if apiPDU.getErrorStatus(rspPDU) == 2:
             return [
-                map(lambda (x,y): (x, self._null), apiPDU.getVarBinds(reqPDU))
+                map(lambda (x,y),self=self: (x, self._null), apiPDU.getVarBinds(reqPDU))
                 ]
         else:
             return [ apiPDU.getVarBinds(rspPDU) ]

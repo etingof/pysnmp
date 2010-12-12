@@ -452,7 +452,7 @@ class NextCommandGenerator(CommandGeneratorBase):
     
         pMod.apiPDU.setRequestID(PDU, pMod.getNextRequestID())
         pMod.apiPDU.setVarBinds(
-            PDU, map(lambda (x,y): (x,self._null), varBindTable[-1])
+            PDU, map(lambda (x,y),self=self: (x,self._null), varBindTable[-1])
             )
 
         self._sendPdu(
@@ -581,7 +581,7 @@ class BulkCommandGenerator(CommandGeneratorBase):
             return # no more objects available
         
         pMod.apiBulkPDU.setVarBinds(
-            PDU, map(lambda (x,y): (x,self._null), varBindTable[-1])
+            PDU, map(lambda (x,y),self=self: (x,self._null), varBindTable[-1])
             )
         
         self._sendPdu(
