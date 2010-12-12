@@ -24,6 +24,7 @@ Revision 4.1.15a
 - The libsmi2pysnmp tool handles some more MACROs.
 - Void access control module implemented to let apps disabling [default] VACM.
 - Allow standard SNMP apps to choose access control method to use.
+- Twisted-based CommandResponder example added.
 - Fix to SNMPv3 security module to store peer SNMP engine timeline
   only if taken from an authenticated message. Prior to this fix
   SNMP engine was not been protected from spoofing.
