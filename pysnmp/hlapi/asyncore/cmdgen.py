@@ -370,7 +370,7 @@ class CommandGenerator(AsynCommandGenerator):
     def nextCmd(self, authData, transportTarget, *varNames):
         def __cbFun(
             sendRequestHandle, errorIndication, errorStatus, errorIndex,
-            varBindTable, (varBindHead, varBindTotalTable, appReturn)
+            varBindTable, (self, varBindHead, varBindTotalTable, appReturn)
             ):
             if errorIndication or errorStatus:
                 appReturn['errorIndication'] = errorIndication
@@ -406,12 +406,12 @@ class CommandGenerator(AsynCommandGenerator):
 
             return 1 # continue table retrieval
         
-        varBindHead = map(lambda (x,y): univ.ObjectIdentifier(x+y), map(lambda x,self=self: mibvar.mibNameToOid(self.mibViewController, x), varNames))
+        varBindHead = map(lambda (x,y),self=self: univ.ObjectIdentifier(x+y), map(lambda x,self=self: mibvar.mibNameToOid(self.mibViewController, x), varNames))
 
         appReturn = {}
         self.asyncNextCmd(
             authData, transportTarget, varNames,
-            (__cbFun, (varBindHead,[],appReturn))
+            (__cbFun, (self, varBindHead,[],appReturn))
             )
 
         self.snmpEngine.transportDispatcher.runDispatcher()
@@ -427,7 +427,7 @@ class CommandGenerator(AsynCommandGenerator):
                 nonRepeaters, maxRepetitions, *varNames):
         def __cbFun(
             sendRequestHandle, errorIndication, errorStatus, errorIndex,
-            varBindTable, (varBindHead, varBindTotalTable, appReturn)
+            varBindTable, (self, varBindHead, varBindTotalTable, appReturn)
             ):
             if errorIndication or errorStatus:
                 appReturn['errorIndication'] = errorIndication
@@ -464,13 +464,13 @@ class CommandGenerator(AsynCommandGenerator):
                 
             return 1 # continue table retrieval
         
-        varBindHead = map(lambda (x,y): univ.ObjectIdentifier(x+y), map(lambda x,self=self: mibvar.mibNameToOid(self.mibViewController, x), varNames))
+        varBindHead = map(lambda (x,y),self=self: univ.ObjectIdentifier(x+y), map(lambda x,self=self: mibvar.mibNameToOid(self.mibViewController, x), varNames))
 
         appReturn = {}
         
         self.asyncBulkCmd(
             authData, transportTarget, nonRepeaters, maxRepetitions,
-            varNames, (__cbFun, (varBindHead, [], appReturn))
+            varNames, (__cbFun, (self, varBindHead, [], appReturn))
             )
 
         self.snmpEngine.transportDispatcher.runDispatcher()
