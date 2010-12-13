@@ -9,7 +9,6 @@ Revision 4.1.15a
   or pyasn1 Null (v1).
   Built-in GETNEXT/GETBULK apps now do not require user to track
   end-of-mib conditions anymore -- this is now done automatically.
-  (WARNING: possibly backward incompatible API change!)
 - CommandResponder API now supports async mode of operation.
 - SNMP exception values now exported from rfc1905 module, and made
   pretty printable.
@@ -28,7 +27,6 @@ Revision 4.1.15a
 - Twisted-based CommandResponder example added.
 - Fix/rework of Twisted GETNEXT/BULK CommandGenerator callback API to
   make it simpler and uniform with other CommandGenerators
-  (WARNING: backward incompatible API change!)
 - Fix to SNMPv3 security module to store peer SNMP engine timeline
   only if taken from an authenticated message. Prior to this fix
   SNMP engine was not been protected from spoofing.
