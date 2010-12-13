@@ -20,7 +20,7 @@ FEATURES
 * IPv6 transport support
 * Python eggs and py2exe friendly
 * 100% Python, works with Python 1.5 though 2.x
-* MT-safe
+* MT-safe (only if run locally to a thread)
 
 Features, specific to SNMPv3 model include:
 
@@ -66,18 +66,21 @@ userData = cmdgen.UsmUserData('test-user', 'authkey1', 'privkey1')
 targetAddr = cmdgen.UdpTransportTarget(('localhost', 161))
 
 errorIndication, errorStatus, \
-                 errorIndex, varBinds = cmdgen.CommandGenerator().getCmd(
-    userData, targetAddr, (('SNMPv2-MIB', 'sysDescr'), 0)
+    errorIndex, varBinds = cmdgen.CommandGenerator().getCmd(
+        userData, targetAddr, (('SNMPv2-MIB', 'sysDescr'), 0)
     )
 
 if errorIndication: # SNMP engine errors
     print errorIndication
 else:
     if errorStatus: # SNMP agent errors
-        print '%s at %s\n' % (errorStatus, varBinds[int(errorIndex)-1])
+        print '%s at %s\n' % (
+              errorStatus.prettyPrint(),
+              errorIndex and varBinds[int(errorIndex)-1] or '?')
+            )
     else:
-        for varBind in varBinds: # SNMP agent values
-            print '%s = %s' % varBind
+        for oid, val in varBinds: # SNMP agent values
+            print '%s = %s' % (oid.prettyPrint(), val.prettyPrint())
 
 8X---------------- cut here --------------------
 
