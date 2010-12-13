@@ -14,7 +14,6 @@ try:
     from setuptools import setup
     params = {
         'install_requires': [ 'pyasn1', 'pycrypto' ],
-        'provides': [ 'pysnmp' ],
         'zip_safe': True
         }
 except ImportError:
@@ -25,8 +24,7 @@ except ImportError:
     from distutils.core import setup
     if sys.version_info > (2, 2):
         params = {
-            'requires': [ 'pyasn1', 'pycrypto' ],
-            'provides': [ 'pysnmp' ]
+            'requires': [ 'pyasn1', 'pycrypto' ]
         }
     else:
         params = {}
