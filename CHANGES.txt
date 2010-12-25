@@ -1,3 +1,9 @@
+Revision 4.1.16a
+----------------
+
+- The error-indication codes moved from literals to objects for reliability
+  and clarity
+
 Revision 4.1.15a
 ----------------
 
