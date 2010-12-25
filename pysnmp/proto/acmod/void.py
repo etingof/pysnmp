@@ -1,6 +1,6 @@
 # Void Access Control Model
 from pysnmp.smi.error import NoSuchObjectError
-from pysnmp.proto import error
+from pysnmp.proto import errind, error
 
 accessModelID = 0
 
@@ -17,4 +17,4 @@ def isAccessAllowed(
     debug.logger & debug.flagACL and debug.logger('isAccessAllowed: viewType %s for variableName %s - OK' % (viewType, variableName))
 
     # rfc3415 3.2.5c
-    return error.StatusInformation(errorIndication='accessAllowed')
+    return error.StatusInformation(errorIndication=errind.accessAllowed)

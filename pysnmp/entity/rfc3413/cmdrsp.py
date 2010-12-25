@@ -1,4 +1,4 @@
-from pysnmp.proto import rfc1157, rfc1902, rfc1905, rfc3411, error
+from pysnmp.proto import rfc1157, rfc1902, rfc1905, rfc3411, errind, error
 from pysnmp.proto.api import v2c  # backend is always SMIv2 compliant
 from pysnmp.proto.proxy import rfc2576
 import pysnmp.smi.error
@@ -197,15 +197,15 @@ class CommandResponderBase:
             debug.logger & debug.flagApp and debug.logger('__verifyAccess: name %s, statusInformation %s' % (name, statusInformation))
             errorIndication = statusInformation['errorIndication']
             # 3.2.5...
-            if errorIndication == 'noSuchView' or \
-               errorIndication == 'noAccessEntry' or \
-               errorIndication == 'noGroupName':
+            if errorIndication == errind.noSuchView or \
+               errorIndication == errind.noAccessEntry or \
+               errorIndication == errind.noGroupName:
                 raise pysnmp.smi.error.AuthorizationError(
                     name=name, idx=idx
                     )
-            elif errorIndication == 'otherError':
+            elif errorIndication == errind.otherError:
                 raise pysnmp.smi.error.GenError(name=name, idx=idx)
-            elif errorIndication == 'noSuchContext':
+            elif errorIndication == errind.noSuchContext:
                 snmpUnknownContexts, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-TARGET-MIB', 'snmpUnknownContexts')
                 snmpUnknownContexts.syntax = snmpUnknownContexts.syntax + 1
                 # Request REPORT generation
@@ -214,7 +214,7 @@ class CommandResponderBase:
                     oid=snmpUnknownContexts.name,
                     val=snmpUnknownContexts.syntax
                     )
-            elif errorIndication == 'notInView':
+            elif errorIndication == errind.notInView:
                 return 1
             else:
                 raise error.ProtocolError(

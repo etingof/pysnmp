@@ -1,7 +1,7 @@
 """SNMP v3 Message Processing and Dispatching (RFC3412)"""
 import time
 from pysnmp.smi import builder, instrum
-from pysnmp.proto import error
+from pysnmp.proto import errind, error
 from pysnmp.proto.api import verdec # XXX
 from pysnmp.error import PySnmpError
 from pysnmp import debug
@@ -139,7 +139,7 @@ class MsgAndPduDispatcher:
             )
         if mpHandler is None:
             raise error.StatusInformation(
-                errorIndication='unsupportedMsgProcessingModel'
+                errorIndication=errind.unsupportedMsgProcessingModel
                 )
 
         debug.logger & debug.flagDsp and debug.logger('sendPdu: securityName %s, PDU\n%s' % (securityName, PDU.prettyPrint()))
@@ -228,7 +228,7 @@ class MsgAndPduDispatcher:
             )
         if mpHandler is None:
             raise error.StatusInformation(
-                errorIndication='unsupportedMsgProcessingModel'
+                errorIndication=errind.unsupportedMsgProcessingModel
                 )
 
         debug.logger & debug.flagDsp and debug.logger('returnResponsePdu: PDU %s' % (PDU and PDU.prettyPrint() or "<empty>",))
@@ -360,7 +360,7 @@ class MsgAndPduDispatcher:
 
                 # 4.2.2.1.2.b
                 statusInformation = {
-                    'errorIndication': 'unknownPDUHandler',
+                    'errorIndication': errind.unknownPDUHandler,
                     'oid': snmpUnknownPDUHandlers.name,
                     'val': snmpUnknownPDUHandlers.syntax
                     }                    
@@ -486,7 +486,7 @@ class MsgAndPduDispatcher:
         # Fail timed-out requests        
         if not statusInformation:
             statusInformation = error.StatusInformation(
-                errorIndication='requestTimedOut'
+                errorIndication=errind.requestTimedOut
                 )
         self.releaseStateInformation(
             snmpEngine,

@@ -58,7 +58,7 @@ class Des(base.AbstractEncryptionService):
     def encryptData(self, encryptKey, privParameters, dataToEncrypt):
         if DES is None:
             raise error.StatusInformation(
-                errorIndication='encryptionError'
+                errorIndication=errind.encryptionError
                 )
 
         snmpEngineBoots, snmpEngineTime, salt = privParameters
@@ -83,7 +83,7 @@ class Des(base.AbstractEncryptionService):
     def decryptData(self, decryptKey, privParameters, encryptedData):
         if DES is None:
             raise error.StatusInformation(
-                errorIndication='decryptionError'
+                errorIndication=errind.decryptionError
                 )
 
         snmpEngineBoots, snmpEngineTime, salt = privParameters
@@ -91,7 +91,7 @@ class Des(base.AbstractEncryptionService):
         # 8.3.2.1
         if len(salt) != 8:
             raise error.StatusInformation(
-                errorIndication='decryptionError'
+                errorIndication=errind.decryptionError
                 )
             
         # 8.3.2.2
@@ -103,7 +103,7 @@ class Des(base.AbstractEncryptionService):
         # 8.3.2.4 -> 8.1.1.3
         if len(encryptedData) % 8 != 0:
             raise error.StatusInformation(
-                errorIndication='decryptionError'
+                errorIndication=errind.decryptionError
                 )
 
         desObj = DES.new(desKey, DES.MODE_CBC, iv)

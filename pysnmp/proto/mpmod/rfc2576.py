@@ -2,7 +2,7 @@
 from pyasn1.codec.ber import decoder
 from pysnmp.proto.mpmod.base import AbstractMessageProcessingModel
 from pysnmp.proto.secmod import rfc2576
-from pysnmp.proto import rfc3411, error
+from pysnmp.proto import rfc3411, errind, error
 from pysnmp.proto.api import v1, v2c
 from pyasn1.type import univ
 from pyasn1.error import PyAsn1Error
@@ -66,7 +66,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         smHandler = snmpEngine.securityModels.get(int(securityModel))
         if smHandler is None:
             raise error.StatusInformation(
-                errorIndication = 'unsupportedSecurityModel'
+                errorIndication = errind.unsupportedSecurityModel
                 )
 
         # rfc3412: 7.1.9.a & rfc2576: 5.2.1 --> no-op
@@ -146,7 +146,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             
             # rfc3412: 7.1.3b (always discard)
             raise error.StatusInformation(
-                errorIndication = 'nonReportable'
+                errorIndication = errind.nonReportable
                 )
 
         # rfc3412: 7.1.4
@@ -177,7 +177,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         smHandler = snmpEngine.securityModels.get(int(securityModel))
         if smHandler is None:
             raise error.StatusInformation(
-                errorIndication = 'unsupportedSecurityModel'
+                errorIndication = errind.unsupportedSecurityModel
                 )
 
         securityEngineId = snmpEngineID
@@ -217,7 +217,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
             snmpInASNParseErrs.syntax = snmpInASNParseErrs.syntax + 1
             raise error.StatusInformation(
-                errorIndication = 'parseError'
+                errorIndication = errind.parseError
                 )
 
         debug.logger & debug.flagMP and debug.logger('prepareDataElements: %s' % (msg.prettyPrint(),))
@@ -244,7 +244,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         smHandler = snmpEngine.securityModels.get(int(securityModel))
         if smHandler is None:
             raise error.StatusInformation(
-                errorIndication = 'unsupportedSecurityModel'
+                errorIndication = errind.unsupportedSecurityModel
                 )
 
         # rfc3412: 7.2.6
@@ -288,7 +288,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             except error.ProtocolError:
                 smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(
-                    errorIndication = 'dataMismatch'
+                    errorIndication = errind.dataMismatch
                     )
 
             # 7.2.10b            
@@ -311,7 +311,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                contextName != cachedReqParams['contextName']:
                 smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(
-                    errorIndication = 'dataMismatch'
+                    errorIndication = errind.dataMismatch
                     )
             
             # rfc3412: 7.2.12c
@@ -339,7 +339,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             if securityEngineID != snmpEngineID.syntax:
                 smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(
-                    errorIndication = 'engineIDMispatch'
+                    errorIndication = errind.engineIDMispatch
                     )
 
             # rfc3412: 7.2.13b
@@ -397,7 +397,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
         smHandler.releaseStateInformation(securityStateReference)
         raise error.StatusInformation(
-            errorIndication = 'unsupportedPDUtype'
+            errorIndication = errind.unsupportedPDUtype
             )
         
 class SnmpV2cMessageProcessingModel(SnmpV1MessageProcessingModel):

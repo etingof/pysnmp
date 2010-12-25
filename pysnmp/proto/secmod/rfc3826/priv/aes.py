@@ -1,7 +1,7 @@
 import random, string
 from pysnmp.proto.secmod.rfc3414.priv import base
 from pyasn1.type import univ
-from pysnmp.proto import error
+from pysnmp.proto import errind, error
 
 try:
     from sys import version_info
@@ -80,7 +80,7 @@ class Aes(base.AbstractEncryptionService):
     def encryptData(self, encryptKey, privParameters, dataToEncrypt):
         if AES is None:
             raise error.StatusInformation(
-                errorIndication='encryptionError'
+                errorIndication=errind.encryptionError
                 )
  
         snmpEngineBoots, snmpEngineTime, salt = privParameters
@@ -105,7 +105,7 @@ class Aes(base.AbstractEncryptionService):
     def decryptData(self, decryptKey, privParameters, encryptedData):
         if AES is None:
             raise error.StatusInformation(
-                errorIndication='decryptionError'
+                errorIndication=errind.decryptionError
                 )
 
         snmpEngineBoots, snmpEngineTime, salt = privParameters
@@ -113,7 +113,7 @@ class Aes(base.AbstractEncryptionService):
         # 3.3.2.1
         if len(salt) != 8:
             raise error.StatusInformation(
-                errorIndication='decryptionError'
+                errorIndication=errind.decryptionError
                 )
 
         # 3.3.2.3

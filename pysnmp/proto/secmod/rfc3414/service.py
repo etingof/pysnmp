@@ -5,7 +5,7 @@ from pysnmp.proto.secmod.rfc3414.priv import des, nopriv
 from pysnmp.proto.secmod.rfc3826.priv import aes
 from pysnmp.proto.secmod.rfc3414 import localkey
 from pysnmp.smi.error import NoSuchInstanceError
-from pysnmp.proto import rfc1155, error
+from pysnmp.proto import rfc1155, errind, error
 from pyasn1.type import univ, namedtype, constraint
 from pyasn1.codec.ber import encoder, decoder
 from pyasn1.error import PyAsn1Error
@@ -154,7 +154,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             localAuthKey = None
         else:
             raise error.StatusInformation(
-                errorIndication = 'unsupportedAuthProtocol'
+                errorIndication = errind.unsupportedAuthProtocol
                 )
         if localAuthKey is not None:
             pysnmpUsmKeyAuthLocalized.syntax = pysnmpUsmKeyAuthLocalized.syntax.clone(localAuthKey)
@@ -175,7 +175,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             localPrivKey = None
         else:
             raise error.StatusInformation(
-                errorIndication = 'unsupportedPrivProtocol'
+                errorIndication = errind.unsupportedPrivProtocol
                 )
         if localPrivKey is not None:
             pysnmpUsmKeyPrivLocalized.syntax = pysnmpUsmKeyPrivLocalized.syntax.clone(localPrivKey)
@@ -247,7 +247,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
                 if __reportUnknownName:
                     raise error.StatusInformation(
-                        errorIndication = 'unknownSecurityName'
+                        errorIndication = errind.unknownSecurityName
                         )
                 debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: clone user info')
         else:
@@ -265,14 +265,14 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         if securityLevel == 3:
             if not usmUserAuthProtocol or not usmUserPrivProtocol:
                 raise error.StatusInformation(
-                    errorIndication = 'unsupportedSecurityLevel'
+                    errorIndication = errind.unsupportedSecurityLevel
                     )
 
         # 3.1.3
         if securityLevel == 3 or securityLevel == 2:
             if not usmUserAuthProtocol:
                 raise error.StatusInformation(
-                    errorIndication = 'unsupportedSecurityLevel'
+                    errorIndication = errind.unsupportedSecurityLevel
                     )
 
         securityParameters = UsmSecurityParameters()
@@ -315,7 +315,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             privHandler = self.privServices.get(usmUserPrivProtocol)
             if privHandler is None:
                 raise error.StatusInformation(
-                    errorIndication = 'encryptionError'
+                    errorIndication = errind.encryptionError
                     )
 
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: scopedPDU %s' % scopedPDU.prettyPrint())
@@ -355,7 +355,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             authHandler = self.authServices.get(usmUserAuthProtocol)
             if authHandler is None:
                 raise error.StatusInformation(
-                    errorIndication = 'authenticationFailure'
+                    errorIndication = errind.authenticationFailure
                     )
 
             # extra-wild hack to facilitate BER substrate in-place re-write
@@ -469,7 +469,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
            snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
            snmpInASNParseErrs.syntax = snmpInASNParseErrs.syntax + 1
            raise error.StatusInformation(
-               errorIndication='parseError'
+               errorIndication=errind.parseError
                )
 
         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: %s' % (securityParameters.prettyPrint(),))
@@ -504,7 +504,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     if scopedPduData.getName() != 'plaintext':
                         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: scopedPduData not plaintext %s' % scopedPduData.prettyPrint())
                         raise error.StatusInformation(
-                            errorIndication = 'unknownEngineID'
+                            errorIndication = errind.unknownEngineID
                             )
 
                     # 7.2.6.a.1 
@@ -513,7 +513,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     contextName = scopedPdu.getComponentByPosition(1)
 
                     raise error.StatusInformation(
-                        errorIndication = 'unknownEngineID',
+                        errorIndication = errind.unknownEngineID,
                         oid=usmStatsUnknownEngineIDs.name,
                         val=usmStatsUnknownEngineIDs.syntax,
                         securityStateReference=securityStateReference,
@@ -527,7 +527,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     debug.logger & debug.flagSM and debug.logger('processIncomingMsg: will not discover EngineID')                    
                     # free securityStateReference XXX
                     raise error.StatusInformation(
-                        errorIndication = 'unknownEngineID'
+                        errorIndication = errind.unknownEngineID
                         )
 
         snmpEngineID = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')[0].syntax
@@ -571,7 +571,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         usmStatsUnknownUserNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownUserNames')
                         usmStatsUnknownUserNames.syntax = usmStatsUnknownUserNames.syntax+1
                         raise error.StatusInformation(
-                            errorIndication = 'unknownSecurityName',
+                            errorIndication = errind.unknownSecurityName,
                             oid = usmStatsUnknownUserNames.name,
                             val = usmStatsUnknownUserNames.syntax,
                             securityStateReference=securityStateReference,
@@ -610,7 +610,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             usmStatsUnsupportedSecLevels, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnsupportedSecLevels')
             usmStatsUnsupportedSecLevels.syntax = usmStatsUnsupportedSecLevels.syntax + 1
             raise error.StatusInformation(
-                errorIndication='unsupportedSecurityLevel',
+                errorIndication=errind.unsupportedSecurityLevel,
                 oid=usmStatsUnknownEngineIDs.name,
                 val=usmStatsUnknownEngineIDs.syntax,
                 securityStateReference=securityStateReference,
@@ -625,7 +625,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             authHandler = self.authServices.get(usmUserAuthProtocol)
             if authHandler is None:
                 raise error.StatusInformation(
-                    errorIndication = 'authenticationFailure'
+                    errorIndication = errind.authenticationFailure
                     )
             try:
                 authenticatedWholeMsg = authHandler.authenticateIncomingMsg(
@@ -637,7 +637,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 usmStatsWrongDigests, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsWrongDigests')
                 usmStatsWrongDigests.syntax = usmStatsWrongDigests.syntax+1
                 raise error.StatusInformation(
-                    errorIndication = 'authenticationFailure',
+                    errorIndication = errind.authenticationFailure,
                     oid=usmStatsWrongDigests.name,
                     val=usmStatsWrongDigests.syntax,
                     securityStateReference=securityStateReference,
@@ -704,7 +704,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     usmStatsNotInTimeWindows, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsNotInTimeWindows')
                     usmStatsNotInTimeWindows.syntax = usmStatsNotInTimeWindows.syntax+1
                     raise error.StatusInformation(
-                        errorIndication = 'notInTimeWindow',
+                        errorIndication = errind.notInTimeWindow,
                         oid=usmStatsNotInTimeWindows.name,
                         val=usmStatsNotInTimeWindows.syntax,
                         securityStateReference=securityStateReference,
@@ -741,7 +741,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                    abs(idleTime + int(snmpEngineTime) - \
                        int(msgAuthoritativeEngineTime)) > 150:
                     raise error.StatusInformation(
-                        errorIndication = 'notInTimeWindow'
+                        errorIndication = errind.notInTimeWindow
                         )
 
         # 3.2.8a
@@ -749,12 +749,12 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             privHandler = self.privServices.get(usmUserPrivProtocol)
             if privHandler is None:
                 raise error.StatusInformation(
-                    errorIndication = 'decryptionError'
+                    errorIndication = errind.decryptionError
                     )
             encryptedPDU = scopedPduData.getComponentByPosition(1)
             if encryptedPDU is None: # no ciphertext
                 raise error.StatusInformation(
-                    errorIndication = 'decryptionError'
+                    errorIndication = errind.decryptionError
                     )
 
             try:
@@ -770,7 +770,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 usmStatsDecryptionErrors, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsDecryptionErrors')
                 usmStatsDecryptionErrors.syntax = usmStatsDecryptionErrors.syntax+1
                 raise error.StatusInformation(
-                    errorIndication = 'decryptionError',
+                    errorIndication = errind.decryptionError,
                     oid=usmStatsDecryptionErrors.name,
                     val=usmStatsDecryptionErrors.syntax,
                     securityStateReference=securityStateReference,
@@ -787,14 +787,14 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             except PyAsn1Error, why:
                 debug.logger & debug.flagSM and debug.logger('processIncomingMsg: scopedPDU decoder failed %s' % why)                
                 raise error.StatusInformation(
-                    errorIndication = 'decryptionError'
+                    errorIndication = errind.decryptionError
                     )
         else:
             # 3.2.8b
             scopedPDU = scopedPduData.getComponentByPosition(0)
             if scopedPDU is None:  # no plaintext
                 raise error.StatusInformation(
-                    errorIndication = 'decryptionError'
+                    errorIndication = errind.decryptionError
                     )
 
         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: scopedPDU decoded %s' % scopedPDU.prettyPrint()) 
@@ -809,7 +809,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             usmStatsUnknownUserNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownUserNames')
             usmStatsUnknownUserNames.syntax = usmStatsUnknownUserNames.syntax+1
             raise error.StatusInformation(
-                errorIndication='unknownSecurityName',
+                errorIndication=errind.unknownSecurityName,
                 oid=usmStatsUnknownUserNames.name,
                 val=usmStatsUnknownUserNames.syntax,
                 securityStateReference=securityStateReference,

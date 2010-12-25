@@ -1,6 +1,6 @@
 # View-based Access Control Model
 from pysnmp.smi.error import NoSuchObjectError
-from pysnmp.proto import error
+from pysnmp.proto import errind, error
 from pysnmp import debug
 
 accessModelID = 3
@@ -28,7 +28,7 @@ def isAccessAllowed(
             vacmContextEntry.name + (1,) + tblIdx
             ).syntax
     except NoSuchObjectError:
-        raise error.StatusInformation(errorIndication='noSuchContext')    
+        raise error.StatusInformation(errorIndication=errind.noSuchContext)    
 
     # 3.2.2
     vacmSecurityToGroupEntry, = mibInstrumController.mibBuilder.importSymbols(
@@ -42,7 +42,7 @@ def isAccessAllowed(
             vacmSecurityToGroupEntry.name + (3,) + tblIdx
             ).syntax
     except NoSuchObjectError:
-        raise error.StatusInformation(errorIndication='noGroupName')
+        raise error.StatusInformation(errorIndication=errind.noGroupName)
 
     # 3.2.3
     vacmAccessEntry, = mibInstrumController.mibBuilder.importSymbols(
@@ -66,9 +66,9 @@ def isAccessAllowed(
     try:
         viewName = vacmAccessEntry.getNode(entryIdx).syntax
     except NoSuchObjectError:
-        raise error.StatusInformation(errorIndication='noAccessEntry')
+        raise error.StatusInformation(errorIndication=errind.noAccessEntry)
     if not len(viewName):
-        raise error.StatusInformation(errorIndication='noSuchView')
+        raise error.StatusInformation(errorIndication=errind.noSuchView)
 
     # XXX split onto object & instance ?
     
@@ -90,7 +90,7 @@ def isAccessAllowed(
         maskName = vacmViewTreeFamilyMask.name
         if initialTreeName != treeName[:len(initialTreeName)]:
             # 3.2.5b
-            raise error.StatusInformation(errorIndication='notInView')            
+            raise error.StatusInformation(errorIndication=errind.notInView)
         l = len(vacmViewTreeFamilySubtree.syntax)
         if l > len(variableName):
             continue
@@ -110,4 +110,4 @@ def isAccessAllowed(
             if vacmViewTreeFamilySubtree.syntax != variableName[:l]:
                 continue # no match
         # 3.2.5c
-        return error.StatusInformation(errorIndication='accessAllowed')
+        return error.StatusInformation(errorIndication=errind.accessAllowed)

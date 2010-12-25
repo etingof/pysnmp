@@ -4,7 +4,7 @@ from pyasn1.codec.ber import encoder
 from pysnmp.proto.secmod import base
 from pysnmp.carrier.asynsock.dgram import udp, udp6
 from pysnmp.smi.error import NoSuchInstanceError
-from pysnmp.proto import error
+from pysnmp.proto import errind, error
 from pysnmp import debug
 
 class SnmpV1SecurityModel(base.AbstractSecurityModel):
@@ -82,7 +82,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
             return ( securityParameters, wholeMsg )
 
         raise error.StatusInformation(
-            errorIndication = 'unknownCommunityName'
+            errorIndication = errind.unknownCommunityName
             )
 
     def generateResponseMsg(
@@ -151,7 +151,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                 snmpInBadCommunityNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInBadCommunityNames')
                 snmpInBadCommunityNames.syntax = snmpInBadCommunityNames.syntax+1
                 raise error.StatusInformation(
-                    errorIndication = 'unknownCommunityName'
+                    errorIndication = errind.unknownCommunityName
                     )
 
             instId = nextMibNode.name[len(snmpCommunityName.name):]

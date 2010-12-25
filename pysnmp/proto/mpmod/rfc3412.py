@@ -1,7 +1,7 @@
 # SNMP v3 message processing model implementation
 from pysnmp.proto.mpmod.base import AbstractMessageProcessingModel
 from pysnmp.proto.secmod import rfc3414
-from pysnmp.proto import rfc1905, rfc3411, error, api
+from pysnmp.proto import rfc1905, rfc3411, api, errind, error
 from pyasn1.type import univ, namedtype, constraint
 from pyasn1.codec.ber import decoder
 from pyasn1.error import PyAsn1Error
@@ -161,7 +161,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         smHandler = snmpEngine.securityModels.get(securityModel)
         if smHandler is None:
             raise error.StatusInformation(
-                errorIndication = 'unsupportedSecurityModel'
+                errorIndication = errind.unsupportedSecurityModel
                 )
 
         # 7.1.9.a
@@ -209,7 +209,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
 
         # Message size constraint verification
         if len(wholeMsg) > snmpEngineMaxMessageSize.syntax:
-            raise error.StatusInformation(errorIndication='tooBig')
+            raise error.StatusInformation(errorIndication=errind.tooBig)
         
         # 7.1.9.c
         if rfc3411.confirmedClassPDUs.has_key(pdu.tagSet):
@@ -280,7 +280,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                    pduType is not None and \
                    not rfc3411.confirmedClassPDUs.has_key(pduType):
                 raise error.StatusInformation(
-                    errorIndication = 'loopTerminated'
+                    errorIndication = errind.loopTerminated
                     )
             
             # 7.1.3c
@@ -380,7 +380,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         smHandler = snmpEngine.securityModels.get(securityModel)
         if smHandler is None:
             raise error.StatusInformation(
-                errorIndication = 'unsupportedSecurityModel'
+                errorIndication = errind.unsupportedSecurityModel
                 )
 
         # 7.1.8a
@@ -406,7 +406,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
 
         # Message size constraint verification
         if len(wholeMsg) > min(snmpEngineMaxMessageSize.syntax, maxMessageSize):
-            raise error.StatusInformation(errorIndication='tooBig')
+            raise error.StatusInformation(errorIndication=errind.tooBig)
 
         return ( transportDomain, transportAddress, wholeMsg )
 
@@ -428,7 +428,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
             snmpInASNParseErrs.syntax = snmpInASNParseErrs.syntax + 1
             raise error.StatusInformation(
-                errorIndication = 'parseError'
+                errorIndication = errind.parseError
                 )
 
         debug.logger & debug.flagMP and debug.logger('prepareDataElements: %s' % (msg.prettyPrint(),))
@@ -449,7 +449,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             snmpUnknownSecurityModels, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpUnknownSecurityModels')
             snmpUnknownSecurityModels.syntax = snmpUnknownSecurityModels.syntax + 1
             raise error.StatusInformation(
-                errorIndication = 'unsupportedSecurityModel'
+                errorIndication = errind.unsupportedSecurityModel
                 )
 
         # 7.2.5
@@ -463,7 +463,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             snmpInvalidMsgs = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInvalidMsgs')
             snmpInvalidMsgs.syntax = snmpInvalidMsgs.syntax + 1
             raise error.StatusInformation(
-                errorIndication = 'invalidMsg'
+                errorIndication = errind.invalidMsg
                 )
 
         if msgFlags & 0x04:
@@ -592,7 +592,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             except error.ProtocolError:
                 smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(
-                    errorIndication = 'dataMismatch'
+                    errorIndication = errind.dataMismatch
                     )
             # 7.2.10b            
             sendPduHandle = cachedReqParams['sendPduHandle']
@@ -640,7 +640,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                contextName != cachedReqParams['contextName']:
                 smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(
-                    errorIndication = 'dataMismatch'
+                    errorIndication = errind.dataMismatch
                     )
                         
             # 7.2.12c
@@ -668,7 +668,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             if securityEngineID != snmpEngineID:
                 smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(
-                    errorIndication = 'engineIDMismatch'
+                    errorIndication = errind.engineIDMismatch
                     )
 
             # 7.2.13b
@@ -731,7 +731,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
 
         smHandler.releaseStateInformation(securityStateReference)
         raise error.StatusInformation(
-            errorIndication = 'unknownPDU'
+            errorIndication = errind.unsupportedPDUtype
             )
 
     def __expireEnginesInfo(self):

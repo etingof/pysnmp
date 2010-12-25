@@ -1,5 +1,5 @@
 import types, time
-from pysnmp.proto import rfc1157, rfc1905, api
+from pysnmp.proto import rfc1157, rfc1905, api, errind
 from pysnmp.entity.rfc3413 import config
 from pysnmp.proto.proxy import rfc2576
 from pysnmp import error, nextid, debug
@@ -428,14 +428,14 @@ class NextCommandGenerator(CommandGeneratorBase):
         if pMod.apiPDU.getErrorStatus(rspPDU):
             errorIndication = None
         elif not varBindTable:
-            errorIndication = 'emptyResponse'
+            errorIndication = errind.emptyResponse
         else:
             if map(lambda (o,v): o, pMod.apiPDU.getVarBinds(PDU)) < \
                    map(lambda (o,v): isinstance(v, univ.Null) and (9,) or o,varBindTable[-1]):
                 errorIndication = None
             else:
                 debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, OID(s) not increasing!' % sendRequestHandle)            
-                errorIndication = 'oidNotIncreasing'
+                errorIndication = errind.oidNotIncreasing
         
         if not cbFun(sendRequestHandle, errorIndication,
                      pMod.apiPDU.getErrorStatus(rspPDU),
@@ -556,14 +556,14 @@ class BulkCommandGenerator(CommandGeneratorBase):
         if pMod.apiBulkPDU.getErrorStatus(rspPDU):
             errorIndication = None            
         elif not varBindTable:
-            errorIndication = 'emptyResponse'
+            errorIndication = errind.emptyResponse
         else:
             if map(lambda (o,v): o, pMod.apiBulkPDU.getVarBinds(PDU)) < \
                    map(lambda (o,v): isinstance(v, univ.Null) and (9,) or o,varBindTable[-1]):
                 errorIndication = None
             else:
                 debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, OID(s) not increasing!' % sendRequestHandle)            
-                errorIndication = 'oidNotIncreasing'
+                errorIndication = errind.oidNotIncreasing
 
         if not cbFun(sendRequestHandle, errorIndication,
                      pMod.apiBulkPDU.getErrorStatus(rspPDU),

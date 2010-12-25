@@ -5,7 +5,7 @@ except ImportError:
     md5 = md5.new                    
 import string
 from pysnmp.proto.secmod.rfc3414.auth import base
-from pysnmp.proto import error
+from pysnmp.proto import errind, error
 
 _twelveZeros = '\x00'*12
 _fortyEightZeros = '\x00'*48
@@ -63,7 +63,7 @@ class HmacMd5(base.AbstractAuthenticationService):
         # 6.3.2.1 & 2
         if len(authParameters) != 12:
             raise error.StatusInformation(
-                errorIndication='authenticationError'
+                errorIndication=errind.authenticationError
                 )
 
         # 6.3.2.3
@@ -105,7 +105,7 @@ class HmacMd5(base.AbstractAuthenticationService):
         # 6.3.2.6
         if mac != authParameters:
             raise error.StatusInformation(
-                errorIndication='authenticationFailure'
+                errorIndication=errind.authenticationFailure
                 )
 
         return authenticatedWholeMsg
