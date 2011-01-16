@@ -10,7 +10,10 @@ usmNoAuthProtocol = cmdgen.usmNoAuthProtocol
 
 # Privacy protocol
 usmDESPrivProtocol = cmdgen.usmDESPrivProtocol
+usm3DESEDEPrivProtocol = cmdgen.usm3DESEDEPrivProtocol
 usmAesCfb128Protocol = cmdgen.usmAesCfb128Protocol
+usmAesCfb192Protocol = cmdgen.usmAesCfb192Protocol
+usmAesCfb256Protocol = cmdgen.usmAesCfb256Protocol
 usmNoPrivProtocol = cmdgen.usmNoPrivProtocol
 
 # Credentials

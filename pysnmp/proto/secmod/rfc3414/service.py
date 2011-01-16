@@ -3,7 +3,7 @@ from pysnmp.proto.secmod.base import AbstractSecurityModel
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha, noauth
 from pysnmp.proto.secmod.rfc3414.priv import des, nopriv
 from pysnmp.proto.secmod.rfc3826.priv import aes
-from pysnmp.proto.secmod.rfc3414 import localkey
+from pysnmp.proto.secmod.eso.priv import des3, aes192, aes256
 from pysnmp.smi.error import NoSuchInstanceError
 from pysnmp.proto import rfc1155, errind, error
 from pyasn1.type import univ, namedtype, constraint
@@ -30,11 +30,13 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         hmacmd5.HmacMd5.serviceID: hmacmd5.HmacMd5(),
         hmacsha.HmacSha.serviceID: hmacsha.HmacSha(),
         noauth.NoAuth.serviceID: noauth.NoAuth()
-        
         }
     privServices = {
         des.Des.serviceID: des.Des(),
+        des3.Des3.serviceID: des3.Des3(),        
         aes.Aes.serviceID: aes.Aes(),
+        aes192.Aes192.serviceID: aes192.Aes192(),
+        aes256.Aes256.serviceID: aes256.Aes256(),
         nopriv.NoPriv.serviceID: nopriv.NoPriv()
         }
     _securityParametersSpec = UsmSecurityParameters()
@@ -142,16 +144,12 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         pysnmpUsmKeyAuthLocalized = pysnmpUsmKeyEntry.getNode(
             pysnmpUsmKeyEntry.name + (1,) + tblIdx
             )
-        if usmUserAuthProtocol.syntax == hmacsha.HmacSha.serviceID:
-            localAuthKey = localkey.localizeKeySHA(
-                pysnmpUsmKeyAuth.syntax, securityEngineID
+        if self.authServices.has_key(usmUserAuthProtocol.syntax):
+            localizeKey = self.authServices[usmUserAuthProtocol.syntax].localizeKey
+            localAuthKey = localizeKey(
+                pysnmpUsmKeyAuth.syntax,
+                securityEngineID
                 )
-        elif usmUserAuthProtocol.syntax == hmacmd5.HmacMd5.serviceID:
-            localAuthKey = localkey.localizeKeyMD5(
-                pysnmpUsmKeyAuth.syntax, securityEngineID
-                )
-        elif usmUserAuthProtocol.syntax == noauth.NoAuth.serviceID:
-            localAuthKey = None
         else:
             raise error.StatusInformation(
                 errorIndication = errind.unsupportedAuthProtocol
@@ -161,18 +159,13 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         pysnmpUsmKeyPrivLocalized = pysnmpUsmKeyEntry.getNode(
             pysnmpUsmKeyEntry.name + (2,) + tblIdx
             )
-        if usmUserPrivProtocol.syntax == des.Des.serviceID or \
-           usmUserPrivProtocol.syntax == aes.Aes.serviceID:
-            if usmUserAuthProtocol.syntax == hmacsha.HmacSha.serviceID:
-                localPrivKey = localkey.localizeKeySHA(
-                    pysnmpUsmKeyPriv.syntax, securityEngineID
-                    )
-            else:
-                localPrivKey = localkey.localizeKeyMD5(
-                    pysnmpUsmKeyPriv.syntax, securityEngineID
-                    )
-        elif usmUserPrivProtocol.syntax == nopriv.NoPriv.serviceID:
-            localPrivKey = None
+        if self.privServices.has_key(usmUserPrivProtocol.syntax):
+            localizeKey = self.privServices[usmUserPrivProtocol.syntax].localizeKey
+            localPrivKey = localizeKey(
+                usmUserAuthProtocol.syntax,
+                pysnmpUsmKeyPriv.syntax,
+                securityEngineID
+                )
         else:
             raise error.StatusInformation(
                 errorIndication = errind.unsupportedPrivProtocol

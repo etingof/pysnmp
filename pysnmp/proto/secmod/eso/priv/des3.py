@@ -1,3 +1,5 @@
+# Reeder 3DES-EDE for USM (Internet draft)
+# http://www.snmp.com/eso/draft-reeder-snmpv3-usm-3desede-00.txt
 import random, string
 from pysnmp.proto.secmod.rfc3414.priv import base
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
@@ -11,16 +13,16 @@ except ImportError:
     version_info = ( 0, 0 )   # a really early version
 
 try:
-    from Crypto.Cipher import DES
+    from Crypto.Cipher import DES3
 except ImportError:
-    DES = None
+    DES3 = None
     
 random.seed()
 
-# 8.2.4
+# 5.1.1
 
-class Des(base.AbstractEncryptionService):
-    serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 2) # usmDESPrivProtocol
+class Des3(base.AbstractEncryptionService):
+    serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 3) # usm3DESEDEPrivProtocol
     if version_info < (2, 3):
         _localInt = long(random.random()*0xffffffffL)
     else:
@@ -39,18 +41,25 @@ class Des(base.AbstractEncryptionService):
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
         if authProtocol == hmacmd5.HmacMd5.serviceID:
             localPrivKey = localkey.localizeKeyMD5(privKey, snmpEngineID)
+            localPrivKey = localPrivKey + localkey.localizeKeyMD5(
+                localPrivKey, snmpEngineID
+                )
         elif authProtocol == hmacsha.HmacSha.serviceID:
             localPrivKey = localkey.localizeKeySHA(privKey, snmpEngineID)
+            localPrivKey = localPrivKey + localkey.localizeKeySHA(
+                localPrivKey, snmpEngineID
+                )
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
                 )
         return localPrivKey[:32] # key+IV
-    
-    # 8.1.1.1
+        
+    # 5.1.1.1
     def __getEncryptionKey(self, privKey, snmpEngineBoots):
-        desKey = privKey[:8]
-        preIV = privKey[8:16]
+        # 5.1.1.1.1
+        des3Key = privKey[:24]
+        preIV = privKey[24:32]
 
         securityEngineBoots = long(snmpEngineBoots)
 
@@ -69,68 +78,81 @@ class Des(base.AbstractEncryptionService):
         else:
             self._localInt = self._localInt + 1
 
-        return desKey, \
+        # salt not yet hashed XXX
+        
+        return des3Key, \
                string.join(map(chr, salt), ''), \
                string.join(map(lambda x,y: chr(x^ord(y)), salt, preIV), '')
 
     def __getDecryptionKey(self, privKey, salt):
-        return privKey[:8], string.join(
-            map(lambda x,y: chr(ord(x)^ord(y)), salt, privKey[8:16]), ''
+        return privKey[:24], string.join(
+            map(lambda x,y: chr(ord(x)^ord(y)), salt, privKey[24:32]), ''
             )
 
-    # 8.2.4.1
+    # 5.1.1.2
     def encryptData(self, encryptKey, privParameters, dataToEncrypt):
-        if DES is None:
+        if DES3 is None:
             raise error.StatusInformation(
                 errorIndication=errind.encryptionError
                 )
 
         snmpEngineBoots, snmpEngineTime, salt = privParameters
         
-        # 8.3.1.1
-        desKey, salt, iv = self.__getEncryptionKey(
+        des3Key, salt, iv = self.__getEncryptionKey(
             str(encryptKey), snmpEngineBoots
             )
 
-        # 8.3.1.2
+        des3Obj = DES3.new(des3Key, DES3.MODE_CBC, iv)
+        
         privParameters = univ.OctetString(salt)
 
-        # 8.1.1.2
-        desObj = DES.new(desKey, DES.MODE_CBC, iv)
         plaintext =  dataToEncrypt + '\x00' * (8 - len(dataToEncrypt) % 8)
-        ciphertext = desObj.encrypt(plaintext)
+        cipherblock = iv
+        ciphertext = ''
+        while plaintext:
+            cipherblock = des3Obj.encrypt(
+                string.join(map(lambda x,y: chr(ord(x)^ord(y)), cipherblock, plaintext[:8]), '')
+                )
+            ciphertext = ciphertext + cipherblock
+            plaintext = plaintext[8:]
 
-        # 8.3.1.3 & 4
         return univ.OctetString(ciphertext), privParameters
         
-    # 8.2.4.2
+    # 5.1.1.3
     def decryptData(self, decryptKey, privParameters, encryptedData):
-        if DES is None:
+        if DES3 is None:
             raise error.StatusInformation(
                 errorIndication=errind.decryptionError
                 )
-
         snmpEngineBoots, snmpEngineTime, salt = privParameters
         
-        # 8.3.2.1
         if len(salt) != 8:
             raise error.StatusInformation(
                 errorIndication=errind.decryptionError
                 )
             
-        # 8.3.2.2
         salt = str(salt)
 
-        # 8.3.2.3
-        desKey, iv = self.__getDecryptionKey(str(decryptKey), salt)
+        des3Key, iv = self.__getDecryptionKey(str(decryptKey), salt)
 
-        # 8.3.2.4 -> 8.1.1.3
         if len(encryptedData) % 8 != 0:
             raise error.StatusInformation(
                 errorIndication=errind.decryptionError
                 )
 
-        desObj = DES.new(desKey, DES.MODE_CBC, iv)
-        
-        # 8.3.2.6
-        return desObj.decrypt(str(encryptedData))
+        des3Obj = DES3.new(des3Key, DES3.MODE_CBC, iv)
+
+        plaintext = ''
+        ciphertext = str(encryptedData)
+        cipherblock = iv
+        while ciphertext:
+            plaintext = plaintext + string.join(map(
+                lambda x,y: chr(ord(x)^ord(y)),
+                cipherblock,
+                des3Obj.decrypt(ciphertext[:8])
+                ), '')
+            cipherblock = ciphertext[:8]
+            ciphertext = ciphertext[8:]
+
+        return plaintext
+    

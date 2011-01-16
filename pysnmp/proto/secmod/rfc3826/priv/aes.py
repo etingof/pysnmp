@@ -1,5 +1,7 @@
 import random, string
 from pysnmp.proto.secmod.rfc3414.priv import base
+from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
+from pysnmp.proto.secmod.rfc3414 import localkey
 from pyasn1.type import univ
 from pysnmp.proto import errind, error
 
@@ -21,6 +23,7 @@ random.seed()
 
 class Aes(base.AbstractEncryptionService):
     serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 4) # usmAesCfb128Protocol
+    keySize = 16
     if version_info < (2, 3):
         _localInt = long(random.random()*0xffffffffffffffffL)
     else:
@@ -73,9 +76,29 @@ class Aes(base.AbstractEncryptionService):
             ord(salt[7])
             ]
 
-        return privKey[:16], string.join(map(chr, iv), '')
+        return privKey[:self.keySize], string.join(map(chr, iv), '')
 
+    def hashPassphrase(self, authProtocol, privKey):
+        if authProtocol == hmacmd5.HmacMd5.serviceID:
+            return localkey.hashPassphraseMD5(privKey)
+        elif authProtocol == hmacsha.HmacSha.serviceID:
+            return localkey.hashPassphraseSHA(privKey)
+        else:
+            raise error.ProtocolError(
+                'Unknown auth protocol %s' % (authProtocol,)
+                )
         
+    def localizeKey(self, authProtocol, privKey, snmpEngineID):
+        if authProtocol == hmacmd5.HmacMd5.serviceID:
+            localPrivKey = localkey.localizeKeyMD5(privKey, snmpEngineID)
+        elif authProtocol == hmacsha.HmacSha.serviceID:
+            localPrivKey = localkey.localizeKeySHA(privKey, snmpEngineID)
+        else:
+            raise error.ProtocolError(
+                'Unknown auth protocol %s' % (authProtocol,)
+                )
+        return localPrivKey[:16]
+    
     # 3.2.4.1
     def encryptData(self, encryptKey, privParameters, dataToEncrypt):
         if AES is None:

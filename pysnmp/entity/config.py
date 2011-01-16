@@ -9,11 +9,11 @@ try:
 except ImportError: # UNIX-specific -- may not be always available
     pass
 from pysnmp.proto import rfc3412
-from pysnmp.proto.secmod.rfc3414 import localkey
 from pysnmp.entity import engine
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha, noauth
 from pysnmp.proto.secmod.rfc3414.priv import des, nopriv
 from pysnmp.proto.secmod.rfc3826.priv import aes
+from pysnmp.proto.secmod.eso.priv import des3, aes192, aes256
 from pysnmp.smi.error import NotWritableError
 from pysnmp import error
 
@@ -30,9 +30,29 @@ usmNoAuthProtocol = noauth.NoAuth.serviceID
 
 # Privacy protocol
 usmDESPrivProtocol = des.Des.serviceID
+usm3DESEDEPrivProtocol = des3.Des3.serviceID
 usmAesCfb128Protocol = aes.Aes.serviceID
+usmAesCfb192Protocol = aes192.Aes192.serviceID
+usmAesCfb256Protocol = aes256.Aes256.serviceID
 usmNoPrivProtocol = nopriv.NoPriv.serviceID
 
+# Auth services
+authServices = {
+    hmacmd5.HmacMd5.serviceID: hmacmd5.HmacMd5(),
+    hmacsha.HmacSha.serviceID: hmacsha.HmacSha(),
+    noauth.NoAuth.serviceID: noauth.NoAuth()
+    }
+
+# Privacy services
+privServices = {
+    des.Des.serviceID: des.Des(),
+    des3.Des3.serviceID: des3.Des3(),        
+    aes.Aes.serviceID: aes.Aes(),
+    aes192.Aes192.serviceID: aes192.Aes192(),
+    aes256.Aes256.serviceID: aes256.Aes256(),
+    nopriv.NoPriv.serviceID: nopriv.NoPriv()
+    }
+    
 def __cookV1SystemInfo(snmpEngine, securityName):
     snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
@@ -117,47 +137,23 @@ def addV3User(snmpEngine, securityName,
         )
 
     # Localize keys
-    if authProtocol == usmHMACMD5AuthProtocol:
-        hashedAuthPassphrase = localkey.hashPassphraseMD5(
+    if authServices.has_key(authProtocol):
+        hashedAuthPassphrase = authServices[authProtocol].hashPassphrase(
             authKey and authKey or ''
             )
-        localAuthKey = localkey.localizeKeyMD5(
+        localAuthKey = authServices[authProtocol].localizeKey(
             hashedAuthPassphrase, snmpEngineID
             )
-    elif authProtocol == usmHMACSHAAuthProtocol:
-        hashedAuthPassphrase = localkey.hashPassphraseSHA(
-            authKey and authKey or ''
-            )
-        localAuthKey = localkey.localizeKeySHA(
-            hashedAuthPassphrase, snmpEngineID
-            )
-    elif authProtocol == usmNoAuthProtocol:
-        hashedAuthPassphrase = localAuthKey = None
     else:
         raise error.PySnmpError('Unknown auth protocol %s' % (authProtocol,))
 
-    if privProtocol == usmDESPrivProtocol or \
-       privProtocol == usmAesCfb128Protocol:
-        if authProtocol == usmHMACMD5AuthProtocol:
-            hashedPrivPassphrase = localkey.hashPassphraseMD5(
-                privKey and privKey or ''
-                )
-            localPrivKey = localkey.localizeKeyMD5(
-                hashedPrivPassphrase, snmpEngineID
-                )
-        elif authProtocol == usmHMACSHAAuthProtocol:
-            hashedPrivPassphrase = localkey.hashPassphraseSHA(
-                privKey and privKey or ''
-                )
-            localPrivKey = localkey.localizeKeySHA(
-                hashedPrivPassphrase, snmpEngineID
-                )
-        else:
-            raise error.PySnmpError(
-                'Unknown auth protocol %s' % (authProtocol,)
-                )
-    elif privProtocol == usmNoPrivProtocol:
-        hashedPrivPassphrase = localPrivKey = None
+    if privServices.has_key(privProtocol):
+        hashedPrivPassphrase = privServices[privProtocol].hashPassphrase(
+            authProtocol, privKey and privKey or ''
+            )
+        localPrivKey = privServices[privProtocol].localizeKey(
+            authProtocol, hashedPrivPassphrase, snmpEngineID
+            )
     else:
         raise error.PySnmpError(
             'Unknown priv protocol %s' % (privProtocol,)

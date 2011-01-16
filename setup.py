@@ -58,6 +58,8 @@ params.update( {
                   'pysnmp.proto.secmod.rfc3414.priv',
                   'pysnmp.proto.secmod.rfc3826',
                   'pysnmp.proto.secmod.rfc3826.priv',
+                  'pysnmp.proto.secmod.eso',
+                  'pysnmp.proto.secmod.eso.priv',
                   'pysnmp.proto.acmod',
                   'pysnmp.proto.proxy',
                   'pysnmp.proto.api' ],

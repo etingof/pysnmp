@@ -5,6 +5,7 @@ except ImportError:
     md5 = md5.new                    
 import string
 from pysnmp.proto.secmod.rfc3414.auth import base
+from pysnmp.proto.secmod.rfc3414 import localkey
 from pysnmp.proto import errind, error
 
 _twelveZeros = '\x00'*12
@@ -17,6 +18,12 @@ class HmacMd5(base.AbstractAuthenticationService):
     __ipad = [0x36]*64
     __opad = [0x5C]*64
 
+    def hashPassphrase(self, authKey):
+        return localkey.hashPassphraseMD5(authKey)
+            
+    def localizeKey(self, authKey, snmpEngineID):
+        return localkey.localizeKeyMD5(authKey, snmpEngineID)
+    
     # 6.3.1
     def authenticateOutgoingMsg(self, authKey, wholeMsg):
         # Here we expect calling secmod to indicate where the digest

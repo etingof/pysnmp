@@ -1,6 +1,8 @@
 Revision 4.1.16a
 ----------------
 
+- Extended Security Options (3DESEDE, AES192, AES256) privacy
+  protocols implemented.
 - The error-indication codes moved from literals to objects for reliability
   and clarity
 

@@ -5,6 +5,7 @@ except ImportError:
     sha1 = sha.new
 import string
 from pysnmp.proto.secmod.rfc3414.auth import base
+from pysnmp.proto.secmod.rfc3414 import localkey
 from pysnmp.proto import errind, error
 
 _twelveZeros = '\x00'*12
@@ -17,6 +18,12 @@ class HmacSha(base.AbstractAuthenticationService):
     __ipad = [0x36]*64
     __opad = [0x5C]*64
 
+    def hashPassphrase(self, authKey):
+        return localkey.hashPassphraseSHA(authKey)
+    
+    def localizeKey(self, authKey, snmpEngineID):
+        return localkey.localizeKeySHA(authKey, snmpEngineID)
+    
     # 7.3.1
     def authenticateOutgoingMsg(self, authKey, wholeMsg):
         # 7.3.1.1

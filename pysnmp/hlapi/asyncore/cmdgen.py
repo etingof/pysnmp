@@ -13,7 +13,10 @@ usmNoAuthProtocol = config.usmNoAuthProtocol
 
 # Privacy protocol
 usmDESPrivProtocol = config.usmDESPrivProtocol
+usm3DESEDEPrivProtocol = config.usm3DESEDEPrivProtocol
 usmAesCfb128Protocol = config.usmAesCfb128Protocol
+usmAesCfb192Protocol = config.usmAesCfb192Protocol
+usmAesCfb256Protocol = config.usmAesCfb256Protocol
 usmNoPrivProtocol = config.usmNoPrivProtocol
 
 nextID = nextid.Integer(0xffffffffL)
