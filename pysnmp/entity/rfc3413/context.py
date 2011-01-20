@@ -15,7 +15,7 @@ class SnmpContext:
             } 
 
     def registerContextName(self, contextName, mibInstrum=None):
-        if self.contextNames.has_key(contextName):
+        if contextName in self.contextNames:
             raise error.PySnmpError(
                 'Duplicate contextName %s' % contextName
                 )
@@ -26,12 +26,12 @@ class SnmpContext:
             self.contextNames[contextName] = mibInstrum
             
     def unregisterContextName(self, contextName):
-        if self.contextNames.has_key(contextName):
+        if contextName in self.contextNames:
             debug.logger & debug.flagIns and debug.logger('unregisterContextName: unregistered contextName \"%s\"' % contextName)
             del self.contextNames[contextName]
 
     def getMibInstrum(self, contextName):
-        if not self.contextNames.has_key(contextName):
+        if contextName not in self.contextNames:
             debug.logger & debug.flagIns and debug.logger('getMibInstrum: contextName \"%s\" not registered' % contextName)
             raise error.PySnmpError(
                 'Missing contextName %s' % contextName

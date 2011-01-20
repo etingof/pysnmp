@@ -84,10 +84,12 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         msgID = self._newMsgID()
 
         debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: new msgID %s' % msgID)
-        
-        peerSnmpEngineData = self.__engineIDs.get(
-            (transportDomain, transportAddress)
-            )
+
+        k = (transportDomain, transportAddress)
+        if k in self.__engineIDs:
+            peerSnmpEngineData = self.__engineIDs[k]
+        else:
+            peerSnmpEngineData = None
 
         debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: peer SNMP engine data %s for transport %s, address %s' % (peerSnmpEngineData, transportDomain, transportAddress))
         
@@ -147,7 +149,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 'Unknown securityLevel %s' % securityLevel
                 )
 
-        if rfc3411.confirmedClassPDUs.has_key(pdu.tagSet):
+        if pdu.tagSet in rfc3411.confirmedClassPDUs:
             msgFlags = msgFlags | 0x04
 
         headerData.setComponentByPosition(2, chr(msgFlags))
@@ -158,14 +160,15 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
 
         debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: %s' % (msg.prettyPrint(),))
 
-        smHandler = snmpEngine.securityModels.get(securityModel)
-        if smHandler is None:
+        if securityModel in snmpEngine.securityModels:
+            smHandler = snmpEngine.securityModels[securityModel]
+        else:
             raise error.StatusInformation(
                 errorIndication = errind.unsupportedSecurityModel
                 )
 
         # 7.1.9.a
-        if rfc3411.unconfirmedClassPDUs.has_key(pdu.tagSet):
+        if pdu.tagSet in rfc3411.unconfirmedClassPDUs:
             securityEngineID = snmpEngineID
         else:
             if peerSnmpEngineData is None:
@@ -212,7 +215,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             raise error.StatusInformation(errorIndication=errind.tooBig)
         
         # 7.1.9.c
-        if rfc3411.confirmedClassPDUs.has_key(pdu.tagSet):
+        if pdu.tagSet in rfc3411.confirmedClassPDUs:
             # XXX rfc bug? why stateReference should be created?
             self._cachePushByMsgId(
                 msgID,
@@ -267,7 +270,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         debug.logger & debug.flagMP and debug.logger('prepareResponseMessage: stateReference %s' % (stateReference))
         
         # 7.1.3
-        if statusInformation is not None and statusInformation.has_key('oid'):
+        if statusInformation is not None and 'oid' in statusInformation:
             # 7.1.3a
             if pdu is not None:
                 requestID = pdu.getComponentByPosition(0)
@@ -278,7 +281,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             # 7.1.3b
             if pdu is None and not reportableFlag or \
                    pduType is not None and \
-                   not rfc3411.confirmedClassPDUs.has_key(pduType):
+                   pduType not in rfc3411.confirmedClassPDUs:
                 raise error.StatusInformation(
                     errorIndication = errind.loopTerminated
                     )
@@ -297,19 +300,19 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 pMod.apiPDU.setRequestID(reportPDU, requestID)
 
             # 7.1.3d.1
-            if statusInformation.has_key('securityLevel'):
+            if 'securityLevel' in statusInformation:
                 securityLevel = statusInformation['securityLevel']
             else:
                 securityLevel = 1
 
             # 7.1.3d.2
-            if statusInformation.has_key('contextEngineId'):
+            if 'contextEngineId' in statusInformation:
                 contextEngineId = statusInformation['contextEngineId']
             else:
                 contextEngineId = snmpEngineID
 
             # 7.1.3d.3
-            if statusInformation.has_key('contextName'):
+            if 'contextName' in statusInformation:
                 contextName = statusInformation['contextName']
             else:
                 contextName = ""
@@ -367,7 +370,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 'Unknown securityLevel %s' % securityLevel
                 )
 
-        if rfc3411.confirmedClassPDUs.has_key(pdu.tagSet):  # XXX not needed?
+        if pdu.tagSet in rfc3411.confirmedClassPDUs:  # XXX not needed?
             msgFlags = msgFlags | 0x04
 
         headerData.setComponentByPosition(2, chr(msgFlags))
@@ -377,8 +380,9 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
 
         debug.logger & debug.flagMP and debug.logger('prepareResponseMessage: %s' % (msg.prettyPrint(),))
 
-        smHandler = snmpEngine.securityModels.get(securityModel)
-        if smHandler is None:
+        if securityModel in snmpEngine.securityModels:
+            smHandler = snmpEngine.securityModels[securityModel]
+        else:
             raise error.StatusInformation(
                 errorIndication = errind.unsupportedSecurityModel
                 )
@@ -445,7 +449,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         debug.logger & debug.flagMP and debug.logger('prepareDataElements: msg data msgVersion %s msgID %s securityModel %s' % (msgVersion, msgID, securityModel))
         
         # 7.2.4
-        if not snmpEngine.securityModels.has_key(securityModel):
+        if securityModel not in snmpEngine.securityModels:
             snmpUnknownSecurityModels, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpUnknownSecurityModels')
             snmpUnknownSecurityModels.syntax = snmpUnknownSecurityModels.syntax + 1
             raise error.StatusInformation(
@@ -491,17 +495,17 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             debug.logger & debug.flagMP and debug.logger('prepareDataElements: SM succeeded')
         except error.StatusInformation, statusInformation:
             debug.logger & debug.flagMP and debug.logger('prepareDataElements: SM failed, statusInformation %s' % statusInformation)
-            if statusInformation.has_key('errorIndication'):
+            if 'errorIndication' in statusInformation:
                 # 7.2.6a
-                if statusInformation.has_key('oid'):
+                if 'oid' in statusInformation:
                     # 7.2.6a1
                     securityStateReference = statusInformation[
                         'securityStateReference'
                         ]
                     contextEngineId = statusInformation['contextEngineId']
                     contextName = statusInformation['contextName']
-                    scopedPDU = statusInformation.get('scopedPDU')
-                    if scopedPDU is not None:
+                    if 'scopedPDU' in statusInformation:
+                        scopedPDU = statusInformation['scopedPDU']
                         pdu = scopedPDU.getComponentByPosition(2).getComponent()
                     else:
                         pdu = None
@@ -554,7 +558,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         else:
             # Sniff for engineIDs
             k = (transportDomain, transportAddress)
-            if not self.__engineIDs.has_key(k):
+            if k not in self.__engineIDs:
                 contextEngineId, contextName, pdu = scopedPDU
                 
                 self.__engineIDs[k] = {
@@ -564,7 +568,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                     }
 
                 expireAt = self.__expirationTimer + 300
-                if not self.__engineIDsExpQueue.has_key(expireAt):
+                if expireAt not in self.__engineIDsExpQueue:
                     self.__engineIDsExpQueue[expireAt] = []
                 self.__engineIDsExpQueue[expireAt].append(k)
                     
@@ -584,8 +588,8 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         pduType = pdu.tagSet
 
         # 7.2.10
-        if rfc3411.responseClassPDUs.has_key(pduType) or \
-               rfc3411.internalClassPDUs.has_key(pduType):
+        if pduType in rfc3411.responseClassPDUs or \
+               pduType in rfc3411.internalClassPDUs:
             # 7.2.10a
             try:
                 cachedReqParams = self._cachePopByMsgId(msgID)
@@ -602,7 +606,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         debug.logger & debug.flagMP and debug.logger('prepareDataElements: using sendPduHandle %s for msgID %s' % (sendPduHandle, msgID))
         
         # 7.2.11
-        if rfc3411.internalClassPDUs.has_key(pduType):
+        if pduType in rfc3411.internalClassPDUs:
             # 7.2.11a
             varBinds = pMod.apiPDU.getVarBinds(pdu)
             if varBinds:
@@ -629,7 +633,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         statusInformation = None  # no errors ahead
 
         # 7.2.12
-        if rfc3411.responseClassPDUs.has_key(pduType):
+        if pduType in rfc3411.responseClassPDUs:
             # 7.2.12a -> noop
 
             # 7.2.12b
@@ -663,7 +667,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                      stateReference )
 
         # 7.2.13
-        if rfc3411.confirmedClassPDUs.has_key(pduType):
+        if pduType in rfc3411.confirmedClassPDUs:
             # 7.2.13a
             if securityEngineID != snmpEngineID:
                 smHandler.releaseStateInformation(securityStateReference)
@@ -708,7 +712,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                      stateReference )
 
         # 7.2.14
-        if rfc3411.unconfirmedClassPDUs.has_key(pduType):
+        if pduType in rfc3411.unconfirmedClassPDUs:
             # Pass new stateReference to let app browse request details
             stateReference = self._newStateReference()
             
@@ -735,7 +739,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             )
 
     def __expireEnginesInfo(self):
-        if self.__engineIDsExpQueue.has_key(self.__expirationTimer):
+        if self.__expirationTimer in self.__engineIDsExpQueue:
             for engineKey in self.__engineIDsExpQueue[self.__expirationTimer]:
                 del self.__engineIDs[engineKey]
                 debug.logger & debug.flagMP and debug.logger('__expireEnginesInfo: expiring %s' % (engineKey,))

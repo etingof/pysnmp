@@ -56,7 +56,7 @@ class DgramSocketTransport(AbstractSocketTransport):
         try:
             self.socket.sendto(outgoingMessage, transportAddress)
         except socket.error, why:
-            if sockErrors.has_key(why[0]):
+            if why[0] in sockErrors:
                 debug.logger & debug.flagIO and debug.logger('handle_write: ignoring socket error %s' % (why,))
             else:
                 raise socket.error, why
@@ -73,7 +73,7 @@ class DgramSocketTransport(AbstractSocketTransport):
                 self._cbFun(self, transportAddress, incomingMessage)
                 return
         except socket.error, why:
-            if sockErrors.has_key(why[0]):
+            if why[0] in sockErrors:
                 debug.logger & debug.flagIO and debug.logger('handle_read: known socket error %s' % (why,))
                 sockErrors[why[0]] and self.handle_close()
                 return

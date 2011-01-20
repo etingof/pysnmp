@@ -49,7 +49,7 @@ class AbstractSocketTransport(asyncore.dispatcher):
         def del_channel (self, sockMap=None):
             if sockMap is None:
                 sockMap = asyncore.socket_map
-            if sockMap.has_key(self):
+            if self in sockMap:
                 del sockMap[self]
 
     def registerSocket(self, sockMap=None):

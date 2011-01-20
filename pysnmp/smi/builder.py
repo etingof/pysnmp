@@ -107,7 +107,7 @@ class ZipMibSource(__AbstractMibSource):
         return tuple(self._uniqNames(l))
 
     def _getTimestamp(self, p):
-        if self.__loader._files.has_key(p):
+        if p in self.__loader._files:
             return self._parseDosTime(
                 self.__loader._files[p][6],
                 self.__loader._files[p][5]
@@ -142,9 +142,9 @@ class MibBuilder:
             ):
             sources.append(ZipMibSource(m).init())
         # Compatibility variable
-        if os.environ.has_key('PYSNMP_MIB_DIR'):
+        if 'PYSNMP_MIB_DIR' in os.environ:
             os.environ['PYSNMP_MIB_DIRS'] = os.environ['PYSNMP_MIB_DIR']
-        if os.environ.has_key('PYSNMP_MIB_DIRS'):
+        if 'PYSNMP_MIB_DIRS' in os.environ:
             for m in string.split(os.environ['PYSNMP_MIB_DIRS'], ':'):
                 sources.append(DirMibSource(m).init())
         if self.defaultMiscMibs:
@@ -201,7 +201,7 @@ class MibBuilder:
 
                 modPath = mibSource.fullPath(modName, sfx)
                 
-                if self.__modPathsSeen.has_key(modPath):
+                if modPath in self.__modPathsSeen:
                     debug.logger & debug.flagBld and debug.logger('loadModules: seen %s' % modPath)
                     break
                 else:
@@ -225,7 +225,7 @@ class MibBuilder:
 
                 break
 
-            if not self.__modSeen.has_key(modName):
+            if modName not in self.__modSeen:
                 raise error.SmiError(
                     'MIB file \"%s\" not found in search path' % (modName and modName + ".py[co]")
                     )
@@ -236,7 +236,7 @@ class MibBuilder:
         if not modNames:
             modNames = self.mibSymbols.keys()
         for modName in modNames:
-            if not self.mibSymbols.has_key(modName):
+            if modName not in self.mibSymbols:
                 raise error.SmiError(
                     'No module %s at %s' % (modName, self)
                     )
@@ -255,13 +255,13 @@ class MibBuilder:
             )
         r = ()
         for symName in symNames:
-            if not self.mibSymbols.has_key(modName):
+            if modName not in self.mibSymbols:
                 self.loadModules(modName)
-            if not self.mibSymbols.has_key(modName):
+            if modName not in self.mibSymbols:
                 raise error.SmiError(
                     'No module %s loaded at %s' % (modName, self)
                     )
-            if not self.mibSymbols[modName].has_key(symName):
+            if symName not in self.mibSymbols[modName]:
                 raise error.SmiError(
                     'No symbol %s::%s at %s' % (modName, symName, self)
                     )
@@ -269,7 +269,7 @@ class MibBuilder:
         return r
 
     def exportSymbols(self, modName, *anonymousSyms, **namedSyms):
-        if not self.mibSymbols.has_key(modName):
+        if modName not in self.mibSymbols:
             self.mibSymbols[modName] = {}
         mibSymbols = self.mibSymbols[modName]
         
@@ -278,7 +278,7 @@ class MibBuilder:
             mibSymbols['__pysnmp_%ld' % self._autoName] = symObj
             self._autoName = self._autoName + 1
         for symName, symObj in namedSyms.items():
-            if mibSymbols.has_key(symName):
+            if symName in mibSymbols:
                 raise error.SmiError(
                     'Symbol %s already exported at %s' % (symName, modName)
                     )
@@ -295,7 +295,7 @@ class MibBuilder:
         self.lastBuildId = self.lastBuildId + 1
 
     def unexportSymbols(self, modName, *symNames):
-        if not self.mibSymbols.has_key(modName):
+        if modName not in self.mibSymbols:
             raise error.SmiError(
                 'No module %s at %s' % (modName, self)
                 )
@@ -303,7 +303,7 @@ class MibBuilder:
         if not symNames:
             symNames = mibSymbols.keys()
         for symName in symNames:
-            if not mibSymbols.has_key(symName):
+            if symName not in mibSymbols:
                 raise error.SmiError(
                     'No symbol %s::%s at %s' % (modName, symName, self)
                     )

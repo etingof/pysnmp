@@ -18,7 +18,10 @@ class TwistedDispatcher(AbstractTransportDispatcher):
     def __init__(self, *args, **kwargs):
         AbstractTransportDispatcher.__init__(self)
         self.__transportCount = 0
-        self.timeout = kwargs.get('timeout', 1.0)
+        if 'timeout' in kwargs:
+            self.timeout = kwargs['timeout']
+        else:
+            self.timeout = 1.0
         self.loopingcall = task.LoopingCall(self.handleTimeout)
 
     def handleTimeout(self):

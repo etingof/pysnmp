@@ -52,7 +52,7 @@ class NotificationReceiver:
         debug.logger & debug.flagApp and debug.logger('processPdu: stateReference %s, varBinds %s' % (stateReference, varBinds))
         
         # 3.4
-        if rfc3411.confirmedClassPDUs.has_key(PDU.tagSet):
+        if PDU.tagSet in rfc3411.confirmedClassPDUs:
             # 3.4.1 --> no-op
             
             rspPDU = v2c.apiPDU.getResponse(PDU)
@@ -91,7 +91,7 @@ class NotificationReceiver:
                 snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpSilentDrops')
                 snmpSilentDrops.syntax = snmpSilentDrops.syntax + 1
 
-        elif rfc3411.unconfirmedClassPDUs.has_key(PDU.tagSet):
+        elif PDU.tagSet in rfc3411.unconfirmedClassPDUs:
             pass
         else:
             raise error.ProtocolError('Unexpected PDU class %s' % PDU.tagSet)

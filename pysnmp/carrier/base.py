@@ -61,7 +61,7 @@ class AbstractTransportDispatcher:
             self.__timerCallables.remove(timerCbFun)
 
     def registerTransport(self, tDomain, transport):
-        if self.__transports.has_key(tDomain):
+        if tDomain in self.__transports:
             raise error.CarrierError(
                 'Transport %s already registered' % (tDomain,)
                 )
@@ -69,7 +69,7 @@ class AbstractTransportDispatcher:
         self.__transports[tDomain] = transport
 
     def unregisterTransport(self, tDomain):
-        if not self.__transports.has_key(tDomain):
+        if tDomain not in self.__transports:
             raise error.CarrierError(
                 'Transport %s not registered' % (tDomain,)
                 )
@@ -77,24 +77,30 @@ class AbstractTransportDispatcher:
         del self.__transports[tDomain]
 
     def getTransport(self, transportDomain):
-        return self.__transports.get(transportDomain)
+        if transportDomain in self.__transports:
+            return self.__transports[transportDomain]
 
     def sendMessage(
         self, outgoingMessage, transportDomain, transportAddress
         ):
-        transport = self.__transports.get(transportDomain)
-        if transport is None:
+        if transportDomain in self.__transports:
+            self.__transports[transportDomain].sendMessage(
+                outgoingMessage, transportAddress
+                )
+        else:
             raise error.CarrierError(
                 'No suitable transport domain for %s' % (transportDomain,)
                 )
-        transport.sendMessage(outgoingMessage, transportAddress)
 
     def handleTimerTick(self, timeNow):
         for timerCallable in self.__timerCallables:
             timerCallable(timeNow)
 
     def jobStarted(self, jobId):
-        self.__jobs[jobId] = self.__jobs.get(jobId, 0) + 1
+        if jobId in self.__jobs:
+            self.__jobs[jobId] = self.__jobs[jobId] + 1
+        else:
+            self.__jobs[jobId] = 1
 
     def jobFinished(self, jobId):
         self.__jobs[jobId] = self.__jobs[jobId] - 1

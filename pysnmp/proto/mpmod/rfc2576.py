@@ -36,7 +36,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         snmpEngineID = snmpEngineID.syntax
         
         # rfc3412: 7.1.1b
-        if rfc3411.confirmedClassPDUs.has_key(pdu.tagSet):
+        if pdu.tagSet in rfc3411.confirmedClassPDUs:
             pdu.setComponentByPosition(1)
             msgID = pdu.getComponentByPosition(0)
             
@@ -63,8 +63,10 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.1.7
         globalData = ( msg, )
 
-        smHandler = snmpEngine.securityModels.get(int(securityModel))
-        if smHandler is None:
+        k = int(securityModel)
+        if k in snmpEngine.securityModels:
+            smHandler = snmpEngine.securityModels[k]
+        else:
             raise error.StatusInformation(
                 errorIndication = errind.unsupportedSecurityModel
                 )
@@ -88,7 +90,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             )
 
         # rfc3412: 7.1.9.c
-        if rfc3411.confirmedClassPDUs.has_key(pdu.tagSet):
+        if pdu.tagSet in rfc3411.confirmedClassPDUs:
             # XXX rfc bug? why stateReference should be created?
             self._cachePushByMsgId(
                 long(msgID),
@@ -174,8 +176,10 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.1.7
         globalData = ( msg, )
 
-        smHandler = snmpEngine.securityModels.get(int(securityModel))
-        if smHandler is None:
+        k = int(securityModel)
+        if k in snmpEngine.securityModels:
+            smHandler = snmpEngine.securityModels[k]
+        else:
             raise error.StatusInformation(
                 errorIndication = errind.unsupportedSecurityModel
                 )
@@ -241,8 +245,10 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
     
         # rfc3412: 7.2.4 -- 7.2.5 -> noop
 
-        smHandler = snmpEngine.securityModels.get(int(securityModel))
-        if smHandler is None:
+        k = int(securityModel)
+        if k in snmpEngine.securityModels:
+            smHandler = snmpEngine.securityModels[k]
+        else:
             raise error.StatusInformation(
                 errorIndication = errind.unsupportedSecurityModel
                 )
@@ -281,7 +287,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.2.8, 7.2.9 -> noop
 
         # rfc3412: 7.2.10
-        if rfc3411.responseClassPDUs.has_key(pduType):
+        if pduType in rfc3411.responseClassPDUs:
             # 7.2.10a
             try:
                 cachedReqParams = self._cachePopByMsgId(long(msgID))
@@ -301,7 +307,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.2.11 -> noop
 
         # rfc3412: 7.2.12
-        if rfc3411.responseClassPDUs.has_key(pduType):
+        if pduType in rfc3411.responseClassPDUs:
             # rfc3412: 7.2.12a -> noop
             # rfc3412: 7.2.12b
             if securityModel != cachedReqParams['securityModel'] or \
@@ -333,7 +339,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                      stateReference )
 
         # rfc3412: 7.2.13
-        if rfc3411.confirmedClassPDUs.has_key(pduType):
+        if pduType in rfc3411.confirmedClassPDUs:
             # rfc3412: 7.2.13a
             snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
             if securityEngineID != snmpEngineID.syntax:
@@ -378,7 +384,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                      stateReference )
 
         # rfc3412: 7.2.14
-        if rfc3411.unconfirmedClassPDUs.has_key(pduType):
+        if pduType in rfc3411.unconfirmedClassPDUs:
             # This is not specified explicitly in RFC
             smHandler.releaseStateInformation(securityStateReference)
             return ( messageProcessingModel,

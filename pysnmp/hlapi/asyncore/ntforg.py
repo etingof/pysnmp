@@ -37,7 +37,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
             authData, transportTarget, tagList
             )
         k = paramsName, tagList, notifyType
-        if self.__knownNotifyNames.has_key(k):
+        if k in self.__knownNotifyNames:
             notifyName, _ = self.__knownNotifyNames[k]
         else:
             notifyName = 'n%s' % cmdgen.nextID()
@@ -49,7 +49,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                 notifyType
                 )
             self.__knownNotifyNames[k] = notifyName, paramsName
-        if not self.__knownAuths.has_key(authData):
+        if authData not in self.__knownAuths:
             subTree = (1,3,6)
             config.addTrapUser(
                 self.snmpEngine,
@@ -131,4 +131,5 @@ class NotificationOriginator(AsynNotificationOriginator):
             (__cbFun, appReturn)
             )
         self.snmpEngine.transportDispatcher.runDispatcher()
-        return appReturn.get('errorIndication')
+        if 'errorIndication' in appReturn:
+            return appReturn['errorIndication']

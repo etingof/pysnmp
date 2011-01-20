@@ -96,7 +96,7 @@ __sysObjectID = MibScalarInstance(sysObjectID.name, (0,), sysObjectID.syntax.clo
 class SysUpTime(TimeTicks):
     createdAt = time()
     def clone(self, **kwargs):
-        if kwargs.get('value') is None:
+        if 'value' not in kwargs:
             kwargs['value'] = int((time()-self.createdAt)*100)
         return apply(TimeTicks.clone, [self], kwargs)
 

@@ -229,7 +229,7 @@ class MibTree(ObjectType):
         """Register subtrees at this tree. Subtrees are always attached
            at the level of this tree, not subtrees."""
         for subTree in subTrees:
-            if self._vars.has_key(subTree.name):
+            if subTree.name in self._vars:
                 raise error.SmiError(
                     'MIB subtree %s already registered at %s' %  (subTree.name, self)
                     )
@@ -241,7 +241,7 @@ class MibTree(ObjectType):
         for name in names:
             # This may fail if you fill a table by exporting MibScalarInstances
             # but later drop them through SNMP.
-            if not self._vars.has_key(name):
+            if name not in self._vars:
                 raise  error.SmiError(
                     'MIB subtree %s not registered at %s' %  (name, self)
                     )
@@ -256,7 +256,7 @@ class MibTree(ObjectType):
         if len(self.name) < len(name):
             for keyLen in self._vars.getKeysLens():
                 subName = name[:keyLen]
-                if self._vars.has_key(subName):
+                if subName in self._vars:
                     return self._vars[subName]
         raise error.NoSuchObjectError(name=name, idx=idx)
 
@@ -521,7 +521,7 @@ class MibTableColumn(MibScalar):
     # No branches here, terminal OIDs only
     def getBranch(self, name, idx):
         if len(self.name) < len(name):
-            if self._vars.has_key(name):
+            if name in self._vars:
                 return self._vars[name]
         raise error.NoSuchObjectError(name=name, idx=idx)
 
@@ -551,7 +551,7 @@ class MibTableColumn(MibScalar):
                     node = self.getNextNode(node.name)
                 except error.NoSuchInstanceError:
                     break
-                if not self.__valIdx.has_key(node.syntax):
+                if node.syntax not in self.__valIdx:
                     self.__valIdx[node.syntax] = OidOrderedDict()
                 self.__valIdx[node.syntax][node.name] = 1
 
@@ -560,7 +560,7 @@ class MibTableColumn(MibScalar):
             # Sync to tree version
             self.__valIdxId = self.branchVersionId
 
-        if self.__valIdx.has_key(value):
+        if value in self.__valIdx:
             try:
                 return self.getNode(
                     self.__valIdx[value].nextKey(name)
@@ -587,7 +587,7 @@ class MibTableColumn(MibScalar):
             raise error.NoCreationError(idx=idx, name=name)
         # Create instances if either it does not yet exist (row creation)
         # or a value is passed (multiple OIDs in SET PDU)
-        if val is None and self.__createdInstances.has_key(name):
+        if val is None and name in self.__createdInstances:
             return
         self.__createdInstances[name] = self.protoInstance(
             self.name, name[len(self.name):], self.syntax.clone()
@@ -598,8 +598,8 @@ class MibTableColumn(MibScalar):
             
     def createCommit(self, name, val, idx, (acFun, acCtx)):
         # Commit new instance value
-        if self._vars.has_key(name): # XXX
-            if self.__createdInstances.has_key(name):
+        if name in self._vars: # XXX
+            if name in self.__createdInstances:
                 self._vars[name].createCommit(name, val, idx, (acFun, acCtx))
             return
         self.__createdInstances[name].createCommit(
@@ -614,18 +614,18 @@ class MibTableColumn(MibScalar):
         self.__valIdx.clear()
         
         # Drop previous column instance
-        if self.__createdInstances.has_key(name):
+        if name in self.__createdInstances:
             if self.__createdInstances[name] is not None:
                 self.__createdInstances[name].createCleanup(
                     name, val, idx, (acFun, acCtx)
                     )
             del self.__createdInstances[name]
-        elif self._vars.has_key(name):
+        elif name in self._vars:
             self._vars[name].createCleanup(name, val, idx, (acFun, acCtx))
 
     def createUndo(self, name, val, idx, (acFun, acCtx)):
         # Set back previous column instance, drop the new one
-        if self.__createdInstances.has_key(name):
+        if name in self.__createdInstances:
             self._vars[name] = self.__createdInstances[name]
             del self.__createdInstances[name]
             # Remove new instance on rollback
@@ -646,7 +646,7 @@ class MibTableColumn(MibScalar):
         # Make sure destruction is allowed
         if name == self.name:
             raise error.NoAccessError(idx=idx, name=name)        
-        if not self._vars.has_key(name):
+        if name not in self._vars:
             return
         if acFun and \
                val is not None and \
@@ -659,7 +659,7 @@ class MibTableColumn(MibScalar):
 
     def destroyCommit(self, name, val, idx, (acFun, acCtx)):
         # Make a copy of column instance and take it off the tree
-        if self._vars.has_key(name):
+        if name in self._vars:
             self._vars[name].destroyCommit(
                 name, val, idx, (acFun, acCtx)
                 )            
@@ -671,7 +671,7 @@ class MibTableColumn(MibScalar):
         self.__valIdx.clear()
         
         # Drop instance copy
-        if self.__destroyedInstances.has_key(name):
+        if name in self.__destroyedInstances:
             self.__destroyedInstances[name].destroyCleanup(
                 name, val, idx, (acFun, acCtx)
                 )
@@ -680,7 +680,7 @@ class MibTableColumn(MibScalar):
             
     def destroyUndo(self, name, val, idx, (acFun, acCtx)):
         # Set back column instance
-        if self.__destroyedInstances.has_key(name):
+        if name in self.__destroyedInstances:
             self._vars[name] = self.__destroyedInstances[name]
             self._vars[name].destroyUndo(
                 name, val, idx, (acFun, acCtx)
@@ -703,12 +703,12 @@ class MibTableColumn(MibScalar):
         except error.RowDestructionWanted:
             self.__rowOpWanted[name] = error.RowDestructionWanted()
             self.destroyTest(name, val, idx, (acFun, acCtx))
-        if self.__rowOpWanted.has_key(name):
+        if name in self.__rowOpWanted:
             debug.logger & debug.flagIns and debug.logger('%s flagged by %s=%s' % (self.__rowOpWanted[name], name, repr(val)))
             raise self.__rowOpWanted[name]
 
     def __delegateWrite(self, subAction, name, val, idx, (acFun, acCtx)):
-        if not self.__rowOpWanted.has_key(name):
+        if name not in self.__rowOpWanted:
             getattr(MibScalar, 'write'+subAction)(
                 self, name, val, idx, (acFun, acCtx)
                 )
@@ -726,7 +726,7 @@ class MibTableColumn(MibScalar):
         self.__delegateWrite(
             'Commit', name, val, idx, (acFun, acCtx)
             )
-        if self.__rowOpWanted.has_key(name):
+        if name in self.__rowOpWanted:
             raise self.__rowOpWanted[name]
 
     def writeCleanup(self, name, val, idx, (acFun, acCtx)):
@@ -736,7 +736,7 @@ class MibTableColumn(MibScalar):
         self.__delegateWrite(
             'Cleanup', name, val, idx, (acFun, acCtx)
             )
-        if self.__rowOpWanted.has_key(name):
+        if name in self.__rowOpWanted:
             e = self.__rowOpWanted[name]
             del self.__rowOpWanted[name]
             debug.logger & debug.flagIns and debug.logger('%s dropped by %s=%s' % (e, name, repr(val)))
@@ -746,7 +746,7 @@ class MibTableColumn(MibScalar):
         self.__delegateWrite(
             'Undo', name, val, idx, (acFun, acCtx)
             )
-        if self.__rowOpWanted.has_key(name):
+        if name in self.__rowOpWanted:
             e = self.__rowOpWanted[name]
             del self.__rowOpWanted[name]
             debug.logger & debug.flagIns and debug.logger('%s dropped by %s=%s' % (e, name, repr(val)))
@@ -889,7 +889,7 @@ class MibTableRow(MibTree):
 
     def registerAugmentions(self, *names):
         for modName, symName in names:
-            if self.augmentingRows.has_key((modName, symName)):
+            if (modName, symName) in self.augmentingRows:
                 raise error.SmiError(
                     'Row %s already augmented by %s::%s' % \
                     (self.name, modName, symName)
@@ -918,13 +918,13 @@ class MibTableRow(MibTree):
         for name, var in self._vars.items():
             if name == excludeName:
                 continue
-            if indexVals.has_key(name):
+            if name in indexVals:
                 getattr(var, action)(name + nameSuffix, indexVals[name], idx,
                                      (None, None))
             else:
                 getattr(var, action)(name + nameSuffix, val, idx,
                                      (acFun, acCtx))
-            debug.logger & debug.flagIns and debug.logger('__manageColumns: action %s name %s suffix %s %svalue %s' % (action, name, nameSuffix, indexVals.has_key(name) and "index " or "", repr(indexVals.get(name, val))))
+            debug.logger & debug.flagIns and debug.logger('__manageColumns: action %s name %s suffix %s %svalue %s' % (action, name, nameSuffix, name in indexVals and "index " or "", repr(indexVals.get(name, val))))
 
     def __delegate(self, subAction, name, val, idx, (acFun, acCtx)):
         # Relay operation request to column, expect row operation request.

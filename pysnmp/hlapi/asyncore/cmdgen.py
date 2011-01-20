@@ -145,7 +145,7 @@ class AsynCommandGenerator:
     def cfgCmdGen(self, authData, transportTarget, tagList=''):
         if isinstance(authData, CommunityData):
             tagList = '%s %s' % (tagList, authData.securityName)
-        if self.__knownAuths.has_key(authData):
+        if authData in self.__knownAuths:
             paramsName = self.__knownAuths[authData]
         else:
             paramsName = 'p%s' % nextID()
@@ -179,7 +179,7 @@ class AsynCommandGenerator:
                 raise error.PySnmpError('Unsupported authentication object')
             self.__knownAuths[authData] = paramsName
 
-        if not self.__knownTransports.has_key(transportTarget.transportDomain):
+        if transportTarget.transportDomain not in self.__knownTransports:
             transport = transportTarget.openClientMode()
             config.addSocketTransport(
                 self.snmpEngine,
@@ -189,7 +189,7 @@ class AsynCommandGenerator:
             self.__knownTransports[transportTarget.transportDomain] = transport
 
         k = paramsName, transportTarget, tagList
-        if self.__knownTransportAddrs.has_key(k):
+        if k in self.__knownTransportAddrs:
             addrName = self.__knownTransportAddrs[k]
         else:
             addrName = 'a%s' % nextID()

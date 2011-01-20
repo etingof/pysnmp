@@ -100,8 +100,8 @@ class CommandResponderBase:
             origPdu = None
         
         # 3.2.1
-        if not rfc3411.readClassPDUs.has_key(PDU.tagSet) and \
-           not rfc3411.writeClassPDUs.has_key(PDU.tagSet):
+        if PDU.tagSet not in rfc3411.readClassPDUs and \
+           PDU.tagSet not in rfc3411.writeClassPDUs:
             raise error.ProtocolError('Unexpected PDU class %s' % PDU.tagSet)
         
         # 3.2.2 --> no-op
@@ -144,7 +144,7 @@ class CommandResponderBase:
         # SNMPv2 SMI exceptions
         except pysnmp.smi.error.GenError, errorIndication:
             debug.logger & debug.flagApp and debug.logger('processPdu: stateReference %s, errorIndication %s' % (stateReference, errorIndication))
-            if errorIndication.has_key('oid'):
+            if 'oid' in errorIndication:
                 # Request REPORT generation
                 statusInformation['oid'] = errorIndication['oid'] 
                 statusInformation['val'] = errorIndication['val']

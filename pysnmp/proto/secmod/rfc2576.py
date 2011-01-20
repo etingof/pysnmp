@@ -200,7 +200,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                         targetAddrTagList = snmpTargetAddrTagList.getNode(
                             snmpTargetAddrTagList.name + __instId
                             ).syntax
-                        if not addrToTagMap.has_key(targetAddr):
+                        if targetAddr not in addrToTagMap:
                             addrToTagMap[targetAddr] = {}
                         for tag in string.split(str(targetAddrTagList)):
                             addrToTagMap[targetAddr][tag] = 1
@@ -209,9 +209,9 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                         
                 # XXX snmpTargetAddrTMask matching not implemented
                 
-                if addrToTagMap.has_key(srcTransport):
+                if srcTransport in addrToTagMap:
                     for tag in string.split(str(mibNode.syntax)):
-                        if addrToTagMap[srcTransport].has_key(tag):
+                        if tag in addrToTagMap[srcTransport]:
                             debug.logger & debug.flagSM and debug.logger('processIncomingMsg: tag %s matched transport %s' % (tag, srcTransport))
                             break
                     else:

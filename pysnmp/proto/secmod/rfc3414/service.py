@@ -144,7 +144,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         pysnmpUsmKeyAuthLocalized = pysnmpUsmKeyEntry.getNode(
             pysnmpUsmKeyEntry.name + (1,) + tblIdx
             )
-        if self.authServices.has_key(usmUserAuthProtocol.syntax):
+        if usmUserAuthProtocol.syntax in self.authServices:
             localizeKey = self.authServices[usmUserAuthProtocol.syntax].localizeKey
             localAuthKey = localizeKey(
                 pysnmpUsmKeyAuth.syntax,
@@ -159,7 +159,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         pysnmpUsmKeyPrivLocalized = pysnmpUsmKeyEntry.getNode(
             pysnmpUsmKeyEntry.name + (2,) + tblIdx
             )
-        if self.privServices.has_key(usmUserPrivProtocol.syntax):
+        if usmUserPrivProtocol.syntax in self.privServices:
             localizeKey = self.privServices[usmUserPrivProtocol.syntax].localizeKey
             localPrivKey = localizeKey(
                 usmUserAuthProtocol.syntax,
@@ -199,14 +199,22 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             # 3.1.1a
             cachedSecurityData = self._cachePop(securityStateReference)
             usmUserName = cachedSecurityData['msgUserName']
-            usmUserAuthProtocol = cachedSecurityData.get('usmUserAuthProtocol')
-            usmUserAuthKeyLocalized = cachedSecurityData.get(
-                'usmUserAuthKeyLocalized'
-                )
-            usmUserPrivProtocol = cachedSecurityData.get('usmUserPrivProtocol')
-            usmUserPrivKeyLocalized = cachedSecurityData.get(
-                'usmUserPrivKeyLocalized'
-                )
+            if 'usmUserAuthProtocol' in cachedSecurityData:
+                usmUserAuthProtocol = cachedSecurityData['usmUserAuthProtocol']
+            else:
+                usmUserAuthProtocol = None
+            if 'usmUserAuthKeyLocalized' in cachedSecurityData:
+                usmUserAuthKeyLocalized = cachedSecurityData['usmUserAuthKeyLocalized']
+            else:
+                usmUserAuthKeyLocalized = None
+            if 'usmUserPrivProtocol' in cachedSecurityData:
+                usmUserPrivProtocol = cachedSecurityData['usmUserPrivProtocol']
+            else:
+                usmUserPrivProtocol = None
+            if 'usmUserPrivKeyLocalized' in cachedSecurityData:
+                usmUserPrivKeyLocalized = cachedSecurityData['usmUserPrivKeyLocalized']
+            else:
+                usmUserPrivKeyLocalized = None
             securityEngineID = snmpEngineID
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: user info read from cache')
         elif securityName:
@@ -277,7 +285,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         if securityStateReference is None and (  # request type check added
             securityLevel == 3 or securityLevel == 2
             ):
-            if self.__timeline.has_key(securityEngineID):
+            if securityEngineID in self.__timeline:
                 ( snmpEngineBoots,
                   snmpEngineTime,
                   latestReceivedEngineTime,
@@ -305,8 +313,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         # 3.1.4a
         if securityLevel == 3:
-            privHandler = self.privServices.get(usmUserPrivProtocol)
-            if privHandler is None:
+            if usmUserPrivProtocol in self.privServices:
+                privHandler = self.privServices[usmUserPrivProtocol]
+            else:
                 raise error.StatusInformation(
                     errorIndication = errind.encryptionError
                     )
@@ -345,8 +354,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         # 3.1.8a
         if securityLevel == 3 or securityLevel == 2:
-            authHandler = self.authServices.get(usmUserAuthProtocol)
-            if authHandler is None:
+            if usmUserAuthProtocol in self.authServices:
+                authHandler = self.authServices[usmUserAuthProtocol]
+            else:
                 raise error.StatusInformation(
                     errorIndication = errind.authenticationFailure
                     )
@@ -482,7 +492,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         contextName = ''
 
         # 3.2.3
-        if not self.__timeline.has_key(msgAuthoritativeEngineID):
+        if msgAuthoritativeEngineID not in self.__timeline:
             debug.logger & debug.flagSM and debug.logger('processIncomingMsg: unknown securityEngineID %s' % repr(msgAuthoritativeEngineID))
             if not msgAuthoritativeEngineID:
                 # 3.2.3b
@@ -615,8 +625,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         # 3.2.6
         if securityLevel == 3 or securityLevel == 2:
-            authHandler = self.authServices.get(usmUserAuthProtocol)
-            if authHandler is None:
+            if usmUserAuthProtocol in self.authServices:
+                authHandler = self.authServices[usmUserAuthProtocol]
+            else:
                 raise error.StatusInformation(
                     errorIndication = errind.authenticationFailure
                     )
@@ -652,7 +663,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     )
                 
                 expireAt = self.__expirationTimer + 300
-                if not self.__timelineExpQueue.has_key(expireAt):
+                if expireAt not in self.__timelineExpQueue:
                     self.__timelineExpQueue[expireAt] = []
                 self.__timelineExpQueue[expireAt].append(
                     msgAuthoritativeEngineID
@@ -672,7 +683,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 debug.logger & debug.flagSM and debug.logger('processIncomingMsg: read snmpEngineBoots (%s), snmpEngineTime (%s) from LCD' % (snmpEngineBoots, snmpEngineTime))
             else:
                 # Non-authoritative SNMP engine: use cached estimates
-                if self.__timeline.has_key(msgAuthoritativeEngineID):
+                if msgAuthoritativeEngineID in self.__timeline:
                     ( snmpEngineBoots,
                       snmpEngineTime,
                       latestReceivedEngineTime,
@@ -719,7 +730,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         int(time.time())
                         )
                     expireAt = self.__expirationTimer + 300
-                    if not self.__timelineExpQueue.has_key(expireAt):
+                    if expireAt not in self.__timelineExpQueue:
                         self.__timelineExpQueue[expireAt] = []
                     self.__timelineExpQueue[expireAt].append(
                         msgAuthoritativeEngineID
@@ -739,8 +750,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         # 3.2.8a
         if securityLevel == 3:
-            privHandler = self.privServices.get(usmUserPrivProtocol)
-            if privHandler is None:
+            if usmUserPrivProtocol in self.privServices:
+                privHandler = self.privServices[usmUserPrivProtocol]
+            else:
                 raise error.StatusInformation(
                     errorIndication = errind.decryptionError
                     )
@@ -822,9 +834,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                  securityStateReference )
 
     def __expireTimelineInfo(self):
-        if self.__timelineExpQueue.has_key(self.__expirationTimer):
+        if self.__expirationTimer in self.__timelineExpQueue:
             for engineIdKey in self.__timelineExpQueue[self.__expirationTimer]:
-                if self.__timeline.has_key(engineIdKey):
+                if engineIdKey in self.__timeline:
                     del self.__timeline[engineIdKey]
                     debug.logger & debug.flagSM and debug.logger('__expireEnginesInfo: expiring %s' % (engineIdKey,))
             del self.__timelineExpQueue[self.__expirationTimer]

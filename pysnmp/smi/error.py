@@ -8,7 +8,7 @@ class MibOperationError(SmiError):
         self.__class__.__name__, self.__outArgs
         )
     def __getitem__(self, key): return self.__outArgs[key]
-    def has_key(self, key): return self.__outArgs.has_key(key)
+    def __contains__(self, key): return key in self.__outArgs
     def get(self, key, defVal=None): return self.__outArgs.get(key, defVal)
     def keys(self): return self.__outArgs.keys()
     def update(self, d): self.__outArgs.update(d)

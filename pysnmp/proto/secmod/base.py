@@ -63,8 +63,9 @@ class AbstractSecurityModel:
         return stateReference
     
     def _cachePop(self, stateReference):
-        securityData = self.__cacheEntries.get(stateReference)
-        if securityData is None:
+        if stateReference in self.__cacheEntries:
+            securityData = self.__cacheEntries[stateReference]
+        else:
             raise error.ProtocolError(
                 'Cache miss for stateReference=%s at %s' %
                 (stateReference, self)

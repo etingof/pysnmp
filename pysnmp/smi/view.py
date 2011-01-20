@@ -35,8 +35,14 @@ class MibViewController:
         # This is potentionally ambiguous mapping. Sort modules in
         # ascending age for resolution
         def __sortFun(x, y, s=self.mibBuilder.mibSymbols):
-            m1 = s[x].get("PYSNMP_MODULE_ID")
-            m2 = s[y].get("PYSNMP_MODULE_ID")
+            if "PYSNMP_MODULE_ID" in s[x]:
+                m1 = s[x]["PYSNMP_MODULE_ID"]
+            else:
+                m1 = None
+            if "PYSNMP_MODULE_ID" in s[y]:
+                m2 = s[y]["PYSNMP_MODULE_ID"]
+            else:
+                m2 = None                
             r1 = r2 = "1970-01-01 00:00"
             if m1:
                 r = m1.getRevisions()
@@ -69,7 +75,7 @@ class MibViewController:
                 if n == "PYSNMP_MODULE_ID": # do not index this special symbol
                     continue
                 if type(v) == ClassType:
-                    if mibMod['typeToModIdx'].has_key(n):
+                    if n in mibMod['typeToModIdx']:
                         raise error.SmiError(
                             'Duplicate SMI type %s::%s, has %s' % \
                             (modName, n, mibMod['typeToModIdx'][n])
@@ -79,7 +85,7 @@ class MibViewController:
                 elif type(v) == InstanceType:
                     if isinstance(v, MibScalarInstance):
                         continue
-                    if mibMod['varToNameIdx'].has_key(n):
+                    if n in mibMod['varToNameIdx']:
                         raise error.SmiError(
                             'Duplicate MIB variable %s::%s has %s' % \
                             (modName, n, mibMod['varToNameIdx'][n])
@@ -114,8 +120,9 @@ class MibViewController:
                 keyLen = len(key)
                 i = keyLen-1
                 while i:
-                    baseLabel = oidToLabelIdx.get(key[:i])
-                    if baseLabel:
+                    k = key[:i]
+                    if k in oidToLabelIdx:
+                        baseLabel = oidToLabelIdx[k]
                         if i != keyLen-1:
                             baseLabel = baseLabel + key[i:-1]
                         break
@@ -158,12 +165,10 @@ class MibViewController:
         """getOidLabel(nodeName) -> (oid, label, suffix)"""
         if not nodeName:
             return nodeName, nodeName, ()
-        oid = labelToOidIdx.get(nodeName)
-        if oid:
-            return oid, nodeName, ()
-        label = oidToLabelIdx.get(nodeName)
-        if label:
-            return nodeName, label, ()
+        if nodeName in labelToOidIdx:
+            return labelToOidIdx[nodeName], nodeName, ()
+        if nodeName in oidToLabelIdx:
+            return nodeName, oidToLabelIdx[nodeName], ()
         if len(nodeName) < 2:
             return nodeName, nodeName, ()
         oid, label, suffix = self.__getOidLabel(
@@ -171,19 +176,18 @@ class MibViewController:
             )
         suffix = suffix + nodeName[-1:]
         resLabel = label + suffix
-        resOid = labelToOidIdx.get(resLabel)
-        if resOid:
-            return resOid, resLabel, ()
+        if resLabel in labelToOidIdx:
+            return labelToOidIdx[resLabel], resLabel, ()
         resOid = oid + suffix
-        resLabel = oidToLabelIdx.get(resOid)
-        if resLabel:
-            return resOid, resLabel, ()
+        if resOid in oidToLabelIdx:
+            return resOid, oidToLabelIdx[resOid], ()
         return oid, label, suffix
 
     def getNodeNameByOid(self, nodeName, modName=''):
         self.indexMib()        
-        mibMod = self.__mibSymbolsIdx.get(modName)
-        if mibMod is None:
+        if modName in self.__mibSymbolsIdx:
+            mibMod = self.__mibSymbolsIdx[modName]
+        else:
             raise error.SmiError(
                 'No module %s at %s' % (modName, self)
                 )
@@ -199,14 +203,16 @@ class MibViewController:
         return oid, label, suffix
 
     def getNodeNameByDesc(self, nodeName, modName=''):
-        self.indexMib()        
-        mibMod = self.__mibSymbolsIdx.get(modName)
-        if mibMod is None:
+        self.indexMib()
+        if modName in self.__mibSymbolsIdx:
+            mibMod = self.__mibSymbolsIdx[modName]
+        else:
             raise error.SmiError(
                 'No module %s at %s' % (modName, self)
                 )
-        oid = mibMod['varToNameIdx'].get(nodeName)
-        if oid is None:
+        if nodeName in mibMod['varToNameIdx']:
+            oid = mibMod['varToNameIdx'][nodeName]
+        else:
             raise error.NoSuchObjectError(
                 str='No such symbol %s::%s at %s' % (modName, nodeName, self)
                 )
@@ -230,9 +236,10 @@ class MibViewController:
                     )
         
     def getFirstNodeName(self, modName=''):
-        self.indexMib()        
-        mibMod = self.__mibSymbolsIdx.get(modName)
-        if mibMod is None:
+        self.indexMib()
+        if modName in self.__mibSymbolsIdx:
+            mibMod = self.__mibSymbolsIdx[modName]
+        else:
             raise error.SmiError(
                 'No module %s at %s' % (modName, self)
                 )
@@ -271,13 +278,15 @@ class MibViewController:
 
     def getTypeName(self, typeName, modName=''):
         self.indexMib()
-        mibMod = self.__mibSymbolsIdx.get(modName)
-        if mibMod is None:
+        if modName in self.__mibSymbolsIdx:
+            mibMod = self.__mibSymbolsIdx[modName]
+        else:
             raise error.SmiError(
                 'No module %s at %s' % (modName, self)
                 )
-        m = mibMod['typeToModIdx'].get(typeName)
-        if m is None:
+        if typeName in mibMod['typeToModIdx']:
+            m = mibMod['typeToModIdx'][typeName]
+        else:
             raise error.NoSuchObjectError(
                 str='No such type %s::%s at %s' % (modName, typeName, self)
                 )
@@ -285,8 +294,9 @@ class MibViewController:
         
     def getFirstTypeName(self, modName=''):
         self.indexMib()
-        mibMod = self.__mibSymbolsIdx.get(modName)
-        if mibMod is None:
+        if modName in self.__mibSymbolsIdx:
+            mibMod = self.__mibSymbolsIdx[modName]
+        else:
             raise error.SmiError(
                 'No module %s at %s' % (modName, self)
                 )

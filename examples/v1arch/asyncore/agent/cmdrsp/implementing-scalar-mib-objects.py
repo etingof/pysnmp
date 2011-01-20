@@ -33,7 +33,7 @@ for mibVar in mibInstr:
 def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
     while wholeMsg:
         msgVer = api.decodeMessageVersion(wholeMsg)
-        if api.protoModules.has_key(msgVer):
+        if msgVer in api.protoModules:
             pMod = api.protoModules[msgVer]
         else:
             print 'Unsupported SNMP version %s' % msgVer
@@ -66,7 +66,7 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
                         )
         elif reqPDU.isSameTypeWith(pMod.GetRequestPDU()):
             for oid, val in pMod.apiPDU.getVarBinds(reqPDU):
-                if mibInstrIdx.has_key(oid):
+                if oid in mibInstrIdx:
                     varBinds.append((oid, mibInstrIdx[oid](msgVer)))
                 else:
                     # No such instance

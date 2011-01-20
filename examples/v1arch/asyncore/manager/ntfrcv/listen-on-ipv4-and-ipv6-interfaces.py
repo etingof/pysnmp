@@ -7,7 +7,7 @@ from pysnmp.proto import api
 def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
     while wholeMsg:
         msgVer = int(api.decodeMessageVersion(wholeMsg))
-        if api.protoModules.has_key(msgVer):
+        if msgVer in api.protoModules:
             pMod = api.protoModules[msgVer]
         else:
             print 'Unsupported SNMP version %s' % msgVer

@@ -34,7 +34,7 @@ class Debug:
         self._flags = flagNone
         self._printer = self.defaultPrinter
         for f in flags:
-            if not flagMap.has_key(f):
+            if f not in flagMap:
                 raise error.PySnmpError('bad debug flag %s' % f)
             self._flags = self._flags | flagMap[f]
             self('debug category %s enabled' % f)

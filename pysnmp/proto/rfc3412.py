@@ -44,14 +44,15 @@ class MsgAndPduDispatcher:
         return index
 
     def __cachePop(self, index):
-        cachedParams = self.__cacheRepository.get(index)
-        if cachedParams is None:
+        if index in self.__cacheRepository:
+            cachedParams = self.__cacheRepository[index]
+        else:
             return
         del self.__cacheRepository[index]
         return cachedParams
 
     def __cacheUpdate(self, index, **kwargs):
-        if not self.__cacheRepository.has_key(index):
+        if index not in self.__cacheRepository:
             raise error.ProtocolError(
                 'Cache miss on update for %s' % kwargs
                 )
@@ -64,7 +65,7 @@ class MsgAndPduDispatcher:
                     del self.__cacheRepository[index]                    
 
     def getTransportInfo(self, stateReference):
-        if self.__transportInfo.has_key(stateReference):
+        if stateReference in self.__transportInfo:
             return self.__transportInfo[stateReference]
         else:
             raise error.ProtocolError(
@@ -81,7 +82,7 @@ class MsgAndPduDispatcher:
         # 4.3.3
         for pduType in pduTypes:
             k = (str(contextEngineId), pduType)
-            if self.__appsRegistration.has_key(k):
+            if k in self.__appsRegistration:
                 raise error.ProtocolError(
                     'Duplicate registration %s/%s' % (contextEngineId, pduType)
                     )
@@ -100,17 +101,17 @@ class MsgAndPduDispatcher:
 
         for pduType in pduTypes:
             k = (str(contextEngineId), pduType)
-            if self.__appsRegistration.has_key(k):
+            if k in self.__appsRegistration:
                 del self.__appsRegistration[k]
 
         debug.logger & debug.flagDsp and debug.logger('unregisterContextEngineId: contextEngineId %s pduTypes %s' % (repr(contextEngineId), pduTypes))
 
     def getRegisteredApp(self, contextEngineId, pduType):
         k = ( str(contextEngineId), pduType )
-        if self.__appsRegistration.has_key(k):
+        if k in self.__appsRegistration:
             return self.__appsRegistration[k]
         k = ( '', pduType )
-        if self.__appsRegistration.has_key(k):
+        if k in self.__appsRegistration:
             return self.__appsRegistration[k] # wildcard
 
     # Dispatcher <-> application API
@@ -134,10 +135,10 @@ class MsgAndPduDispatcher:
         ):
         """PDU dispatcher -- prepare and serialize a request or notification"""
         # 4.1.1.2
-        mpHandler = snmpEngine.messageProcessingSubsystems.get(
-            int(messageProcessingModel)
-            )
-        if mpHandler is None:
+        k = int(messageProcessingModel)
+        if k in snmpEngine.messageProcessingSubsystems:
+            mpHandler = snmpEngine.messageProcessingSubsystems[k]
+        else:
             raise error.StatusInformation(
                 errorIndication=errind.unsupportedMsgProcessingModel
                 )
@@ -223,10 +224,10 @@ class MsgAndPduDispatcher:
         ):
         """PDU dispatcher -- prepare and serialize a response"""
         # Extract input values and initialize defaults
-        mpHandler = snmpEngine.messageProcessingSubsystems.get(
-            int(messageProcessingModel)
-            )
-        if mpHandler is None:
+        k = int(messageProcessingModel)
+        if k in snmpEngine.messageProcessingSubsystems:
+            mpHandler = snmpEngine.messageProcessingSubsystems[k]
+        else:
             raise error.StatusInformation(
                 errorIndication=errind.unsupportedMsgProcessingModel
                 )
@@ -298,11 +299,11 @@ class MsgAndPduDispatcher:
         debug.logger & debug.flagDsp and debug.logger('receiveMessage: msgVersion %s, msg decoded' % msgVersion)
 
         messageProcessingModel = msgVersion
-        
-        mpHandler = snmpEngine.messageProcessingSubsystems.get(
-            int(messageProcessingModel)
-            )
-        if mpHandler is None:
+
+        k = int(messageProcessingModel)
+        if k in snmpEngine.messageProcessingSubsystems:
+            mpHandler = snmpEngine.messageProcessingSubsystems[k]
+        else:
             snmpInBadVersions, = self.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInBadVersions')
             snmpInBadVersions.syntax = snmpInBadVersions.syntax + 1
             return restOfWholeMsg
@@ -331,7 +332,7 @@ class MsgAndPduDispatcher:
                 )
             debug.logger & debug.flagDsp and debug.logger('receiveMessage: MP succeded')
         except error.StatusInformation, statusInformation:
-            if statusInformation.has_key('sendPduHandle'):
+            if 'sendPduHandle' in statusInformation:
                 # Dropped REPORT -- re-run pending reqs queue as some
                 # of them may be waiting for this REPORT
                 debug.logger & debug.flagDsp and debug.logger('receiveMessage: MP failed, statusInformation %s' % statusInformation)
@@ -469,10 +470,10 @@ class MsgAndPduDispatcher:
     def releaseStateInformation(
         self, snmpEngine, sendPduHandle, messageProcessingModel
         ):
-        mpHandler = snmpEngine.messageProcessingSubsystems.get(
-            int(messageProcessingModel)
-            )
-        mpHandler.releaseStateInformation(sendPduHandle)
+        k = int(messageProcessingModel)
+        if k in snmpEngine.messageProcessingSubsystems:
+            mpHandler = snmpEngine.messageProcessingSubsystems[k]
+            mpHandler.releaseStateInformation(sendPduHandle)
         
     # Cache expiration stuff
 

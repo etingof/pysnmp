@@ -112,11 +112,11 @@ class MibInstrumController:
 
         # Detach items from each other
         for symName, parentName in self.lastBuildSyms.items():
-            if scalars.has_key(parentName):
+            if parentName in scalars:
                 scalars[parentName].unregisterSubtrees(symName)
-            elif cols.has_key(parentName):
+            elif parentName in cols:
                 cols[parentName].unregisterSubtrees(symName)
-            elif rows.has_key(parentName):
+            elif parentName in rows:
                 rows[parentName].unregisterSubtrees(symName)
             else:
                 mibTree.unregisterSubtrees(symName)
@@ -125,9 +125,9 @@ class MibInstrumController:
         
         # Attach Managed Objects Instances to Managed Objects
         for inst in instances.values():
-            if scalars.has_key(inst.typeName):
+            if inst.typeName in scalars:
                 scalars[inst.typeName].registerSubtrees(inst)
-            elif cols.has_key(inst.typeName):
+            elif inst.typeName in cols:
                 cols[inst.typeName].registerSubtrees(inst)
             else:
                 raise error.SmiError(
@@ -138,7 +138,7 @@ class MibInstrumController:
         # Attach Table Columns to Table Rows
         for col in cols.values():
             rowName = col.name[:-1] # XXX
-            if rows.has_key(rowName):
+            if rowName in rows:
                 rows[rowName].registerSubtrees(col)
             else:
                 raise error.SmiError(
@@ -177,10 +177,14 @@ class MibInstrumController:
         state, status = 'start', 'ok'
         myErr = None
         while 1:
-            fsmState = fsmTable.get((state, status))
-            if fsmState is None:
-                fsmState = fsmTable.get(('*', status))
-                if fsmState is None:
+            k = (state, status)
+            if k in fsmTable:
+                fsmState = fsmTable[k]
+            else:
+                k = ('*', status)
+                if k in fsmTable:
+                    fsmState = fsmTable[k]
+                else:
                     raise error.SmiError(
                         'Unresolved FSM state %s, %s' % (state, status)
                         )

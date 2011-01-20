@@ -99,7 +99,7 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
     v2VarBinds = []
 
     # 3.1
-    if rfc3411.notificationClassPDUs.has_key(pduType):
+    if pduType in rfc3411.notificationClassPDUs:
         # 3.1.1
         sysUpTime = v1.apiTrapPDU.getTimeStamp(v1Pdu)
 
@@ -138,7 +138,7 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
             (oid, __v1ToV2ValueMap[v1Val.tagSet].clone(v1Val))
             )
         
-    if rfc3411.responseClassPDUs.has_key(pduType):
+    if pduType in rfc3411.responseClassPDUs:
         # 4.1.2.2.1&2
         errorStatus = int(v1.apiPDU.getErrorStatus(v1Pdu))
         errorIndex = int(v1.apiPDU.getErrorIndex(v1Pdu))
@@ -157,7 +157,7 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
 
         # 4.1.2.1 --> no-op
 
-    if not rfc3411.notificationClassPDUs.has_key(pduType):
+    if pduType not in rfc3411.notificationClassPDUs:
         v2c.apiPDU.setRequestID(v2Pdu, long(v1.apiPDU.getRequestID(v1Pdu)))
 
     v2c.apiPDU.setVarBinds(v2Pdu, v2VarBinds)
@@ -171,7 +171,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
     
     pduType = v2Pdu.tagSet
 
-    if __v2ToV1PduMap.has_key(pduType):
+    if pduType in __v2ToV1PduMap:
         v1Pdu = __v2ToV1PduMap[pduType].clone()
     else:
         raise error.ProtocolError('Unsupported PDU type')
@@ -179,19 +179,19 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
     v2VarBinds = v2c.apiPDU.getVarBinds(v2Pdu)
     v1VarBinds = []
 
-    if rfc3411.notificationClassPDUs.has_key(pduType):
+    if pduType in rfc3411.notificationClassPDUs:
         v1.apiTrapPDU.setDefaults(v1Pdu)
     else:
         v1.apiPDU.setDefaults(v1Pdu)
         
     # 3.2
-    if rfc3411.notificationClassPDUs.has_key(pduType):
+    if pduType in rfc3411.notificationClassPDUs:
         # 3.2.1
         (snmpTrapOID, snmpTrapOIDParam) = v2VarBinds[1]
         if snmpTrapOID != v2c.apiTrapPDU.snmpTrapOID:
             raise error.ProtocolError('Second OID not snmpTrapOID')
 
-        if __v2ToV1TrapMap.has_key(snmpTrapOIDParam):
+        if snmpTrapOIDParam in __v2ToV1TrapMap:
             for oid, val in v2VarBinds:
                 if oid == v2c.apiTrapPDU.snmpTrapEnterprise:
                     v1.apiTrapPDU.setEnterprise(v1Pdu, val)
@@ -215,13 +215,13 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
             v1.apiTrapPDU.setAgentAddr(v1Pdu, v1.apiTrapPDU.agentAddress)
 
         # 3.2.3
-        if __v2ToV1TrapMap.has_key(snmpTrapOIDParam):
+        if snmpTrapOIDParam in __v2ToV1TrapMap:
             v1.apiTrapPDU.setGenericTrap(v1Pdu, __v2ToV1TrapMap[snmpTrapOIDParam])
         else:
             v1.apiTrapPDU.setGenericTrap(v1Pdu, 6)
 
         # 3.2.4
-        if __v2ToV1TrapMap.has_key(snmpTrapOIDParam):
+        if snmpTrapOIDParam in __v2ToV1TrapMap:
             v1.apiTrapPDU.setSpecificTrap(v1Pdu, 0)
         else:
             v1.apiTrapPDU.setSpecificTrap(v1Pdu, snmpTrapOIDParam[-1])
@@ -231,7 +231,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
 
         __v2VarBinds = []
         for oid, val in v2VarBinds[2:]:
-            if __v2ToV1TrapMap.has_key(oid) or \
+            if oid in __v2ToV1TrapMap or \
                    oid in (v2c.apiTrapPDU.sysUpTime,
                            v2c.apiTrapPDU.snmpTrapAddress,
                            v2c.apiTrapPDU.snmpTrapEnterprise):
@@ -241,7 +241,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         
         # 3.2.6 --> done below
 
-    if rfc3411.responseClassPDUs.has_key(pduType):
+    if pduType in rfc3411.responseClassPDUs:
         idx = len(v2VarBinds)-1
         while idx >= 0:
             # 4.1.2.1
@@ -272,7 +272,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
             v1.apiPDU.setErrorIndex(v1Pdu, v2c.apiPDU.getErrorIndex(v2Pdu))
             
     # Translate Var-Binds
-    if rfc3411.responseClassPDUs.has_key(pduType) and \
+    if pduType in rfc3411.responseClassPDUs and \
            v1.apiPDU.getErrorStatus(v1Pdu):
         v1VarBinds = v1.apiPDU.getVarBinds(origV1Pdu)
     else:
@@ -281,7 +281,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
                 (oid, __v2ToV1ValueMap[v2Val.tagSet].clone(v2Val))
                 )
 
-    if rfc3411.notificationClassPDUs.has_key(pduType):
+    if pduType in rfc3411.notificationClassPDUs:
         v1.apiTrapPDU.setVarBinds(v1Pdu, v1VarBinds)
     else:
         v1.apiPDU.setVarBinds(v1Pdu, v1VarBinds)

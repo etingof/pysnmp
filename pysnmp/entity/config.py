@@ -137,7 +137,7 @@ def addV3User(snmpEngine, securityName,
         )
 
     # Localize keys
-    if authServices.has_key(authProtocol):
+    if authProtocol in authServices:
         hashedAuthPassphrase = authServices[authProtocol].hashPassphrase(
             authKey and authKey or ''
             )
@@ -147,7 +147,7 @@ def addV3User(snmpEngine, securityName,
     else:
         raise error.PySnmpError('Unknown auth protocol %s' % (authProtocol,))
 
-    if privServices.has_key(privProtocol):
+    if privProtocol in privServices:
         hashedPrivPassphrase = privServices[privProtocol].hashPassphrase(
             authProtocol, privKey and privKey or ''
             )
