@@ -1,8 +1,4 @@
 """Defines standard API to asyncore-based transport"""
-try:
-    from sys import version_info
-except ImportError:
-    version_info = ( 0, 0 )   # a really early version
 import socket, sys
 import asyncore
 from pysnmp.carrier import error
@@ -29,28 +25,7 @@ class AbstractSocketTransport(asyncore.dispatcher):
             # which this transport is registered, so this is a fake
             # socket map to avoid registering with deafult asyncore map.
             sockMap = {}
-        # Old asyncore doesn't allow socket_map param in constructor
-        if version_info < (2, 0):
-            # Taken from dispatcher.__init__()
-            self.socket = sock
-            self.add_channel(sockMap)
-            self.socket.setblocking(0)
-            self.connected = 1
-        else:
-            asyncore.dispatcher.__init__(self, sock, sockMap)
-
-    # Old asyncore doesn't allow socket_map param
-    if version_info < (2, 0):
-        def add_channel (self, sockMap=None):
-            if sockMap is None:
-                sockMap = asyncore.socket_map
-            sockMap[self] = self
-
-        def del_channel (self, sockMap=None):
-            if sockMap is None:
-                sockMap = asyncore.socket_map
-            if self in sockMap:
-                del sockMap[self]
+        asyncore.dispatcher.__init__(self, sock, sockMap)
 
     def registerSocket(self, sockMap=None):
         self.add_channel(sockMap)

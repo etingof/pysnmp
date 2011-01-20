@@ -1,8 +1,4 @@
 import time
-try:
-    from sys import version_info
-except ImportError:
-    version_info = ( 0, 0 )   # a really early version
 from pysnmp.entity.rfc3413 import config
 from pysnmp.proto.proxy import rfc2576
 from pysnmp.proto.api import v2c
@@ -191,8 +187,6 @@ class NotificationOriginator:
 #                 varBinds.append((objectInstance.name, objectInstance.syntax))
 
             if additionalVarBinds:
-                if version_info < (1, 6):
-                    additionalVarBinds = list(additionalVarBinds)
                 varBinds.extend(additionalVarBinds)
 
             for varName, varVal in varBinds:
