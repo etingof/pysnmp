@@ -51,7 +51,9 @@ class Debug:
     def __rand__(self, flag):
         return flag & self._flags
 
-logger = Debug()
+# This will yield false from bitwise and with a flag, and save
+# on unnecessary calls
+logger = 0
 
 def setLogger(l):
     global logger
