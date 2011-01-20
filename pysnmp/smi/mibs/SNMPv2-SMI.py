@@ -252,12 +252,11 @@ class MibTree(ObjectType):
 
     def getBranch(self, name, idx):
         """Return a branch of this tree where the 'name' OID may reside"""
-        name = tuple(name) # XXX
-        if len(self.name) < len(name):
-            for keyLen in self._vars.getKeysLens():
-                subName = name[:keyLen]
-                if subName in self._vars:
-                    return self._vars[subName]
+        for keyLen in self._vars.getKeysLens():
+            subName = name[:keyLen]
+            if subName in self._vars:
+                return self._vars[subName]
+                
         raise error.NoSuchObjectError(name=name, idx=idx)
 
     def getNode(self, name, idx=None):
@@ -520,9 +519,8 @@ class MibTableColumn(MibScalar):
         
     # No branches here, terminal OIDs only
     def getBranch(self, name, idx):
-        if len(self.name) < len(name):
-            if name in self._vars:
-                return self._vars[name]
+        if name in self._vars:
+            return self._vars[name]
         raise error.NoSuchObjectError(name=name, idx=idx)
 
     def getNode(self, name, idx=None):
