@@ -20,7 +20,7 @@ def getTargetAddr(snmpEngine, snmpTargetAddrName):
      (v, snmpTargetAddrTAddress),
      (v, snmpTargetAddrTimeout),
      (v, snmpTargetAddrRetryCount),
-     (v, snmpTargetAddrParams)) = mibInstrumController.readVars(
+     (v, snmpTargetAddrParams)) = mibInstrumController.readVarsFast(
         ((snmpTargetAddrEntry.name + (2,) + tblIdx, None),
          (snmpTargetAddrEntry.name + (3,) + tblIdx, None),
          (snmpTargetAddrEntry.name + (4,) + tblIdx, None),
@@ -69,7 +69,7 @@ def getTargetInfo(snmpEngine, snmpTargetAddrName):
     ((v, snmpTargetParamsMPModel),
      (v, snmpTargetParamsSecurityModel),
      (v, snmpTargetParamsSecurityName),
-     (v, snmpTargetParamsSecurityLevel)) = mibInstrumController.readVars(
+     (v, snmpTargetParamsSecurityLevel)) = mibInstrumController.readVarsFast(
         ((snmpTargetParamsEntry.name + (2,) + tblIdx, None),
          (snmpTargetParamsEntry.name + (3,) + tblIdx, None),
          (snmpTargetParamsEntry.name + (4,) + tblIdx, None),
@@ -99,7 +99,7 @@ def getTargetParams(snmpEngine, paramsName):
     ((v, snmpTargetParamsMPModel),
      (v, snmpTargetParamsSecurityModel),
      (v, snmpTargetParamsSecurityName),
-     (v, snmpTargetParamsSecurityLevel)) = mibInstrumController.readVars(
+     (v, snmpTargetParamsSecurityLevel)) = mibInstrumController.readVarsFast(
         ((snmpTargetParamsEntry.name + (2,) + tblIdx, None),
          (snmpTargetParamsEntry.name + (3,) + tblIdx, None),
          (snmpTargetParamsEntry.name + (4,) + tblIdx, None),
@@ -124,7 +124,7 @@ def getNotificationInfo(snmpEngine, notificationTarget):
         notificationTarget
         )
     ((v, snmpNotifyTag),
-     (v, snmpNotifyType)) = mibInstrumController.readVars(
+     (v, snmpNotifyType)) = mibInstrumController.readVarsFast(
         ((snmpNotifyEntry.name + (2,) + tblIdx, None),
          (snmpNotifyEntry.name + (3,) + tblIdx, None))
         )
