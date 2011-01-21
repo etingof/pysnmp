@@ -4,8 +4,6 @@ from pysnmp.smi.error import SmiError, NoSuchObjectError
 from pysnmp.smi.exval import noSuchInstance
 from pysnmp.entity import config
 
-def getVersionSpecifics(snmpVersion): pass
-
 def getTargetAddr(snmpEngine, snmpTargetAddrName):
     mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
     # Transport endpoint
