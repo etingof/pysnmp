@@ -8,6 +8,15 @@ Revision 4.1.16a
 - changes towards performance improvement:
   + all dict.has_key() & dict.get() invocations replaced with modern syntax
     (this breaks compatibility with Python 2.1 and older).
+  + introduce the MibInstrumControlle.readVarsFast() method (which skips
+    the "testing" phase of MIB value readin) for dealing with internal
+    configuration (LCD).
+  + default debug.logger is now just a zero value instead of an object
+    what saves big on frequent calls
+  + SNMPv2-SMI columnar indices <-> index values convertion code optimized.
+  + pre-compute and re-use some of ASN.1 structures.
+  + avoid setting PDU defaults to save on unnecessary initialization.
+  + skip ASN.1 types verification where possible.
 
 Revision 4.1.15a
 ----------------
