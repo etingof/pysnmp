@@ -764,78 +764,73 @@ class MibTableRow(MibTree):
     # some subtypes may be implicitly tagged what renders base tag
     # unavailable.
 
-    __intValue = Integer()
-    __counter32Value = Counter32()
-    __uint32Value = Unsigned32()
-    __timeticksValue = TimeTicks()
-    __counter64Value = Counter64()
-    __strValue = OctetString()
-    __oidValue = ObjectIdentifier()
-    __ipaddrValue = IpAddress()
-    __bitsValue = Bits()
+    __intBaseTag = Integer.tagSet.getBaseTag()
+    __strBaseTag = OctetString.tagSet.getBaseTag()
+    __oidBaseTag = ObjectIdentifier.tagSet.getBaseTag()
+    __ipaddrTagSet = IpAddress.tagSet
+    __bitsBaseTag = Bits.tagSet.getBaseTag()
 
     def setFromName(self, obj, value, impliedFlag=None):
         if not value:
             raise error.SmiError('Short OID for index %s' % repr(obj))
-        if self.__intValue.isSuperTypeOf(obj) or \
-               self.__uint32Value.isSuperTypeOf(obj) or \
-               self.__timeticksValue.isSuperTypeOf(obj) or \
-               self.__counter32Value.isSuperTypeOf(obj) or \
-               self.__counter64Value.isSuperTypeOf(obj):
+        baseTag = obj.getTagSet().getBaseTag()
+        if baseTag == self.__intBaseTag:
             return obj.clone(value[0]), value[1:]
-        elif self.__ipaddrValue.isSuperTypeOf(obj):
+        elif self.__ipaddrTagSet.isSuperTagSetOf(obj.getTagSet()):
             return obj.clone(string.join(map(str, value[:4]), '.')), value[4:]
-        elif self.__strValue.isSuperTypeOf(obj):
+        elif baseTag == self.__strBaseTag:
             # rfc1902, 7.7
-            if impliedFlag: 
-                s = reduce(lambda x,y: x+y, map(lambda x: chr(x), value))
+            if impliedFlag:
+                s = ''
+                for c in value:
+                    s = s + chr(c)
                 return obj.clone(s), ()                
             elif obj.isFixedLength():
-                len = obj.getFixedLength()
-                s = reduce(lambda x,y: x+y, map(lambda x: chr(x), value[:len]))
-                return obj.clone(s), value[len:]
+                l = obj.getFixedLength()
+                s = ''
+                for c in value[:l]:
+                    s = s + chr(c)
+                return obj.clone(s), value[l:]
             else:
-                s = reduce(lambda x,y: x+y,
-                           map(lambda x: chr(x), value[1:value[0]+1]), '')
+                s = ''
+                for c in value[1:value[0]+1]:
+                    s = s + chr(c)
                 return obj.clone(s), value[value[0]+1:]
-        elif self.__oidValue.isSuperTypeOf(obj):
+        elif baseTag == self.__oidBaseTag:
             if impliedFlag:
                 return obj.clone(value), ()
             else:
                 return obj.clone(value[1:value[0]+1]), value[value[0]+1:]
         # rfc2578, 7.1
-        elif self.__bitsValue.isSuperTypeOf(obj):
-            s = reduce(
-                lambda x,y: x+y, map(lambda x: chr(x),value[1:value[0]+1]),''
-                )
+        elif baseTag == self.__bitsBaseTag:
+            s = ''
+            for c in valuevalue[1:value[0]+1]:
+                s = s + chr(c)
             return obj.clone(s), value[value[0]+1:]
         else:
             raise error.SmiError('Unknown value type for index %s' % repr(obj))
 
     def getAsName(self, obj, impliedFlag=None):
-        if self.__intValue.isSuperTypeOf(obj) or \
-               self.__uint32Value.isSuperTypeOf(obj) or \
-               self.__timeticksValue.isSuperTypeOf(obj) or \
-               self.__counter32Value.isSuperTypeOf(obj) or \
-               self.__counter64Value.isSuperTypeOf(obj):
+        baseTag = obj.getTagSet().getBaseTag()
+        if baseTag == self.__intBaseTag:
             return (int(obj),)
-        elif self.__ipaddrValue.isSuperTypeOf(obj):
+        elif self.__ipaddrTagSet.isSuperTagSetOf(obj.getTagSet()):        
             return tuple(map(ord, obj))
-        elif self.__strValue.isSuperTypeOf(obj):
+        elif baseTag == self.__strBaseTag:
             if impliedFlag or obj.isFixedLength():
                 initial = ()
             else:
                 initial = (len(obj),)
-            return reduce(
-                lambda x,y: x+(y,), map(lambda x: ord(x), obj), initial
-                )
-        elif self.__oidValue.isSuperTypeOf(obj):
+            for c in str(obj):
+                initial = initial + (ord(c),)
+            return initial
+        elif baseTag == self.__oidBaseTag:
             if impliedFlag:
                 return tuple(obj)
             else:
                 return (len(self.name),) + tuple(obj)
         # rfc2578, 7.1
-        elif self.__bitsValue.isSuperTypeOf(obj):
+        elif baseTag == self.__bitsBaseTag:
             return reduce(
                 lambda x,y: x+(y,), map(lambda x: ord(x), obj),(len(obj),) 
                 )
@@ -981,13 +976,12 @@ class MibTableRow(MibTree):
 
     def getInstIdFromIndices(self, *indices):
         """Return column instance identification from indices"""
-        idx = 0; instId = ()
+        idx = 0; idxLen = len(indices); instId = ()
         for impliedFlag, modName, symName in self.indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
-            if idx < len(indices):
+            if idx < idxLen:
                 instId = instId + self.getAsName(
-                    mibObj.syntax.clone(indices[idx]),
-                    impliedFlag
+                    mibObj.syntax.clone(indices[idx]), impliedFlag
                     )
             else:
                 break
