@@ -41,12 +41,12 @@ apiVarBind = VarBindAPI()
 getNextRequestID = nextid.Integer(0xffff)
 
 class PDUAPI:
-    _null = univ.Null('')
-    
+    _null = Null('')
+    _errorStatus = _errorIndex = Integer(0)
     def setDefaults(self, pdu):
         pdu.setComponentByPosition(0, getNextRequestID())
-        pdu.setComponentByPosition(1, 0)
-        pdu.setComponentByPosition(2, 0)
+        pdu.setComponentByPosition(1, self._errorStatus)
+        pdu.setComponentByPosition(2, self._errorIndex)
         pdu.setComponentByPosition(3)
         
     def getRequestID(self, pdu): return pdu.getComponentByPosition(0)
@@ -115,12 +115,14 @@ class TrapPDUAPI:
         agentAddress = IpAddress(socket.gethostbyname(socket.gethostname()))
     except:
         agentAddress = IpAddress('0.0.0.0')
+    _entOid = ObjectIdentifier((1,3,6,1,4,1,20408))
+    _zeroInt = univ.Integer(0)
     def setDefaults(self, pdu):
-        pdu.setComponentByPosition(0, (1,3,6,1,4,1,20408))
+        pdu.setComponentByPosition(0, self._entOid)
         pdu.setComponentByPosition(1).getComponentByPosition(1).setComponentByPosition(0, self.agentAddress)
-        pdu.setComponentByPosition(2, 0)
-        pdu.setComponentByPosition(3, 0)
-        pdu.setComponentByPosition(4, 0)
+        pdu.setComponentByPosition(2, self._zeroInt)
+        pdu.setComponentByPosition(3, self._zeroInt)
+        pdu.setComponentByPosition(4, self._zeroInt)
         pdu.setComponentByPosition(5)
 
     def getEnterprise(self, pdu): return pdu.getComponentByPosition(0)
@@ -165,9 +167,11 @@ class TrapPDUAPI:
 apiTrapPDU = TrapPDUAPI()
 
 class MessageAPI:
+    _verInt = univ.Integer(0)
+    _commStr = univ.OctetString('public')
     def setDefaults(self, msg):
-        msg.setComponentByPosition(0, 0)
-        msg.setComponentByPosition(1, 'public')
+        msg.setComponentByPosition(0, self._verInt)
+        msg.setComponentByPosition(1, self._commStr)
         return msg
 
     def getVersion(self, msg): return msg.getComponentByPosition(0)

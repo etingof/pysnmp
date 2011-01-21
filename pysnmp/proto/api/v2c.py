@@ -1,6 +1,6 @@
 from pysnmp.proto import rfc1902, rfc1905, error
 from pysnmp.proto.api import v1
-from pyasn1.type import univ, namedtype, namedval
+from pyasn1.type import univ, namedtype, namedval, constraint
 
 # Shortcuts to SNMP types
 Null = univ.Null
@@ -42,6 +42,7 @@ getNextRequestID = v1.getNextRequestID
 apiVarBind = v1.apiVarBind
 
 class PDUAPI(v1.PDUAPI):
+    _errorIndex = univ.Integer(0).subtype(subtypeSpec=constraint.ValueRangeConstraint(0, rfc1905.max_bindings))
     def getResponse(self, reqPDU):
         rspPDU = ResponsePDU()
         self.setDefaults(rspPDU)
@@ -66,9 +67,10 @@ class PDUAPI(v1.PDUAPI):
 apiPDU = PDUAPI()
 
 class BulkPDUAPI(PDUAPI):
+    _tenInt = rfc1902.Integer(10)
     def setDefaults(self, pdu):
         PDUAPI.setDefaults(self, pdu)
-        pdu.setComponentByPosition(2, 10)
+        pdu.setComponentByPosition(2, self._tenInt)
 
     def getNonRepeaters(self, pdu): return pdu.getComponentByPosition(1)
     def setNonRepeaters(self, pdu, value): pdu.setComponentByPosition(1, value)
@@ -107,21 +109,24 @@ class TrapPDUAPI(v1.PDUAPI):
     snmpTrapCommunity = (1,3,6,1,6,3,18,1,4,0)
     snmpTrapOID = (1,3,6,1,6,3,1,1,4,1,0)
     snmpTrapEnterprise = (1,3,6,1,6,3,1,1,4,3,0)
+    _zeroTime = TimeTicks(0)
+    _genTrap = ObjectIdentifier((1,3,6,1,6,3,1,1,5,1))
     def setDefaults(self, pdu):
         v1.PDUAPI.setDefaults(self, pdu)
         varBinds = [
-            ( self.sysUpTime, TimeTicks(0)),
+            ( self.sysUpTime, self._zeroTime),
             # generic trap
-            ( self.snmpTrapOID, ObjectIdentifier((1,3,6,1,6,3,1,1,5,1)))
+            ( self.snmpTrapOID, self._genTrap)
             ]
         self.setVarBinds(pdu, varBinds)        
 
 apiTrapPDU = TrapPDUAPI()
 
 class MessageAPI(v1.MessageAPI):
+    _verInt = univ.Integer(1)
     def setDefaults(self, msg):
-        msg.setComponentByPosition(0, 1)
-        msg.setComponentByPosition(1, 'public')
+        msg.setComponentByPosition(0, self._verInt)
+        msg.setComponentByPosition(1, self._commStr)
         return msg
 
     def getResponse(self, reqMsg):
