@@ -279,7 +279,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         securityParameters = self._securityParametersSpec
 
         scopedPDUData = msg.setComponentByPosition(3).getComponentByPosition(3)
-        scopedPDUData.setComponentByPosition(0, scopedPDU)
+        scopedPDUData.setComponentByPosition(
+            0, scopedPDU, verifyConstraints=False
+            )
         
         # 3.1.6a
         if securityStateReference is None and (  # request type check added
@@ -333,8 +335,12 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 dataToEncrypt
                 )
 
-            securityParameters.setComponentByPosition(5, privParameters)
-            scopedPDUData.setComponentByPosition(1, encryptedData)
+            securityParameters.setComponentByPosition(
+                5, privParameters, verifyConstraints=False
+                )
+            scopedPDUData.setComponentByPosition(
+                1, encryptedData, verifyConstraints=False
+                )
 
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: scopedPDU ciphered')
 
@@ -345,12 +351,20 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: %s' % scopedPDUData.prettyPrint())
         
         # 3.1.5
-        securityParameters.setComponentByPosition(0, securityEngineID)
-        securityParameters.setComponentByPosition(1, snmpEngineBoots)
-        securityParameters.setComponentByPosition(2, snmpEngineTime)
+        securityParameters.setComponentByPosition(
+            0, securityEngineID, verifyConstraints=False
+            )
+        securityParameters.setComponentByPosition(
+            1, snmpEngineBoots, verifyConstraints=False
+            )
+        securityParameters.setComponentByPosition(
+            2, snmpEngineTime, verifyConstraints=False
+            )
     
         # 3.1.7
-        securityParameters.setComponentByPosition(3, usmUserName)
+        securityParameters.setComponentByPosition(
+            3, usmUserName, verifyConstraints=False
+            )
 
         # 3.1.8a
         if securityLevel == 3 or securityLevel == 2:
@@ -368,7 +382,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: %s' % (securityParameters.prettyPrint(),))
             
-            msg.setComponentByPosition(2, encoder.encode(securityParameters))
+            msg.setComponentByPosition(
+                2, encoder.encode(securityParameters), verifyConstraints=False
+                )
 
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: auth outgoing msg: %s' % msg.prettyPrint())
 
@@ -379,11 +395,15 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 )
         # 3.1.8b
         else:
-            securityParameters.setComponentByPosition(4, '')
+            securityParameters.setComponentByPosition(
+                4, '', verifyConstraints=False
+                )
 
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: %s' % (securityParameters.prettyPrint(),))
 
-            msg.setComponentByPosition(2, encoder.encode(securityParameters))
+            msg.setComponentByPosition(
+                2, encoder.encode(securityParameters), verifyConstraints=False
+                )
 
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: plain outgoing msg: %s' % msg.prettyPrint())
 

@@ -52,9 +52,18 @@ _snmpErrors = {
     }
 
 class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
-    messageProcessingModelID = 3 # SNMPv3
+    messageProcessingModelID = univ.Integer(3) # SNMPv3
     snmpMsgSpec = SNMPv3Message
     _scopedPDU = ScopedPDU()
+    _emptyStr = univ.OctetString('')
+    _msgFlags = {
+        0: univ.OctetString('\x00'),
+        1: univ.OctetString('\x01'),
+        3: univ.OctetString('\x03'),
+        4: univ.OctetString('\x04'),
+        5: univ.OctetString('\x05'),
+        7: univ.OctetString('\x07')
+        }
     def __init__(self):
         AbstractMessageProcessingModel.__init__(self)
         self.__engineIDs = {}
@@ -107,7 +116,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                     contextEngineId = peerSnmpEngineData['securityEngineID']
         # 7.1.5
         if not contextName:
-            contextName = ''
+            contextName = self._emptyStr
 
         debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: using contextEngineId %s, contextName %s' % (repr(contextEngineId), contextName))
         
@@ -117,25 +126,28 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         scopedPDU.setComponentByPosition(1, contextName)
         scopedPDU.setComponentByPosition(2)
         scopedPDU.getComponentByPosition(2).setComponentByType(
-            pdu.tagSet, pdu
+            pdu.tagSet, pdu, verifyConstraints=False
             )
 
         # 7.1.7
         msg = self.snmpMsgSpec
         
         # 7.1.7a
-        msg.setComponentByPosition(0, 3) # version
-
+        msg.setComponentByPosition(
+            0, self.messageProcessingModelID, verifyConstraints=False
+            )
         headerData = msg.setComponentByPosition(1).getComponentByPosition(1)
 
         # 7.1.7b
-        headerData.setComponentByPosition(0, msgID)
+        headerData.setComponentByPosition(0, msgID, verifyConstraints=False)
 
         snmpEngineMaxMessageSize, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
 
         # 7.1.7c
         # XXX need to coerce MIB value as it has incompatible constraints set
-        headerData.setComponentByPosition(1, int(snmpEngineMaxMessageSize.syntax))
+        headerData.setComponentByPosition(
+            1, snmpEngineMaxMessageSize.syntax, verifyConstraints=False
+            )
 
         # 7.1.7d
         msgFlags = 0
@@ -153,7 +165,9 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         if pdu.tagSet in rfc3411.confirmedClassPDUs:
             msgFlags = msgFlags | 0x04
 
-        headerData.setComponentByPosition(2, chr(msgFlags))
+        headerData.setComponentByPosition(
+            2, self._msgFlags[msgFlags], verifyConstraints=False
+            )
 
         # 7.1.7e
         # XXX need to coerce MIB value as it has incompatible constraints set
@@ -174,13 +188,17 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         else:
             if peerSnmpEngineData is None:
                 # Force engineID discovery (rfc3414, 4)
-                securityEngineID = securityName = ''
+                securityEngineID = securityName = self._emptyStr
                 securityLevel = 1
                 # Clear possible auth&priv flags
-                headerData.setComponentByPosition(2, chr(msgFlags & 0xfc))
+                headerData.setComponentByPosition(
+                    2, self._msgFlags[msgFlags & 0xfc], verifyConstraints=False
+                    )
                 # XXX
                 scopedPDU = self._scopedPDU
-                scopedPDU.setComponentByPosition(0, '')
+                scopedPDU.setComponentByPosition(
+                    0, self._emptyStr, verifyConstraints=False
+                    )
                 scopedPDU.setComponentByPosition(1, contextName)
                 scopedPDU.setComponentByPosition(2)
 
@@ -189,7 +207,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 pMod.apiPDU.setDefaults(emptyPdu)
 
                 scopedPDU.getComponentByPosition(2).setComponentByType(
-                    emptyPdu.tagSet, emptyPdu
+                    emptyPdu.tagSet, emptyPdu, verifyConstraints=False
                 )
                 debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: force engineID discovery')
             else:
@@ -328,7 +346,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
 
         # 7.1.5
         if not contextName:
-            contextName = ''
+            contextName = self._emptyStr
 
         debug.logger & debug.flagMP and debug.logger('prepareResponseMessage: using contextEngineId %s, contextName %s' % (repr(contextEngineId), contextName))
 
@@ -338,25 +356,31 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         scopedPDU.setComponentByPosition(1, contextName)
         scopedPDU.setComponentByPosition(2)
         scopedPDU.getComponentByPosition(2).setComponentByType(
-            pdu.tagSet, pdu
+            pdu.tagSet, pdu, verifyConstraints=False
             )
 
         # 7.1.7
         msg = self.snmpMsgSpec
         
         # 7.1.7a
-        msg.setComponentByPosition(0, 3) # version
+        msg.setComponentByPosition(
+            0, self.messageProcessingModelID, verifyConstraints=False
+            )
 
         headerData = msg.setComponentByPosition(1).getComponentByPosition(1)
 
         # 7.1.7b
-        headerData.setComponentByPosition(0, msgID)
+        headerData.setComponentByPosition(
+            0, msgID, verifyConstraints=False
+            )
 
         snmpEngineMaxMessageSize, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
 
         # 7.1.7c
         # XXX need to coerce MIB value as it has incompatible constraints set
-        headerData.setComponentByPosition(1, int(snmpEngineMaxMessageSize.syntax))
+        headerData.setComponentByPosition(
+            1, snmpEngineMaxMessageSize.syntax, verifyConstraints=False
+            )
 
         # 7.1.7d
         msgFlags = 0
@@ -374,10 +398,14 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         if pdu.tagSet in rfc3411.confirmedClassPDUs:  # XXX not needed?
             msgFlags = msgFlags | 0x04
 
-        headerData.setComponentByPosition(2, chr(msgFlags))
+        headerData.setComponentByPosition(
+            2, self._msgFlags[msgFlags], verifyConstraints=False
+            )
 
         # 7.1.7e
-        headerData.setComponentByPosition(3, securityModel)
+        headerData.setComponentByPosition(
+            3, securityModel, verifyConstraints=False
+            )
 
         debug.logger & debug.flagMP and debug.logger('prepareResponseMessage: %s' % (msg.prettyPrint(),))
 

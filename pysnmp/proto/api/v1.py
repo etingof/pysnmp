@@ -44,9 +44,15 @@ class PDUAPI:
     _null = Null('')
     _errorStatus = _errorIndex = Integer(0)
     def setDefaults(self, pdu):
-        pdu.setComponentByPosition(0, getNextRequestID())
-        pdu.setComponentByPosition(1, self._errorStatus)
-        pdu.setComponentByPosition(2, self._errorIndex)
+        pdu.setComponentByPosition(
+            0, getNextRequestID(), verifyConstraints=False
+            )
+        pdu.setComponentByPosition(
+            1, self._errorStatus, verifyConstraints=False
+            )
+        pdu.setComponentByPosition(
+            2, self._errorIndex, verifyConstraints=False
+            )
         pdu.setComponentByPosition(3)
         
     def getRequestID(self, pdu): return pdu.getComponentByPosition(0)
@@ -118,11 +124,11 @@ class TrapPDUAPI:
     _entOid = ObjectIdentifier((1,3,6,1,4,1,20408))
     _zeroInt = univ.Integer(0)
     def setDefaults(self, pdu):
-        pdu.setComponentByPosition(0, self._entOid)
-        pdu.setComponentByPosition(1).getComponentByPosition(1).setComponentByPosition(0, self.agentAddress)
-        pdu.setComponentByPosition(2, self._zeroInt)
-        pdu.setComponentByPosition(3, self._zeroInt)
-        pdu.setComponentByPosition(4, self._zeroInt)
+        pdu.setComponentByPosition(0, self._entOid, verifyConstraints=False)
+        pdu.setComponentByPosition(1).getComponentByPosition(1).setComponentByPosition(0, self.agentAddress, verifyConstraints=False)
+        pdu.setComponentByPosition(2, self._zeroInt, verifyConstraints=False)
+        pdu.setComponentByPosition(3, self._zeroInt, verifyConstraints=False)
+        pdu.setComponentByPosition(4, self._zeroInt, verifyConstraints=False)
         pdu.setComponentByPosition(5)
 
     def getEnterprise(self, pdu): return pdu.getComponentByPosition(0)
@@ -170,8 +176,8 @@ class MessageAPI:
     _verInt = univ.Integer(0)
     _commStr = univ.OctetString('public')
     def setDefaults(self, msg):
-        msg.setComponentByPosition(0, self._verInt)
-        msg.setComponentByPosition(1, self._commStr)
+        msg.setComponentByPosition(0, self._verInt, verifyConstraints=False)
+        msg.setComponentByPosition(1, self._commStr, verifyConstraints=False)
         return msg
 
     def getVersion(self, msg): return msg.getComponentByPosition(0)
@@ -182,7 +188,7 @@ class MessageAPI:
         
     def getPDU(self, msg): return msg.getComponentByPosition(2).getComponent()
     def setPDU(self, msg, value):
-        msg.setComponentByPosition(2).getComponentByPosition(2).setComponentByType(value.getTagSet(), value, 1)
+        msg.setComponentByPosition(2).getComponentByPosition(2).setComponentByType(value.getTagSet(), value, 1, verifyConstraints=False)
 
     def getResponse(self, reqMsg):
         rspMsg = Message()

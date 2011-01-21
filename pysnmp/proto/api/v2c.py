@@ -55,13 +55,13 @@ class PDUAPI(v1.PDUAPI):
     def setEndOfMibError(self, pdu, errorIndex):
         varBindList = self.getVarBindList(pdu)
         varBindList[errorIndex-1].setComponentByPosition(
-            1, rfc1905.endOfMibView
+            1, rfc1905.endOfMibView, verifyConstraints=False
             )
 
     def setNoSuchInstanceError(self, pdu, errorIndex):
         varBindList = self.getVarBindList(pdu)
         varBindList[errorIndex-1].setComponentByPosition(
-            1, rfc1905.noSuchInstance
+            1, rfc1905.noSuchInstance, verifyConstraints=False
             )
 
 apiPDU = PDUAPI()
@@ -70,7 +70,7 @@ class BulkPDUAPI(PDUAPI):
     _tenInt = rfc1902.Integer(10)
     def setDefaults(self, pdu):
         PDUAPI.setDefaults(self, pdu)
-        pdu.setComponentByPosition(2, self._tenInt)
+        pdu.setComponentByPosition(2, self._tenInt, verifyConstraints=False)
 
     def getNonRepeaters(self, pdu): return pdu.getComponentByPosition(1)
     def setNonRepeaters(self, pdu, value): pdu.setComponentByPosition(1, value)
@@ -125,8 +125,8 @@ apiTrapPDU = TrapPDUAPI()
 class MessageAPI(v1.MessageAPI):
     _verInt = univ.Integer(1)
     def setDefaults(self, msg):
-        msg.setComponentByPosition(0, self._verInt)
-        msg.setComponentByPosition(1, self._commStr)
+        msg.setComponentByPosition(0, self._verInt, verifyConstraints=False)
+        msg.setComponentByPosition(1, self._commStr, verifyConstraints=False)
         return msg
 
     def getResponse(self, reqMsg):

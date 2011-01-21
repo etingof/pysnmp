@@ -13,7 +13,7 @@ from pysnmp import debug
 # references here goes to RFC3412.
 
 class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
-    messageProcessingModelID = 0 # SNMPv1
+    messageProcessingModelID = univ.Integer(0) # SNMPv1
     snmpMsgSpec = v1.Message
     # rfc3412: 7.1
     def prepareOutgoingMessage(
@@ -58,7 +58,9 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         msg = self.snmpMsgSpec
         msg.setComponentByPosition(0, self.messageProcessingModelID)
         msg.setComponentByPosition(2)
-        msg.getComponentByPosition(2).setComponentByType(pdu.tagSet, pdu)
+        msg.getComponentByPosition(2).setComponentByType(
+            pdu.tagSet, pdu, verifyConstraints=False
+            )
 
         # rfc3412: 7.1.7
         globalData = ( msg, )
@@ -169,7 +171,9 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         msg = self._snmpMsgSpec
         msg.setComponentByPosition(0, messageProcessingModel)
         msg.setComponentByPosition(2)
-        msg.getComponentByPosition(2).setComponentByType(pdu.tagSet, pdu)
+        msg.getComponentByPosition(2).setComponentByType(
+            pdu.tagSet, pdu, verifyConstraints=False
+            )
 
         # att: msgId not set back to PDU as it's up to responder app
         
@@ -407,5 +411,5 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             )
         
 class SnmpV2cMessageProcessingModel(SnmpV1MessageProcessingModel):
-    messageProcessingModelID = 1 # SNMPv2c
+    messageProcessingModelID = univ.Integer(1) # SNMPv2c
     snmpMsgSpec = v2c.Message
