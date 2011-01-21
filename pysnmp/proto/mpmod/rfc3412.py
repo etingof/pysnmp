@@ -53,7 +53,8 @@ _snmpErrors = {
 
 class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
     messageProcessingModelID = 3 # SNMPv3
-    _snmpMsgSpec = SNMPv3Message()
+    snmpMsgSpec = SNMPv3Message
+    _scopedPDU = ScopedPDU()
     def __init__(self):
         AbstractMessageProcessingModel.__init__(self)
         self.__engineIDs = {}
@@ -111,7 +112,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: using contextEngineId %s, contextName %s' % (repr(contextEngineId), contextName))
         
         # 7.1.6
-        scopedPDU = ScopedPDU()
+        scopedPDU = self._scopedPDU
         scopedPDU.setComponentByPosition(0, contextEngineId)
         scopedPDU.setComponentByPosition(1, contextName)
         scopedPDU.setComponentByPosition(2)
@@ -120,7 +121,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             )
 
         # 7.1.7
-        msg = SNMPv3Message()
+        msg = self.snmpMsgSpec
         
         # 7.1.7a
         msg.setComponentByPosition(0, 3) # version
@@ -178,7 +179,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 # Clear possible auth&priv flags
                 headerData.setComponentByPosition(2, chr(msgFlags & 0xfc))
                 # XXX
-                scopedPDU = ScopedPDU()
+                scopedPDU = self._scopedPDU
                 scopedPDU.setComponentByPosition(0, '')
                 scopedPDU.setComponentByPosition(1, contextName)
                 scopedPDU.setComponentByPosition(2)
@@ -332,7 +333,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         debug.logger & debug.flagMP and debug.logger('prepareResponseMessage: using contextEngineId %s, contextName %s' % (repr(contextEngineId), contextName))
 
         # 7.1.6
-        scopedPDU = ScopedPDU()
+        scopedPDU = self._scopedPDU
         scopedPDU.setComponentByPosition(0, contextEngineId)
         scopedPDU.setComponentByPosition(1, contextName)
         scopedPDU.setComponentByPosition(2)
@@ -341,7 +342,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             )
 
         # 7.1.7
-        msg = SNMPv3Message()
+        msg = self.snmpMsgSpec
         
         # 7.1.7a
         msg.setComponentByPosition(0, 3) # version
@@ -426,7 +427,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         # 7.2.2
         try:
             msg, restOfwholeMsg = decoder.decode(
-                wholeMsg, asn1Spec=self._snmpMsgSpec
+                wholeMsg, asn1Spec=self.snmpMsgSpec
                 )
         except PyAsn1Error:
             snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')

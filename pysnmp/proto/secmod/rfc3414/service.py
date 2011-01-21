@@ -276,7 +276,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     errorIndication = errind.unsupportedSecurityLevel
                     )
 
-        securityParameters = UsmSecurityParameters()
+        securityParameters = self._securityParametersSpec
 
         scopedPDUData = msg.setComponentByPosition(3).getComponentByPosition(3)
         scopedPDUData.setComponentByPosition(0, scopedPDU)

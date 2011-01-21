@@ -14,7 +14,7 @@ from pysnmp import debug
 
 class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
     messageProcessingModelID = 0 # SNMPv1
-    _snmpMsgSpec = v1.Message()
+    snmpMsgSpec = v1.Message
     # rfc3412: 7.1
     def prepareOutgoingMessage(
         self,
@@ -55,7 +55,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.1.6
         scopedPDU = ( contextEngineId, contextName, pdu )
 
-        msg = self._snmpMsgSpec.clone()
+        msg = self.snmpMsgSpec
         msg.setComponentByPosition(0, self.messageProcessingModelID)
         msg.setComponentByPosition(2)
         msg.getComponentByPosition(2).setComponentByType(pdu.tagSet, pdu)
@@ -166,7 +166,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
         debug.logger & debug.flagMP and debug.logger('prepareResponseMessage: using contextEngineId %s contextName %s' % (repr(contextEngineId), contextName))
         
-        msg = self._snmpMsgSpec.clone()
+        msg = self._snmpMsgSpec
         msg.setComponentByPosition(0, messageProcessingModel)
         msg.setComponentByPosition(2)
         msg.getComponentByPosition(2).setComponentByType(pdu.tagSet, pdu)
@@ -215,7 +215,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.2.2 
         try:
             msg, restOfwholeMsg = decoder.decode(
-                wholeMsg, asn1Spec=self._snmpMsgSpec
+                wholeMsg, asn1Spec=self.snmpMsgSpec
                 )
         except PyAsn1Error:
             snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
@@ -408,4 +408,4 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         
 class SnmpV2cMessageProcessingModel(SnmpV1MessageProcessingModel):
     messageProcessingModelID = 1 # SNMPv2c
-    _snmpMsgSpec = v2c.Message()
+    snmpMsgSpec = v2c.Message
