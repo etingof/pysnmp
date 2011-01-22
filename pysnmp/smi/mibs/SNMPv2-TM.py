@@ -28,8 +28,8 @@ class SnmpUDPAddress(TextualConvention, OctetString):
     def __getitem__(self, i):
         if not hasattr(self, '__tuple_value'):
             self.__tuple_value = (
-                string.join(map(lambda x: str(ord(x)), self._value[:4]), '.'),
-                ord(self._value[4:5]) << 8 | ord(self._value[5:6])
+                '%s.%s.%s.%s' % (ord(self._value[0]), ord(self._value[1]),ord(self._value[2]),ord(self._value[3])),
+                ord(self._value[4]) << 8 | ord(self._value[5])
                 )
         return self.__tuple_value[i]
     
