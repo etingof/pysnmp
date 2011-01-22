@@ -30,7 +30,7 @@ class VarBindAPI:
     def setOIDVal(self, varBind, (oid, val)):
         varBind.setComponentByPosition(0, oid)
         if val is None: val = self._null
-        varBind.setComponentByPosition(1).getComponentByPosition(1).setComponentByType(val.getTagSet(), val, 1)
+        varBind.setComponentByPosition(1).getComponentByPosition(1).setComponentByType(val.getTagSet(), val, 1, verifyConstraints=False)
         return varBind
     
     def getOIDVal(self, varBind):
