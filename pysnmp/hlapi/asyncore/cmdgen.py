@@ -240,20 +240,28 @@ class AsynCommandGenerator:
                 )
         self.__knownTransportAddrs.clear()
                 
+    def makeReadVarBinds(self, varNames):
+        varBinds = []
+        for varName in varNames:
+            if type(varName[0]) in (types.IntType, types.LongType):
+                name = varName
+            else:
+                name, oid = mibvar.mibNameToOid(
+                    self.mibViewController, varName
+                    )
+                name = name + oid
+            varBinds.append((name, self._null))
+        return varBinds
+
     # Async SNMP apps
-    
+
     def asyncGetCmd(
         self, authData, transportTarget, varNames, (cbFun, cbCtx)
         ):
         addrName, paramsName = self.cfgCmdGen(
             authData, transportTarget
             )
-        varBinds = []
-        for varName in varNames:
-            name, oid = mibvar.mibNameToOid(
-                self.mibViewController, varName
-                )
-            varBinds.append((name + oid, self._null))
+        varBinds = self.makeReadVarBinds(varNames)
         return cmdgen.GetCommandGenerator().sendReq(
             self.snmpEngine, addrName, varBinds, cbFun, cbCtx,
             authData.contextEngineId, authData.contextName
@@ -294,12 +302,7 @@ class AsynCommandGenerator:
         addrName, paramsName = self.cfgCmdGen(
             authData, transportTarget
             )
-        varBinds = []
-        for varName in varNames:
-            name, oid = mibvar.mibNameToOid(
-                self.mibViewController, varName
-                )
-            varBinds.append((name + oid, self._null))
+        varBinds = self.makeReadVarBinds(varNames)
         return cmdgen.NextCommandGenerator().sendReq(
             self.snmpEngine, addrName, varBinds, cbFun, cbCtx,
             authData.contextEngineId, authData.contextName
@@ -312,12 +315,7 @@ class AsynCommandGenerator:
         addrName, paramsName = self.cfgCmdGen(
             authData, transportTarget
             )
-        varBinds = []
-        for varName in varNames:
-            name, oid = mibvar.mibNameToOid(
-                self.mibViewController, varName
-                )
-            varBinds.append((name + oid, self._null))
+        varBinds = self.makeReadVarBinds(varNames)
         return cmdgen.BulkCommandGenerator().sendReq(
             self.snmpEngine, addrName,
             nonRepeaters, maxRepetitions, varBinds, cbFun, cbCtx,
