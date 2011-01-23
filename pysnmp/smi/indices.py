@@ -62,10 +62,8 @@ class OrderedDict(DictType):
             return keys[nextIdx]
         else:
             raise KeyError(key)
-
     def getKeysLens(self):
-        if self.__dirty:
-            self.__order()
+        if self.__dirty: self.__order()
         return self.__keysLens
 
 class OidOrderedDict(OrderedDict):
