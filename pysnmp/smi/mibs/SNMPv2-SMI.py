@@ -4,7 +4,7 @@ from pysnmp.smi import exval, error
 from pysnmp.proto import rfc1902
 from pyasn1.type import constraint
 from pyasn1.error import ValueConstraintError, PyAsn1Error
-from pysnmp import debug
+from pysnmp import cache, debug
 
 ( Integer, ObjectIdentifier, Null ) = mibBuilder.importSymbols("ASN1", "Integer", "ObjectIdentifier", "Null")
 
@@ -756,6 +756,8 @@ class MibTableRow(MibTree):
     """
     def __init__(self, name):
         MibTree.__init__(self, name)
+        self.__idToIdxCache = cache.Cache()
+        self.__idxToIdCache = cache.Cache()
         self.indexNames = ()
         self.augmentingRows = {}
 
@@ -962,6 +964,8 @@ class MibTableRow(MibTree):
 
     def getIndicesFromInstId(self, instId):
         """Return index values for instance identification"""
+        if instId in self.__idToIdxCache:
+            return self.__idToIdxCache[instId]
         indices = []
         for impliedFlag, modName, symName in self.indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
@@ -972,10 +976,14 @@ class MibTableRow(MibTree):
                 'Excessive instance identifier sub-OIDs left at %s: %s' %
                 (self, instId)
                 )
-        return tuple(indices)
+        indices = tuple(indices)
+        self.__idToIdxCache[instId] = indices
+        return indices
 
     def getInstIdFromIndices(self, *indices):
         """Return column instance identification from indices"""
+        if indices in self.__idxToIdCache:
+          return self.__idxToIdCache[indices]
         idx = 0; idxLen = len(indices); instId = ()
         for impliedFlag, modName, symName in self.indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
@@ -986,6 +994,7 @@ class MibTableRow(MibTree):
             else:
                 break
             idx = idx + 1
+        self.__idxToIdCache[indices] = instId
         return instId
 
     # Table access by index
