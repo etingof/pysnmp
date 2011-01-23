@@ -6,7 +6,7 @@ class AbstractMessageProcessingModel:
     snmpMsgSpec = None
     __stateReference = __msgID = 0L
     def __init__(self):
-        self.snmpMsgSpec = self.snmpMsgSpec()  # local copy
+        self._snmpMsgSpec = self.snmpMsgSpec()  # local copy
         self.__msgIdIndex = {}
         self.__stateReferenceIndex = {}
         self.__sendPduHandleIdx = {}

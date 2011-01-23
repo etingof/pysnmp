@@ -55,7 +55,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.1.6
         scopedPDU = ( contextEngineId, contextName, pdu )
 
-        msg = self.snmpMsgSpec
+        msg = self._snmpMsgSpec
         msg.setComponentByPosition(0, self.messageProcessingModelID)
         msg.setComponentByPosition(2)
         msg.getComponentByPosition(2).setComponentByType(
@@ -219,7 +219,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.2.2 
         try:
             msg, restOfwholeMsg = decoder.decode(
-                wholeMsg, asn1Spec=self.snmpMsgSpec
+                wholeMsg, asn1Spec=self._snmpMsgSpec
                 )
         except PyAsn1Error:
             snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
