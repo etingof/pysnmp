@@ -14,6 +14,7 @@ FEATURES
 * SMI framework for resolving MIB information and implementing SMI 
   Managed Objects
 * Complete SNMP entity implementation
+* USM Extended Security Options support (3DES, 192/256-bit AES encryption)
 * Extensible network transports framework (UDP and UNIX domain implemented)
 * Asynchronous socket-based IO API support
 * Twisted (http://twistedmatrix.com) integration
