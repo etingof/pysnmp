@@ -17,6 +17,10 @@ Revision 4.1.16a
   + pre-compute and re-use some of ASN.1 structures.
   + avoid setting PDU defaults to save on unnecessary initialization.
   + skip ASN.1 types verification where possible.
+  + at oneliner Command Generator, avoid looking up pure OID arguments
+    at MIB as it's pointless but takes time.
+  + cache MIB columnar objects instance ID <-> symbolic index representation
+    mapping
 
 Revision 4.1.15a
 ----------------
