@@ -1,10 +1,10 @@
 """SNMP v3 Message Processing and Dispatching (RFC3412)"""
 import time
 from pysnmp.smi import builder, instrum
-from pysnmp.proto import errind, error
+from pysnmp.proto import errind, error, cache
 from pysnmp.proto.api import verdec # XXX
 from pysnmp.error import PySnmpError
-from pysnmp import debug
+from pysnmp import nextid, debug
 
 class MsgAndPduDispatcher:
     """SNMP engine PDU & message dispatcher. Exchanges SNMP PDU's with
@@ -22,47 +22,18 @@ class MsgAndPduDispatcher:
             'SNMPv2-MIB', 'SNMP-MPD-MIB', 'SNMP-COMMUNITY-MIB',
             'SNMP-TARGET-MIB', 'SNMP-USER-BASED-SM-MIB'
             )
+
+        # Requests cache
+        self.__cache = cache.Cache()
         
         # Registered context engine IDs
         self.__appsRegistration = {}
 
         # Source of sendPduHandle and cache of requesting apps
-        self.__sendPduHandle = 0L
-        self.__cacheRepository = {}
+        self.__sendPduHandle = nextid.Integer(0xffffffff)
 
         # To pass transport info to app
         self.__transportInfo = {}
-
-    # These routines manage cache of management apps
-
-    def __newSendPduHandle(self):
-        sendPduHandle = self.__sendPduHandle = self.__sendPduHandle + 1
-        return sendPduHandle
-    
-    def __cacheAdd(self, index, **kwargs):
-        self.__cacheRepository[index] = kwargs
-        return index
-
-    def __cachePop(self, index):
-        if index in self.__cacheRepository:
-            cachedParams = self.__cacheRepository[index]
-        else:
-            return
-        del self.__cacheRepository[index]
-        return cachedParams
-
-    def __cacheUpdate(self, index, **kwargs):
-        if index not in self.__cacheRepository:
-            raise error.ProtocolError(
-                'Cache miss on update for %s' % kwargs
-                )
-        self.__cacheRepository[index].update(kwargs)
-
-    def __cacheExpire(self, snmpEngine, cbFun):
-        for index, cachedParams in self.__cacheRepository.items():
-            if cbFun:
-                if cbFun(snmpEngine, cachedParams):
-                    del self.__cacheRepository[index]                    
 
     def getTransportInfo(self, stateReference):
         if stateReference in self.__transportInfo:
@@ -146,9 +117,9 @@ class MsgAndPduDispatcher:
         debug.logger & debug.flagDsp and debug.logger('sendPdu: securityName %s, PDU\n%s' % (securityName, PDU.prettyPrint()))
 
         # 4.1.1.3
-        sendPduHandle = self.__newSendPduHandle()
+        sendPduHandle = self.__sendPduHandle()
         if expectResponse:
-            self.__cacheAdd(
+            self.__cache.add(
                 sendPduHandle,
                 messageProcessingModel=messageProcessingModel,
                 sendPduHandle=sendPduHandle,
@@ -191,7 +162,7 @@ class MsgAndPduDispatcher:
         
         # Update cache with orignal req params (used for retrying)
         if expectResponse:
-            self.__cacheUpdate(
+            self.__cache.update(
                 sendPduHandle,
                 transportDomain=transportDomain,
                 transportAddress=transportAddress,
@@ -337,8 +308,9 @@ class MsgAndPduDispatcher:
                 # of them may be waiting for this REPORT
                 debug.logger & debug.flagDsp and debug.logger('receiveMessage: MP failed, statusInformation %s' % statusInformation)
                 self.__expireRequest(
+                    statusInformation['sendPduHandle'],
+                    self.__cache.pop(statusInformation['sendPduHandle']),
                     snmpEngine,
-                    self.__cachePop(statusInformation['sendPduHandle']),
                     statusInformation
                     )
             return restOfWholeMsg
@@ -433,7 +405,7 @@ class MsgAndPduDispatcher:
             # 4.2.2.2 (response)
             
             # 4.2.2.2.1
-            cachedParams = self.__cachePop(sendPduHandle)
+            cachedParams = self.__cache.pop(sendPduHandle)
 
             # 4.2.2.2.2
             if cachedParams is None:
@@ -477,7 +449,8 @@ class MsgAndPduDispatcher:
         
     # Cache expiration stuff
 
-    def __expireRequest(self, snmpEngine,cachedParams,statusInformation=None):
+    def __expireRequest(self, cacheKey, cachedParams, snmpEngine,
+                        statusInformation=None):
         processResponsePdu, timeoutAt, cbCtx = cachedParams['expectResponse']
         if statusInformation is None and time.time() < timeoutAt:
             return
@@ -511,4 +484,4 @@ class MsgAndPduDispatcher:
         return 1
         
     def receiveTimerTick(self, snmpEngine, timeNow):
-        self.__cacheExpire(snmpEngine, self.__expireRequest)
+        self.__cache.expire(self.__expireRequest, snmpEngine)
