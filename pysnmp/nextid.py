@@ -1,4 +1,7 @@
 # Return a next value in a reasonably MT-safe manner
+import random
+
+random.seed()
 
 class Integer:
     def __init__(self, maximum, increment=256):
@@ -7,7 +10,8 @@ class Integer:
             increment = maximum
         self.__increment = increment
         self.__threshold = increment/2
-        self.__bank = range(self.__increment)
+        e = random.randrange(self.__maximum - self.__increment)
+        self.__bank = range(e, e+self.__increment)
 
     def __repr__(self):
         return '%s(%d, %d)' % (

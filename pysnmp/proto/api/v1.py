@@ -38,7 +38,7 @@ class VarBindAPI:
 
 apiVarBind = VarBindAPI()
 
-getNextRequestID = nextid.Integer(0xffff)
+getNextRequestID = nextid.Integer(0xffffff)
 
 class PDUAPI:
     _null = Null('')

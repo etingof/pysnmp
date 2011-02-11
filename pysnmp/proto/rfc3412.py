@@ -30,7 +30,7 @@ class MsgAndPduDispatcher:
         self.__appsRegistration = {}
 
         # Source of sendPduHandle and cache of requesting apps
-        self.__sendPduHandle = nextid.Integer(0xffffffff)
+        self.__sendPduHandle = nextid.Integer(0xffffff)
 
         # To pass transport info to app
         self.__transportInfo = {}
