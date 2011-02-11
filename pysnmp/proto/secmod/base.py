@@ -1,10 +1,10 @@
+from pysnmp.proto.secmod import cache
 from pysnmp.proto import error
 
 class AbstractSecurityModel:
     securityModelID = None
-    __stateReference = 0L
     def __init__(self):
-        self.__cacheEntries = {}
+        self._cache = cache.Cache()
 
     def processIncomingMsg(
         self,
@@ -54,27 +54,8 @@ class AbstractSecurityModel:
             'Security model %s not implemented' % self
             )
 
-    # Caching stuff
-    
-    def _cachePush(self, **securityData):
-        stateReference = AbstractSecurityModel.__stateReference
-        AbstractSecurityModel.__stateReference = stateReference + 1
-        self.__cacheEntries[stateReference] = securityData
-        return stateReference
-    
-    def _cachePop(self, stateReference):
-        if stateReference in self.__cacheEntries:
-            securityData = self.__cacheEntries[stateReference]
-        else:
-            raise error.ProtocolError(
-                'Cache miss for stateReference=%s at %s' %
-                (stateReference, self)
-                )
-        del self.__cacheEntries[stateReference]
-        return securityData
-
     def releaseStateInformation(self, stateReference):
-        self._cachePop(stateReference)
+        self._cache.pop(stateReference)
 
     def receiveTimerTick(self, snmpEngine, timeNow):
         pass

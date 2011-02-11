@@ -197,7 +197,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         # 3.1.1
         if securityStateReference is not None:
             # 3.1.1a
-            cachedSecurityData = self._cachePop(securityStateReference)
+            cachedSecurityData = self._cache.pop(securityStateReference)
             usmUserName = cachedSecurityData['msgUserName']
             if 'usmUserAuthProtocol' in cachedSecurityData:
                 usmUserAuthProtocol = cachedSecurityData['usmUserAuthProtocol']
@@ -499,7 +499,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         # 3.2.2
         msgAuthoritativeEngineID = securityParameters.getComponentByPosition(0)
-        securityStateReference = self._cachePush(
+        securityStateReference = self._cache.push(
             msgUserName=securityParameters.getComponentByPosition(3)
             )
 
@@ -612,8 +612,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: now have usmUserSecurityName %s usmUserAuthProtocol %s usmUserPrivProtocol %s for msgUserName %s' % (usmUserSecurityName, usmUserAuthProtocol, usmUserPrivProtocol, msgUserName))
 
         # 3.2.11 (moved up here to let Reports be authenticated & encrypted)
-        self._cachePop(securityStateReference)
-        securityStateReference = self._cachePush(
+        self._cache.pop(securityStateReference)
+        securityStateReference = self._cache.push(
             msgUserName=securityParameters.getComponentByPosition(3),
             usmUserAuthProtocol=usmUserAuthProtocol,
             usmUserAuthKeyLocalized=usmUserAuthKeyLocalized,

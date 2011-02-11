@@ -103,7 +103,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         # rfc2576: 5.2.2
         msg, = globalData
         contextEngineId, contextName, pdu = scopedPDU
-        cachedSecurityData = self._cachePop(securityStateReference)
+        cachedSecurityData = self._cache.pop(securityStateReference)
         communityName = cachedSecurityData['communityName']
 
         debug.logger & debug.flagSM and debug.logger('generateResponseMsg: recovered community %s by securityStateReference %s' % (communityName, securityStateReference))
@@ -238,7 +238,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
 
         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: looked up securityName %s contextEngineId %s contextName %s by communityName %s' % (securityName, contextEngineId, contextName, communityName))
 
-        stateReference = self._cachePush(
+        stateReference = self._cache.push(
             communityName=communityName.syntax
             )
         
