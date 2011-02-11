@@ -91,7 +91,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         snmpEngineID = snmpEngineID.syntax
 
         # 7.1.1b
-        msgID = self._newMsgID()
+        msgID = self._cache.newMsgID()
 
         debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: new msgID %s' % msgID)
 
@@ -236,7 +236,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         # 7.1.9.c
         if pdu.tagSet in rfc3411.confirmedClassPDUs:
             # XXX rfc bug? why stateReference should be created?
-            self._cachePushByMsgId(
+            self._cache.pushByMsgId(
                 msgID,
                 sendPduHandle=sendPduHandle,
                 msgID=msgID,
@@ -273,7 +273,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         snmpEngineID = snmpEngineID.syntax
 
         # 7.1.2.b
-        cachedParams = self._cachePopByStateRef(stateReference)
+        cachedParams = self._cache.popByStateRef(stateReference)
         msgID = cachedParams['msgID']
         contextEngineId = cachedParams['contextEngineId']
         contextName = cachedParams['contextName']
@@ -544,8 +544,8 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                     securityName = None  # XXX secmod cache used
 
                     # 7.2.6a2
-                    stateReference = self._newStateReference()
-                    self._cachePushByStateRef(
+                    stateReference = self._cache.newStateReference()
+                    self._cache.pushByStateRef(
                         stateReference,
                         msgVersion=messageProcessingModel,
                         msgID=msgID,
@@ -621,7 +621,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                pduType in rfc3411.internalClassPDUs:
             # 7.2.10a
             try:
-                cachedReqParams = self._cachePopByMsgId(msgID)
+                cachedReqParams = self._cache.popByMsgId(msgID)
             except error.ProtocolError:
                 smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(
@@ -705,8 +705,8 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                     )
 
             # 7.2.13b
-            stateReference = self._newStateReference()
-            self._cachePushByStateRef(
+            stateReference = self._cache.newStateReference()
+            self._cache.pushByStateRef(
                 stateReference,
                 msgVersion=messageProcessingModel,
                 msgID=msgID,
@@ -743,7 +743,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         # 7.2.14
         if pduType in rfc3411.unconfirmedClassPDUs:
             # Pass new stateReference to let app browse request details
-            stateReference = self._newStateReference()
+            stateReference = self._cache.newStateReference()
             
             # This is not specified explicitly in RFC
             smHandler.releaseStateInformation(securityStateReference)
