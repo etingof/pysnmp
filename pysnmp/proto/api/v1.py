@@ -79,12 +79,14 @@ class PDUAPI:
     
     def getVarBindList(self, pdu):
         return pdu.getComponentByPosition(3)
+
     def setVarBindList(self, pdu, varBindList):
         varBindList = pdu.setComponentByPosition(3, varBindList)
-
     def getVarBinds(self, pdu):
-        return map(lambda x: apiVarBind.getOIDVal(x),
-                   pdu.getComponentByPosition(3))
+        varBinds = []
+        for varBind in pdu.getComponentByPosition(3):
+            varBinds.append(apiVarBind.getOIDVal(varBind))
+        return varBinds
     def setVarBinds(self, pdu, varBinds):
         varBindList = pdu.setComponentByPosition(3).getComponentByPosition(3)
         varBindList.clear()
@@ -107,9 +109,10 @@ class PDUAPI:
 
     def getVarBindTable(self, reqPDU, rspPDU):
         if apiPDU.getErrorStatus(rspPDU) == 2:
-            return [
-                map(lambda (x,y),self=self: (x, self._null), apiPDU.getVarBinds(reqPDU))
-                ]
+            varBindRow = []
+            for varBind in apiPDU.getVarBinds(reqPDU):
+                varBindRow.append((varBind[0], self._null))
+            return [ varBindRow ]
         else:
             return [ apiPDU.getVarBinds(rspPDU) ]
 
@@ -154,8 +157,10 @@ class TrapPDUAPI:
         varBindList = pdu.setComponentByPosition(5, varBindList)
 
     def getVarBinds(self, pdu):
-        return map(lambda x: apiVarBind.getOIDVal(x),
-                   pdu.getComponentByPosition(5))
+        varBinds = []
+        for varBind in pdu.getComponentByPosition(5):
+            varBinds.append(apiVarBind.getOIDVal(varBind))
+        return varBinds
     def setVarBinds(self, pdu, varBinds):
         varBindList = pdu.setComponentByPosition(5).getComponentByPosition(5)
         varBindList.clear()
