@@ -232,9 +232,6 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
         # rfc3412: 7.2.3
         msgVersion = messageProcessingModel = msg.getComponentByPosition(0)
-        pdu = msg.getComponentByPosition(2).getComponent()
-        # (wild hack: use PDU reqID at MsgID)
-        msgID = pdu.getComponentByPosition(0)
 
         # rfc2576: 5.2.1
         snmpEngineMaxMessageSize, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
@@ -292,6 +289,9 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
         # rfc3412: 7.2.10
         if pduType in rfc3411.responseClassPDUs:
+            # (wild hack: use PDU reqID at MsgID)
+            msgID = pdu.getComponentByPosition(0)
+
             # 7.2.10a
             try:
                 cachedReqParams = self._cache.popByMsgId(long(msgID))
@@ -344,6 +344,9 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
         # rfc3412: 7.2.13
         if pduType in rfc3411.confirmedClassPDUs:
+            # (wild hack: use PDU reqID at MsgID)
+            msgID = pdu.getComponentByPosition(0)
+
             # rfc3412: 7.2.13a
             snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
             if securityEngineID != snmpEngineID.syntax:
