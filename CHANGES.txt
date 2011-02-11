@@ -8,7 +8,8 @@ Revision 4.1.16a
 - Fix to v1.TrapPDUAPI.getVarBinds() to address PDU component at the right
   position.
 - Internal caches structure improved.
-- changes towards performance improvement:
+- Sync versions of oneliner apps split off async implementation for clarity.
+- Changes towards performance improvement:
   + all dict.has_key() & dict.get() invocations replaced with modern syntax
     (this breaks compatibility with Python 2.1 and older).
   + introduce the MibInstrumControlle.readVarsFast() method (which skips

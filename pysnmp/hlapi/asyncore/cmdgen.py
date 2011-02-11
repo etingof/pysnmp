@@ -255,7 +255,7 @@ class AsynCommandGenerator:
 
     # Async SNMP apps
 
-    def asyncGetCmd(
+    def getCmd(
         self, authData, transportTarget, varNames, (cbFun, cbCtx)
         ):
         addrName, paramsName = self.cfgCmdGen(
@@ -266,8 +266,10 @@ class AsynCommandGenerator:
             self.snmpEngine, addrName, varBinds, cbFun, cbCtx,
             authData.contextEngineId, authData.contextName
             )
-
-    def asyncSetCmd(
+    
+    asyncGetCmd = getCmd
+    
+    def setCmd(
         self, authData, transportTarget, varBinds, (cbFun, cbCtx)
         ):
         addrName, paramsName = self.cfgCmdGen(
@@ -295,8 +297,10 @@ class AsynCommandGenerator:
             self.snmpEngine, addrName, __varBinds, cbFun, cbCtx,
             authData.contextEngineId, authData.contextName
             )
-        
-    def asyncNextCmd(
+    
+    asyncSetCmd = setCmd
+    
+    def nextCmd(
         self, authData, transportTarget, varNames, (cbFun, cbCtx)
         ):
         addrName, paramsName = self.cfgCmdGen(
@@ -308,7 +312,9 @@ class AsynCommandGenerator:
             authData.contextEngineId, authData.contextName
             )
 
-    def asyncBulkCmd(
+    asyncNextCmd = nextCmd
+    
+    def bulkCmd(
         self, authData, transportTarget, nonRepeaters, maxRepetitions,
         varNames, (cbFun, cbCtx)
         ):
@@ -322,8 +328,16 @@ class AsynCommandGenerator:
             authData.contextEngineId, authData.contextName
             )
 
-class CommandGenerator(AsynCommandGenerator):
+    asyncBulkCmd = bulkCmd
+
+class CommandGenerator:
     lexicographicMode = None
+    def __init__(self, snmpEngine=None, asynCmdGen=None):
+        if asynCmdGen is None:
+            self.__asynCmdGen = AsynCommandGenerator(snmpEngine)
+        else:
+            self.__asynCmdGen = asynCmdGen
+        
     def getCmd(self, authData, transportTarget, *varNames):
         def __cbFun(
             sendRequestHandle, errorIndication, errorStatus, errorIndex,
@@ -335,10 +349,10 @@ class CommandGenerator(AsynCommandGenerator):
             appReturn['varBinds'] = varBinds
 
         appReturn = {}
-        self.asyncGetCmd(
+        self.__asynCmdGen.getCmd(
             authData, transportTarget, varNames, (__cbFun, appReturn)
             )
-        self.snmpEngine.transportDispatcher.runDispatcher()
+        self.__asynCmdGen.snmpEngine.transportDispatcher.runDispatcher()
         return (
             appReturn['errorIndication'],
             appReturn['errorStatus'],
@@ -357,10 +371,10 @@ class CommandGenerator(AsynCommandGenerator):
             appReturn['varBinds'] = varBinds
 
         appReturn = {}
-        self.asyncSetCmd(
+        self.__asynCmdGen.setCmd(
             authData, transportTarget, varBinds, (__cbFun, appReturn)
             )
-        self.snmpEngine.transportDispatcher.runDispatcher()
+        self.__asynCmdGen.snmpEngine.transportDispatcher.runDispatcher()
         return (
             appReturn['errorIndication'],
             appReturn['errorStatus'],
@@ -406,16 +420,21 @@ class CommandGenerator(AsynCommandGenerator):
                 varBindTotalTable.extend(varBindTable)
 
             return 1 # continue table retrieval
-        
-        varBindHead = map(lambda (x,y),self=self: univ.ObjectIdentifier(x+y), map(lambda x,self=self: mibvar.mibNameToOid(self.mibViewController, x), varNames))
+
+        varBindHead = []
+        for varName in varNames:
+            name, suffix = mibvar.mibNameToOid(
+                self.__asynCmdGen.mibViewController, varName
+                )
+            varBindHead.append(univ.ObjectIdentifier(name + suffix))
 
         appReturn = {}
-        self.asyncNextCmd(
+        self.__asynCmdGen.nextCmd(
             authData, transportTarget, varNames,
             (__cbFun, (self, varBindHead,[],appReturn))
             )
 
-        self.snmpEngine.transportDispatcher.runDispatcher()
+        self.__asynCmdGen.snmpEngine.transportDispatcher.runDispatcher()
 
         return (
             appReturn['errorIndication'],
@@ -464,17 +483,22 @@ class CommandGenerator(AsynCommandGenerator):
                     return
                 
             return 1 # continue table retrieval
-        
-        varBindHead = map(lambda (x,y),self=self: univ.ObjectIdentifier(x+y), map(lambda x,self=self: mibvar.mibNameToOid(self.mibViewController, x), varNames))
+
+        varBindHead = []
+        for varName in varNames:
+            name, suffix = mibvar.mibNameToOid(
+                self.__asynCmdGen.mibViewController, varName
+                )
+            varBindHead.append(univ.ObjectIdentifier(name + suffix))
 
         appReturn = {}
         
-        self.asyncBulkCmd(
+        self.__asynCmdGen.bulkCmd(
             authData, transportTarget, nonRepeaters, maxRepetitions,
             varNames, (__cbFun, (self, varBindHead, [], appReturn))
             )
 
-        self.snmpEngine.transportDispatcher.runDispatcher()
+        self.__asynCmdGen.snmpEngine.transportDispatcher.runDispatcher()
         
         return (
             appReturn['errorIndication'],

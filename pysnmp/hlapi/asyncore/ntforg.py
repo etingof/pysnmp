@@ -81,7 +81,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                 )
         self.uncfgCmdGen()
 
-    def asyncSendNotification(
+    def sendNotification(
         self, authData, transportTarget, notifyType,
         notificationType, varBinds=None, (cbFun, cbCtx)=(None, None)
         ):
@@ -117,7 +117,17 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
 
         return ntforg.NotificationOriginator(self.snmpContext).sendNotification(self.snmpEngine, notifyName, notificationType, __varBinds, cbFun, cbCtx)
 
-class NotificationOriginator(AsynNotificationOriginator):
+    asyncSendNotification = sendNotification
+    
+class NotificationOriginator:
+    def __init__(self, snmpEngine=None, snmpContext=None, asynNtfOrg=None):
+        if asynNtfOrg is None:
+            self.__asynNtfOrg = AsynNotificationOriginator(
+                snmpEngine, snmpContext
+                )
+        else:
+            self.__asynNtfOrg = asynNtfOrg
+
     def sendNotification(
         self, authData, transportTarget, notifyType,
         notificationType, *varBinds
@@ -126,10 +136,10 @@ class NotificationOriginator(AsynNotificationOriginator):
             appReturn['errorIndication'] = errorIndication
 
         appReturn = {}
-        self.asyncSendNotification(
+        self.__asynNtfOrg.sendNotification(
             authData, transportTarget, notifyType, notificationType, varBinds,
             (__cbFun, appReturn)
             )
-        self.snmpEngine.transportDispatcher.runDispatcher()
+        self.__asynNtfOrg.snmpEngine.transportDispatcher.runDispatcher()
         if 'errorIndication' in appReturn:
             return appReturn['errorIndication']
