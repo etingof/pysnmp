@@ -102,7 +102,10 @@ class MsgAndPduDispatcher:
         contextName,
         pduVersion,
         PDU,
-        expectResponse
+        expectResponse,
+        timeout=0,    # response items
+        cbFun=None,
+        cbCtx=None
         ):
         """PDU dispatcher -- prepare and serialize a request or notification"""
         # 4.1.1.2
@@ -123,10 +126,12 @@ class MsgAndPduDispatcher:
                 sendPduHandle,
                 messageProcessingModel=messageProcessingModel,
                 sendPduHandle=sendPduHandle,
-                expectResponse=expectResponse
+                timeout=timeout,
+                cbFun=cbFun,
+                cbCtx=cbCtx
                 )
 
-        debug.logger & debug.flagDsp and debug.logger('sendPdu: new sendPduHandle %s, context %s' % (sendPduHandle, expectResponse))
+        debug.logger & debug.flagDsp and debug.logger('sendPdu: new sendPduHandle %s, timeout %s, cbFun %s' % (sendPduHandle, timeout, cbFun))
 
         # 4.1.1.4 & 4.1.1.5
         try:
@@ -419,9 +424,7 @@ class MsgAndPduDispatcher:
             # no-op ? XXX
 
             # 4.2.2.2.4
-            processResponsePdu, timeoutAt, cbCtx = cachedParams[
-                'expectResponse'
-                ]
+            processResponsePdu = cachedParams['cbFun']
             processResponsePdu(
                 snmpEngine,
                 messageProcessingModel,
@@ -434,7 +437,7 @@ class MsgAndPduDispatcher:
                 PDU,
                 statusInformation,
                 cachedParams['sendPduHandle'],
-                cbCtx
+                cachedParams['cbCtx']
                 )
             debug.logger & debug.flagDsp and debug.logger('receiveMessage: processResponsePdu succeeded')
             return restOfWholeMsg
@@ -451,9 +454,11 @@ class MsgAndPduDispatcher:
 
     def __expireRequest(self, cacheKey, cachedParams, snmpEngine,
                         statusInformation=None):
-        processResponsePdu, timeoutAt, cbCtx = cachedParams['expectResponse']
+        timeoutAt = cachedParams['timeout']
         if statusInformation is None and time.time() < timeoutAt:
             return
+
+        processResponsePdu = cachedParams['cbFun']
 
         debug.logger & debug.flagDsp and debug.logger('__expireRequest: req cachedParams %s' % cachedParams)
 
@@ -479,7 +484,7 @@ class MsgAndPduDispatcher:
             None,
             statusInformation,
             cachedParams['sendPduHandle'],
-            cbCtx
+            cachedParams['cbCtx']
             )
         return 1
         

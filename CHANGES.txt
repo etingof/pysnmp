@@ -10,6 +10,7 @@ Revision 4.1.16a
 - Internal caches structure improved.
 - Sync versions of oneliner apps split off async implementation for clarity.
 - Randomize initial in various numeric sequences.
+- MsgAndPduDsp expectResponse parameters passing reworked.
 - Changes towards performance improvement:
   + all dict.has_key() & dict.get() invocations replaced with modern syntax
     (this breaks compatibility with Python 2.1 and older).

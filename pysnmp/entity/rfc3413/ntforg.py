@@ -73,8 +73,10 @@ class NotificationOriginator:
                 origContextName,
                 origPduVersion,
                 origPdu,
-                (self.processResponsePdu, float(origTimeout)/100 + time.time(),
-                 (cbFun, cbCtx))
+                1,                                     # expectResponse
+                float(origTimeout)/100 + time.time(),  # timeout
+                self.processResponsePdu,
+                (cbFun, cbCtx)
                 )
 
             snmpEngine.transportDispatcher.jobStarted(id(self))
@@ -245,8 +247,10 @@ class NotificationOriginator:
                     contextName,
                     pduVersion,
                     pdu,
-                    (self.processResponsePdu, float(timeout)/100 + time.time(),
-                     (cbFun, cbCtx))
+                    1,                                     # expectResponse
+                    float(timeout)/100 + time.time(),      # timeout
+                    self.processResponsePdu,
+                    (cbFun, cbCtx)
                     )
 
                 debug.logger & debug.flagApp and debug.logger('sendNoification: sendPduHandle %s, timeout %d' % (sendPduHandle, timeout))
