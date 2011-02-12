@@ -14,6 +14,26 @@ def getVersionSpecifics(snmpVersion):
         pduVersion = 1
     return pduVersion, api.protoModules[pduVersion]
 
+__null = univ.Null('')
+    
+def getNextVarBinds(origVarBinds, varBinds):
+    errorIndication = None
+    idx = nonNulls = len(varBinds)
+    rspVarBinds = []
+    while idx:
+        idx = idx - 1
+        if isinstance(varBinds[idx][1], univ.Null):
+            nonNulls = nonNulls - 1
+        elif origVarBinds[idx][0].asTuple() >= varBinds[idx][0].asTuple():
+            errorIndication = errind.oidNotIncreasing
+            
+        rspVarBinds.insert(0, (varBinds[idx][0], __null))
+
+    if not nonNulls:
+        rspVarBinds = []
+        
+    return errorIndication, rspVarBinds
+
 class CommandGeneratorBase:
     _null = univ.Null('')
     def __init__(self):
@@ -433,12 +453,9 @@ class NextCommandGenerator(CommandGeneratorBase):
         elif not varBindTable:
             errorIndication = errind.emptyResponse
         else:
-            if map(lambda (o,v): o, pMod.apiPDU.getVarBinds(PDU)) < \
-                   map(lambda (o,v): isinstance(v, univ.Null) and (9,) or o,varBindTable[-1]):
-                errorIndication = None
-            else:
-                debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, OID(s) not increasing!' % sendRequestHandle)            
-                errorIndication = errind.oidNotIncreasing
+            errorIndication, varBinds = getNextVarBinds(
+                pMod.apiPDU.getVarBinds(PDU), varBindTable[-1]
+                )
         
         if not cbFun(sendRequestHandle, errorIndication,
                      pMod.apiPDU.getErrorStatus(rspPDU),
@@ -447,16 +464,11 @@ class NextCommandGenerator(CommandGeneratorBase):
             debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, app says to stop walking' % sendRequestHandle)
             return  # app says enough
 
-        for o, v in varBindTable[-1]:
-            if not isinstance(v, univ.Null):
-                break
-        else:
+        if not varBinds:
             return # no more objects available
     
         pMod.apiPDU.setRequestID(PDU, pMod.getNextRequestID())
-        pMod.apiPDU.setVarBinds(
-            PDU, map(lambda (x,y),self=self: (x,self._null), varBindTable[-1])
-            )
+        pMod.apiPDU.setVarBinds(PDU, varBinds)
 
         self._sendPdu(
             snmpEngine,
@@ -557,16 +569,13 @@ class BulkCommandGenerator(CommandGeneratorBase):
         varBindTable = pMod.apiBulkPDU.getVarBindTable(PDU, rspPDU)
 
         if pMod.apiBulkPDU.getErrorStatus(rspPDU):
-            errorIndication = None            
+            errorIndication = None
         elif not varBindTable:
             errorIndication = errind.emptyResponse
         else:
-            if map(lambda (o,v): o, pMod.apiBulkPDU.getVarBinds(PDU)) < \
-                   map(lambda (o,v): isinstance(v, univ.Null) and (9,) or o,varBindTable[-1]):
-                errorIndication = None
-            else:
-                debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, OID(s) not increasing!' % sendRequestHandle)            
-                errorIndication = errind.oidNotIncreasing
+            errorIndication, varBinds = getNextVarBinds(
+                pMod.apiBulkPDU.getVarBinds(PDU), varBindTable[-1]
+                )
 
         if not cbFun(sendRequestHandle, errorIndication,
                      pMod.apiBulkPDU.getErrorStatus(rspPDU),
@@ -575,17 +584,11 @@ class BulkCommandGenerator(CommandGeneratorBase):
             debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, app says to stop walking' % sendRequestHandle)
             return # app says enough
 
-        pMod.apiBulkPDU.setRequestID(PDU, pMod.getNextRequestID())
-
-        for o, v in varBindTable[-1]:
-            if not isinstance(v, univ.Null):
-                break
-        else:
+        if not varBinds:
             return # no more objects available
-        
-        pMod.apiBulkPDU.setVarBinds(
-            PDU, map(lambda (x,y),self=self: (x,self._null), varBindTable[-1])
-            )
+    
+        pMod.apiBulkPDU.setRequestID(PDU, pMod.getNextRequestID())
+        pMod.apiBulkPDU.setVarBinds(PDU, varBinds)
         
         self._sendPdu(
             snmpEngine,
