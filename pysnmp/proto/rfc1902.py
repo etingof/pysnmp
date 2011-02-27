@@ -115,7 +115,7 @@ class Bits(univ.OctetString):
             if d >= len(octets):
                 octets.extend([0] * (d - len(octets) + 1))
             octets[d] = octets[d] | 0x01 << (7-m)
-        return string.join(map(lambda x: chr(x), octets))
+        return string.join(map(lambda x: chr(x), octets), '')
 
     def prettyOut(self, value):
         names = []
