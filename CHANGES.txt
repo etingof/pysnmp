@@ -7,6 +7,7 @@ Revision 4.1.16a
   and clarity
 - Fix to v1.TrapPDUAPI.getVarBinds() to address PDU component at the right
   position.
+- Fix to rfc1902.Bits initialization from named bits sequence.
 - Internal caches structure improved.
 - Sync versions of oneliner apps split off async implementation for clarity.
 - Randomize initial in various numeric sequences.
