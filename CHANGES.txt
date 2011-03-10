@@ -8,6 +8,8 @@ Revision 4.1.16a
 - Fix to v1.TrapPDUAPI.getVarBinds() to address PDU component at the right
   position.
 - Fix to rfc1902.Bits initialization from named bits sequence.
+- Fix to MIB builder by-extension module filtering code to cope with .pyw
+  files.
 - Internal caches structure improved.
 - Sync versions of oneliner apps split off async implementation for clarity.
 - Randomize initial in various numeric sequences.

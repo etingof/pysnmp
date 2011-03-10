@@ -10,7 +10,9 @@ class __AbstractMibSource:
         self.__magic = imp.get_magic()
         self.__sfx = {}
         for sfx, mode, typ in imp.get_suffixes():
-            self.__sfx[typ] = (sfx, len(sfx), mode)
+            if typ not in self.__sfx:
+                self.__sfx[typ] = []
+            self.__sfx[typ].append((sfx, len(sfx), mode))
         debug.logger & debug.flagBld and debug.logger('trying %s' % self)
 
     def __repr__(self):
@@ -22,9 +24,9 @@ class __AbstractMibSource:
             if f[:9] == '__init__.':
                 continue
             for typ in (imp.PY_SOURCE, imp.PY_COMPILED):
-                sfx, sfxLen, mode = self.__sfx[typ]
-                if f[-sfxLen:] == sfx:
-                    u[f[:-sfxLen]] = None
+                for sfx, sfxLen, mode in self.__sfx[typ]:
+                    if f[-sfxLen:] == sfx:
+                        u[f[:-sfxLen]] = None
         return tuple(u.keys())
 
     # MibSource API follows
@@ -35,38 +37,41 @@ class __AbstractMibSource:
     def init(self): return self._init()
     def listdir(self): return self._listdir()
     def read(self, f):
-        pycSfx, pycSfxLen, pycMode = self.__sfx[imp.PY_COMPILED]
-        p = os.path.join(self._srcName, f) + pycSfx
-        try:
-            pycData = self._getData(p, pycMode)
-        except IOError:
-            pycTime = -1
-        else:
-            if self.__magic == pycData[:4]:
-                pycData = pycData[4:]
-                pycTime = struct.unpack('<L', pycData[:4])[0]
-                pycData = pycData[4:]
-            else:
-                debug.logger & debug.flagBld and debug.logger(
-                    'bad magic in %s' % p
-                    )
+        for pycSfx, pycSfxLen, pycMode in self.__sfx[imp.PY_COMPILED]:
+            p = os.path.join(self._srcName, f) + pycSfx
+            try:
+                pycData = self._getData(p, pycMode)
+            except IOError:
                 pycTime = -1
+            else:
+                if self.__magic == pycData[:4]:
+                    pycData = pycData[4:]
+                    pycTime = struct.unpack('<L', pycData[:4])[0]
+                    pycData = pycData[4:]
+                    break
+                else:
+                    debug.logger & debug.flagBld and debug.logger(
+                        'bad magic in %s' % p
+                        )
+                    pycTime = -1
 
         debug.logger & debug.flagBld and debug.logger(
             'file %s mtime %d' % (p, pycTime)
             )
-        
-        pySfx, pySfxLen, pyMode = self.__sfx[imp.PY_SOURCE]
-        p = os.path.join(self._srcName, f) + pySfx
-        try:
-            pyTime = self._getTimestamp(p)
-        except (IOError, OSError):
-            pyTime = -1
+
+        for pySfx, pySfxLen, pyMode in self.__sfx[imp.PY_SOURCE]:
+            p = os.path.join(self._srcName, f) + pySfx
+            try:
+                pyTime = self._getTimestamp(p)
+            except (IOError, OSError):
+                pyTime = -1
+            else:
+                break
 
         debug.logger & debug.flagBld and debug.logger(
             'file %s mtime %d' % (p, pyTime)
             )
-        
+
         if pycTime != -1 and pycTime >= pyTime:
             return marshal.loads(pycData), pycSfx
         if pyTime != -1:
