@@ -337,6 +337,10 @@ class CommandGenerator:
             self.__asynCmdGen = AsynCommandGenerator(snmpEngine)
         else:
             self.__asynCmdGen = asynCmdGen
+
+        # compatibility attributes
+        self.snmpEngine = self.__asynCmdGen.snmpEngine
+        self.mibViewController = self.__asynCmdGen.mibViewController
         
     def getCmd(self, authData, transportTarget, *varNames):
         def __cbFun(
