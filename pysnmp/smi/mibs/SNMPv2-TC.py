@@ -147,6 +147,8 @@ class TextualConvention:
             return r
         elif self.displayHint and self.__objectIdentifier.isSuperTypeOf(self):
             return str(value)
+        elif self.__octetString.isSuperTypeOf(self):
+            return repr(value)
         else:
             return str(value)
 
