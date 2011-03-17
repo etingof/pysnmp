@@ -27,15 +27,10 @@ Sparse notes on major existing problems/plans
 
 * Re-work ACL to get rid of linear search there
 
-* Implement SNMP proxy example & app
-
 * Implement partial context name match at isAccessAllowed()
 
 * Sort out whether pyasn1 objects should probably have either clone() or 
   subtype() methods.
-
-* Convert symbolic constants (keys, SNMP errors) into singular, hashable
-  objects for performance and typing reliablity
 
 * Implement by-transportTag search at secmod/rfc2576
 
@@ -52,7 +47,5 @@ Sparse notes on major existing problems/plans
 
 * Implement OID prefix to MIB module mapping then dynamic MIB modules
   loading on OID to MIB symbol resolution
-
-* Implement IPv6 support
 
 * Implement TCP transport support
