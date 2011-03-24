@@ -1,3 +1,8 @@
+Revision 4.1.16b
+----------------
+
+- Fix to MIB operation failure handling at CommandResponderBase.processPdu
+
 Revision 4.1.16a
 ----------------
 
