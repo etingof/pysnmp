@@ -110,7 +110,7 @@ class CommandResponderBase:
         rspPDU = v2c.apiPDU.getResponse(PDU)
         
         statusInformation = {}
-        
+       
         self.__pendingReqs[stateReference] = (
             messageProcessingModel,
             securityModel,
@@ -175,7 +175,9 @@ class CommandResponderBase:
         except pysnmp.smi.error.SmiError, errorIndication:
             errorStatus, errorIndex = 'genErr', len(varBinds) and 1 or 0
         except pysnmp.error.PySnmpError, errorIndication:
-            errorStatus, errorIndex = 'genErr', len(varBinds) and 1 or 0
+            if stateReference in self.__pendingReqs:
+                del self.__pendingReqs[stateReference]
+            return
         else:
             return
         
