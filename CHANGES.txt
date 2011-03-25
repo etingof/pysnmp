@@ -1,7 +1,9 @@
 Revision 4.1.16b
 ----------------
 
-- Fix to MIB operation failure handling at CommandResponderBase.processPdu
+- Default CommandResponder now skips non-compliant (Counter64) values
+  when responding to a v1 Manager.
+- Fix to state information handling at CommandResponder app.
 
 Revision 4.1.16a
 ----------------
