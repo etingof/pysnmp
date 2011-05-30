@@ -331,7 +331,7 @@ class AsynCommandGenerator:
     asyncBulkCmd = bulkCmd
 
 class CommandGenerator:
-    lexicographicMode = None
+    lexicographicMode = ignoreNonIncreasingOid = None
     def __init__(self, snmpEngine=None, asynCmdGen=None):
         if asynCmdGen is None:
             self.__asynCmdGen = AsynCommandGenerator(snmpEngine)
@@ -391,7 +391,10 @@ class CommandGenerator:
             sendRequestHandle, errorIndication, errorStatus, errorIndex,
             varBindTable, (self, varBindHead, varBindTotalTable, appReturn)
             ):
-            if errorIndication or errorStatus:
+            if errorStatus or \
+               errorIndication and not self.ignoreNonIncreasingOid or \
+               errorIndication and self.ignoreNonIncreasingOid and \
+               not isinstance(errind.OidNotIncreasing, errorIndication):
                 appReturn['errorIndication'] = errorIndication
                 if errorStatus == 2:
                     # Hide SNMPv1 noSuchName error which leaks in here
@@ -453,7 +456,10 @@ class CommandGenerator:
             sendRequestHandle, errorIndication, errorStatus, errorIndex,
             varBindTable, (self, varBindHead, varBindTotalTable, appReturn)
             ):
-            if errorIndication or errorStatus:
+            if errorStatus or \
+               errorIndication and not self.ignoreNonIncreasingOid or \
+               errorIndication and self.ignoreNonIncreasingOid and \
+               not isinstance(errind.OidNotIncreasing, errorIndication):
                 appReturn['errorIndication'] = errorIndication
                 appReturn['errorStatus'] = errorStatus
                 appReturn['errorIndex'] = errorIndex
