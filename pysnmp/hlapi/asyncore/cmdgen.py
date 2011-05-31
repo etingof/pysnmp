@@ -2,6 +2,7 @@ import socket, string, types
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdgen, mibvar
 from pysnmp.carrier.asynsock.dgram import udp
+from pysnmp.proto import errind
 from pysnmp.smi import view
 from pysnmp import nextid, error
 from pyasn1.type import univ
@@ -394,7 +395,7 @@ class CommandGenerator:
             if errorStatus or \
                errorIndication and not self.ignoreNonIncreasingOid or \
                errorIndication and self.ignoreNonIncreasingOid and \
-               not isinstance(errind.OidNotIncreasing, errorIndication):
+               not isinstance(errorIndication, errind.OidNotIncreasing):
                 appReturn['errorIndication'] = errorIndication
                 if errorStatus == 2:
                     # Hide SNMPv1 noSuchName error which leaks in here
@@ -459,7 +460,7 @@ class CommandGenerator:
             if errorStatus or \
                errorIndication and not self.ignoreNonIncreasingOid or \
                errorIndication and self.ignoreNonIncreasingOid and \
-               not isinstance(errind.OidNotIncreasing, errorIndication):
+               not isinstance(errorIndication, errind.OidNotIncreasing):
                 appReturn['errorIndication'] = errorIndication
                 appReturn['errorStatus'] = errorStatus
                 appReturn['errorIndex'] = errorIndex
