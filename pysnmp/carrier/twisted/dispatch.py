@@ -52,5 +52,5 @@ class TwistedDispatcher(AbstractTransportDispatcher):
             self.__transportCount = self.__transportCount - 1
 
         # The last transport has been removed, stop the timeout
-        if self.__transportCount > 0 and self.loopingcall.running:
+        if self.__transportCount == 0 and self.loopingcall.running:
             self.loopingcall.stop()
