@@ -6,6 +6,7 @@ Revision 4.1.16b
   when responding to a v1 Manager.
 - Fix to state information handling at CommandResponder app.
 - Fix to Twisted reactor shutdown condition.
+- Fix to distutils dependencies syntax.
 
 Revision 4.1.16a
 ----------------
