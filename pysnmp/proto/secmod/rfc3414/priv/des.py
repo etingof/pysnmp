@@ -2,8 +2,8 @@ import random, string
 from pysnmp.proto.secmod.rfc3414.priv import base
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
 from pysnmp.proto.secmod.rfc3414 import localkey
+from pysnmp.proto import errind, error
 from pyasn1.type import univ
-from pysnmp.proto import error
 
 try:
     from sys import version_info
