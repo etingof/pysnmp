@@ -1,3 +1,8 @@
+Revision 4.1.16d
+----------------
+
+- Fixed uninitialized PDU condition at v2->v1 PDU converter
+
 Revision 4.1.16c
 ----------------
 
