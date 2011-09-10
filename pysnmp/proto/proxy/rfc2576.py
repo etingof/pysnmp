@@ -177,6 +177,12 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
     else:
         raise error.ProtocolError('Unsupported PDU type')
 
+
+    if pduType in rfc3411.notificationClassPDUs:
+        v1.apiTrapPDU.setDefaults(v1Pdu)
+    else:
+        v1.apiPDU.setDefaults(v1Pdu)
+
     v2VarBinds = v2c.apiPDU.getVarBinds(v2Pdu)
     v1VarBinds = []
 
