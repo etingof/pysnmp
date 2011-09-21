@@ -140,7 +140,7 @@ class TrapPDUAPI:
     def getAgentAddr(self, pdu):
         return pdu.getComponentByPosition(1).getComponentByPosition(0)
     def setAgentAddr(self, pdu, value):
-        pdu.getComponentByPosition(1).setComponentByPosition(0, value)
+        pdu.setComponentByPosition(1).getComponentByPosition(1).setComponentByPosition(0, value)
 
     def getGenericTrap(self, pdu): return pdu.getComponentByPosition(2)
     def setGenericTrap(self, pdu, value): pdu.setComponentByPosition(2, value)
