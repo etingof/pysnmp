@@ -7,6 +7,7 @@ from pysnmp import nextid
 Integer = univ.Integer
 OctetString = univ.OctetString
 Null = univ.Null
+null = Null('')
 ObjectIdentifier = univ.ObjectIdentifier
 
 IpAddress = rfc1155.IpAddress
@@ -26,10 +27,9 @@ TrapPDU = rfc1157.TrapPDU
 Message = rfc1157.Message
 
 class VarBindAPI:
-    _null = Null('')
     def setOIDVal(self, varBind, (oid, val)):
         varBind.setComponentByPosition(0, oid)
-        if val is None: val = self._null
+        if val is None: val = null
         varBind.setComponentByPosition(1).getComponentByPosition(1).setComponentByType(val.getTagSet(), val, 1, verifyConstraints=False)
         return varBind
     
@@ -41,7 +41,6 @@ apiVarBind = VarBindAPI()
 getNextRequestID = nextid.Integer(0xffffff)
 
 class PDUAPI:
-    _null = Null('')
     _errorStatus = _errorIndex = Integer(0)
     def setDefaults(self, pdu):
         pdu.setComponentByPosition(
@@ -111,7 +110,7 @@ class PDUAPI:
         if apiPDU.getErrorStatus(rspPDU) == 2:
             varBindRow = []
             for varBind in apiPDU.getVarBinds(reqPDU):
-                varBindRow.append((varBind[0], self._null))
+                varBindRow.append((varBind[0], null))
             return [ varBindRow ]
         else:
             return [ apiPDU.getVarBinds(rspPDU) ]

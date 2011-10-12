@@ -4,6 +4,7 @@ from pyasn1.type import univ, namedtype, namedval, constraint
 
 # Shortcuts to SNMP types
 Null = univ.Null
+null = Null('')
 ObjectIdentifier = univ.ObjectIdentifier
 
 Integer = rfc1902.Integer
