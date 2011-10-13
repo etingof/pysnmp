@@ -21,7 +21,6 @@ class Cache:
         if self.__size >= self.__maxSize:
             keys = self.__usage.keys()
             keys.sort(lambda x,y,d=self.__usage: cmp(d[x],d[y]))
-            print keys[:self.__chopSize]
             for _k in keys[:self.__chopSize]:
                 del self.__cache[_k]
                 del self.__usage[_k]
