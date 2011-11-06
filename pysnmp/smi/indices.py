@@ -1,9 +1,7 @@
 """Ordered dictionaries classes used for indices"""
-from types import DictType, TupleType
-from string import join, split, atol
 from bisect import bisect
 
-class OrderedDict(DictType):
+class OrderedDict(dict):
     def __init__(self, **kwargs):
         self.__keys = []
         self.__dirty = 1
@@ -36,24 +34,23 @@ class OrderedDict(DictType):
         return list(self.__keys)
     def values(self):
         if self.__dirty: self.__order()
-        return map(lambda k, d=self: d[k], self.__keys)
+        return [ self[k] for k in self.__keys ]
     def items(self):
         if self.__dirty: self.__order()
-        return map(lambda k, d=self: (k, d[k]), self.__keys)
-    def update(self, d):
-        map(lambda (k, v), self=self: self.__setitem__(k, v), d.items())
+        return [ (k, self[k]) for k in self.__keys ]
+    def update(self, d): [ self.__setitem__(k, v) for k,v in d.items() ]
     def sortingFun(self, keys): keys.sort()
     def __order(self):
         self.sortingFun(self.__keys)
         d = {}
         for k in self.__keys:
             d[len(k)] = 1
-        l = d.keys()
-        l.sort(); l.reverse()
+        l = list(d.keys())
+        l.sort(reverse=True)
         self.__keysLens = tuple(l)
         self.__dirty = 0
     def nextKey(self, key):
-        keys = self.keys()
+        keys = list(self.keys())
         if key in self:
             nextIdx = keys.index(key) + 1            
         else:
@@ -69,16 +66,14 @@ class OrderedDict(DictType):
 class OidOrderedDict(OrderedDict):
     def __init__(self, **kwargs):
         self.__keysCache = {}
-        apply(OrderedDict.__init__, [self], kwargs)
+        OrderedDict.__init__(self, **kwargs)
 
     def __setitem__(self, key, value):
         if key not in self.__keysCache:
-            if type(key) == TupleType:
+            if isinstance(key, tuple):
                 self.__keysCache[key] = key
             else:
-                self.__keysCache[key] = map(
-                    lambda x: atol(x), filter(None, split(key, '.'))
-                    )
+                self.__keysCache[key] = [ int(x) for x in key.split('.') if x ]
         OrderedDict.__setitem__(self, key, value)
 
     def __delitem__(self, key):
@@ -88,6 +83,4 @@ class OidOrderedDict(OrderedDict):
     __delattr__ = __delitem__
 
     def sortingFun(self, keys):
-        def f(o1, o2, self=self):
-            return cmp(self.__keysCache[o1], self.__keysCache[o2])
-        keys.sort(f)
+        keys.sort(key=lambda k, d=self.__keysCache: d[k])

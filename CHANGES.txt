@@ -1,3 +1,25 @@
+Revision 4.2.1
+--------------
+
+- Support string OIDs at one-liner API.
+- Code quality of libsmi2pysnmp tool improved, MIBs re-built.
+- SNMP-PROXY-MIB & SNMP-USER-BASED-SM-3DES-MIB added
+- v1arch bulkgen.py example added
+- Major overhawl for Python 2.4 -- 3.2 compatibility:
+  + get rid of old-style types
+  + drop string module usage
+  + switch to rich comparation
+  + drop explicit long integer type use
+  + map()/filter() replaced with list comprehension
+  + apply() replaced with */**args
+  + dictionary operations made 2K/3K compatible
+  + division operator made 2K/3K compatible
+  + sorting function now operates on key
+  + iterators returned by some funcs in py3k converted to lists
+  + exception syntax made 2K/3K compatible
+  + tuple function arguments resolved to scalars to become py3k compatible
+  + BER octetstream is now of type bytes (Py3k) or still string (Py2k)
+
 Revision 4.1.16d
 ----------------
 

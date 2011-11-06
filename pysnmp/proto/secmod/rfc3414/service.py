@@ -1,4 +1,5 @@
 # SNMP v3 USM model services
+import time, sys
 from pysnmp.proto.secmod.base import AbstractSecurityModel
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha, noauth
 from pysnmp.proto.secmod.rfc3414.priv import des, nopriv
@@ -6,19 +7,19 @@ from pysnmp.proto.secmod.rfc3826.priv import aes
 from pysnmp.proto.secmod.eso.priv import des3, aes192, aes256
 from pysnmp.smi.error import NoSuchInstanceError
 from pysnmp.proto import rfc1155, errind, error
+from pysnmp import debug
 from pyasn1.type import univ, namedtype, constraint
 from pyasn1.codec.ber import encoder, decoder
 from pyasn1.error import PyAsn1Error
-from pysnmp import debug
-import time
+from pyasn1.compat.octets import null
     
 # USM security params
 
 class UsmSecurityParameters(rfc1155.TypeCoercionHackMixIn, univ.Sequence):
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('msgAuthoritativeEngineID', univ.OctetString()),
-        namedtype.NamedType('msgAuthoritativeEngineBoots', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 2147483647L))),
-        namedtype.NamedType('msgAuthoritativeEngineTime', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 2147483647L))),
+        namedtype.NamedType('msgAuthoritativeEngineBoots', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 2147483647))),
+        namedtype.NamedType('msgAuthoritativeEngineTime', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 2147483647))),
         namedtype.NamedType('msgUserName', univ.OctetString().subtype(subtypeSpec=constraint.ValueSizeConstraint(0, 32))),
         namedtype.NamedType('msgAuthenticationParameters', univ.OctetString()),
         namedtype.NamedType('msgPrivacyParameters', univ.OctetString())
@@ -44,7 +45,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         AbstractSecurityModel.__init__(self)
         self.__timeline = {}
         self.__timelineExpQueue = {}
-        self.__expirationTimer = 0L
+        self.__expirationTimer = 0
 
     def __getUserInfo(
         self, mibInstrumController, securityEngineID, securityName
@@ -253,7 +254,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: clone user info')
         else:
             # empty username used for engineID discovery
-            usmUserName = usmUserSecurityName = ''
+            usmUserName = usmUserSecurityName = null
             usmUserAuthProtocol = usmUserAuthKeyLocalized = None
             usmUserPrivProtocol = usmUserPrivKeyLocalized = None
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: use empty USM data')
@@ -509,7 +510,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         # Used for error reporting
         contextEngineId = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')[0].syntax
-        contextName = ''
+        contextName = null
 
         # 3.2.3
         if msgAuthoritativeEngineID not in self.__timeline:
@@ -605,7 +606,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                             )
         else:
             # empty username used for engineID discovery
-            usmUserName = usmUserSecurityName = ''
+            usmUserName = usmUserSecurityName = null
             usmUserAuthProtocol = usmUserAuthKeyLocalized = None
             usmUserPrivProtocol = usmUserPrivKeyLocalized = None
 
@@ -721,7 +722,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
             # 3.2.7a
             if msgAuthoritativeEngineID == snmpEngineID:
-                if snmpEngineBoots == 2147483647L or \
+                if snmpEngineBoots == 2147483647 or \
                    snmpEngineBoots != msgAuthoritativeEngineBoots or \
                    abs(idleTime + int(snmpEngineTime) - \
                        int(msgAuthoritativeEngineTime)) > 150:
@@ -759,7 +760,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     debug.logger & debug.flagSM and debug.logger('processIncomingMsg: stored timeline msgAuthoritativeEngineBoots %s msgAuthoritativeEngineTime %s for msgAuthoritativeEngineID %s' % (msgAuthoritativeEngineBoots, msgAuthoritativeEngineTime, repr(msgAuthoritativeEngineID)))
                     
                 # 3.2.7b.2
-                if snmpEngineBoots == 2147483647L or \
+                if snmpEngineBoots == 2147483647 or \
                    msgAuthoritativeEngineBoots < snmpEngineBoots or \
                    msgAuthoritativeEngineBoots == snmpEngineBoots and \
                    abs(idleTime + int(snmpEngineTime) - \
@@ -809,8 +810,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 scopedPDU, rest = decoder.decode(
                     decryptedData, asn1Spec=scopedPduSpec
                     )
-            except PyAsn1Error, why:
-                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: scopedPDU decoder failed %s' % why)                
+            except PyAsn1Error:
+                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: scopedPDU decoder failed %s' % sys.exc_info()[0])                
                 raise error.StatusInformation(
                     errorIndication = errind.decryptionError
                     )

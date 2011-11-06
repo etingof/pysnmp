@@ -1,6 +1,5 @@
 # MIB modules loader
-import os, types, string
-import imp, struct, marshal, time
+import os, sys, imp, struct, marshal, time
 from pysnmp.smi import error
 from pysnmp import debug
 
@@ -82,11 +81,11 @@ class __AbstractMibSource:
 class ZipMibSource(__AbstractMibSource):
     def _init(self):
         p = __import__(
-            self._srcName, globals(),locals(), string.split(self._srcName, '.')
+            self._srcName, globals(),locals(), self._srcName.split('.')
             )
         if hasattr(p, '__loader__'):
             self.__loader = p.__loader__
-            self._srcName = string.replace(self._srcName, '.', os.sep)
+            self._srcName = self._srcName.replace('.', os.sep)
             return self
         else:
             return DirMibSource(os.path.split(p.__file__)[0]).init()
@@ -140,20 +139,18 @@ class MibBuilder:
     defaultCoreMibs = 'pysnmp.smi.mibs.instances:pysnmp.smi.mibs'
     defaultMiscMibs = 'pysnmp_mibs'
     def __init__(self):
-        self.lastBuildId = self._autoName = 0L
+        self.lastBuildId = self._autoName = 0
         sources = []
-        for m in string.split(
-            os.environ.get('PYSNMP_MIB_PKGS', self.defaultCoreMibs), ':'
-            ):
+        for m in os.environ.get('PYSNMP_MIB_PKGS', self.defaultCoreMibs).split(':'):
             sources.append(ZipMibSource(m).init())
         # Compatibility variable
         if 'PYSNMP_MIB_DIR' in os.environ:
             os.environ['PYSNMP_MIB_DIRS'] = os.environ['PYSNMP_MIB_DIR']
         if 'PYSNMP_MIB_DIRS' in os.environ:
-            for m in string.split(os.environ['PYSNMP_MIB_DIRS'], ':'):
+            for m in os.environ['PYSNMP_MIB_DIRS'].split(':'):
                 sources.append(DirMibSource(m).init())
         if self.defaultMiscMibs:
-            for m in string.split(self.defaultMiscMibs, ':'):
+            for m in self.defaultMiscMibs.split(':'):
                 try:
                     sources.append(ZipMibSource(m).init())
                 except ImportError:
@@ -161,7 +158,7 @@ class MibBuilder:
         self.mibSymbols = {}
         self.__modSeen = {}
         self.__modPathsSeen = {}
-        apply(self.setMibSources, sources)
+        self.setMibSources(*sources)
         
     # MIB modules management
 
@@ -173,7 +170,7 @@ class MibBuilder:
 
     # Legacy/compatibility methods
     def setMibPath(self, *mibPaths):
-        apply(self.setMibSources, map(DirMibSource, mibPaths))
+        self.setMibSources(*[ DirMibSource(x) for x in mibPaths ])
 
     def getMibPath(self):
         l = []
@@ -189,7 +186,7 @@ class MibBuilder:
             for mibSource in self.__mibSources:
                 for modName in mibSource.listdir():
                     modNames[modName] = None
-            modNames = modNames.keys()
+            modNames = list(modNames.keys())
         if not modNames:
             raise error.SmiError(
                 'No MIB module to load at %s' % (self,)
@@ -200,8 +197,8 @@ class MibBuilder:
                 debug.logger & debug.flagBld and debug.logger('loadModules: trying %s at %s' % (modName, mibSource))
                 try:
                     modData, sfx = mibSource.read(modName)
-                except IOError, why:
-                    debug.logger & debug.flagBld and debug.logger('loadModules: read %s from %s failed: %s' % (modName, mibSource, why))
+                except IOError:
+                    debug.logger & debug.flagBld and debug.logger('loadModules: read %s from %s failed: %s' % (modName, mibSource, sys.exc_info()[1]))
                     continue
 
                 modPath = mibSource.fullPath(modName, sfx)
@@ -218,10 +215,10 @@ class MibBuilder:
 
                 try:
                     exec(modData, g)
-                except StandardError, why:
+                except Exception:
                     del self.__modPathsSeen[modPath]
                     raise error.SmiError(
-                        'MIB module \"%s\" load error: %s' % (modPath, why)
+                        'MIB module \"%s\" load error: %s' % (modPath, sys.exc_info()[1])
                         )
 
                 self.__modSeen[modName] = modPath
@@ -239,7 +236,7 @@ class MibBuilder:
                 
     def unloadModules(self, *modNames):
         if not modNames:
-            modNames = self.mibSymbols.keys()
+            modNames = list(self.mibSymbols.keys())
         for modName in modNames:
             if modName not in self.mibSymbols:
                 raise error.SmiError(
@@ -288,10 +285,15 @@ class MibBuilder:
                     'Symbol %s already exported at %s' % (symName, modName)
                     )
 
-            if hasattr(symObj, 'label'):
+            # XXX needs improvement
+            try:
                 symName = symObj.label or symName # class
-            if type(symObj) == types.InstanceType:
+            except AttributeError:
+                pass
+            try:
                 symName = symObj.getLabel() or symName # class instance
+            except (AttributeError, TypeError):
+                pass
             
             mibSymbols[symName] = symObj
             
@@ -306,7 +308,7 @@ class MibBuilder:
                 )
         mibSymbols = self.mibSymbols[modName]
         if not symNames:
-            symNames = mibSymbols.keys()
+            symNames = list(mibSymbols.keys())
         for symName in symNames:
             if symName not in mibSymbols:
                 raise error.SmiError(

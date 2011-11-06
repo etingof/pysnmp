@@ -1,11 +1,12 @@
-import socket, string, types
+import socket, sys
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdgen, mibvar
 from pysnmp.carrier.asynsock.dgram import udp
 from pysnmp.proto import errind
 from pysnmp.smi import view
 from pysnmp import nextid, error
-from pyasn1.type import univ
+from pyasn1.type import univ, base
+from pyasn1.compat.octets import null
 
 # Auth protocol
 usmHMACMD5AuthProtocol = config.usmHMACMD5AuthProtocol
@@ -20,13 +21,13 @@ usmAesCfb192Protocol = config.usmAesCfb192Protocol
 usmAesCfb256Protocol = config.usmAesCfb256Protocol
 usmNoPrivProtocol = config.usmNoPrivProtocol
 
-nextID = nextid.Integer(0xffffffffL)
+nextID = nextid.Integer(0xffffffff)
 
 class CommunityData:
     mpModel = 1 # Default is SMIv2
     securityModel = mpModel+1
     securityLevel = 'noAuthNoPriv'
-    contextName = ''
+    contextName = null
     def __init__(self, securityName, communityName, mpModel=None,
                  contextEngineId=None, contextName=None):
         self.securityName = securityName
@@ -50,7 +51,13 @@ class CommunityData:
             )
 
     def __hash__(self): return self.__hash
-    def __cmp__(self, other): return cmp(self.__cmp, other)
+
+    def __eq__(self, other): return self.__cmp == other
+    def __ne__(self, other): return self.__cmp != other
+    def __lt__(self, other): return self.__cmp < other
+    def __le__(self, other): return self.__cmp <= other
+    def __gt__(self, other): return self.__cmp > other
+    def __ge__(self, other): return self.__cmp >= other
 
 class UsmUserData:
     authKey = privKey = None
@@ -59,7 +66,7 @@ class UsmUserData:
     securityLevel = 'noAuthNoPriv'
     securityModel = 3
     mpModel = 2
-    contextName = ''
+    contextName = null
     def __init__(self, securityName,
                  authKey=None, privKey=None,
                  authProtocol=None, privProtocol=None,
@@ -103,7 +110,13 @@ class UsmUserData:
             )
 
     def __hash__(self): return self.__hash
-    def __cmp__(self, other): return cmp(self.__cmp, other)
+    
+    def __eq__(self, other): return self.__cmp == other
+    def __ne__(self, other): return self.__cmp != other
+    def __lt__(self, other): return self.__cmp < other
+    def __le__(self, other): return self.__cmp <= other
+    def __gt__(self, other): return self.__cmp > other
+    def __ge__(self, other): return self.__cmp >= other
     
 class UdpTransportTarget:
     transportDomain = udp.domainName
@@ -121,7 +134,13 @@ class UdpTransportTarget:
         )
 
     def __hash__(self): return hash(self.transportAddr)
-    def __cmp__(self, other): return cmp(self.transportAddr, other)
+    
+    def __eq__(self, other): return self.transportAddr == other
+    def __ne__(self, other): return self.transportAddr != other
+    def __lt__(self, other): return self.transportAddr < other
+    def __le__(self, other): return self.transportAddr <= other
+    def __gt__(self, other): return self.transportAddr > other
+    def __ge__(self, other): return self.transportAddr >= other
     
     def openClientMode(self):
         self.transport = udp.UdpSocketTransport().openClientMode()
@@ -143,7 +162,7 @@ class AsynCommandGenerator:
 
     def __del__(self): self.uncfgCmdGen()
 
-    def cfgCmdGen(self, authData, transportTarget, tagList=''):
+    def cfgCmdGen(self, authData, transportTarget, tagList=null):
         if isinstance(authData, CommunityData):
             tagList = '%s %s' % (tagList, authData.securityName)
         if authData in self.__knownAuths:
@@ -241,10 +260,15 @@ class AsynCommandGenerator:
                 )
         self.__knownTransportAddrs.clear()
                 
+    if sys.version_info[0] <= 2:
+        intTypes = (int, long)
+    else:
+        intTypes = (int,)
+
     def makeReadVarBinds(self, varNames):
         varBinds = []
         for varName in varNames:
-            if type(varName[0]) in (types.IntType, types.LongType):
+            if isinstance(varName[0], self.intTypes):
                 name = varName
             else:
                 name, oid = mibvar.mibNameToOid(
@@ -256,9 +280,8 @@ class AsynCommandGenerator:
 
     # Async SNMP apps
 
-    def getCmd(
-        self, authData, transportTarget, varNames, (cbFun, cbCtx)
-        ):
+    def getCmd(self, authData, transportTarget, varNames, cbInfo):
+        (cbFun, cbCtx) = cbInfo
         addrName, paramsName = self.cfgCmdGen(
             authData, transportTarget
             )
@@ -270,9 +293,8 @@ class AsynCommandGenerator:
     
     asyncGetCmd = getCmd
     
-    def setCmd(
-        self, authData, transportTarget, varBinds, (cbFun, cbCtx)
-        ):
+    def setCmd(self, authData, transportTarget, varBinds, cbInfo):
+        (cbFun, cbCtx) = cbInfo
         addrName, paramsName = self.cfgCmdGen(
             authData, transportTarget
             )
@@ -281,7 +303,7 @@ class AsynCommandGenerator:
             name, oid = mibvar.mibNameToOid(
                 self.mibViewController, varName
                 )
-            if not type(varVal) == types.InstanceType:
+            if not isinstance(varVal, base.AbstractSimpleAsn1Item):
                 ((symName, modName), suffix) = mibvar.oidToMibName(
                     self.mibViewController, name + oid
                     )
@@ -301,9 +323,8 @@ class AsynCommandGenerator:
     
     asyncSetCmd = setCmd
     
-    def nextCmd(
-        self, authData, transportTarget, varNames, (cbFun, cbCtx)
-        ):
+    def nextCmd(self, authData, transportTarget, varNames, cbInfo):
+        (cbFun, cbCtx) = cbInfo
         addrName, paramsName = self.cfgCmdGen(
             authData, transportTarget
             )
@@ -315,10 +336,9 @@ class AsynCommandGenerator:
 
     asyncNextCmd = nextCmd
     
-    def bulkCmd(
-        self, authData, transportTarget, nonRepeaters, maxRepetitions,
-        varNames, (cbFun, cbCtx)
-        ):
+    def bulkCmd(self, authData, transportTarget, nonRepeaters, maxRepetitions,
+                varNames, cbInfo):
+        (cbFun, cbCtx) = cbInfo
         addrName, paramsName = self.cfgCmdGen(
             authData, transportTarget
             )
@@ -388,10 +408,9 @@ class CommandGenerator:
             )
 
     def nextCmd(self, authData, transportTarget, *varNames):
-        def __cbFun(
-            sendRequestHandle, errorIndication, errorStatus, errorIndex,
-            varBindTable, (self, varBindHead, varBindTotalTable, appReturn)
-            ):
+        def __cbFun(sendRequestHandle, errorIndication,
+                    errorStatus, errorIndex, varBindTable, cbCtx):
+            (self, varBindHead, varBindTotalTable, appReturn) = cbCtx
             if errorStatus or \
                errorIndication and not self.ignoreNonIncreasingOid or \
                errorIndication and self.ignoreNonIncreasingOid and \
@@ -453,10 +472,9 @@ class CommandGenerator:
 
     def bulkCmd(self, authData, transportTarget,
                 nonRepeaters, maxRepetitions, *varNames):
-        def __cbFun(
-            sendRequestHandle, errorIndication, errorStatus, errorIndex,
-            varBindTable, (self, varBindHead, varBindTotalTable, appReturn)
-            ):
+        def __cbFun(sendRequestHandle, errorIndication,
+                    errorStatus, errorIndex, varBindTable, cbCtx):
+            (self, varBindHead, varBindTotalTable, appReturn) = cbCtx
             if errorStatus or \
                errorIndication and not self.ignoreNonIncreasingOid or \
                errorIndication and self.ignoreNonIncreasingOid and \

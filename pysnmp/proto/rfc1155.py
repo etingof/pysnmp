@@ -1,39 +1,7 @@
-import string
 from pyasn1.type import univ, tag, constraint, namedtype
 from pyasn1.error import PyAsn1Error
 from pysnmp.proto import error
 
-def ipAddressPrettyIn(value):
-    if len(value) == 4:
-        return value  # IP as an octet stream
-    try:
-        packed = string.split(value, '.')
-    except:
-        raise error.ProtocolError(
-            'Bad IP address syntax %s' %  value
-                )
-    if len(packed) != 4:
-        raise error.ProtocolError(
-            'Bad IP address syntax %s' %  value
-            )
-    try:
-        return reduce(
-            lambda x, y: x+y,
-            map(lambda x: chr(string.atoi(x)), packed)
-            )
-    except string.atoi_error:
-        raise error.ProtocolError(
-            'Bad IP address value %s' %  value
-            )
-
-def ipAddressPrettyOut(value):
-    if value:
-        return '%d.%d.%d.%d' % (
-            ord(value[0]), ord(value[1]), ord(value[2]), ord(value[3])
-            )
-    else:
-        return ''
-    
 class IpAddress(univ.OctetString):
     tagSet = univ.OctetString.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x00)
@@ -42,15 +10,30 @@ class IpAddress(univ.OctetString):
         4, 4
         )
 
-    def prettyIn(self, value): return ipAddressPrettyIn(value)
-    def prettyOut(self, value): return ipAddressPrettyOut(value)
+    def prettyIn(self, value):
+        if isinstance(value, str) and len(value) != 4:
+            try:
+                value = [ int(x) for x in value.split('.') ]
+            except:
+                raise error.ProtocolError('Bad IP address syntax %s' %  value)
+        if len(value) != 4:
+            raise error.ProtocolError('Bad IP address syntax')
+        return univ.OctetString.prettyIn(self, value)
+
+    def prettyOut(self, value):
+        if value:
+            return '.'.join(
+                [ '%d' % x for x in self.__class__(value).asNumbers() ]
+                )
+        else:
+            return ''
     
 class Counter(univ.Integer):
     tagSet = univ.Integer.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x01)
         )
     subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
-        0, 4294967295L
+        0, 4294967295
         )
 
 class NetworkAddress(univ.Choice):
@@ -63,7 +46,7 @@ class Gauge(univ.Integer):
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x02)
         )
     subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
-        0, 4294967295L
+        0, 4294967295
         )
 
 class TimeTicks(univ.Integer):
@@ -71,7 +54,7 @@ class TimeTicks(univ.Integer):
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x03)
         )
     subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
-        0, 4294967295L
+        0, 4294967295
         )
 
 class Opaque(univ.OctetString):

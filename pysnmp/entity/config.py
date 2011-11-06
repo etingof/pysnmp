@@ -1,6 +1,6 @@
 # Initial SNMP engine configuration functions. During further operation,
 # SNMP engine might be configured remotely (through SNMP).
-import string
+from pyasn1.compat.octets import null
 from pysnmp.carrier.asynsock import dispatch
 from pysnmp.carrier.asynsock.dgram import udp, udp6
 try:
@@ -70,7 +70,7 @@ def addV1System(snmpEngine, securityName, communityName,
     if contextEngineId is None:
         contextEngineId = snmpEngineID.syntax
     if contextName is None:
-        contextName = ''
+        contextName = null
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpCommunityEntry.name + (8,) + tblIdx, 'destroy'),)
@@ -139,7 +139,7 @@ def addV3User(snmpEngine, securityName,
     # Localize keys
     if authProtocol in authServices:
         hashedAuthPassphrase = authServices[authProtocol].hashPassphrase(
-            authKey and authKey or ''
+            authKey and authKey or null
             )
         localAuthKey = authServices[authProtocol].localizeKey(
             hashedAuthPassphrase, snmpEngineID
@@ -149,7 +149,7 @@ def addV3User(snmpEngine, securityName,
 
     if privProtocol in privServices:
         hashedPrivPassphrase = privServices[privProtocol].hashPassphrase(
-            authProtocol, privKey and privKey or ''
+            authProtocol, privKey and privKey or null
             )
         localPrivKey = privServices[privProtocol].localizeKey(
             authProtocol, hashedPrivPassphrase, snmpEngineID
@@ -246,7 +246,7 @@ def addTargetAddr(
     params,
     timeout=None,
     retryCount=None,
-    tagList=''
+    tagList=null
     ):
     snmpTargetAddrEntry, tblIdx = __cookTargetAddrInfo(
         snmpEngine, addrName
@@ -425,7 +425,7 @@ def __cookVacmUserInfo(snmpEngine, securityModel, securityName, securityLevel):
 
 def addVacmUser(snmpEngine, securityModel, securityName, securityLevel,
                 readSubTree=(), writeSubTree=(), notifySubTree=(),
-                contextName=''):
+                contextName=null):
     ( groupName, securityLevel,
       readView, writeView, notifyView ) = __cookVacmUserInfo(
         snmpEngine, securityModel, securityName, securityLevel,
@@ -439,15 +439,15 @@ def addVacmUser(snmpEngine, securityModel, securityName, securityLevel,
         )
     if readSubTree:
         addVacmView(
-            snmpEngine, readView, "included", readSubTree, '',
+            snmpEngine, readView, "included", readSubTree, null,
             )
     if writeSubTree:
         addVacmView(
-            snmpEngine, writeView, "included", writeSubTree, '',
+            snmpEngine, writeView, "included", writeSubTree, null,
             )
     if notifySubTree:
         addVacmView(
-            snmpEngine, notifyView, "included", notifySubTree, '',
+            snmpEngine, notifyView, "included", notifySubTree, null,
             )
 
 def delVacmUser(snmpEngine, securityModel, securityName, securityLevel,
@@ -460,7 +460,7 @@ def delVacmUser(snmpEngine, securityModel, securityName, securityLevel,
         snmpEngine, securityModel, securityName
         )
     delVacmAccess(
-        snmpEngine, groupName, '', securityModel, securityLevel
+        snmpEngine, groupName, null, securityModel, securityLevel
         )
     if readSubTree:
         delVacmView(

@@ -1,10 +1,18 @@
 # MIB modules management
-from types import ClassType, InstanceType, TupleType
+import sys
 from pysnmp.smi.indices import OrderedDict, OidOrderedDict
 from pysnmp.smi import error
 from pysnmp import debug
 
 __all__ = [ 'MibViewController' ]
+
+if sys.version_info[0] <= 2:
+    import types
+    classTypes = (types.ClassType, type)
+    instanceTypes = (types.InstanceType, object)
+else:
+    classTypes = (type,)
+    instanceTypes = (object,)
 
 class MibViewController:
     def __init__(self, mibBuilder):
@@ -34,26 +42,17 @@ class MibViewController:
 
         # This is potentionally ambiguous mapping. Sort modules in
         # ascending age for resolution
-        def __sortFun(x, y, s=self.mibBuilder.mibSymbols):
+        def __sortFun(x, s=self.mibBuilder.mibSymbols):
             if "PYSNMP_MODULE_ID" in s[x]:
-                m1 = s[x]["PYSNMP_MODULE_ID"]
+                m = s[x]["PYSNMP_MODULE_ID"]
+                r = m.getRevisions()
+                if r:
+                    return r[0]
             else:
-                m1 = None
-            if "PYSNMP_MODULE_ID" in s[y]:
-                m2 = s[y]["PYSNMP_MODULE_ID"]
-            else:
-                m2 = None                
-            r1 = r2 = "1970-01-01 00:00"
-            if m1:
-                r = m1.getRevisions()
-                if r: r1 = r[0]
-            if m2:
-                r = m2.getRevisions()
-                if r: r2 = r[0]
-            return cmp(r1, r2)
+                return "1970-01-01 00:00"
 
-        modNames = self.mibBuilder.mibSymbols.keys()
-        modNames.sort(__sortFun)
+        modNames = list(self.mibBuilder.mibSymbols.keys())
+        modNames.sort(key=__sortFun)
             
         # Index modules names
         for modName in [ '' ] + modNames:
@@ -74,7 +73,7 @@ class MibViewController:
             for n, v in self.mibBuilder.mibSymbols[modName].items():
                 if n == "PYSNMP_MODULE_ID": # do not index this special symbol
                     continue
-                if type(v) == ClassType:
+                if isinstance(v, classTypes):
                     if n in mibMod['typeToModIdx']:
                         raise error.SmiError(
                             'Duplicate SMI type %s::%s, has %s' % \
@@ -82,7 +81,7 @@ class MibViewController:
                             )
                     globMibMod['typeToModIdx'][n] = modName
                     mibMod['typeToModIdx'][n] = modName
-                elif type(v) == InstanceType:
+                elif isinstance(v, instanceTypes):
                     if isinstance(v, MibScalarInstance):
                         continue
                     if n in mibMod['varToNameIdx']:
@@ -175,7 +174,7 @@ class MibViewController:
             nodeName[:-1], oidToLabelIdx, labelToOidIdx
             )
         suffix = suffix + nodeName[-1:]
-        resLabel = label + suffix
+        resLabel = label + tuple([ str(x) for x in suffix ])
         if resLabel in labelToOidIdx:
             return labelToOidIdx[resLabel], resLabel, ()
         resOid = oid + suffix

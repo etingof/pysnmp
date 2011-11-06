@@ -1,14 +1,10 @@
-import random, string
+import random
+from pyasn1.type import univ
 from pysnmp.proto.secmod.rfc3414.priv import base
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
 from pysnmp.proto.secmod.rfc3414 import localkey
 from pyasn1.type import univ
 from pysnmp.proto import errind, error
-
-try:
-    from sys import version_info
-except ImportError:
-    version_info = ( 0, 0 )   # a really early version
 
 try:
     from Crypto.Cipher import AES
@@ -24,10 +20,7 @@ random.seed()
 class Aes(base.AbstractEncryptionService):
     serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 4) # usmAesCfb128Protocol
     keySize = 16
-    if version_info < (2, 3):
-        _localInt = long(random.random()*0xffffffffffffffffL)
-    else:
-        _localInt = random.randrange(0, 0xffffffffffffffffL)
+    _localInt = random.randrange(0, 0xffffffffffffffff)
     # 3.1.2.1
     def __getEncryptionKey(self, privKey, snmpEngineBoots, snmpEngineTime):
         salt = [
@@ -41,42 +34,31 @@ class Aes(base.AbstractEncryptionService):
             self._localInt&0xff
             ]
         
-        if self._localInt == 0xffffffffffffffffL:
+        if self._localInt == 0xffffffffffffffff:
             self._localInt = 0
         else:
             self._localInt = self._localInt + 1
 
-        salt = string.join(map(chr, salt), '')
-
-        return self.__getDecryptionKey(privKey, snmpEngineBoots,
-                                       snmpEngineTime, salt) + ( salt, )
+        return self.__getDecryptionKey(
+            privKey, snmpEngineBoots, snmpEngineTime, salt
+            ) + ( univ.OctetString(salt).asOctets(), )
 
     def __getDecryptionKey(self, privKey, snmpEngineBoots,
                            snmpEngineTime, salt):
         snmpEngineBoots, snmpEngineTime, salt = (
-            long(snmpEngineBoots), long(snmpEngineTime), str(salt)
+            int(snmpEngineBoots), int(snmpEngineTime), salt
             )
 
-        iv = [
-            snmpEngineBoots>>24&0xff,
-            snmpEngineBoots>>16&0xff,
-            snmpEngineBoots>>8&0xff,
-            snmpEngineBoots&0xff,
-            snmpEngineTime>>24&0xff,
-            snmpEngineTime>>16&0xff,
-            snmpEngineTime>>8&0xff,
-            snmpEngineTime&0xff,
-            ord(salt[0]),
-            ord(salt[1]),
-            ord(salt[2]),
-            ord(salt[3]),
-            ord(salt[4]),
-            ord(salt[5]),
-            ord(salt[6]),
-            ord(salt[7])
-            ]
+        iv = [ snmpEngineBoots>>24&0xff,
+               snmpEngineBoots>>16&0xff,
+               snmpEngineBoots>>8&0xff,
+               snmpEngineBoots&0xff,
+               snmpEngineTime>>24&0xff,
+               snmpEngineTime>>16&0xff,
+               snmpEngineTime>>8&0xff,
+               snmpEngineTime&0xff ] + salt
 
-        return privKey[:self.keySize], string.join(map(chr, iv), '')
+        return privKey[:self.keySize].asOctets(), univ.OctetString(iv).asOctets()
 
     def hashPassphrase(self, authProtocol, privKey):
         if authProtocol == hmacmd5.HmacMd5.serviceID:
@@ -110,14 +92,14 @@ class Aes(base.AbstractEncryptionService):
 
         # 3.3.1.1
         aesKey, iv, salt = self.__getEncryptionKey(
-            str(encryptKey), snmpEngineBoots, snmpEngineTime
+            encryptKey, snmpEngineBoots, snmpEngineTime
             )
 
         # 3.3.1.3
         aesObj = AES.new(aesKey, AES.MODE_CFB, iv, segment_size=128)
 
         # PyCrypto seems to require padding
-        dataToEncrypt = dataToEncrypt + '\0' * (16-len(dataToEncrypt)%16)
+        dataToEncrypt = dataToEncrypt + univ.OctetString((0,) * (16-len(dataToEncrypt)%16)).asOctets()
 
         ciphertext = aesObj.encrypt(dataToEncrypt)
 
@@ -141,13 +123,13 @@ class Aes(base.AbstractEncryptionService):
 
         # 3.3.2.3
         aesKey, iv = self.__getDecryptionKey(
-            str(decryptKey), snmpEngineBoots, snmpEngineTime, salt
+            decryptKey, snmpEngineBoots, snmpEngineTime, salt
             )
 
         aesObj = AES.new(aesKey, AES.MODE_CFB, iv, segment_size=128)
 
         # PyCrypto seems to require padding
-        encryptedData = encryptedData + '\0' * (16-len(encryptedData)%16)
+        encryptedData = encryptedData + univ.OctetString((0,) * (16-len(encryptedData)%16)).asOctets()
 
         # 3.3.2.4-6
-        return aesObj.decrypt(str(encryptedData))
+        return aesObj.decrypt(encryptedData.asOctets())

@@ -1,3 +1,4 @@
+from pyasn1.compat.octets import null
 from pysnmp.proto import rfc3411, error
 from pysnmp.proto.api import v1, v2c  # backend is always SMIv2 compliant
 from pysnmp.proto.proxy import rfc2576
@@ -13,7 +14,7 @@ class NotificationReceiver:
 
     def __init__(self, snmpEngine, cbFun, cbCtx=None):
         snmpEngine.msgAndPduDsp.registerContextEngineId(
-            '', self.pduTypes, self.processPdu # '' is a wildcard
+            null, self.pduTypes, self.processPdu # '' is a wildcard
             )
         self.__cbFunVer = 0
         self.__cbFun = cbFun
@@ -21,7 +22,7 @@ class NotificationReceiver:
 
     def close(self, snmpEngine):
         snmpEngine.msgAndPduDsp.unregisterContextEngineId(
-            '', self.pduTypes
+            null, self.pduTypes
             )
 
     def processPdu(
@@ -86,8 +87,8 @@ class NotificationReceiver:
                     stateReference,
                     statusInformation
                     )
-            except error.StatusInformation, why:
-                debug.logger & debug.flagApp and debug.logger('processPdu: stateReference %s, statusInformation %s' % (stateReference, why))
+            except error.StatusInformation:
+                debug.logger & debug.flagApp and debug.logger('processPdu: stateReference %s, statusInformation %s' % (stateReference, sys.exc_info()[1]))
                 snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpSilentDrops')
                 snmpSilentDrops.syntax = snmpSilentDrops.syntax + 1
 

@@ -1,5 +1,4 @@
 # Shortcuts to MIB instrumentation items used internally in SNMP applications
-import string
 from pysnmp.smi.error import SmiError, NoSuchObjectError
 from pysnmp.smi.exval import noSuchInstance
 from pysnmp.entity import config
@@ -147,7 +146,7 @@ def getTargetNames(snmpEngine, tag):
         except NoSuchObjectError:
             break
         # XXX stop on eot
-        if tag in string.split(str(mibNode.syntax)): # XXX add __split__()
+        if tag in mibNode.syntax.asOctets().split(): # XXX add __split__()
             idx = mibNode.name[len(snmpTargetAddrTagList.name):]
             targetNames.append(
                 snmpTargetAddrEntry.getIndicesFromInstId(idx)[0]

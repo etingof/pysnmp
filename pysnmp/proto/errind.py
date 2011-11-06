@@ -1,17 +1,19 @@
 # SNMPv3 error-indication values.
 # Object below could be compared with literals thus are backward-compatible
 # with original pysnmperror-indication values.
-from string import lower
 
 class ErrorIndication:
     def __init__(self, descr=None):
-        self.__value = self.__descr = lower(self.__class__.__name__[0]) + self.__class__.__name__[1:]
+        self.__value = self.__descr = self.__class__.__name__[0].lower() + self.__class__.__name__[1:]
         if descr: self.__descr = descr
-    def __cmp__(self, other):
-        if self is other or isinstance(other, self.__class__):
-            return 0
-        else:
-            return cmp(self.__value, other)
+
+    def __eq__(self, other): return self.__value == other
+    def __ne__(self, other): return self.__value != other
+    def __lt__(self, other): return self.__value < other
+    def __le__(self, other): return self.__value <= other
+    def __gt__(self, other): return self.__value > other
+    def __ge__(self, other): return self.__value >= other
+
     def __str__(self): return self.__descr
 
 # SNMP message processing errors

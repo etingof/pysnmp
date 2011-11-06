@@ -1,16 +1,12 @@
 # Reeder 3DES-EDE for USM (Internet draft)
 # http://www.snmp.com/eso/draft-reeder-snmpv3-usm-3desede-00.txt
-import random, string
+import random
 from pysnmp.proto.secmod.rfc3414.priv import base
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
 from pysnmp.proto.secmod.rfc3414 import localkey
 from pysnmp.proto import errind, error
 from pyasn1.type import univ
-
-try:
-    from sys import version_info
-except ImportError:
-    version_info = ( 0, 0 )   # a really early version
+from pyasn1.compat.octets import null
 
 try:
     from Crypto.Cipher import DES3
@@ -23,10 +19,7 @@ random.seed()
 
 class Des3(base.AbstractEncryptionService):
     serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 3) # usm3DESEDEPrivProtocol
-    if version_info < (2, 3):
-        _localInt = long(random.random()*0xffffffffL)
-    else:
-        _localInt = random.randrange(0, 0xffffffffL)
+    _localInt = random.randrange(0, 0xffffffff)
 
     def hashPassphrase(self, authProtocol, privKey):
         if authProtocol == hmacmd5.HmacMd5.serviceID:
@@ -61,7 +54,7 @@ class Des3(base.AbstractEncryptionService):
         des3Key = privKey[:24]
         preIV = privKey[24:32]
 
-        securityEngineBoots = long(snmpEngineBoots)
+        securityEngineBoots = int(snmpEngineBoots)
 
         salt = [
             securityEngineBoots>>24&0xff,
@@ -73,21 +66,20 @@ class Des3(base.AbstractEncryptionService):
             self._localInt>>8&0xff,
             self._localInt&0xff
             ]
-        if self._localInt == 0xffffffffL:
+        if self._localInt == 0xffffffff:
             self._localInt = 0
         else:
             self._localInt = self._localInt + 1
 
         # salt not yet hashed XXX
         
-        return des3Key, \
-               string.join(map(chr, salt), ''), \
-               string.join(map(lambda x,y: chr(x^ord(y)), salt, preIV), '')
-
+        return des3Key.asOctets(), \
+               univ.OctetString(salt).asOctets(), \
+               univ.OctetString(map(lambda x,y:x^y, salt, preIV.asNumbers())).asOctets()
+    
     def __getDecryptionKey(self, privKey, salt):
-        return privKey[:24], string.join(
-            map(lambda x,y: chr(ord(x)^ord(y)), salt, privKey[24:32]), ''
-            )
+        return privKey[:24].asOctets(), \
+               univ.OctetString(map(lambda x,y:x^y, salt, privKey[24:32].asNumbers())).asOctets()
 
     # 5.1.1.2
     def encryptData(self, encryptKey, privParameters, dataToEncrypt):
@@ -99,19 +91,19 @@ class Des3(base.AbstractEncryptionService):
         snmpEngineBoots, snmpEngineTime, salt = privParameters
         
         des3Key, salt, iv = self.__getEncryptionKey(
-            str(encryptKey), snmpEngineBoots
+            encryptKey, snmpEngineBoots
             )
 
         des3Obj = DES3.new(des3Key, DES3.MODE_CBC, iv)
         
         privParameters = univ.OctetString(salt)
 
-        plaintext =  dataToEncrypt + '\x00' * (8 - len(dataToEncrypt) % 8)
+        plaintext =  dataToEncrypt + univ.OctetString((0,) * (8 - len(dataToEncrypt) % 8)).asOctets()
         cipherblock = iv
-        ciphertext = ''
+        ciphertext = null
         while plaintext:
             cipherblock = des3Obj.encrypt(
-                string.join(map(lambda x,y: chr(ord(x)^ord(y)), cipherblock, plaintext[:8]), '')
+                univ.OctetString(map(lambda x,y:x^y, univ.OctetString(cipherblock).asNumbers(), univ.OctetString(plaintext[:8]).asNumbers()))
                 )
             ciphertext = ciphertext + cipherblock
             plaintext = plaintext[8:]
@@ -131,9 +123,7 @@ class Des3(base.AbstractEncryptionService):
                 errorIndication=errind.decryptionError
                 )
             
-        salt = str(salt)
-
-        des3Key, iv = self.__getDecryptionKey(str(decryptKey), salt)
+        des3Key, iv = self.__getDecryptionKey(decryptKey, salt)
 
         if len(encryptedData) % 8 != 0:
             raise error.StatusInformation(
@@ -142,17 +132,12 @@ class Des3(base.AbstractEncryptionService):
 
         des3Obj = DES3.new(des3Key, DES3.MODE_CBC, iv)
 
-        plaintext = ''
-        ciphertext = str(encryptedData)
+        plaintext = null
+        ciphertext = encryptedData.asOctets()
         cipherblock = iv
         while ciphertext:
-            plaintext = plaintext + string.join(map(
-                lambda x,y: chr(ord(x)^ord(y)),
-                cipherblock,
-                des3Obj.decrypt(ciphertext[:8])
-                ), '')
+            plaintext = plaintext + univ.OctetString(map(lambda x,y: x^y, univ.OctetString(cipherblock).asNumbers(), univ.OctetString(des3Obj.decrypt(ciphertext[:8])).asNumbers())).asOctets()
             cipherblock = ciphertext[:8]
             ciphertext = ciphertext[8:]
 
         return plaintext
-    

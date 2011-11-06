@@ -26,7 +26,7 @@ pMod.apiMessage.setPDU(reqMsg, reqPDU)
 
 def cbTimerFun(timeNow, startedAt=time()):
     if timeNow - startedAt > 3:
-        raise "Request timed out"
+        raise Exception("Request timed out")
     
 def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
               wholeMsg, reqPDU=reqPDU):
@@ -38,10 +38,10 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
             # Check for SNMP errors reported
             errorStatus = pMod.apiPDU.getErrorStatus(rspPDU)
             if errorStatus:
-                print errorStatus.prettyPrint()
+                print(errorStatus.prettyPrint())
             else:
                 for oid, val in pMod.apiPDU.getVarBinds(rspPDU):
-                    print '%s = %s' (oid.prettyPrint(), val.prettyPrint())
+                    print('%s = %s' (oid.prettyPrint(), val.prettyPrint()))
             transportDispatcher.jobFinished(1)
     return wholeMsg
 

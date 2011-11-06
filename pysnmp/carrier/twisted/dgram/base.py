@@ -1,5 +1,5 @@
 """Implements twisted-based generic DGRAM transport"""
-from time import time
+import sys
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 from pysnmp.carrier.twisted.base import AbstractTwistedTransport
@@ -26,8 +26,8 @@ class DgramTwistedTransport(DatagramProtocol, AbstractTwistedTransport):
             debug.logger & debug.flagIO and debug.logger('startProtocol: transportAddress %s outgoingMessage %s' % (transportAddress, repr(outgoingMessage)))
             try:
                 self.transport.write(outgoingMessage, transportAddress)
-            except Exception, why:
-                raise error.CarrierError('Twisted exception: %s' % (why,))
+            except Exception:
+                raise error.CarrierError('Twisted exception: %s' % (sys.exc_info()[1],))
 
     def stopProtocol(self):
         debug.logger & debug.flagIO and debug.logger('stopProtocol: invoked')
@@ -40,5 +40,5 @@ class DgramTwistedTransport(DatagramProtocol, AbstractTwistedTransport):
         else:
             try:
                 self.transport.write(outgoingMessage, transportAddress)
-            except Exception, why:
-                raise error.CarrierError('Twisted exception: %s' % (why,))
+            except Exception:
+                raise error.CarrierError('Twisted exception: %s' % (sys.exc_info()[1],))

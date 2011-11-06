@@ -1,4 +1,4 @@
-import random, string
+import random
 from pysnmp.proto.secmod.rfc3414.priv import base
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
 from pysnmp.proto.secmod.rfc3414 import localkey
@@ -22,9 +22,9 @@ random.seed()
 class Des(base.AbstractEncryptionService):
     serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 2) # usmDESPrivProtocol
     if version_info < (2, 3):
-        _localInt = long(random.random()*0xffffffffL)
+        _localInt = int(random.random()*0xffffffff)
     else:
-        _localInt = random.randrange(0, 0xffffffffL)
+        _localInt = random.randrange(0, 0xffffffff)
 
     def hashPassphrase(self, authProtocol, privKey):
         if authProtocol == hmacmd5.HmacMd5.serviceID:
@@ -52,7 +52,7 @@ class Des(base.AbstractEncryptionService):
         desKey = privKey[:8]
         preIV = privKey[8:16]
 
-        securityEngineBoots = long(snmpEngineBoots)
+        securityEngineBoots = int(snmpEngineBoots)
 
         salt = [
             securityEngineBoots>>24&0xff,
@@ -64,19 +64,19 @@ class Des(base.AbstractEncryptionService):
             self._localInt>>8&0xff,
             self._localInt&0xff
             ]
-        if self._localInt == 0xffffffffL:
+        if self._localInt == 0xffffffff:
             self._localInt = 0
         else:
             self._localInt = self._localInt + 1
 
-        return desKey, \
-               string.join(map(chr, salt), ''), \
-               string.join(map(lambda x,y: chr(x^ord(y)), salt, preIV), '')
+        return desKey.asOctets(), \
+               univ.OctetString(salt).asOctets(), \
+               univ.OctetString(map(lambda x,y:x^y,salt,preIV.asNumbers())).asOctets()
 
     def __getDecryptionKey(self, privKey, salt):
-        return privKey[:8], string.join(
-            map(lambda x,y: chr(ord(x)^ord(y)), salt, privKey[8:16]), ''
-            )
+        return privKey[:8].asOctets(), univ.OctetString(
+            map(lambda x,y:x^y, salt.asNumbers(), privKey[8:16].asNumbers())
+            ).asOctets()
 
     # 8.2.4.1
     def encryptData(self, encryptKey, privParameters, dataToEncrypt):
@@ -89,7 +89,7 @@ class Des(base.AbstractEncryptionService):
         
         # 8.3.1.1
         desKey, salt, iv = self.__getEncryptionKey(
-            str(encryptKey), snmpEngineBoots
+            encryptKey, snmpEngineBoots
             )
 
         # 8.3.1.2
@@ -97,7 +97,7 @@ class Des(base.AbstractEncryptionService):
 
         # 8.1.1.2
         desObj = DES.new(desKey, DES.MODE_CBC, iv)
-        plaintext =  dataToEncrypt + '\x00' * (8 - len(dataToEncrypt) % 8)
+        plaintext =  dataToEncrypt + univ.OctetString((0,) * (8 - len(dataToEncrypt) % 8)).asOctets()
         ciphertext = desObj.encrypt(plaintext)
 
         # 8.3.1.3 & 4
@@ -118,11 +118,10 @@ class Des(base.AbstractEncryptionService):
                 errorIndication=errind.decryptionError
                 )
             
-        # 8.3.2.2
-        salt = str(salt)
+        # 8.3.2.2 noop
 
         # 8.3.2.3
-        desKey, iv = self.__getDecryptionKey(str(decryptKey), salt)
+        desKey, iv = self.__getDecryptionKey(decryptKey, salt)
 
         # 8.3.2.4 -> 8.1.1.3
         if len(encryptedData) % 8 != 0:
@@ -133,4 +132,4 @@ class Des(base.AbstractEncryptionService):
         desObj = DES.new(desKey, DES.MODE_CBC, iv)
         
         # 8.3.2.6
-        return desObj.decrypt(str(encryptedData))
+        return desObj.decrypt(encryptedData.asOctets())

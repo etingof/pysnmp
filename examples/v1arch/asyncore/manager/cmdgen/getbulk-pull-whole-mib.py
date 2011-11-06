@@ -1,27 +1,25 @@
-# GETNEXT Command Generator
+# GETBULK Command Generator (SNMPv2c only)
 from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
 from pysnmp.carrier.asynsock.dgram import udp
 from pyasn1.codec.ber import encoder, decoder
-from pysnmp.proto import api
+from pysnmp.proto.api import v2c
 from time import time
 
-# Protocol version to use
-pMod = api.protoModules[api.protoVersion1]
-#pMod = api.protoModules[api.protoVersion2c]
-
 # SNMP table header
-headVars = [ pMod.ObjectIdentifier((1,3,6)) ]
+headVars = [ v2c.ObjectIdentifier((1,3,6)) ]
 
 # Build PDU
-reqPDU =  pMod.GetNextRequestPDU()
-pMod.apiPDU.setDefaults(reqPDU)
-pMod.apiPDU.setVarBinds(reqPDU, [ (x, pMod.null) for x in headVars ])
+reqPDU =  v2c.GetBulkRequestPDU()
+v2c.apiBulkPDU.setDefaults(reqPDU)
+v2c.apiBulkPDU.setNonRepeaters(reqPDU, 0)
+v2c.apiBulkPDU.setMaxRepetitions(reqPDU, 25)
+v2c.apiBulkPDU.setVarBinds(reqPDU, [ (x, v2c.null) for x in headVars ])
 
 # Build message
-reqMsg = pMod.Message()
-pMod.apiMessage.setDefaults(reqMsg)
-pMod.apiMessage.setCommunity(reqMsg, 'public')
-pMod.apiMessage.setPDU(reqMsg, reqPDU)
+reqMsg = v2c.Message()
+v2c.apiMessage.setDefaults(reqMsg)
+v2c.apiMessage.setCommunity(reqMsg, 'public')
+v2c.apiMessage.setPDU(reqMsg, reqPDU)
 
 startedAt = time()
 
@@ -32,16 +30,16 @@ def cbTimerFun(timeNow):
 def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
               wholeMsg, reqPDU=reqPDU, headVars=headVars):
     while wholeMsg:
-        rspMsg, wholeMsg = decoder.decode(wholeMsg, asn1Spec=pMod.Message())
-        rspPDU = pMod.apiMessage.getPDU(rspMsg)
+        rspMsg, wholeMsg = decoder.decode(wholeMsg, asn1Spec=v2c.Message())
+        rspPDU = v2c.apiMessage.getPDU(rspMsg)
         # Match response to request
-        if pMod.apiPDU.getRequestID(reqPDU)==pMod.apiPDU.getRequestID(rspPDU):
+        if v2c.apiBulkPDU.getRequestID(reqPDU)==v2c.apiBulkPDU.getRequestID(rspPDU):
             # Check for SNMP errors reported
-            errorStatus = pMod.apiPDU.getErrorStatus(rspPDU)
+            errorStatus = v2c.apiBulkPDU.getErrorStatus(rspPDU)
             if errorStatus and errorStatus != 2:
                 raise Exception(errorStatus)
             # Format var-binds table
-            varBindTable = pMod.apiPDU.getVarBindTable(reqPDU, rspPDU)
+            varBindTable = v2c.apiBulkPDU.getVarBindTable(reqPDU, rspPDU)
             # Report SNMP table
             for tableRow in varBindTable:
                 for name, val in tableRow:
@@ -51,16 +49,16 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
                     )
             # Stop on EOM
             for oid, val in varBindTable[-1]:
-                if not isinstance(val, pMod.Null):
+                if not isinstance(val, v2c.Null):
                     break
             else:
                 transportDispatcher.jobFinished(1)
                 
             # Generate request for next row
-            pMod.apiPDU.setVarBinds(
-                reqPDU, [ (x, pMod.null) for x,y in varBindTable[-1] ]
+            v2c.apiBulkPDU.setVarBinds(
+                reqPDU, [ (x, v2c.null) for x,y in varBindTable[-1] ]
                 )
-            pMod.apiPDU.setRequestID(reqPDU, pMod.getNextRequestID())
+            v2c.apiBulkPDU.setRequestID(reqPDU, v2c.getNextRequestID())
             transportDispatcher.sendMessage(
                 encoder.encode(reqMsg), transportDomain, transportAddress
                 )

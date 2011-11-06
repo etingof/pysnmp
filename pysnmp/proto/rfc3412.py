@@ -1,5 +1,6 @@
 """SNMP v3 Message Processing and Dispatching (RFC3412)"""
-import time
+import time, sys
+from pyasn1.compat.octets import null
 from pysnmp.smi import builder, instrum
 from pysnmp.proto import errind, error, cache
 from pysnmp.proto.api import verdec # XXX
@@ -52,7 +53,7 @@ class MsgAndPduDispatcher:
 
         # 4.3.3
         for pduType in pduTypes:
-            k = (str(contextEngineId), pduType)
+            k = (contextEngineId, pduType)
             if k in self.__appsRegistration:
                 raise error.ProtocolError(
                     'Duplicate registration %s/%s' % (contextEngineId, pduType)
@@ -71,17 +72,17 @@ class MsgAndPduDispatcher:
             contextEngineId, = self.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
         for pduType in pduTypes:
-            k = (str(contextEngineId), pduType)
+            k = (contextEngineId, pduType)
             if k in self.__appsRegistration:
                 del self.__appsRegistration[k]
 
         debug.logger & debug.flagDsp and debug.logger('unregisterContextEngineId: contextEngineId %s pduTypes %s' % (repr(contextEngineId), pduTypes))
 
     def getRegisteredApp(self, contextEngineId, pduType):
-        k = ( str(contextEngineId), pduType )
+        k = (contextEngineId, pduType)
         if k in self.__appsRegistration:
             return self.__appsRegistration[k]
-        k = ( '', pduType )
+        k = ( null, pduType )
         if k in self.__appsRegistration:
             return self.__appsRegistration[k] # wildcard
 
@@ -153,7 +154,7 @@ class MsgAndPduDispatcher:
                 sendPduHandle
                 )
             debug.logger & debug.flagDsp and debug.logger('sendPdu: MP succeeded')
-        except error.StatusInformation, statusInformation:
+        except error.StatusInformation:
 # XXX is it still needed here?
 #            self.releaseStateInformation(snmpEngine, sendPduHandle, messageProcessingModel)
             raise
@@ -229,7 +230,7 @@ class MsgAndPduDispatcher:
                 statusInformation
                 )
             debug.logger & debug.flagDsp and debug.logger('returnResponsePdu: MP suceeded')
-        except error.StatusInformation, statusInformation:
+        except error.StatusInformation:
             # 4.1.2.3
             raise
 
@@ -265,12 +266,12 @@ class MsgAndPduDispatcher:
 
         # 4.2.1.2
         try:
-            restOfWholeMsg = '' # XXX fix decoder non-recursive return
+            restOfWholeMsg = null # XXX fix decoder non-recursive return
             msgVersion = verdec.decodeMessageVersion(wholeMsg)
         except PySnmpError:
             snmpInAsn1ParseErrs, = self.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInAsn1ParseErrs')
             snmpInAsn1ParseErrs.syntax = snmpInAsn1ParseErrs.syntax + 1
-            return ''  # n.b the whole buffer gets dropped
+            return null  # n.b the whole buffer gets dropped
 
         debug.logger & debug.flagDsp and debug.logger('receiveMessage: msgVersion %s, msg decoded' % msgVersion)
 
@@ -307,7 +308,8 @@ class MsgAndPduDispatcher:
                 wholeMsg
                 )
             debug.logger & debug.flagDsp and debug.logger('receiveMessage: MP succeded')
-        except error.StatusInformation, statusInformation:
+        except error.StatusInformation:
+            statusInformation = sys.exc_info()[1]
             if 'sendPduHandle' in statusInformation:
                 # Dropped REPORT -- re-run pending reqs queue as some
                 # of them may be waiting for this REPORT
@@ -364,8 +366,8 @@ class MsgAndPduDispatcher:
                         stateReference,
                         statusInformation
                         )
-                except error.StatusInformation, statusInformation:
-                    debug.logger & debug.flagDsp and debug.logger('receiveMessage: report failed, statusInformation %s' % statusInformation)
+                except error.StatusInformation:
+                    debug.logger & debug.flagDsp and debug.logger('receiveMessage: report failed, statusInformation %s' % sys.exc_info()[1])
                     return restOfWholeMsg
                 
                 # 4.2.2.1.2.c

@@ -96,8 +96,8 @@ def isAccessAllowed(
             continue
         if vacmViewTreeFamilyMask.syntax:
             mask = []
-            for c in map(None, str(vacmViewTreeFamilyMask.syntax)):
-                mask = mask + map(lambda b,c=ord(c): b&c, __powOfTwoSeq)
+            for c in vacmViewTreeFamilyMask.syntax.asNumbers():
+                mask = mask + [ b&c for b in __powOfTwoSeq ]
             m = len(mask)-1
             idx = l-1
             while idx:

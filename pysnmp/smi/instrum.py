@@ -1,5 +1,5 @@
 # MIB modules management
-from types import InstanceType
+import sys
 from pysnmp.smi import error
 from pysnmp import debug
 
@@ -98,13 +98,11 @@ class MibInstrumController:
 
         # Sort by module name to give user a chance to slip-in
         # custom MIB modules (that would be sorted out first)
-        mibSymbols = self.mibBuilder.mibSymbols.items()
-        mibSymbols.sort(lambda x,y: cmp(y[0], x[0]))
+        mibSymbols = list(self.mibBuilder.mibSymbols.items())
+        mibSymbols.sort(key=lambda x: x[0], reverse=True)
         
         for modName, mibMod in mibSymbols:
             for symObj in mibMod.values():
-                if type(symObj) != InstanceType:
-                    continue
                 if isinstance(symObj, MibTable):
                     tables[symObj.name] = symObj
                 elif isinstance(symObj, MibTableRow):
@@ -175,7 +173,7 @@ class MibInstrumController:
         
     # MIB instrumentation
     
-    def flipFlopFsm(self, fsmTable, inputNameVals, (acFun, acCtx)):
+    def flipFlopFsm(self, fsmTable, inputNameVals, acInfo):
         self.__indexMib()
         debug.logger & debug.flagIns and debug.logger('flipFlopFsm: inputNameVals %s' % repr(inputNameVals))
         mibTree, = self.mibBuilder.importSymbols('SNMPv2-SMI', 'iso')
@@ -209,11 +207,11 @@ class MibInstrumController:
                 try:
                     # Convert to tuple to avoid ObjectName instantiation
                     # on subscription
-                    rval = f(tuple(name), val, idx, (acFun, acCtx))
-                except error.SmiError, why:
-                    debug.logger & debug.flagIns and debug.logger('flipFlopFsm: fun %s failed %s for %s=%s' % (f, why, name, repr(val)))
+                    rval = f(tuple(name), val, idx, acInfo)
+                except error.SmiError:
+                    debug.logger & debug.flagIns and debug.logger('flipFlopFsm: fun %s failed %s for %s=%s' % (f, sys.exc_info()[1], name, repr(val)))
                     if myErr is None:  # Take the first exception
-                        myErr = why
+                        myErr = sys.exc_info()[1]
                     status = 'err'
                     break
                 else:
@@ -225,13 +223,13 @@ class MibInstrumController:
             raise myErr
         return outputNameVals
     
-    def readVars(self, vars, (acFun, acCtx)=(None, None)):
-        return self.flipFlopFsm(self.fsmReadVar, vars, (acFun, acCtx))
-    def readNextVars(self, vars, (acFun, acCtx)=(None, None)):
-        return self.flipFlopFsm(self.fsmReadNextVar, vars, (acFun, acCtx))
-    def writeVars(self, vars, (acFun, acCtx)=(None, None)):
-        return self.flipFlopFsm(self.fsmWriteVar, vars, (acFun, acCtx))
+    def readVars(self, vars, acInfo=(None, None)):
+        return self.flipFlopFsm(self.fsmReadVar, vars, acInfo)
+    def readNextVars(self, vars, acInfo=(None, None)):
+        return self.flipFlopFsm(self.fsmReadNextVar, vars, acInfo)
+    def writeVars(self, vars, acInfo=(None, None)):
+        return self.flipFlopFsm(self.fsmWriteVar, vars, acInfo)
 
     # This version of the above method skips "test" phase for performance
-    def readVarsFast(self, vars, (acFun, acCtx)=(None, None)):
-        return self.flipFlopFsm(self.fsmReadVarFast, vars, (acFun, acCtx))
+    def readVarsFast(self, vars, acInfo=(None, None)):
+        return self.flipFlopFsm(self.fsmReadVarFast, vars, acInfo)

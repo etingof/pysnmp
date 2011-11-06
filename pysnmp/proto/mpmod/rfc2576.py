@@ -1,11 +1,12 @@
 # SNMP v1 & v2c message processing models implementation
 from pyasn1.codec.ber import decoder
+from pyasn1.type import univ
+from pyasn1.compat.octets import null
+from pyasn1.error import PyAsn1Error
 from pysnmp.proto.mpmod.base import AbstractMessageProcessingModel
 from pysnmp.proto.secmod import rfc2576
 from pysnmp.proto import rfc3411, errind, error
 from pysnmp.proto.api import v1, v2c
-from pyasn1.type import univ
-from pyasn1.error import PyAsn1Error
 from pysnmp import debug
 
 # Since I have not found a detailed reference to v1MP/v2cMP
@@ -48,7 +49,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
         # rfc3412: 7.1.5
         if not contextName:
-            contextName = ''
+            contextName = null
 
         debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: using contextEngineId %s contextName %s' % (repr(contextEngineId), contextName))
 
@@ -95,7 +96,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         if pdu.tagSet in rfc3411.confirmedClassPDUs:
             # XXX rfc bug? why stateReference should be created?
             self._cache.pushByMsgId(
-                long(msgID),
+                int(msgID),
                 sendPduHandle=sendPduHandle,
                 msgID=msgID,
                 snmpEngineID=snmpEngineID,
@@ -161,7 +162,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
         # rfc3412: 7.1.5
         if not contextName:
-            contextName = ''
+            contextName = null
 
         # rfc3412: 7.1.6
         scopedPDU = ( contextEngineId, contextName, pdu )
@@ -294,7 +295,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
             # 7.2.10a
             try:
-                cachedReqParams = self._cache.popByMsgId(long(msgID))
+                cachedReqParams = self._cache.popByMsgId(int(msgID))
             except error.ProtocolError:
                 smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(

@@ -9,9 +9,9 @@ class Integer:
         if increment >= maximum:
             increment = maximum
         self.__increment = increment
-        self.__threshold = increment/2
+        self.__threshold = increment//2
         e = random.randrange(self.__maximum - self.__increment)
-        self.__bank = range(e, e+self.__increment)
+        self.__bank = list(range(e, e+self.__increment))
 
     def __repr__(self):
         return '%s(%d, %d)' % (

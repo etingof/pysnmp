@@ -1,5 +1,5 @@
 """Implements asyncore-based generic DGRAM transport"""
-import socket, errno
+import socket, errno, sys
 from pysnmp.carrier.asynsock.base import AbstractSocketTransport
 from pysnmp.carrier import error
 from pysnmp import debug
@@ -30,15 +30,15 @@ class DgramSocketTransport(AbstractSocketTransport):
         if iface is not None:
             try:
                 self.socket.bind(iface)
-            except socket.error, why:
-                raise error.CarrierError('bind() failed: %s' % (why,))
+            except socket.error:
+                raise error.CarrierError('bind() failed: %s' % (sys.exc_info()[1],))
         return self
     
     def openServerMode(self, iface):
         try:
             self.socket.bind(iface)
-        except socket.error, why:
-            raise error.CarrierError('bind() failed: %s' % (why,))
+        except socket.error:
+            raise error.CarrierError('bind() failed: %s' % (sys.exc_info()[1],))
         self._iface = iface
         return self
 
@@ -55,11 +55,11 @@ class DgramSocketTransport(AbstractSocketTransport):
         debug.logger & debug.flagIO and debug.logger('handle_write: transportAddress %s outgoingMessage %s' % (transportAddress, repr(outgoingMessage)))
         try:
             self.socket.sendto(outgoingMessage, transportAddress)
-        except socket.error, why:
-            if why[0] in sockErrors:
-                debug.logger & debug.flagIO and debug.logger('handle_write: ignoring socket error %s' % (why,))
+        except socket.error:
+            if sys.exc_info()[1][0] in sockErrors:
+                debug.logger & debug.flagIO and debug.logger('handle_write: ignoring socket error %s' % (sys.exc_info()[1],))
             else:
-                raise socket.error, why
+                raise socket.error(sys.exc_info()[1])
             
     def readable(self): return 1
     def handle_read(self):
@@ -72,11 +72,11 @@ class DgramSocketTransport(AbstractSocketTransport):
             else:
                 self._cbFun(self, transportAddress, incomingMessage)
                 return
-        except socket.error, why:
-            if why[0] in sockErrors:
-                debug.logger & debug.flagIO and debug.logger('handle_read: known socket error %s' % (why,))
-                sockErrors[why[0]] and self.handle_close()
+        except socket.error:
+            if sys.exc_info()[1][0] in sockErrors:
+                debug.logger & debug.flagIO and debug.logger('handle_read: known socket error %s' % (sys.exc_info()[1],))
+                sockErrors[sys.exc_info()[1][0]] and self.handle_close()
                 return
             else:
-                raise socket.error, why
+                raise socket.error(sys.exc_info()[1])
     def handle_close(self): pass # no datagram connection

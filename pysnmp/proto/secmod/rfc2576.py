@@ -1,5 +1,4 @@
 # SNMP v1 & v2c security models implementation
-import string
 from pyasn1.codec.ber import encoder
 from pysnmp.proto.secmod import base
 from pysnmp.carrier.asynsock.dgram import udp, udp6
@@ -206,7 +205,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                             ).syntax
                         if targetAddr not in addrToTagMap:
                             addrToTagMap[targetAddr] = {}
-                        for tag in string.split(str(targetAddrTagList)):
+                        for tag in targetAddrTagList.asOctets().split():
                             addrToTagMap[targetAddr][tag] = 1
 
                     debug.logger & debug.flagSM and debug.logger('processIncomingMsg: address-to-tag map %s' % addrToTagMap)
@@ -214,7 +213,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                 # XXX snmpTargetAddrTMask matching not implemented
                 
                 if srcTransport in addrToTagMap:
-                    for tag in string.split(str(mibNode.syntax)):
+                    for tag in mibNode.syntax.asOctets().split():
                         if tag in addrToTagMap[srcTransport]:
                             debug.logger & debug.flagSM and debug.logger('processIncomingMsg: tag %s matched transport %s' % (tag, srcTransport))
                             break

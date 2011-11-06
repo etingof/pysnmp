@@ -8,11 +8,10 @@ try:
     import os
 except ImportError:
     pass
-import string
 import time
 
 # Imported just in case new ASN.1 types would be created
-from pyasn1.type import constraint, namedval
+from pyasn1.type import univ, constraint, namedval
 
 # Imports
 
@@ -29,25 +28,23 @@ class SnmpAdminString(TextualConvention, OctetString):
 
 class SnmpEngineID(OctetString, TextualConvention):
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(5,32)
-    defaultValue = '\x80\x00\x4f\xb8' + '\x05'
+    defaultValue = [128, 0, 79, 184, 5]
     try:
         # Attempt to base engine ID on local IP address
-        defaultValue = defaultValue + string.join(
-            map(lambda x: chr(int(x)),
-                string.split(socket.gethostbyname(socket.gethostname()),'.')),
-            ''
-            )
+        defaultValue = defaultValue + [ int(x) for x in socket.gethostbyname(socket.gethostname()).split('.') ]
     except:
         pass
     try:
         # Attempt to base engine ID on PID
-        defaultValue = defaultValue + chr(os.getpid() >> 8) + chr(os.getpid() & 0xff)
+        defaultValue = defaultValue + [os.getpid() >> 8, os.getpid() & 0xff]
     except:
         pass
     # ...in any case, use pseudo-random text ID
     t = int(time.time())
-    defaultValue = defaultValue + chr(t >> 16 & 0xff) + chr(t >> 8 & 0xff) + chr(t & 0xff)
-            
+    defaultValue = univ.OctetString(
+        defaultValue + [ t >> 16 & 0xff, t >> 8 & 0xff, t & 0xff]
+        ).asOctets()
+
 class SnmpEngineTime(Integer32):
     def clone(self, value=None, tagSet=None, subtypeSpec=None):
         if value is None and self._value is not None:
@@ -55,14 +52,14 @@ class SnmpEngineTime(Integer32):
         return Integer32.clone(self, value, tagSet, subtypeSpec)
 
 class SnmpMessageProcessingModel(Integer32):
-    subtypeSpec = Integer32.subtypeSpec+constraint.ValueRangeConstraint(0,2147483647L)
+    subtypeSpec = Integer32.subtypeSpec+constraint.ValueRangeConstraint(0,2147483647)
 
 class SnmpSecurityLevel(Integer):
     subtypeSpec = Integer.subtypeSpec+constraint.SingleValueConstraint(1,3,2,)
     namedValues = namedval.NamedValues(("noAuthNoPriv", 1), ("authNoPriv", 2), ("authPriv", 3), )
 
 class SnmpSecurityModel(Integer32):
-    subtypeSpec = Integer32.subtypeSpec+constraint.ValueRangeConstraint(0,2147483647L)
+    subtypeSpec = Integer32.subtypeSpec+constraint.ValueRangeConstraint(0,2147483647)
 
 # Objects
 
@@ -79,11 +76,11 @@ snmpFrameworkMIBObjects = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 2))
 snmpEngine = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 2, 1))
 snmpEngineID = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 1), SnmpEngineID()).setMaxAccess("readonly")
 if mibBuilder.loadTexts: snmpEngineID.setDescription("An SNMP engine's administratively-unique identifier.\n\nThis information SHOULD be stored in non-volatile\nstorage so that it remains constant across\nre-initializations of the SNMP engine.")
-snmpEngineBoots = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 2), Integer32().subtype(subtypeSpec=constraint.ValueRangeConstraint(1, 2147483647L))).setMaxAccess("readonly")
+snmpEngineBoots = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 2), Integer32().subtype(subtypeSpec=constraint.ValueRangeConstraint(1, 2147483647))).setMaxAccess("readonly")
 if mibBuilder.loadTexts: snmpEngineBoots.setDescription("The number of times that the SNMP engine has\n(re-)initialized itself since snmpEngineID\nwas last configured.")
-snmpEngineTime = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 3), SnmpEngineTime().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 2147483647L))).setMaxAccess("readonly").setUnits("seconds")
+snmpEngineTime = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 3), SnmpEngineTime().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 2147483647))).setMaxAccess("readonly").setUnits("seconds")
 if mibBuilder.loadTexts: snmpEngineTime.setDescription("The number of seconds since the value of\nthe snmpEngineBoots object last changed.\nWhen incrementing this object's value would\ncause it to exceed its maximum,\nsnmpEngineBoots is incremented as if a\nre-initialization had occurred, and this\nobject's value consequently reverts to zero.")
-snmpEngineMaxMessageSize = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 4), Integer32().subtype(subtypeSpec=constraint.ValueRangeConstraint(484, 2147483647L))).setMaxAccess("readonly")
+snmpEngineMaxMessageSize = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 4), Integer32().subtype(subtypeSpec=constraint.ValueRangeConstraint(484, 2147483647))).setMaxAccess("readonly")
 if mibBuilder.loadTexts: snmpEngineMaxMessageSize.setDescription("The maximum length in octets of an SNMP message\nwhich this SNMP engine can send or receive and\nprocess, determined as the minimum of the maximum\nmessage size values supported among all of the\ntransports available to and supported by the engine.")
 snmpFrameworkMIBConformance = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 3))
 snmpFrameworkMIBCompliances = MibIdentifier((1, 3, 6, 1, 6, 3, 10, 3, 1))

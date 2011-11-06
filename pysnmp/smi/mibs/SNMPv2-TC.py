@@ -1,4 +1,4 @@
-from string import split, digits
+import sys
 from pysnmp.smi import error
 from pyasn1.type import constraint, namedval
 from pysnmp import debug
@@ -37,15 +37,16 @@ class TextualConvention:
             self.__counter32.isSuperTypeOf(self) or
             self.__counter64.isSuperTypeOf(self)
             ):
-            t, f = apply(lambda t, f=0: (t, f), split(self.displayHint, '-'))
+            _ = lambda t, f=0: (t, f)
+            t, f = _(*self.displayHint.split('-'))
             if t == 'x':
                 return '0x%x' % value
             elif t == 'd':
                 try:
                     return '%.*f' % (int(f), float(value)/pow(10, int(f)))
-                except StandardError, why:
+                except Exception:
                     raise error.SmiError(
-                        'float num evaluation error: %s' % why
+                        'float num evaluation error: %s' % sys.exc_info()[1]
                     )
             elif t == 'o':
                 return '0%o' % value
@@ -54,31 +55,31 @@ class TextualConvention:
                 while v:
                     r.insert(0, '%d' % (v&0x01))
                     v = v>>1
-                return join(r, '')
+                return ''.join(r)
             else:
                 raise error.SmiError(
                     'Unsupported numeric type spec: %s' % t
                     )
         elif self.displayHint and self.__octetString.isSuperTypeOf(self):
             r = ''
-            v = str(value)
+            v = self.__class__(value).asNumbers()
             d = self.displayHint
             while v and d:
                 # 1
                 if d[0] == '*':
-                    repeatIndicator = repeatCount = int(v[0])
+                    repeatIndicator = repeatCount = v[0]
                     d = d[1:]; v = v[1:]
                 else:
                     repeatCount = 1; repeatIndicator = None
                     
                 # 2
                 octetLength = ''
-                while d and d[0] in digits:
+                while d and d[0] in '0123456789':
                     octetLength = octetLength + d[0]
                     d = d[1:]
                 try:
                     octetLength = int(octetLength)
-                except StandardError, why:
+                except Exception:
                     raise error.SmiError(
                         'Bad octet length: %s' % octetLength
                         )                    
@@ -91,7 +92,7 @@ class TextualConvention:
                 d = d[1:]
 
                 # 4
-                if d and d[0] not in digits and d[0] != '*':
+                if d and d[0] not in '0123456789' and d[0] != '*':
                     displaySep = d[0]
                     d = d[1:]
                 else:
@@ -109,18 +110,18 @@ class TextualConvention:
                     repeatCount = repeatCount - 1
                     # 't' stands for UTF-8, does it need any special support?
                     if displayFormat == 'a' or displayFormat == 't':
-                        r = r + v[:octetLength]
+                        r = r + ''.join([ chr(x) for x in v[:octetLength] ])
                     elif displayFormat in ('x', 'd', 'o'):
-                        n = 0L; vv = v[:octetLength]
+                        n = 0; vv = v[:octetLength]
                         while vv:
                             n = n << 8
                             try:
-                                n = n | ord(vv[0])
+                                n = n | vv[0]
                                 vv = vv[1:]
-                            except StandardError, why:
+                            except Exception:
                                 raise error.SmiError(
                                     'Display format eval failure: %s: %s'
-                                    % (vv, why)
+                                    % (vv, sys.exc_info()[1])
                                     )
                         if displayFormat == 'x':
                             r = r + '%02x' % n
@@ -155,9 +156,9 @@ class TextualConvention:
 #         elif self.bits:
 #             try:
 #                 return self.bits[value]
-#             except StandardError, why:
+#             except Exception:
 #                 raise error.SmiError(
-#                     'Enumeratin resolution failure for %s: %s' % (self, why)
+#                     'Enumeratin resolution failure for %s: %s' % (self, sys.exc_info()[1])
 #                     )
 
 # XXX
@@ -182,7 +183,7 @@ class TruthValue(Integer, TextualConvention):
     namedValues = namedval.NamedValues(('true', 1), ('false', 2))
     
 class TestAndIncr(Integer, TextualConvention):
-    subtypeSpec = Integer.subtypeSpec+constraint.ValueRangeConstraint(0, 2147483647L)
+    subtypeSpec = Integer.subtypeSpec+constraint.ValueRangeConstraint(0, 2147483647)
     defaultValue = 0
     def smiWrite(self, name, value, idx):
         if value != self:
@@ -209,7 +210,7 @@ class RowStatus(Integer, TextualConvention):
         )
     # Known row states
     stNotExists, stActive, stNotInService, stNotReady, \
-                 stCreateAndGo, stCreateAndWait, stDestroy = range(7)
+                 stCreateAndGo, stCreateAndWait, stDestroy = list(range(7))
     # States transition matrix (see RFC-1903)
     stateMatrix = {
         # (new-state, current-state)  ->  (error, new-state)
@@ -316,7 +317,7 @@ class RowStatus(Integer, TextualConvention):
 class TimeStamp(TimeTicks, TextualConvention): pass
 
 class TimeInterval(Integer, TextualConvention):
-    subtypeSpec = Integer.subtypeSpec+constraint.ValueRangeConstraint(0, 2147483647L)
+    subtypeSpec = Integer.subtypeSpec+constraint.ValueRangeConstraint(0, 2147483647)
 
 class DateAndTime(TextualConvention, OctetString):
     subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(8, 11)

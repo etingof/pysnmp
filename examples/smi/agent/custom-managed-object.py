@@ -41,10 +41,10 @@ if __name__ == '__main__':
 
     mibInstrum = instrum.MibInstrumController(mibBuilder)
 
-    print 'Remote manager read access to MIB instrumentation (table walk)'
+    print('Remote manager read access to MIB instrumentation (table walk)')
     oid, val = (), None
     while 1:
         oid, val = mibInstrum.readNextVars(((oid, val),))[0]
         if exval.endOfMib.isSameTypeWith(val):
             break
-        print oid, val.prettyPrint()
+        print(oid, val.prettyPrint())

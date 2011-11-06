@@ -1,16 +1,14 @@
-import types
-import string
 from pyasn1.type import univ, tag, constraint, namedtype, namedval
 from pysnmp.proto import rfc1155, error
 
 class Integer(univ.Integer):
     subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
-        -2147483648L, 2147483647L
+        -2147483648, 2147483647
         )
 
 class Integer32(univ.Integer):
     subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
-        -2147483648L, 2147483647L
+        -2147483648, 2147483647
         )
     
 class OctetString(univ.OctetString):
@@ -41,15 +39,31 @@ class IpAddress(univ.OctetString):
         4, 4
         )
     fixedLength = 4
-    def prettyIn(self, value): return rfc1155.ipAddressPrettyIn(value)
-    def prettyOut(self, value): return rfc1155.ipAddressPrettyOut(value)
+
+    def prettyIn(self, value):
+        if isinstance(value, str) and len(value) != 4:
+            try:
+                value = [ int(x) for x in value.split('.') ]
+            except:
+                raise error.ProtocolError('Bad IP address syntax %s' %  value)
+        if len(value) != 4:
+            raise error.ProtocolError('Bad IP address syntax')
+        return univ.OctetString.prettyIn(self, value)
+
+    def prettyOut(self, value):
+        if value:
+            return '.'.join(
+                [ '%d' % x for x in self.__class__(value).asNumbers() ]
+                )
+        else:
+            return ''
 
 class Counter32(univ.Integer):
     tagSet = univ.Integer.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x01)
         )
     subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
-        0, 4294967295L
+        0, 4294967295
         )
 
 class Gauge32(univ.Integer):
@@ -57,7 +71,7 @@ class Gauge32(univ.Integer):
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x02)
         )
     subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
-        0, 4294967295L
+        0, 4294967295
         )
 
 class Unsigned32(univ.Integer):
@@ -65,7 +79,7 @@ class Unsigned32(univ.Integer):
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x02)
         )
     subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
-        0, 4294967295L
+        0, 4294967295
         )
 
 class TimeTicks(univ.Integer):
@@ -73,7 +87,7 @@ class TimeTicks(univ.Integer):
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x03)
         )
     subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
-        0, 4294967295L
+        0, 4294967295
         )
 
 class Opaque(univ.OctetString):
@@ -86,7 +100,7 @@ class Counter64(univ.Integer):
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x06)
         )
     subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
-        0, 18446744073709551615L
+        0, 18446744073709551615
         )
 
 class Bits(univ.OctetString):
@@ -102,8 +116,8 @@ class Bits(univ.OctetString):
             )
 
     def prettyIn(self, bits):
-        if type(bits) not in (types.TupleType, types.ListType):
-            return str(bits) # raw bitstring
+        if not isinstance(bits, (tuple, list)):
+            return univ.OctetString.prettyIn(self, bits) # raw bitstring
         octets = []
         for bit in bits: # tuple of named bits
             v = self.__namedValues.getValue(bit)
@@ -115,14 +129,14 @@ class Bits(univ.OctetString):
             if d >= len(octets):
                 octets.extend([0] * (d - len(octets) + 1))
             octets[d] = octets[d] | 0x01 << (7-m)
-        return string.join(map(lambda x: chr(x), octets), '')
+        return univ.OctetString.prettyIn(self, octets)
 
     def prettyOut(self, value):
         names = []
-        octets = tuple(map(None, str(value)))
+        ints = self.__class__(value).asNumbers()
         i = 0
-        while i < len(octets):
-            v = ord(octets[i])
+        while i < len(ints):
+            v = ints[i]
             j = 7
             while j >= 0:
                 if v & (0x01<<j):
@@ -134,7 +148,7 @@ class Bits(univ.OctetString):
                     names.append(name)
                 j = j - 1
             i = i + 1
-        return string.join(map(lambda x: str(x), names), ', ')
+        return ', '.join([ str(x) for x in names ])
 
     def clone(self, value=None, tagSet=None, subtypeSpec=None,
               namedValues=None):

@@ -10,38 +10,44 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
         if msgVer in api.protoModules:
             pMod = api.protoModules[msgVer]
         else:
-            print 'Unsupported SNMP version %s' % msgVer
+            print('Unsupported SNMP version %s' % msgVer)
             return
         reqMsg, wholeMsg = decoder.decode(
             wholeMsg, asn1Spec=pMod.Message(),
             )
-        print 'Notification message from %s:%s: ' % (
+        print('Notification message from %s:%s: ' % (
             transportDomain, transportAddress
             )
+        )
         reqPDU = pMod.apiMessage.getPDU(reqMsg)
         if reqPDU.isSameTypeWith(pMod.TrapPDU()):
             if msgVer == api.protoVersion1:
-                print 'Enterprise: %s' % (
+                print('Enterprise: %s' % (
                     pMod.apiTrapPDU.getEnterprise(reqPDU).prettyPrint()
                     )
-                print 'Agent Address: %s' % (
+                )
+                print('Agent Address: %s' % (
                     pMod.apiTrapPDU.getAgentAddr(reqPDU).prettyPrint()
                     )
-                print 'Generic Trap: %s' % (
+                )
+                print('Generic Trap: %s' % (
                     pMod.apiTrapPDU.getGenericTrap(reqPDU).prettyPrint()
                     )
-                print 'Specific Trap: %s' % (
+                )
+                print('Specific Trap: %s' % (
                     pMod.apiTrapPDU.getSpecificTrap(reqPDU).prettyPrint()
                     )
-                print 'Uptime: %s' % (
+                )
+                print('Uptime: %s' % (
                     pMod.apiTrapPDU.getTimeStamp(reqPDU).prettyPrint()
                     )
+                )
                 varBinds = pMod.apiTrapPDU.getVarBindList(reqPDU)
             else:
                 varBinds = pMod.apiPDU.getVarBindList(reqPDU)
-            print 'Var-binds:'
+            print('Var-binds:')
             for oid, val in varBinds:
-                print '%s = %s' % (oid.prettyPrint(), val.prettyPrint())
+                print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
     return wholeMsg
 
 transportDispatcher = AsynsockDispatcher()

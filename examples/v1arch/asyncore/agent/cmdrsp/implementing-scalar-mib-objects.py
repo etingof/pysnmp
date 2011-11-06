@@ -7,7 +7,12 @@ import time, bisect
 
 class SysDescr:
     name = (1,3,6,1,2,1,1,1,0)
-    def __cmp__(self, other): return cmp(self.name, other)    
+    def __eq__(self, other): return self.name == other
+    def __ne__(self, other): return self.name != other
+    def __lt__(self, other): return self.name < other
+    def __le__(self, other): return self.name <= other
+    def __gt__(self, other): return self.name > other
+    def __ge__(self, other): return self.name >= other
     def __call__(self, protoVer):
         return api.protoModules[protoVer].OctetString(
             'PySNMP example command responder'
@@ -16,7 +21,12 @@ class SysDescr:
 class Uptime:
     name = (1,3,6,1,2,1,1,3,0)
     birthday = time.time()
-    def __cmp__(self, other): return cmp(self.name, other)
+    def __eq__(self, other): return self.name == other
+    def __ne__(self, other): return self.name != other
+    def __lt__(self, other): return self.name < other
+    def __le__(self, other): return self.name <= other
+    def __gt__(self, other): return self.name > other
+    def __ge__(self, other): return self.name >= other    
     def __call__(self, protoVer):
         return api.protoModules[protoVer].TimeTicks(
             (time.time()-self.birthday)*100
@@ -36,7 +46,7 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
         if msgVer in api.protoModules:
             pMod = api.protoModules[msgVer]
         else:
-            print 'Unsupported SNMP version %s' % msgVer
+            print('Unsupported SNMP version %s' % msgVer)
             return
         reqMsg, wholeMsg = decoder.decode(
             wholeMsg, asn1Spec=pMod.Message(),

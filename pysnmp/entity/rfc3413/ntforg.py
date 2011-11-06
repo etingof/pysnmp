@@ -1,4 +1,5 @@
 import time
+from pyasn1.compat.octets import null
 from pysnmp.entity.rfc3413 import config
 from pysnmp.proto.proxy import rfc2576
 from pysnmp.proto.api import v2c
@@ -27,8 +28,9 @@ class NotificationOriginator:
         PDU,
         statusInformation,
         sendPduHandle,
-        (cbFun, cbCtx)
+        cbInfo
         ):
+        (cbFun, cbCtx) = cbInfo
         # 3.3.6d
         ( origTransportDomain,
           origTransportAddress,
@@ -121,7 +123,7 @@ class NotificationOriginator:
         additionalVarBinds=None,
         cbFun=None,
         cbCtx=None,
-        contextName=''
+        contextName=null
         ):
         # 3.3
         ( notifyTag,
@@ -178,9 +180,8 @@ class NotificationOriginator:
 # XXX it's still not clear how to instantiate OBJECTS clause
 #             # Get notification objects names
 #             for notificationObject in snmpTrapVal.getObjects():
-#                 mibNode, = apply(
-#                     contextMibInstrumCtl.mibBuilder.importSymbols,
-#                     notificationObject
+#                 mibNode, = contextMibInstrumCtl.mibBuilder.importSymbols(
+#                     *notificationObject
 #                     )
 #                 try:
 #                     objectInstance = mibNode.getNode(mibNode.name + (0,))

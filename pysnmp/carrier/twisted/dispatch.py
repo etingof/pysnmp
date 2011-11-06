@@ -8,7 +8,7 @@
 #
 # Description: Transport dispatcher based on twisted.internet.reactor
 #
-from time import time
+import sys, time
 from twisted.internet import reactor, task
 from pysnmp.carrier.base import AbstractTransportDispatcher
 from pysnmp.carrier import error
@@ -25,14 +25,14 @@ class TwistedDispatcher(AbstractTransportDispatcher):
         self.loopingcall = task.LoopingCall(self.handleTimeout)
 
     def handleTimeout(self):
-        self.handleTimerTick(time())
+        self.handleTimerTick(time.time())
 
     def runDispatcher(self, timeout=0.0):
         if not reactor.running:
             try:
                 reactor.run()
-            except Exception, why:
-                raise error.CarrierError(why)
+            except Exception:
+                raise error.CarrierError(sys.exc_info()[1])
 
     # jobstarted/jobfinished might be okay as-is
 

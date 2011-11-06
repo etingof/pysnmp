@@ -98,7 +98,7 @@ class SysUpTime(TimeTicks):
     def clone(self, **kwargs):
         if 'value' not in kwargs:
             kwargs['value'] = int((time()-self.createdAt)*100)
-        return apply(TimeTicks.clone, [self], kwargs)
+        return TimeTicks.clone(self, **kwargs)
 
 __sysUpTime = MibScalarInstance(sysUpTime.name, (0,), SysUpTime(0))
 __sysContact = MibScalarInstance(sysContact.name, (0,), sysContact.syntax.clone(''))

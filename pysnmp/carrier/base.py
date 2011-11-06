@@ -12,8 +12,12 @@ class TimerCallable:
             self.__cbFun(timeNow)
             self.__nextCall = timeNow + self.__callInterval
 
-    def __cmp__(self, cbFun):
-        return cmp(self.__cbFun, cbFun)
+    def __eq__(self, cbFun): return self.__cbFun == cbFun
+    def __ne__(self, cbFun): return self.__cbFun != cbFun
+    def __lt__(self, cbFun): return self.__cbFun < cbFun
+    def __le__(self, cbFun): return self.__cbFun <= cbFun
+    def __gt__(self, cbFun): return self.__cbFun > cbFun
+    def __ge__(self, cbFun): return self.__cbFun >= cbFun
     
 class AbstractTransportDispatcher:
     def __init__(self):
@@ -117,7 +121,7 @@ class AbstractTransportDispatcher:
         raise error.CarrierError('Method not implemented')
         
     def closeDispatcher(self):
-        for tDomain in self.__transports.keys():
+        for tDomain in list(self.__transports):
             self.__transports[tDomain].closeTransport()
             self.unregisterTransport(tDomain)
         self.unregisterRecvCbFun()

@@ -1,13 +1,13 @@
 # MIB variable pretty printers/parsers
-import types
 from pyasn1.type import univ
 from pysnmp.smi.error import NoSuchObjectError
 
 # Name
 
 def mibNameToOid(mibView, name):
-    if type(name[0]) == types.TupleType:
-        modName, symName = apply(lambda x='',y='': (x,y), name[0])
+    if isinstance(name[0], tuple):
+        f = lambda x='',y='': (x,y)
+        modName, symName = f(*name[0])
         if modName: # load module if needed
             mibView.mibBuilder.loadModules(modName)
         else:
@@ -24,17 +24,22 @@ def mibNameToOid(mibView, name):
         if hasattr(mibNode, 'createTest'): # table column XXX
             modName, symName, _s = mibView.getNodeLocation(oid[:-1])
             rowNode, = mibView.mibBuilder.importSymbols(modName, symName)
-            return oid, apply(rowNode.getInstIdFromIndices, suffix)
+            return oid, rowNode.getInstIdFromIndices(*suffix)
         else: # scalar or incomplete spec
             return oid, suffix
-    else:
-        oid, label, suffix = mibView.getNodeNameByOid(name)
-        return oid, suffix
+    elif not isinstance(name, tuple):
+        name = tuple(univ.ObjectIdentifier(name))
+        
+    oid, label, suffix = mibView.getNodeNameByOid(name)
+
+    return oid, suffix
 
 __scalarSuffix = (univ.Integer(0),)
 
 def oidToMibName(mibView, oid):
-    _oid, label, suffix = mibView.getNodeNameByOid(tuple(oid))
+    if not isinstance(oid, tuple):
+        oid = tuple(univ.ObjectIdentifier(oid))
+    _oid, label, suffix = mibView.getNodeNameByOid(oid)
     modName, symName, __suffix = mibView.getNodeLocation(_oid)
     mibNode, = mibView.mibBuilder.importSymbols(
         modName, symName

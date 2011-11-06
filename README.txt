@@ -2,8 +2,8 @@
 PYTHON SNMP FRAMEWORK
 ---------------------
 
-This is a beta-quality revision of pure-Python, open source and free
-implementation of v1/v2c/v3 SNMP engine.
+This is a pure-Python, open source and free implementation of v1/v2c/v3
+SNMP engine.
 
 The PySNMP project has been sponsored by a PSF grant [10]. Thanks!
 
@@ -20,7 +20,7 @@ FEATURES
 * Twisted (http://twistedmatrix.com) integration
 * IPv6 transport support
 * Python eggs and py2exe friendly
-* 100% Python, works with Python 2.2 though 2.7
+* 100% Python, works with Python 2.4 though 3.2
 * MT-safe (only if run locally to a thread)
 
 Features, specific to SNMPv3 model include:
@@ -42,9 +42,10 @@ MISFEATURES
 INSTALLATION
 ------------
 
-The PySNMP package uses distutils for package management. The PyASN1 [8]
+The PySNMP package uses setuptools for package management. The PyASN1 [8]
 package is required. For secure SNMPv3 communication, PyCrypto [9]
-should also be installed.
+should also be installed. In case of Python 3, a SVN version of Python 3
+compliant release of PyCrypto is needed.
 
 OPERATION
 ---------
@@ -156,8 +157,8 @@ REFERENCES
 [8] PyASN1 project homepage:
     http://pyasn1.sf.net
 
-[9] PyCrypto project:
-    http://www.amk.ca/python/code/crypto.html
+[9] PyCrypto package:
+    http://pycrypto.org
 
 [10] Python Software Foundation
     http://www.python.org/psf/

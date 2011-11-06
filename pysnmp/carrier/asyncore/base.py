@@ -18,8 +18,8 @@ class AbstractSocketTransport(asyncore.dispatcher):
                     )
             try:
                 sock = socket.socket(self.sockFamily, self.sockType)
-            except socket.error, why:
-                raise error.CarrierError('socket() failed: %s' % why)
+            except socket.error:
+                raise error.CarrierError('socket() failed: %s' % sys.exc_info()[1])
         if sockMap is None:
             # The socket map is managed by the AsynsockDispatcher on
             # which this transport is registered, so this is a fake

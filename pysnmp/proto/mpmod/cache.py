@@ -10,7 +10,7 @@ class Cache:
         self.__sendPduHandleIdx = {}
         # Message expiration mechanics
         self.__expirationQueue = {}
-        self.__expirationTimer = 0L
+        self.__expirationTimer = 0
         
     # Server mode cache handling
 
@@ -89,10 +89,10 @@ class Cache:
         if self.__expirationTimer in self.__expirationQueue:
             cacheInfo = self.__expirationQueue[self.__expirationTimer]
             if 'stateReference' in cacheInfo:
-                for stateReference in cacheInfo['stateReference'].keys():
+                for stateReference in cacheInfo['stateReference']:
                     del self.__stateReferenceIndex[stateReference]
             if 'msgId' in cacheInfo:
-                for msgId in cacheInfo['msgId'].keys():
+                for msgId in cacheInfo['msgId']:
                     del self.__msgIdIndex[msgId]
             del self.__expirationQueue[self.__expirationTimer]
         self.__expirationTimer = self.__expirationTimer + 1

@@ -159,7 +159,7 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
         # 4.1.2.1 --> no-op
 
     if pduType not in rfc3411.notificationClassPDUs:
-        v2c.apiPDU.setRequestID(v2Pdu, long(v1.apiPDU.getRequestID(v1Pdu)))
+        v2c.apiPDU.setRequestID(v2Pdu, int(v1.apiPDU.getRequestID(v1Pdu)))
 
     v2c.apiPDU.setVarBinds(v2Pdu, v2VarBinds)
 

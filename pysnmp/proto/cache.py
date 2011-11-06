@@ -24,7 +24,7 @@ class Cache:
         self.__cacheRepository[index].update(kwargs)
 
     def expire(self, cbFun, cbCtx):
-        for index, cachedParams in self.__cacheRepository.items():
+        for index, cachedParams in list(self.__cacheRepository.items()):
             if cbFun:
                 if cbFun(index, cachedParams, cbCtx):
                     del self.__cacheRepository[index]                    

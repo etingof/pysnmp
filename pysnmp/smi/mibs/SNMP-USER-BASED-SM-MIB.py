@@ -71,21 +71,21 @@ class UsmUserSecurityName(MibTableColumn):
             name[len(self.name):]
             )
         return __usmUserName        
-    def createTest(self, name, val, idx, (acFun, acCtx)):
+    def createTest(self, name, val, idx, acInfo):
         return MibTableColumn.createTest(
-            self, name, self.__getUsmUserName(name), idx, (acFun, acCtx)
+            self, name, self.__getUsmUserName(name), idx, acInfo
             )
-    def createCommit(self, name, val, idx, (acFun, acCtx)):
+    def createCommit(self, name, val, idx, acInfo):
         return MibTableColumn.createCommit(
-            self, name, self.__getUsmUserName(name), idx, (acFun, acCtx)
+            self, name, self.__getUsmUserName(name), idx, acInfo
             )
-    def createCleanup(self, name, val, idx, (acFun, acCtx)):
+    def createCleanup(self, name, val, idx, acInfo):
         return MibTableColumn.createCleanup(
-            self, name, self.__getUsmUserName(name), idx, (acFun, acCtx)
+            self, name, self.__getUsmUserName(name), idx, acInfo
             )
-    def createUndo(self, name, val, idx, (acFun, acCtx)):
+    def createUndo(self, name, val, idx, acInfo):
         return MibTableColumn.createUndo(
-            self, name, self.__getUsmUserName(name), idx, (acFun, acCtx)
+            self, name, self.__getUsmUserName(name), idx, acInfo
             )
 usmUserSecurityName = UsmUserSecurityName((1, 3, 6, 1, 6, 3, 15, 1, 2, 2, 1, 3), SnmpAdminString()).setMaxAccess("readonly")
 if mibBuilder.loadTexts: usmUserSecurityName.setDescription("A human readable string representing the user in\nSecurity Model independent format.\n\nThe default transformation of the User-based Security\nModel dependent security ID to the securityName and\nvice versa is the identity function so that the\nsecurityName is the same as the userName.")

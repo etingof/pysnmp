@@ -1,4 +1,5 @@
 """Implements twisted-based UDP transport"""
+import sys
 from twisted.internet import reactor
 from pysnmp.carrier.twisted.dgram.base import DgramTwistedTransport
 from pysnmp.carrier import error
@@ -11,15 +12,15 @@ class UdpTwistedTransport(DgramTwistedTransport):
     def openClientMode(self, iface=''):
         try:
             self._lport = reactor.listenUDP(0, self, iface)
-        except Exception, why:
-            raise error.CarrierError(why)
+        except Exception:
+            raise error.CarrierError(sys.exc_info()[1])
         return self
 
     def openServerMode(self, iface=None):
         try:
             self._lport = reactor.listenUDP(iface[1], self, iface[0])
-        except Exception, why:
-            raise error.CarrierError(why)
+        except Exception:
+            raise error.CarrierError(sys.exc_info()[1])
         return self
 
 UdpTransport = UdpTwistedTransport

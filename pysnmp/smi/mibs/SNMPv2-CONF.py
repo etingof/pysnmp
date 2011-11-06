@@ -16,8 +16,7 @@ class ObjectGroup(MibNode):
 OBJECT-GROUP\n\
   OBJECTS { %s }\n\
   DESCRIPTION \"%s\"\
-' % (reduce(lambda x,y: '%s, %s' % (x[1],y[1]), self.getObjects(), ("","")),
-     self.getDescription())
+' % (', '.join([ x for x in self.getObjects() ]), self.getDescription())
 
 class NotificationGroup(MibNode):
     def getObjects(self):
@@ -35,8 +34,7 @@ class NotificationGroup(MibNode):
 NOTIFICATION-GROUP\n\
   NOTIFICATIONS { %s }\n\
   DESCRIPTION \"%s\"\
-' % (reduce(lambda x,y: '%s, %s' % (x[1],y[1]), self.getObjects(), ("","")),
-     self.getDescription())
+' % (', '.join([ x for x in self.getObjects() ]), self.getDescription())
 
 class ModuleCompliance(MibNode):
     def getObjects(self):
@@ -54,8 +52,7 @@ class ModuleCompliance(MibNode):
 MODULE-COMPLIANCE\n\
   OBJECT { %s } \n\
   DESCRIPTION \"%s\"\n\
-' % (reduce(lambda x,y: '%s, %s' % (x[1],y[1]), self.getObjects(), ("","")),
-     self.getDescription())
+' % (', '.join([ x for x in self.getObjects() ]), self.getDescription())
     
 class AgentCapabilities(MibNode):
     def getDescription(self):

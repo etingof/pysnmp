@@ -1,4 +1,5 @@
 """Implements twisted-based UNIX domain socket transport"""
+import sys
 from twisted.internet import reactor
 from pysnmp.carrier.twisted.dgram.base import DgramTwistedTransport
 from pysnmp.carrier import error
@@ -11,15 +12,15 @@ class UnixTwistedTransport(DgramTwistedTransport):
     def openClientMode(self, iface=''):
         try:
             self._lport = reactor.connectUNIXDatagram(iface, self)
-        except Exception, why:
-            raise error.CarrierError(why)
+        except Exception:
+            raise error.CarrierError(sys.exc_info()[1])
         return self
 
     def openServerMode(self, iface=None):
         try:
             self._lport = reactor.listenUNIXDatagram(iface, self)
-        except Exception, why:
-            raise error.CarrierError(why)
+        except Exception:
+            raise error.CarrierError(sys.exc_info()[1])
         
         return self
 

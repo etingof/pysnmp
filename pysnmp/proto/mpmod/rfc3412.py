@@ -1,4 +1,5 @@
 # SNMP v3 message processing model implementation
+import sys
 from pysnmp.proto.mpmod.base import AbstractMessageProcessingModel
 from pysnmp.proto.secmod import rfc3414
 from pysnmp.proto import rfc1905, rfc3411, api, errind, error
@@ -27,15 +28,15 @@ class ScopedPduData(univ.Choice):
     
 class HeaderData(univ.Sequence):
     componentType = namedtype.NamedTypes(
-        namedtype.NamedType('msgID', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 2147483647L))),
-        namedtype.NamedType('msgMaxSize', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(484, 2147483647L))),
+        namedtype.NamedType('msgID', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 2147483647))),
+        namedtype.NamedType('msgMaxSize', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(484, 2147483647))),
         namedtype.NamedType('msgFlags', univ.OctetString().subtype(subtypeSpec=constraint.ValueSizeConstraint(1, 1))),
-        namedtype.NamedType('msgSecurityModel', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(1, 2147483647L)))
+        namedtype.NamedType('msgSecurityModel', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(1, 2147483647)))
         )
 
 class SNMPv3Message(univ.Sequence):
     componentType = namedtype.NamedTypes(
-         namedtype.NamedType('msgVersion', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 2147483647L))),
+         namedtype.NamedType('msgVersion', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, 2147483647))),
          namedtype.NamedType('msgGlobalData', HeaderData()),
          namedtype.NamedType('msgSecurityParameters', univ.OctetString()),
          namedtype.NamedType('msgData', ScopedPduData())
@@ -68,7 +69,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         AbstractMessageProcessingModel.__init__(self)
         self.__engineIDs = {}
         self.__engineIDsExpQueue = {}
-        self.__expirationTimer = 0L
+        self.__expirationTimer = 0
         
     # 7.1.1a
     def prepareOutgoingMessage(
@@ -213,7 +214,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             else:
                 securityEngineID = peerSnmpEngineData['securityEngineID']
 
-        debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: securityEngineID %s' % securityEngineID)
+        debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: securityEngineID %s' % repr(securityEngineID))
              
         # 7.1.9.b
         ( securityParameters,
@@ -431,7 +432,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 scopedPDU,
                 securityStateReference
                 )
-        except error.StatusInformation, statusInformation:
+        except error.StatusInformation:
             # 7.1.8.b            
             raise
 
@@ -470,7 +471,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         headerData = msg.getComponentByPosition(1)
         msgVersion = messageProcessingModel = msg.getComponentByPosition(0)
         msgID = headerData.getComponentByPosition(0)
-        msgFlags = ord(str(headerData.getComponentByPosition(2)))
+        msgFlags, = headerData.getComponentByPosition(2).asNumbers()
         maxMessageSize = headerData.getComponentByPosition(1)
         securityModel = headerData.getComponentByPosition(3)
         securityParameters = msg.getComponentByPosition(2)
@@ -522,7 +523,8 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 msg
                 )
             debug.logger & debug.flagMP and debug.logger('prepareDataElements: SM succeeded')
-        except error.StatusInformation, statusInformation:
+        except error.StatusInformation:
+            statusInformation = sys.exc_info()[1]
             debug.logger & debug.flagMP and debug.logger('prepareDataElements: SM failed, statusInformation %s' % statusInformation)
             if 'errorIndication' in statusInformation:
                 # 7.2.6a

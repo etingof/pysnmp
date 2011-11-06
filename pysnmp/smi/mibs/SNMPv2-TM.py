@@ -1,4 +1,3 @@
-import types, string
 from pyasn1.type import constraint
 
 OctetString, = mibBuilder.importSymbols('ASN1', 'OctetString')
@@ -18,18 +17,18 @@ class SnmpUDPAddress(TextualConvention, OctetString):
     displayHint = "1d.1d.1d.1d/2d"
 
     def prettyIn(self, value):
-        if type(value) == types.TupleType:
+        if isinstance(value, tuple):
             # Wild hack -- need to implement TextualConvention.prettyIn
-            return reduce(lambda x,y: x+y, map(lambda x: chr(string.atoi(x)), string.split(value[0], '.'))) + chr((value[1] >> 8) & 0xff) +  chr((value[1] & 0xff))
-        else:
-            return OctetString.prettyIn(self, value)
+            value = [ int(x) for x in value[0].split('.') ] + \
+                    [ (value[1] >> 8) & 0xff, value[1] & 0xff ]
+        return OctetString.prettyIn(self, value)
 
     # Socket address syntax coercion
     def __getitem__(self, i):
         if not hasattr(self, '__tuple_value'):
+            ints = self.asNumbers()
             self.__tuple_value = (
-                '%s.%s.%s.%s' % (ord(self._value[0]), ord(self._value[1]),ord(self._value[2]),ord(self._value[3])),
-                ord(self._value[4]) << 8 | ord(self._value[5])
+                '.'.join(['%d' % x for x in ints[:4]]), ints[4] << 8 | ints[5]
                 )
         return self.__tuple_value[i]
     

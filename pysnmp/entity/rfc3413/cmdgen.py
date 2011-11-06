@@ -1,9 +1,10 @@
-import types, time
+import time
 from pysnmp.proto import rfc1157, rfc1905, api, errind
 from pysnmp.entity.rfc3413 import config
 from pysnmp.proto.proxy import rfc2576
 from pysnmp import error, nextid, debug
 from pyasn1.type import univ
+from pyasn1.compat.octets import null
 
 getNextHandle = nextid.Integer(0x7fffffff)
                              
@@ -52,8 +53,9 @@ class CommandGeneratorBase:
         PDU,
         statusInformation,
         sendPduHandle,
-        (cbFun, cbCtx)
+        cbInfo
         ):
+        (cbFun, cbCtx) = cbInfo
         # 3.1.1
         ( origTransportDomain,
           origTransportAddress,
@@ -154,7 +156,7 @@ class CommandGeneratorBase:
         cbFun,
         cbCtx=None,
         contextEngineId=None,
-        contextName=''
+        contextName=null
         ):
         raise error.PySnmpError('Method not implemented')
 
@@ -175,8 +177,9 @@ class CommandGeneratorBase:
         retryCount,
         retries,
         sendRequestHandle,
-        (processResponsePdu, cbCtx)
-        ):    
+        cbInfo
+        ):
+        (processResponsePdu, cbCtx) = cbInfo
         # 3.1
         sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(
             snmpEngine,
@@ -226,7 +229,7 @@ class GetCommandGenerator(CommandGeneratorBase):
         cbFun,
         cbCtx=None,
         contextEngineId=None,
-        contextName=''
+        contextName=null
         ):
         ( transportDomain,
           transportAddress,
@@ -285,8 +288,9 @@ class GetCommandGenerator(CommandGeneratorBase):
         pMod,
         rspPDU,
         sendRequestHandle,
-        (cbFun, cbCtx)
+        cbInfo
         ):
+        (cbFun, cbCtx) = cbInfo        
         cbFun(sendRequestHandle,
               None,
               pMod.apiPDU.getErrorStatus(rspPDU),
@@ -303,7 +307,7 @@ class SetCommandGenerator(CommandGeneratorBase):
         cbFun,
         cbCtx=None,
         contextEngineId=None,
-        contextName=''
+        contextName=null
         ):
         ( transportDomain,
           transportAddress,
@@ -367,8 +371,9 @@ class SetCommandGenerator(CommandGeneratorBase):
         pMod,
         rspPDU,
         sendRequestHandle,
-        (cbFun, cbCtx)
+        cbInfo
         ):
+        (cbFun, cbCtx) = cbInfo        
         cbFun(sendRequestHandle,
               None,
               pMod.apiPDU.getErrorStatus(rspPDU),
@@ -385,7 +390,7 @@ class NextCommandGenerator(CommandGeneratorBase):
         cbFun,
         cbCtx=None,
         contextEngineId=None,
-        contextName=''
+        contextName=null
         ):
         ( transportDomain,
           transportAddress,
@@ -444,8 +449,9 @@ class NextCommandGenerator(CommandGeneratorBase):
         pMod,
         rspPDU,
         sendRequestHandle,
-        (cbFun, cbCtx)
+        cbInfo
         ):
+        (cbFun, cbCtx) = cbInfo
         varBindTable = pMod.apiPDU.getVarBindTable(PDU, rspPDU)
 
         if pMod.apiPDU.getErrorStatus(rspPDU):
@@ -500,7 +506,7 @@ class BulkCommandGenerator(CommandGeneratorBase):
         cbFun,
         cbCtx=None,
         contextEngineId=None,
-        contextName=''
+        contextName=null
         ):
         ( transportDomain,
           transportAddress,
@@ -564,8 +570,9 @@ class BulkCommandGenerator(CommandGeneratorBase):
         pMod,
         rspPDU,
         sendRequestHandle,
-        (cbFun, cbCtx)
+        cbInfo
         ):
+        (cbFun, cbCtx) = cbInfo        
         varBindTable = pMod.apiBulkPDU.getVarBindTable(PDU, rspPDU)
 
         if pMod.apiBulkPDU.getErrorStatus(rspPDU):

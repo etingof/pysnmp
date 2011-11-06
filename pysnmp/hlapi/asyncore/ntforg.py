@@ -1,4 +1,4 @@
-import types, string
+from pyasn1.type import base
 from pysnmp.entity import config
 from pysnmp.entity.rfc3413 import ntforg, context, mibvar
 from pysnmp.entity.rfc3413.oneliner import cmdgen
@@ -83,9 +83,10 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
 
     def sendNotification(
         self, authData, transportTarget, notifyType,
-        notificationType, varBinds=None, (cbFun, cbCtx)=(None, None)
+        notificationType, varBinds=None, cbInfo=(None, None)
         ):
-        tagList = string.replace(str(transportTarget.transportAddr), ' ', '_')
+        (cbFun, cbCtx) = cbInfo         
+        tagList = str(transportTarget.transportAddr).replace(' ', '_')
         notifyName = self.cfgNtfOrg(authData, transportTarget,
                                     notifyType, tagList)
         if notificationType:
@@ -99,7 +100,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                 name, oid = mibvar.mibNameToOid(
                     self.mibViewController, varName
                     )
-                if not type(varVal) == types.InstanceType:
+                if not isinstance(varVal, base.Asn1ItemBase):
                     ((symName, modName), suffix) = mibvar.oidToMibName(
                         self.mibViewController, name + oid
                         )
