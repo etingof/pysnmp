@@ -175,7 +175,7 @@ class MibInstrumController:
     
     def flipFlopFsm(self, fsmTable, inputNameVals, acInfo):
         self.__indexMib()
-        debug.logger & debug.flagIns and debug.logger('flipFlopFsm: inputNameVals %s' % repr(inputNameVals))
+        debug.logger & debug.flagIns and debug.logger('flipFlopFsm: inputNameVals %r' % (inputNameVals,))
         mibTree, = self.mibBuilder.importSymbols('SNMPv2-SMI', 'iso')
         outputNameVals = []
         state, status = 'start', 'ok'
@@ -209,13 +209,13 @@ class MibInstrumController:
                     # on subscription
                     rval = f(tuple(name), val, idx, acInfo)
                 except error.SmiError:
-                    debug.logger & debug.flagIns and debug.logger('flipFlopFsm: fun %s failed %s for %s=%s' % (f, sys.exc_info()[1], name, repr(val)))
+                    debug.logger & debug.flagIns and debug.logger('flipFlopFsm: fun %s failed %s for %s=%r' % (f, sys.exc_info()[1], name, val))
                     if myErr is None:  # Take the first exception
                         myErr = sys.exc_info()[1]
                     status = 'err'
                     break
                 else:
-                    debug.logger & debug.flagIns and debug.logger('flipFlopFsm: fun %s suceeded for %s=%s' % (f, name, repr(val)))
+                    debug.logger & debug.flagIns and debug.logger('flipFlopFsm: fun %s suceeded for %s=%r' % (f, name, val))
                     if rval is not None:
                         outputNameVals.append((rval[0], rval[1]))
                 idx = idx + 1

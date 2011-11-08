@@ -109,7 +109,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                         )
                     if syntax is None:
                         raise error.PySnmpError(
-                            'Value type MIB lookup failed for %s' % repr(varName)
+                            'Value type MIB lookup failed for %r' % (varName,)
                             )
                     varVal = syntax.clone(varVal)
                 __varBinds.append((name + oid, varVal))

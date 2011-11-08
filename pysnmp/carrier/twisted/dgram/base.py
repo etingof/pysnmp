@@ -23,7 +23,7 @@ class DgramTwistedTransport(DatagramProtocol, AbstractTwistedTransport):
         debug.logger & debug.flagIO and debug.logger('startProtocol: invoked')
         while self._writeQ:
             outgoingMessage, transportAddress = self._writeQ.pop(0)
-            debug.logger & debug.flagIO and debug.logger('startProtocol: transportAddress %s outgoingMessage %s' % (transportAddress, repr(outgoingMessage)))
+            debug.logger & debug.flagIO and debug.logger('startProtocol: transportAddress %r outgoingMessage %r' % (transportAddress, outgoingMessage))
             try:
                 self.transport.write(outgoingMessage, transportAddress)
             except Exception:
@@ -34,7 +34,7 @@ class DgramTwistedTransport(DatagramProtocol, AbstractTwistedTransport):
         self.closeTransport()
 
     def sendMessage(self, outgoingMessage, transportAddress):
-        debug.logger & debug.flagIO and debug.logger('startProtocol: %s transportAddress %s outgoingMessage %s' % ((self.transport is None and "queuing" or "sending"), transportAddress, repr(outgoingMessage)))        
+        debug.logger & debug.flagIO and debug.logger('startProtocol: %s transportAddress %r outgoingMessage %r' % ((self.transport is None and "queuing" or "sending"), transportAddress, outgoingMessage))
         if self.transport is None:
             self._writeQ.append((outgoingMessage, transportAddress))
         else:

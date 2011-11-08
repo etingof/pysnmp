@@ -52,7 +52,7 @@ class DgramSocketTransport(AbstractSocketTransport):
     def writable(self): return self.__outQueue
     def handle_write(self):
         outgoingMessage, transportAddress = self.__outQueue.pop()
-        debug.logger & debug.flagIO and debug.logger('handle_write: transportAddress %s outgoingMessage %s' % (transportAddress, repr(outgoingMessage)))
+        debug.logger & debug.flagIO and debug.logger('handle_write: transportAddress %r outgoingMessage %r' % (transportAddress, outgoingMessage))
         try:
             self.socket.sendto(outgoingMessage, transportAddress)
         except socket.error:
@@ -65,7 +65,7 @@ class DgramSocketTransport(AbstractSocketTransport):
     def handle_read(self):
         try:
             incomingMessage, transportAddress = self.socket.recvfrom(65535)
-            debug.logger & debug.flagIO and debug.logger('handle_read: transportAddress %s incomingMessage %s' % (transportAddress, repr(incomingMessage)))
+            debug.logger & debug.flagIO and debug.logger('handle_read: transportAddress %r incomingMessage %r' % (transportAddress, incomingMessage))
             if not incomingMessage:
                 self.handle_close()
                 return

@@ -42,7 +42,7 @@ class CommunityData:
         self.__hash = hash(self.__cmp)
             
     def __repr__(self):
-        return '%s("%s", <COMMUNITY>, %s, %s, %s)' % (
+        return '%s("%s", <COMMUNITY>, %r, %r, %r)' % (
             self.__class__.__name__,
             self.securityName,
             self.mpModel,
@@ -100,7 +100,7 @@ class UsmUserData:
         self.__hash = hash(self.__cmp)
 
     def __repr__(self):
-        return '%s("%s", <AUTHKEY>, <PRIVKEY>, %s, %s, %s, %s)' % (
+        return '%s("%s", <AUTHKEY>, <PRIVKEY>, %r, %r, %r, %r)' % (
             self.__class__.__name__,
             self.securityName,
             self.authProtocol,
@@ -127,10 +127,8 @@ class UdpTransportTarget:
         self.timeout = timeout
         self.retries = retries
 
-    def __repr__(self): return '%s(("%s", %s), %s, %s)' % (
-        self.__class__.__name__,
-        self.transportAddr[0], self.transportAddr[1],
-        self.timeout, self.retries
+    def __repr__(self): return '%s(%r, %r, %r)' % (
+        self.__class__.__name__, self.transportAddr, self.timeout, self.retries
         )
 
     def __hash__(self): return hash(self.transportAddr)
@@ -312,7 +310,7 @@ class AsynCommandGenerator:
                     )
                 if syntax is None:
                     raise error.PySnmpError(
-                        'Value type MIB lookup failed for %s' % repr(varName)
+                        'Value type MIB lookup failed for %r' % (varName,)
                         )
                 varVal = syntax.clone(varVal)
             __varBinds.append((name + oid, varVal))

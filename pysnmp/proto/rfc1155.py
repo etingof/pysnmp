@@ -76,8 +76,7 @@ class TypeCoercionHackMixIn: # XXX
                     )
             t = componentType[idx].getType()
             if not t.getTagSet().isSuperTagSetOf(value.getTagSet()):
-                raise PyAsn1Error('Component type error %s vs %s' %
-                                  (repr(t), repr(value)))
+                raise PyAsn1Error('Component type error %r vs %r' % (t, value))
     
 class SimpleSyntax(TypeCoercionHackMixIn, univ.Choice):
     componentType = namedtype.NamedTypes(

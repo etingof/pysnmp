@@ -62,7 +62,7 @@ class MsgAndPduDispatcher:
             # 4.3.4
             self.__appsRegistration[k] = processPdu
 
-        debug.logger & debug.flagDsp and debug.logger('registerContextEngineId: contextEngineId %s pduTypes %s' % (repr(contextEngineId), pduTypes))
+        debug.logger & debug.flagDsp and debug.logger('registerContextEngineId: contextEngineId %r pduTypes %s' % (contextEngineId, pduTypes))
     # 4.4.1
     def unregisterContextEngineId(self, contextEngineId, pduTypes):
         """Unregister application with dispatcher"""
@@ -76,7 +76,7 @@ class MsgAndPduDispatcher:
             if k in self.__appsRegistration:
                 del self.__appsRegistration[k]
 
-        debug.logger & debug.flagDsp and debug.logger('unregisterContextEngineId: contextEngineId %s pduTypes %s' % (repr(contextEngineId), pduTypes))
+        debug.logger & debug.flagDsp and debug.logger('unregisterContextEngineId: contextEngineId %r pduTypes %s' % (contextEngineId, pduTypes))
 
     def getRegisteredApp(self, contextEngineId, pduType):
         k = (contextEngineId, pduType)

@@ -51,7 +51,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         if not contextName:
             contextName = null
 
-        debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: using contextEngineId %s contextName %s' % (repr(contextEngineId), contextName))
+        debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: using contextEngineId %r contextName %r' % (contextEngineId, contextName))
 
         # rfc3412: 7.1.6
         scopedPDU = ( contextEngineId, contextName, pdu )
@@ -167,7 +167,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.1.6
         scopedPDU = ( contextEngineId, contextName, pdu )
 
-        debug.logger & debug.flagMP and debug.logger('prepareResponseMessage: using contextEngineId %s contextName %s' % (repr(contextEngineId), contextName))
+        debug.logger & debug.flagMP and debug.logger('prepareResponseMessage: using contextEngineId %r contextName %r' % (contextEngineId, contextName))
         
         msg = self._snmpMsgSpec
         msg.setComponentByPosition(0, messageProcessingModel)
@@ -271,7 +271,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             msg
             )
 
-        debug.logger & debug.flagMP and debug.logger('prepareDataElements: SM returned securityEngineID %s securityName %s' % (repr(securityEngineID), securityName))
+        debug.logger & debug.flagMP and debug.logger('prepareDataElements: SM returned securityEngineID %r securityName %r' % (securityEngineID, securityName))
 
         # rfc3412: 7.2.6a --> noop
 

@@ -119,7 +119,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         if not contextName:
             contextName = self._emptyStr
 
-        debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: using contextEngineId %s, contextName %s' % (repr(contextEngineId), contextName))
+        debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: using contextEngineId %r, contextName %r' % (contextEngineId, contextName))
         
         # 7.1.6
         scopedPDU = self._scopedPDU
@@ -214,7 +214,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             else:
                 securityEngineID = peerSnmpEngineData['securityEngineID']
 
-        debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: securityEngineID %s' % repr(securityEngineID))
+        debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: securityEngineID %r' % (securityEngineID,))
              
         # 7.1.9.b
         ( securityParameters,
@@ -349,7 +349,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         if not contextName:
             contextName = self._emptyStr
 
-        debug.logger & debug.flagMP and debug.logger('prepareResponseMessage: using contextEngineId %s, contextName %s' % (repr(contextEngineId), contextName))
+        debug.logger & debug.flagMP and debug.logger('prepareResponseMessage: using contextEngineId %r, contextName %r' % (contextEngineId, contextName))
 
         # 7.1.6
         scopedPDU = self._scopedPDU
@@ -603,7 +603,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                     self.__engineIDsExpQueue[expireAt] = []
                 self.__engineIDsExpQueue[expireAt].append(k)
                     
-                debug.logger & debug.flagMP and debug.logger('prepareDataElements: cache securityEngineID %s for %s %s' % (repr(securityEngineID), transportDomain, transportAddress))
+                debug.logger & debug.flagMP and debug.logger('prepareDataElements: cache securityEngineID %r for %r %r' % (securityEngineID, transportDomain, transportAddress))
 
         snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
         snmpEngineID = snmpEngineID.syntax

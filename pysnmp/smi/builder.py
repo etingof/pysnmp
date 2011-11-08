@@ -15,7 +15,7 @@ class __AbstractMibSource:
         debug.logger & debug.flagBld and debug.logger('trying %s' % self)
 
     def __repr__(self):
-        return '%s(\'%s\')' % (self.__class__.__name__, self._srcName)
+        return '%s(%r)' % (self.__class__.__name__, self._srcName)
 
     def _uniqNames(self, files):
         u = {}
