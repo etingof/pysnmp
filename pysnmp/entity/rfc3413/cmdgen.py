@@ -455,9 +455,9 @@ class NextCommandGenerator(CommandGeneratorBase):
         varBindTable = pMod.apiPDU.getVarBindTable(PDU, rspPDU)
 
         if pMod.apiPDU.getErrorStatus(rspPDU):
-            errorIndication = None
+            errorIndication, varBinds = None, ()
         elif not varBindTable:
-            errorIndication = errind.emptyResponse
+            errorIndication, varBinds = errind.emptyResponse, ()
         else:
             errorIndication, varBinds = getNextVarBinds(
                 pMod.apiPDU.getVarBinds(PDU), varBindTable[-1]
@@ -576,9 +576,9 @@ class BulkCommandGenerator(CommandGeneratorBase):
         varBindTable = pMod.apiBulkPDU.getVarBindTable(PDU, rspPDU)
 
         if pMod.apiBulkPDU.getErrorStatus(rspPDU):
-            errorIndication = None
+            errorIndication, varBinds = None, ()
         elif not varBindTable:
-            errorIndication = errind.emptyResponse
+            errorIndication, varBinds = errind.emptyResponse, ()
         else:
             errorIndication, varBinds = getNextVarBinds(
                 pMod.apiBulkPDU.getVarBinds(PDU), varBindTable[-1]
