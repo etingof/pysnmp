@@ -27,7 +27,7 @@ except ImportError:
 
 params.update( {
     'name': 'pysnmp',
-    'version': '4.2.1',
+    'version': '4.2.2',
     'description': 'SNMP framework',
     'author': 'Ilya Etingof',
     'author_email': 'ilya@glas.net',

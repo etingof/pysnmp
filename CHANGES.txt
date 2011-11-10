@@ -3,6 +3,7 @@ Revision 4.2.2
 
 - SNMPv2-SMI.ObjectType.__repr__() fixed to do a repr() on its components.
 - Exlicit repr() calls replaced with '%r'
+- Fix to error processing at GETNEXT & GETBULK apps response handlers.
 
 Revision 4.2.1
 --------------
