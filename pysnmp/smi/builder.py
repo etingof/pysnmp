@@ -1,6 +1,6 @@
 # MIB modules loader
 import os, sys, imp, struct, marshal, time
-from pysnmp.smi import error
+from pysnmp.smi import mibdata, error
 from pysnmp import debug
 
 class __AbstractMibSource:
@@ -285,15 +285,13 @@ class MibBuilder:
                     'Symbol %s already exported at %s' % (symName, modName)
                     )
 
-            # XXX needs improvement
-            try:
-                symName = symObj.label or symName # class
-            except AttributeError:
-                pass
-            try:
-                symName = symObj.getLabel() or symName # class instance
-            except (AttributeError, TypeError):
-                pass
+            if symName != mibdata.moduleID and \
+                   isinstance(symObj, mibdata.MibNode):
+                label = symObj.getLabel()
+                if label:
+                    symName = label
+                else:
+                    symObj.setLabel(symName)
             
             mibSymbols[symName] = symObj
             

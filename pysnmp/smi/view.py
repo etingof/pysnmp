@@ -1,7 +1,7 @@
 # MIB modules management
 import sys
 from pysnmp.smi.indices import OrderedDict, OidOrderedDict
-from pysnmp.smi import error
+from pysnmp.smi import mibdata, error
 from pysnmp import debug
 
 __all__ = [ 'MibViewController' ]
@@ -43,8 +43,8 @@ class MibViewController:
         # This is potentionally ambiguous mapping. Sort modules in
         # ascending age for resolution
         def __sortFun(x, s=self.mibBuilder.mibSymbols):
-            if "PYSNMP_MODULE_ID" in s[x]:
-                m = s[x]["PYSNMP_MODULE_ID"]
+            if mibdata.moduleID in s[x]:
+                m = s[x][mibdata.moduleID]
                 r = m.getRevisions()
                 if r:
                     return r[0]
@@ -71,7 +71,7 @@ class MibViewController:
 
             # Types & MIB vars indices
             for n, v in self.mibBuilder.mibSymbols[modName].items():
-                if n == "PYSNMP_MODULE_ID": # do not index this special symbol
+                if n == mibdata.moduleID: # do not index this special symbol
                     continue
                 if isinstance(v, classTypes):
                     if n in mibMod['typeToModIdx']:
