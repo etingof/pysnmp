@@ -179,7 +179,7 @@ class MibBuilder:
                 l.append(mibSource.fullPath())
         return tuple(l)
         
-    def loadModules(self, *modNames):
+    def loadModules(self, *modNames, **userCtx):
         # Build a list of available modules
         if not modNames:
             modNames = {}
@@ -210,8 +210,9 @@ class MibBuilder:
                     self.__modPathsSeen[modPath] = 1
 
                 debug.logger & debug.flagBld and debug.logger('loadModules: evaluating %s' % modPath)
-                
-                g = { 'mibBuilder': self }
+
+                g = { 'mibBuilder': self,
+                      'userCtx': userCtx }
 
                 try:
                     exec(modData, g)
@@ -250,7 +251,7 @@ class MibBuilder:
             
         return self
 
-    def importSymbols(self, modName, *symNames):
+    def importSymbols(self, modName, *symNames, **userCtx):
         if not modName:
             raise error.SmiError(
                 'importSymbols: empty MIB module name'
@@ -258,7 +259,7 @@ class MibBuilder:
         r = ()
         for symName in symNames:
             if modName not in self.mibSymbols:
-                self.loadModules(modName)
+                self.loadModules(modName, **userCtx)
             if modName not in self.mibSymbols:
                 raise error.SmiError(
                     'No module %s loaded at %s' % (modName, self)
