@@ -1,6 +1,9 @@
 Revision 4.2.2
 --------------
 
+- The libsmi2pysnmp tool improved to handle incomplete SMI v1->v2
+  conversion performed by smidump. The remaining core SMIv1 modules
+  excluded from the core MIB set.
 - The pyasn1 constraint and enumeration objects put into ASN1-*
   MIB modules what appears to be more in-line with SMI. Existing
   MIB modules as well as libsmi2pysnmp tool corrected accordingly.
