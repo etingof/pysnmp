@@ -1,6 +1,9 @@
 Revision 4.2.2
 --------------
 
+- The pyasn1 constraint and enumeration objects put into ASN1-*
+  MIB modules what appears to be more in-line with SMI. Existing
+  MIB modules as well as libsmi2pysnmp tool corrected accordingly.
 - The MibBuilder.importSymbols() now takes optional kwargs and
   push them into MIB modules globals(). This is to facilitate
   passing user infomation, such as DB connection handler, to MIB

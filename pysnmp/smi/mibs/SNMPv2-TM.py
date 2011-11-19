@@ -1,19 +1,15 @@
-from pyasn1.type import constraint
 
-OctetString, = mibBuilder.importSymbols('ASN1', 'OctetString')
-( ModuleIdentity, MibIdentifier, ObjectIdentity, snmpModules, 
-  snmpDomains, snmpProxys ) = mibBuilder.importSymbols(
-    'SNMPv2-SMI', 'ModuleIdentity', 'MibIdentifier', 'ObjectIdentity',
-    'snmpModules', 'snmpDomains', 'snmpProxys'
-    )
-TextualConvention, = mibBuilder.importSymbols('SNMPv2-TC', 'TextualConvention')
+( OctetString, ) = mibBuilder.importSymbols('ASN1', 'OctetString')
+( ConstraintsIntersection, ConstraintsUnion, SingleValueConstraint, ValueRangeConstraint, ValueSizeConstraint, ) = mibBuilder.importSymbols("ASN1-REFINEMENT", "ConstraintsIntersection", "ConstraintsUnion", "SingleValueConstraint", "ValueRangeConstraint", "ValueSizeConstraint")
+( ModuleIdentity, MibIdentifier, ObjectIdentity, snmpModules, snmpDomains, snmpProxys ) = mibBuilder.importSymbols('SNMPv2-SMI', 'ModuleIdentity', 'MibIdentifier', 'ObjectIdentity', 'snmpModules', 'snmpDomains', 'snmpProxys')
+( TextualConvention, ) = mibBuilder.importSymbols('SNMPv2-TC', 'TextualConvention')
 
 snmpv2tm = ModuleIdentity(snmpModules.name + (19,)).setRevisions(("2002-10-16 00:00",))
 
 snmpUDPDomain = ObjectIdentity(snmpDomains.name + (1,))
 
 class SnmpUDPAddress(TextualConvention, OctetString):
-    subtypeSpec = OctetString.subtypeSpec + constraint.ValueSizeConstraint(6, 6)
+    subtypeSpec = OctetString.subtypeSpec + ValueSizeConstraint(6, 6)
     displayHint = "1d.1d.1d.1d/2d"
 
     def prettyIn(self, value):
@@ -36,18 +32,18 @@ snmpCLNSDomain = ObjectIdentity(snmpDomains.name + (2,))
 snmpCONSDomain = ObjectIdentity(snmpDomains.name + (3,))
 
 class SnmpOSIAddress(TextualConvention, OctetString):
-    subtypeSpec = OctetString.subtypeSpec + constraint.ValueSizeConstraint(1, 85)
+    subtypeSpec = OctetString.subtypeSpec + ValueSizeConstraint(1, 85)
     displayHint = "*1x:/1x:"
     
 snmpDDPDomain = ObjectIdentity(snmpDomains.name + (4,))
 
 class SnmpNBPAddress(OctetString, TextualConvention):
-    subtypeSpec = OctetString.subtypeSpec + constraint.ValueSizeConstraint(3, 99)
+    subtypeSpec = OctetString.subtypeSpec + ValueSizeConstraint(3, 99)
     
 snmpIPXDomain = ObjectIdentity(snmpDomains.name + (5,))
 
 class SnmpIPXAddress(TextualConvention, OctetString):
-    subtypeSpec = OctetString.subtypeSpec + constraint.ValueSizeConstraint(12, 12)
+    subtypeSpec = OctetString.subtypeSpec + ValueSizeConstraint(12, 12)
     displayHint = "4x.1x:1x:1x:1x:1x:1x.2d"
 
 rfc1157Proxy = MibIdentifier(snmpProxys.name + (1,))

@@ -1,12 +1,17 @@
 from pysnmp.smi.indices import OidOrderedDict
 from pysnmp.smi import mibdata, exval, error
 from pysnmp.proto import rfc1902
-from pyasn1.type import constraint
-from pyasn1.error import ValueConstraintError, PyAsn1Error
 from pysnmp import cache, debug
+from pyasn1.error import PyAsn1Error
 
-( Integer, ObjectIdentifier, Null ) = mibBuilder.importSymbols("ASN1", "Integer", "ObjectIdentifier", "Null")
-
+( Integer, ObjectIdentifier ) = mibBuilder.importSymbols(
+    "ASN1", "Integer", "ObjectIdentifier"
+    )
+( ConstraintsIntersection, ConstraintsUnion, SingleValueConstraint,
+  ValueRangeConstraint, ValueSizeConstraint, ) = mibBuilder.importSymbols(
+    "ASN1-REFINEMENT", "ConstraintsIntersection", "ConstraintsUnion",
+    "SingleValueConstraint", "ValueRangeConstraint", "ValueSizeConstraint"
+    )
 # syntax of objects
 
 OctetString = rfc1902.OctetString
@@ -21,7 +26,7 @@ Opaque = rfc1902.Opaque
 Counter64 = rfc1902.Counter64
 
 class ExtUTCTime(OctetString):
-    subtypeSpec = OctetString.subtypeSpec+constraint.ConstraintsUnion(constraint.ValueSizeConstraint(11,11), constraint.ValueSizeConstraint(13,13))
+    subtypeSpec = OctetString.subtypeSpec+ConstraintsUnion(ValueSizeConstraint(11,11), ValueSizeConstraint(13,13))
 
 # definitions for information modules
 

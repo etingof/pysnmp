@@ -1,10 +1,15 @@
 import sys
 from pysnmp.smi import error
-from pyasn1.type import constraint, namedval
 from pysnmp import debug
 
 OctetString, Integer, ObjectIdentifier = mibBuilder.importSymbols(
     'ASN1', 'OctetString', 'Integer', 'ObjectIdentifier'
+    )
+( NamedValues, ) = mibBuilder.importSymbols("ASN1-ENUMERATION", "NamedValues")
+( ConstraintsIntersection, ConstraintsUnion, SingleValueConstraint,
+  ValueRangeConstraint, ValueSizeConstraint, ) = mibBuilder.importSymbols(
+    "ASN1-REFINEMENT", "ConstraintsIntersection", "ConstraintsUnion",
+    "SingleValueConstraint", "ValueRangeConstraint", "ValueSizeConstraint"
     )
 Counter32, Unsigned32, TimeTicks, Counter64 = mibBuilder.importSymbols(
     'SNMPv2-SMI', 'Counter32', 'Unsigned32', 'TimeTicks', 'Counter64'
@@ -167,23 +172,23 @@ class TextualConvention:
 #        return str(value)
 
 class DisplayString(TextualConvention, OctetString):
-    subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(0,255)
+    subtypeSpec = OctetString.subtypeSpec+ValueSizeConstraint(0,255)
     displayHint = "255a"
 
 class PhysAddress(TextualConvention, OctetString):
     displayHint = "1x:"
 
 class MacAddress(TextualConvention, OctetString):
-    subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(6,6)
+    subtypeSpec = OctetString.subtypeSpec+ValueSizeConstraint(6,6)
     displayHint = "1x:"
     fixedLength = 6
 
 class TruthValue(Integer, TextualConvention):
-    subtypeSpec = Integer.subtypeSpec+constraint.SingleValueConstraint(1, 2)
-    namedValues = namedval.NamedValues(('true', 1), ('false', 2))
+    subtypeSpec = Integer.subtypeSpec+SingleValueConstraint(1, 2)
+    namedValues = NamedValues(('true', 1), ('false', 2))
     
 class TestAndIncr(Integer, TextualConvention):
-    subtypeSpec = Integer.subtypeSpec+constraint.ValueRangeConstraint(0, 2147483647)
+    subtypeSpec = Integer.subtypeSpec+ValueRangeConstraint(0, 2147483647)
     defaultValue = 0
     def smiWrite(self, name, value, idx):
         if value != self:
@@ -203,8 +208,8 @@ class RowStatus(Integer, TextualConvention):
     """A special kind of scalar MIB variable responsible for
        MIB table row creation/destruction.
     """
-    subtypeSpec = Integer.subtypeSpec+constraint.SingleValueConstraint(0, 1, 2, 3, 4, 5, 6)
-    namedValues = namedval.NamedValues(
+    subtypeSpec = Integer.subtypeSpec+SingleValueConstraint(0, 1, 2, 3, 4, 5, 6)
+    namedValues = NamedValues(
         ('notExists', 0), ('active', 1), ('notInService', 2), ('notReady', 3),
         ('createAndGo', 4), ('createAndWait', 5), ('destroy', 6)
         )
@@ -317,15 +322,15 @@ class RowStatus(Integer, TextualConvention):
 class TimeStamp(TimeTicks, TextualConvention): pass
 
 class TimeInterval(Integer, TextualConvention):
-    subtypeSpec = Integer.subtypeSpec+constraint.ValueRangeConstraint(0, 2147483647)
+    subtypeSpec = Integer.subtypeSpec+ValueRangeConstraint(0, 2147483647)
 
 class DateAndTime(TextualConvention, OctetString):
-    subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(8, 11)
+    subtypeSpec = OctetString.subtypeSpec+ValueSizeConstraint(8, 11)
     displayHint = "2d-1d-1d,1d:1d:1d.1d,1a1d:1d"
 
 class StorageType(Integer, TextualConvention):
-    subtypeSpec = Integer.subtypeSpec+constraint.SingleValueConstraint(1, 2, 3, 4, 5)
-    namedValues = namedval.NamedValues(
+    subtypeSpec = Integer.subtypeSpec+SingleValueConstraint(1, 2, 3, 4, 5)
+    namedValues = NamedValues(
         ('other', 1), ('volatile', 2), ('nonVolatile', 3),
         ('permanent', 4), ('readOnly', 5)
         )
@@ -333,7 +338,7 @@ class StorageType(Integer, TextualConvention):
 class TDomain(ObjectIdentifier, TextualConvention): pass
 
 class TAddress(OctetString, TextualConvention):
-    subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(1, 255)
+    subtypeSpec = OctetString.subtypeSpec+ValueSizeConstraint(1, 255)
 
 mibBuilder.exportSymbols(
     'SNMPv2-TC', TextualConvention=TextualConvention, DisplayString=DisplayString,
