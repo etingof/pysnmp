@@ -11,6 +11,7 @@ Revision 4.2.2
   push them into MIB modules globals(). This is to facilitate
   passing user infomation, such as DB connection handler, to MIB
   module namespace so it could be used by ManagedObjects implementations.
+- Fix to SnmpEngineID value autogeneration (used to fail on Mac).
 - SNMPv2-SMI.ObjectType.__repr__() fixed to do a repr() on its components.
 - SNMPv2-SMI.MibNode class moved to a separate module, all MibNode-based
   objects, once built into a tree, will carry an embedded label symbol.

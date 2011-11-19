@@ -29,12 +29,12 @@ class SnmpEngineID(OctetString, TextualConvention):
     defaultValue = [128, 0, 79, 184, 5]
     try:
         # Attempt to base engine ID on local IP address
-        defaultValue = defaultValue + [ int(x) for x in socket.gethostbyname(socket.gethostname()).split('.') ]
+        defaultValue = defaultValue + [ int(x) & 0xff for x in socket.gethostbyname(socket.gethostname()).split('.') ]
     except:
         pass
     try:
         # Attempt to base engine ID on PID
-        defaultValue = defaultValue + [os.getpid() >> 8, os.getpid() & 0xff]
+        defaultValue = defaultValue + [os.getpid() >> 8 & 0xff, os.getpid() & 0xff]
     except:
         pass
     # ...in any case, use pseudo-random text ID
