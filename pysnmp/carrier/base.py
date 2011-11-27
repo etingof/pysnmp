@@ -25,7 +25,10 @@ class AbstractTransportDispatcher:
         self.__jobs = {}
         self.__recvCbFun = None
         self.__timerCallables = []
-
+        self.__ticks = 0
+        self.__timerResolution = 0.5
+        self.__lastTime = 0
+        
     def _cbFun(self, incomingTransport, transportAddress, incomingMessage):
         for name, transport in self.__transports.items():
             if transport is incomingTransport:
@@ -96,7 +99,22 @@ class AbstractTransportDispatcher:
                 'No suitable transport domain for %s' % (transportDomain,)
                 )
 
+    def getTimerResolution(self):
+        return self.__timerResolution
+    def setTimerResolution(self, timerResolution):
+        if timerResolution < 0.01 or timerResolution > 10:
+            raise error.CarrierError('Impossible timer resolution')
+        self.__timerResolution = timerResolution
+    
+    def getTimerTicks(self): return self.__ticks
+    
     def handleTimerTick(self, timeNow):
+        if self.__lastTime + self.__timerResolution > timeNow:
+            return
+        
+        self.__ticks += 1
+        self.__lastTime = timeNow
+
         for timerCallable in self.__timerCallables:
             timerCallable(timeNow)
 

@@ -180,6 +180,10 @@ class CommandGeneratorBase:
         cbInfo
         ):
         (processResponsePdu, cbCtx) = cbInfo
+
+        # Convert timeout in seconds into timeout in timer ticks
+        timeoutInTicks = float(timeout)/100/snmpEngine.transportDispatcher.getTimerResolution()
+
         # 3.1
         sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(
             snmpEngine,
@@ -193,8 +197,8 @@ class CommandGeneratorBase:
             contextName,
             pduVersion,
             reqPDU,
-            1,                                 # expectResponse
-            float(timeout)/100 + time.time(),  # timeout
+            1,                          # expectResponse
+            timeoutInTicks,
             processResponsePdu,
             cbCtx
             )

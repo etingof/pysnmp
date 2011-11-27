@@ -19,9 +19,9 @@ class TwistedDispatcher(AbstractTransportDispatcher):
         AbstractTransportDispatcher.__init__(self)
         self.__transportCount = 0
         if 'timeout' in kwargs:
-            self.timeout = kwargs['timeout']
+            self.setTimerResolution(kwargs['timeout'])
         else:
-            self.timeout = 1.0
+            self.setTimerResolution(1.0)            
         self.loopingcall = task.LoopingCall(self.handleTimeout)
 
     def handleTimeout(self):
@@ -37,8 +37,8 @@ class TwistedDispatcher(AbstractTransportDispatcher):
     # jobstarted/jobfinished might be okay as-is
 
     def registerTransport(self, tDomain, transport):
-        if not self.loopingcall.running and self.timeout > 0:
-            self.loopingcall.start(self.timeout, now = False)
+        if not self.loopingcall.running and self.getTimerResolution() > 0:
+            self.loopingcall.start(self.getTimerResolution(), now = False)
         AbstractTransportDispatcher.registerTransport(
             self, tDomain, transport
             )

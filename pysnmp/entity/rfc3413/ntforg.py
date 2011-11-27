@@ -61,7 +61,10 @@ class NotificationOriginator:
                     cbFun,
                     cbCtx)
                 return
-               
+
+            # Convert timeout in seconds into timeout in timer ticks
+            timeoutInTicks = float(origTimeout)/100/snmpEngine.transportDispatcher.getTimerResolution()
+        
             # 3.3.6a
             sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(
                 snmpEngine,
@@ -75,8 +78,8 @@ class NotificationOriginator:
                 origContextName,
                 origPduVersion,
                 origPdu,
-                1,                                     # expectResponse
-                float(origTimeout)/100 + time.time(),  # timeout
+                1,                              # expectResponse
+                timeoutInTicks,
                 self.processResponsePdu,
                 (cbFun, cbCtx)
                 )
@@ -235,6 +238,9 @@ class NotificationOriginator:
                     None
                     )
             else:
+                # Convert timeout in seconds into timeout in timer ticks
+                timeoutInTicks = float(timeout)/100/snmpEngine.transportDispatcher.getTimerResolution()
+
                 # 3.3.6a
                 sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(
                     snmpEngine,
@@ -248,8 +254,8 @@ class NotificationOriginator:
                     contextName,
                     pduVersion,
                     pdu,
-                    1,                                     # expectResponse
-                    float(timeout)/100 + time.time(),      # timeout
+                    1,                      # expectResponse
+                    timeoutInTicks,
                     self.processResponsePdu,
                     (cbFun, cbCtx)
                     )

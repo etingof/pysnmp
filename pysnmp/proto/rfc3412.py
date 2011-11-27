@@ -1,5 +1,5 @@
 """SNMP v3 Message Processing and Dispatching (RFC3412)"""
-import time, sys
+import sys
 from pyasn1.compat.octets import null
 from pysnmp.smi import builder, instrum
 from pysnmp.proto import errind, error, cache
@@ -104,7 +104,7 @@ class MsgAndPduDispatcher:
         pduVersion,
         PDU,
         expectResponse,
-        timeout=0,    # response items
+        timeout=0,    # timeout expressed in dispatcher ticks
         cbFun=None,
         cbCtx=None
         ):
@@ -127,10 +127,11 @@ class MsgAndPduDispatcher:
                 sendPduHandle,
                 messageProcessingModel=messageProcessingModel,
                 sendPduHandle=sendPduHandle,
-                timeout=timeout,
+                timeout=timeout+snmpEngine.transportDispatcher.getTimerTicks(),
                 cbFun=cbFun,
                 cbCtx=cbCtx
                 )
+            debug.logger & debug.flagDsp and debug.logger('sendPdu: current time in ticks %d' % (snmpEngine.transportDispatcher.getTimerTicks(),))
 
         debug.logger & debug.flagDsp and debug.logger('sendPdu: new sendPduHandle %s, timeout %s, cbFun %s' % (sendPduHandle, timeout, cbFun))
 
@@ -456,8 +457,10 @@ class MsgAndPduDispatcher:
 
     def __expireRequest(self, cacheKey, cachedParams, snmpEngine,
                         statusInformation=None):
+        timeNow = snmpEngine.transportDispatcher.getTimerTicks()
         timeoutAt = cachedParams['timeout']
-        if statusInformation is None and time.time() < timeoutAt:
+
+        if statusInformation is None and timeNow < timeoutAt:
             return
 
         processResponsePdu = cachedParams['cbFun']
