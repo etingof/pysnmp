@@ -1,6 +1,10 @@
 Revision 4.2.2
 --------------
 
+- Transport dispatcher now provides its own time expressed in 
+  fractions of second. SNMP engine uses this notion of time for
+  handling requests timeout to make packet flow time bound
+  to async I/O core operations rather than to real time.
 - The libsmi2pysnmp tool improved to handle incomplete SMI v1->v2
   conversion performed by smidump. The remaining core SMIv1 modules
   excluded from the core MIB set.
