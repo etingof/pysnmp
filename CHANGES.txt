@@ -1,6 +1,12 @@
 Revision 4.2.2
 --------------
 
+- Oneliner CommunityData configuration object can now be initialized
+  with community name only, security name will be chosen automatically.
+- Oneliner LCD configuration routines reworked towards clarity. The
+  side-effect of this change is that repetitive oneliner call with the same
+  securityName and different configuration options will only honor
+  the first settings. Previous implementation would override older settings.
 - Transport dispatcher now provides its own time expressed in 
   fractions of second. SNMP engine uses this notion of time for
   handling requests timeout to make packet flow time bound
@@ -15,6 +21,10 @@ Revision 4.2.2
   push them into MIB modules globals(). This is to facilitate
   passing user infomation, such as DB connection handler, to MIB
   module namespace so it could be used by ManagedObjects implementations.
+- Fix to oneliner configuration routine that used to implicitly
+  tag SNMPv1/v2c auth and transport LCD rows what resulted in
+  huge delays when processing incoming messages wish large number
+  of peers configured.
 - Fix to SnmpEngineID value autogeneration (used to fail on Mac).
 - SNMPv2-SMI.ObjectType.__repr__() fixed to do a repr() on its components.
 - SNMPv2-SMI.MibNode class moved to a separate module, all MibNode-based
