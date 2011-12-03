@@ -25,11 +25,14 @@ nextID = nextid.Integer(0xffffffff)
 
 class CommunityData:
     mpModel = 1 # Default is SMIv2
-    securityModel = mpModel+1
+    securityModel = mpModel + 1
     securityLevel = 'noAuthNoPriv'
     contextName = null
-    def __init__(self, securityName, communityName, mpModel=None,
+    def __init__(self, securityName, communityName=None, mpModel=None,
                  contextEngineId=None, contextName=None):
+        if communityName is None:
+            communityName = securityName
+            securityName = 's%s' % hash(securityName)
         self.securityName = securityName
         self.communityName = communityName
         if mpModel is not None:
@@ -38,8 +41,6 @@ class CommunityData:
         self.contextEngineId = contextEngineId
         if contextName is not None:
             self.contextName = contextName
-        self.__cmp = self.mpModel, self.securityModel, self.securityLevel, self.securityName, self.communityName, self.contextEngineId, self.contextName
-        self.__hash = hash(self.__cmp)
             
     def __repr__(self):
         return '%s("%s", <COMMUNITY>, %r, %r, %r)' % (
@@ -50,14 +51,14 @@ class CommunityData:
             self.contextName
             )
 
-    def __hash__(self): return self.__hash
+    def __hash__(self): return hash(self.securityName)
 
-    def __eq__(self, other): return self.__cmp == other
-    def __ne__(self, other): return self.__cmp != other
-    def __lt__(self, other): return self.__cmp < other
-    def __le__(self, other): return self.__cmp <= other
-    def __gt__(self, other): return self.__cmp > other
-    def __ge__(self, other): return self.__cmp >= other
+    def __eq__(self, other): return self.securityName == other
+    def __ne__(self, other): return self.securityName != other
+    def __lt__(self, other): return self.securityName < other
+    def __le__(self, other): return self.securityName <= other
+    def __gt__(self, other): return self.securityName > other
+    def __ge__(self, other): return self.securityName >= other
 
 class UsmUserData:
     authKey = privKey = None
@@ -65,7 +66,7 @@ class UsmUserData:
     privProtocol = usmNoPrivProtocol
     securityLevel = 'noAuthNoPriv'
     securityModel = 3
-    mpModel = 2
+    mpModel = 3
     contextName = null
     def __init__(self, securityName,
                  authKey=None, privKey=None,
@@ -96,9 +97,6 @@ class UsmUserData:
         if contextName is not None:
             self.contextName = contextName
         
-        self.__cmp = self.mpModel, self.securityModel, self.securityLevel, self.securityName, self.authProtocol, self.authKey, self.privProtocol, self.privKey, self.contextEngineId
-        self.__hash = hash(self.__cmp)
-
     def __repr__(self):
         return '%s("%s", <AUTHKEY>, <PRIVKEY>, %r, %r, %r, %r)' % (
             self.__class__.__name__,
@@ -109,14 +107,14 @@ class UsmUserData:
             self.contextName
             )
 
-    def __hash__(self): return self.__hash
-    
-    def __eq__(self, other): return self.__cmp == other
-    def __ne__(self, other): return self.__cmp != other
-    def __lt__(self, other): return self.__cmp < other
-    def __le__(self, other): return self.__cmp <= other
-    def __gt__(self, other): return self.__cmp > other
-    def __ge__(self, other): return self.__cmp >= other
+    def __hash__(self): return hash(self.securityName)
+
+    def __eq__(self, other): return self.securityName == other
+    def __ne__(self, other): return self.securityName != other
+    def __lt__(self, other): return self.securityName < other
+    def __le__(self, other): return self.securityName <= other
+    def __gt__(self, other): return self.securityName > other
+    def __ge__(self, other): return self.securityName >= other
     
 class UdpTransportTarget:
     transportDomain = udp.domainName
@@ -148,6 +146,7 @@ class AsynCommandGenerator:
     _null = univ.Null('')
     def __init__(self, snmpEngine=None):
         self.__knownAuths = {}
+        self.__knownParams = {}
         self.__knownTransports = {}
         self.__knownTransportAddrs = {}
         if snmpEngine is None:
@@ -161,12 +160,7 @@ class AsynCommandGenerator:
     def __del__(self): self.uncfgCmdGen()
 
     def cfgCmdGen(self, authData, transportTarget, tagList=null):
-        if isinstance(authData, CommunityData):
-            tagList = '%s %s' % (tagList, authData.securityName)
-        if authData in self.__knownAuths:
-            paramsName = self.__knownAuths[authData]
-        else:
-            paramsName = 'p%s' % nextID()
+        if authData not in self.__knownAuths:
             if isinstance(authData, CommunityData):
                 config.addV1System(
                     self.snmpEngine,
@@ -176,11 +170,6 @@ class AsynCommandGenerator:
                     authData.contextName,
                     tagList
                     )
-                config.addTargetParams(
-                    self.snmpEngine, paramsName,
-                    authData.securityName, authData.securityLevel,
-                    authData.mpModel
-                    )
             elif isinstance(authData, UsmUserData):
                 config.addV3User(
                     self.snmpEngine,
@@ -189,13 +178,21 @@ class AsynCommandGenerator:
                     authData.privProtocol, authData.privKey,
                     authData.contextEngineId
                     )
-                config.addTargetParams(
-                    self.snmpEngine, paramsName,
-                    authData.securityName, authData.securityLevel
-                    )
             else:
                 raise error.PySnmpError('Unsupported authentication object')
-            self.__knownAuths[authData] = paramsName
+
+            self.__knownAuths[authData] = 1
+
+        k = authData.securityName, authData.securityLevel, authData.mpModel
+        if k in self.__knownParams:
+            paramsName = self.__knownParams[k]
+        else:
+            paramsName = 'p%s' % nextID()
+            config.addTargetParams(
+                self.snmpEngine, paramsName,
+                authData.securityName, authData.securityLevel, authData.mpModel
+                )
+            self.__knownParams[k] = paramsName
 
         if transportTarget.transportDomain not in self.__knownTransports:
             transport = transportTarget.openClientMode()
@@ -225,26 +222,26 @@ class AsynCommandGenerator:
         return addrName, paramsName
 
     def uncfgCmdGen(self):
-        for authData, paramsName in self.__knownAuths.items():
+        for authData in self.__knownAuths:
             if isinstance(authData, CommunityData):
                 config.delV1System(
                     self.snmpEngine,
                     authData.securityName
                     )
-                config.delTargetParams(
-                    self.snmpEngine, paramsName
-                    )
             elif isinstance(authData, UsmUserData):
                 config.delV3User(
                     self.snmpEngine, authData.securityName
-                    )
-                config.delTargetParams(
-                    self.snmpEngine, paramsName
                     )
             else:
                 raise error.PySnmpError('Unsupported authentication object')
         self.__knownAuths.clear()
 
+        for paramsName in self.__knownParams.values():
+            config.delTargetParams(
+                self.snmpEngine, paramsName
+                )
+        self.__knownParams.clear()
+        
         for transportDomain, transport in self.__knownTransports.items():
             config.delSocketTransport(
                 self.snmpEngine, transportDomain

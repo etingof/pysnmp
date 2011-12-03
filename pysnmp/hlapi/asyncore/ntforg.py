@@ -1,4 +1,5 @@
 from pyasn1.type import base
+from pysnmp import nextid
 from pysnmp.entity import config
 from pysnmp.entity.rfc3413 import ntforg, context, mibvar
 from pysnmp.entity.rfc3413.oneliner import cmdgen
@@ -23,6 +24,8 @@ UsmUserData = cmdgen.UsmUserData
 # Transport
 UdpTransportTarget = cmdgen.UdpTransportTarget
 
+nextID = nextid.Integer(0xffffffff)
+
 class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
     def __init__(self, snmpEngine=None, snmpContext=None):
         cmdgen.AsynCommandGenerator.__init__(self, snmpEngine)
@@ -40,7 +43,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
         if k in self.__knownNotifyNames:
             notifyName, _ = self.__knownNotifyNames[k]
         else:
-            notifyName = 'n%s' % cmdgen.nextID()
+            notifyName = 'n%s' % nextID()
             config.addNotificationTarget(
                 self.snmpEngine,
                 notifyName,
@@ -49,7 +52,10 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                 notifyType
                 )
             self.__knownNotifyNames[k] = notifyName, paramsName
-        if authData not in self.__knownAuths:
+        k = ( authData.securityModel,
+              authData.securityName,
+              authData.securityLevel )
+        if k not in self.__knownAuths:
             subTree = (1,3,6)
             config.addTrapUser(
                 self.snmpEngine,
@@ -58,7 +64,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                 authData.securityLevel,
                 subTree
                 )
-            self.__knownAuths[authData] = subTree
+            self.__knownAuths[k] = subTree
         if self.snmpContext is None:
             self.snmpContext = context.SnmpContext(self.snmpEngine)
             config.addContext(
@@ -71,12 +77,13 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
             config.delNotificationTarget(
                 self.snmpEngine, notifyName, paramsName
                 )
-        for authData, subTree in self.__knownAuths.items():
+        for k, subTree in self.__knownAuths.items():
+            securityModel, securityName, securityLevel = k
             config.delTrapUser(
                 self.snmpEngine,
-                authData.securityModel,
-                authData.securityName,
-                authData.securityLevel,
+                securityModel,
+                securityName,
+                securityLevel,
                 subTree
                 )
         self.uncfgCmdGen()
