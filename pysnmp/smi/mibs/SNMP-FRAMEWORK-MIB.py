@@ -24,7 +24,7 @@ class SnmpAdminString(TextualConvention, OctetString):
     displayHint = "255t"
     subtypeSpec = OctetString.subtypeSpec+ValueSizeConstraint(0,255)
 
-class SnmpEngineID(OctetString, TextualConvention):
+class SnmpEngineID(TextualConvention, OctetString):
     subtypeSpec = OctetString.subtypeSpec+ValueSizeConstraint(5,32)
     defaultValue = [128, 0, 79, 184, 5]
     try:
