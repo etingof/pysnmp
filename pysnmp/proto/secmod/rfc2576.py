@@ -68,8 +68,8 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
             securityParameters = mibNode.syntax
 
             # XXX snmpCommunityTransportTag matching should probably be here
-            
-            debug.logger & debug.flagSM and debug.logger('generateRequestMsg: using community %s for securityName %s, contextEngineId %s contextName %s' % (securityParameters, securityName, contextEngineId, contextName))
+          
+            debug.logger & debug.flagSM and debug.logger('generateRequestMsg: using community %r for securityName %r, contextEngineId %r contextName %r' % (securityParameters, securityName, contextEngineId, contextName))
             
             msg.setComponentByPosition(1, securityParameters)
             msg.setComponentByPosition(2)
@@ -105,7 +105,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         cachedSecurityData = self._cache.pop(securityStateReference)
         communityName = cachedSecurityData['communityName']
 
-        debug.logger & debug.flagSM and debug.logger('generateResponseMsg: recovered community %s by securityStateReference %s' % (communityName, securityStateReference))
+        debug.logger & debug.flagSM and debug.logger('generateResponseMsg: recovered community %r by securityStateReference %s' % (communityName, securityStateReference))
         
         msg.setComponentByPosition(1, communityName)
         msg.setComponentByPosition(2)
@@ -235,7 +235,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
             )
         snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
-        debug.logger & debug.flagSM and debug.logger('processIncomingMsg: looked up securityName %s contextEngineId %s contextName %s by communityName %s' % (securityName, contextEngineId, contextName, communityName))
+        debug.logger & debug.flagSM and debug.logger('processIncomingMsg: looked up securityName %r contextEngineId %r contextName %r by communityName %r' % (securityName.syntax, contextEngineId.syntax, contextName.syntax, communityName.syntax))
 
         stateReference = self._cache.push(
             communityName=communityName.syntax
