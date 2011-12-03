@@ -151,10 +151,10 @@ class TextualConvention:
 #                     'Unparsed display hint left: %s' % d
 #                     )
             return r
-        elif self.displayHint and self.__objectIdentifier.isSuperTypeOf(self):
-            return str(value)
+        elif self.__objectIdentifier.isSuperTypeOf(self):
+            return self.__objectIdentifier.prettyOut(value)
         elif self.__octetString.isSuperTypeOf(self):
-            return repr(value)
+            return self.__octetString.prettyOut(value)
         else:
             return str(value)
 
