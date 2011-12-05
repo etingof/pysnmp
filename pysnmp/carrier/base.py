@@ -27,7 +27,7 @@ class AbstractTransportDispatcher:
         self.__timerCallables = []
         self.__ticks = 0
         self.__timerResolution = 0.5
-        self.__lastTime = 0
+        self.__nextTime = 0
         
     def _cbFun(self, incomingTransport, transportAddress, incomingMessage):
         for name, transport in self.__transports.items():
@@ -58,7 +58,9 @@ class AbstractTransportDispatcher:
     def unregisterRecvCbFun(self):
         self.__recvCbFun = None
 
-    def registerTimerCbFun(self, timerCbFun, tickInterval=1.0):
+    def registerTimerCbFun(self, timerCbFun, tickInterval=None):
+        if not tickInterval:
+            tickInterval = self.__timerResolution
         self.__timerCallables.append(TimerCallable(timerCbFun, tickInterval))
 
     def unregisterTimerCbFun(self, timerCbFun=None):
@@ -109,11 +111,14 @@ class AbstractTransportDispatcher:
     def getTimerTicks(self): return self.__ticks
     
     def handleTimerTick(self, timeNow):
-        if self.__lastTime + self.__timerResolution > timeNow:
+        if self.__nextTime == 0:   # initial initialization
+            self.__nextTime = timeNow + self.__timerResolution
+
+        if self.__nextTime > timeNow:
             return
         
         self.__ticks += 1
-        self.__lastTime = timeNow
+        self.__nextTime = timeNow + self.__timerResolution
 
         for timerCallable in self.__timerCallables:
             timerCallable(timeNow)
