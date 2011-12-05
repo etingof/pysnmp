@@ -88,7 +88,10 @@ class AbstractTransportDispatcher:
     def getTransport(self, transportDomain):
         if transportDomain in self.__transports:
             return self.__transports[transportDomain]
-
+        raise error.CarrierError(
+            'Transport %s not registered' % (transportDomain,)
+            )
+        
     def sendMessage(
         self, outgoingMessage, transportDomain, transportAddress
         ):
