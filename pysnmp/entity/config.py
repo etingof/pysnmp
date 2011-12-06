@@ -294,9 +294,7 @@ def delSocketTransport(snmpEngine, transportDomain):
     """Unregister transport object at socket dispatcher of snmpEngine"""
     if not snmpEngine.transportDispatcher:
         return
-    snmpEngine.transportDispatcher.unregisterTransport(
-        transportDomain
-        )
+    snmpEngine.transportDispatcher.unregisterTransport(transportDomain)
     snmpEngine.unregisterTransportDispatcher()
 
 # VACM shortcuts
