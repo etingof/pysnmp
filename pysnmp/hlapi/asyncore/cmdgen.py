@@ -30,9 +30,6 @@ class CommunityData:
     contextName = null
     def __init__(self, securityName, communityName=None, mpModel=None,
                  contextEngineId=None, contextName=None):
-        if communityName is None:
-            communityName = securityName
-            securityName = 's%s' % hash(securityName)
         self.securityName = securityName
         self.communityName = communityName
         if mpModel is not None:
@@ -41,6 +38,13 @@ class CommunityData:
         self.contextEngineId = contextEngineId
         if contextName is not None:
             self.contextName = contextName
+        # Autogenerate securityName if not specified
+        if communityName is None:
+            self.communityName = securityName
+            self.securityName = 's%s' % hash(
+                ( securityName, self.mpModel,
+                  self.contextEngineId, self.contextName )
+                )
             
     def __repr__(self):
         return '%s("%s", <COMMUNITY>, %r, %r, %r)' % (
