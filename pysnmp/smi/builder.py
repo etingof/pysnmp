@@ -1,7 +1,13 @@
 # MIB modules loader
 import os, sys, imp, struct, marshal, time
-from pysnmp.smi import mibdata, error
+from pysnmp.smi import error
 from pysnmp import debug
+
+if sys.version_info[0] <= 2:
+    import types
+    classTypes = (types.ClassType, type)
+else:
+    classTypes = (type,)
 
 class __AbstractMibSource:
     def __init__(self, srcName):
@@ -138,6 +144,7 @@ class MibBuilder:
     loadTexts = 0
     defaultCoreMibs = 'pysnmp.smi.mibs.instances:pysnmp.smi.mibs'
     defaultMiscMibs = 'pysnmp_mibs'
+    moduleID = 'PYSNMP_MODULE_ID'
     def __init__(self):
         self.lastBuildId = self._autoName = 0
         sources = []
@@ -286,8 +293,8 @@ class MibBuilder:
                     'Symbol %s already exported at %s' % (symName, modName)
                     )
 
-            if symName != mibdata.moduleID and \
-                   isinstance(symObj, mibdata.MibNode):
+            if symName != self.moduleID and \
+                   not isinstance(symObj, classTypes):
                 label = symObj.getLabel()
                 if label:
                     symName = label

@@ -1,5 +1,5 @@
 from pysnmp.smi.indices import OidOrderedDict
-from pysnmp.smi import mibdata, exval, error
+from pysnmp.smi import exval, error
 from pysnmp.proto import rfc1902
 from pysnmp import cache, debug
 from pyasn1.error import PyAsn1Error
@@ -28,9 +28,34 @@ Counter64 = rfc1902.Counter64
 class ExtUTCTime(OctetString):
     subtypeSpec = OctetString.subtypeSpec+ConstraintsUnion(ValueSizeConstraint(11,11), ValueSizeConstraint(13,13))
 
+# MIB tree foundation class
+
+class MibNode:
+    label = ''
+    def __init__(self, name):
+        self.name = name
+        
+    def __repr__(self):
+        return '%s(%r)' % (self.__class__.__name__, self.name)
+
+    def getName(self): return self.name
+    
+    def getLabel(self): return self.label
+    def setLabel(self, label):
+        self.label = label
+        return self
+
+    def clone(self, name=None):
+        myClone = self.__class__(self.name)
+        if name is not None:
+            myClone.name = name
+        if self.label is not None:
+            myClone.label = self.label
+        return myClone
+
 # definitions for information modules
 
-class ModuleIdentity(mibdata.MibNode):
+class ModuleIdentity(MibNode):
     def getLastUpdated(self):
         return getattr(self, 'lastUpdated', '')
     def setLastUpdated(self, v):
@@ -71,7 +96,7 @@ MODULE-IDENTITY\n\
      self.getDescription(),
      ''.join([ "REVISION \"%s\"\n" % x for x in self.getRevisions() ]))
 
-class ObjectIdentity(mibdata.MibNode):
+class ObjectIdentity(MibNode):
     def getStatus(self):
         return getattr(self, 'status', 'current')
     def setStatus(self, v):
@@ -100,7 +125,7 @@ OBJECT-IDENTITY\n\
 
 # definition for objects
 
-class NotificationType(mibdata.MibNode):
+class NotificationType(MibNode):
     def getObjects(self):
         return getattr(self, 'objects', ())
     def setObjects(self, *args):
@@ -134,14 +159,14 @@ NOTIFICATION-TYPE\n\
      self.getDescription(),
      ''.join([ "REVISION \"%s\"\n" % x for x in self.getRevisions() ]))
 
-class MibIdentifier(mibdata.MibNode):
+class MibIdentifier(MibNode):
     def asn1Print(self):
         return 'OBJECT IDENTIFIER'
 
-class ObjectType(mibdata.MibNode):
+class ObjectType(MibNode):
     maxAccess = None
     def __init__(self, name, syntax=None):
-        mibdata.MibNode.__init__(self, name)
+        MibNode.__init__(self, name)
         self.syntax = syntax
 
     # XXX
@@ -1032,7 +1057,8 @@ snmpProxys = MibIdentifier(snmpV2.name +(2,))
 snmpModules = MibIdentifier(snmpV2.name +(3,))
 
 mibBuilder.exportSymbols(
-    'SNMPv2-SMI', Integer32=Integer32, Bits=Bits, IpAddress=IpAddress,
+    'SNMPv2-SMI', MibNode=MibNode,
+    Integer32=Integer32, Bits=Bits, IpAddress=IpAddress,
     Counter32=Counter32,    Gauge32=Gauge32, Unsigned32=Unsigned32,
     TimeTicks=TimeTicks, Opaque=Opaque, Counter64=Counter64,
     ExtUTCTime=ExtUTCTime,

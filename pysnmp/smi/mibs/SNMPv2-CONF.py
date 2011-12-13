@@ -1,6 +1,7 @@
-from pysnmp.smi import mibdata
 
-class ObjectGroup(mibdata.MibNode):
+MibNode, = mibBuilder.importSymbols('SNMPv2-SMI', 'MibNode')
+
+class ObjectGroup(MibNode):
     def getObjects(self):
         return getattr(self, 'objects', ())
     def setObjects(self, *args):
@@ -18,7 +19,7 @@ OBJECT-GROUP\n\
   DESCRIPTION \"%s\"\
 ' % (', '.join([ x for x in self.getObjects() ]), self.getDescription())
 
-class NotificationGroup(mibdata.MibNode):
+class NotificationGroup(MibNode):
     def getObjects(self):
         return getattr(self, 'objects', ())
     def setObjects(self, *args):
@@ -36,7 +37,7 @@ NOTIFICATION-GROUP\n\
   DESCRIPTION \"%s\"\
 ' % (', '.join([ x for x in self.getObjects() ]), self.getDescription())
 
-class ModuleCompliance(mibdata.MibNode):
+class ModuleCompliance(MibNode):
     def getObjects(self):
         return getattr(self, 'objects', ())
     def setObjects(self, *args):
@@ -54,7 +55,7 @@ MODULE-COMPLIANCE\n\
   DESCRIPTION \"%s\"\n\
 ' % (', '.join([ x for x in self.getObjects() ]), self.getDescription())
     
-class AgentCapabilities(mibdata.MibNode):
+class AgentCapabilities(MibNode):
     def getDescription(self):
         return getattr(self, 'description', '')
     def setDescription(self, v):
