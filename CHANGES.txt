@@ -27,8 +27,8 @@ Revision 4.2.2
   of peers configured.
 - Fix to SnmpEngineID value autogeneration (used to fail on Mac).
 - SNMPv2-SMI.ObjectType.__repr__() fixed to do a repr() on its components.
-- All SNMPv2-SMI.MibNode-based objects, once built into a tree, will carry
-  an embedded label symbol.
+- All SNMPv2-SMI.MibNode-based objects, once exported to a mibBuilder, will
+  carry an embedded label symbol.
 - Exlicit repr() calls replaced with '%r'
 - Fix to error processing at GETNEXT & GETBULK apps response handlers.
 
