@@ -211,7 +211,7 @@ class MibInstrumController:
                 except error.SmiError:
                     debug.logger & debug.flagIns and debug.logger('flipFlopFsm: fun %s failed %s for %s=%r' % (f, sys.exc_info()[1], name, val))
                     if myErr is None:  # Take the first exception
-                        myErr = sys.exc_info()[1]
+                        myErr = sys.exc_info()
                     status = 'err'
                     break
                 else:
@@ -220,7 +220,15 @@ class MibInstrumController:
                         outputNameVals.append((rval[0], rval[1]))
                 idx = idx + 1
         if myErr:
-            raise myErr
+            if sys.version_info[0] <= 2:
+                raise myErr[1]
+            else:
+                try:
+                    raise myErr[1].with_traceback(myErr[2])
+                finally:
+                    # Break cycle between locals and traceback object
+                    # (seems to be irrelevant on Py3 but just in case)
+                    del myErr
         return outputNameVals
     
     def readVars(self, vars, acInfo=(None, None)):

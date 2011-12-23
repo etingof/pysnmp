@@ -21,6 +21,8 @@ Revision 4.2.2
   push them into MIB modules globals(). This is to facilitate
   passing user infomation, such as DB connection handler, to MIB
   module namespace so it could be used by ManagedObjects implementations.
+- When running on Python3, SMI will re-raise exceptions with the original
+  traceback for easier diagnostics.
 - Fix to oneliner configuration routine that used to implicitly
   tag SNMPv1/v2c auth and transport LCD rows what resulted in
   huge delays when processing incoming messages wish large number
