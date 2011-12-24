@@ -524,7 +524,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 )
             debug.logger & debug.flagMP and debug.logger('prepareDataElements: SM succeeded')
         except error.StatusInformation:
-            statusInformation = sys.exc_info()[1]
+            statusInformation, origTraceback = sys.exc_info()[1:3]
             debug.logger & debug.flagMP and debug.logger('prepareDataElements: SM failed, statusInformation %s' % statusInformation)
             if 'errorIndication' in statusInformation:
                 # 7.2.6a
@@ -585,7 +585,15 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                     
                     debug.logger & debug.flagMP and debug.logger('prepareDataElements: error reported')
             # 7.2.6b
-            raise statusInformation
+            if sys.version_info[0] <= 2:
+                raise statusInformation
+            else:
+                try:
+                    raise statusInformation.with_traceback(origTraceback)
+                finally:
+                    # Break cycle between locals and traceback object	
+                    # (seems to be irrelevant on Py3 but just in case)
+                    del origTraceback
         else:
             # Sniff for engineIDs
             k = (transportDomain, transportAddress)

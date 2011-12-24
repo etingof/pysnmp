@@ -179,7 +179,7 @@ class MibInstrumController:
         mibTree, = self.mibBuilder.importSymbols('SNMPv2-SMI', 'iso')
         outputNameVals = []
         state, status = 'start', 'ok'
-        myErr = None
+        origExc = None
         while 1:
             k = (state, status)
             if k in fsmTable:
@@ -210,8 +210,8 @@ class MibInstrumController:
                     rval = f(tuple(name), val, idx, acInfo)
                 except error.SmiError:
                     debug.logger & debug.flagIns and debug.logger('flipFlopFsm: fun %s failed %s for %s=%r' % (f, sys.exc_info()[1], name, val))
-                    if myErr is None:  # Take the first exception
-                        myErr = sys.exc_info()
+                    if origExc is None:  # Take the first exception
+                        origExc, origTraceback = sys.exc_info()[1:3]
                     status = 'err'
                     break
                 else:
@@ -219,16 +219,16 @@ class MibInstrumController:
                     if rval is not None:
                         outputNameVals.append((rval[0], rval[1]))
                 idx = idx + 1
-        if myErr:
+        if origExc:
             if sys.version_info[0] <= 2:
-                raise myErr[1]
+                raise origExc
             else:
                 try:
-                    raise myErr[1].with_traceback(myErr[2])
+                    raise origExc.with_traceback(origTraceback)
                 finally:
                     # Break cycle between locals and traceback object
                     # (seems to be irrelevant on Py3 but just in case)
-                    del myErr
+                    del origTraceback
         return outputNameVals
     
     def readVars(self, vars, acInfo=(None, None)):
