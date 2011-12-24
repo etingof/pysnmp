@@ -12,7 +12,7 @@ It's very easy to install it, just type (as root on Linux):
 try:
     from setuptools import setup
     params = {
-        'install_requires': [ 'pyasn1>=0.1.2', 'pycrypto>=2.3' ],
+        'install_requires': [ 'pyasn1>=0.1.2', 'pycrypto>=2.4.1' ],
         'zip_safe': True
         }
 except ImportError:
@@ -22,7 +22,7 @@ except ImportError:
             sys.exit(1)
     from distutils.core import setup
     params = {
-        'requires': [ 'pyasn1(>=0.1.2)', 'pycrypto(>=2.3)' ]
+        'requires': [ 'pyasn1(>=0.1.2)', 'pycrypto(>=2.4.1)' ]
         }
 
 params.update( {
