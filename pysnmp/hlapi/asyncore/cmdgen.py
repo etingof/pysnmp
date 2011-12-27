@@ -351,7 +351,7 @@ class AsynCommandGenerator:
     asyncBulkCmd = bulkCmd
 
 class CommandGenerator:
-    lexicographicMode = ignoreNonIncreasingOid = None
+    lexicographicMode = ignoreNonIncreasingOid = maxRows = None
     def __init__(self, snmpEngine=None, asynCmdGen=None):
         if asynCmdGen is None:
             self.__asynCmdGen = AsynCommandGenerator(snmpEngine)
@@ -426,6 +426,13 @@ class CommandGenerator:
                 appReturn['varBindTable'] = varBindTotalTable
                 return
             else:
+                if self.maxRows and len(varBindTotalTable) >= self.maxRows:
+                    appReturn['errorIndication'] = errorIndication
+                    appReturn['errorStatus'] = errorStatus
+                    appReturn['errorIndex'] = errorIndex
+                    appReturn['varBindTable'] = varBindTotalTable[:self.maxRows]
+                    return
+                
                 varBindTableRow = varBindTable[-1]
                 for idx in range(len(varBindTableRow)):
                     name, val = varBindTableRow[idx]
@@ -443,9 +450,10 @@ class CommandGenerator:
                     appReturn['errorIndex'] = errorIndex
                     appReturn['varBindTable'] = varBindTotalTable
                     return
+                
                 varBindTotalTable.extend(varBindTable)
 
-            return 1 # continue table retrieval
+                return 1 # continue table retrieval
 
         varBindHead = []
         for varName in varNames:
@@ -457,7 +465,7 @@ class CommandGenerator:
         appReturn = {}
         self.__asynCmdGen.nextCmd(
             authData, transportTarget, varNames,
-            (__cbFun, (self, varBindHead,[],appReturn))
+            (__cbFun, (self, varBindHead, [], appReturn))
             )
 
         self.__asynCmdGen.snmpEngine.transportDispatcher.runDispatcher()
@@ -493,6 +501,14 @@ class CommandGenerator:
                     
                 varBindTotalTable.extend(varBindTable) # XXX out of table 
                                                        # rows possible
+
+                if self.maxRows and len(varBindTotalTable) >= self.maxRows:
+                    appReturn['errorIndication'] = errorIndication
+                    appReturn['errorStatus'] = errorStatus
+                    appReturn['errorIndex'] = errorIndex
+                    appReturn['varBindTable'] = varBindTotalTable[:self.maxRows]
+                    return
+
                 varBindTableRow = varBindTable[-1]
                 for idx in range(len(varBindTableRow)):
                     name, val = varBindTableRow[idx]
@@ -509,8 +525,8 @@ class CommandGenerator:
                     appReturn['errorIndex'] = errorIndex
                     appReturn['varBindTable'] = varBindTotalTable
                     return
-                
-            return 1 # continue table retrieval
+
+                return 1 # continue table retrieval
 
         varBindHead = []
         for varName in varNames:

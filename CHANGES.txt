@@ -1,6 +1,8 @@
 Revision 4.2.2
 --------------
 
+- Oneliner CommandGenerator can now limit the number of SNMP table
+  rows returned by nextCmd()/bulkCmd() methods.
 - Oneliner CommunityData configuration object can now be initialized
   with community name only, security name will be chosen automatically.
 - Oneliner LCD configuration routines reworked towards clarity. The
