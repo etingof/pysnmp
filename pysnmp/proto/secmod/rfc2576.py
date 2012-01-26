@@ -194,7 +194,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                             targetAddrTAddress = tuple(
                                 SnmpUDPAddress(targetAddrTAddress)
                                 )
-                        elif targetAddrTDomain[:len(udp.snmpUDP6Domain)] == udp6.snmpUDP6Domain:
+                        elif targetAddrTDomain[:len(udp6.snmpUDP6Domain)] == udp6.snmpUDP6Domain:
                             TransportAddressIPv6, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('TRANSPORT-ADDRESS-MIB', 'TransportAddressIPv6')
                             targetAddrTAddress = tuple(
                                 TransportAddressIPv6(targetAddrTAddress)
