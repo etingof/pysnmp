@@ -87,7 +87,7 @@ class __AbstractMibSource:
 class ZipMibSource(__AbstractMibSource):
     def _init(self):
         p = __import__(
-            self._srcName, globals(),locals(), self._srcName.split('.')
+            self._srcName, globals(), locals(), self._srcName.split('.')
             )
         if hasattr(p, '__loader__'):
             self.__loader = p.__loader__
@@ -126,7 +126,7 @@ class ZipMibSource(__AbstractMibSource):
             raise IOError('No file in ZIP: %s' % p)
         
     def _getData(self, p, mode=None): return self.__loader.get_data(p)
-    
+
 class DirMibSource(__AbstractMibSource):
     def _init(self):
         self._srcName = os.path.normpath(self._srcName)
@@ -175,16 +175,20 @@ class MibBuilder:
 
     def getMibSources(self): return self.__mibSources
 
-    # Legacy/compatibility methods
+    # Legacy/compatibility methods (won't work for .eggs)
     def setMibPath(self, *mibPaths):
         self.setMibSources(*[ DirMibSource(x) for x in mibPaths ])
 
     def getMibPath(self):
-        l = []
+        paths = ()
         for mibSource in self.getMibSources():
             if isinstance(mibSource, DirMibSource):
-                l.append(mibSource.fullPath())
-        return tuple(l)
+                paths += ( mibSource.fillPath(), )
+            else:
+                raise error.SmiError(
+                    'MIB source is not a plain directory: %s' % (mibSource,)
+                    )
+        return paths
         
     def loadModules(self, *modNames, **userCtx):
         # Build a list of available modules
