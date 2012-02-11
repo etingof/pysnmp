@@ -14,6 +14,7 @@ class __AbstractMibSource:
         self._srcName = srcName
         self.__magic = imp.get_magic()
         self.__sfx = {}
+        self.__inited = None
         for sfx, mode, typ in imp.get_suffixes():
             if typ not in self.__sfx:
                 self.__sfx[typ] = []
@@ -39,7 +40,10 @@ class __AbstractMibSource:
     def fullPath(self, f='', sfx=''):
         return self._srcName + (f and (os.sep + f + sfx) or '')
     
-    def init(self): return self._init()
+    def init(self):
+        if self.__inited is None:
+            self.__inited = self._init()
+        return self.__inited
     def listdir(self): return self._listdir()
     def read(self, f):
         for pycSfx, pycSfxLen, pycMode in self.__sfx[imp.PY_COMPILED]:
@@ -155,11 +159,11 @@ class MibBuilder:
             os.environ['PYSNMP_MIB_DIRS'] = os.environ['PYSNMP_MIB_DIR']
         if 'PYSNMP_MIB_DIRS' in os.environ:
             for m in os.environ['PYSNMP_MIB_DIRS'].split(':'):
-                sources.append(DirMibSource(m).init())
+                sources.append(DirMibSource(m))
         if self.defaultMiscMibs:
             for m in self.defaultMiscMibs.split(':'):
                 try:
-                    sources.append(ZipMibSource(m).init())
+                    sources.append(ZipMibSource(m))
                 except ImportError:
                     pass
         self.mibSymbols = {}
@@ -170,7 +174,7 @@ class MibBuilder:
     # MIB modules management
 
     def setMibSources(self, *mibSources):
-        self.__mibSources = mibSources
+        self.__mibSources = [ s.init() for s in mibSources ]
         debug.logger & debug.flagBld and debug.logger('setMibPath: new MIB sources %s' % (self.__mibSources,))
 
     def getMibSources(self): return self.__mibSources
@@ -183,7 +187,7 @@ class MibBuilder:
         paths = ()
         for mibSource in self.getMibSources():
             if isinstance(mibSource, DirMibSource):
-                paths += ( mibSource.fillPath(), )
+                paths += ( mibSource.fullPath(), )
             else:
                 raise error.SmiError(
                     'MIB source is not a plain directory: %s' % (mibSource,)
