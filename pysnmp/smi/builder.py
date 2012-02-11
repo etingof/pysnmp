@@ -43,7 +43,12 @@ class __AbstractMibSource:
     def init(self):
         if self.__inited is None:
             self.__inited = self._init()
-        return self.__inited
+            if self.__inited is self:
+                self.__inited = True
+        if self.__inited is True:
+            return self
+        else:
+            return self.__inited
     def listdir(self): return self._listdir()
     def read(self, f):
         for pycSfx, pycSfxLen, pycMode in self.__sfx[imp.PY_COMPILED]:
@@ -90,15 +95,20 @@ class __AbstractMibSource:
             
 class ZipMibSource(__AbstractMibSource):
     def _init(self):
-        p = __import__(
-            self._srcName, globals(), locals(), self._srcName.split('.')
-            )
-        if hasattr(p, '__loader__'):
-            self.__loader = p.__loader__
-            self._srcName = self._srcName.replace('.', os.sep)
-            return self
-        else:
-            return DirMibSource(os.path.split(p.__file__)[0]).init()
+        try:
+            p = __import__(
+                self._srcName, globals(), locals(), self._srcName.split('.')
+                )
+            if hasattr(p, '__loader__'):
+                self.__loader = p.__loader__
+                self._srcName = self._srcName.replace('.', os.sep)
+                return self
+            else:
+                # Dir relative to PYTHONPATH
+                return DirMibSource(os.path.split(p.__file__)[0]).init()
+        except ImportError:
+            # Dir relative to CWD
+            return DirMibSource(self._srcName).init()
 
     def _parseDosTime(self, dosdate, dostime):
         t = ( ((dosdate >> 9) & 0x7f) + 1980, # year
@@ -177,7 +187,7 @@ class MibBuilder:
         self.__mibSources = [ s.init() for s in mibSources ]
         debug.logger & debug.flagBld and debug.logger('setMibPath: new MIB sources %s' % (self.__mibSources,))
 
-    def getMibSources(self): return self.__mibSources
+    def getMibSources(self): return tuple(self.__mibSources)
 
     # Legacy/compatibility methods (won't work for .eggs)
     def setMibPath(self, *mibPaths):

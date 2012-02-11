@@ -25,6 +25,7 @@ Revision 4.2.2
   module namespace so it could be used by ManagedObjects implementations.
 - When running on Python3, SMI will re-raise exceptions with the original
   traceback for easier diagnostics.
+- Out of PYTHONPATH MIB paths now supported.
 - Fix to legacy MibBuilder.getMibPath() to prevent it from missing
   .egg-based components in path.
 - Fix to oneliner configuration routine that used to implicitly
