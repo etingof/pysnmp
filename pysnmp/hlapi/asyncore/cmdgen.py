@@ -433,7 +433,7 @@ class CommandGenerator:
                     appReturn['varBindTable'] = varBindTotalTable[:self.maxRows]
                     return
                 
-                varBindTableRow = varBindTable[-1]
+                varBindTableRow = varBindTable and varBindTable[-1] or varBindTable
                 for idx in range(len(varBindTableRow)):
                     name, val = varBindTableRow[idx]
                     # XXX extra rows
@@ -498,7 +498,7 @@ class CommandGenerator:
                         del varBindTable[-1]
                     else:
                         break
-                    
+
                 varBindTotalTable.extend(varBindTable) # XXX out of table 
                                                        # rows possible
 
@@ -509,7 +509,7 @@ class CommandGenerator:
                     appReturn['varBindTable'] = varBindTotalTable[:self.maxRows]
                     return
 
-                varBindTableRow = varBindTable[-1]
+                varBindTableRow = varBindTable and varBindTable[-1] or varBindTable
                 for idx in range(len(varBindTableRow)):
                     name, val = varBindTableRow[idx]
                     if not isinstance(val, univ.Null):
