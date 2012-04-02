@@ -71,6 +71,7 @@ class PDUAPI:
         pdu.setComponentByPosition(2, value)
 
     def setEndOfMibError(self, pdu, errorIndex):
+        self.setErrorIndex(pdu, errorIndex)
         self.setErrorStatus(pdu, 2)
 
     def setNoSuchInstanceError(self, pdu, errorIndex):
