@@ -270,7 +270,7 @@ def addTargetAddr(
         (snmpTargetAddrEntry.name + (4,) + tblIdx, timeout),
         (snmpTargetAddrEntry.name + (5,) + tblIdx, retryCount),
          # XXX
-        (snmpTargetAddrEntry.name + (6,) + tblIdx,'%s %s'%(addrName,tagList)),
+        (snmpTargetAddrEntry.name + (6,) + tblIdx,'%s%s%s' % (addrName, tagList and ' ' or '', tagList)),
         (snmpTargetAddrEntry.name + (7,) + tblIdx, params),)
         )
 
