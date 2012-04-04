@@ -96,7 +96,9 @@ class BulkPDUAPI(PDUAPI):
         if R:
             for i in range(0, len(rspVarBinds)-N, R):
                 varBindRow = rspVarBinds[:N] + rspVarBinds[N+i:N+R+i]
-                varBindTable.append(varBindRow)
+                # ignore stray OIDs / non-rectangular table
+                if len(varBindRow) == N + R:
+                    varBindTable.append(varBindRow)
         elif N:
             varBindTable.append(rspVarBinds[:N])
 
