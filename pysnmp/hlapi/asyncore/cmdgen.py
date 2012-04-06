@@ -410,10 +410,10 @@ class CommandGenerator:
         def __cbFun(sendRequestHandle, errorIndication,
                     errorStatus, errorIndex, varBindTable, cbCtx):
             (self, varBindHead, varBindTotalTable, appReturn) = cbCtx
-            if errorStatus or \
-               errorIndication and not self.ignoreNonIncreasingOid or \
-               errorIndication and self.ignoreNonIncreasingOid and \
-               not isinstance(errorIndication, errind.OidNotIncreasing):
+            if self.ignoreNonIncreasingOid and errorIndication and \
+               isinstance(errorIndication, errind.OidNotIncreasing):
+                errorIndication = None
+            if errorStatus or errorIndication:
                 appReturn['errorIndication'] = errorIndication
                 if errorStatus == 2:
                     # Hide SNMPv1 noSuchName error which leaks in here
@@ -482,10 +482,10 @@ class CommandGenerator:
         def __cbFun(sendRequestHandle, errorIndication,
                     errorStatus, errorIndex, varBindTable, cbCtx):
             (self, varBindHead, varBindTotalTable, appReturn) = cbCtx
-            if errorStatus or \
-               errorIndication and not self.ignoreNonIncreasingOid or \
-               errorIndication and self.ignoreNonIncreasingOid and \
-               not isinstance(errorIndication, errind.OidNotIncreasing):
+            if self.ignoreNonIncreasingOid and errorIndication and \
+               isinstance(errorIndication, errind.OidNotIncreasing):
+                errorIndication = None
+            if errorStatus or errorIndication:
                 appReturn['errorIndication'] = errorIndication
                 appReturn['errorStatus'] = errorStatus
                 appReturn['errorIndex'] = errorIndex
