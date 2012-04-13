@@ -20,7 +20,7 @@ FEATURES
 * Twisted (http://twistedmatrix.com) integration
 * IPv6 transport support
 * Python eggs and py2exe friendly
-* 100% Python, works with Python 2.4 though 3.2
+* 100% Python, works with Python 2.4 though 3.3 (alpha 2)
 * MT-safe (only if run locally to a thread)
 
 Features, specific to SNMPv3 model include:
