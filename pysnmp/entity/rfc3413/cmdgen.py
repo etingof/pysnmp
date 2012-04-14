@@ -4,7 +4,6 @@ from pysnmp.entity.rfc3413 import config
 from pysnmp.proto.proxy import rfc2576
 from pysnmp import error, nextid, debug
 from pyasn1.type import univ
-from pyasn1.compat.octets import null
 
 getNextHandle = nextid.Integer(0x7fffffff)
                              
@@ -39,6 +38,7 @@ class CommandGeneratorBase:
     _null = univ.Null('')
     def __init__(self):
         self.__pendingReqs = {}
+        self.__SnmpEngineID, self.__SnmpAdminString = None, None
             
     def processResponsePdu(
         self,
@@ -156,7 +156,7 @@ class CommandGeneratorBase:
         cbFun,
         cbCtx=None,
         contextEngineId=None,
-        contextName=null
+        contextName=''
         ):
         raise error.PySnmpError('Method not implemented')
 
@@ -183,6 +183,14 @@ class CommandGeneratorBase:
 
         # Convert timeout in seconds into timeout in timer ticks
         timeoutInTicks = float(timeout)/100/snmpEngine.transportDispatcher.getTimerResolution()
+
+        if not self.__SnmpEngineID or not self.__SnmpAdminString:
+            self.__SnmpEngineID, self.__SnmpAdminString = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'SnmpEngineID', 'SnmpAdminString')
+
+        # Cast possible strings into bytes
+        if contextEngineId:
+            contextEngineId = self.__SnmpEngineID(contextEngineId)
+        contextName = self.__SnmpAdminString(contextName)
 
         # 3.1
         sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(
@@ -233,7 +241,7 @@ class GetCommandGenerator(CommandGeneratorBase):
         cbFun,
         cbCtx=None,
         contextEngineId=None,
-        contextName=null
+        contextName=''
         ):
         ( transportDomain,
           transportAddress,
@@ -311,7 +319,7 @@ class SetCommandGenerator(CommandGeneratorBase):
         cbFun,
         cbCtx=None,
         contextEngineId=None,
-        contextName=null
+        contextName=''
         ):
         ( transportDomain,
           transportAddress,
@@ -394,7 +402,7 @@ class NextCommandGenerator(CommandGeneratorBase):
         cbFun,
         cbCtx=None,
         contextEngineId=None,
-        contextName=null
+        contextName=''
         ):
         ( transportDomain,
           transportAddress,
@@ -510,7 +518,7 @@ class BulkCommandGenerator(CommandGeneratorBase):
         cbFun,
         cbCtx=None,
         contextEngineId=None,
-        contextName=null
+        contextName=''
         ):
         ( transportDomain,
           transportAddress,

@@ -26,6 +26,8 @@ Revision 4.2.2
 - When running on Python3, SMI will re-raise exceptions with the original
   traceback for easier diagnostics.
 - Out of PYTHONPATH MIB paths now supported.
+- Fix to ContextName handling in bytes form whilst running Python3. Data
+  mismatch error would return otherwise.
 - Fix to oneliner GETNEXT/GETBULK implementation to properly support
   ignoreNonIncreasingOIDs option.
 - Fix to setEndOfMibError()/setNoSuchInstanceError() at v1 PDU not to
