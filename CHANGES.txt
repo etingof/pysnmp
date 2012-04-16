@@ -28,6 +28,7 @@ Revision 4.2.2
 - Out of PYTHONPATH MIB paths now supported.
 - Fix to ContextName handling in bytes form whilst running Python3. Data
   mismatch error would return otherwise.
+- Fix to socket.error processing at Py3 on Windows.
 - Fix to oneliner GETNEXT/GETBULK implementation to properly support
   ignoreNonIncreasingOIDs option.
 - Fix to setEndOfMibError()/setNoSuchInstanceError() at v1 PDU not to
