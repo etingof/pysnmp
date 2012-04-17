@@ -12,19 +12,34 @@ It's very easy to install it, just type (as root on Linux):
 try:
     from setuptools import setup
     params = {
-        'install_requires': [ 'pyasn1>=0.1.2', 'pycrypto>=2.4.1' ],
+        'install_requires': [ 'pyasn1>=0.1.2' ],
         'zip_safe': True
         }
+    if sys.platform.lower()[:3] != 'win':
+        params['install_requires'].append('pycrypto>=2.4.1')
+
 except ImportError:
     for arg in sys.argv:
         if arg.find('egg') != -1:
             howto_install_setuptools()
             sys.exit(1)
     from distutils.core import setup
-    params = {
-        'requires': [ 'pyasn1(>=0.1.2)', 'pycrypto(>=2.4.1)' ]
-        }
+    params = {}
+    if sys.version_info[:2] > (2, 4):
+        params['requires'] = [ 'pyasn1(>=0.1.2)' ]
+        if sys.platform.lower()[:3] != 'win':
+            params['requires'].append('pycrypto(>=2.4.1)')
 
+if sys.platform.lower()[:3] == 'win':
+    try:
+        import Crypto
+    except ImportError:
+        sys.stderr.write("""WARNING! WARNING! WARNING!
+PyCrypto binaries are required for SNMPv3 encryption to work.
+You may wish to grab them from http://www.voidspace.org.uk/python/modules.shtml
+and install into your system.
+""")
+ 
 params.update( {
     'name': 'pysnmp',
     'version': '4.2.2',
