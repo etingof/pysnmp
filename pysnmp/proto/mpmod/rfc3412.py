@@ -55,7 +55,6 @@ _snmpErrors = {
 class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
     messageProcessingModelID = univ.Integer(3) # SNMPv3
     snmpMsgSpec = SNMPv3Message
-    _scopedPDU = ScopedPDU()
     _emptyStr = univ.OctetString('')
     _msgFlags = {
         0: univ.OctetString('\x00'),
@@ -67,6 +66,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         }
     def __init__(self):
         AbstractMessageProcessingModel.__init__(self)
+        self.__scopedPDU = ScopedPDU()
         self.__engineIDs = {}
         self.__engineIDsExpQueue = {}
         self.__expirationTimer = 0
@@ -122,7 +122,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: using contextEngineId %r, contextName %r' % (contextEngineId, contextName))
         
         # 7.1.6
-        scopedPDU = self._scopedPDU
+        scopedPDU = self.__scopedPDU
         scopedPDU.setComponentByPosition(0, contextEngineId)
         scopedPDU.setComponentByPosition(1, contextName)
         scopedPDU.setComponentByPosition(2)
@@ -196,7 +196,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                     2, self._msgFlags[msgFlags & 0xfc], verifyConstraints=False
                     )
                 # XXX
-                scopedPDU = self._scopedPDU
+                scopedPDU = self.__scopedPDU
                 scopedPDU.setComponentByPosition(
                     0, self._emptyStr, verifyConstraints=False
                     )
@@ -352,7 +352,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         debug.logger & debug.flagMP and debug.logger('prepareResponseMessage: using contextEngineId %r, contextName %r' % (contextEngineId, contextName))
 
         # 7.1.6
-        scopedPDU = self._scopedPDU
+        scopedPDU = self.__scopedPDU
         scopedPDU.setComponentByPosition(0, contextEngineId)
         scopedPDU.setComponentByPosition(1, contextName)
         scopedPDU.setComponentByPosition(2)

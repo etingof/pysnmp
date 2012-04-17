@@ -40,9 +40,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         aes256.Aes256.serviceID: aes256.Aes256(),
         nopriv.NoPriv.serviceID: nopriv.NoPriv()
         }
-    _securityParametersSpec = UsmSecurityParameters()
     def __init__(self):
         AbstractSecurityModel.__init__(self)
+        self.__securityParametersSpec = UsmSecurityParameters()
         self.__timeline = {}
         self.__timelineExpQueue = {}
         self.__expirationTimer = 0
@@ -277,7 +277,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     errorIndication = errind.unsupportedSecurityLevel
                     )
 
-        securityParameters = self._securityParametersSpec
+        securityParameters = self.__securityParametersSpec
 
         scopedPDUData = msg.setComponentByPosition(3).getComponentByPosition(3)
         scopedPDUData.setComponentByPosition(
@@ -487,7 +487,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         try:
             securityParameters, rest = decoder.decode(
                 securityParameters,
-                asn1Spec=self._securityParametersSpec
+                asn1Spec=self.__securityParametersSpec
                 )
         except PyAsn1Error:
            snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
