@@ -598,20 +598,23 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             # Sniff for engineIDs
             k = (transportDomain, transportAddress)
             if k not in self.__engineIDs:
-                contextEngineId, contextName, pdu = scopedPDU
-                
-                self.__engineIDs[k] = {
-                    'securityEngineID': securityEngineID,
-                    'contextEngineId': contextEngineId,
-                    'contextName': contextName
-                    }
+                contextEngineId, contextName, pdus = scopedPDU
+                pdu = pdus.getComponent()
+                # Here we assume that authentic/default EngineIDs
+                # come only in the course of engine-to-engine communication.
+                if pdu.tagSet in rfc3411.internalClassPDUs:
+                    self.__engineIDs[k] = {
+                        'securityEngineID': securityEngineID,
+                        'contextEngineId': contextEngineId,
+                        'contextName': contextName
+                        }
 
-                expireAt = self.__expirationTimer + 300
-                if expireAt not in self.__engineIDsExpQueue:
-                    self.__engineIDsExpQueue[expireAt] = []
-                self.__engineIDsExpQueue[expireAt].append(k)
+                    expireAt = self.__expirationTimer + 300
+                    if expireAt not in self.__engineIDsExpQueue:
+                        self.__engineIDsExpQueue[expireAt] = []
+                    self.__engineIDsExpQueue[expireAt].append(k)
                     
-                debug.logger & debug.flagMP and debug.logger('prepareDataElements: cache securityEngineID %r for %r %r' % (securityEngineID, transportDomain, transportAddress))
+                    debug.logger & debug.flagMP and debug.logger('prepareDataElements: cache securityEngineID %r for %r %r' % (securityEngineID, transportDomain, transportAddress))
 
         snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
         snmpEngineID = snmpEngineID.syntax

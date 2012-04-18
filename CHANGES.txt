@@ -29,6 +29,8 @@ Revision 4.2.2
 - Fix to non-MT-safe class attributes at SNMPv3 MP & SEC modules.
 - Fix to ContextName handling in bytes form whilst running Python3. Data
   mismatch error would return otherwise.
+- Fix to SNMPv3 MP peer engine ID discovery not to learn and use
+  user-specified ContextEngineId.
 - Fix to socket.error processing at Py3 on Windows.
 - Fix to oneliner GETNEXT/GETBULK implementation to properly support
   ignoreNonIncreasingOIDs option.
