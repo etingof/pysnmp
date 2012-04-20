@@ -26,6 +26,7 @@ Revision 4.2.2
 - When running on Python3, SMI will re-raise exceptions with the original
   traceback for easier diagnostics.
 - Out of PYTHONPATH MIB paths now supported.
+- Added pyasn1 decoder failures diagnistics in debug mode.
 - Fix to non-MT-safe class attributes at SNMPv3 MP & SEC modules.
 - Fix to ContextName handling in bytes form whilst running Python3. Data
   mismatch error would return otherwise.

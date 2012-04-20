@@ -1,4 +1,5 @@
 # SNMP v1 & v2c message processing models implementation
+import sys
 from pyasn1.codec.ber import decoder
 from pyasn1.type import univ
 from pyasn1.compat.octets import null
@@ -223,6 +224,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                 wholeMsg, asn1Spec=self._snmpMsgSpec
                 )
         except PyAsn1Error:
+            debug.logger & debug.flagMP and debug.logger('prepareDataElements: %s' % (sys.exc_info()[1],))
             snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
             snmpInASNParseErrs.syntax = snmpInASNParseErrs.syntax + 1
             raise error.StatusInformation(

@@ -490,11 +490,12 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 asn1Spec=self.__securityParametersSpec
                 )
         except PyAsn1Error:
-           snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
-           snmpInASNParseErrs.syntax = snmpInASNParseErrs.syntax + 1
-           raise error.StatusInformation(
-               errorIndication=errind.parseError
-               )
+            debug.logger & debug.flagSM and debug.logger('processIncomingMsg: %s' % (sys.exc_info()[1],))
+            snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
+            snmpInASNParseErrs.syntax = snmpInASNParseErrs.syntax + 1
+            raise error.StatusInformation(
+                errorIndication=errind.parseError
+                )
 
         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: %s' % (securityParameters.prettyPrint(),))
 
