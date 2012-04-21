@@ -147,7 +147,10 @@ class DirMibSource(__AbstractMibSource):
         return self
     
     def _listdir(self):
-        return self._uniqNames(os.listdir(self._srcName))
+        try:
+            return self._uniqNames(os.listdir(self._srcName))
+        except OSError:
+            return ()
 
     def _getTimestamp(self, p):
         return os.stat(p)[8]
