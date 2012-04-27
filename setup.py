@@ -42,7 +42,7 @@ and install into your system.
  
 params.update( {
     'name': 'pysnmp',
-    'version': '4.2.2',
+    'version': '4.2.3',
     'description': 'SNMP framework',
     'author': 'Ilya Etingof',
     'author_email': 'ilya@glas.net',

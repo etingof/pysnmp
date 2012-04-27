@@ -1,3 +1,8 @@
+Revision 4.2.3
+--------------
+
+- Fix to libsmi2pysnmp tool to make it working again in Python < 2.7
+
 Revision 4.2.2
 --------------
 
