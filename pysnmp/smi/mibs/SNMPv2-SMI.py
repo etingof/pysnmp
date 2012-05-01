@@ -325,7 +325,7 @@ class MibTree(ObjectType):
         try:
             node = self.getBranch(name, idx)
         except error.NoSuchObjectError:
-            return name, exval.noSuchInstance
+            return name, exval.noSuchObject
         else:
             return node.readGet(name, val, idx, acInfo)
 
@@ -426,28 +426,38 @@ class MibScalar(MibTree):
         (acFun, acCtx) = acInfo
         if name == self.name:
             raise error.NoAccessError(idx=idx, name=name)
-        else:
-            MibTree.readTest(self, name, val, idx, acInfo)
-        # If instance exists, check permissions
         if acFun:
             if self.maxAccess not in (
                 'readonly', 'readwrite', 'readcreate'
                 ) or acFun(name, self.syntax, idx, 'read', acCtx):
                 raise error.NoAccessError(idx=idx, name=name)
- 
-    
+        MibTree.readTest(self, name, val, idx, acInfo)
+
+    def readGet(self, name, val, idx, acInfo):
+        try:
+            node = self.getBranch(name, idx)
+        except error.NoSuchObjectError:
+            return name, exval.noSuchInstance
+        else:
+            return node.readGet(name, val, idx, acInfo)
+
     def readTestNext(self, name, val, idx, acInfo, oName=None):
         (acFun, acCtx) = acInfo
-        if name == self.name:
-            raise error.NoAccessError(idx=idx, name=name)
-        else:
-            MibTree.readTestNext(self, name, val, idx, acInfo, oName)
-        # If instance exists, check permissions
         if acFun:
             if self.maxAccess not in (
                 'readonly', 'readwrite', 'readcreate'
                 ) or acFun(name, self.syntax, idx, 'read', acCtx):
                 raise error.NoAccessError(idx=idx, name=name)
+        MibTree.readTestNext(self, name, val, idx, acInfo, oName)
+ 
+    def readGetNext(self, name, val, idx, acInfo, oName=None):
+        (acFun, acCtx) = acInfo
+        if acFun:
+            if self.maxAccess not in (
+                'readonly', 'readwrite', 'readcreate'
+                ) or acFun(name, self.syntax, idx, 'read', acCtx):
+                raise error.NoAccessError(idx=idx, name=name)
+        return MibTree.readGetNext(self, name, val, idx, acInfo, oName)
  
     # Two-phase commit implementation
 
@@ -455,13 +465,11 @@ class MibScalar(MibTree):
         (acFun, acCtx) = acInfo
         if name == self.name:
             raise error.NoAccessError(idx=idx, name=name)
-        else:
-            MibTree.writeTest(self, name, val, idx, acInfo)
-        # If instance exists, check permissions
         if acFun:
             if self.maxAccess not in ('readwrite', 'readcreate') or \
                    acFun(name, self.syntax, idx, 'write', acCtx):
                 raise error.NotWritableError(idx=idx, name=name)
+        MibTree.writeTest(self, name, val, idx, acInfo)
 
 class MibScalarInstance(MibTree):
     """Scalar MIB variable instance. Implements read/write operations."""
