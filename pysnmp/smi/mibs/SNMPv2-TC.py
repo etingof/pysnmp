@@ -190,13 +190,14 @@ class TruthValue(Integer, TextualConvention):
 class TestAndIncr(Integer, TextualConvention):
     subtypeSpec = Integer.subtypeSpec+ValueRangeConstraint(0, 2147483647)
     defaultValue = 0
-    def smiWrite(self, name, value, idx):
-        if value != self:
-            raise error.InconsistentValueError(idx=idx, name=name)
-        value = value + 1
-        if value > 2147483646:
-            value = 0
-        return self.clone(value)
+    def clone(self, value=None, **kwargs):
+        if value is not None:
+            if value != self:
+                raise error.InconsistentValueError()
+            value = value + 1
+            if value > 2147483646:
+                value = 0
+        return Integer.clone(self, value)
 
 class AutonomousType(ObjectIdentifier, TextualConvention): pass
 class InstancePointer(ObjectIdentifier, TextualConvention):
@@ -291,34 +292,24 @@ class RowStatus(Integer, TextualConvention):
     defaultValue = stNotExists
     pendingError = None
     
-    def smiWrite(self, name, value, idx):
+    def clone(self, value=None, **kwargs):
         # Run through states transition matrix, resolve new instance value
-        err, val = self.stateMatrix.get(
-            (self.clone(value), int(self)), (error.MibOperationError, None)
+        err, value = self.stateMatrix.get(
+            (Integer.clone(self, value), int(self)), (error.MibOperationError, None)
             )
         debug.logger & debug.flagIns and debug.logger('RowStatus state resolution: %s, %s -> %s, %s' % (value, int(self), err, val))
-        if val is None:
-            val = self
+        if value is None:
+            value = self
         else:
-            val = self.clone(val)
+            value = Integer.clone(self, value)
         if err is not None:
             err = err(
                 msg='Exception at row state transition %s->%s' % (self, value),
-                idx=idx
+		syntax=value
                 )
-            val.smiSetPendingError(err)
-        return val
-
-    def smiCreate(self, name, value, idx):
-        return self.smiWrite(name, value, idx)
-        
-    def smiRaisePendingError(self):
-        if self.pendingError:
-            err, self.pendingError = self.pendingError, None
             raise err
-    def smiSetPendingError(self, err):
-        self.pendingError = err
-        
+        return value
+
 class TimeStamp(TimeTicks, TextualConvention): pass
 
 class TimeInterval(Integer, TextualConvention):

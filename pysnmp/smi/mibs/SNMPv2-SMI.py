@@ -1,3 +1,4 @@
+import sys
 from pysnmp.smi.indices import OidOrderedDict
 from pysnmp.smi import exval, error
 from pysnmp.proto import rfc1902
@@ -301,7 +302,7 @@ class MibTree(ObjectType):
                 except KeyError:
                     raise error.NoSuchObjectError(idx=idx, name=name)
  
-   # MIB instrumentation
+    # MIB instrumentation
 
     # Read operation
     
@@ -452,6 +453,9 @@ class MibScalar(MibTree):
  
     def readGetNext(self, name, val, idx, acInfo, oName=None):
         (acFun, acCtx) = acInfo
+        # have to dublicate AC here as *Next code above treats
+        # noAccess as a noSuchObject at the Test stage, goes on
+        # to Readingg
         if acFun:
             if self.maxAccess not in (
                 'readonly', 'readwrite', 'readcreate'
@@ -520,12 +524,14 @@ class MibScalarInstance(MibTree):
     def writeTest(self, name, val, idx, acInfo):
         # Make sure write's allowed
         if name == self.name:
-            if hasattr(self.syntax, 'smiWrite'):
-                self.__newSyntax = self.syntax.smiWrite(name, val, idx)
-            else:
+            try:
                 self.__newSyntax = self.syntax.clone(val)
-            if hasattr(self.__newSyntax, 'smiRaisePendingError'):
-                self.__newSyntax.smiRaisePendingError()
+            except error.MibOperationError:
+                # SMI exceptions may carry additional content
+                why = sys.exc_info()[1]
+                if 'syntax' in why:
+                    self.__newSyntax = why['syntax']
+                raise why
         else:
             raise error.NoSuchObjectError(idx=idx, name=name)
 
@@ -552,19 +558,25 @@ class MibScalarInstance(MibTree):
 
     def createTest(self, name, val, idx, acInfo):
         if name == self.name:
-            if hasattr(self.syntax, 'smiCreate'):
-                self.__newSyntax = self.syntax.smiCreate(name, val, idx)
-            else:
+            try:
                 self.__newSyntax = self.syntax.clone(val)
+            except error.MibOperationError:
+                # SMI exceptions may carry additional content
+                why = sys.exc_info()[1]
+                if 'syntax' in why:
+                    self.__newSyntax = why['syntax']
         else:
             raise error.NoSuchObjectError(idx=idx, name=name)
+
     def createCommit(self, name, val, idx, acInfo):
         if val is not None:
             self.writeCommit(name, val, idx, acInfo)
+
     def createCleanup(self, name, val, idx, acInfo):
         debug.logger & debug.flagIns and debug.logger('createCleanup: %s=%r' % (name, val))
         if val is not None:
             self.writeCleanup(name, val, idx, acInfo)
+
     def createUndo(self, name, val, idx, acInfo):
         if val is not None:
             self.writeUndo(name, val, idx, acInfo)
@@ -573,10 +585,13 @@ class MibScalarInstance(MibTree):
 
     def destroyTest(self, name, val, idx, acInfo):
         if name == self.name:
-            if hasattr(self.syntax, 'smiDestroy'):
-                self.__newSyntax = self.syntax.smiDestoy(name, val)
-            else:
+            try:
                 self.__newSyntax = self.syntax.clone(val)
+            except error.MibOperationError:
+                # SMI exceptions may carry additional content
+                why = sys.exc_info()[1]
+                if 'syntax' in why:
+                    self.__newSyntax = why['syntax']
         else:
             raise error.NoSuchObjectError(idx=idx, name=name)
     def destroyCommit(self, name, val, idx, acInfo): pass

@@ -1,11 +1,13 @@
 Revision 4.2.3
 --------------
 
+- Mib Instrumentation subsystem re-worked to get rid of an excessive
+  unpublished MIB values smiCreate()/smiWrite()/smiDestroy() methods.
+- MibTree.readTest[Get]Next() reworked to be called uniformely so
+  user could tap on these methods at any level of the MIB tree.
 - Fix to MibTree class to properly report noSuchObject & noSuchInstance
   SNMP special values.
 - Fix to libsmi2pysnmp tool to make it working again in Python < 2.7
-- MibTree.readTest[Get]Next() reworked to be called uniformely so
-  user could tap on these methods at any level of the MIB tree.
 
 Revision 4.2.2
 --------------
