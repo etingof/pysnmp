@@ -305,7 +305,7 @@ class RowStatus(Integer, TextualConvention):
         if err is not None:
             err = err(
                 msg='Exception at row state transition %s->%s' % (self, value),
-		syntax=value
+                syntax=value
                 )
             raise err
         return value

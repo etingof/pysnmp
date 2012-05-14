@@ -336,9 +336,9 @@ class MibTree(ObjectType):
      
     def readTestNext(self, name, val, idx, acInfo, oName=None):
         if oName is None:
-	    oName = name
+            oName = name
             topOfTheMib = True
-	else:
+        else:
             topOfTheMib = False
         nextName = name
         direction = self.depthFirst
@@ -348,26 +348,26 @@ class MibTree(ObjectType):
                 try:
                     node = self.getBranch(nextName, idx)
                 except error.NoSuchObjectError:
-		    continue
+                    continue
             else:
-		try:
+                try:                
                     node = self.getNextBranch(nextName, idx)
                 except error.NoSuchObjectError:
-		    if topOfTheMib:
+                    if topOfTheMib:
                         return
                     raise
-		direction = self.depthFirst
+                direction = self.depthFirst
                 nextName = node.name
-	    try:
+            try:
                 return node.readTestNext(nextName, val, idx, acInfo, oName)
             except (error.NoAccessError,error.NoSuchObjectError):
-	        pass
-	    
+                pass
+    
     def readGetNext(self, name, val, idx, acInfo, oName=None):
         if oName is None:
-	    oName = name
+            oName = name
             topOfTheMib = True
-	else:
+        else:
             topOfTheMib = False
         nextName = name
         direction = self.depthFirst
@@ -377,20 +377,20 @@ class MibTree(ObjectType):
                 try:
                     node = self.getBranch(nextName, idx)
                 except error.NoSuchObjectError:
-		    continue
+                    continue
             else:
                 try:
                     node = self.getNextBranch(nextName, idx)
                 except error.NoSuchObjectError:
-		    if topOfTheMib:
+                    if topOfTheMib:
                         return name, exval.endOfMib
                     raise
-		direction = self.depthFirst
+                direction = self.depthFirst
                 nextName = node.name
-	    try:
+            try:
                 return node.readGetNext(nextName, val, idx, acInfo, oName)
             except (error.NoAccessError,error.NoSuchObjectError):
-	        pass
+                pass
 
     # Write operation
     
@@ -802,7 +802,7 @@ class MibTableColumn(MibScalar):
                 )
         if isinstance(self.__rowOpWanted[name], error.RowDestructionWanted):
             getattr(self, 'destroy'+subAction)(
-			    name, val, idx, acInfo
+                           name, val, idx, acInfo
                 )
         
     def writeCommit(self, name, val, idx, acInfo):
