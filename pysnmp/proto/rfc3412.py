@@ -269,7 +269,7 @@ class MsgAndPduDispatcher:
         try:
             restOfWholeMsg = null # XXX fix decoder non-recursive return
             msgVersion = verdec.decodeMessageVersion(wholeMsg)
-        except PySnmpError:
+        except error.ProtocolError:
             snmpInAsn1ParseErrs, = self.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInAsn1ParseErrs')
             snmpInAsn1ParseErrs.syntax = snmpInAsn1ParseErrs.syntax + 1
             return null  # n.b the whole buffer gets dropped

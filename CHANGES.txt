@@ -8,6 +8,8 @@ Revision 4.2.3
 - Fix to MibTree class to properly report noSuchObject & noSuchInstance
   SNMP special values.
 - Fix to libsmi2pysnmp tool to make it working again in Python < 2.7
+- Fix to exception handling at decodeMessageVersion() caller to prevent
+  ASN.1 parsing errors crashing the whole app.
 
 Revision 4.2.2
 --------------
