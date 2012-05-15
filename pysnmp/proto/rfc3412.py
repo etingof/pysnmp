@@ -270,8 +270,8 @@ class MsgAndPduDispatcher:
             restOfWholeMsg = null # XXX fix decoder non-recursive return
             msgVersion = verdec.decodeMessageVersion(wholeMsg)
         except error.ProtocolError:
-            snmpInAsn1ParseErrs, = self.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInAsn1ParseErrs')
-            snmpInAsn1ParseErrs.syntax = snmpInAsn1ParseErrs.syntax + 1
+            snmpInASNParseErrs, = self.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
+            snmpInASNParseErrs.syntax = snmpInASNParseErrs.syntax + 1
             return null  # n.b the whole buffer gets dropped
 
         debug.logger & debug.flagDsp and debug.logger('receiveMessage: msgVersion %s, msg decoded' % msgVersion)
