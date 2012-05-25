@@ -5,7 +5,8 @@ Revision 4.2.3
   unpublished MIB values smiCreate()/smiWrite()/smiDestroy() methods.
 - MibTree.readTest[Get]Next() reworked to be called uniformely so
   user could tap on these methods at any level of the MIB tree.
-- Fix to SNMPv2 exception objects translation into SNMPv1 PDU.
+- Fix to SNMPv2 exception objects translation into SNMPv1 PDU and NEXT
+  OIDs calculation.
 - Fix to MibTree class to properly report noSuchObject & noSuchInstance
   SNMP special values.
 - Fix to libsmi2pysnmp tool to make it working again in Python < 2.7
