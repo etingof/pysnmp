@@ -19,6 +19,10 @@ Opaque = rfc1902.Opaque
 Counter64 = rfc1902.Counter64
 Bits = rfc1902.Bits
 
+NoSuchObject = rfc1905.NoSuchObject
+NoSuchInstance = rfc1905.NoSuchInstance
+EndOfMibView = rfc1905.EndOfMibView
+
 VarBind = rfc1905.VarBind
 VarBindList = rfc1905.VarBindList
 GetRequestPDU = rfc1905.GetRequestPDU
