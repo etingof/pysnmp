@@ -257,7 +257,9 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
                     raise error.ProtocolError('Counter64 on the way')
 
             # 4.1.2.2.1&2
-            if isinstance(val, v2c.Null):
+            if val.tagSet in (v2c.NoSuchObject.tagSet,
+                              v2c.NoSuchInstance.tagSet,
+                              v2c.EndOfMibView.tagSet):
                 v1.apiPDU.setErrorStatus(v1Pdu, 2)
                 v1.apiPDU.setErrorIndex(v1Pdu, idx+1)
                 
