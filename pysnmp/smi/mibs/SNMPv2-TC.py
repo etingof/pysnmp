@@ -297,7 +297,7 @@ class RowStatus(Integer, TextualConvention):
         err, value = self.stateMatrix.get(
             (Integer.clone(self, value), int(self)), (error.MibOperationError, None)
             )
-        debug.logger & debug.flagIns and debug.logger('RowStatus state resolution: %s, %s -> %s, %s' % (value, int(self), err, val))
+        debug.logger & debug.flagIns and debug.logger('RowStatus state resolution: %s, %s -> %s, %s' % (value, int(self), err, value))
         if value is None:
             value = self
         else:
