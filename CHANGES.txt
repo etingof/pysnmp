@@ -5,6 +5,10 @@ Revision 4.2.3
   unpublished MIB values smiCreate()/smiWrite()/smiDestroy() methods.
 - MibTree.readTest[Get]Next() reworked to be called uniformely so
   user could tap on these methods at any level of the MIB tree.
+- SECURITY FIX: USM subsystem did not verify securityLevel of inbound
+  message against auth/priv protocols configured for the user in question.
+  That allowed unauthenticated/unciphered access to pysnmp-based Agent 
+  even if USM user is configured to provide one.
 - Fix to SNMPv2 exception objects translation into SNMPv1 PDU and NEXT
   OIDs calculation.
 - Fix to MibTree class to properly report noSuchObject & noSuchInstance

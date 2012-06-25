@@ -203,7 +203,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             if 'usmUserAuthProtocol' in cachedSecurityData:
                 usmUserAuthProtocol = cachedSecurityData['usmUserAuthProtocol']
             else:
-                usmUserAuthProtocol = None
+                usmUserAuthProtocol = noauth.NoAuth.serviceID
             if 'usmUserAuthKeyLocalized' in cachedSecurityData:
                 usmUserAuthKeyLocalized = cachedSecurityData['usmUserAuthKeyLocalized']
             else:
@@ -211,7 +211,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             if 'usmUserPrivProtocol' in cachedSecurityData:
                 usmUserPrivProtocol = cachedSecurityData['usmUserPrivProtocol']
             else:
-                usmUserPrivProtocol = None
+                usmUserPrivProtocol = nopriv.NoPriv.serviceID
             if 'usmUserPrivKeyLocalized' in cachedSecurityData:
                 usmUserPrivKeyLocalized = cachedSecurityData['usmUserPrivKeyLocalized']
             else:
@@ -255,8 +255,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         else:
             # empty username used for engineID discovery
             usmUserName = usmUserSecurityName = null
-            usmUserAuthProtocol = usmUserAuthKeyLocalized = None
-            usmUserPrivProtocol = usmUserPrivKeyLocalized = None
+            usmUserAuthProtocol = noauth.NoAuth.serviceID
+            usmUserPrivProtocol = nopriv.NoPriv.serviceID
+            usmUserAuthKeyLocalized = usmUserPrivKeyLocalized = None
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: use empty USM data')
             
         debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: local user usmUserName %r usmUserAuthProtocol %s usmUserPrivProtocol %s securityEngineID %r securityName %r' % (usmUserName, usmUserAuthProtocol, usmUserPrivProtocol, securityEngineID, securityName))
@@ -265,14 +266,15 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         
         # 3.1.2
         if securityLevel == 3:
-            if not usmUserAuthProtocol or not usmUserPrivProtocol:
+            if usmUserAuthProtocol == noauth.NoAuth.serviceID or \
+               usmUserPrivProtocol == nopriv.NoPriv.serviceID:
                 raise error.StatusInformation(
                     errorIndication = errind.unsupportedSecurityLevel
                     )
 
         # 3.1.3
         if securityLevel == 3 or securityLevel == 2:
-            if not usmUserAuthProtocol:
+            if usmUserAuthProtocol == noauth.NoAuth.serviceID:
                 raise error.StatusInformation(
                     errorIndication = errind.unsupportedSecurityLevel
                     )
@@ -608,8 +610,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         else:
             # empty username used for engineID discovery
             usmUserName = usmUserSecurityName = null
-            usmUserAuthProtocol = usmUserAuthKeyLocalized = None
-            usmUserPrivProtocol = usmUserPrivKeyLocalized = None
+            usmUserAuthProtocol = noauth.NoAuth.serviceID
+            usmUserPrivProtocol = nopriv.NoPriv.serviceID
+            usmUserAuthKeyLocalized = usmUserPrivKeyLocalized = None
 
         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: now have usmUserSecurityName %s usmUserAuthProtocol %s usmUserPrivProtocol %s for msgUserName %s' % (usmUserSecurityName, usmUserAuthProtocol, usmUserPrivProtocol, msgUserName))
 
@@ -624,20 +627,31 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             )
 
         # 3.2.5
-        __reportError = 0
+        __badSecIndication = None
         if securityLevel == 3:
-            if not usmUserAuthProtocol or not usmUserPrivProtocol:
-                __reportError = 1
-            elif securityLevel == 2:
-                if not usmUserAuthProtocol:
-                    __reportError = 1
-        if __reportError:
+            if usmUserAuthProtocol == noauth.NoAuth.serviceID:
+                __badSecIndication = 'authPriv wanted while auth not expected'
+            if usmUserPrivProtocol == nopriv.NoPriv.serviceID:
+                __badSecIndication = 'authPriv wanted while priv not expected'
+        elif securityLevel == 2:
+            if usmUserAuthProtocol == noauth.NoAuth.serviceID:
+                __badSecIndication = 'authNoPriv wanted while auth not expected'
+            if usmUserPrivProtocol != nopriv.NoPriv.serviceID:
+                __badSecIndication = 'authNoPriv wanted while priv expected'
+
+        elif securityLevel == 1:
+            if usmUserAuthProtocol != noauth.NoAuth.serviceID:
+                __badSecIndication = 'noAuthNoPriv wanted while auth expected'
+            if usmUserPrivProtocol != nopriv.NoPriv.serviceID:
+                __badSecIndication = 'noAuthNoPriv wanted while priv expected'
+        if __badSecIndication:
             usmStatsUnsupportedSecLevels, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnsupportedSecLevels')
             usmStatsUnsupportedSecLevels.syntax = usmStatsUnsupportedSecLevels.syntax + 1
+            debug.logger & debug.flagSM and debug.logger('processIncomingMsg: reporting inappropriate security level for user %s: %s' % (msgUserName, __badSecIndication))
             raise error.StatusInformation(
                 errorIndication=errind.unsupportedSecurityLevel,
-                oid=usmStatsUnknownEngineIDs.name,
-                val=usmStatsUnknownEngineIDs.syntax,
+                oid=usmStatsUnsupportedSecLevels.name,
+                val=usmStatsUnsupportedSecLevels.syntax,
                 securityStateReference=securityStateReference,
                 securityLevel=securityLevel,
                 contextEngineId=contextEngineId,
