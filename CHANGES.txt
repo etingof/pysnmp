@@ -12,6 +12,8 @@ Revision 4.2.3
 - Fix to libsmi2pysnmp tool to make it working again in Python < 2.7
 - Fix to exception handling at decodeMessageVersion() caller to prevent
   ASN.1 parsing errors crashing the whole app.
+- Fix to GenericTrap type processing at rfc2576:v1Tov2c() which used to
+  crash the whole SNMP engine.
 - Typo fix to snmpInASNParseErrs MIB instance object.
 
 Revision 4.2.2
