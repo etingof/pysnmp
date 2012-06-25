@@ -1,4 +1,5 @@
 import sys
+from pyasn1.compat.octets import octs2ints
 from pysnmp import error
 
 flagNone     = 0x0000
@@ -58,3 +59,9 @@ logger = 0
 def setLogger(l):
     global logger
     logger = l
+
+def hexdump(octets):
+    return ' '.join(
+            [ '%s%.2X' % (n%16 == 0 and ('\n%.5d: ' % n) or '', x) 
+              for n,x in zip(range(len(octets)), octs2ints(octets)) ]
+        )

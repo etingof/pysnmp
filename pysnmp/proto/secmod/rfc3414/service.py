@@ -329,7 +329,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
             dataToEncrypt = encoder.encode(scopedPDU)
             
-            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: scopedPDU encoded into %r' % (dataToEncrypt,))
+            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: scopedPDU encoded into %s' % debug.hexdump(dataToEncrypt))
 
             ( encryptedData,
               privParameters ) = privHandler.encryptData(
@@ -345,7 +345,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 1, encryptedData, verifyConstraints=False
                 )
 
-            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: scopedPDU ciphered')
+            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: scopedPDU ciphered into %s' % debug.hexdump(encryptedData))
 
         # 3.1.4b
         elif securityLevel == 1 or securityLevel == 2:
@@ -396,6 +396,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             authenticatedWholeMsg = authHandler.authenticateOutgoingMsg(
                 usmUserAuthKeyLocalized, wholeMsg
                 )
+
         # 3.1.8b
         else:
             securityParameters.setComponentByPosition(
@@ -411,6 +412,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: plain outgoing msg: %s' % msg.prettyPrint())
 
             authenticatedWholeMsg = encoder.encode(msg)
+
+        debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: %s outgoing msg: %s' % (securityLevel > 1 and "authenticated" or "plain", debug.hexdump(authenticatedWholeMsg)))
+
         # 3.1.9
         return (
             msg.getComponentByPosition(2),
@@ -484,6 +488,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         # maxSizeResponseScopedPDU on error
         # (48 - maximum SNMPv3 header length)
         maxSizeResponseScopedPDU = maxMessageSize - len(securityParameters)-48
+
+        debug.logger & debug.flagSM and debug.logger('processIncomingMsg: securityParameters %s' % debug.hexdump(securityParameters))
 
         # 3.2.1 
         try:

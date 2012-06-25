@@ -54,7 +54,7 @@ class DgramSocketTransport(AbstractSocketTransport):
         outgoingMessage, transportAddress = self.__outQueue.pop()
         if isinstance(transportAddress, TransportAddressPair):
             transportAddress = transportAddress.getRemoteAddr()
-        debug.logger & debug.flagIO and debug.logger('handle_write: transportAddress %r -> %r outgoingMessage %r' % (self.socket.getsockname(), transportAddress, outgoingMessage))
+        debug.logger & debug.flagIO and debug.logger('handle_write: transportAddress %r -> %r outgoingMessage %s' % (self.socket.getsockname(), transportAddress, debug.hexdump(outgoingMessage)))
         try:
             self.socket.sendto(outgoingMessage, transportAddress)
         except socket.error:
@@ -67,7 +67,7 @@ class DgramSocketTransport(AbstractSocketTransport):
     def handle_read(self):
         try:
             incomingMessage, transportAddress = self.socket.recvfrom(65535)
-            debug.logger & debug.flagIO and debug.logger('handle_read: transportAddress %r -> %r incomingMessage %r' % (transportAddress, self.socket.getsockname(), incomingMessage))
+            debug.logger & debug.flagIO and debug.logger('handle_read: transportAddress %r -> %r incomingMessage %s' % (transportAddress, self.socket.getsockname(), debug.hexdump(incomingMessage)))
             transportAddress = TransportAddressPair(
                                    self.socket.getsockname(),
                                    transportAddress
