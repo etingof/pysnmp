@@ -1,4 +1,4 @@
-"""Implements twisted-based UDP transport"""
+# Implements twisted-based UDP transport
 import sys
 from twisted.internet import reactor
 from pysnmp.carrier.twisted.dgram.base import DgramTwistedTransport

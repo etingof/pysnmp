@@ -1,4 +1,4 @@
-"""Implements asyncore-based UDP6 transport domain"""
+# Implements asyncore-based UDP6 transport domain
 try:
     from socket import AF_INET6
 except:

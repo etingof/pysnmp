@@ -1,4 +1,4 @@
-"""Abstract I/O dispatcher. Defines standard dispatcher API"""
+# Abstract I/O dispatcher. Defines standard dispatcher API
 from pysnmp.carrier import error
 
 class TimerCallable:
@@ -38,20 +38,22 @@ class AbstractTransportDispatcher:
             raise error.CarrierError(
                 'Unregistered transport %s' % (incomingTransport,)
                 )
-        if self.__recvCbFun is None:
+       
+        if self.__recvCbFun:
+            self.__recvCbFun(
+                self, transportDomain, transportAddress, incomingMessage
+                )
+        else:
             raise error.CarrierError(
                 'Receive callback not registered -- loosing incoming event'
                 )
-        self.__recvCbFun(
-            self, transportDomain, transportAddress, incomingMessage
-            )
 
     # Dispatcher API
-    
+
     def registerRecvCbFun(self, recvCbFun):
-        if self.__recvCbFun is not None:
+        if self.__recvCbFun:
             raise error.CarrierError(
-                'Receive callback already registered: %s' % self.__recvCbFun
+                'Receive callback already registered'
                 )
         self.__recvCbFun = recvCbFun
 
@@ -64,10 +66,10 @@ class AbstractTransportDispatcher:
         self.__timerCallables.append(TimerCallable(timerCbFun, tickInterval))
 
     def unregisterTimerCbFun(self, timerCbFun=None):
-        if timerCbFun is None:
-            self.__timerCallables = []
-        else:
+        if timerCbFun:
             self.__timerCallables.remove(timerCbFun)
+        else:
+            self.__timerCallables = []
 
     def registerTransport(self, tDomain, transport):
         if tDomain in self.__transports:

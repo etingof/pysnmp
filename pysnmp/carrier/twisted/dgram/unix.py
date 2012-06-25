@@ -1,4 +1,4 @@
-"""Implements twisted-based UNIX domain socket transport"""
+# Implements twisted-based UNIX domain socket transport
 import sys
 from twisted.internet import reactor
 from pysnmp.carrier.twisted.dgram.base import DgramTwistedTransport

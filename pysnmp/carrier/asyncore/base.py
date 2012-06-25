@@ -1,4 +1,4 @@
-"""Defines standard API to asyncore-based transport"""
+# Defines standard API to asyncore-based transport
 import socket, sys
 import asyncore
 from pysnmp.carrier import error

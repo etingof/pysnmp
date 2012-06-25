@@ -1,4 +1,4 @@
-"""Implements asyncore-based UDP transport domain"""
+# Implements asyncore-based UDP transport domain
 from socket import AF_INET
 from pysnmp.carrier.asynsock.dgram.base import DgramSocketTransport
 
