@@ -1,6 +1,7 @@
-"""Implements asyncore-based generic DGRAM transport"""
+# Implements asyncore-based generic DGRAM transport
 import socket, errno, sys
 from pysnmp.carrier.asynsock.base import AbstractSocketTransport
+from pysnmp.carrier.address import TransportAddressPair
 from pysnmp.carrier import error
 from pysnmp import debug
 
@@ -39,7 +40,6 @@ class DgramSocketTransport(AbstractSocketTransport):
             self.socket.bind(iface)
         except socket.error:
             raise error.CarrierError('bind() failed: %s' % (sys.exc_info()[1],))
-        self._iface = iface
         return self
 
     def sendMessage(self, outgoingMessage, transportAddress):
@@ -52,7 +52,9 @@ class DgramSocketTransport(AbstractSocketTransport):
     def writable(self): return self.__outQueue
     def handle_write(self):
         outgoingMessage, transportAddress = self.__outQueue.pop()
-        debug.logger & debug.flagIO and debug.logger('handle_write: transportAddress %r outgoingMessage %r' % (transportAddress, outgoingMessage))
+        if isinstance(transportAddress, TransportAddressPair):
+            transportAddress = transportAddress.getRemoteAddr()
+        debug.logger & debug.flagIO and debug.logger('handle_write: transportAddress %r -> %r outgoingMessage %r' % (self.socket.getsockname(), transportAddress, outgoingMessage))
         try:
             self.socket.sendto(outgoingMessage, transportAddress)
         except socket.error:
@@ -65,7 +67,11 @@ class DgramSocketTransport(AbstractSocketTransport):
     def handle_read(self):
         try:
             incomingMessage, transportAddress = self.socket.recvfrom(65535)
-            debug.logger & debug.flagIO and debug.logger('handle_read: transportAddress %r incomingMessage %r' % (transportAddress, incomingMessage))
+            debug.logger & debug.flagIO and debug.logger('handle_read: transportAddress %r -> %r incomingMessage %r' % (transportAddress, self.socket.getsockname(), incomingMessage))
+            transportAddress = TransportAddressPair(
+                                   self.socket.getsockname(),
+                                   transportAddress
+                               )
             if not incomingMessage:
                 self.handle_close()
                 return
