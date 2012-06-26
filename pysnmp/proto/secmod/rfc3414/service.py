@@ -633,37 +633,39 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             )
 
         # 3.2.5
-        __badSecIndication = None
-        if securityLevel == 3:
-            if usmUserAuthProtocol == noauth.NoAuth.serviceID:
-                __badSecIndication = 'authPriv wanted while auth not expected'
-            if usmUserPrivProtocol == nopriv.NoPriv.serviceID:
-                __badSecIndication = 'authPriv wanted while priv not expected'
-        elif securityLevel == 2:
-            if usmUserAuthProtocol == noauth.NoAuth.serviceID:
-                __badSecIndication = 'authNoPriv wanted while auth not expected'
-            if usmUserPrivProtocol != nopriv.NoPriv.serviceID:
-                __badSecIndication = 'authNoPriv wanted while priv expected'
+        if msgAuthoritativeEngineID == snmpEngineID:
+            # Authoritative SNMP engine: make sure securityLevel is sufficient
+            __badSecIndication = None
+            if securityLevel == 3:
+                if usmUserAuthProtocol == noauth.NoAuth.serviceID:
+                    __badSecIndication = 'authPriv wanted while auth not expected'
+                if usmUserPrivProtocol == nopriv.NoPriv.serviceID:
+                    __badSecIndication = 'authPriv wanted while priv not expected'
+            elif securityLevel == 2:
+                if usmUserAuthProtocol == noauth.NoAuth.serviceID:
+                    __badSecIndication = 'authNoPriv wanted while auth not expected'
+                if usmUserPrivProtocol != nopriv.NoPriv.serviceID:
+                    __badSecIndication = 'authNoPriv wanted while priv expected'
 
-        elif securityLevel == 1:
-            if usmUserAuthProtocol != noauth.NoAuth.serviceID:
-                __badSecIndication = 'noAuthNoPriv wanted while auth expected'
-            if usmUserPrivProtocol != nopriv.NoPriv.serviceID:
-                __badSecIndication = 'noAuthNoPriv wanted while priv expected'
-        if __badSecIndication:
-            usmStatsUnsupportedSecLevels, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnsupportedSecLevels')
-            usmStatsUnsupportedSecLevels.syntax = usmStatsUnsupportedSecLevels.syntax + 1
-            debug.logger & debug.flagSM and debug.logger('processIncomingMsg: reporting inappropriate security level for user %s: %s' % (msgUserName, __badSecIndication))
-            raise error.StatusInformation(
-                errorIndication=errind.unsupportedSecurityLevel,
-                oid=usmStatsUnsupportedSecLevels.name,
-                val=usmStatsUnsupportedSecLevels.syntax,
-                securityStateReference=securityStateReference,
-                securityLevel=securityLevel,
-                contextEngineId=contextEngineId,
-                contextName=contextName,
-                maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
-                )
+            elif securityLevel == 1:
+                if usmUserAuthProtocol != noauth.NoAuth.serviceID:
+                    __badSecIndication = 'noAuthNoPriv wanted while auth expected'
+                if usmUserPrivProtocol != nopriv.NoPriv.serviceID:
+                    __badSecIndication = 'noAuthNoPriv wanted while priv expected'
+            if __badSecIndication:
+                usmStatsUnsupportedSecLevels, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnsupportedSecLevels')
+                usmStatsUnsupportedSecLevels.syntax = usmStatsUnsupportedSecLevels.syntax + 1
+                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: reporting inappropriate security level for user %s: %s' % (msgUserName, __badSecIndication))
+                raise error.StatusInformation(
+                    errorIndication=errind.unsupportedSecurityLevel,
+                    oid=usmStatsUnsupportedSecLevels.name,
+                    val=usmStatsUnsupportedSecLevels.syntax,
+                    securityStateReference=securityStateReference,
+                    securityLevel=securityLevel,
+                    contextEngineId=contextEngineId,
+                    contextName=contextName,
+                    maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
+                    )
 
         # 3.2.6
         if securityLevel == 3 or securityLevel == 2:
