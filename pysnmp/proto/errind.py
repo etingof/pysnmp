@@ -42,8 +42,8 @@ nonReportable = NonReportable('Report PDU generation not attempted')
 class DataMismatch(ErrorIndication): pass
 dataMismatch = DataMismatch('SNMP request/response parameters mismatched')
 
-class EngineIDMispatch(ErrorIndication): pass
-engineIDMispatch = EngineIDMispatch('SNMP engine ID mismatch encountered')
+class EngineIDMismatch(ErrorIndication): pass
+engineIDMismatch = EngineIDMismatch('SNMP engine ID mismatch encountered')
 
 class UnknownEngineID(ErrorIndication): pass
 unknownEngineID = UnknownEngineID('Unknown SNMP engine ID encountered')

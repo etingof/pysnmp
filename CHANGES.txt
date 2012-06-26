@@ -26,6 +26,7 @@ Revision 4.2.3
 - Fix to GenericTrap type processing at rfc2576:v1Tov2c() which used to
   crash the whole SNMP engine.
 - Typo fix to snmpInASNParseErrs MIB instance object.
+- Typo fix to errind.EngineIdMismatch class and its instance.
 
 Revision 4.2.2
 --------------
