@@ -38,6 +38,8 @@ def getTargetAddr(snmpEngine, snmpTargetAddrName):
         snmpTargetAddrTAddress = tuple(
             TransportAddressIPv6(snmpTargetAddrTAddress)
             )
+    elif snmpTargetAddrTDomain[:len(config.snmpLocalDomain)] == config.snmpLocalDomain:
+        snmpTargetAddrTAddress = str(snmpTargetAddrTAddress)
 
     return ( snmpTargetAddrTDomain,
              snmpTargetAddrTAddress,
