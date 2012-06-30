@@ -32,14 +32,14 @@ class DgramSocketTransport(AbstractSocketTransport):
             try:
                 self.socket.bind(iface)
             except socket.error:
-                raise error.CarrierError('bind() failed: %s' % (sys.exc_info()[1],))
+                raise error.CarrierError('bind() for %s failed: %s' % (iface is None and "<all local>" or iface, sys.exc_info()[1],))
         return self
     
     def openServerMode(self, iface):
         try:
             self.socket.bind(iface)
         except socket.error:
-            raise error.CarrierError('bind() failed: %s' % (sys.exc_info()[1],))
+            raise error.CarrierError('bind() for %s failed: %s' % (iface, sys.exc_info()[1],))
         return self
 
     def sendMessage(self, outgoingMessage, transportAddress):
