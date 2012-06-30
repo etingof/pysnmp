@@ -55,6 +55,9 @@ class DgramSocketTransport(AbstractSocketTransport):
         if isinstance(transportAddress, TransportAddressPair):
             transportAddress = transportAddress.getRemoteAddr()
         debug.logger & debug.flagIO and debug.logger('handle_write: transportAddress %r -> %r outgoingMessage %s' % (self.socket.getsockname(), transportAddress, debug.hexdump(outgoingMessage)))
+        if not transportAddress:
+            debug.logger & debug.flagIO and debug.logger('handle_write: missing dst address, loosing outgoing msg')
+            return
         try:
             self.socket.sendto(outgoingMessage, transportAddress)
         except socket.error:
