@@ -7,7 +7,7 @@ try:
     from pysnmp.carrier.asynsock.dgram import unix
     snmpLocalDomain = unix.snmpLocalDomain
 except ImportError: # UNIX-specific -- may not be always available
-    pass
+    snmpLocalDomain = ()
 from pysnmp.proto import rfc3412
 from pysnmp.entity import engine
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha, noauth
