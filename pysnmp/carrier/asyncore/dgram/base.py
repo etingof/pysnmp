@@ -64,7 +64,7 @@ class DgramSocketTransport(AbstractSocketTransport):
             if sys.exc_info()[1].args[0] in sockErrors:
                 debug.logger & debug.flagIO and debug.logger('handle_write: ignoring socket error %s' % (sys.exc_info()[1],))
             else:
-                raise socket.error(sys.exc_info()[1])
+                raise error.CarrierError('sendto() failed for %s: %s' % (transportAddress, sys.exc_info()[1]))
             
     def readable(self): return 1
     def handle_read(self):
@@ -87,5 +87,5 @@ class DgramSocketTransport(AbstractSocketTransport):
                 sockErrors[sys.exc_info()[1].args[0]] and self.handle_close()
                 return
             else:
-                raise socket.error(sys.exc_info()[1])
+                raise error.CarrierError('recvfrom() failed: %s' % (sys.exc_info()[1],))
     def handle_close(self): pass # no datagram connection
