@@ -11,6 +11,8 @@ Revision 4.2.3
   user could tap on these methods at any level of the MIB tree.
 - Hex dumps of binary parts of the protocol added to ease system
   operations analysis.
+- SnmpEngineId autogeneration does not call DNS resolver but uses
+  local hostname not to depend upon local IP availability and performance.
 - Multiple fixes to UNIX domain socket transport to make it fully
   operational again.
 - Fix to SNMPv2 exception objects translation into SNMPv1 PDU and NEXT
