@@ -5,11 +5,6 @@ Revision 4.2.3
   to an authoritative SNMP engineinbound against auth/priv protocols
   configured for the user in question. That allowed unauthenticated/unciphered
   access to pysnmp-based Agent even if USM user is configured to provide one.
-- Carrier subsystem reworked to pass local transport endpoint address
-  information to its callers by means of handling address information
-  in a special-purpose container object which can include additional
-  address-specific information while still acting as a native address
-  object.
 - Mib Instrumentation subsystem re-worked to get rid of an excessive
   unpublished MIB values smiCreate()/smiWrite()/smiDestroy() methods.
 - MibTree.readTest[Get]Next() reworked to be called uniformely so

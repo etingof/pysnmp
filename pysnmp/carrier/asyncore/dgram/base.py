@@ -1,7 +1,6 @@
 # Implements asyncore-based generic DGRAM transport
 import socket, errno, sys
 from pysnmp.carrier.asynsock.base import AbstractSocketTransport
-from pysnmp.carrier.address import TransportAddressPair
 from pysnmp.carrier import error
 from pysnmp import debug
 
@@ -52,8 +51,6 @@ class DgramSocketTransport(AbstractSocketTransport):
     def writable(self): return self.__outQueue
     def handle_write(self):
         outgoingMessage, transportAddress = self.__outQueue.pop()
-        if isinstance(transportAddress, TransportAddressPair):
-            transportAddress = transportAddress.getRemoteAddr()
         debug.logger & debug.flagIO and debug.logger('handle_write: transportAddress %r -> %r outgoingMessage %s' % (self.socket.getsockname(), transportAddress, debug.hexdump(outgoingMessage)))
         if not transportAddress:
             debug.logger & debug.flagIO and debug.logger('handle_write: missing dst address, loosing outgoing msg')
@@ -71,10 +68,6 @@ class DgramSocketTransport(AbstractSocketTransport):
         try:
             incomingMessage, transportAddress = self.socket.recvfrom(65535)
             debug.logger & debug.flagIO and debug.logger('handle_read: transportAddress %r -> %r incomingMessage %s' % (transportAddress, self.socket.getsockname(), debug.hexdump(incomingMessage)))
-            transportAddress = TransportAddressPair(
-                                   self.socket.getsockname(),
-                                   transportAddress
-                               )
             if not incomingMessage:
                 self.handle_close()
                 return
