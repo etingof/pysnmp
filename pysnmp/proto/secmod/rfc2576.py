@@ -130,7 +130,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         msg
         ):
         # rfc2576: 5.2.1
-        ( communityName, srcTransport, destTransport ) = securityParameters
+        ( communityName, transportInformation ) = securityParameters
         ( snmpCommunityName,
           snmpCommunitySecurityName,
           snmpCommunityContextEngineId,
@@ -212,10 +212,10 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                         
                 # XXX snmpTargetAddrTMask matching not implemented
                 
-                if srcTransport in addrToTagMap:
+                if transportInformation in addrToTagMap:
                     for tag in mibNode.syntax.asOctets().split():
-                        if tag in addrToTagMap[srcTransport]:
-                            debug.logger & debug.flagSM and debug.logger('processIncomingMsg: tag %s matched transport %s' % (tag, srcTransport))
+                        if tag in addrToTagMap[transportInformation]:
+                            debug.logger & debug.flagSM and debug.logger('processIncomingMsg: tag %s matched transport %s' % (tag, transportInformation))
                             break
                     else:
                         continue

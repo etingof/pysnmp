@@ -240,9 +240,9 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         snmpEngineMaxMessageSize, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
         securityParameters = (
             msg.getComponentByPosition(1),
-            (transportDomain, transportAddress),
-            ('0.0.0.0', 0)  # XXX
-            )
+            # transportDomain identifies local enpoint
+            (transportDomain, transportAddress)
+        )
         messageProcessingModel = int(msg.getComponentByPosition(0))
         securityModel = messageProcessingModel + 1
         securityLevel = 1
