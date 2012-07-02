@@ -355,7 +355,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             if securityEngineID != snmpEngineID.syntax:
                 smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(
-                    errorIndication = errind.engineIDMispatch
+                    errorIndication = errind.engineIDMismatch
                     )
 
             # rfc3412: 7.2.13b
