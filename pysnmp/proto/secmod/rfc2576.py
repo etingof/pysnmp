@@ -1,7 +1,7 @@
 # SNMP v1 & v2c security models implementation
 from pyasn1.codec.ber import encoder
 from pysnmp.proto.secmod import base
-from pysnmp.carrier.asynsock.dgram import udp, udp6
+from pysnmp.carrier.asynsock.dgram import udp, udp6, unix
 from pysnmp.smi.error import NoSuchInstanceError
 from pysnmp.proto import errind, error
 from pysnmp import debug
@@ -199,6 +199,8 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                             targetAddrTAddress = tuple(
                                 TransportAddressIPv6(targetAddrTAddress)
                                 )
+                        elif targetAddrTDomain[:len(unix.snmpLocalDomain)] == unix.snmpLocalDomain:
+                            targetAddrTAddress = str(targetAddrTAddress)
                         targetAddr = targetAddrTDomain, targetAddrTAddress
                         targetAddrTagList = snmpTargetAddrTagList.getNode(
                             snmpTargetAddrTagList.name + __instId
