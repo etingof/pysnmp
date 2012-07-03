@@ -1,6 +1,9 @@
 # Implements asyncore-based UNIX transport domain
 from os import remove, tmpnam
-from socket import AF_UNIX
+try:
+    from socket import AF_UNIX
+except ImportError:
+    AF_UNIX = None
 from pysnmp.carrier.asynsock.dgram.base import DgramSocketTransport
 
 domainName = snmpLocalDomain = (1, 3, 6, 1, 2, 1, 100, 1, 13)

@@ -2,12 +2,7 @@
 # SNMP engine might be configured remotely (through SNMP).
 from pyasn1.compat.octets import null
 from pysnmp.carrier.asynsock import dispatch
-from pysnmp.carrier.asynsock.dgram import udp, udp6
-try:
-    from pysnmp.carrier.asynsock.dgram import unix
-    snmpLocalDomain = unix.snmpLocalDomain
-except ImportError: # UNIX-specific -- may not be always available
-    snmpLocalDomain = ()
+from pysnmp.carrier.asynsock.dgram import udp, udp6, unix
 from pysnmp.proto import rfc3412
 from pysnmp.entity import engine
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha, noauth
@@ -22,6 +17,7 @@ from pysnmp import error
 # Transports
 snmpUDPDomain = udp.snmpUDPDomain
 snmpUDP6Domain = udp6.snmpUDP6Domain
+snmpLocalDomain = udp.snmpLocalDomain
 
 # Auth protocol
 usmHMACMD5AuthProtocol = hmacmd5.HmacMd5.serviceID
