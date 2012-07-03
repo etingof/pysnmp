@@ -1,5 +1,16 @@
 # Implements asyncore-based UNIX transport domain
-from os import remove, tmpnam
+import os, sys
+if sys.version_info[0] < 3:
+    tmpnam = os.tmpnam
+else:
+    import random
+    random.seed()
+    def tmpnam():
+        f = ''
+        while len(f) < 8:
+            f += chr(random.randrange(65, 91)) + \
+                 chr(random.randrange(97, 123))
+        return os.path.sep + 'tmp' + os.path.sep + 'snmpsim' + f
 try:
     from socket import AF_UNIX
 except ImportError:
@@ -14,6 +25,8 @@ class UnixSocketTransport(DgramSocketTransport):
     def openClientMode(self, iface=None):
         if iface is None:
             iface = tmpnam()  # UNIX domain sockets must be explicitly bound
+        if os.path.exists(iface):
+            os.remove(iface)
         DgramSocketTransport.openClientMode(self, iface)
         self.__iface = iface
         return self
@@ -26,7 +39,7 @@ class UnixSocketTransport(DgramSocketTransport):
     def closeTransport(self):
         DgramSocketTransport.closeTransport(self)
         try:
-            remove(self.__iface)
+            os.remove(self.__iface)
         except:
             pass
 
