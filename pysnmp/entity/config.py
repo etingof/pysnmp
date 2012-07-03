@@ -17,7 +17,7 @@ from pysnmp import error
 # Transports
 snmpUDPDomain = udp.snmpUDPDomain
 snmpUDP6Domain = udp6.snmpUDP6Domain
-snmpLocalDomain = udp.snmpLocalDomain
+snmpLocalDomain = unix.snmpLocalDomain
 
 # Auth protocol
 usmHMACMD5AuthProtocol = hmacmd5.HmacMd5.serviceID
