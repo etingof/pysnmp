@@ -1,5 +1,31 @@
 #!/usr/bin/env python
+"""SNMP framework
+
+   SNMP v1/v2c/v3 engine and apps written in pure-Python.
+   Supports Manager/Agent/Proxy roles, scriptable MIBs,
+   asynchronous operation and multiple transports.
+"""
 import sys
+
+classifiers = """\
+Development Status :: 5 - Production/Stable
+Environment :: Console
+Intended Audience :: Developers
+Intended Audience :: Education
+Intended Audience :: Information Technology
+Intended Audience :: System Administrators
+Intended Audience :: Telecommunications Industry
+License :: OSI Approved :: BSD License
+Natural Language :: English
+Operating System :: OS Independent
+Programming Language :: Python :: 2
+Programming Language :: Python :: 3
+Topic :: Communications,
+Topic :: Software Development :: Libraries :: Python Modules
+Topic :: System :: Monitoring
+Topic :: System :: Networking :: Monitoring
+Topic :: Software Development :: Libraries :: Python Modules
+"""
 
 def howto_install_setuptools():
     print("""Error: You need setuptools Python package!
@@ -39,29 +65,20 @@ PyCrypto binaries are required for SNMPv3 encryption to work.
 You may wish to grab them from http://www.voidspace.org.uk/python/modules.shtml
 and install into your system.
 """)
+
+doclines = [ x.strip() for x in __doc__.split('\n') if x ]
  
 params.update( {
     'name': 'pysnmp',
     'version': '4.2.3',
-    'description': 'SNMP framework',
+    'description': doclines[0],
+    'long_description': ' '.join(doclines[1:]),
+    'maintainer': 'Ilya Etingof <ilya@glas.net>',
     'author': 'Ilya Etingof',
     'author_email': 'ilya@glas.net',
     'url': 'http://sourceforge.net/projects/pysnmp/',
-    'classifiers': [
-      'Development Status :: 5 - Production/Stable',
-      'Intended Audience :: Developers',
-      'Intended Audience :: Information Technology',
-      'Intended Audience :: Telecommunications Industry',
-      'Operating System :: OS Independent',
-      'Programming Language :: Python :: 2',
-      'Programming Language :: Python :: 3',
-      'Topic :: Security',
-      'Topic :: Communications',
-      'Topic :: System :: Monitoring',
-      'Topic :: System :: Networking :: Monitoring',
-      'Topic :: Software Development :: Libraries :: Python Modules',
-      'License :: OSI Approved :: BSD License'
-    ],    
+    'classifiers': [ x for x in classifiers.split('\n') if x ],
+    'platforms': ['any'],
     'license': 'BSD',
     'packages': [ 'pysnmp',
                   'pysnmp.smi',

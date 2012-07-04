@@ -13,6 +13,7 @@ Revision 4.2.3
   operations analysis.
 - SnmpEngineId autogeneration does not call DNS resolver but uses
   local hostname not to depend upon local IP availability and performance.
+- Package meta-information updated.
 - Multiple fixes to UNIX domain socket transport to make it fully
   operational again.
 - Fix to SNMPv2 exception objects translation into SNMPv1 PDU and NEXT
