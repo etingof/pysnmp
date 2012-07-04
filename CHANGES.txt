@@ -16,6 +16,8 @@ Revision 4.2.3
 - Obsolete __init__.MajorVersionId replaced with __init__.__version__
   which is now in-sync with distutils.
 - Package meta-information updated.
+- The __init__.py's made non-empty (rumors are that they may be optimized 
+  out by package managers).
 - Multiple fixes to UNIX domain socket transport to make it fully
   operational again.
 - Fix to SNMPv2 exception objects translation into SNMPv1 PDU and NEXT
