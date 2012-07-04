@@ -1,6 +1,6 @@
 from sys import version
 from time import time
-from pysnmp import majorVersionId
+from pysnmp import __version__
 
 ( MibScalarInstance,
   TimeTicks) = mibBuilder.importSymbols(
@@ -90,7 +90,7 @@ from pysnmp import majorVersionId
     'snmpSetSerialNo'
     )
 
-__sysDescr = MibScalarInstance(sysDescr.name, (0,), sysDescr.syntax.clone("PySNMP engine version %s, Python %s" % (majorVersionId, version)))
+__sysDescr = MibScalarInstance(sysDescr.name, (0,), sysDescr.syntax.clone("PySNMP engine version %s, Python %s" % (__version__, version)))
 __sysObjectID = MibScalarInstance(sysObjectID.name, (0,), sysObjectID.syntax.clone((1,3,6,1,4,1,20408)))
 
 class SysUpTime(TimeTicks):

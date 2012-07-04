@@ -13,6 +13,8 @@ Revision 4.2.3
   operations analysis.
 - SnmpEngineId autogeneration does not call DNS resolver but uses
   local hostname not to depend upon local IP availability and performance.
+- Obsolete __init__.MajorVersionId replaced with __init__.__version__
+  which is now in-sync with distutils.
 - Package meta-information updated.
 - Multiple fixes to UNIX domain socket transport to make it fully
   operational again.
