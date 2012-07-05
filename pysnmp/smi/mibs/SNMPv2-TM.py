@@ -1,3 +1,5 @@
+import socket
+from pyasn1.compat.octets import int2oct, oct2int
 
 ( OctetString, ) = mibBuilder.importSymbols('ASN1', 'OctetString')
 ( ConstraintsIntersection, ConstraintsUnion, SingleValueConstraint, ValueRangeConstraint, ValueSizeConstraint, ) = mibBuilder.importSymbols("ASN1-REFINEMENT", "ConstraintsIntersection", "ConstraintsUnion", "SingleValueConstraint", "ValueRangeConstraint", "ValueSizeConstraint")
@@ -15,19 +17,21 @@ class SnmpUDPAddress(TextualConvention, OctetString):
     def prettyIn(self, value):
         if isinstance(value, tuple):
             # Wild hack -- need to implement TextualConvention.prettyIn
-            value = [ int(x) for x in value[0].split('.') ] + \
-                    [ (value[1] >> 8) & 0xff, value[1] & 0xff ]
+            value = socket.inet_pton(socket.AF_INET, value[0]) + \
+                    int2oct((value[1] >> 8) & 0xff) + \
+                    int2oct(value[1] & 0xff)
         return OctetString.prettyIn(self, value)
 
     # Socket address syntax coercion
     def __getitem__(self, i):
         if not hasattr(self, '__tuple_value'):
-            ints = self.asNumbers()
+            v = self.asOctets()
             self.__tuple_value = (
-                '.'.join(['%d' % x for x in ints[:4]]), ints[4] << 8 | ints[5]
-                )
+                socket.inet_ntop(socket.AF_INET, v[:4]),
+                oct2int(v[4]) << 8 | oct2int(v[5])
+            )
         return self.__tuple_value[i]
-    
+ 
 snmpCLNSDomain = ObjectIdentity(snmpDomains.name + (2,))
 snmpCONSDomain = ObjectIdentity(snmpDomains.name + (3,))
 

@@ -20,6 +20,8 @@ Revision 4.2.3
   out by package managers).
 - Multiple fixes to UNIX domain socket transport to make it fully
   operational again.
+- Fix to IPv6 address handling to prevent system from crashing whilst
+  running Python3. 
 - Fix to SNMPv2 exception objects translation into SNMPv1 PDU and NEXT
   OIDs calculation.
 - Fix to MibTree class to properly report noSuchObject & noSuchInstance

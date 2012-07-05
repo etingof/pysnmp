@@ -2,6 +2,7 @@
 # by libsmi2pysnmp-0.1.3 at Tue Apr  3 16:58:37 2012,
 # Python version sys.version_info(major=2, minor=7, micro=2, releaselevel='final', serial=0)
 
+from pyasn1.compat.octets import int2oct, oct2int
 import socket
 
 # Imports
@@ -29,17 +30,19 @@ class TransportAddressIPv4(TextualConvention, OctetString):
     def prettyIn(self, value):
         if isinstance(value, tuple):
             # Wild hack -- need to implement TextualConvention.prettyIn
-            value = [ int(x) for x in value[0].split('.') ] + \
-                    [ (value[1] >> 8) & 0xff, value[1] & 0xff ]
+            value = socket.inet_pton(socket.AF_INET, value[0]) + \
+                    int2oct((value[1] >> 8) & 0xff) + \
+                    int2oct(value[1] & 0xff)
         return OctetString.prettyIn(self, value)
 
     # Socket address syntax coercion
     def __getitem__(self, i):
         if not hasattr(self, '__tuple_value'):
-            ints = self.asNumbers()
+            v = self.asOctets()
             self.__tuple_value = (
-                '.'.join(['%d' % x for x in ints[:4]]), ints[4] << 8 | ints[5]
-                )
+                socket.inet_ntop(socket.AF_INET, v[:4]),
+                oct2int(v[4]) << 8 | oct2int(v[5]),
+            )
         return self.__tuple_value[i]
     
 class TransportAddressIPv4z(TextualConvention, OctetString):
@@ -54,16 +57,18 @@ class TransportAddressIPv6(TextualConvention, OctetString):
 
     def prettyIn(self, value):
         if isinstance(value, tuple):
-            return socket.inet_pton(socket.AF_INET6, value[0]) + chr((value[1] >> 8) & 0xff) +  chr((value[1] & 0xff))
-        else:
-            return OctetString.prettyIn(self, value)
+            value = socket.inet_pton(socket.AF_INET6, value[0]) + \
+                    int2oct((value[1] >> 8) & 0xff) + \
+                    int2oct(value[1] & 0xff)
+        return OctetString.prettyIn(self, value)
 
     # Socket address syntax coercion
     def __getitem__(self, i):
         if not hasattr(self, '__tuple_value'):
+            v = self.asOctets()
             self.__tuple_value = (
-                socket.inet_ntop(socket.AF_INET6, self._value[:16]),
-                ord(self._value[16:17]) << 8 | ord(self._value[17:18]),
+                socket.inet_ntop(socket.AF_INET6, v[:16]),
+                oct2int(v[16]) << 8 | oct2int(v[17]),
                 0,
                 0)
         return self.__tuple_value[i]
