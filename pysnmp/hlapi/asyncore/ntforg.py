@@ -21,8 +21,10 @@ usmNoPrivProtocol = cmdgen.usmNoPrivProtocol
 CommunityData = cmdgen.CommunityData
 UsmUserData = cmdgen.UsmUserData
 
-# Transport
+# Transports
 UdpTransportTarget = cmdgen.UdpTransportTarget
+Udp6TransportTarget = cmdgen.Udp6TransportTarget
+UnixTransportTarget = cmdgen.UnixTransportTarget
 
 nextID = nextid.Integer(0xffffffff)
 

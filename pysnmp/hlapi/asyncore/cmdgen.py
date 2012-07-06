@@ -1,7 +1,7 @@
 import socket, sys
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdgen, mibvar
-from pysnmp.carrier.asynsock.dgram import udp
+from pysnmp.carrier.asynsock.dgram import udp, udp6, unix
 from pysnmp.proto import errind
 from pysnmp.smi import view
 from pysnmp import nextid, error
@@ -119,13 +119,11 @@ class UsmUserData:
     def __le__(self, other): return self.securityName <= other
     def __gt__(self, other): return self.securityName > other
     def __ge__(self, other): return self.securityName >= other
-    
-class UdpTransportTarget:
-    transportDomain = udp.domainName
+
+class _AbstractTransportTarget:
+    transportDomain = protoTransport = None
     def __init__(self, transportAddr, timeout=1, retries=5):
-        self.transportAddr = (
-            socket.gethostbyname(transportAddr[0]), transportAddr[1]
-            )
+        self.transportAddr = transportAddr
         self.timeout = timeout
         self.retries = retries
 
@@ -143,9 +141,41 @@ class UdpTransportTarget:
     def __ge__(self, other): return self.transportAddr >= other
     
     def openClientMode(self):
-        self.transport = udp.UdpSocketTransport().openClientMode()
+        self.transport = self.protoTransport().openClientMode()
         return self.transport
-        
+ 
+class UdpTransportTarget(_AbstractTransportTarget):
+    transportDomain = udp.domainName
+    protoTransport = udp.UdpSocketTransport
+    def __init__(self, transportAddr, timeout=1, retries=5):
+        _AbstractTransportTarget.__init__(self, transportAddr, timeout,retries)
+        try:
+            self.transportAddr = socket.getaddrinfo(transportAddr[0],
+                                                    transportAddr[1],
+                                                    socket.AF_INET,
+                                                    socket.SOCK_DGRAM,
+                                                    socket.IPPROTO_UDP)[0][4][:2]
+        except socket.gaierror:
+            raise error.PySnmpError('Bad IPv4/UDP transport address %s: %s' % ('@'.join([ str(x) for x in transportAddr ]), sys.exc_info()[1]))
+
+class Udp6TransportTarget(_AbstractTransportTarget):
+    transportDomain = udp6.domainName
+    protoTransport = udp6.Udp6SocketTransport
+    def __init__(self, transportAddr, timeout=1, retries=5):
+        _AbstractTransportTarget.__init__(self, transportAddr, timeout, retries)
+        try:
+            self.transportAddr = socket.getaddrinfo(transportAddr[0],
+                                                    transportAddr[1],
+                                                    socket.AF_INET6,
+                                                    socket.SOCK_DGRAM,
+                                                    socket.IPPROTO_UDP)[0][4][:2]
+        except socket.gaierror:
+            raise error.PySnmpError('Bad IPv6/UDP transport address %s: %s' % ('@'.join([ str(x) for x in transportAddr ]), sys.exc_info()[1]))
+
+class UnixTransportTarget(_AbstractTransportTarget):
+    transportDomain = unix.domainName
+    protoTransport = unix.UnixSocketTransport
+
 class AsynCommandGenerator:
     _null = univ.Null('')
     def __init__(self, snmpEngine=None):
