@@ -164,10 +164,16 @@ class NotificationOriginator:
             # 3.3.2 & 3.3.3
             sysUpTime, = contextMibInstrumCtl.mibBuilder.importSymbols(
                 '__SNMPv2-MIB', 'sysUpTime'
-                )            
-            varBinds.append(
-                (sysUpTime.name, sysUpTime.syntax.clone()) # for actual value
                 )
+
+            if additionalVarBinds:
+                for varName, varVal in additionalVarBinds:
+                    if varName == sysUpTime.name:
+                        varBinds.append((varName, varVal))
+                        break
+            if not varBinds:
+                varBinds.append((sysUpTime.name,
+                                 sysUpTime.syntax.clone())) # for actual value
 
             snmpTrapOid, = contextMibInstrumCtl.mibBuilder.importSymbols(
                 '__SNMPv2-MIB', 'snmpTrapOID'
@@ -192,17 +198,19 @@ class NotificationOriginator:
 #                     return
 #                 varBinds.append((objectInstance.name, objectInstance.syntax))
 
-            if additionalVarBinds:
-                varBinds.extend(additionalVarBinds)
-
-            for varName, varVal in varBinds:
+            for varName, varVal in additionalVarBinds:
+                if varName in (sysUpTime.name, snmpTrapOid.name):
+                    continue
                 try:
                     snmpEngine.accessControlModel[self.acmID].isAccessAllowed(
                         snmpEngine, securityModel, securityName,
                         securityLevel, 'notify', contextName, varName
                         )
                 except error.SmiError:
+                    debug.logger & debug.flagApp and debug.logger('sendNoification: OID %s not allowed for %s, droppping notification' % (varName, securityName))
                     return
+                else:
+                    varBinds.append((varName, varVal))
 
             # 3.3.4
             if notifyType == 1:
