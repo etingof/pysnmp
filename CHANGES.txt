@@ -5,8 +5,11 @@ Revision 4.2.3
   to an authoritative SNMP engineinbound against auth/priv protocols
   configured for the user in question. That allowed unauthenticated/unciphered
   access to pysnmp-based Agent even if USM user is configured to provide one.
-- Synchronous oneliner apps now support optional keyword args lookupNames,
+- Oneliner CommandGenerator now supports optional keyword args lookupNames,
   lookupValues that enable response OID / value lookup at MIB.
+- Oneliner CommandGenerator's class attributes lexicographicMode, maxRows
+  and ignoreNonIncreasingOid moved to optional keyword args of nextGen() 
+  and bulkGen() methods.
 - IPv6/UDP and Local Domain Socket transport interfaces added to the
   oneliner API.
 - Mib Instrumentation subsystem re-worked to get rid of an excessive

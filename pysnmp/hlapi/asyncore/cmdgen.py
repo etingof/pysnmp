@@ -396,7 +396,6 @@ class AsynCommandGenerator:
     asyncBulkCmd = bulkCmd
 
 class CommandGenerator:
-    lexicographicMode = ignoreNonIncreasingOid = maxRows = None
     def __init__(self, snmpEngine=None, asynCmdGen=None):
         if asynCmdGen is None:
             self.__asynCmdGen = AsynCommandGenerator(snmpEngine)
@@ -462,12 +461,17 @@ class CommandGenerator:
                  appReturn['varBinds'] )
 
     def nextCmd(self, authData, transportTarget, *varNames,
-               lookupNames=False, lookupValues=False):
+               lookupNames=False, lookupValues=False,
+               lexicographicMode=False, maxRows=0,
+               ignoreNonIncreasingOid=False):
         def __cbFun(sendRequestHandle, errorIndication,
                     errorStatus, errorIndex, varBindTable, cbCtx):
             (self, varBindHead, varBindTotalTable, appReturn) = cbCtx
-            if self.ignoreNonIncreasingOid and errorIndication and \
-               isinstance(errorIndication, errind.OidNotIncreasing):
+            if (ignoreNonIncreasingOid or \
+                        hasattr(self, 'ignoreNonIncreasingOid') and \
+                        self.ignoreNonIncreasingOid ) and \
+                    errorIndication and \
+                    isinstance(errorIndication, errind.OidNotIncreasing):
                 errorIndication = None
             if errorStatus or errorIndication:
                 appReturn['errorIndication'] = errorIndication
@@ -482,11 +486,16 @@ class CommandGenerator:
                 appReturn['varBindTable'] = varBindTotalTable
                 return
             else:
-                if self.maxRows and len(varBindTotalTable) >= self.maxRows:
+                if maxRows and len(varBindTotalTable) >= maxRows or \
+                        hasattr(self, 'maxRows') and self.maxRows and \
+                        len(varBindTotalTable) >= self.maxRows:
                     appReturn['errorIndication'] = errorIndication
                     appReturn['errorStatus'] = errorStatus
                     appReturn['errorIndex'] = errorIndex
-                    appReturn['varBindTable'] = varBindTotalTable[:self.maxRows]
+                    if hasattr(self, 'maxRows'):
+                        appReturn['varBindTable'] = varBindTotalTable[:self.maxRows]
+                    else:
+                        appReturn['varBindTable'] = varBindTotalTable[:maxRows]
                     return
                 
                 varBindTableRow = varBindTable and varBindTable[-1] or varBindTable
@@ -494,7 +503,9 @@ class CommandGenerator:
                     name, val = varBindTableRow[idx]
                     # XXX extra rows
                     if not isinstance(val, univ.Null):
-                        if self.lexicographicMode:
+                        if lexicographicMode or \
+                               hasattr(self, 'lexicographicMode') and \
+                               self.lexicographicMode:  # obsolete
                             if varBindHead[idx] <= name:
                                 break
                         else:
@@ -545,12 +556,17 @@ class CommandGenerator:
 
     def bulkCmd(self, authData, transportTarget,
                 nonRepeaters, maxRepetitions, *varNames,
-                lookupNames=False, lookupValues=False):
+                lookupNames=False, lookupValues=False,
+                lexicographicMode=False, maxRows=0,
+                ignoreNonIncreasingOid=False):
         def __cbFun(sendRequestHandle, errorIndication,
                     errorStatus, errorIndex, varBindTable, cbCtx):
             (self, varBindHead, varBindTotalTable, appReturn) = cbCtx
-            if self.ignoreNonIncreasingOid and errorIndication and \
-               isinstance(errorIndication, errind.OidNotIncreasing):
+            if (ignoreNonIncreasingOid or \
+                        hasattr(self, 'ignoreNonIncreasingOid') and \
+                        self.ignoreNonIncreasingOid ) and \
+                    errorIndication and \
+                    isinstance(errorIndication, errind.OidNotIncreasing):
                 errorIndication = None
             if errorStatus or errorIndication:
                 appReturn['errorIndication'] = errorIndication
@@ -569,18 +585,25 @@ class CommandGenerator:
                 varBindTotalTable.extend(varBindTable) # XXX out of table 
                                                        # rows possible
 
-                if self.maxRows and len(varBindTotalTable) >= self.maxRows:
+                if maxRows and len(varBindTotalTable) >= maxRows or \
+                        hasattr(self, 'maxRows') and self.maxRows and \
+                        len(varBindTotalTable) >= self.maxRows:  # obsolete
                     appReturn['errorIndication'] = errorIndication
                     appReturn['errorStatus'] = errorStatus
                     appReturn['errorIndex'] = errorIndex
-                    appReturn['varBindTable'] = varBindTotalTable[:self.maxRows]
+                    if hasattr(self, 'maxRows'):
+                        appReturn['varBindTable'] = varBindTotalTable[:self.maxRows]
+                    else:
+                        appReturn['varBindTable'] = varBindTotalTable[:maxRows]
                     return
 
                 varBindTableRow = varBindTable and varBindTable[-1] or varBindTable
                 for idx in range(len(varBindTableRow)):
                     name, val = varBindTableRow[idx]
                     if not isinstance(val, univ.Null):
-                        if self.lexicographicMode:
+                        if lexicographicMode or \
+                               hasattr(self, 'lexicographicMode') and \
+                               self.lexicographicMode:  # obsolete
                             if varBindHead[idx] <= name:
                                 break
                         else:
