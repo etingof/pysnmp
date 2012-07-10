@@ -307,6 +307,21 @@ class AsynCommandGenerator:
             varBinds.append((name, self._null))
         return varBinds
 
+    def unmakeVarBinds(self, varBinds, lookupNames=True, lookupValues=True):
+        _varBinds = []
+        for name, value in varBinds:
+            (symName, modName), indices = mibvar.oidToMibName(
+                                              self.mibViewController, name
+                                          )
+            if lookupNames:
+                name = (modName, symName), indices
+            if lookupValues:
+                value = mibvar.cloneFromMibValue(
+                            self.mibViewController, modName, symName, value
+                        )
+            _varBinds.append((name, value))
+        return _varBinds
+
     # Async SNMP apps
 
     def getCmd(self, authData, transportTarget, varNames, cbInfo):
@@ -391,8 +406,9 @@ class CommandGenerator:
         # compatibility attributes
         self.snmpEngine = self.__asynCmdGen.snmpEngine
         self.mibViewController = self.__asynCmdGen.mibViewController
-        
-    def getCmd(self, authData, transportTarget, *varNames):
+       
+    def getCmd(self, authData, transportTarget, *varNames,
+               lookupNames=False, lookupValues=False):
         def __cbFun(
             sendRequestHandle, errorIndication, errorStatus, errorIndex,
             varBinds, appReturn
@@ -407,14 +423,19 @@ class CommandGenerator:
             authData, transportTarget, varNames, (__cbFun, appReturn)
             )
         self.__asynCmdGen.snmpEngine.transportDispatcher.runDispatcher()
-        return (
-            appReturn['errorIndication'],
-            appReturn['errorStatus'],
-            appReturn['errorIndex'],
-            appReturn['varBinds']
-            )
+        if lookupNames or lookupValues:
+            appReturn['varBinds'] = self.__asynCmdGen.unmakeVarBinds(
+                                        appReturn['varBinds'],
+                                        lookupNames=lookupNames,
+                                        lookupValues=lookupValues
+                                    )
+        return ( appReturn['errorIndication'],
+                 appReturn['errorStatus'],
+                 appReturn['errorIndex'],
+                 appReturn['varBinds'] )
 
-    def setCmd(self, authData, transportTarget, *varBinds):
+    def setCmd(self, authData, transportTarget, *varBinds,
+               lookupNames=False, lookupValues=False):
         def __cbFun(
             sendRequestHandle, errorIndication, errorStatus, errorIndex,
             varBinds, appReturn
@@ -429,14 +450,19 @@ class CommandGenerator:
             authData, transportTarget, varBinds, (__cbFun, appReturn)
             )
         self.__asynCmdGen.snmpEngine.transportDispatcher.runDispatcher()
-        return (
-            appReturn['errorIndication'],
-            appReturn['errorStatus'],
-            appReturn['errorIndex'],
-            appReturn['varBinds']
-            )
+        if lookupNames or lookupValues:
+            appReturn['varBinds'] = self.__asynCmdGen.unmakeVarBinds(
+                                        appReturn['varBinds'],
+                                        lookupNames=lookupNames,
+                                        lookupValues=lookupValues
+                                    )
+        return ( appReturn['errorIndication'],
+                 appReturn['errorStatus'],
+                 appReturn['errorIndex'],
+                 appReturn['varBinds'] )
 
-    def nextCmd(self, authData, transportTarget, *varNames):
+    def nextCmd(self, authData, transportTarget, *varNames,
+               lookupNames=False, lookupValues=False):
         def __cbFun(sendRequestHandle, errorIndication,
                     errorStatus, errorIndex, varBindTable, cbCtx):
             (self, varBindHead, varBindTotalTable, appReturn) = cbCtx
@@ -500,15 +526,26 @@ class CommandGenerator:
 
         self.__asynCmdGen.snmpEngine.transportDispatcher.runDispatcher()
 
-        return (
-            appReturn['errorIndication'],
-            appReturn['errorStatus'],
-            appReturn['errorIndex'],
-            appReturn['varBindTable']
-            )
+        if lookupNames or lookupValues:
+            _varBindTable = []
+            for varBindTableRow in appReturn['varBindTable']:
+                _varBindTable.append(
+                    self.__asynCmdGen.unmakeVarBinds(
+                        varBindTableRow,
+                        lookupNames=lookupNames,
+                        lookupValues=lookupValues
+                    )
+                )
+            appReturn['varBindTable'] = _varBindTable
+ 
+        return ( appReturn['errorIndication'],
+                 appReturn['errorStatus'],
+                 appReturn['errorIndex'],
+                 appReturn['varBindTable'] )
 
     def bulkCmd(self, authData, transportTarget,
-                nonRepeaters, maxRepetitions, *varNames):
+                nonRepeaters, maxRepetitions, *varNames,
+                lookupNames=False, lookupValues=False):
         def __cbFun(sendRequestHandle, errorIndication,
                     errorStatus, errorIndex, varBindTable, cbCtx):
             (self, varBindHead, varBindTotalTable, appReturn) = cbCtx
@@ -573,7 +610,19 @@ class CommandGenerator:
             )
 
         self.__asynCmdGen.snmpEngine.transportDispatcher.runDispatcher()
-        
+
+        if lookupNames or lookupValues:
+            _varBindTable = []
+            for varBindTableRow in appReturn['varBindTable']:
+                _varBindTable.append(
+                    self.__asynCmdGen.unmakeVarBinds(
+                        varBindTableRow,
+                        lookupNames=lookupNames,
+                        lookupValues=lookupValues
+                    )
+                )
+            appReturn['varBindTable'] = _varBindTable
+
         return (
             appReturn['errorIndication'],
             appReturn['errorStatus'],
