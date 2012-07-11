@@ -41,7 +41,8 @@ apiVarBind = VarBindAPI()
 getNextRequestID = nextid.Integer(0xffffff)
 
 class PDUAPI:
-    _errorStatus = _errorIndex = Integer(0)
+    _errorStatus = rfc1157._errorStatus.clone(0)
+    _errorIndex = Integer(0)
     def setDefaults(self, pdu):
         pdu.setComponentByPosition(
             0, getNextRequestID(), verifyConstraints=False
@@ -124,14 +125,17 @@ class TrapPDUAPI:
         agentAddress = IpAddress(socket.gethostbyname(socket.gethostname()))
     except:
         agentAddress = IpAddress('0.0.0.0')
+    _networkAddress = NetworkAddress().setComponentByPosition(0, agentAddress)
     _entOid = ObjectIdentifier((1,3,6,1,4,1,20408))
+    _genericTrap = rfc1157._genericTrap.clone('coldStart')
     _zeroInt = univ.Integer(0)
+    _zeroTime = TimeTicks(0)
     def setDefaults(self, pdu):
         pdu.setComponentByPosition(0, self._entOid, verifyConstraints=False)
-        pdu.setComponentByPosition(1).getComponentByPosition(1).setComponentByPosition(0, self.agentAddress, verifyConstraints=False)
-        pdu.setComponentByPosition(2, self._zeroInt, verifyConstraints=False)
+        pdu.setComponentByPosition(1, self._networkAddress, verifyConstraints=False)
+        pdu.setComponentByPosition(2, self._genericTrap,verifyConstraints=False)
         pdu.setComponentByPosition(3, self._zeroInt, verifyConstraints=False)
-        pdu.setComponentByPosition(4, self._zeroInt, verifyConstraints=False)
+        pdu.setComponentByPosition(4, self._zeroTime, verifyConstraints=False)
         pdu.setComponentByPosition(5)
 
     def getEnterprise(self, pdu): return pdu.getComponentByPosition(0)
@@ -178,11 +182,11 @@ class TrapPDUAPI:
 apiTrapPDU = TrapPDUAPI()
 
 class MessageAPI:
-    _verInt = univ.Integer(0)
-    _commStr = univ.OctetString('public')
+    _version = rfc1157._version.clone(0)
+    _community = univ.OctetString('public')
     def setDefaults(self, msg):
-        msg.setComponentByPosition(0, self._verInt, verifyConstraints=False)
-        msg.setComponentByPosition(1, self._commStr, verifyConstraints=False)
+        msg.setComponentByPosition(0, self._version, verifyConstraints=False)
+        msg.setComponentByPosition(1, self._community, verifyConstraints=False)
         return msg
 
     def getVersion(self, msg): return msg.getComponentByPosition(0)

@@ -1,4 +1,4 @@
-from pysnmp.proto import rfc1902, rfc1905, error
+from pysnmp.proto import rfc1901, rfc1902, rfc1905, error
 from pysnmp.proto.api import v1
 from pyasn1.type import univ, namedtype, namedval, constraint
 
@@ -34,19 +34,14 @@ InformRequestPDU = rfc1905.InformRequestPDU
 SNMPv2TrapPDU = TrapPDU = rfc1905.SNMPv2TrapPDU
 ReportPDU = rfc1905.ReportPDU
 
-# v2 model uses v1 messaging but it's not defined in v2 MIB
-class Message(v1.Message):
-    componentType = namedtype.NamedTypes(
-        namedtype.NamedType('version', univ.Integer(namedValues = namedval.NamedValues(('version-2', 1)))),
-        namedtype.NamedType('community', univ.OctetString()),
-        namedtype.NamedType('data', rfc1905.PDUs())
-        )
+Message = rfc1901.Message
 
 getNextRequestID = v1.getNextRequestID
 
 apiVarBind = v1.apiVarBind
 
 class PDUAPI(v1.PDUAPI):
+    _errorStatus = rfc1905._errorStatus.clone(0)
     _errorIndex = univ.Integer(0).subtype(subtypeSpec=constraint.ValueRangeConstraint(0, rfc1905.max_bindings))
     def getResponse(self, reqPDU):
         rspPDU = ResponsePDU()
@@ -72,10 +67,20 @@ class PDUAPI(v1.PDUAPI):
 apiPDU = PDUAPI()
 
 class BulkPDUAPI(PDUAPI):
-    _tenInt = rfc1902.Integer(10)
+    _nonRepeaters = rfc1905._nonRepeaters.clone(0)
+    _maxRepetitions = rfc1905._maxRepetitions.clone(10)
     def setDefaults(self, pdu):
         PDUAPI.setDefaults(self, pdu)
-        pdu.setComponentByPosition(2, self._tenInt, verifyConstraints=False)
+        pdu.setComponentByPosition(
+            0, getNextRequestID(), verifyConstraints=False
+        )
+        pdu.setComponentByPosition(
+            1, self._nonRepeaters, verifyConstraints=False
+        )
+        pdu.setComponentByPosition(
+            2, self._maxRepetitions, verifyConstraints=False
+        )
+        pdu.setComponentByPosition(3)
 
     def getNonRepeaters(self, pdu): return pdu.getComponentByPosition(1)
     def setNonRepeaters(self, pdu, value): pdu.setComponentByPosition(1, value)
@@ -130,10 +135,10 @@ class TrapPDUAPI(v1.PDUAPI):
 apiTrapPDU = TrapPDUAPI()
 
 class MessageAPI(v1.MessageAPI):
-    _verInt = univ.Integer(1)
+    _version = rfc1901._version.clone(1)
     def setDefaults(self, msg):
-        msg.setComponentByPosition(0, self._verInt, verifyConstraints=False)
-        msg.setComponentByPosition(1, self._commStr, verifyConstraints=False)
+        msg.setComponentByPosition(0, self._version, verifyConstraints=False)
+        msg.setComponentByPosition(1, self._community, verifyConstraints=False)
         return msg
 
     def getResponse(self, reqMsg):

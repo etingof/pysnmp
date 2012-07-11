@@ -52,21 +52,26 @@ class VarBindList(univ.SequenceOf):
         0, max_bindings
         )
 
+_errorStatus = univ.Integer(namedValues=namedval.NamedValues(('noError', 0), ('tooBig', 1), ('noSuchName', 2), ('badValue', 3), ('readOnly', 4), ('genErr', 5), ('noAccess', 6), ('wrongType', 7), ('wrongLength', 8), ('wrongEncoding', 9), ('wrongValue', 10), ('noCreation', 11), ('inconsistentValue', 12), ('resourceUnavailable', 13), ('commitFailed', 14), ('undoFailed', 15), ('authorizationError', 16), ('notWritable', 17), ('inconsistentName', 18)))
+
 # Base class for a non-bulk PDU
 class PDU(univ.Sequence):
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('request-id', rfc1902.Integer32()),
-        namedtype.NamedType('error-status', univ.Integer(namedValues=namedval.NamedValues(('noError', 0), ('tooBig', 1), ('noSuchName', 2), ('badValue', 3), ('readOnly', 4), ('genErr', 5), ('noAccess', 6), ('wrongType', 7), ('wrongLength', 8), ('wrongEncoding', 9), ('wrongValue', 10), ('noCreation', 11), ('inconsistentValue', 12), ('resourceUnavailable', 13), ('commitFailed', 14), ('undoFailed', 15), ('authorizationError', 16), ('notWritable', 17), ('inconsistentName', 18)))),
+        namedtype.NamedType('error-status', _errorStatus),
         namedtype.NamedType('error-index', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, max_bindings))),
         namedtype.NamedType('variable-bindings', VarBindList())
         )
+
+_nonRepeaters = univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, max_bindings))
+_maxRepetitions = univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, max_bindings))
 
 # Base class for bulk PDU
 class BulkPDU(univ.Sequence):
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('request-id', rfc1902.Integer32()),
-        namedtype.NamedType('non-repeaters', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, max_bindings))),
-        namedtype.NamedType('max-repetitions', univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, max_bindings))),
+        namedtype.NamedType('non-repeaters', _nonRepeaters),
+        namedtype.NamedType('max-repetitions', _maxRepetitions),
         namedtype.NamedType('variable-bindings', VarBindList())
         )
 
