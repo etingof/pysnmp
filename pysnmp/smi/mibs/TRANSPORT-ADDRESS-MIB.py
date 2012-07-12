@@ -2,8 +2,16 @@
 # by libsmi2pysnmp-0.1.3 at Tue Apr  3 16:58:37 2012,
 # Python version sys.version_info(major=2, minor=7, micro=2, releaselevel='final', serial=0)
 
+try:
+    from socket import inet_ntop, inet_pton, AF_INET, AF_INET6
+except ImportError:
+    from socket import inet_ntoa, inet_aton, AF_INET
+    inet_ntop = lambda x,y: inet_ntoa(y)
+    inet_pton = lambda x,y: inet_aton(y)
+    AF_INET6 = None
+
 from pyasn1.compat.octets import int2oct, oct2int
-import socket
+from pysnmp import error
 
 # Imports
 
@@ -30,7 +38,7 @@ class TransportAddressIPv4(TextualConvention, OctetString):
     def prettyIn(self, value):
         if isinstance(value, tuple):
             # Wild hack -- need to implement TextualConvention.prettyIn
-            value = socket.inet_pton(socket.AF_INET, value[0]) + \
+            value = inet_pton(AF_INET, value[0]) + \
                     int2oct((value[1] >> 8) & 0xff) + \
                     int2oct(value[1] & 0xff)
         return OctetString.prettyIn(self, value)
@@ -40,7 +48,7 @@ class TransportAddressIPv4(TextualConvention, OctetString):
         if not hasattr(self, '__tuple_value'):
             v = self.asOctets()
             self.__tuple_value = (
-                socket.inet_ntop(socket.AF_INET, v[:4]),
+                inet_ntop(AF_INET, v[:4]),
                 oct2int(v[4]) << 8 | oct2int(v[5]),
             )
         return self.__tuple_value[i]
@@ -56,8 +64,10 @@ class TransportAddressIPv6(TextualConvention, OctetString):
     fixedLength = 18
 
     def prettyIn(self, value):
+        if AF_INET6 is None:
+            raise error.PySnmpError('IPv6 not supported by platform')
         if isinstance(value, tuple):
-            value = socket.inet_pton(socket.AF_INET6, value[0]) + \
+            value = inet_pton(AF_INET6, value[0]) + \
                     int2oct((value[1] >> 8) & 0xff) + \
                     int2oct(value[1] & 0xff)
         return OctetString.prettyIn(self, value)
@@ -65,9 +75,11 @@ class TransportAddressIPv6(TextualConvention, OctetString):
     # Socket address syntax coercion
     def __getitem__(self, i):
         if not hasattr(self, '__tuple_value'):
+            if AF_INET6 is None:
+                raise error.PySnmpError('IPv6 not supported by platform')
             v = self.asOctets()
             self.__tuple_value = (
-                socket.inet_ntop(socket.AF_INET6, v[:16]),
+                inet_ntop(AF_INET6, v[:16]),
                 oct2int(v[16]) << 8 | oct2int(v[17]),
                 0,
                 0)

@@ -1,4 +1,10 @@
-import socket
+try:
+    from socket import inet_ntop, inet_pton, AF_INET
+except ImportError:
+    from socket import inet_ntoa, inet_aton, AF_INET
+    inet_ntop = lambda x,y: inet_ntoa(y)
+    inet_pton = lambda x,y: inet_aton(y)
+
 from pyasn1.compat.octets import int2oct, oct2int
 
 ( OctetString, ) = mibBuilder.importSymbols('ASN1', 'OctetString')
@@ -17,7 +23,7 @@ class SnmpUDPAddress(TextualConvention, OctetString):
     def prettyIn(self, value):
         if isinstance(value, tuple):
             # Wild hack -- need to implement TextualConvention.prettyIn
-            value = socket.inet_pton(socket.AF_INET, value[0]) + \
+            value = inet_pton(AF_INET, value[0]) + \
                     int2oct((value[1] >> 8) & 0xff) + \
                     int2oct(value[1] & 0xff)
         return OctetString.prettyIn(self, value)
@@ -27,7 +33,7 @@ class SnmpUDPAddress(TextualConvention, OctetString):
         if not hasattr(self, '__tuple_value'):
             v = self.asOctets()
             self.__tuple_value = (
-                socket.inet_ntop(socket.AF_INET, v[:4]),
+                inet_ntop(AF_INET, v[:4]),
                 oct2int(v[4]) << 8 | oct2int(v[5])
             )
         return self.__tuple_value[i]
