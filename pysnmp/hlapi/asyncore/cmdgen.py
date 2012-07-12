@@ -406,8 +406,7 @@ class CommandGenerator:
         self.snmpEngine = self.__asynCmdGen.snmpEngine
         self.mibViewController = self.__asynCmdGen.mibViewController
        
-    def getCmd(self, authData, transportTarget, *varNames,
-               lookupNames=False, lookupValues=False):
+    def getCmd(self, authData, transportTarget, *varNames, **kwargs):
         def __cbFun(
             sendRequestHandle, errorIndication, errorStatus, errorIndex,
             varBinds, appReturn
@@ -416,6 +415,9 @@ class CommandGenerator:
             appReturn['errorStatus'] = errorStatus
             appReturn['errorIndex'] = errorIndex
             appReturn['varBinds'] = varBinds
+
+        lookupNames = kwargs.get('lookupNames', False)        
+        lookupValues = kwargs.get('lookupValues', False)
 
         appReturn = {}
         self.__asynCmdGen.getCmd(
@@ -433,8 +435,7 @@ class CommandGenerator:
                  appReturn['errorIndex'],
                  appReturn['varBinds'] )
 
-    def setCmd(self, authData, transportTarget, *varBinds,
-               lookupNames=False, lookupValues=False):
+    def setCmd(self, authData, transportTarget, *varBinds, **kwargs):
         def __cbFun(
             sendRequestHandle, errorIndication, errorStatus, errorIndex,
             varBinds, appReturn
@@ -443,6 +444,9 @@ class CommandGenerator:
             appReturn['errorStatus'] = errorStatus
             appReturn['errorIndex'] = errorIndex
             appReturn['varBinds'] = varBinds
+
+        lookupNames = kwargs.get('lookupNames', False)        
+        lookupValues = kwargs.get('lookupValues', False)
 
         appReturn = {}
         self.__asynCmdGen.setCmd(
@@ -460,10 +464,7 @@ class CommandGenerator:
                  appReturn['errorIndex'],
                  appReturn['varBinds'] )
 
-    def nextCmd(self, authData, transportTarget, *varNames,
-               lookupNames=False, lookupValues=False,
-               lexicographicMode=False, maxRows=0,
-               ignoreNonIncreasingOid=False):
+    def nextCmd(self, authData, transportTarget, *varNames, **kwargs):
         def __cbFun(sendRequestHandle, errorIndication,
                     errorStatus, errorIndex, varBindTable, cbCtx):
             (self, varBindHead, varBindTotalTable, appReturn) = cbCtx
@@ -522,6 +523,12 @@ class CommandGenerator:
 
                 return 1 # continue table retrieval
 
+        lookupNames = kwargs.get('lookupNames', False)        
+        lookupValues = kwargs.get('lookupValues', False)
+        lexicographicMode = kwargs.get('lexicographicMode', False)
+        maxRows = kwargs.get('maxRows', 0)
+        ignoreNonIncreasingOid = kwargs.get('ignoreNonIncreasingOid', False)
+
         varBindHead = []
         for varName in varNames:
             name, suffix = mibvar.mibNameToOid(
@@ -555,10 +562,7 @@ class CommandGenerator:
                  appReturn['varBindTable'] )
 
     def bulkCmd(self, authData, transportTarget,
-                nonRepeaters, maxRepetitions, *varNames,
-                lookupNames=False, lookupValues=False,
-                lexicographicMode=False, maxRows=0,
-                ignoreNonIncreasingOid=False):
+                nonRepeaters, maxRepetitions, *varNames, **kwargs):
         def __cbFun(sendRequestHandle, errorIndication,
                     errorStatus, errorIndex, varBindTable, cbCtx):
             (self, varBindHead, varBindTotalTable, appReturn) = cbCtx
@@ -617,6 +621,12 @@ class CommandGenerator:
                     return
 
                 return 1 # continue table retrieval
+
+        lookupNames = kwargs.get('lookupNames', False)        
+        lookupValues = kwargs.get('lookupValues', False)
+        lexicographicMode = kwargs.get('lexicographicMode', False)
+        maxRows = kwargs.get('maxRows', 0)
+        ignoreNonIncreasingOid = kwargs.get('ignoreNonIncreasingOid', False)
 
         varBindHead = []
         for varName in varNames:
