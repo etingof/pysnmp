@@ -118,6 +118,36 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         wholeMsg = encoder.encode(msg)
         return ( communityName, wholeMsg )
 
+    def _verifySecurityModel(self, snmpEngine, securityName):
+        ( snmpTargetParamsSecurityModel,
+          snmpTargetParamsSecurityName ) = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
+          'SNMP-TARGET-MIB',
+          'snmpTargetParamsSecurityModel',
+          'snmpTargetParamsSecurityName'
+          )
+
+        nextMibNode = snmpTargetParamsSecurityName
+
+        while 1:
+            try:
+                nextMibNode = snmpTargetParamsSecurityName.getNextNode(
+                                  nextMibNode.name
+                              )
+            except NoSuchInstanceError:
+                return False
+
+            if nextMibNode.syntax != securityName:
+                continue
+
+            instId = nextMibNode.name[len(snmpTargetParamsSecurityName.name):]
+
+            # make sure given securityName has valid securityModel
+            mibNode = snmpTargetParamsSecurityModel.getNode(
+                snmpTargetParamsSecurityModel.name + instId
+                )
+            if mibNode.syntax == self.securityModelID:
+                return True
+ 
     def processIncomingMsg(
         self,
         snmpEngine,
@@ -221,13 +251,15 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                             break
                     else:
                         continue
-            break
-        
+
+            securityName = snmpCommunitySecurityName.getNode(
+                snmpCommunitySecurityName.name + instId
+            )
+            if self._verifySecurityModel(snmpEngine, securityName.syntax):
+                break
+
         communityName = snmpCommunityName.getNode(
             snmpCommunityName.name + instId
-            )
-        securityName = snmpCommunitySecurityName.getNode(
-            snmpCommunitySecurityName.name + instId
             )
         contextEngineId = snmpCommunityContextEngineId.getNode(
             snmpCommunityContextEngineId.name + instId
@@ -237,7 +269,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
             )
         snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
-        debug.logger & debug.flagSM and debug.logger('processIncomingMsg: looked up securityName %r contextEngineId %r contextName %r by communityName %r' % (securityName.syntax, contextEngineId.syntax, contextName.syntax, communityName.syntax))
+        debug.logger & debug.flagSM and debug.logger('processIncomingMsg: looked up securityName %r securityModel %r contextEngineId %r contextName %r by communityName %r' % (securityName.syntax, self.securityModelID, contextEngineId.syntax, contextName.syntax, communityName.syntax))
 
         stateReference = self._cache.push(
             communityName=communityName.syntax
