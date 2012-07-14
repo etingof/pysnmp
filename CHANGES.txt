@@ -36,6 +36,9 @@ Revision 4.2.3
   moved to module scope to become accessible by wrapper routines
   (v1.py/v2c.py). This is used for setting strictly typed default values
   to corresponding SNMP data structures.
+- A caching maps implemented at rfc2576 subsystem to speed-up communityName
+  to/from securityName resolution. The also makes transport tags processing
+  better compliant to the standard.
 - Fix to rfc2576:processIncomingMessage() to take SecurityModel into account
   when lookup up SecurityName by CommunityName. This allows mixed SNMPv1/v2c
   communication with the same target.
