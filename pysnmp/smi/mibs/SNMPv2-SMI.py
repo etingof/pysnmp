@@ -236,18 +236,16 @@ class MibTree(ObjectType):
     # Subtrees registration
     
     def registerSubtrees(self, *subTrees):
-        """Register subtrees at this tree. Subtrees are always attached
-           at the level of this tree, not subtrees."""
+        self.branchVersionId += 1
         for subTree in subTrees:
             if subTree.name in self._vars:
                 raise error.SmiError(
                     'MIB subtree %s already registered at %s' %  (subTree.name, self)
                     )
             self._vars[subTree.name] = subTree
-            MibTree.branchVersionId = MibTree.branchVersionId + 1
 
     def unregisterSubtrees(self, *names):
-        """Detach subtrees from this tree"""
+        self.branchVersionId += 1
         for name in names:
             # This may fail if you fill a table by exporting MibScalarInstances
             # but later drop them through SNMP.
@@ -256,7 +254,6 @@ class MibTree(ObjectType):
                     'MIB subtree %s not registered at %s' %  (name, self)
                     )
             del self._vars[name]
-            MibTree.branchVersionId = MibTree.branchVersionId + 1
 
     # Tree traversal
 
@@ -410,6 +407,7 @@ class MibTree(ObjectType):
         self.getBranch(name, idx).writeCommit(name, val, idx, acInfo)
     
     def writeCleanup(self, name, val, idx, acInfo):
+        self.branchVersionId += 1
         self.getBranch(name, idx).writeCleanup(name, val, idx, acInfo)
     
     def writeUndo(self, name, val, idx, acInfo):
@@ -543,6 +541,7 @@ class MibScalarInstance(MibTree):
         self.syntax = self.__newSyntax
         
     def writeCleanup(self, name, val, idx, acInfo):
+        self.branchVersionId += 1
         debug.logger & debug.flagIns and debug.logger('writeCleanup: %s=%r' % (name, val))
         # Drop previous value
         self.__newSyntax = self.__oldSyntax = None
@@ -573,6 +572,7 @@ class MibScalarInstance(MibTree):
             self.writeCommit(name, val, idx, acInfo)
 
     def createCleanup(self, name, val, idx, acInfo):
+        self.branchVersionId += 1
         debug.logger & debug.flagIns and debug.logger('createCleanup: %s=%r' % (name, val))
         if val is not None:
             self.writeCleanup(name, val, idx, acInfo)
@@ -595,7 +595,8 @@ class MibScalarInstance(MibTree):
         else:
             raise error.NoSuchObjectError(idx=idx, name=name)
     def destroyCommit(self, name, val, idx, acInfo): pass
-    def destroyCleanup(self, name, val, idx, acInfo): pass
+    def destroyCleanup(self, name, val, idx, acInfo):
+        self.branchVersionId += 1
     def destroyUndo(self, name, val, idx, acInfo): pass
 
 # Conceptual table classes
@@ -609,7 +610,7 @@ class MibTableColumn(MibScalar):
         self.__rowOpWanted = {}
         self.__valIdx = {} # column instance value to OID index
         self.__valIdxId = -1
-        
+    
     # No branches here, terminal OIDs only
     def getBranch(self, name, idx):
         if name in self._vars:
@@ -697,6 +698,7 @@ class MibTableColumn(MibScalar):
                           self.__createdInstances[name], self._vars.get(name)
 
     def createCleanup(self, name, val, idx, acInfo):
+        self.branchVersionId += 1
         # Drop by-value index
         self.__valIdx.clear()
         
@@ -750,6 +752,7 @@ class MibTableColumn(MibScalar):
             del self._vars[name]
         
     def destroyCleanup(self, name, val, idx, acInfo):
+        self.branchVersionId += 1
         # Drop by-value index
         self.__valIdx.clear()
         
@@ -813,6 +816,7 @@ class MibTableColumn(MibScalar):
             raise self.__rowOpWanted[name]
 
     def writeCleanup(self, name, val, idx, acInfo):
+        self.branchVersionId += 1
         # Drop by-value index
         self.__valIdx.clear()
         
@@ -1015,6 +1019,7 @@ class MibTableRow(MibTree):
     def writeCommit(self, name, val, idx, acInfo):
         self.__delegate('Commit', name, val, idx, acInfo)
     def writeCleanup(self, name, val, idx, acInfo):
+        self.branchVersionId += 1
         self.__delegate('Cleanup', name, val, idx, acInfo)
     def writeUndo(self, name, val,  idx, acInfo):
         self.__delegate('Undo', name, val, idx, acInfo)
