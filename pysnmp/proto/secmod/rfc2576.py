@@ -163,7 +163,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                 else:
                     self.__transportToTagMap[targetAddr].add(SnmpTagValue(''))
 
-            self.__transportBranchId = snmpTargetAddrTagList.branchVersionId
+            self.__transportBranchId = snmpTargetAddrTAddress.branchVersionId
 
             debug.logger & debug.flagSM and debug.logger('_com2sec: built transport-to-tag map version %s: %s' % (self.__transportBranchId, self.__transportToTagMap))
 
@@ -192,7 +192,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                               snmpTargetParamsSecurityModel.name + instId
                           )
 
-                if mibNode.syntax not in self.__nameToModelMap:
+                if nextMibNode.syntax not in self.__nameToModelMap:
                     self.__nameToModelMap[nextMibNode.syntax] = set()
 
                 self.__nameToModelMap[nextMibNode.syntax].add(mibNode.syntax)
@@ -262,8 +262,8 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
 
             self.__communityBranchId = snmpCommunityName.branchVersionId
 
-            debug.logger & debug.flagSM and debug.logger('_com2sec: built communityName to tag map, version %s: %s' % (self.__communityBranchId, self.__communityToTagMap))
-            debug.logger & debug.flagSM and debug.logger('_com2sec: built tag to securityName map, version %s: %s' % (self.__communityBranchId, self.__tagToSecurityMap))
+            debug.logger & debug.flagSM and debug.logger('_com2sec: built communityName to tag map (securityModel %s), version %s: %s' % (self.securityModelID, self.__communityBranchId, self.__communityToTagMap))
+            debug.logger & debug.flagSM and debug.logger('_com2sec: built tag to securityName map (securityModel %s), version %s: %s' % (self.securityModelID, self.__communityBranchId, self.__tagToSecurityMap))
 
         if transportInformation in self.__transportToTagMap and \
            communityName in self.__communityToTagMap:
