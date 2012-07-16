@@ -12,6 +12,8 @@ from pysnmp import error
 class SnmpEngine:
     def __init__(self, snmpEngineID=None, maxMessageSize=65507,
                  msgAndPduDsp=None):
+        self.cache = {}
+
         if msgAndPduDsp is None:
             self.msgAndPduDsp = MsgAndPduDispatcher()
         else:
