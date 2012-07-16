@@ -33,11 +33,14 @@ Revision 4.2.3
   operational again.
 - Use sysUpTime value whenever it is included in Notification PDU, otheriwese
   resort to SNMP engine uptime reading.
-- SNMPv2c Message is now defined in rfc1901.py what matches standard definition.
+- SNMPv2c Message is now defined in rfc1901.py what matches standard 
+  definition.
 - Types defined within SNMPv1/v2c data structures (rfc1157.py/rfc1905.py)
   moved to module scope to become accessible by wrapper routines
   (v1.py/v2c.py). This is used for setting strictly typed default values
   to corresponding SNMP data structures.
+- The obsolete and unpublished MibInstrumController.readVarsFast() method
+  removed for API clarity.
 - LCD configuration caching is implemented at pysnmp.entity.rfc3413.config
   that improves performance of repetitive calls by 10% and might hugely
   improve NotificationOriginator's performance when working on a large

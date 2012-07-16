@@ -13,12 +13,6 @@ class MibInstrumController:
         ('readGet', 'ok'): 'stop',
         ('*', 'err'): 'stop'
     }
-    fsmReadVarFast = {
-        # ( state, status ) -> newState
-        ('start', 'ok'): 'readGet',
-        ('readGet', 'ok'): 'stop',
-        ('*', 'err'): 'stop'
-    }
     fsmReadNextVar = {
         # ( state, status ) -> newState
         ('start', 'ok'): 'readTestNext',
@@ -237,7 +231,3 @@ class MibInstrumController:
         return self.flipFlopFsm(self.fsmReadNextVar, vars, acInfo)
     def writeVars(self, vars, acInfo=(None, None)):
         return self.flipFlopFsm(self.fsmWriteVar, vars, acInfo)
-
-    # This version of the above method skips "test" phase for performance
-    def readVarsFast(self, vars, acInfo=(None, None)):
-        return self.flipFlopFsm(self.fsmReadVarFast, vars, acInfo)
