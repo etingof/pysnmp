@@ -227,7 +227,7 @@ OBJECT-TYPE\n\
      self.getReference())
         
 class MibTree(ObjectType):
-    branchVersionId = 0    # increments on tree structure change XXX
+    branchVersionId = 0    # cnanges on tree structure change
     maxAccess = 'not-accessible'
     def __init__(self, name, syntax=None):
         ObjectType.__init__(self, name, syntax)
@@ -608,8 +608,6 @@ class MibTableColumn(MibScalar):
         MibScalar.__init__(self, name, syntax)
         self.__createdInstances = {}; self.__destroyedInstances = {}
         self.__rowOpWanted = {}
-        self.__valIdx = {} # column instance value to OID index
-        self.__valIdxId = -1
     
     # No branches here, terminal OIDs only
     def getBranch(self, name, idx):
@@ -632,36 +630,6 @@ class MibTableColumn(MibScalar):
     def setProtoInstance(self, protoInstance):
         self.protoInstance = protoInstance
 
-    # Value to instances map
-
-    def getNextNodeWithValue(self, name, value):
-        if not self.__valIdx or self.__valIdxId != self.branchVersionId:
-            # Build a value->oid index
-            node = self
-            while 1:
-                try:
-                    node = self.getNextNode(node.name)
-                except error.NoSuchInstanceError:
-                    break
-                if node.syntax not in self.__valIdx:
-                    self.__valIdx[node.syntax] = OidOrderedDict()
-                self.__valIdx[node.syntax][node.name] = 1
-
-            debug.logger & debug.flagIns and debug.logger('value index rebuilt at %s, %s entries' % (self.name,len(self.__valIdx)))
-
-            # Sync to tree version
-            self.__valIdxId = self.branchVersionId
-
-        if value in self.__valIdx:
-            try:
-                return self.getNode(
-                    self.__valIdx[value].nextKey(name)
-                    )
-            except KeyError:
-                raise error.NoSuchInstanceError(name=name)
-        else:
-            raise error.NoSuchInstanceError(name=name)
-            
     # Column creation (this should probably be converted into some state
     # machine for clarity). Also, it might be a good idea to inidicate
     # defaulted cols creation in a clearer way than just a val == None.
@@ -698,11 +666,8 @@ class MibTableColumn(MibScalar):
                           self.__createdInstances[name], self._vars.get(name)
 
     def createCleanup(self, name, val, idx, acInfo):
-        self.branchVersionId += 1
-        # Drop by-value index
-        self.__valIdx.clear()
-        
         # Drop previous column instance
+        self.branchVersionId += 1
         if name in self.__createdInstances:
             if self.__createdInstances[name] is not None:
                 self.__createdInstances[name].createCleanup(
@@ -752,11 +717,8 @@ class MibTableColumn(MibScalar):
             del self._vars[name]
         
     def destroyCleanup(self, name, val, idx, acInfo):
-        self.branchVersionId += 1
-        # Drop by-value index
-        self.__valIdx.clear()
-        
         # Drop instance copy
+        self.branchVersionId += 1
         if name in self.__destroyedInstances:
             self.__destroyedInstances[name].destroyCleanup(
                 name, val, idx, acInfo
@@ -817,9 +779,6 @@ class MibTableColumn(MibScalar):
 
     def writeCleanup(self, name, val, idx, acInfo):
         self.branchVersionId += 1
-        # Drop by-value index
-        self.__valIdx.clear()
-        
         self.__delegateWrite(
             'Cleanup', name, val, idx, acInfo
             )
