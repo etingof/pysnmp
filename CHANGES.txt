@@ -16,6 +16,8 @@ Revision 4.2.3
   unpublished MIB values smiCreate()/smiWrite()/smiDestroy() methods.
 - MibTree.readTest[Get]Next() reworked to be called uniformely so
   user could tap on these methods at any level of the MIB tree.
+- MibTableColumn.getNextNodeWithValue() unpublished API method obsoleted
+  and removed for clarity.
 - Hex dumps of binary parts of the protocol added to ease system
   operations analysis.
 - SnmpEngineId autogeneration does not call DNS resolver but uses
