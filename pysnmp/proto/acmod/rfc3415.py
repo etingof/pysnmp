@@ -18,7 +18,7 @@ def isAccessAllowed(
     variableName):
     mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
 
-    debug.logger & debug.flagACL and debug.logger('isAccessAllowed: viewType %s for variableName %s' % (viewType, variableName))
+    debug.logger & debug.flagACL and debug.logger('isAccessAllowed: securityModel %s, securityName %s, securityLevel %s, viewType %s, contextName %s for variableName %s' % (securityModel, securityName, securityLevel, viewType, contextName, variableName))
 
     # 3.2.1
     vacmContextEntry, = mibInstrumController.mibBuilder.importSymbols('SNMP-VIEW-BASED-ACM-MIB', 'vacmContextEntry')
