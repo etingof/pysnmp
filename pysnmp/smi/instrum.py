@@ -129,7 +129,7 @@ class MibInstrumController:
                 cols[inst.typeName].registerSubtrees(inst)
             else:
                 raise error.SmiError(
-                    'Orphan MIB scalar instance %s at %s' % (inst, self)
+                    'Orphan MIB scalar instance %r at %r' % (inst, self)
                     )
             lastBuildSyms[inst.name] = inst.typeName
 
@@ -140,7 +140,7 @@ class MibInstrumController:
                 rows[rowName].registerSubtrees(col)
             else:
                 raise error.SmiError(
-                    'Orphan MIB table column %s at %s' % (col, self)
+                    'Orphan MIB table column %r at %r' % (col, self)
                     )
             lastBuildSyms[col.name] = rowName
             
