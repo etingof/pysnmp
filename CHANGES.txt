@@ -22,8 +22,8 @@ Revision 4.2.3
   operations analysis.
 - SnmpEngineId autogeneration does not call DNS resolver but uses
   local hostname not to depend upon local IP availability and performance.
-- Alternative SNMPv3 auth/priv protocols and transports added into 
-  example apps.
+- Example apps reworked, additional SNMPv3 auth/priv protocols and transports
+  added.
 - Package version is now available as __init__.__version__ and it is 
   in-sync with distutils.
 - Package meta-information updated.
