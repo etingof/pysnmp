@@ -118,6 +118,8 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                   'snmpTargetAddrTagList'
               )
 
+            self.__emptyTag = SnmpTagValue('')
+
             self.__transportToTagMap = {}
 
             nextMibNode = snmpTargetAddrTagList
@@ -161,7 +163,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                         [ SnmpTagValue(x) for x in targetAddrTagList.asOctets().split() ]
                     )
                 else:
-                    self.__transportToTagMap[targetAddr].add(SnmpTagValue(''))
+                    self.__transportToTagMap[targetAddr].add(self.__emptyTag)
 
             self.__transportBranchId = snmpTargetAddrTAddress.branchVersionId
 
@@ -235,8 +237,10 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                                    snmpCommunitySecurityName.name + instId
                                ).syntax
 
-                if securityName not in self.__nameToModelMap or \
-                    self.securityModelID not in self.__nameToModelMap[securityName]:
+                # Filter community table by security model
+                # *if* there are conflicting security names
+                if securityName in self.__nameToModelMap and \
+                     self.securityModelID not in self.__nameToModelMap[securityName]:
                     continue
 
                 contextEngineId = snmpCommunityContextEngineId.getNode(
@@ -265,13 +269,14 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
             debug.logger & debug.flagSM and debug.logger('_com2sec: built communityName to tag map (securityModel %s), version %s: %s' % (self.securityModelID, self.__communityBranchId, self.__communityToTagMap))
             debug.logger & debug.flagSM and debug.logger('_com2sec: built tag to securityName map (securityModel %s), version %s: %s' % (self.securityModelID, self.__communityBranchId, self.__tagToSecurityMap))
 
-        if transportInformation in self.__transportToTagMap and \
-           communityName in self.__communityToTagMap:
-            tags = self.__transportToTagMap[transportInformation].intersection(
-                     self.__communityToTagMap[communityName]
-                   )
-            if tags:
-                return self.__tagToSecurityMap[tags.pop()]
+        if communityName in self.__communityToTagMap:
+            if self.__emptyTag in self.__communityToTagMap[communityName]:
+                return self.__tagToSecurityMap[self.__emptyTag]
+
+            if transportInformation in self.__transportToTagMap:
+                tags = self.__transportToTagMap[transportInformation].intersection(self.__communityToTagMap[communityName])
+                if tags:
+                    return self.__tagToSecurityMap[tags.pop()]
 
         raise error.StatusInformation()
  
