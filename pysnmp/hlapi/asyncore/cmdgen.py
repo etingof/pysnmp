@@ -2,7 +2,7 @@ import socket, sys
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdgen, mibvar
 from pysnmp.carrier.asynsock.dgram import udp, udp6, unix
-from pysnmp.proto import errind
+from pysnmp.proto import rfc1905, errind
 from pysnmp.smi import view
 from pysnmp import nextid, error
 from pyasn1.type import univ, base
@@ -28,8 +28,9 @@ class CommunityData:
     securityModel = mpModel + 1
     securityLevel = 'noAuthNoPriv'
     contextName = null
+    tag = null
     def __init__(self, securityName, communityName=None, mpModel=None,
-                 contextEngineId=None, contextName=None):
+                 contextEngineId=None, contextName=None, tag=None):
         self.securityName = securityName
         self.communityName = communityName
         if mpModel is not None:
@@ -38,21 +39,24 @@ class CommunityData:
         self.contextEngineId = contextEngineId
         if contextName is not None:
             self.contextName = contextName
+        if tag is not None:
+            self.tag = tag
         # Autogenerate securityName if not specified
         if communityName is None:
             self.communityName = securityName
             self.securityName = 's%s' % hash(
                 ( securityName, self.mpModel,
-                  self.contextEngineId, self.contextName )
+                  self.contextEngineId, self.contextName, self.tag )
                 )
             
     def __repr__(self):
-        return '%s("%s", <COMMUNITY>, %r, %r, %r)' % (
+        return '%s("%s", <COMMUNITY>, %r, %r, %r, %r)' % (
             self.__class__.__name__,
             self.securityName,
             self.mpModel,
             self.contextEngineId,
-            self.contextName
+            self.contextName,
+            self.tag
             )
 
     def __hash__(self): return hash(self.securityName)
@@ -122,13 +126,15 @@ class UsmUserData:
 
 class _AbstractTransportTarget:
     transportDomain = protoTransport = None
-    def __init__(self, transportAddr, timeout=1, retries=5):
+    def __init__(self, transportAddr, timeout=1, retries=5, tagList=null):
         self.transportAddr = transportAddr
         self.timeout = timeout
         self.retries = retries
+        self.tagList = tagList
 
-    def __repr__(self): return '%s(%r, %r, %r)' % (
-        self.__class__.__name__, self.transportAddr, self.timeout, self.retries
+    def __repr__(self): return '%s(%r, %r, %r, %r)' % (
+        self.__class__.__name__, self.transportAddr,
+        self.timeout, self.retries, self.tagList
         )
 
     def __hash__(self): return hash(self.transportAddr)
@@ -147,8 +153,9 @@ class _AbstractTransportTarget:
 class UdpTransportTarget(_AbstractTransportTarget):
     transportDomain = udp.domainName
     protoTransport = udp.UdpSocketTransport
-    def __init__(self, transportAddr, timeout=1, retries=5):
-        _AbstractTransportTarget.__init__(self, transportAddr, timeout,retries)
+    def __init__(self, transportAddr, timeout=1, retries=5, tagList=null):
+        _AbstractTransportTarget.__init__(self, transportAddr, timeout,
+                                          retries, tagList)
         try:
             self.transportAddr = socket.getaddrinfo(transportAddr[0],
                                                     transportAddr[1],
@@ -161,8 +168,9 @@ class UdpTransportTarget(_AbstractTransportTarget):
 class Udp6TransportTarget(_AbstractTransportTarget):
     transportDomain = udp6.domainName
     protoTransport = udp6.Udp6SocketTransport
-    def __init__(self, transportAddr, timeout=1, retries=5):
-        _AbstractTransportTarget.__init__(self, transportAddr, timeout, retries)
+    def __init__(self, transportAddr, timeout=1, retries=5, tagList=null):
+        _AbstractTransportTarget.__init__(self, transportAddr, timeout,
+                                          retries, tagList)
         try:
             self.transportAddr = socket.getaddrinfo(transportAddr[0],
                                                     transportAddr[1],
@@ -193,7 +201,7 @@ class AsynCommandGenerator:
 
     def __del__(self): self.uncfgCmdGen()
 
-    def cfgCmdGen(self, authData, transportTarget, tagList=null):
+    def cfgCmdGen(self, authData, transportTarget):
         if authData not in self.__knownAuths:
             if isinstance(authData, CommunityData):
                 config.addV1System(
@@ -202,7 +210,7 @@ class AsynCommandGenerator:
                     authData.communityName,
                     authData.contextEngineId,
                     authData.contextName,
-                    tagList
+                    authData.tag
                     )
             elif isinstance(authData, UsmUserData):
                 config.addV3User(
@@ -237,7 +245,8 @@ class AsynCommandGenerator:
                 )
             self.__knownTransports[transportTarget.transportDomain] = transport
 
-        k = paramsName, transportTarget, tagList
+        k = paramsName, transportTarget, transportTarget.tagList
+
         if k in self.__knownTransportAddrs:
             addrName = self.__knownTransportAddrs[k]
         else:
@@ -249,7 +258,7 @@ class AsynCommandGenerator:
                 paramsName,
                 transportTarget.timeout * 100,
                 transportTarget.retries,
-                tagList                
+                transportTarget.tagList
                 )
             self.__knownTransportAddrs[k] = addrName
 
@@ -316,9 +325,12 @@ class AsynCommandGenerator:
             if lookupNames:
                 name = (modName, symName), indices
             if lookupValues:
-                value = mibvar.cloneFromMibValue(
-                            self.mibViewController, modName, symName, value
-                        )
+                if value.tagSet not in (rfc1905.NoSuchObject.tagSet,
+                                        rfc1905.NoSuchInstance.tagSet,
+                                        rfc1905.EndOfMibView.tagSet):
+                    value = mibvar.cloneFromMibValue(
+                                self.mibViewController, modName, symName, value
+                            )
             _varBinds.append((name, value))
         return _varBinds
 
