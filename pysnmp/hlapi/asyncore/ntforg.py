@@ -37,23 +37,22 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
 
     def __del__(self): self.uncfgNtfOrg()
 
-    def cfgNtfOrg(self, authData, transportTarget, notifyType, tagList):
-        addrName, paramsName = self.cfgCmdGen(
-            authData, transportTarget, tagList
-            )
-        k = paramsName, tagList, notifyType
-        if k in self.__knownNotifyNames:
-            notifyName, _ = self.__knownNotifyNames[k]
-        else:
-            notifyName = 'n%s' % nextID()
-            config.addNotificationTarget(
-                self.snmpEngine,
-                notifyName,
-                paramsName,
-                tagList,
-                notifyType
+    def cfgNtfOrg(self, authData, transportTarget, notifyType):
+        addrName, paramsName = self.cfgCmdGen(authData, transportTarget)
+        for tag in transportTarget.tagList.split():
+            k = paramsName, tag, notifyType
+            if k in self.__knownNotifyNames:
+                notifyName, _ = self.__knownNotifyNames[k]
+            else:
+                notifyName = 'n%s' % nextID()
+                config.addNotificationTarget(
+                    self.snmpEngine,
+                    notifyName,
+                    paramsName,
+                    tag,
+                    notifyType
                 )
-            self.__knownNotifyNames[k] = notifyName, paramsName
+                self.__knownNotifyNames[k] = notifyName, paramsName
         k = ( authData.securityModel,
               authData.securityName,
               authData.securityLevel )
@@ -94,10 +93,8 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
         self, authData, transportTarget, notifyType,
         notificationType, varBinds=None, cbInfo=(None, None)
         ):
-        (cbFun, cbCtx) = cbInfo         
-        tagList = str(transportTarget.transportAddr).replace(' ', '_')
-        notifyName = self.cfgNtfOrg(authData, transportTarget,
-                                    notifyType, tagList)
+        (cbFun, cbCtx) = cbInfo
+        notifyName = self.cfgNtfOrg(authData, transportTarget, notifyType)
         if notificationType:
             name, oid = mibvar.mibNameToOid(
                 self.mibViewController, notificationType
@@ -144,6 +141,12 @@ class NotificationOriginator:
         ):
         def __cbFun(sendRequestHandle, errorIndication, appReturn):
             appReturn['errorIndication'] = errorIndication
+
+        # Setup transport tags if not given by user
+        if not transportTarget.tagList:
+            transportTarget.tagList = str(hash(transportTarget))
+        if isinstance(authData, CommunityData) and not authData.tag:
+            authData.tag = transportTarget.tagList.split()[0]
 
         appReturn = {}
         self.__asynNtfOrg.sendNotification(
