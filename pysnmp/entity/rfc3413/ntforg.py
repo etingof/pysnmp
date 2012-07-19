@@ -134,7 +134,7 @@ class NotificationOriginator:
             snmpEngine, notificationTarget
             )
 
-        debug.logger & debug.flagApp and debug.logger('sendNoification: notifyTag %s notifyType %s' % (notifyTag, notifyType))
+        debug.logger & debug.flagApp and debug.logger('sendNoification: notifyTag %s, notifyType %s' % (notifyTag, notifyType))
                 
         contextMibInstrumCtl = self.__context.getMibInstrum(
             contextName
@@ -150,6 +150,8 @@ class NotificationOriginator:
               securityModel,
               securityName,
               securityLevel ) = config.getTargetParams(snmpEngine, params)
+
+            debug.logger & debug.flagApp and debug.logger('sendNoification: notifyTag %s yields: transportDomain %s, transportAddress %r, securityModel %s, securityName %s, securityLevel %s' % (notifyTag, transportDomain, transportAddress, securityModel, securityName, securityLevel))
 
             # 3.3.1 XXX
 # XXX filtering's yet to be implemented
@@ -290,7 +292,7 @@ class NotificationOriginator:
                 
                 snmpEngine.transportDispatcher.jobStarted(id(self))
 
-                return sendPduHandle
+        return sendPduHandle
 
 # XXX
 # move/group/implement config setting/retrieval at a stand-alone module
