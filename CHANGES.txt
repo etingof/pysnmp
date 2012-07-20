@@ -52,6 +52,9 @@ Revision 4.2.3
   to make the whole mechanism more compliant with the standard. Most
   importantly, it is now possible to tag authentication and transport
   information separately.
+- Fix to Notification Originator to make it communicating a single
+  sendPduHandle to an application even when multiple INFORMs are triggered
+  and processed by a single call by way of transport tagging feature.
 - Fix to rfc2576:processIncomingMessage() to take SecurityModel into account
   when lookup up SecurityName by CommunityName. This allows mixed SNMPv1/v2c
   communication with the same target.
