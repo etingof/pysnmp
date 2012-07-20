@@ -429,6 +429,18 @@ class MibScalar(MibTree):
     # Missing branches are indicated by the NoSuchInstanceError exception.
     #
 
+    def getBranch(self, name, idx):
+        try:
+            return MibTree.getBranch(self, name, idx)
+        except (error.NoSuchInstanceError, error.NoSuchObjectError):
+            raise error.NoSuchInstanceError(idx=idx, name=name)
+
+    def getNextBranch(self, name, idx=None):
+        try:
+            return MibTree.getNextBranch(self, name, idx)
+        except (error.NoSuchInstanceError, error.NoSuchObjectError):
+            raise error.NoSuchInstanceError(idx=idx, name=name)
+
     def getNode(self, name, idx=None):
         try:
             return MibTree.getNode(self, name, idx)
@@ -510,6 +522,18 @@ class MibScalarInstance(MibTree):
     #
     # Missing branches are indicated by the NoSuchInstanceError exception.
     #
+
+    def getBranch(self, name, idx):
+        try:
+            return MibTree.getBranch(self, name, idx)
+        except (error.NoSuchInstanceError, error.NoSuchObjectError):
+            raise error.NoSuchInstanceError(idx=idx, name=name)
+
+    def getNextBranch(self, name, idx=None):
+        try:
+            return MibTree.getNextBranch(self, name, idx)
+        except (error.NoSuchInstanceError, error.NoSuchObjectError):
+            raise error.NoSuchInstanceError(idx=idx, name=name)
 
     def getNode(self, name, idx=None):
         # Recursion terminator
@@ -649,18 +673,6 @@ class MibTableColumn(MibScalar):
         if name in self._vars:
             return self._vars[name]
         raise error.NoSuchInstanceError(name=name, idx=idx)
-
-    def getNode(self, name, idx=None):
-        try:
-            return MibScalar.getNode(self, name, idx)
-        except error.NoSuchInstanceError:
-            raise error.NoSuchInstanceError(idx=idx, name=name)
-
-    def getNextNode(self, name, idx=None):
-        try:
-            return MibScalar.getNextNode(self, name, idx)
-        except error.NoSuchInstanceError:
-            raise error.NoSuchInstanceError(idx=idx, name=name)
 
     def setProtoInstance(self, protoInstance):
         self.protoInstance = protoInstance
