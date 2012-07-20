@@ -39,7 +39,10 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
 
     def cfgNtfOrg(self, authData, transportTarget, notifyType):
         addrName, paramsName = self.cfgCmdGen(authData, transportTarget)
-        for tag in transportTarget.tagList.split():
+        tagList = transportTarget.tagList.split()
+        if not tagList:
+            tagList = ['']
+        for tag in tagList:
             k = paramsName, tag, notifyType
             if k in self.__knownNotifyNames:
                 notifyName, _ = self.__knownNotifyNames[k]
@@ -144,7 +147,7 @@ class NotificationOriginator:
 
         # Setup transport tags if not given by user
         if not transportTarget.tagList:
-            transportTarget.tagList = str(hash(transportTarget))
+            transportTarget.tagList = str(hash((authData, transportTarget)))
         if isinstance(authData, CommunityData) and not authData.tag:
             authData.tag = transportTarget.tagList.split()[0]
 
