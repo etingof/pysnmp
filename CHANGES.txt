@@ -76,6 +76,7 @@ Revision 4.2.3
   crash the whole SNMP engine.
 - Fix to [possibly uninizilaized] pyasn1 objects printouts at
   MibInstrumController.__indexMib()
+- The separate 'withmib' examples obsolete and removed.
 - Typo fix to snmpInASNParseErrs MIB instance object.
 - Typo fix to errind.EngineIdMismatch class and its instance.
 
