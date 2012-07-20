@@ -1,5 +1,4 @@
 # Void Access Control Model
-from pysnmp.smi.error import NoSuchObjectError
 from pysnmp.proto import errind, error
 
 accessModelID = 0
