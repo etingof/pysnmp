@@ -254,6 +254,9 @@ def getTargetNames(snmpEngine, tag):
 
         cache['id'] = snmpTargetAddrEntry.branchVersionId
 
+    if tag not in tagToTargetsMap:
+        raise SmiError('Transport tag %s not configured at LCD' % tag)
+
     return tagToTargetsMap[tag]
 
 # convert cmdrsp/cmdgen into this api
