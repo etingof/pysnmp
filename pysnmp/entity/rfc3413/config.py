@@ -1,5 +1,5 @@
 # Shortcuts to MIB instrumentation items used internally in SNMP applications
-from pysnmp.smi.error import SmiError, NoSuchInstanceError, NoSuchObjectError
+from pysnmp.smi.error import SmiError, NoSuchInstanceError
 from pysnmp.smi.exval import noSuchInstance
 from pysnmp.entity import config
 
@@ -239,7 +239,7 @@ def getTargetNames(snmpEngine, tag):
         while 1:
             try:
                 mibNode = snmpTargetAddrTagList.getNextNode(mibNode.name)
-            except NoSuchObjectError:
+            except NoSuchInstanceError:
                 break
 
             idx = mibNode.name[len(snmpTargetAddrTagList.name):]

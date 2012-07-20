@@ -52,6 +52,9 @@ Revision 4.2.3
   to make the whole mechanism more compliant with the standard. Most
   importantly, it is now possible to tag authentication and transport
   information separately.
+- The NoSuchInstanceError exception class is no more inherits from
+  NoSuchObjectError to make class hierarchy closer to SNMP specification
+  which states that these errors are separate and independent.
 - Fix to Notification Originator to make it communicating a single
   sendPduHandle to an application even when multiple INFORMs are triggered
   and processed by a single call by way of transport tagging feature.

@@ -1,5 +1,5 @@
 # View-based Access Control Model
-from pysnmp.smi.error import NoSuchObjectError
+from pysnmp.smi.error import NoSuchInstanceError
 from pysnmp.proto import errind, error
 from pysnmp import debug
 
@@ -27,7 +27,7 @@ def isAccessAllowed(
         vacmContextName = vacmContextEntry.getNode(
             vacmContextEntry.name + (1,) + tblIdx
             ).syntax
-    except NoSuchObjectError:
+    except NoSuchInstanceError:
         raise error.StatusInformation(errorIndication=errind.noSuchContext)    
 
     # 3.2.2
@@ -41,7 +41,7 @@ def isAccessAllowed(
         vacmGroupName = vacmSecurityToGroupEntry.getNode(
             vacmSecurityToGroupEntry.name + (3,) + tblIdx
             ).syntax
-    except NoSuchObjectError:
+    except NoSuchInstanceError:
         raise error.StatusInformation(errorIndication=errind.noGroupName)
 
     # 3.2.3
@@ -65,7 +65,7 @@ def isAccessAllowed(
 
     try:
         viewName = vacmAccessEntry.getNode(entryIdx).syntax
-    except NoSuchObjectError:
+    except NoSuchInstanceError:
         raise error.StatusInformation(errorIndication=errind.noAccessEntry)
     if not len(viewName):
         raise error.StatusInformation(errorIndication=errind.noSuchView)

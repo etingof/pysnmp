@@ -255,7 +255,13 @@ class MibTree(ObjectType):
                     )
             del self._vars[name]
 
+    #
     # Tree traversal
+    #
+    # Missing branches are indicated by the NoSuchObjectError exception.
+    # Although subtrees may indicate their missing branches by the 
+    # NoSuchInstanceError exception.
+    #
 
     def getBranch(self, name, idx):
         """Return a branch of this tree where the 'name' OID may reside"""
@@ -288,12 +294,12 @@ class MibTree(ObjectType):
         """Return tree node next to name"""
         try:
             nextNode = self.getBranch(name, idx)
-        except error.NoSuchObjectError:
+        except (error.NoSuchInstanceError, error.NoSuchObjectError):
             return self.getNextBranch(name, idx)
         else:
             try:
                 return nextNode.getNextNode(name, idx)
-            except error.NoSuchObjectError:
+            except (error.NoSuchInstanceError, error.NoSuchObjectError):
                 try:
                     return self._vars[self._vars.nextKey(nextNode.name)]
                 except KeyError:
@@ -314,7 +320,7 @@ class MibTree(ObjectType):
         else:
             try:
                 node = self.getBranch(name, idx)
-            except error.NoSuchObjectError:
+            except (error.NoSuchInstanceError, error.NoSuchObjectError):
                 return # missing object is not an error here
             else:
                 node.readTest(name, val, idx, acInfo)
@@ -322,7 +328,7 @@ class MibTree(ObjectType):
     def readGet(self, name, val, idx, acInfo):
         try:
             node = self.getBranch(name, idx)
-        except error.NoSuchObjectError:
+        except (error.NoSuchInstanceError, error.NoSuchObjectError):
             return name, exval.noSuchObject
         else:
             return node.readGet(name, val, idx, acInfo)
@@ -344,12 +350,12 @@ class MibTree(ObjectType):
                 direction = self.breadthFirst
                 try:
                     node = self.getBranch(nextName, idx)
-                except error.NoSuchObjectError:
+                except (error.NoSuchInstanceError, error.NoSuchObjectError):
                     continue
             else:
                 try:                
                     node = self.getNextBranch(nextName, idx)
-                except error.NoSuchObjectError:
+                except (error.NoSuchInstanceError, error.NoSuchObjectError):
                     if topOfTheMib:
                         return
                     raise
@@ -357,7 +363,7 @@ class MibTree(ObjectType):
                 nextName = node.name
             try:
                 return node.readTestNext(nextName, val, idx, acInfo, oName)
-            except (error.NoAccessError,error.NoSuchObjectError):
+            except (error.NoAccessError, error.NoSuchInstanceError, error.NoSuchObjectError):
                 pass
     
     def readGetNext(self, name, val, idx, acInfo, oName=None):
@@ -373,12 +379,12 @@ class MibTree(ObjectType):
                 direction = self.breadthFirst
                 try:
                     node = self.getBranch(nextName, idx)
-                except error.NoSuchObjectError:
+                except (error.NoSuchInstanceError, error.NoSuchObjectError):
                     continue
             else:
                 try:
                     node = self.getNextBranch(nextName, idx)
-                except error.NoSuchObjectError:
+                except (error.NoSuchInstanceError, error.NoSuchObjectError):
                     if topOfTheMib:
                         return name, exval.endOfMib
                     raise
@@ -386,7 +392,7 @@ class MibTree(ObjectType):
                 nextName = node.name
             try:
                 return node.readGetNext(nextName, val, idx, acInfo, oName)
-            except (error.NoAccessError,error.NoSuchObjectError):
+            except (error.NoAccessError, error.NoSuchInstanceError, error.NoSuchObjectError):
                 pass
 
     # Write operation
@@ -416,7 +422,25 @@ class MibTree(ObjectType):
 class MibScalar(MibTree):
     """Scalar MIB variable. Implements access control checking."""
     maxAccess = 'readonly'
-        
+
+    #
+    # Subtree traversal
+    #
+    # Missing branches are indicated by the NoSuchInstanceError exception.
+    #
+
+    def getNode(self, name, idx=None):
+        try:
+            return MibTree.getNode(self, name, idx)
+        except (error.NoSuchInstanceError, error.NoSuchObjectError):
+            raise error.NoSuchInstanceError(idx=idx, name=name)
+
+    def getNextNode(self, name, idx=None):
+        try:
+            return MibTree.getNextNode(self, name, idx)
+        except (error.NoSuchInstanceError, error.NoSuchObjectError):
+            raise error.NoSuchInstanceError(idx=idx, name=name)       
+
     # MIB instrumentation methods
     
     # Read operation
@@ -435,7 +459,7 @@ class MibScalar(MibTree):
     def readGet(self, name, val, idx, acInfo):
         try:
             node = self.getBranch(name, idx)
-        except error.NoSuchObjectError:
+        except error.NoSuchInstanceError:
             return name, exval.noSuchInstance
         else:
             return node.readGet(name, val, idx, acInfo)
@@ -481,6 +505,12 @@ class MibScalarInstance(MibTree):
         self.instId = instId
         self.__oldSyntax = None
         
+    #
+    # Subtree traversal
+    #
+    # Missing branches are indicated by the NoSuchInstanceError exception.
+    #
+
     def getNode(self, name, idx=None):
         # Recursion terminator
         if name == self.name:
@@ -496,7 +526,7 @@ class MibScalarInstance(MibTree):
     
     def readTest(self, name, val, idx, acInfo):
         if name != self.name:
-            raise error.NoSuchObjectError(idx=idx, name=name)
+            raise error.NoSuchInstanceError(idx=idx, name=name)
 
     def readGet(self, name, val, idx, acInfo):
         # Return current variable (name, value). 
@@ -504,18 +534,18 @@ class MibScalarInstance(MibTree):
             debug.logger & debug.flagIns and debug.logger('readGet: %s=%r' % (self.name, self.syntax))
             return self.name, self.syntax.clone()
         else:
-            raise error.NoSuchObjectError(idx=idx, name=name)
+            raise error.NoSuchInstanceError(idx=idx, name=name)
  
     def readTestNext(self, name, val, idx, acInfo, oName=None):
         if name != self.name or name <= oName:
-            raise error.NoSuchObjectError(idx=idx, name=name)
+            raise error.NoSuchInstanceError(idx=idx, name=name)
 
     def readGetNext(self, name, val, idx, acInfo, oName=None):
         if name == self.name and name > oName:
             debug.logger & debug.flagIns and debug.logger('readGetNext: %s=%r' % (self.name, self.syntax))
             return self.readGet(name, val, idx, acInfo)
         else:
-            raise error.NoSuchObjectError(idx=idx, name=name)
+            raise error.NoSuchInstanceError(idx=idx, name=name)
     
     # Write operation: two-phase commit
 
@@ -531,7 +561,7 @@ class MibScalarInstance(MibTree):
                     self.__newSyntax = why['syntax']
                 raise why
         else:
-            raise error.NoSuchObjectError(idx=idx, name=name)
+            raise error.NoSuchInstanceError(idx=idx, name=name)
 
     def writeCommit(self, name, val, idx, acInfo):
         # Backup original value
@@ -565,7 +595,7 @@ class MibScalarInstance(MibTree):
                 if 'syntax' in why:
                     self.__newSyntax = why['syntax']
         else:
-            raise error.NoSuchObjectError(idx=idx, name=name)
+            raise error.NoSuchInstanceError(idx=idx, name=name)
 
     def createCommit(self, name, val, idx, acInfo):
         if val is not None:
@@ -593,7 +623,7 @@ class MibScalarInstance(MibTree):
                 if 'syntax' in why:
                     self.__newSyntax = why['syntax']
         else:
-            raise error.NoSuchObjectError(idx=idx, name=name)
+            raise error.NoSuchInstanceError(idx=idx, name=name)
     def destroyCommit(self, name, val, idx, acInfo): pass
     def destroyCleanup(self, name, val, idx, acInfo):
         self.branchVersionId += 1
@@ -609,22 +639,27 @@ class MibTableColumn(MibScalar):
         self.__createdInstances = {}; self.__destroyedInstances = {}
         self.__rowOpWanted = {}
     
-    # No branches here, terminal OIDs only
+    #
+    # Subtree traversal
+    #
+    # Missing leaves are indicated by the NoSuchInstanceError exception.
+    #
+
     def getBranch(self, name, idx):
         if name in self._vars:
             return self._vars[name]
-        raise error.NoSuchObjectError(name=name, idx=idx)
+        raise error.NoSuchInstanceError(name=name, idx=idx)
 
     def getNode(self, name, idx=None):
         try:
-            return MibScalar.getNode(self, name, idx=None)
-        except error.NoSuchObjectError:
+            return MibScalar.getNode(self, name, idx)
+        except error.NoSuchInstanceError:
             raise error.NoSuchInstanceError(idx=idx, name=name)
 
     def getNextNode(self, name, idx=None):
         try:
-            return MibScalar.getNextNode(self, name, idx=None)
-        except error.NoSuchObjectError:
+            return MibScalar.getNextNode(self, name, idx)
+        except error.NoSuchInstanceError:
             raise error.NoSuchInstanceError(idx=idx, name=name)
 
     def setProtoInstance(self, protoInstance):
@@ -745,7 +780,7 @@ class MibTableColumn(MibScalar):
                 self, name, val, idx, acInfo
                 )
         # ...otherwise proceed with creating new column
-        except (error.NoSuchObjectError, error.RowCreationWanted):
+        except (error.NoSuchInstanceError, error.RowCreationWanted):
             self.__rowOpWanted[name] = error.RowCreationWanted()
             self.createTest(name, val, idx, acInfo)
         except error.RowDestructionWanted:
