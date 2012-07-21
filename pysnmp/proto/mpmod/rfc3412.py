@@ -214,7 +214,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             else:
                 securityEngineID = peerSnmpEngineData['securityEngineID']
 
-        debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: securityEngineID %r' % (securityEngineID,))
+        debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: securityModel %r, securityEngineID %r, securityName %r, securityLevel %r' % (securityModel, securityEngineID, securityName, securitylevel))
              
         # 7.1.9.b
         ( securityParameters,
@@ -416,6 +416,8 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             raise error.StatusInformation(
                 errorIndication = errind.unsupportedSecurityModel
                 )
+
+        debug.logger & debug.flagMP and debug.logger('prepareResponseMessage: securityModel %r, securityEngineID %r, securityName %r, securityLevel %r' % (securityModel, snmpEngineID, securityName, securityLevel))
 
         # 7.1.8a
         try:
