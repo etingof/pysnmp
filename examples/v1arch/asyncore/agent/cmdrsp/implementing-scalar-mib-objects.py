@@ -1,6 +1,6 @@
 # Command Responder Application (GET/GETNEXT)
 from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
-from pysnmp.carrier.asynsock.dgram import udp
+from pysnmp.carrier.asynsock.dgram import udp, udp6, unix
 from pyasn1.codec.ber import encoder, decoder
 from pysnmp.proto import api
 import time, bisect
@@ -98,9 +98,28 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
     return wholeMsg
 
 transportDispatcher = AsynsockDispatcher()
+transportDispatcher.registerRecvCbFun(cbFun)
+
+# UDP/IPv4
 transportDispatcher.registerTransport(
     udp.domainName, udp.UdpSocketTransport().openServerMode(('localhost', 161))
-    )
-transportDispatcher.registerRecvCbFun(cbFun)
-transportDispatcher.jobStarted(1) # this job would never finish
-transportDispatcher.runDispatcher()
+)
+
+# UDP/IPv6
+transportDispatcher.registerTransport(
+    udp6.domainName, udp6.Udp6SocketTransport().openServerMode(('::1', 161))
+)
+
+## Local domain socket
+#transportDispatcher.registerTransport(
+#    unix.domainName, unix.UnixSocketTransport().openServerMode('/tmp/snmp-agent')
+#)
+
+transportDispatcher.jobStarted(1)
+
+try:
+    # Dispatcher will never finish as job#1 never reaches zero
+    transportDispatcher.runDispatcher()
+except:
+    transportDispatcher.closeDispatcher()
+    raise

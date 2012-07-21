@@ -71,14 +71,18 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
     return wholeMsg
 
 transportDispatcher = AsynsockDispatcher()
-transportDispatcher.registerTransport(
-    udp.domainName, udp.UdpSocketTransport().openClientMode()
-    )
+
 transportDispatcher.registerRecvCbFun(cbRecvFun)
 transportDispatcher.registerTimerCbFun(cbTimerFun)
+
+transportDispatcher.registerTransport(
+    udp.domainName, udp.UdpSocketTransport().openClientMode()
+)
 transportDispatcher.sendMessage(
     encoder.encode(reqMsg), udp.domainName, ('localhost', 161)
-    )
+)
 transportDispatcher.jobStarted(1)
+
 transportDispatcher.runDispatcher()
+
 transportDispatcher.closeDispatcher()

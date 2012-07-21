@@ -31,15 +31,23 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
               wholeMsg, reqPDU=reqPDU, headVars=headVars):
     while wholeMsg:
         rspMsg, wholeMsg = decoder.decode(wholeMsg, asn1Spec=v2c.Message())
+
         rspPDU = v2c.apiMessage.getPDU(rspMsg)
+
         # Match response to request
         if v2c.apiBulkPDU.getRequestID(reqPDU)==v2c.apiBulkPDU.getRequestID(rspPDU):
+            # Format var-binds table
+            varBindTable = v2c.apiBulkPDU.getVarBindTable(reqPDU, rspPDU)
+
             # Check for SNMP errors reported
             errorStatus = v2c.apiBulkPDU.getErrorStatus(rspPDU)
             if errorStatus and errorStatus != 2:
-                raise Exception(errorStatus)
-            # Format var-binds table
-            varBindTable = v2c.apiBulkPDU.getVarBindTable(reqPDU, rspPDU)
+                errorIndex = v2c.apiBulkPDU.getErrorIndex(rspPDU)
+                print('%s at %s' % (errorStatus.prettyPrint(),
+                                    errorIndex and varBindTable[int(errorIndex)-1] or '?'))
+                transportDispatcher.jobFinished(1)
+                break
+
             # Report SNMP table
             for tableRow in varBindTable:
                 for name, val in tableRow:
@@ -47,6 +55,7 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
                         transportAddress, name.prettyPrint(), val.prettyPrint()
                         )
                     )
+
             # Stop on EOM
             for oid, val in varBindTable[-1]:
                 if not isinstance(val, v2c.Null):
@@ -69,14 +78,19 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
     return wholeMsg
 
 transportDispatcher = AsynsockDispatcher()
-transportDispatcher.registerTransport(
-    udp.domainName, udp.UdpSocketTransport().openClientMode()
-    )
+
 transportDispatcher.registerRecvCbFun(cbRecvFun)
 transportDispatcher.registerTimerCbFun(cbTimerFun)
+
+transportDispatcher.registerTransport(
+    udp.domainName, udp.UdpSocketTransport().openClientMode()
+)
 transportDispatcher.sendMessage(
     encoder.encode(reqMsg), udp.domainName, ('localhost', 161)
-    )
+)
 transportDispatcher.jobStarted(1)
+
+# Dispatcher will finish as job#1 counter reaches zero
 transportDispatcher.runDispatcher()
+
 transportDispatcher.closeDispatcher()
