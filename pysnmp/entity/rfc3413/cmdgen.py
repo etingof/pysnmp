@@ -59,6 +59,9 @@ class CommandGeneratorBase:
         ):
         (cbFun, cbCtx) = cbInfo
         # 3.1.1
+        if sendPduHandle not in self.__pendingReqs:
+            raise error.PySnmpError('Missing sendPduHandle %s' % sendPduHandle)
+
         ( origTransportDomain,
           origTransportAddress,
           origMessageProcessingModel,
@@ -74,6 +77,7 @@ class CommandGeneratorBase:
           origRetries,
           origSendRequestHandle
           ) = self.__pendingReqs[sendPduHandle]
+  
         del self.__pendingReqs[sendPduHandle]
 
         snmpEngine.transportDispatcher.jobFinished(id(self))

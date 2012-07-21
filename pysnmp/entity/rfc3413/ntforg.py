@@ -33,6 +33,9 @@ class NotificationOriginator:
         ):
         (cbFun, cbCtx) = cbInfo
         # 3.3.6d
+        if sendPduHandle not in self.__pendingReqs:
+            raise error.PySnmpError('Missing sendPduHandle %s' % sendPduHandle)
+
         ( origTransportDomain,
           origTransportAddress,
           origMessageProcessingModel,
@@ -48,6 +51,7 @@ class NotificationOriginator:
           origRetries,
           metaSendPduHandle
           ) = self.__pendingReqs[sendPduHandle]
+
         del self.__pendingReqs[sendPduHandle]
 
         self.__pendingNotifications[metaSendPduHandle] -= 1
