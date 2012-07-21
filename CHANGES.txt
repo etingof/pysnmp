@@ -61,6 +61,8 @@ Revision 4.2.3
 - Fix to rfc2576:processIncomingMessage() to take SecurityModel into account
   when lookup up SecurityName by CommunityName. This allows mixed SNMPv1/v2c
   communication with the same target.
+- Fix to internal MessageProcessing and SecurityModel timers so they become
+  dependant on system timer resolution.
 - Fix to v1.PDUAPI.setDefaults() method that used to set wrongly typed
   time-stamp component.
 - Fix to IPv6 address handling to prevent system from crashing whilst
