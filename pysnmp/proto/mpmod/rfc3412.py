@@ -214,7 +214,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             else:
                 securityEngineID = peerSnmpEngineData['securityEngineID']
 
-        debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: securityModel %r, securityEngineID %r, securityName %r, securityLevel %r' % (securityModel, securityEngineID, securityName, securitylevel))
+        debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: securityModel %r, securityEngineID %r, securityName %r, securityLevel %r' % (securityModel, securityEngineID, securityName, securityLevel))
              
         # 7.1.9.b
         ( securityParameters,
