@@ -22,7 +22,7 @@ class Cache:
                 'Cache dup for stateReference=%s at %s' %
                 (stateReference, self)
                 )
-        expireAt = self.__expirationTimer+60
+        expireAt = self.__expirationTimer+600
         self.__stateReferenceIndex[stateReference] = ( msgInfo, expireAt )
 
         # Schedule to expire
@@ -54,7 +54,7 @@ class Cache:
             raise error.ProtocolError(
                 'Cache dup for msgId=%s at %s' % (msgId, self)
                 )
-        expireAt = self.__expirationTimer+60
+        expireAt = self.__expirationTimer+600
         self.__msgIdIndex[msgId] = ( msgInfo, expireAt )
 
         self.__sendPduHandleIdx[msgInfo['sendPduHandle']] = msgId
