@@ -55,6 +55,10 @@ Revision 4.2.3
 - The NoSuchInstanceError exception class is no more inherits from
   NoSuchObjectError to make class hierarchy closer to SNMP specification
   which states that these errors are separate and independent.
+- The Next & BulkCommandGenerator's split onto single-run and iterative
+  impementations. The former just process a single interaction and complete
+  while the latter run as many interactions as user callback function
+  indicates to.
 - Fix to Notification Originator to make it communicating a single
   sendPduHandle to an application even when multiple INFORMs are triggered
   and processed by a single call by way of transport tagging feature.
