@@ -706,7 +706,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     int(time.time())
                     )
                 
-                expireAt = self.__expirationTimer + 300 / snmpEngine.transportDispatcher.getTimerResolution()
+                expireAt = int(self.__expirationTimer + 300 / snmpEngine.transportDispatcher.getTimerResolution())
                 if expireAt not in self.__timelineExpQueue:
                     self.__timelineExpQueue[expireAt] = []
                 self.__timelineExpQueue[expireAt].append(
@@ -773,7 +773,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         msgAuthoritativeEngineTime,
                         int(time.time())
                         )
-                    expireAt = self.__expirationTimer + 300 / snmpEngine.transportDispatcher.getTimerResolution()
+                    expireAt = int(self.__expirationTimer + 300 / snmpEngine.transportDispatcher.getTimerResolution())
                     if expireAt not in self.__timelineExpQueue:
                         self.__timelineExpQueue[expireAt] = []
                     self.__timelineExpQueue[expireAt].append(
@@ -882,7 +882,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             for engineIdKey in self.__timelineExpQueue[self.__expirationTimer]:
                 if engineIdKey in self.__timeline:
                     del self.__timeline[engineIdKey]
-                    debug.logger & debug.flagSM and debug.logger('__expireEnginesInfo: expiring %s' % (engineIdKey,))
+                    debug.logger & debug.flagSM and debug.logger('__expireTimelineInfo: expiring %r' % (engineIdKey,))
             del self.__timelineExpQueue[self.__expirationTimer]
         self.__expirationTimer = self.__expirationTimer + 1
         

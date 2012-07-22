@@ -612,7 +612,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                         'contextName': contextName
                         }
 
-                    expireAt = self.__expirationTimer + 300 / snmpEngine.transportDispatcher.getTimerResolution()
+                    expireAt = int(self.__expirationTimer + 300 / snmpEngine.transportDispatcher.getTimerResolution())
                     if expireAt not in self.__engineIDsExpQueue:
                         self.__engineIDsExpQueue[expireAt] = []
                     self.__engineIDsExpQueue[expireAt].append(k)
@@ -787,7 +787,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         if self.__expirationTimer in self.__engineIDsExpQueue:
             for engineKey in self.__engineIDsExpQueue[self.__expirationTimer]:
                 del self.__engineIDs[engineKey]
-                debug.logger & debug.flagMP and debug.logger('__expireEnginesInfo: expiring %s' % (engineKey,))
+                debug.logger & debug.flagMP and debug.logger('__expireEnginesInfo: expiring %r' % (engineKey,))
             del self.__engineIDsExpQueue[self.__expirationTimer]
         self.__expirationTimer = self.__expirationTimer + 1
         
