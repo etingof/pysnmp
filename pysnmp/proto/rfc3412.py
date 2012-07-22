@@ -314,7 +314,7 @@ class MsgAndPduDispatcher:
             if 'sendPduHandle' in statusInformation:
                 # Dropped REPORT -- re-run pending reqs queue as some
                 # of them may be waiting for this REPORT
-                debug.logger & debug.flagDsp and debug.logger('receiveMessage: MP failed, statusInformation %s' % statusInformation)
+                debug.logger & debug.flagDsp and debug.logger('receiveMessage: MP failed, statusInformation %s, forcing a retry' % statusInformation)
                 self.__expireRequest(
                     statusInformation['sendPduHandle'],
                     self.__cache.pop(statusInformation['sendPduHandle']),
