@@ -238,6 +238,34 @@ class CommandGeneratorBase:
             sendRequestHandle,
             )
 
+    def _handleResponse(
+        self,
+        snmpEngine,
+        transportDomain,
+        transportAddress,
+        messageProcessingModel,
+        securityModel,
+        securityName,
+        securityLevel,
+        contextEngineId,
+        contextName,
+        pduVersion,
+        PDU,
+        timeout,
+        retryCount,
+        pMod,
+        rspPDU,
+        sendRequestHandle,
+        cbInfo
+        ):
+        (cbFun, cbCtx) = cbInfo        
+        cbFun(sendRequestHandle,
+              None,
+              pMod.apiPDU.getErrorStatus(rspPDU),
+              pMod.apiPDU.getErrorIndex(rspPDU),
+              pMod.apiPDU.getVarBinds(rspPDU),
+              cbCtx)
+
 class GetCommandGenerator(CommandGeneratorBase):
     def sendReq(
         self,
@@ -288,34 +316,6 @@ class GetCommandGenerator(CommandGeneratorBase):
 
         return requestHandle
     
-    def _handleResponse(
-        self,
-        snmpEngine,
-        transportDomain,
-        transportAddress,
-        messageProcessingModel,
-        securityModel,
-        securityName,
-        securityLevel,
-        contextEngineId,
-        contextName,
-        pduVersion,
-        PDU,
-        timeout,
-        retryCount,
-        pMod,
-        rspPDU,
-        sendRequestHandle,
-        cbInfo
-        ):
-        (cbFun, cbCtx) = cbInfo        
-        cbFun(sendRequestHandle,
-              None,
-              pMod.apiPDU.getErrorStatus(rspPDU),
-              pMod.apiPDU.getErrorIndex(rspPDU),
-              pMod.apiPDU.getVarBinds(rspPDU),
-              cbCtx)
-
 class SetCommandGenerator(CommandGeneratorBase):
     def sendReq(
         self,
@@ -371,35 +371,7 @@ class SetCommandGenerator(CommandGeneratorBase):
 
         return requestHandle
 
-    def _handleResponse(
-        self,
-        snmpEngine,
-        transportDomain,
-        transportAddress,
-        messageProcessingModel,
-        securityModel,
-        securityName,
-        securityLevel,
-        contextEngineId,
-        contextName,
-        pduVersion,
-        PDU,
-        timeout,
-        retryCount,
-        pMod,
-        rspPDU,
-        sendRequestHandle,
-        cbInfo
-        ):
-        (cbFun, cbCtx) = cbInfo        
-        cbFun(sendRequestHandle,
-              None,
-              pMod.apiPDU.getErrorStatus(rspPDU),
-              pMod.apiPDU.getErrorIndex(rspPDU),
-              pMod.apiPDU.getVarBinds(rspPDU),
-              cbCtx)
-
-class NextCommandGenerator(CommandGeneratorBase):
+class NextCommandGeneratorSingleRun(CommandGeneratorBase):
     def sendReq(
         self,
         snmpEngine,
@@ -449,6 +421,7 @@ class NextCommandGenerator(CommandGeneratorBase):
 
         return requestHandle
     
+class NextCommandGenerator(NextCommandGeneratorSingleRun):
     def _handleResponse(
         self,
         snmpEngine,
@@ -470,6 +443,7 @@ class NextCommandGenerator(CommandGeneratorBase):
         cbInfo
         ):
         (cbFun, cbCtx) = cbInfo
+
         varBindTable = pMod.apiPDU.getVarBindTable(PDU, rspPDU)
 
         if pMod.apiPDU.getErrorStatus(rspPDU):
@@ -513,7 +487,7 @@ class NextCommandGenerator(CommandGeneratorBase):
             (self.processResponsePdu, (cbFun, cbCtx))            
             )
 
-class BulkCommandGenerator(CommandGeneratorBase):
+class BulkCommandGeneratorSingleRun(CommandGeneratorBase):
     def sendReq(
         self,
         snmpEngine,
@@ -570,6 +544,7 @@ class BulkCommandGenerator(CommandGeneratorBase):
 
         return requestHandle
     
+class BulkCommandGenerator(BulkCommandGeneratorSingleRun):
     def _handleResponse(
         self,
         snmpEngine,
