@@ -85,7 +85,14 @@ class CommandGeneratorBase:
         # 3.1.3
         if statusInformation:
             debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendPduHandle %s, statusInformation %s' % (sendPduHandle, statusInformation))
-            if origRetries == origRetryCount:
+            errorIndication = statusInformation['errorIndication']
+            # SNMP engine discovery will take extra retries, allow that
+            if errorIndication in (errind.notInTimeWindow,
+                                   errind.unknownEngineID) and \
+                                   origRetries == origRetryCount + 2 or \
+               errorIndication not in (errind.notInTimeWindow,
+                                       errind.unknownEngineID) and \
+                                   origRetries == origRetryCount:
                 debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendPduHandle %s, retry count %d exceeded' % (sendPduHandle, origRetries))
                 cbFun(origSendRequestHandle,
                       statusInformation['errorIndication'], 0, 0, (),
