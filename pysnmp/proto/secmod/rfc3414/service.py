@@ -814,7 +814,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                       securityParameters.getComponentByPosition(5) ),
                     encryptedPDU
                     )
-               debug.logger & debug.flagSM and debug.logger('processIncomingMsg: PDU deciphered into %r' % (decryptedData,))
+               debug.logger & debug.flagSM and debug.logger('processIncomingMsg: PDU deciphered into %s' % debug.hexdump(decryptedData))
             except error.StatusInformation:
                 usmStatsDecryptionErrors, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsDecryptionErrors')
                 usmStatsDecryptionErrors.syntax = usmStatsDecryptionErrors.syntax+1
