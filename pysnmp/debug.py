@@ -35,10 +35,18 @@ class Debug:
         self._flags = flagNone
         self._printer = self.defaultPrinter
         for f in flags:
-            if f not in flagMap:
+            inverse = f and f[0] in ('!', '~')
+            if inverse:
+                f = f[1:]
+            try:
+                if inverse:
+                    self._flags &= ~flagMap[f]
+                else:
+                    self._flags |= flagMap[f]
+            except KeyError:
                 raise error.PySnmpError('bad debug flag %s' % f)
-            self._flags = self._flags | flagMap[f]
-            self('debug category %s enabled' % f)
+  
+            self('debug category %s %s' % (f, inverse and 'disabled' or 'enabled'))
         
     def __str__(self):
         return 'logger %s, flags %x' % (self._printer, self._flags)

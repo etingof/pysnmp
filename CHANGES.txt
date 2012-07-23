@@ -59,6 +59,7 @@ Revision 4.2.3
   impementations. The former just process a single interaction and complete
   while the latter run as many interactions as user callback function
   indicates to.
+- Built-in debugger now supports negating debugging categories.
 - Fix to CommandGenerator's SNMPv3 engine autodiscovery algorithm
   when retryCount is administratively set to 0.
 - Fix to Notification Originator to make it communicating a single
