@@ -290,25 +290,29 @@ class RowStatus(Integer, TextualConvention):
         )
         }
     defaultValue = stNotExists
-    pendingError = None
     
     def clone(self, value=None, **kwargs):
-        # Run through states transition matrix, resolve new instance value
-        err, value = self.stateMatrix.get(
-            (Integer.clone(self, value), int(self)), (error.MibOperationError, None)
-            )
-        debug.logger & debug.flagIns and debug.logger('RowStatus state resolution: %s, %s -> %s, %s' % (value, int(self), err, value))
         if value is None:
-            value = self
+            excValue, newState = None, self
         else:
-            value = Integer.clone(self, value)
-        if err is not None:
-            err = err(
-                msg='Exception at row state transition %s->%s' % (self, value),
-                syntax=value
-                )
-            raise err
-        return value
+            value = self.__class__(value)
+            # Run through states transition matrix, 
+            # resolve new instance value
+            excValue, newState = self.stateMatrix.get(
+                (value, self),
+                (error.MibOperationError, None)
+            )
+            newState = self.__class__(newState)
+
+        debug.logger & debug.flagIns and debug.logger('RowStatus state change from %r to %s produced new state %r, error indication %r' % (self, value, newState, excValue))
+
+        if excValue is not None:
+            excValue = excValue(
+                msg='Exception at row state transition from %s to %s yields state %s and exception' % (self, value, newState), syntax=newState
+            )
+            raise excValue
+
+        return newState
 
 class TimeStamp(TimeTicks, TextualConvention): pass
 
