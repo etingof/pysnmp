@@ -220,7 +220,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
               )
 
             self.__communityToTagMap = {}
-            self.__tagToSecurityMap = {}
+            self.__tagAndCommunityToSecurityMap = {}
 
             nextMibNode = snmpCommunityName
             while 1:
@@ -255,9 +255,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                                    snmpCommunityTransportTag.name + instId
                                ).syntax
 
-                self.__tagToSecurityMap[transportTag] = (
-                    securityName, contextEngineId, contextName
-                )
+                self.__tagAndCommunityToSecurityMap[(transportTag, nextMibNode.syntax)] = (securityName, contextEngineId, contextName)
 
                 if nextMibNode.syntax not in self.__communityToTagMap:
                     self.__communityToTagMap[nextMibNode.syntax] = set()
@@ -267,16 +265,16 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
             self.__communityBranchId = snmpCommunityName.branchVersionId
 
             debug.logger & debug.flagSM and debug.logger('_com2sec: built communityName to tag map (securityModel %s), version %s: %s' % (self.securityModelID, self.__communityBranchId, self.__communityToTagMap))
-            debug.logger & debug.flagSM and debug.logger('_com2sec: built tag to securityName map (securityModel %s), version %s: %s' % (self.securityModelID, self.__communityBranchId, self.__tagToSecurityMap))
+            debug.logger & debug.flagSM and debug.logger('_com2sec: built tag & community to securityName map (securityModel %s), version %s: %s' % (self.securityModelID, self.__communityBranchId, self.__tagAndCommunityToSecurityMap))
 
         if communityName in self.__communityToTagMap:
             if self.__emptyTag in self.__communityToTagMap[communityName]:
-                return self.__tagToSecurityMap[self.__emptyTag]
+                return self.__tagAndCommunityToSecurityMap[(self.__emptyTag, communityName)]
 
             if transportInformation in self.__transportToTagMap:
                 tags = self.__transportToTagMap[transportInformation].intersection(self.__communityToTagMap[communityName])
                 if tags:
-                    return self.__tagToSecurityMap[tags.pop()]
+                    return self.__tagAndCommunityToSecurityMap[(tags.pop(), communityName)]
 
         raise error.StatusInformation()
  
