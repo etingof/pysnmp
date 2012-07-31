@@ -12,8 +12,9 @@ Revision 4.2.3
   and bulkGen() methods.
 - IPv6/UDP and Local Domain Socket transport interfaces added to the
   oneliner API.
-- Mib Instrumentation subsystem re-worked to get rid of an excessive
-  unpublished MIB values smiCreate()/smiWrite()/smiDestroy() methods.
+- Mib Instrumentation subsystem re-worked to replace excessive
+  MibNode's smiCreate()/smiWrite()/smiDestroy() methods with 
+  MibScalarInstance's getValue()/setValue()
 - MibTree.readTest[Get]Next() reworked to be called uniformely so
   user could tap on these methods at any level of the MIB tree.
 - MibTableColumn.getNextNodeWithValue() unpublished API method obsoleted

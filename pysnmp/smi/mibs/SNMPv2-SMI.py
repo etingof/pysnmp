@@ -516,7 +516,19 @@ class MibScalarInstance(MibTree):
         self.typeName = typeName
         self.instId = instId
         self.__oldSyntax = None
-        
+
+    #
+    # Managed object value access methods
+    #
+
+    def getValue(self): return self.syntax.clone()
+
+    def setValue(self, value):
+        if hasattr(self.syntax, 'instrumClone'):
+            return self.syntax.instrumClone(value)
+        else:
+            return self.syntax.clone(value)
+
     #
     # Subtree traversal
     #
@@ -556,7 +568,7 @@ class MibScalarInstance(MibTree):
         # Return current variable (name, value). 
         if name == self.name:
             debug.logger & debug.flagIns and debug.logger('readGet: %s=%r' % (self.name, self.syntax))
-            return self.name, self.syntax.clone()
+            return self.name, self.getValue()
         else:
             raise error.NoSuchInstanceError(idx=idx, name=name)
  
@@ -577,7 +589,7 @@ class MibScalarInstance(MibTree):
         # Make sure write's allowed
         if name == self.name:
             try:
-                self.__newSyntax = self.syntax.clone(val)
+                self.__newSyntax = self.setValue(val)
             except error.MibOperationError:
                 # SMI exceptions may carry additional content
                 why = sys.exc_info()[1]
@@ -612,7 +624,7 @@ class MibScalarInstance(MibTree):
     def createTest(self, name, val, idx, acInfo):
         if name == self.name:
             try:
-                self.__newSyntax = self.syntax.clone(val)
+                self.__newSyntax = self.setValue(val)
             except error.MibOperationError:
                 # SMI exceptions may carry additional content
                 why = sys.exc_info()[1]
@@ -640,7 +652,7 @@ class MibScalarInstance(MibTree):
     def destroyTest(self, name, val, idx, acInfo):
         if name == self.name:
             try:
-                self.__newSyntax = self.syntax.clone(val)
+                self.__newSyntax = self.setValue(val)
             except error.MibOperationError:
                 # SMI exceptions may carry additional content
                 why = sys.exc_info()[1]

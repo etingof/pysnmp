@@ -33,6 +33,9 @@ class TextualConvention:
     def getDescription(self): return self.description
     def getReference(self): return self.reference
 
+    def getValue(self): return self.clone()
+    def setValue(self, value): return self.clone(value)
+
     def prettyOut(self, value):  # override asn1 type method
         """Implements DISPLAY-HINT evaluation"""
         if self.displayHint and (
@@ -291,18 +294,16 @@ class RowStatus(Integer, TextualConvention):
         }
     defaultValue = stNotExists
     
-    def clone(self, value=None, **kwargs):
-        if value is None:
-            excValue, newState = None, self
-        else:
-            value = self.__class__(value)
-            # Run through states transition matrix, 
-            # resolve new instance value
-            excValue, newState = self.stateMatrix.get(
-                (value, self),
-                (error.MibOperationError, None)
-            )
-            newState = self.__class__(newState)
+    def setValue(self, value):
+        value = self.clone(value)
+
+        # Run through states transition matrix, 
+        # resolve new instance value
+        excValue, newState = self.stateMatrix.get(
+            (value, self),
+            (error.MibOperationError, None)
+        )
+        newState = self.clone(newState)
 
         debug.logger & debug.flagIns and debug.logger('RowStatus state change from %r to %s produced new state %r, error indication %r' % (self, value, newState, excValue))
 
