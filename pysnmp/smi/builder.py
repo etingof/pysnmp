@@ -52,9 +52,8 @@ class __AbstractMibSource:
     def listdir(self): return self._listdir()
     def read(self, f):
         for pycSfx, pycSfxLen, pycMode in self.__sfx[imp.PY_COMPILED]:
-            p = os.path.join(self._srcName, f) + pycSfx
             try:
-                pycData = self._getData(p, pycMode)
+                pycData = self._getData(f + pycSfx, pycMode)
             except IOError:
                 pycTime = -1
             else:
@@ -65,31 +64,30 @@ class __AbstractMibSource:
                     break
                 else:
                     debug.logger & debug.flagBld and debug.logger(
-                        'bad magic in %s' % p
+                        'bad magic in %s' % (f+pycSfx,)
                         )
                     pycTime = -1
 
         debug.logger & debug.flagBld and debug.logger(
-            'file %s mtime %d' % (p, pycTime)
+            'file %s mtime %d' % (f+pycSfx, pycTime)
             )
 
         for pySfx, pySfxLen, pyMode in self.__sfx[imp.PY_SOURCE]:
-            p = os.path.join(self._srcName, f) + pySfx
             try:
-                pyTime = self._getTimestamp(p)
+                pyTime = self._getTimestamp(f+pySfx)
             except (IOError, OSError):
                 pyTime = -1
             else:
                 break
 
         debug.logger & debug.flagBld and debug.logger(
-            'file %s mtime %d' % (p, pyTime)
+            'file %s mtime %d' % (f+pySfx, pyTime)
             )
 
         if pycTime != -1 and pycTime >= pyTime:
             return marshal.loads(pycData), pycSfx
         if pyTime != -1:
-            return self._getData(p, pyMode), pySfx
+            return self._getData(f+pySfx, pyMode), pySfx
 
         raise IOError('No suitable module found')
             
@@ -130,7 +128,8 @@ class ZipMibSource(__AbstractMibSource):
                 l.append(f)
         return tuple(self._uniqNames(l))
 
-    def _getTimestamp(self, p):
+    def _getTimestamp(self, f):
+        p = os.path.join(self._srcName, f)
         if p in self.__loader._files:
             return self._parseDosTime(
                 self.__loader._files[p][6],
@@ -139,7 +138,8 @@ class ZipMibSource(__AbstractMibSource):
         else:
             raise IOError('No file in ZIP: %s' % p)
         
-    def _getData(self, p, mode=None): return self.__loader.get_data(p)
+    def _getData(self, f, mode=None):
+        return self.__loader.get_data(os.path.join(self._srcName, f))
 
 class DirMibSource(__AbstractMibSource):
     def _init(self):
@@ -152,10 +152,13 @@ class DirMibSource(__AbstractMibSource):
         except OSError:
             return ()
 
-    def _getTimestamp(self, p):
-        return os.stat(p)[8]
+    def _getTimestamp(self, f):
+        return os.stat(os.path.join(self._srcName, f))[8]
             
-    def _getData(self, p, mode): return open(p, mode).read()
+    def _getData(self, f, mode):
+        if f in os.listdir(self._srcName): # make FS case-sensitive
+            return open(os.path.join(self._srcName, f), mode).read()
+        raise IOError  # pretend there's no such file
 
 class MibBuilder:
     loadTexts = 0

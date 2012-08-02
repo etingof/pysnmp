@@ -42,6 +42,8 @@ Revision 4.2.3
   to corresponding SNMP data structures.
 - The obsolete and unpublished MibInstrumController.readVarsFast() method
   removed for API clarity.
+- MibBuilder now distinguishes case of MIB modules filenames even if
+  underlying OS does not.
 - LCD configuration caching is implemented at pysnmp.entity.rfc3413.config
   that improves performance of repetitive calls by 10% and might hugely
   improve NotificationOriginator's performance when working on a large
