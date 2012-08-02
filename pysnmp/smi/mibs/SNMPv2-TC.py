@@ -193,14 +193,14 @@ class TruthValue(Integer, TextualConvention):
 class TestAndIncr(Integer, TextualConvention):
     subtypeSpec = Integer.subtypeSpec+ValueRangeConstraint(0, 2147483647)
     defaultValue = 0
-    def clone(self, value=None, **kwargs):
+    def setValue(self, value):
         if value is not None:
             if value != self:
                 raise error.InconsistentValueError()
             value = value + 1
             if value > 2147483646:
                 value = 0
-        return Integer.clone(self, value)
+        return self.clone(self, value)
 
 class AutonomousType(ObjectIdentifier, TextualConvention): pass
 class InstancePointer(ObjectIdentifier, TextualConvention):
