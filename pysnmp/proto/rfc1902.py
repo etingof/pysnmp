@@ -46,15 +46,16 @@ class IpAddress(univ.OctetString):
                 value = [ int(x) for x in value.split('.') ]
             except:
                 raise error.ProtocolError('Bad IP address syntax %s' %  value)
+        value = univ.OctetString.prettyIn(self, value)
         if len(value) != 4:
             raise error.ProtocolError('Bad IP address syntax')
-        return univ.OctetString.prettyIn(self, value)
+        return value
 
     def prettyOut(self, value):
         if value:
             return '.'.join(
                 [ '%d' % x for x in self.__class__(value).asNumbers() ]
-                )
+            )
         else:
             return ''
 
