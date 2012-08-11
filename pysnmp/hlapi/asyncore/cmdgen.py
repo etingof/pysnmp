@@ -1,6 +1,7 @@
 import socket, sys
 from pysnmp.entity import engine, config
-from pysnmp.entity.rfc3413 import cmdgen, mibvar
+from pysnmp.entity.rfc3413 import cmdgen
+from pysnmp.entity.rfc3413.oneliner.mibvar import MibVariable
 from pysnmp.carrier.asynsock.dgram import udp, udp6, unix
 from pysnmp.proto import rfc1905, errind
 from pysnmp.smi import view
@@ -298,39 +299,32 @@ class AsynCommandGenerator:
                 )
         self.__knownTransportAddrs.clear()
                 
-    if sys.version_info[0] <= 2:
-        intTypes = (int, long)
-    else:
-        intTypes = (int,)
-
     def makeReadVarBinds(self, varNames):
         varBinds = []
         for varName in varNames:
-            if isinstance(varName[0], self.intTypes):
-                name = varName
+            if isinstance(varName, MibVariable):
+                varName.resolveWithMib(
+                    self.mibViewController, oidOnly=True
+                )
+            elif isinstance(varName[0], tuple):  # legacy
+                varName = MibVariable(varName[0][0], varName[0][1], *varName[1:]).resolveWithMib(self.mibViewController)
             else:
-                name, oid = mibvar.mibNameToOid(
-                    self.mibViewController, varName
-                    )
-                name = name + oid
-            varBinds.append((name, self._null))
+                varName = MibVariable(varName).resolveWithMib(self.mibViewController, oidOnly=True)
+            varBinds.append((varName, self._null))
         return varBinds
 
     def unmakeVarBinds(self, varBinds, lookupNames=True, lookupValues=True):
         _varBinds = []
         for name, value in varBinds:
-            (symName, modName), indices = mibvar.oidToMibName(
-                                              self.mibViewController, name
-                                          )
+            if lookupNames or lookupValues:
+                varName = MibVariable(name).resolveWithMib(self.mibViewController)
             if lookupNames:
-                name = (modName, symName), indices
+                name = varName
             if lookupValues:
                 if value.tagSet not in (rfc1905.NoSuchObject.tagSet,
                                         rfc1905.NoSuchInstance.tagSet,
                                         rfc1905.EndOfMibView.tagSet):
-                    value = mibvar.cloneFromMibValue(
-                                self.mibViewController, modName, symName, value
-                            )
+                    value = varName.getMibNode().getSyntax().clone(value)
             _varBinds.append((name, value))
         return _varBinds
 
@@ -356,22 +350,22 @@ class AsynCommandGenerator:
             )
         __varBinds = []
         for varName, varVal in varBinds:
-            name, oid = mibvar.mibNameToOid(
-                self.mibViewController, varName
-                )
-            if not isinstance(varVal, base.AbstractSimpleAsn1Item):
-                ((symName, modName), suffix) = mibvar.oidToMibName(
-                    self.mibViewController, name + oid
-                    )
-                syntax = mibvar.cloneFromMibValue(
-                    self.mibViewController, modName, symName, varVal
-                    )
-                if syntax is None:
-                    raise error.PySnmpError(
-                        'Value type MIB lookup failed for %r' % (varName,)
-                        )
-                varVal = syntax.clone(varVal)
-            __varBinds.append((name + oid, varVal))
+            if isinstance(varName, MibVariable):
+                varName.resolveWithMib(self.mibViewController)
+                if not isinstance(varVal, base.AbstractSimpleAsn1Item):
+                    varVal = varName.getMibNode().getSyntax().clone(varVal)
+            elif isinstance(varName[0], tuple):  # legacy
+                varName = MibVariable(varName[0][0], varName[0][1], *varName[1:]).resolveWithMib(self.mibViewController)
+                if not isinstance(varVal, base.AbstractSimpleAsn1Item):
+                    varVal = varName.getMibNode().getSyntax().clone(varVal)
+            else:
+                if isinstance(varVal, base.AbstractSimpleAsn1Item):
+                    varName = MibVariable(varName).resolveWithMib(self.mibViewController, oidOnly=True)
+                else:
+                    varName = MibVariable(varName).resolveWithMib(self.mibViewController)
+                    varVal = varName.getMibNode().getSyntax().clone(varVal)
+
+            __varBinds.append((varName, varVal))
         return cmdgen.SetCommandGenerator().sendReq(
             self.snmpEngine, addrName, __varBinds, cbFun, cbCtx,
             authData.contextEngineId, authData.contextName
@@ -541,12 +535,7 @@ class CommandGenerator:
         maxRows = kwargs.get('maxRows', 0)
         ignoreNonIncreasingOid = kwargs.get('ignoreNonIncreasingOid', False)
 
-        varBindHead = []
-        for varName in varNames:
-            name, suffix = mibvar.mibNameToOid(
-                self.__asynCmdGen.mibViewController, varName
-                )
-            varBindHead.append(univ.ObjectIdentifier(name + suffix))
+        varBindHead = [ univ.ObjectIdentifier(x[0]) for x in self.__asynCmdGen.makeReadVarBinds(varNames) ]
 
         appReturn = {}
         self.__asynCmdGen.nextCmd(
@@ -640,12 +629,7 @@ class CommandGenerator:
         maxRows = kwargs.get('maxRows', 0)
         ignoreNonIncreasingOid = kwargs.get('ignoreNonIncreasingOid', False)
 
-        varBindHead = []
-        for varName in varNames:
-            name, suffix = mibvar.mibNameToOid(
-                self.__asynCmdGen.mibViewController, varName
-                )
-            varBindHead.append(univ.ObjectIdentifier(name + suffix))
+        varBindHead = [ univ.ObjectIdentifier(x[0]) for x in self.__asynCmdGen.makeReadVarBinds(varNames) ]
 
         appReturn = {}
         

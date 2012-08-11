@@ -6,7 +6,12 @@ Revision 4.2.3
   configured for the user in question. That allowed unauthenticated/unciphered
   access to pysnmp-based Agent even if USM user is configured to provide one.
 - Oneliner CommandGenerator now supports optional keyword args lookupNames,
-  lookupValues that enable response OID / value lookup at MIB.
+  lookupValues that enable response OID / value looked up at MIB and reported
+  as a MibVariable container object carrying relevant MIB info.
+- Oneliner CommandGenerator now supports symbolic MIB object names to be
+  passed within a MibVariable container object which would do a deferred
+  MIB lookup for name resolution. This is a new and preferred API which
+  obsoletes the tuple-based one (it is still suppored though).
 - Oneliner CommandGenerator's class attributes lexicographicMode, maxRows
   and ignoreNonIncreasingOid moved to optional keyword args of nextGen() 
   and bulkGen() methods.
