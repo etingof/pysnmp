@@ -67,6 +67,9 @@ Revision 4.2.3
   impementations. The former just process a single interaction and complete
   while the latter run as many interactions as user callback function
   indicates to.
+- The pysnmp.entity.rfc3413.mibvar module is now obsolete by
+  pysnmp.entity.rfc3413.oneliner.mibvar featuring basically the same
+  features but within a stateful, dedicated object.
 - Auth & target configuration container classes moved to their separate
   modules at oneliner API.
 - Built-in debugger now supports negating debugging categories.
