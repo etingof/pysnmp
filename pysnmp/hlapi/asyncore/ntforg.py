@@ -3,29 +3,23 @@ from pysnmp import nextid
 from pysnmp.entity import config
 from pysnmp.entity.rfc3413 import ntforg, context
 from pysnmp.entity.rfc3413.oneliner.mibvar import MibVariable
+from pysnmp.entity.rfc3413.oneliner.auth import CommunityData, UsmUserData
+from pysnmp.entity.rfc3413.oneliner.target import UdpTransportTarget, \
+    Udp6TransportTarget, UnixTransportTarget 
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 
 # Auth protocol
-usmHMACMD5AuthProtocol = cmdgen.usmHMACMD5AuthProtocol
-usmHMACSHAAuthProtocol = cmdgen.usmHMACSHAAuthProtocol
-usmNoAuthProtocol = cmdgen.usmNoAuthProtocol
+usmHMACMD5AuthProtocol = config.usmHMACMD5AuthProtocol
+usmHMACSHAAuthProtocol = config.usmHMACSHAAuthProtocol
+usmNoAuthProtocol = config.usmNoAuthProtocol
 
 # Privacy protocol
-usmDESPrivProtocol = cmdgen.usmDESPrivProtocol
-usm3DESEDEPrivProtocol = cmdgen.usm3DESEDEPrivProtocol
-usmAesCfb128Protocol = cmdgen.usmAesCfb128Protocol
-usmAesCfb192Protocol = cmdgen.usmAesCfb192Protocol
-usmAesCfb256Protocol = cmdgen.usmAesCfb256Protocol
-usmNoPrivProtocol = cmdgen.usmNoPrivProtocol
-
-# Credentials
-CommunityData = cmdgen.CommunityData
-UsmUserData = cmdgen.UsmUserData
-
-# Transports
-UdpTransportTarget = cmdgen.UdpTransportTarget
-Udp6TransportTarget = cmdgen.Udp6TransportTarget
-UnixTransportTarget = cmdgen.UnixTransportTarget
+usmDESPrivProtocol = config.usmDESPrivProtocol
+usm3DESEDEPrivProtocol = config.usm3DESEDEPrivProtocol
+usmAesCfb128Protocol = config.usmAesCfb128Protocol
+usmAesCfb192Protocol = config.usmAesCfb192Protocol
+usmAesCfb256Protocol = config.usmAesCfb256Protocol
+usmNoPrivProtocol = config.usmNoPrivProtocol
 
 nextID = nextid.Integer(0xffffffff)
 
