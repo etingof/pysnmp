@@ -72,6 +72,8 @@ Revision 4.2.3
   features but within a stateful, dedicated object.
 - Auth & target configuration container classes moved to their separate
   modules at oneliner API.
+- The notificationType parameter of AsynNotificationOriginator.sendNotification
+  made defaulted to reflect its optional nature.
 - Built-in debugger now supports negating debugging categories.
 - Fix to CommandGenerator's SNMPv3 engine autodiscovery algorithm
   when retryCount is administratively set to 0.

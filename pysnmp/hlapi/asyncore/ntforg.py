@@ -89,11 +89,11 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
 
     def sendNotification(
         self, authData, transportTarget, notifyType,
-        notificationType, varBinds=None, cbInfo=(None, None)
+        notificationType=None, varBinds=None, cbInfo=(None, None)
         ):
         (cbFun, cbCtx) = cbInfo
         notifyName = self.cfgNtfOrg(authData, transportTarget, notifyType)
-        if notificationType:
+        if notificationType is not None:
             if isinstance(notificationType, MibVariable):
                 notificationType = notificationType.resolveWithMib(self.mibViewController, oidOnly=True)
             elif isinstance(notificationType[0], tuple):  # legacy
