@@ -156,8 +156,11 @@ class DirMibSource(__AbstractMibSource):
         return os.stat(os.path.join(self._srcName, f))[8]
             
     def _getData(self, f, mode):
-        if f in os.listdir(self._srcName): # make FS case-sensitive
-            return open(os.path.join(self._srcName, f), mode).read()
+        try:
+            if f in os.listdir(self._srcName): # make FS case-sensitive
+                return open(os.path.join(self._srcName, f), mode).read()
+        except OSError:
+            pass
         raise IOError  # pretend there's no such file
 
 class MibBuilder:
