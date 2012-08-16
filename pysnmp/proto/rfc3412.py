@@ -56,7 +56,7 @@ class MsgAndPduDispatcher:
             k = (contextEngineId, pduType)
             if k in self.__appsRegistration:
                 raise error.ProtocolError(
-                    'Duplicate registration %s/%s' % (contextEngineId, pduType)
+                    'Duplicate registration %r/%s' % (contextEngineId, pduType)
                     )
 
             # 4.3.4
