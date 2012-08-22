@@ -76,6 +76,7 @@ Revision 4.2.3
 - The notificationType parameter of AsynNotificationOriginator.sendNotification
   made defaulted to reflect its optional nature.
 - Built-in debugger now supports negating debugging categories.
+- Fix to MIB data reading routine to make it working with possible Windows end-of-line's.
 - Fix to CommandGenerator's SNMPv3 engine autodiscovery algorithm
   when retryCount is administratively set to 0.
 - Fix to Notification Originator to make it communicating a single
