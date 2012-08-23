@@ -32,8 +32,6 @@ Sparse notes on major existing problems/plans
 * Sort out whether pyasn1 objects should probably have either clone() or 
   subtype() methods.
 
-* Implement by-transportTag search at secmod/rfc2576
-
 * Review PDU components coercion code at proxy/rfc2576
 
 * TextualConvention subclassing order now depends upon DisplayHint 
@@ -49,3 +47,5 @@ Sparse notes on major existing problems/plans
   loading on OID to MIB symbol resolution
 
 * Implement TCP transport support
+
+* Rework UNIX sockets transport to make it STREAM-type.
