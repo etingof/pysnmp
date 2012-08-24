@@ -94,9 +94,7 @@ class __AbstractMibSource:
 class ZipMibSource(__AbstractMibSource):
     def _init(self):
         try:
-            p = __import__(
-                self._srcName, globals(), locals(), self._srcName.split('.')
-                )
+            p = __import__(self._srcName, globals(), locals(), ['__init__'])
             if hasattr(p, '__loader__'):
                 self.__loader = p.__loader__
                 self._srcName = self._srcName.replace('.', os.sep)
