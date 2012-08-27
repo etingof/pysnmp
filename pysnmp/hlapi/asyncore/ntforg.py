@@ -142,7 +142,8 @@ class NotificationOriginator:
 
         # Setup transport tags if not given by user
         if not transportTarget.tagList:
-            transportTarget.tagList = str(hash((authData, transportTarget)))
+            transportTarget.tagList = str(hash((authData.securityName,
+                                                transportTarget.transportAddr)))
         if isinstance(authData, CommunityData) and not authData.tag:
             authData.tag = transportTarget.tagList.split()[0]
 

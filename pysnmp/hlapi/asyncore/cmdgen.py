@@ -43,7 +43,7 @@ class AsynCommandGenerator:
     def __del__(self): self.uncfgCmdGen()
 
     def cfgCmdGen(self, authData, transportTarget):
-        if authData not in self.__knownAuths:
+        if authData.securityName not in self.__knownAuths:
             if isinstance(authData, CommunityData):
                 config.addV1System(
                     self.snmpEngine,
@@ -64,7 +64,7 @@ class AsynCommandGenerator:
             else:
                 raise error.PySnmpError('Unsupported authentication object')
 
-            self.__knownAuths[authData] = 1
+            self.__knownAuths[authData.securityName] = authData
 
         k = authData.securityName, authData.securityLevel, authData.mpModel
         if k in self.__knownParams:
@@ -106,7 +106,7 @@ class AsynCommandGenerator:
         return addrName, paramsName
 
     def uncfgCmdGen(self):
-        for authData in self.__knownAuths:
+        for authData in self.__knownAuths.values():
             if isinstance(authData, CommunityData):
                 config.delV1System(
                     self.snmpEngine,

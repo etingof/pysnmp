@@ -37,15 +37,6 @@ class CommunityData:
             self.tag
             )
 
-    def __hash__(self): return hash(self.securityName)
-
-    def __eq__(self, other): return self.securityName == other
-    def __ne__(self, other): return self.securityName != other
-    def __lt__(self, other): return self.securityName < other
-    def __le__(self, other): return self.securityName <= other
-    def __gt__(self, other): return self.securityName > other
-    def __ge__(self, other): return self.securityName >= other
-
 class UsmUserData:
     authKey = privKey = None
     authProtocol = config.usmNoAuthProtocol
@@ -92,13 +83,3 @@ class UsmUserData:
             self.contextEngineId,
             self.contextName
             )
-
-    def __hash__(self): return hash(self.securityName)
-
-    def __eq__(self, other): return self.securityName == other
-    def __ne__(self, other): return self.securityName != other
-    def __lt__(self, other): return self.securityName < other
-    def __le__(self, other): return self.securityName <= other
-    def __gt__(self, other): return self.securityName > other
-    def __ge__(self, other): return self.securityName >= other
-

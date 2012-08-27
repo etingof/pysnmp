@@ -75,6 +75,9 @@ Revision 4.2.3
   modules at oneliner API.
 - The notificationType parameter of AsynNotificationOriginator.sendNotification
   made defaulted to reflect its optional nature.
+- Oneliner UsmUserData, UdpTransportTarget, Udp6TransportTarget instances
+  are not hashable anymore as they are intended to act more like a data 
+  structure than object.
 - Built-in debugger now supports negating debugging categories.
 - Fix to MIB data reading routine to make it working with possible Windows end-of-line's.
 - Fix to CommandGenerator's SNMPv3 engine autodiscovery algorithm
