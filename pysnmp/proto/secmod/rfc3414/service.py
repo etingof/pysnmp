@@ -487,7 +487,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         # 3.2.9 -- moved up here to be able to report
         # maxSizeResponseScopedPDU on error
         # (48 - maximum SNMPv3 header length)
-        maxSizeResponseScopedPDU = maxMessageSize - len(securityParameters)-48
+        maxSizeResponseScopedPDU = int(maxMessageSize) - len(securityParameters) - 48
 
         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: securityParameters %s' % debug.hexdump(securityParameters))
 

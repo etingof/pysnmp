@@ -105,6 +105,7 @@ Revision 4.2.3
   crash the whole SNMP engine.
 - Fix to [possibly uninizilaized] pyasn1 objects printouts at
   MibInstrumController.__indexMib()
+- Fix to maxSizeResponseScopedPDU calculation at rfc3414/service.py.
 - Dedicated 'withmib' example set is obsolete and removed.
 - Another SNMP proxy example app added (1to3.py).
 - Fix to MIB modules loading code to make it using __import__() properly.
