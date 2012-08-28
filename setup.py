@@ -89,7 +89,7 @@ doclines = [ x.strip() for x in __doc__.split('\n') if x ]
  
 params.update( {
     'name': 'pysnmp',
-    'version': open('pysnmp/__init__.py').read().split('\'')[1]+'rc7',
+    'version': open('pysnmp/__init__.py').read().split('\'')[1],
     'description': doclines[0],
     'long_description': ' '.join(doclines[1:]),
     'maintainer': 'Ilya Etingof <ilya@glas.net>',
