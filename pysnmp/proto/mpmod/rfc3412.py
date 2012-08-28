@@ -266,7 +266,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         contextName,
         pduVersion,
         pdu,
-        maxSizeResponseScopedPDU,
+        maxSizeResponseScopedPDU,  # n.b. not actually used here
         stateReference,
         statusInformation
         ):
