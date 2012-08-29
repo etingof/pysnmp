@@ -95,7 +95,7 @@ class ZipMibSource(__AbstractMibSource):
     def _init(self):
         try:
             p = __import__(self._srcName, globals(), locals(), ['__init__'])
-            if hasattr(p, '__loader__'):
+            if hasattr(p, '__loader__') and hasattr(p.__loader__, '_files'):
                 self.__loader = p.__loader__
                 self._srcName = self._srcName.replace('.', os.sep)
                 return self

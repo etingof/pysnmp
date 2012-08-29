@@ -109,6 +109,7 @@ Revision 4.2.3
 - Dedicated 'withmib' example set is obsolete and removed.
 - Another SNMP proxy example app added (1to3.py).
 - Fix to MIB modules loading code to make it using __import__() properly.
+  This also makes pysnmp working again with Python 3.3rc0.
 - Typo fix to snmpInASNParseErrs MIB instance object.
 - Typo fix to errind.EngineIdMismatch class and its instance.
 
