@@ -154,7 +154,7 @@ class AsynCommandGenerator:
         return varBinds
 
     def unmakeVarBinds(self, varBinds, lookupNames, lookupValues):
-        if lookupNames or lookupNames:
+        if lookupNames or lookupValues:
             _varBinds = []
             for name, value in varBinds:
                 varName = MibVariable(name).resolveWithMib(self.mibViewController)
