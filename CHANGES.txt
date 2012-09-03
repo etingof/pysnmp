@@ -79,7 +79,9 @@ Revision 4.2.3
   are not hashable anymore as they are intended to act more like a data 
   structure than object.
 - Built-in debugger now supports negating debugging categories.
-- Fix to MIB data reading routine to make it working with possible Windows end-of-line's.
+- An async/getgen.py example script added.
+- Fix to MIB data reading routine to make it working with possible 
+  Windows end-of-line's.
 - Fix to CommandGenerator's SNMPv3 engine autodiscovery algorithm
   when retryCount is administratively set to 0.
 - Fix to Notification Originator to make it communicating a single
