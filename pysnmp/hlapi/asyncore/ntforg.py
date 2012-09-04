@@ -92,6 +92,14 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
         notificationType=None, varBinds=None, cbInfo=(None, None)
         ):
         (cbFun, cbCtx) = cbInfo
+
+        # Create matching transport tags if not given by user
+        if not transportTarget.tagList:
+            transportTarget.tagList = str(hash((authData.securityName,
+                                                transportTarget.transportAddr)))
+        if isinstance(authData, CommunityData) and not authData.tag:
+            authData.tag = transportTarget.tagList.split()[0]
+
         notifyName = self.cfgNtfOrg(authData, transportTarget, notifyType)
         if notificationType is not None:
             if isinstance(notificationType, MibVariable):
@@ -139,13 +147,6 @@ class NotificationOriginator:
         ):
         def __cbFun(sendRequestHandle, errorIndication, appReturn):
             appReturn['errorIndication'] = errorIndication
-
-        # Setup transport tags if not given by user
-        if not transportTarget.tagList:
-            transportTarget.tagList = str(hash((authData.securityName,
-                                                transportTarget.transportAddr)))
-        if isinstance(authData, CommunityData) and not authData.tag:
-            authData.tag = transportTarget.tagList.split()[0]
 
         appReturn = {}
         self.__asynNtfOrg.sendNotification(
