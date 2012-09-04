@@ -3,13 +3,16 @@
 # Python version sys.version_info(major=2, minor=7, micro=2, releaselevel='final', serial=0)
 
 try:
-    from socket import inet_ntop, inet_pton, AF_INET, AF_INET6
+    from socket import inet_ntop, inet_pton, AF_INET, AF_INET6, has_ipv6
 except ImportError:
+    has_ipv6 = False
+
+if not has_ipv6:
     from socket import inet_ntoa, inet_aton, AF_INET
     inet_ntop = lambda x,y: inet_ntoa(y)
     inet_pton = lambda x,y: inet_aton(y)
     AF_INET6 = None
-
+    
 from pyasn1.compat.octets import int2oct, oct2int
 from pysnmp import error
 
