@@ -137,7 +137,7 @@ class NotificationOriginator:
         snmpEngine,
         notificationTarget,
         notificationName,
-        additionalVarBinds=None,
+        additionalVarBinds=(),
         cbFun=None,
         cbCtx=None,
         contextName=null
@@ -184,11 +184,10 @@ class NotificationOriginator:
                 '__SNMPv2-MIB', 'sysUpTime'
                 )
 
-            if additionalVarBinds:
-                for varName, varVal in additionalVarBinds:
-                    if varName == sysUpTime.name:
-                        varBinds.append((varName, varVal))
-                        break
+            for varName, varVal in additionalVarBinds:
+                if varName == sysUpTime.name:
+                    varBinds.append((varName, varVal))
+                    break
             if not varBinds:
                 varBinds.append((sysUpTime.name,
                                  sysUpTime.syntax.clone())) # for actual value
