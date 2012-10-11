@@ -51,7 +51,7 @@ class DgramSocketTransport(AbstractSocketTransport):
     def handle_connect(self): pass
     def writable(self): return self.__outQueue
     def handle_write(self):
-        outgoingMessage, transportAddress = self.__outQueue.pop()
+        outgoingMessage, transportAddress = self.__outQueue.pop(0)
         debug.logger & debug.flagIO and debug.logger('handle_write: transportAddress %r -> %r outgoingMessage (%d octets) %s' % (self.socket.getsockname(), transportAddress, len(outgoingMessage), debug.hexdump(outgoingMessage)))
         if not transportAddress:
             debug.logger & debug.flagIO and debug.logger('handle_write: missing dst address, loosing outgoing msg')

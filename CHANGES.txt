@@ -3,6 +3,8 @@ Revision 4.2.4
 
 - I/O sockets buffer sizes made configurable, minimum default is now 
   forced to be no less than 2**11 (to fit two huge datagrams).
+- Fix to outgoing queue processing order at socket transport. Now
+  it's a FIFO discipline rather than LIFO.
 - Fix to NotificationOriginator's additionalVarBinds parameter - it is
   not mandatory anymore with the oneliner API. Also additionalVarBinds
   defaulted value changed from None to () meaning no var-binds.
