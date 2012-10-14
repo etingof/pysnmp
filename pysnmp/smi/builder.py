@@ -137,10 +137,7 @@ class ZipMibSource(__AbstractMibSource):
             raise IOError('No file in ZIP: %s' % p)
         
     def _getData(self, f, mode=None):
-        data = self.__loader.get_data(os.path.join(self._srcName, f))
-        if sys.version_info[0] <= 2:
-            data = data.replace('\r\n', '\n')
-        return data
+        return self.__loader.get_data(os.path.join(self._srcName, f))
 
 class DirMibSource(__AbstractMibSource):
     def _init(self):
@@ -159,10 +156,7 @@ class DirMibSource(__AbstractMibSource):
     def _getData(self, f, mode):
         try:
             if f in os.listdir(self._srcName): # make FS case-sensitive
-                data = open(os.path.join(self._srcName, f), mode).read()
-                if sys.version_info[0] <= 2:
-                    data = data.replace('\r\n', '\n')
-                return data
+                return open(os.path.join(self._srcName, f), mode).read()
         except OSError:
             pass
         raise IOError  # pretend there's no such file

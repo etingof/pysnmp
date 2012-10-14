@@ -8,6 +8,9 @@ Revision 4.2.4
 - Fix to NotificationOriginator's additionalVarBinds parameter - it is
   not mandatory anymore with the oneliner API. Also additionalVarBinds
   defaulted value changed from None to () meaning no var-binds.
+- Attempt to convert Windows style EOL into UNIX ones in MIB source
+  modules appeared to be unnecessary and even destructive to modules
+  data in some cases. So the convertion code removed altogether.
 
 Revision 4.2.3
 --------------
