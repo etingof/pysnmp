@@ -11,6 +11,7 @@ Revision 4.2.4
 - Attempt to convert Windows style EOL into UNIX ones in MIB source
   modules appeared to be unnecessary and even destructive to modules
   data in some cases. So the convertion code removed altogether.
+- Example configuration for Net-SNMP's snmptrapd added.
 
 Revision 4.2.3
 --------------
