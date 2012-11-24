@@ -170,7 +170,7 @@ class MibBuilder:
         self.lastBuildId = self._autoName = 0
         sources = []
         for m in os.environ.get('PYSNMP_MIB_PKGS', self.defaultCoreMibs).split(':'):
-            sources.append(ZipMibSource(m).init())
+            sources.append(ZipMibSource(m))
         # Compatibility variable
         if 'PYSNMP_MIB_DIR' in os.environ:
             os.environ['PYSNMP_MIB_DIRS'] = os.environ['PYSNMP_MIB_DIR']
@@ -179,10 +179,7 @@ class MibBuilder:
                 sources.append(DirMibSource(m))
         if self.defaultMiscMibs:
             for m in self.defaultMiscMibs.split(':'):
-                try:
-                    sources.append(ZipMibSource(m))
-                except ImportError:
-                    pass
+                sources.append(ZipMibSource(m))
         self.mibSymbols = {}
         self.__modSeen = {}
         self.__modPathsSeen = {}

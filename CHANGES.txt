@@ -14,6 +14,7 @@ Revision 4.2.4
   modules appeared to be unnecessary and even destructive to modules
   data in some cases. So the convertion code removed altogether.
 - Example configuration for Net-SNMP's snmptrapd added.
+- Unnecessary *MibSource explicit initialization calls removed at MibBuilder.
 
 Revision 4.2.3
 --------------
