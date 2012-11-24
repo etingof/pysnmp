@@ -65,6 +65,9 @@ def addV1System(snmpEngine, securityName, communityName,
 
     if contextEngineId is None:
         contextEngineId = snmpEngineID.syntax
+    else:
+        contextEngineId = snmpEngineID.syntax.clone(contextEngineId)
+
     if contextName is None:
         contextName = null
 
@@ -90,11 +93,11 @@ def delV1System(snmpEngine, securityName):
         )
 
 def __cookV3UserInfo(snmpEngine, securityName, contextEngineId):
+    snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
     if contextEngineId is None:
-        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
         snmpEngineID = snmpEngineID.syntax
     else:
-        snmpEngineID = contextEngineId
+        snmpEngineID = snmpEngineID.syntax.clone(contextEngineId)
 
     usmUserEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmUserEntry')
     tblIdx1 = usmUserEntry.getInstIdFromIndices(

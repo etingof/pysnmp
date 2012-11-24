@@ -6,12 +6,13 @@ from pysnmp import debug
 
 class SnmpContext:
     def __init__(self, snmpEngine, contextEngineId=None):
+        snmpEngineId,= snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
         if contextEngineId is None:
             # Default to local snmpEngineId
-            contextEngineId,= snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
-            contextEngineId = contextEngineId.syntax
-        self.contextEngineId = contextEngineId
-        debug.logger & debug.flagIns and debug.logger('SnmpContext: contextEngineId \"%r\"' % (contextEngineId,))
+            self.contextEngineId = snmpEngineId.syntax
+        else:
+            self.contextEngineId = snmpEngineId.syntax.clone(contextEngineId)
+        debug.logger & debug.flagIns and debug.logger('SnmpContext: contextEngineId \"%r\"' % (self.contextEngineId,))
         self.contextNames = {
             null: snmpEngine.msgAndPduDsp.mibInstrumController # Default name
             } 
