@@ -14,7 +14,7 @@ class NotificationOriginator:
     def __init__(self, snmpContext):
         self.__pendingReqs = {}
         self.__pendingNotifications = {}
-        self.__context = snmpContext
+        self.snmpContext = snmpContext
 
     def processResponsePdu(
         self,
@@ -152,9 +152,7 @@ class NotificationOriginator:
 
         debug.logger & debug.flagApp and debug.logger('sendNotification: metaSendPduHandle %s, notifyTag %s, notifyType %s' % (metaSendPduHandle, notifyTag, notifyType))
                 
-        contextMibInstrumCtl = self.__context.getMibInstrum(
-            contextName
-            )
+        contextMibInstrumCtl = self.snmpContext.getMibInstrum(contextName)
         
         for targetAddrName in config.getTargetNames(snmpEngine, notifyTag):
             ( transportDomain,
@@ -256,7 +254,7 @@ class NotificationOriginator:
                     securityModel,
                     securityName,
                     securityLevel,
-                    self.__context.contextEngineId,
+                    self.snmpContext.contextEngineId,
                     contextName,
                     pduVersion,
                     pdu,
@@ -275,7 +273,7 @@ class NotificationOriginator:
                     securityModel,
                     securityName,
                     securityLevel,
-                    self.__context.contextEngineId,
+                    self.snmpContext.contextEngineId,
                     contextName,
                     pduVersion,
                     pdu,
@@ -295,7 +293,7 @@ class NotificationOriginator:
                     securityModel,
                     securityName,
                     securityLevel,
-                    self.__context.contextEngineId,
+                    self.snmpContext.contextEngineId,
                     contextName,
                     pduVersion,
                     pdu,
