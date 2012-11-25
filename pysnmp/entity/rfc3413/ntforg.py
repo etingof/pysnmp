@@ -151,9 +151,11 @@ class NotificationOriginator:
         metaSendPduHandle = getNextHandle()
 
         debug.logger & debug.flagApp and debug.logger('sendNotification: metaSendPduHandle %s, notifyTag %s, notifyType %s' % (metaSendPduHandle, notifyTag, notifyType))
-                
+
         contextMibInstrumCtl = self.snmpContext.getMibInstrum(contextName)
-        
+       
+        additionalVarBinds = [  (v2c.ObjectIdentifier(x),y) for x,y in additionalVarBinds ]
+
         for targetAddrName in config.getTargetNames(snmpEngine, notifyTag):
             ( transportDomain,
               transportAddress,
