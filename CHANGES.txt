@@ -15,6 +15,8 @@ Revision 4.2.4
   data in some cases. So the convertion code removed altogether.
 - Example configuration for Net-SNMP's snmptrapd added.
 - Unnecessary *MibSource explicit initialization calls removed at MibBuilder.
+- Fix to isAccessAllowed() error handling at NotificationOriginator. System
+  used to crash on access denied condition.
 
 Revision 4.2.3
 --------------

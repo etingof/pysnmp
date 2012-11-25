@@ -3,7 +3,7 @@ from pyasn1.compat.octets import null
 from pysnmp.entity.rfc3413 import config
 from pysnmp.proto.proxy import rfc2576
 from pysnmp.proto.api import v2c
-from pysnmp.smi import error
+from pysnmp.proto import error
 from pysnmp import nextid
 from pysnmp import debug
 
@@ -34,7 +34,7 @@ class NotificationOriginator:
         (cbFun, cbCtx) = cbInfo
         # 3.3.6d
         if sendPduHandle not in self.__pendingReqs:
-            raise error.PySnmpError('Missing sendPduHandle %s' % sendPduHandle)
+            raise error.ProtocolError('Missing sendPduHandle %s' % sendPduHandle)
 
         ( origTransportDomain,
           origTransportAddress,
@@ -209,7 +209,7 @@ class NotificationOriginator:
 #                     )
 #                 try:
 #                     objectInstance = mibNode.getNode(mibNode.name + (0,))
-#                 except error.SmiError:
+#                 except error.StatusInformation:
 #                     return
 #                 varBinds.append((objectInstance.name, objectInstance.syntax))
 
@@ -221,7 +221,7 @@ class NotificationOriginator:
                         snmpEngine, securityModel, securityName,
                         securityLevel, 'notify', contextName, varName
                         )
-                except error.SmiError:
+                except error.StatusInformation:
                     debug.logger & debug.flagApp and debug.logger('sendNotification: OID %s not allowed for %s, droppping notification' % (varName, securityName))
                     return
                 else:
