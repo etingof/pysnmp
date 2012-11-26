@@ -19,6 +19,8 @@ Revision 4.2.4
   NotificationOriginator.sendNotification()
 - Fix to isAccessAllowed() error handling at NotificationOriginator. System
   used to crash on access denied condition.
+- Fix to NotificationOriginator to make it use system uptime and trap OID
+  values from SNMP engine's instrumentation rather then from SNMP context.
 
 Revision 4.2.3
 --------------
