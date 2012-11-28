@@ -1,6 +1,9 @@
 Revision 4.2.4
 --------------
 
+- The missing functionality of NOTIFICATION-TYPE objects being looked up
+  at local Management Instrumentation and attached to TRAP/IMFORM message
+  by Notification Originator is now fully implemented.
 - Examples on SNMPv3 TRAP Originator now includes fixing
   local snmpEngineId value.
 - I/O sockets buffer sizes made configurable, minimum default is now 

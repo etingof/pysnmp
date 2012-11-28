@@ -140,8 +140,11 @@ class NotificationOriginator:
         additionalVarBinds=(),
         cbFun=None,
         cbCtx=None,
-        contextName=null
+        contextName=null,
+        instanceIndex=None
         ):
+        debug.logger & debug.flagApp and debug.logger('sendNotification: notificationTarget %s, notificationName %s, additionalVarBinds %s, contextName "%s", instanceIndex %s' % (notificationTarget, notificationName, additionalVarBinds, contextName, instanceIndex))
+
         # 3.3
         ( notifyTag,
           notifyType ) = config.getNotificationInfo(
@@ -191,25 +194,25 @@ class NotificationOriginator:
                                  sysUpTime.syntax.clone())) # for actual value
 
             snmpTrapOid, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpTrapOID')
-            if notificationName:
+            if len(notificationName) == 2:  # ('MIB', 'symbol')
+                notificationTypeObject, = contextMibInstrumCtl.mibBuilder.importSymbols(*notificationName)
+                varBinds.append((snmpTrapOid.name, v2c.ObjectIdentifier(notificationTypeObject.name)))
+                debug.logger & debug.flagApp and debug.logger('sendNotification: notification type object is %s' % notificationTypeObject)
+                for notificationObject in notificationTypeObject.getObjects():
+                    mibNode, = contextMibInstrumCtl.mibBuilder.importSymbols(*notificationObject)
+                    if instanceIndex:
+                        mibNode = mibNode.getNode(mibNode.name + instanceIndex)
+                    else:
+                        mibNode = mibNode.getNextNode(mibNode.name)
+                    varBinds.append((mibNode.name, mibNode.syntax))
+                    debug.logger & debug.flagApp and debug.logger('sendNotification: processed notification object %s, instance index %s, var-bind %s' % (notificationObject, instanceIndex is None and "<first>" or instanceIndex, mibNode))
+            elif notificationName:  # numeric OID
                 varBinds.append(
                     (snmpTrapOid.name,
                      snmpTrapOid.syntax.clone(notificationName))
-                    )
+                )
             else:
                 varBinds.append((snmpTrapOid.name, snmpTrapOid.syntax))
-
-# XXX it's still not clear how to instantiate OBJECTS clause
-#             # Get notification objects names
-#             for notificationObject in snmpTrapVal.getObjects():
-#                 mibNode, = contextMibInstrumCtl.mibBuilder.importSymbols(
-#                     *notificationObject
-#                     )
-#                 try:
-#                     objectInstance = mibNode.getNode(mibNode.name + (0,))
-#                 except error.StatusInformation:
-#                     return
-#                 varBinds.append((objectInstance.name, objectInstance.syntax))
 
             for varName, varVal in additionalVarBinds:
                 if varName in (sysUpTime.name, snmpTrapOid.name):
