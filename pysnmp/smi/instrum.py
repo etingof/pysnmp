@@ -3,9 +3,19 @@ import sys
 from pysnmp.smi import error
 from pysnmp import debug
 
-__all__ = [ 'MibInstrumController' ]
+__all__ = [ 'AbstractMibInstrumController', 'MibInstrumController' ]
 
-class MibInstrumController:
+class AbstractMibInstrumController:
+    def readVars(self, vars, acInfo=(None, None)):
+        raise error.NoSuchInstanceError()
+
+    def readNextVars(self, vars, acInfo=(None, None)):
+        raise error.EndOfMibViewError()
+
+    def writeVars(self, vars, acInfo=(None, None)):
+        raise error.NoSuchObjectError()
+
+class MibInstrumController(AbstractMibInstrumController):
     fsmReadVar = {
         # ( state, status ) -> newState
         ('start', 'ok'): 'readTest',
@@ -43,6 +53,8 @@ class MibInstrumController:
         self.mibBuilder = mibBuilder
         self.lastBuildId = -1
         self.lastBuildSyms = {}
+
+    def getMibBuilder(self): return self.mibBuilder
             
     # MIB indexing
 
