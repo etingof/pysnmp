@@ -8,6 +8,7 @@ Revision 4.2.4
   by Notification Originator is now fully implemented.
 - Examples on SNMPv3 TRAP Originator now includes fixing
   local snmpEngineId value.
+- The contextName parameter of context.SnmpContext() made optional.
 - I/O sockets buffer sizes made configurable, minimum default is now 
   forced to be no less than 2**17 (to fit two huge datagrams).
 - Fix to outgoing queue processing order at socket transport. Now

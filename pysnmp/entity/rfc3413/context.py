@@ -35,7 +35,7 @@ class SnmpContext:
             debug.logger & debug.flagIns and debug.logger('unregisterContextName: unregistered contextName \"%s\"' % contextName)
             del self.contextNames[contextName]
 
-    def getMibInstrum(self, contextName):
+    def getMibInstrum(self, contextName=null):
         contextName = univ.OctetString(contextName).asOctets()
         if contextName not in self.contextNames:
             debug.logger & debug.flagIns and debug.logger('getMibInstrum: contextName \"%s\" not registered' % contextName)
