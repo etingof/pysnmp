@@ -521,13 +521,23 @@ class MibScalarInstance(MibTree):
     # Managed object value access methods
     #
 
-    def getValue(self): return self.syntax.clone()
+    def getValue(self, name, idx):
+        try:
+            bool(self.syntax)  # make sure pyasn1 value is initialized
+        except PyAsn1Error:
+            debug.logger & debug.flagIns and debug.logger('getValue: %s failed: %s' % (self.name, sys.exc_info()[1]))
+            raise error.WrongValueError(idx=idx, name=name)
+        return self.syntax.clone()
 
-    def setValue(self, value):
-        if hasattr(self.syntax, 'instrumClone'):
-            return self.syntax.instrumClone(value)
-        else:
-            return self.syntax.clone(value)
+    def setValue(self, value, name, idx):
+        try:
+            if hasattr(self.syntax, 'instrumClone'):
+                return self.syntax.instrumClone(value)
+            else:
+                return self.syntax.clone(value)
+        except PyAsn1Error:
+            debug.logger & debug.flagIns and debug.logger('setValue: %s=%r failed: %s' % (self.name, value, sys.exc_info()[1]))
+            raise error.WrongValueError(idx=idx, name=name)
 
     #
     # Subtree traversal
@@ -568,7 +578,7 @@ class MibScalarInstance(MibTree):
         # Return current variable (name, value). 
         if name == self.name:
             debug.logger & debug.flagIns and debug.logger('readGet: %s=%r' % (self.name, self.syntax))
-            return self.name, self.getValue()
+            return self.name, self.getValue(name, idx)
         else:
             raise error.NoSuchInstanceError(idx=idx, name=name)
  
@@ -589,13 +599,15 @@ class MibScalarInstance(MibTree):
         # Make sure write's allowed
         if name == self.name:
             try:
-                self.__newSyntax = self.setValue(val)
+                self.__newSyntax = self.setValue(val, name, idx)
             except error.MibOperationError:
                 # SMI exceptions may carry additional content
                 why = sys.exc_info()[1]
                 if 'syntax' in why:
                     self.__newSyntax = why['syntax']
-                raise why
+                    raise why
+                else:
+                    raise error.WrongValueError(idx=idx, name=name)
         else:
             raise error.NoSuchInstanceError(idx=idx, name=name)
 
@@ -624,12 +636,14 @@ class MibScalarInstance(MibTree):
     def createTest(self, name, val, idx, acInfo):
         if name == self.name:
             try:
-                self.__newSyntax = self.setValue(val)
+                self.__newSyntax = self.setValue(val, name, idx)
             except error.MibOperationError:
                 # SMI exceptions may carry additional content
                 why = sys.exc_info()[1]
                 if 'syntax' in why:
                     self.__newSyntax = why['syntax']
+                else:
+                    raise error.WrongValueError(idx=idx, name=name)
         else:
             raise error.NoSuchInstanceError(idx=idx, name=name)
 
@@ -652,7 +666,7 @@ class MibScalarInstance(MibTree):
     def destroyTest(self, name, val, idx, acInfo):
         if name == self.name:
             try:
-                self.__newSyntax = self.setValue(val)
+                self.__newSyntax = self.setValue(val, name, idx)
             except error.MibOperationError:
                 # SMI exceptions may carry additional content
                 why = sys.exc_info()[1]
@@ -811,7 +825,7 @@ class MibTableColumn(MibScalar):
             self.__rowOpWanted[name] = error.RowDestructionWanted()
             self.destroyTest(name, val, idx, acInfo)
         if name in self.__rowOpWanted:
-            debug.logger & debug.flagIns and debug.logger('%s flagged by %s=%r' % (self.__rowOpWanted[name], name, val))
+            debug.logger & debug.flagIns and debug.logger('%s flagged by %s=%r, exception %s' % (self.__rowOpWanted[name], name, val, sys.exc_info()[1]))
             raise self.__rowOpWanted[name]
 
     def __delegateWrite(self, subAction, name, val, idx, acInfo):

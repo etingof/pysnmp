@@ -30,6 +30,10 @@ Revision 4.2.4
   used to crash on access denied condition.
 - Fix to NotificationOriginator to make it use system uptime and trap OID
   values from SNMP engine's instrumentation rather then from SNMP context.
+- Fix a couple of bugs at MibTable* logic involved for table instances
+  creation.
+- Fix to Management Instrumentation code to handle cases of non-initialized
+  or not-compliant-to-constraints Managed Objects Instances.
 
 Revision 4.2.3
 --------------
