@@ -522,11 +522,7 @@ class MibScalarInstance(MibTree):
     #
 
     def getValue(self, name, idx):
-        try:
-            bool(self.syntax)  # make sure pyasn1 value is initialized
-        except PyAsn1Error:
-            debug.logger & debug.flagIns and debug.logger('getValue: %s failed: %s' % (self.name, sys.exc_info()[1]))
-            raise error.WrongValueError(idx=idx, name=name)
+        debug.logger & debug.flagIns and debug.logger('getValue: returning %r for %s' % (self.syntax, self.name))
         return self.syntax.clone()
 
     def setValue(self, value, name, idx):
@@ -537,7 +533,7 @@ class MibScalarInstance(MibTree):
                 return self.syntax.clone(value)
         except PyAsn1Error:
             debug.logger & debug.flagIns and debug.logger('setValue: %s=%r failed: %s' % (self.name, value, sys.exc_info()[1]))
-            raise error.WrongValueError(idx=idx, name=name)
+            raise error.WrongValueError(idx=idx, name=name, msg=sys.exc_info()[1])
 
     #
     # Subtree traversal
@@ -607,7 +603,7 @@ class MibScalarInstance(MibTree):
                     self.__newSyntax = why['syntax']
                     raise why
                 else:
-                    raise error.WrongValueError(idx=idx, name=name)
+                    raise error.WrongValueError(idx=idx, name=name, msg=sys.exc_info()[1])
         else:
             raise error.NoSuchInstanceError(idx=idx, name=name)
 
@@ -643,7 +639,7 @@ class MibScalarInstance(MibTree):
                 if 'syntax' in why:
                     self.__newSyntax = why['syntax']
                 else:
-                    raise error.WrongValueError(idx=idx, name=name)
+                    raise error.WrongValueError(idx=idx, name=name, msg=sys.exc_info()[1])
         else:
             raise error.NoSuchInstanceError(idx=idx, name=name)
 
