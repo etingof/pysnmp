@@ -323,11 +323,17 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             else:
                 raise error.StatusInformation(
                     errorIndication = errind.encryptionError
-                    )
+                )
 
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: scopedPDU %s' % scopedPDU.prettyPrint())
 
-            dataToEncrypt = encoder.encode(scopedPDU)
+            try:
+                dataToEncrypt = encoder.encode(scopedPDU)
+            except PyAsn1Error:
+                debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: scopedPDU serialization error: %s' % sys.exc_info()[1])
+                raise error.StatusInformation(
+                    errorIndication = errind.serializationError
+                )
             
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: scopedPDU encoded into %s' % debug.hexdump(dataToEncrypt))
 
@@ -385,13 +391,23 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: %s' % (securityParameters.prettyPrint(),))
             
-            msg.setComponentByPosition(
-                2, encoder.encode(securityParameters), verifyConstraints=False
+            try:
+                msg.setComponentByPosition(2, encoder.encode(securityParameters), verifyConstraints=False)
+            except PyAsn1Error:
+                debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: securityParameters serialization error: %s' % sys.exc_info()[1])
+                raise error.StatusInformation(
+                    errorIndication = errind.serializationError
                 )
 
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: auth outgoing msg: %s' % msg.prettyPrint())
 
-            wholeMsg = encoder.encode(msg)
+            try:
+                wholeMsg = encoder.encode(msg)
+            except PyAsn1Error:
+                debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: msg serialization error: %s' % sys.exc_info()[1])
+                raise error.StatusInformation(
+                    errorIndication = errind.serializationError
+                )
 
             authenticatedWholeMsg = authHandler.authenticateOutgoingMsg(
                 usmUserAuthKeyLocalized, wholeMsg
@@ -405,13 +421,22 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: %s' % (securityParameters.prettyPrint(),))
 
-            msg.setComponentByPosition(
-                2, encoder.encode(securityParameters), verifyConstraints=False
+            try:
+                msg.setComponentByPosition(2, encoder.encode(securityParameters), verifyConstraints=False)
+            except PyAsn1Error:
+                debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: secutiryParameters serialization error: %s' % sys.exc_info()[1])
+                raise error.StatusInformation(
+                    errorIndication = errind.serializationError
                 )
 
-            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: plain outgoing msg: %s' % msg.prettyPrint())
-
-            authenticatedWholeMsg = encoder.encode(msg)
+            try:
+                debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: plain outgoing msg: %s' % msg.prettyPrint())
+                authenticatedWholeMsg = encoder.encode(msg)
+            except PyAsn1Error:
+                debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: msg serialization error: %s' % sys.exc_info()[1])
+                raise error.StatusInformation(
+                    errorIndication = errind.serializationError
+                )
 
         debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: %s outgoing msg: %s' % (securityLevel > 1 and "authenticated" or "plain", debug.hexdump(authenticatedWholeMsg)))
 

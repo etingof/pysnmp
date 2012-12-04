@@ -18,7 +18,13 @@ class ErrorIndication:
 
 # SNMP message processing errors
 
-class ParseError(ErrorIndication): pass
+class SerializationError(ErrorIndication): pass
+serializationError = SerializationError('SNMP message serialization error')
+
+class DeserializationError(ErrorIndication): pass
+deserializationError = DeserializationError('SNMP message deserialization error')
+
+class ParseError(DeserializationError): pass
 parseError = ParseError('SNMP message deserialization error')
 
 class UnsupportedMsgProcessingModel(ErrorIndication): pass

@@ -1,5 +1,7 @@
 # SNMP v1 & v2c security models implementation
+import sys
 from pyasn1.codec.ber import encoder
+from pyasn1.error import PyAsn1Error
 from pysnmp.proto.secmod import base
 from pysnmp.carrier.asynsock.dgram import udp, udp6, unix
 from pysnmp.smi.error import NoSuchInstanceError
@@ -311,11 +313,12 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
 
         debug.logger & debug.flagMP and debug.logger('generateRequestMsg: %s' % (msg.prettyPrint(),))
 
-        wholeMsg = encoder.encode(msg)
-        return securityParameters, wholeMsg
-
-        raise error.StatusInformation(
-            errorIndication = errind.unknownCommunityName
+        try:
+            return securityParameters, encoder.encode(msg)
+        except PyAsn1Error:
+            debug.logger & debug.flagMP and debug.logger('generateRequestMsg: serialization failure: %s' % sys.exc_info()[1])
+            raise error.StatusInformation(
+                errorIndication = errind.serializationError
             )
 
     def generateResponseMsg(
@@ -344,12 +347,16 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         msg.getComponentByPosition(2).setComponentByType(
             pdu.tagSet, pdu, verifyConstraints=False
             )
-        
+
         debug.logger & debug.flagMP and debug.logger('generateResponseMsg: %s' % (msg.prettyPrint(),))
 
-        wholeMsg = encoder.encode(msg)
-        return ( communityName, wholeMsg )
-
+        try:
+            return communityName, encoder.encode(msg)
+        except PyAsn1Error:
+            debug.logger & debug.flagMP and debug.logger('generateResponseMsg: serialization failure: %s' % sys.exc_info()[1])
+            raise error.StatusInformation(
+                errorIndication = errind.serializationError
+            )
 
     def processIncomingMsg(
         self,

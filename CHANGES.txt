@@ -14,6 +14,7 @@ Revision 4.2.4
 - MibInstrumController.getMibBuilder() added.
 - I/O sockets buffer sizes made configurable, minimum default is now 
   forced to be no less than 2**17 (to fit two huge datagrams).
+- Catch possible exceptions on pyasn1 encoder invocation.
 - Fix to outgoing queue processing order at socket transport. Now
   it's a FIFO discipline rather than LIFO.
 - Fix to NotificationOriginator's additionalVarBinds parameter - it is
