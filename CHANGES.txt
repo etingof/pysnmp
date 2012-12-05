@@ -6,8 +6,8 @@ Revision 4.2.4
 - The missing functionality of NOTIFICATION-TYPE objects being looked up
   at local Management Instrumentation and attached to TRAP/IMFORM message
   by Notification Originator is now fully implemented.
-- Examples on SNMPv3 TRAP Originator now includes fixing
-  local snmpEngineId value.
+- Examples on SNMPv3 TRAP Originator now includes fixing local 
+  snmpEngineId value.
 - The contextName parameter of SnmpContext.getMibInstrum made optional.
 - AbstractMibInstrumController class added as a base class for all possible
   kinds of Management Instrumentation controllers.
@@ -15,6 +15,10 @@ Revision 4.2.4
 - I/O sockets buffer sizes made configurable, minimum default is now 
   forced to be no less than 2**17 (to fit two huge datagrams).
 - Catch possible exceptions on pyasn1 encoder invocation.
+- Unnecessary *MibSource explicit initialization calls removed at MibBuilder.
+- Example configuration for Net-SNMP's snmptrapd added.
+- Cast additionalVarBinds into ObjectIdentifier type at
+  NotificationOriginator.sendNotification()
 - Fix to outgoing queue processing order at socket transport. Now
   it's a FIFO discipline rather than LIFO.
 - Fix to NotificationOriginator's additionalVarBinds parameter - it is
@@ -23,10 +27,6 @@ Revision 4.2.4
 - Attempt to convert Windows style EOL into UNIX ones in MIB source
   modules appeared to be unnecessary and even destructive to modules
   data in some cases. So the convertion code removed altogether.
-- Example configuration for Net-SNMP's snmptrapd added.
-- Unnecessary *MibSource explicit initialization calls removed at MibBuilder.
-- Cast additionalVarBinds into ObjectIdentifier type at
-  NotificationOriginator.sendNotification()
 - Fix to isAccessAllowed() error handling at NotificationOriginator. System
   used to crash on access denied condition.
 - Fix to NotificationOriginator to make it use system uptime and trap OID
@@ -35,6 +35,9 @@ Revision 4.2.4
   creation.
 - Fix to Management Instrumentation code to handle cases of non-initialized
   or not-compliant-to-constraints Managed Objects Instances.
+- Fix to Management Instrumentation code to make table row removal through
+  SNMP working again. Wrong method (instumClone) was probed at terminal
+  MIB nodes values instead of the right one (setValue).
 
 Revision 4.2.3
 --------------

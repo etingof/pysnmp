@@ -527,13 +527,17 @@ class MibScalarInstance(MibTree):
 
     def setValue(self, value, name, idx):
         try:
-            if hasattr(self.syntax, 'instrumClone'):
-                return self.syntax.instrumClone(value)
+            if hasattr(self.syntax, 'setValue'):
+                return self.syntax.setValue(value)
             else:
                 return self.syntax.clone(value)
         except PyAsn1Error:
-            debug.logger & debug.flagIns and debug.logger('setValue: %s=%r failed: %s' % (self.name, value, sys.exc_info()[1]))
-            raise error.WrongValueError(idx=idx, name=name, msg=sys.exc_info()[1])
+            why = sys.exc_info()[1]
+            debug.logger & debug.flagIns and debug.logger('setValue: %s=%r failed: %s' % (self.name, value, why))
+            if isinstance(why, error.TableRowManagement):
+                raise why
+            else:
+                raise error.WrongValueError(idx=idx, name=name, msg=why)
 
     #
     # Subtree traversal

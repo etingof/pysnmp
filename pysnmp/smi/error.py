@@ -33,5 +33,6 @@ class NoSuchInstanceError(MibOperationError): pass
 class EndOfMibViewError(MibOperationError): pass
 
 # Row management
-class RowCreationWanted(MibOperationError): pass
-class RowDestructionWanted(MibOperationError): pass
+class TableRowManagement(MibOperationError): pass
+class RowCreationWanted(TableRowManagement): pass
+class RowDestructionWanted(TableRowManagement): pass
