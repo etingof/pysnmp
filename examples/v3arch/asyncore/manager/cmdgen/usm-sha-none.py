@@ -11,7 +11,6 @@
 #
 # $ snmpset -v3 -l authNoPriv -u usr-sha-none -a SHA -A authkey1 -ObentU 127.0.0.1:161 1.3.6.1.2.1.1.1.0 s 'my new value'
 #
-# SET Command Generator
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asynsock.dgram import udp
 from pysnmp.entity.rfc3413 import cmdgen

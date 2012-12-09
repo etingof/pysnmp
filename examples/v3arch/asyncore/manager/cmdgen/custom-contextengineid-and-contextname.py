@@ -13,7 +13,6 @@
 #
 # $ snmpget -v3 -l authNoPriv -u usr-md5-none -A authkey1 -E 8000000001020304 -n my-context -ObentU 127.0.0.1:161  1.3.6.1.2.1.1.1.0
 #
-# GETNEXT Command Generator
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asynsock.dgram import udp
 from pysnmp.entity.rfc3413 import cmdgen

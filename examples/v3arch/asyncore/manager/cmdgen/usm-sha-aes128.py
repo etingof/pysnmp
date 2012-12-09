@@ -11,7 +11,6 @@
 #
 # $ snmpget -v3 -l authPriv -u usr-sha-aes -a SHA -A authkey1 -x AES -X privkey1 -ObentU 127.0.0.1:161  1.3.6.1.2.1.1.1.0
 #
-# GET Command Generator
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asynsock.dgram import udp
 from pysnmp.entity.rfc3413 import cmdgen

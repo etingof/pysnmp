@@ -11,7 +11,6 @@
 #
 # $ snmpset -v1 -c private -ObentU 127.0.0.1:161 1.3.6.1.2.1.1.1.0 s 'my value'  1.3.6.1.2.1.1.7.0 i 123 
 #
-# SET Command Generator
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asynsock.dgram import udp
 from pysnmp.entity.rfc3413 import cmdgen

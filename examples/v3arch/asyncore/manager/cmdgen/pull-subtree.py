@@ -12,7 +12,6 @@
 #
 # $ snmpwalk -v3 -l authNoPriv -u usr-none-none -ObentU 127.0.0.1:161  1.3.6.1.2.1.1 
 #
-# GETNEXT Command Generator
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asynsock.dgram import udp
 from pysnmp.entity.rfc3413 import cmdgen
