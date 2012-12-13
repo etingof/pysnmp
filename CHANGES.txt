@@ -7,6 +7,8 @@ Revision 4.2.4
   by Notification Originator is now fully implemented.
 - Examples on SNMPv3 TRAP Originator now includes fixing local 
   snmpEngineId value.
+- Oneliner example apps now include cases where non-default SNMP
+  context is used.
 - The contextName parameter of SnmpContext.getMibInstrum made optional.
 - AbstractMibInstrumController class added as a base class for all possible
   kinds of Management Instrumentation controllers.
