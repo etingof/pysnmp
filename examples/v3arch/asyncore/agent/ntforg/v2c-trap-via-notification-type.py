@@ -7,7 +7,7 @@
 # * with community name 'public'
 # * over IPv4/UDP
 # * send TRAP notification
-# * to a Managers at 127.0.0.1:162
+# * to a Manager at 127.0.0.1:162
 # * with TRAP ID ACCOUNTING-CONTROL-MIB::acctngFileFull as MIB symbol
 #
 # The ACCOUNTING-CONTROL-MIB::acctngFileFull NOTIFICATION-TYPE implies
