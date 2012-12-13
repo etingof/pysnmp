@@ -7,13 +7,13 @@ __all__ = [ 'AbstractMibInstrumController', 'MibInstrumController' ]
 
 class AbstractMibInstrumController:
     def readVars(self, vars, acInfo=(None, None)):
-        raise error.NoSuchInstanceError()
+        raise error.NoSuchInstanceError(idx=0)
 
     def readNextVars(self, vars, acInfo=(None, None)):
-        raise error.EndOfMibViewError()
+        raise error.EndOfMibViewError(idx=0)
 
     def writeVars(self, vars, acInfo=(None, None)):
-        raise error.NoSuchObjectError()
+        raise error.NoSuchObjectError(idx=0)
 
 class MibInstrumController(AbstractMibInstrumController):
     fsmReadVar = {
