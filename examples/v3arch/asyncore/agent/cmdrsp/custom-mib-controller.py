@@ -60,8 +60,9 @@ snmpContext.registerContextName(
     EchoMibInstrumController()              # Management Instrumentation
 )
 
-# Register SNMP GET Application at the SNMP engine for particular SNMP context
+# Register GET&SET Applications at the SNMP engine for a custom SNMP context
 cmdrsp.GetCommandResponder(snmpEngine, snmpContext)
+cmdrsp.SetCommandResponder(snmpEngine, snmpContext)
 
 # Register an imaginary never-ending job to keep I/O dispatcher running forever
 snmpEngine.transportDispatcher.jobStarted(1)
