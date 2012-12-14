@@ -174,7 +174,8 @@ class AsynCommandGenerator:
     # Async SNMP apps
 
     def getCmd(self, authData, transportTarget, varNames, cbInfo,
-               lookupNames=False, lookupValues=False):
+               lookupNames=False, lookupValues=False,
+               contextEngineId=None, contextName=''):
         def __cbFun(sendRequestHandle,
                     errorIndication, errorStatus, errorIndex,
                     varBinds, cbCtx):
@@ -198,13 +199,14 @@ class AsynCommandGenerator:
             self.makeReadVarBinds(varNames),
             __cbFun,
             (lookupNames, lookupValues, cbFun, cbCtx),
-            authData.contextEngineId, authData.contextName
+            contextEngineId, contextName
         )
     
     asyncGetCmd = getCmd
     
     def setCmd(self, authData, transportTarget, varBinds, cbInfo,
-               lookupNames=False, lookupValues=False):
+               lookupNames=False, lookupValues=False,
+               contextEngineId=None, contextName=''):
         def __cbFun(sendRequestHandle,
                     errorIndication, errorStatus, errorIndex,
                     varBinds, cbCtx):
@@ -246,14 +248,14 @@ class AsynCommandGenerator:
             __varBinds,
             __cbFun,
             (lookupNames, lookupValues, cbFun, cbCtx),
-            authData.contextEngineId,
-            authData.contextName
+            contextEngineId, contextName
         )
     
     asyncSetCmd = setCmd
     
     def nextCmd(self, authData, transportTarget, varNames, cbInfo,
-                lookupNames=False, lookupValues=False):
+                lookupNames=False, lookupValues=False,
+                contextEngineId=None, contextName=''):
         def __cbFun(sendRequestHandle,
                     errorIndication, errorStatus, errorIndex,
                     varBindTable, cbCtx):
@@ -277,14 +279,15 @@ class AsynCommandGenerator:
             self.makeReadVarBinds(varNames),
             __cbFun,
             (lookupNames, lookupValues, cbFun, cbCtx),
-            authData.contextEngineId, authData.contextName
+            contextEngineId, contextName
         )
 
     asyncNextCmd = nextCmd
     
     def bulkCmd(self, authData, transportTarget,
                 nonRepeaters, maxRepetitions, varNames, cbInfo,
-                lookupNames=False, lookupValues=False):
+                lookupNames=False, lookupValues=False,
+                contextEngineId=None, contextName=''):
         def __cbFun(sendRequestHandle,
                     errorIndication, errorStatus, errorIndex,
                     varBindTable, cbCtx):
@@ -310,7 +313,7 @@ class AsynCommandGenerator:
             varBinds,
             __cbFun,
             (lookupNames, lookupValues, cbFun, cbCtx),
-            authData.contextEngineId, authData.contextName
+            contextEngineId, contextName
         )
 
     asyncBulkCmd = bulkCmd
@@ -342,7 +345,9 @@ class CommandGenerator:
             varNames,
             (__cbFun, appReturn),
             kwargs.get('lookupNames', False),
-            kwargs.get('lookupValues', False)
+            kwargs.get('lookupValues', False),
+            kwargs.get('contextEngineId'),
+            kwargs.get('contextName', '')
         )
         self.__asynCmdGen.snmpEngine.transportDispatcher.runDispatcher()
         return (
@@ -371,7 +376,9 @@ class CommandGenerator:
             varBinds,
             (__cbFun, appReturn),
             kwargs.get('lookupNames', False),
-            kwargs.get('lookupValues', False)
+            kwargs.get('lookupValues', False),
+            kwargs.get('contextEngineId'),
+            kwargs.get('contextName', '')
         )
         self.__asynCmdGen.snmpEngine.transportDispatcher.runDispatcher()
         return (
@@ -442,6 +449,8 @@ class CommandGenerator:
 
         lookupNames = kwargs.get('lookupNames', False)        
         lookupValues = kwargs.get('lookupValues', False)
+        contextEngineId = kwargs.get('contextEngineId'),
+        contextName = kwargs.get('contextName', '')
         lexicographicMode = kwargs.get('lexicographicMode', False)
         maxRows = kwargs.get('maxRows', 0)
         ignoreNonIncreasingOid = kwargs.get('ignoreNonIncreasingOid', False)
@@ -454,7 +463,8 @@ class CommandGenerator:
             transportTarget,
             varNames,
             (__cbFun, (self, varBindHead, [], appReturn)),
-            lookupNames, lookupValues
+            lookupNames, lookupValues,
+            contextEngineId, contextName
         )
 
         self.__asynCmdGen.snmpEngine.transportDispatcher.runDispatcher()
@@ -529,6 +539,8 @@ class CommandGenerator:
 
         lookupNames = kwargs.get('lookupNames', False)        
         lookupValues = kwargs.get('lookupValues', False)
+        contextEngineId = kwargs.get('contextEngineId'),
+        contextName = kwargs.get('contextName', '')
         lexicographicMode = kwargs.get('lexicographicMode', False)
         maxRows = kwargs.get('maxRows', 0)
         ignoreNonIncreasingOid = kwargs.get('ignoreNonIncreasingOid', False)
@@ -543,7 +555,8 @@ class CommandGenerator:
             nonRepeaters, maxRepetitions,
             varNames,
             (__cbFun, (self, varBindHead, [], appReturn)),
-            lookupNames, lookupValues
+            lookupNames, lookupValues,
+            contextEngineId, contextName
         )
 
         self.__asynCmdGen.snmpEngine.transportDispatcher.runDispatcher()
