@@ -25,7 +25,7 @@ snmpEngine = engine.SnmpEngine()
 # SNMPv3/USM setup
 #
 
-# user: usr-md5-none, auth: MD5, priv: NONE, ContextEngineId: 8000000001020304
+# user: usr-md5-none, auth: MD5, priv: NONE
 config.addV3User(
     snmpEngine, 'usr-md5-none',
     config.usmHMACMD5AuthProtocol, 'authkey1'
