@@ -35,7 +35,7 @@ class CommunityData:
             self.contextEngineId,
             self.contextName,
             self.tag
-            )
+        )
 
 class UsmUserData:
     authKey = privKey = None
@@ -45,6 +45,8 @@ class UsmUserData:
     securityModel = 3
     mpModel = 3
     contextName = null
+    # the contextEngineId/contextName values stored here should
+    # be used for USM configuration only, not for PDU contents
     def __init__(self, securityName,
                  authKey=None, privKey=None,
                  authProtocol=None, privProtocol=None,
@@ -82,4 +84,4 @@ class UsmUserData:
             self.privProtocol,
             self.contextEngineId,
             self.contextName
-            )
+        )

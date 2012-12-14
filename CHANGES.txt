@@ -21,8 +21,9 @@ Revision 4.2.4
 - Cast additionalVarBinds into ObjectIdentifier type at
   NotificationOriginator.sendNotification()
 - Fixes to ContextEngineId/ContextName support at the oneliner API: now
-  both items can be passed to request PDU right from *Cmd() request initiation
-  method, the items of authData object now used only for USM configuration.
+  both items should be passed to request PDU through *Cmd() request
+  initiation method, the items of authData object should be used only for
+  LCD configuration.
 - Fix to outgoing queue processing order at socket transport. Now
   it's a FIFO discipline rather than LIFO.
 - Fix to NotificationOriginator's additionalVarBinds parameter - it is
