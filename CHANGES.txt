@@ -5,10 +5,8 @@ Revision 4.2.4
 - The missing functionality of NOTIFICATION-TYPE objects being looked up
   at local Management Instrumentation and attached to TRAP/IMFORM message
   by Notification Originator is now fully implemented.
-- Examples on SNMPv3 TRAP Originator now includes fixing local 
-  snmpEngineId value.
 - Oneliner example apps now include cases where non-default SNMP
-  context is used.
+  ContextEngineId/ContextName/SecurityEngineId is used.
 - The contextName parameter of SnmpContext.getMibInstrum made optional.
 - AbstractMibInstrumController class added as a base class for all possible
   kinds of Management Instrumentation controllers.
@@ -20,6 +18,8 @@ Revision 4.2.4
 - Example configuration for Net-SNMP's snmptrapd added.
 - Cast additionalVarBinds into ObjectIdentifier type at
   NotificationOriginator.sendNotification()
+- Standard SNMPv3 Apps hardened to catch protocol-related exceptions and
+  report them as errorIndication's.
 - Fixes to ContextEngineId/ContextName support at the oneliner API: now
   both items should be passed to request PDU through *Cmd() request
   initiation method, the items of authData object should be used only for

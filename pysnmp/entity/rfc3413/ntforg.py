@@ -1,4 +1,4 @@
-import time
+import sys
 from pyasn1.compat.octets import null
 from pysnmp.entity.rfc3413 import config
 from pysnmp.proto.proxy import rfc2576
@@ -76,23 +76,36 @@ class NotificationOriginator:
             timeoutInTicks = float(origTimeout)/100/snmpEngine.transportDispatcher.getTimerResolution()
         
             # 3.3.6a
-            sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(
-                snmpEngine,
-                origTransportDomain,
-                origTransportAddress,
-                origMessageProcessingModel,
-                origSecurityModel,
-                origSecurityName,
-                origSecurityLevel,
-                origContextEngineId,
-                origContextName,
-                origPduVersion,
-                origPdu,
-                1,                              # expectResponse
-                timeoutInTicks,
-                self.processResponsePdu,
-                (cbFun, cbCtx)
+            try:
+                sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(
+                    snmpEngine,
+                    origTransportDomain,
+                    origTransportAddress,
+                    origMessageProcessingModel,
+                    origSecurityModel,
+                    origSecurityName,
+                    origSecurityLevel,
+                    origContextEngineId,
+                    origContextName,
+                    origPduVersion,
+                    origPdu,
+                    1,                              # expectResponse
+                    timeoutInTicks,
+                    self.processResponsePdu,
+                    (cbFun, cbCtx)
                 )
+            except error.StatusInformation:
+                statusInformation = sys.exc_info()[1]
+                debug.logger & debug.flagApp and debug.logger('processResponsePdu: metaSendPduHandle %s: sendPdu() failed with %r ' % (metaSendPduHandle, statusInformation))
+                if not self.__pendingNotifications[metaSendPduHandle]:
+                    del self.__pendingNotifications[metaSendPduHandle]
+                    self._handleResponse(
+                        metaSendPduHandle,
+                        statusInformation['errorIndication'],
+                        cbFun,
+                        cbCtx
+                    )
+                return
 
             self.__pendingNotifications[metaSendPduHandle] += 1
 
@@ -116,7 +129,7 @@ class NotificationOriginator:
                 origRetryCount,
                 origRetries + 1,
                 metaSendPduHandle
-                )
+            )
             return
 
         # 3.3.6c
@@ -247,42 +260,68 @@ class NotificationOriginator:
             
             # 3.3.5
             if notifyType == 1:
-                snmpEngine.msgAndPduDsp.sendPdu(
-                    snmpEngine,
-                    transportDomain,
-                    transportAddress,
-                    messageProcessingModel,
-                    securityModel,
-                    securityName,
-                    securityLevel,
-                    self.snmpContext.contextEngineId,
-                    contextName,
-                    pduVersion,
-                    pdu,
-                    None
+                try:
+                    snmpEngine.msgAndPduDsp.sendPdu(
+                        snmpEngine,
+                        transportDomain,
+                        transportAddress,
+                        messageProcessingModel,
+                        securityModel,
+                        securityName,
+                        securityLevel,
+                        self.snmpContext.contextEngineId,
+                        contextName,
+                        pduVersion,
+                        pdu,
+                        None
                     )
+                except error.StatusInformation:
+                    statusInformation = sys.exc_info()[1]
+                    debug.logger & debug.flagApp and debug.logger('sendReq: metaSendPduHandle %s: sendPdu() failed with %r' % (metaSendPduHandle, statusInformation))
+                    if not self.__pendingNotifications[metaSendPduHandle]:
+                        del self.__pendingNotifications[metaSendPduHandle]
+                        self._handleResponse(
+                            metaSendPduHandle,
+                            statusInformation['errorIndication'],
+                            cbFun,
+                            cbCtx
+                        )
+                    return metaSendPduHandle
             else:
                 # Convert timeout in seconds into timeout in timer ticks
                 timeoutInTicks = float(timeout)/100/snmpEngine.transportDispatcher.getTimerResolution()
 
                 # 3.3.6a
-                sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(
-                    snmpEngine,
-                    transportDomain,
-                    transportAddress,
-                    messageProcessingModel,
-                    securityModel,
-                    securityName,
-                    securityLevel,
-                    self.snmpContext.contextEngineId,
-                    contextName,
-                    pduVersion,
-                    pdu,
-                    1,                      # expectResponse
-                    timeoutInTicks,
-                    self.processResponsePdu,
-                    (cbFun, cbCtx)
+                try:
+                    sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(
+                        snmpEngine,
+                        transportDomain,
+                        transportAddress,
+                        messageProcessingModel,
+                        securityModel,
+                        securityName,
+                        securityLevel,
+                        self.snmpContext.contextEngineId,
+                        contextName,
+                        pduVersion,
+                        pdu,
+                        1,                      # expectResponse
+                        timeoutInTicks,
+                        self.processResponsePdu,
+                        (cbFun, cbCtx)
                     )
+                except error.StatusInformation:
+                    statusInformation = sys.exc_info()[1]
+                    debug.logger & debug.flagApp and debug.logger('sendReq: metaSendPduHandle %s: sendPdu() failed with %r' % (metaSendPduHandle, statusInformation))
+                    if not self.__pendingNotifications[metaSendPduHandle]:
+                        del self.__pendingNotifications[metaSendPduHandle]
+                        self._handleResponse(
+                            metaSendPduHandle,
+                            statusInformation['errorIndication'],
+                            cbFun,
+                            cbCtx
+                        )
+                    return metaSendPduHandle
 
                 debug.logger & debug.flagApp and debug.logger('sendNotification: metaSendPduHandle %s, sendPduHandle %s, timeout %d' % (metaSendPduHandle, sendPduHandle, timeout))
                 

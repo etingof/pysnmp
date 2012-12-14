@@ -1,8 +1,9 @@
-import time
+import sys
 from pysnmp.proto import rfc1157, rfc1905, api, errind
 from pysnmp.entity.rfc3413 import config
 from pysnmp.proto.proxy import rfc2576
 from pysnmp import error, nextid, debug
+from pysnmp.proto.error import StatusInformation
 from pyasn1.type import univ
 
 getNextHandle = nextid.Integer(0x7fffffff)
@@ -75,8 +76,7 @@ class CommandGeneratorBase:
           origTimeout,
           origRetryCount,
           origRetries,
-          origSendRequestHandle
-          ) = self.__pendingReqs[sendPduHandle]
+          origSendRequestHandle ) = self.__pendingReqs[sendPduHandle]
   
         del self.__pendingReqs[sendPduHandle]
 
@@ -98,24 +98,31 @@ class CommandGeneratorBase:
                       statusInformation['errorIndication'], 0, 0, (),
                       cbCtx)
                 return
-            self._sendPdu(
-                snmpEngine,
-                origTransportDomain,
-                origTransportAddress,
-                origMessageProcessingModel,
-                origSecurityModel,
-                origSecurityName,
-                origSecurityLevel,
-                origContextEngineId,
-                origContextName,
-                origPduVersion,
-                origPdu,
-                origTimeout,
-                origRetryCount,
-                origRetries + 1,
-                origSendRequestHandle,
-                (self.processResponsePdu, (cbFun, cbCtx))
+            try:
+                self._sendPdu(
+                    snmpEngine,
+                    origTransportDomain,
+                    origTransportAddress,
+                    origMessageProcessingModel,
+                    origSecurityModel,
+                    origSecurityName,
+                    origSecurityLevel,
+                    origContextEngineId,
+                    origContextName,
+                    origPduVersion,
+                    origPdu,
+                    origTimeout,
+                    origRetryCount,
+                    origRetries + 1,
+                    origSendRequestHandle,
+                    (self.processResponsePdu, (cbFun, cbCtx))
                 )
+            except StatusInformation:
+                statusInformation = sys.exc_info()[1]
+                debug.logger & debug.flagApp and debug.logger('processResponsePdu: origSendRequestHandle %s, _sendPdu() failed with %r' % (sendPduHandle, statusInformation))
+                cbFun(origSendRequestHandle,
+                      statusInformation['errorIndication'], 0, 0, (),
+                      cbCtx)
             return
 
         if origMessageProcessingModel != messageProcessingModel or \
@@ -301,25 +308,31 @@ class GetCommandGenerator(CommandGeneratorBase):
         pMod.apiPDU.setVarBinds(reqPDU, varBinds)
 
         requestHandle = getNextHandle()
-        
-        self._sendPdu(
-            snmpEngine,
-            transportDomain,
-            transportAddress,
-            messageProcessingModel,
-            securityModel,
-            securityName,
-            securityLevel,
-            contextEngineId,
-            contextName,
-            pduVersion,
-            reqPDU,
-            timeout,
-            retryCount,
-            0,
-            requestHandle,
-            (self.processResponsePdu, (cbFun, cbCtx))            
+
+        try:        
+            self._sendPdu(
+                snmpEngine,
+                transportDomain,
+                transportAddress,
+                messageProcessingModel,
+                securityModel,
+                securityName,
+                securityLevel,
+                contextEngineId,
+                contextName,
+                pduVersion,
+                reqPDU,
+                timeout,
+                retryCount,
+                0,
+                requestHandle,
+                (self.processResponsePdu, (cbFun, cbCtx))            
             )
+        except StatusInformation:
+            statusInformation = sys.exc_info()[1]
+            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (requestHandle, statusInformation))
+            cbFun(requestHandle, statusInformation['errorIndication'],
+                  0, 0, (), cbCtx)
 
         return requestHandle
     
@@ -356,25 +369,31 @@ class SetCommandGenerator(CommandGeneratorBase):
             pMod = api.protoModules[api.protoVersion1]
 
         requestHandle = getNextHandle()        
-        
-        self._sendPdu(
-            snmpEngine,
-            transportDomain,
-            transportAddress,
-            messageProcessingModel,
-            securityModel,
-            securityName,
-            securityLevel,
-            contextEngineId,
-            contextName,
-            pduVersion,
-            reqPDU,
-            timeout,
-            retryCount,
-            0,
-            requestHandle,
-            (self.processResponsePdu, (cbFun, cbCtx))            
+
+        try:        
+            self._sendPdu(
+                snmpEngine,
+                transportDomain,
+                transportAddress,
+                messageProcessingModel,
+                securityModel,
+                securityName,
+                securityLevel,
+                contextEngineId,
+                contextName,
+                pduVersion,
+                reqPDU,
+                timeout,
+                retryCount,
+                0,
+                requestHandle,
+                (self.processResponsePdu, (cbFun, cbCtx))            
             )
+        except StatusInformation:
+            statusInformation = sys.exc_info()[1]
+            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (requestHandle, statusInformation))
+            cbFun(requestHandle, statusInformation['errorIndication'],
+                  0, 0, (), cbCtx)
 
         return requestHandle
 
@@ -406,28 +425,34 @@ class NextCommandGeneratorSingleRun(CommandGeneratorBase):
         pMod.apiPDU.setVarBinds(reqPDU, varBinds)
 
         requestHandle = getNextHandle()        
-        
-        self._sendPdu(
-            snmpEngine,
-            transportDomain,
-            transportAddress,
-            messageProcessingModel,
-            securityModel,
-            securityName,
-            securityLevel,
-            contextEngineId,
-            contextName,
-            pduVersion,
-            reqPDU,
-            timeout,
-            retryCount,
-            0,
-            requestHandle,
-            (self.processResponsePdu, (cbFun, cbCtx))            
+
+        try:        
+            self._sendPdu(
+                snmpEngine,
+                transportDomain,
+                transportAddress,
+                messageProcessingModel,
+                securityModel,
+                securityName,
+                securityLevel,
+                contextEngineId,
+                contextName,
+                pduVersion,
+                reqPDU,
+                timeout,
+                retryCount,
+                0,
+                requestHandle,
+                (self.processResponsePdu, (cbFun, cbCtx))            
             )
+        except StatusInformation:
+            statusInformation = sys.exc_info()[1]
+            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (requestHandle, statusInformation))
+            cbFun(requestHandle, statusInformation['errorIndication'],
+                  0, 0, (), cbCtx)
 
         return requestHandle
-    
+ 
 class NextCommandGenerator(NextCommandGeneratorSingleRun):
     def _handleResponse(
         self,
@@ -460,7 +485,7 @@ class NextCommandGenerator(NextCommandGeneratorSingleRun):
         else:
             errorIndication, varBinds = getNextVarBinds(
                 pMod.apiPDU.getVarBinds(PDU), varBindTable[-1]
-                )
+            )
         
         if not cbFun(sendRequestHandle, errorIndication,
                      pMod.apiPDU.getErrorStatus(rspPDU),
@@ -475,25 +500,33 @@ class NextCommandGenerator(NextCommandGeneratorSingleRun):
         pMod.apiPDU.setRequestID(PDU, pMod.getNextRequestID())
         pMod.apiPDU.setVarBinds(PDU, varBinds)
 
-        self._sendPdu(
-            snmpEngine,
-            transportDomain,
-            transportAddress,
-            messageProcessingModel,
-            securityModel,
-            securityName,
-            securityLevel,
-            contextEngineId,
-            contextName,
-            pduVersion,
-            PDU,
-            timeout,
-            retryCount,
-            0,
-            getNextHandle(),
-            (self.processResponsePdu, (cbFun, cbCtx))            
-            )
+        sendRequestHandle = getNextHandle()
 
+        try:
+            self._sendPdu(
+                snmpEngine,
+                transportDomain,
+                transportAddress,
+                messageProcessingModel,
+                securityModel,
+                securityName,
+                securityLevel,
+                contextEngineId,
+                contextName,
+                pduVersion,
+                PDU,
+                timeout,
+                retryCount,
+                0,
+                sendRequestHandle,
+                (self.processResponsePdu, (cbFun, cbCtx))            
+            )
+        except StatusInformation:
+            statusInformation = sys.exc_info()[1]
+            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (sendRequestHandle, statusInformation))
+            cbFun(sendRequestHandle, statusInformation['errorIndication'],
+                  0, 0, (), cbCtx)
+ 
 class BulkCommandGeneratorSingleRun(CommandGeneratorBase):
     def sendReq(
         self,
@@ -529,28 +562,34 @@ class BulkCommandGeneratorSingleRun(CommandGeneratorBase):
         pMod.apiBulkPDU.setVarBinds(reqPDU, varBinds)
 
         requestHandle = getNextHandle()        
-        
-        self._sendPdu(
-            snmpEngine,
-            transportDomain,
-            transportAddress,
-            messageProcessingModel,
-            securityModel,
-            securityName,
-            securityLevel,
-            contextEngineId,
-            contextName,
-            pduVersion,
-            reqPDU,
-            timeout,
-            retryCount,
-            0,
-            requestHandle,
-            (self.processResponsePdu, (cbFun, cbCtx))            
+
+        try:        
+            self._sendPdu(
+                snmpEngine,
+                transportDomain,
+                transportAddress,
+                messageProcessingModel,
+                securityModel,
+                securityName,
+                securityLevel,
+                contextEngineId,
+                contextName,
+                pduVersion,
+                reqPDU,
+                timeout,
+                retryCount,
+                0,
+                requestHandle,
+                (self.processResponsePdu, (cbFun, cbCtx))            
             )
+        except StatusInformation:
+            statusInformation = sys.exc_info()[1]
+            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (requestHandle, statusInformation))
+            cbFun(requestHandle, statusInformation['errorIndication'],
+                  0, 0, (), cbCtx)
 
         return requestHandle
-    
+ 
 class BulkCommandGenerator(BulkCommandGeneratorSingleRun):
     def _handleResponse(
         self,
@@ -596,22 +635,30 @@ class BulkCommandGenerator(BulkCommandGeneratorSingleRun):
     
         pMod.apiBulkPDU.setRequestID(PDU, pMod.getNextRequestID())
         pMod.apiBulkPDU.setVarBinds(PDU, varBinds)
-        
-        self._sendPdu(
-            snmpEngine,
-            transportDomain,
-            transportAddress,
-            messageProcessingModel,
-            securityModel,
-            securityName,
-            securityLevel,
-            contextEngineId,
-            contextName,
-            pduVersion,
-            PDU,
-            timeout,
-            retryCount,
-            0,
-            getNextHandle(),
-            (self.processResponsePdu, (cbFun, cbCtx))            
+
+        sendRequestHandle = getNextHandle()
+
+        try:        
+            self._sendPdu(
+                snmpEngine,
+                transportDomain,
+                transportAddress,
+                messageProcessingModel,
+                securityModel,
+                securityName,
+                securityLevel,
+                contextEngineId,
+                contextName,
+                pduVersion,
+                PDU,
+                timeout,
+                retryCount,
+                0,
+                sendRequestHandle,
+                (self.processResponsePdu, (cbFun, cbCtx))            
             )
+        except StatusInformation:
+            statusInformation = sys.exc_info()[1]
+            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (sendRequestHandle, statusInformation))
+            cbFun(sendRequestHandle, statusInformation['errorIndication'],
+                  0, 0, (), cbCtx)
