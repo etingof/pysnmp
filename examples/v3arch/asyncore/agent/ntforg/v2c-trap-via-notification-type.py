@@ -24,9 +24,6 @@ from pysnmp.entity import engine, config
 from pysnmp.carrier.asynsock.dgram import udp
 from pysnmp.entity.rfc3413 import ntforg, context
 from pysnmp.proto.api import v2c
-from pysnmp import debug
-
-debug.setLogger(debug.Debug('app'))
 
 # Create SNMP engine instance
 snmpEngine = engine.SnmpEngine()
