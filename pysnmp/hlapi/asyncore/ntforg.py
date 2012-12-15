@@ -1,4 +1,5 @@
 from pyasn1.type import base
+from pyasn1.compat.octets import null
 from pysnmp import nextid
 from pysnmp.entity import config
 from pysnmp.entity.rfc3413 import ntforg, context
@@ -87,10 +88,35 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                 )
         self.uncfgCmdGen()
 
-    def sendNotification(
-        self, authData, transportTarget, notifyType,
-        notificationType=None, varBinds=None, cbInfo=(None, None)
-        ):
+    def sendNotification(self, authData, transportTarget, notifyType,
+                         notificationType=None, varBinds=None,
+                         cbInfo=(None, None), 
+                         lookupNames=False, lookupValues=False,
+                         contextName=null):
+        def __cbFun(sendRequestHandle, errorIndication,
+                    errorStatus, errorIndex, varBinds, cbCtx):
+            lookupNames, lookupValues, cbFun, cbCtx = cbCtx
+            try:
+                # we need to pass response PDU information to user for INFORMs
+                return cbFun(
+                    sendRequestHandle,
+                    errorIndication,
+                    errorStatus, errorIndex,
+                    self.unmakeVarBinds(varBinds, lookupNames, lookupValues),
+                    cbCtx
+                )
+            except TypeError:
+                # a backward compatible way of calling user function
+                return cbFun(
+                    sendRequestHandle,
+                    errorIndication,
+                    cbCtx
+                )
+
+        # for backward compatibility
+        if contextName is null and authData.contextName:
+            contextName = authData.contextName
+ 
         (cbFun, cbCtx) = cbInfo
 
         # Create matching transport tags if not given by user
@@ -125,10 +151,18 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                     
             additionalVarBinds.append((varName, varVal))
 
-        return ntforg.NotificationOriginator(self.snmpContext).sendNotification(self.snmpEngine, notifyName, notificationType, additionalVarBinds, cbFun, cbCtx)
+        return ntforg.NotificationOriginator(self.snmpContext).sendNotification(self.snmpEngine, notifyName, notificationType, additionalVarBinds, __cbFun, (lookupNames, lookupValues, cbFun, cbCtx), contextName)
 
     asyncSendNotification = sendNotification
-    
+  
+# substitute sendNotification return object for backward compatibility
+class ErrorIndicationReturn:
+    def __init__(self, *vars): self.__vars = vars
+    def __getitem__(self, i): return self.__vars[i]
+    def __nonzero__(self): return self.__vars[0] and 1 or 0
+    def __bool__(self): return bool(len(self.__vars[0]))
+    def __str__(self): return str(self.__vars[0])
+
 class NotificationOriginator:
     def __init__(self, snmpEngine=None, snmpContext=None, asynNtfOrg=None):
         if asynNtfOrg is None:
@@ -138,18 +172,21 @@ class NotificationOriginator:
         else:
             self.__asynNtfOrg = asynNtfOrg
 
-    def sendNotification(
-        self, authData, transportTarget, notifyType,
-        notificationType, *varBinds
-        ):
-        def __cbFun(sendRequestHandle, errorIndication, appReturn):
-            appReturn['errorIndication'] = errorIndication
-
-        appReturn = {}
-        self.__asynNtfOrg.sendNotification(
-            authData, transportTarget, notifyType, notificationType, varBinds,
-            (__cbFun, appReturn)
+    def sendNotification(self, authData, transportTarget, notifyType,
+                         notificationType, *varBinds, **kwargs):
+        def __cbFun(sendRequestHandle, errorIndication, 
+                    errorStatus, errorIndex, varBinds, appReturn):
+            appReturn[0] = ErrorIndicationReturn(
+                errorIndication, errorStatus, errorIndex, varBinds
             )
+
+        appReturn = { 0: ErrorIndicationReturn(None, 0, 0, ()) }
+        self.__asynNtfOrg.sendNotification(
+            authData, transportTarget, notifyType, notificationType, 
+            varBinds, (__cbFun, appReturn),
+            kwargs.get('lookupNames', False),
+            kwargs.get('lookupValues', False),
+            kwargs.get('contextName', null)
+        )
         self.__asynNtfOrg.snmpEngine.transportDispatcher.runDispatcher()
-        if 'errorIndication' in appReturn:
-            return appReturn['errorIndication']
+        return appReturn[0]

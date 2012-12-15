@@ -3,7 +3,7 @@ from pyasn1.compat.octets import null
 from pysnmp.entity.rfc3413 import config
 from pysnmp.proto.proxy import rfc2576
 from pysnmp.proto.api import v2c
-from pysnmp.proto import error
+from pysnmp.proto import api, error
 from pysnmp import nextid
 from pysnmp import debug
 
@@ -67,6 +67,7 @@ class NotificationOriginator:
                     self._handleResponse(
                         metaSendPduHandle,
                         statusInformation['errorIndication'],
+                        0, 0, (),
                         cbFun,
                         cbCtx
                     )
@@ -102,6 +103,7 @@ class NotificationOriginator:
                     self._handleResponse(
                         metaSendPduHandle,
                         statusInformation['errorIndication'],
+                        0, 0, (),
                         cbFun,
                         cbCtx
                     )
@@ -135,15 +137,26 @@ class NotificationOriginator:
         # 3.3.6c
         if not self.__pendingNotifications[metaSendPduHandle]:
             del self.__pendingNotifications[metaSendPduHandle]
-            self._handleResponse(metaSendPduHandle, None, cbFun, cbCtx)
+            pMod = api.protoModules[pduVersion]
+            self._handleResponse(metaSendPduHandle, None,
+                                 pMod.apiPDU.getErrorStatus(PDU),
+                                 pMod.apiPDU.getErrorIndex(PDU),
+                                 pMod.apiPDU.getVarBinds(PDU),            
+                                 cbFun, cbCtx)
 
-    def _handleResponse(
-        self,
-        sendRequestHandle,
-        errorIndication,
-        cbFun,
-        cbCtx):
-        cbFun(sendRequestHandle, errorIndication, cbCtx)
+    def _handleResponse(self,
+                        sendRequestHandle,
+                        errorIndication,
+                        errorStatus, errorIndex,
+                        varBinds,
+                        cbFun, cbCtx):
+        try:
+            # we need to pass response PDU information to user for INFORMs
+            cbFun(sendRequestHandle, errorIndication, 
+                  errorStatus, errorIndex, varBinds, cbCtx)
+        except TypeError:
+            # a backward compatible way of calling user function
+            cbFun(sendRequestHandle, errorIndication, cbCtx)
     
     def sendNotification(
         self,
@@ -283,6 +296,7 @@ class NotificationOriginator:
                         self._handleResponse(
                             metaSendPduHandle,
                             statusInformation['errorIndication'],
+                            0, 0, (),
                             cbFun,
                             cbCtx
                         )
@@ -318,6 +332,7 @@ class NotificationOriginator:
                         self._handleResponse(
                             metaSendPduHandle,
                             statusInformation['errorIndication'],
+                            0, 0, (),
                             cbFun,
                             cbCtx
                         )

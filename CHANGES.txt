@@ -5,6 +5,15 @@ Revision 4.2.4
 - The missing functionality of NOTIFICATION-TYPE objects being looked up
   at local Management Instrumentation and attached to TRAP/IMFORM message
   by Notification Originator is now fully implemented.
+- The missing functionality of passing Response PDU contents of INFORM
+  request is now implemented at Notification Originator app. The return
+  value of NotificationOriginator.sendNotification is now a composite object
+  that includes errorStatus, errorIndex and varBinds.
+- The missing functionality of passing lookupNames & lookupValues params
+  to Notification Originator is now implemented. It may make sense for
+  INFORMs.
+- The missing functionality of passing contextName to oneliner
+  version of NotificationOriginator.sendNotification is now implemented.
 - Oneliner example apps now include cases where non-default SNMP
   ContextEngineId/ContextName/SecurityEngineId is used.
 - The contextName parameter of SnmpContext.getMibInstrum made optional.
