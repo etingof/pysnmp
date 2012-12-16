@@ -14,7 +14,7 @@ class CommandResponderBase:
         snmpEngine.msgAndPduDsp.registerContextEngineId(
             snmpContext.contextEngineId, self.pduTypes, self.processPdu
             )
-        self.snmpContext = snmpContext # for unregistration
+        self.snmpContext = snmpContext
         self.__pendingReqs = {}
 
     def handleMgmtOperation(
