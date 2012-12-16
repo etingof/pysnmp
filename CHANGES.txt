@@ -3,7 +3,7 @@ Revision 4.2.4
 
 - SNMPv3 native API examples reworked and extended to cover many use cases.
 - The missing functionality of NOTIFICATION-TYPE objects being looked up
-  at local Management Instrumentation and attached to TRAP/IMFORM message
+  at local Management Instrumentation and attached to TRAP/INFORM message
   by Notification Originator is now fully implemented.
 - The missing functionality of passing Response PDU contents of INFORM
   request is now implemented at Notification Originator app. The return
