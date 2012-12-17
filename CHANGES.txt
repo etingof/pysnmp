@@ -1,7 +1,8 @@
 Revision 4.2.4
 --------------
 
-- SNMPv3 native API examples reworked and extended to cover many use cases.
+- SNMPv3 high-level and native API examples reworked and extended to cover
+  many use cases.
 - The missing functionality of NOTIFICATION-TYPE objects being looked up
   at local Management Instrumentation and attached to TRAP/INFORM message
   by Notification Originator is now fully implemented.
