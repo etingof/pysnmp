@@ -6,7 +6,7 @@
 # * SNMPv2c
 # * with community name 'public'
 # * over IPv4/UDP
-# * send TRAP notification
+# * send INFORM notification
 # * with TRAP ID 'coldStart' specified as a MIB symbol
 # * include managed object information specified as a MIB symbol
 # * perform response OIDs and values resolution at MIB
