@@ -9,7 +9,6 @@
 # * setting SNMPv2-MIB::sysName.0 to new value (type taken from MIB)
 #
 from pysnmp.entity.rfc3413.oneliner import cmdgen
-from pysnmp.proto import rfc1902
 
 cmdGen = cmdgen.CommandGenerator()
 

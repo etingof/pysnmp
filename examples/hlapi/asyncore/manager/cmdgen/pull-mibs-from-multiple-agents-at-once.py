@@ -4,7 +4,7 @@
 # Send a bunch of SNMP GETNEXT requests all at once using the following options:
 #
 # * with SNMPv1, community 'public' and 
-#   with SNMPv2c, community public and
+#   with SNMPv2c, community 'public' and
 #   with SNMPv3, user 'usr-md5-des', MD5 auth and DES privacy
 # * over IPv4/UDP and 
 #   over IPv6/UDP
@@ -13,7 +13,6 @@
 # * for multiple MIB subtrees and tables
 #
 from pysnmp.entity.rfc3413.oneliner import cmdgen
-from pysnmp.proto import rfc1902
 
 # List of targets in the followin format:
 # ( ( authData, transportTarget, varNames ), ... )

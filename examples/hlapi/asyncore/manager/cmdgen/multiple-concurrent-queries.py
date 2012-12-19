@@ -4,7 +4,7 @@
 # Send a bunch of SNMP GET requests all at once using the following options:
 #
 # * with SNMPv1, community 'public' and 
-#   with SNMPv2c, community public and
+#   with SNMPv2c, community 'public' and
 #   with SNMPv3, user 'usr-md5-des', MD5 auth and DES privacy
 # * over IPv4/UDP and 
 #   over IPv6/UDP

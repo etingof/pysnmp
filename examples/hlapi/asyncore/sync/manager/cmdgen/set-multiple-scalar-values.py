@@ -14,7 +14,7 @@ from pysnmp.proto import rfc1902
 cmdGen = cmdgen.CommandGenerator()
 
 errorIndication, errorStatus, errorIndex, varBinds = cmdGen.setCmd(
-    cmdgen.CommunityData('public'),
+    cmdgen.CommunityData('public', mpModel=0),
     cmdgen.UdpTransportTarget(('localhost', 161)),
     ('1.3.6.1.2.1.1.2.0', rfc1902.ObjectName('1.3.6.1.4.1.20408.1.1')),
     ('1.3.6.1.2.1.1.2.0', '1.3.6.1.4.1.20408.1.1'),
