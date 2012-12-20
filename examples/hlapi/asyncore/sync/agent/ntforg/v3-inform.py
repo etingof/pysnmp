@@ -4,7 +4,7 @@
 # Send SNMP notification using the following options:
 #
 # * SNMPv3
-# * with user 'usr-md5-des', auth: MD5, priv 3DES
+# * with user 'usr-md5-des', auth: MD5, priv DES
 # * over IPv4/UDP
 # * send INFORM notification
 # * with TRAP ID 'warmStart' specified as a string OID
