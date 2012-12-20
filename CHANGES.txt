@@ -31,6 +31,8 @@ Revision 4.2.4
   NotificationOriginator.sendNotification()
 - Standard SNMPv3 Apps hardened to catch protocol-related exceptions and
   report them as errorIndication's.
+- Catch and mute possible failure of getsockname(), that seems to happen 
+  on Windows only so far.
 - Fixes to ContextEngineId/ContextName support at the oneliner API: now
   both items should be passed to request PDU through *Cmd() request
   initiation method, the items of authData object should be used only for

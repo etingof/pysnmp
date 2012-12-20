@@ -47,12 +47,19 @@ class DgramSocketTransport(AbstractSocketTransport):
             )
         debug.logger & debug.flagIO and debug.logger('sendMessage: outgoingMessage queued (%d octets) %s' % (len(outgoingMessage), debug.hexdump(outgoingMessage)))
 
+    def __getsockname(self):
+        # one evil OS does not seem to support getsockname() for DGRAM sockets
+        try:
+            return self.socket.getsockname()
+        except:
+            return ('0.0.0.0', 0)
+
     # asyncore API
     def handle_connect(self): pass
     def writable(self): return self.__outQueue
     def handle_write(self):
         outgoingMessage, transportAddress = self.__outQueue.pop(0)
-        debug.logger & debug.flagIO and debug.logger('handle_write: transportAddress %r -> %r outgoingMessage (%d octets) %s' % (self.socket.getsockname(), transportAddress, len(outgoingMessage), debug.hexdump(outgoingMessage)))
+        debug.logger & debug.flagIO and debug.logger('handle_write: transportAddress %r -> %r outgoingMessage (%d octets) %s' % (self.__getsockname(), transportAddress, len(outgoingMessage), debug.hexdump(outgoingMessage)))
         if not transportAddress:
             debug.logger & debug.flagIO and debug.logger('handle_write: missing dst address, loosing outgoing msg')
             return
@@ -68,7 +75,7 @@ class DgramSocketTransport(AbstractSocketTransport):
     def handle_read(self):
         try:
             incomingMessage, transportAddress = self.socket.recvfrom(65535)
-            debug.logger & debug.flagIO and debug.logger('handle_read: transportAddress %r -> %r incomingMessage (%d octets) %s' % (transportAddress, self.socket.getsockname(), len(incomingMessage), debug.hexdump(incomingMessage)))
+            debug.logger & debug.flagIO and debug.logger('handle_read: transportAddress %r -> %r incomingMessage (%d octets) %s' % (transportAddress, self.__getsockname(), len(incomingMessage), debug.hexdump(incomingMessage)))
             if not incomingMessage:
                 self.handle_close()
                 return
