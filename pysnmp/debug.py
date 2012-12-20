@@ -1,6 +1,7 @@
 import sys
 from pyasn1.compat.octets import octs2ints
 from pysnmp import error
+from pysnmp import __version__
 
 flagNone     = 0x0000
 flagIO       = 0x0001
@@ -34,6 +35,7 @@ class Debug:
     def __init__(self, *flags):
         self._flags = flagNone
         self._printer = self.defaultPrinter
+        self('running pysnmp version %s' % __version__)
         for f in flags:
             inverse = f and f[0] in ('!', '~')
             if inverse:
@@ -46,7 +48,7 @@ class Debug:
             except KeyError:
                 raise error.PySnmpError('bad debug flag %s' % f)
   
-            self('debug category %s %s' % (f, inverse and 'disabled' or 'enabled'))
+            self('debug category \'%s\' %s' % (f, inverse and 'disabled' or 'enabled'))
         
     def __str__(self):
         return 'logger %s, flags %x' % (self._printer, self._flags)
