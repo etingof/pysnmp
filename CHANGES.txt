@@ -33,6 +33,7 @@ Revision 4.2.4
   report them as errorIndication's.
 - Catch and mute possible failure of getsockname(), that seems to happen 
   on Windows only so far.
+- Memory leak fixed at oneliner cache of already configured targets.
 - Fixes to ContextEngineId/ContextName support at the oneliner API: now
   both items should be passed to request PDU through *Cmd() request
   initiation method, the items of authData object should be used only for
@@ -64,7 +65,7 @@ Revision 4.2.3
   to an authoritative SNMP engineinbound against auth/priv protocols
   configured for the user in question. That allowed unauthenticated/unciphered
   access to pysnmp-based Agent even if USM user is configured to provide one.
-- Oneliner [Asy6]CommandGenerator now supports optional keyword args
+- Oneliner [Asyn]CommandGenerator now supports optional keyword args
   lookupNames, lookupValues that enable response OID / value looked up at
   MIB and reported as a MibVariable container object carrying relevant
   MIB info.
