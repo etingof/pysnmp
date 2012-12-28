@@ -34,6 +34,9 @@ Revision 4.2.4
 - Catch and mute possible failure of getsockname(), that seems to happen 
   on Windows only so far.
 - Memory leak fixed at oneliner cache of already configured targets.
+- Fixes to at AsynNotificationOriginator.sendNotification() to make
+  a) the notificationType param mandatory b)t e varBinds param really
+  optional
 - Fixes to ContextEngineId/ContextName support at the oneliner API: now
   both items should be passed to request PDU through *Cmd() request
   initiation method, the items of authData object should be used only for
