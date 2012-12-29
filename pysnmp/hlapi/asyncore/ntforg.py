@@ -96,6 +96,8 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
         def __cbFun(sendRequestHandle, errorIndication,
                     errorStatus, errorIndex, varBinds, cbCtx):
             lookupNames, lookupValues, cbFun, cbCtx = cbCtx
+            if cbFun is not None: # user callback not supplied
+                return
             try:
                 # we need to pass response PDU information to user for INFORMs
                 return cbFun(
