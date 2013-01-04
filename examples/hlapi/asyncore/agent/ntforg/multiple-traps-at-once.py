@@ -3,8 +3,8 @@
 #
 # Send multiple SNMP notifications using the following options:
 #
-# * SNMPv1 and SNMPv2c and SNMPv3
-# * with community name 'public' or USM username usr-md5-des
+# * SNMPv1 and SNMPv2c
+# * with community name 'public'
 # * over IPv4/UDP
 # * send TRAP notification
 # * to multiple Managers
@@ -22,9 +22,6 @@ targets = (
       ntforg.UdpTransportTarget(('localhost', 162)) ),
     # 2-nd target (SNMPv2c over IPv4/UDP)
     ( ntforg.CommunityData('public'),
-      ntforg.UdpTransportTarget(('localhost', 162)) ),
-    # 3-rd target (SNMPv3 over IPv4/UDP)
-    ( ntforg.UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
       ntforg.UdpTransportTarget(('localhost', 162)) )
 )
 
