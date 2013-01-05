@@ -90,7 +90,7 @@ from pysnmp import __version__
     'snmpSetSerialNo'
     )
 
-__sysDescr = MibScalarInstance(sysDescr.name, (0,), sysDescr.syntax.clone("PySNMP engine version %s, Python %s" % (__version__, version)))
+__sysDescr = MibScalarInstance(sysDescr.name, (0,), sysDescr.syntax.clone("PySNMP engine version %s, Python %s" % (__version__, version.replace('\n', ' ').replace('\r', ' '))))
 __sysObjectID = MibScalarInstance(sysObjectID.name, (0,), sysObjectID.syntax.clone((1,3,6,1,4,1,20408)))
 
 class SysUpTime(TimeTicks):
