@@ -162,7 +162,7 @@ class ErrorIndicationReturn:
     def __init__(self, *vars): self.__vars = vars
     def __getitem__(self, i): return self.__vars[i]
     def __nonzero__(self): return self.__vars[0] and 1 or 0
-    def __bool__(self): return bool(len(self.__vars[0]))
+    def __bool__(self): return bool(self.__vars[0])
     def __str__(self): return str(self.__vars[0])
 
 class NotificationOriginator:
