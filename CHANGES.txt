@@ -25,6 +25,8 @@ Revision 4.2.4
 - I/O sockets buffer sizes made configurable, minimum default is now 
   forced to be no less than 2**17 (to fit two huge datagrams).
 - Catch possible exceptions on pyasn1 encoder invocation.
+- VACM modules converted from a function into an object to let it keep
+  state (caches) in the future.
 - Unnecessary *MibSource explicit initialization calls removed at MibBuilder.
 - Example configuration for Net-SNMP's snmptrapd added.
 - Cast additionalVarBinds into ObjectIdentifier type at

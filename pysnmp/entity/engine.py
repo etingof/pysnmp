@@ -25,23 +25,23 @@ class SnmpEngine:
             SnmpV2cMessageProcessingModel(),
             SnmpV3MessageProcessingModel.messageProcessingModelID:
             SnmpV3MessageProcessingModel()
-            }
+        }
         self.securityModels = {
             SnmpV1SecurityModel.securityModelID: SnmpV1SecurityModel(),
             SnmpV2cSecurityModel.securityModelID: SnmpV2cSecurityModel(),
             SnmpUSMSecurityModel.securityModelID: SnmpUSMSecurityModel()
-            }
+        }
         self.accessControlModel = {
-            void.accessModelID: void,
-            rfc3415.accessModelID: rfc3415
-            }
+            void.Vacm.accessModelID: void.Vacm(),
+            rfc3415.Vacm.accessModelID: rfc3415.Vacm()
+        }
         
         self.transportDispatcher = None
         
         if self.msgAndPduDsp.mibInstrumController is None:
             raise error.PySnmpError(
                 'MIB instrumentation does not yet exist'
-                )
+            )
         snmpEngineMaxMessageSize, = self.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
         snmpEngineMaxMessageSize.syntax = snmpEngineMaxMessageSize.syntax.clone(maxMessageSize)
         snmpEngineBoots, = self.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineBoots')
@@ -61,7 +61,7 @@ class SnmpEngine:
         ):
         self.msgAndPduDsp.receiveMessage(
             self, transportDomain, transportAddress, wholeMsg
-            )
+        )
                                          
     def __receiveTimerTickCbFun(self, timeNow):
         self.msgAndPduDsp.receiveTimerTick(self, timeNow)
@@ -74,20 +74,20 @@ class SnmpEngine:
         if self.transportDispatcher is not None:
             raise error.PySnmpError(
                 'Transport dispatcher already registered'
-                )
+            )
         transportDispatcher.registerRecvCbFun(
             self.__receiveMessageCbFun
-            )
+        )
         transportDispatcher.registerTimerCbFun(
             self.__receiveTimerTickCbFun
-            )        
+        )        
         self.transportDispatcher = transportDispatcher
 
     def unregisterTransportDispatcher(self):
         if self.transportDispatcher is None:
             raise error.PySnmpError(
                 'Transport dispatcher not registered'
-                )
+            )
         self.transportDispatcher.unregisterRecvCbFun()
         self.transportDispatcher.unregisterTimerCbFun()
         self.transportDispatcher = None
