@@ -6,7 +6,7 @@
 # * with SNMPv3, user 'usr-sha-aes128', SHA auth, AES128 privacy
 # * over Local Domain Sockets
 # * to an Agent at localhost:161
-# * for all OIDs past IF-MIB
+# * for all OIDs past IF-MIB (load up all MIBs in search path)
 # * run till end-of-mib condition is reported by Agent OR maxRows == 100
 # * ignoring non-increasing OIDs whenever reported by Agent
 #
@@ -21,7 +21,7 @@ errorIndication, errorStatus, errorIndex, varBindTable = cmdGen.nextCmd(
                        authProtocol=cmdgen.usmHMACSHAAuthProtocol,
                        privProtocol=cmdgen.usmAesCfb128Protocol),
     cmdgen.UdpTransportTarget(('localhost', 161)),
-    cmdgen.MibVariable('IF-MIB', ''),
+    cmdgen.MibVariable('IF-MIB', '').loadMibs(),
     lexicographicMode=True, maxRows=100,
     ignoreNonIncreasingOid=True
 )

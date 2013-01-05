@@ -6,6 +6,7 @@
 #
 # * SNMPv3
 # * with USM user 'usr-md5-des', auth: MD5, priv DES or
+#   with USM user 'usr-sha-none', auth: SHA, no privacy
 #   with USM user 'usr-sha-aes128', auth: SHA, priv AES
 # * allow access to SNMPv2-MIB objects (1.3.6.1.2.1)
 # * over IPv4/UDP, listening at 127.0.0.1:161
@@ -44,10 +45,17 @@ config.addV3User(
     snmpEngine, 'usr-sha-none',
     config.usmHMACSHAAuthProtocol, 'authkey1'
 )
+# user: usr-sha-none, auth: SHA, priv AES
+config.addV3User(
+    snmpEngine, 'usr-sha-aes128',
+    config.usmHMACSHAAuthProtocol, 'authkey1',
+    config.usmAesCfb128Protocol, 'privkey1'
+)
 
 # Allow full MIB access for each user at VACM
 config.addVacmUser(snmpEngine, 3, 'usr-md5-des', 'authPriv', (1,3,6,1,2,1), (1,3,6,1,2,1)) 
 config.addVacmUser(snmpEngine, 3, 'usr-sha-none', 'authNoPriv', (1,3,6,1,2,1), (1,3,6,1,2,1)) 
+config.addVacmUser(snmpEngine, 3, 'usr-sha-aes128', 'authPriv', (1,3,6,1,2,1), (1,3,6,1,2,1)) 
 
 # Get default SNMP context this SNMP engine serves
 snmpContext = context.SnmpContext(snmpEngine)
