@@ -171,6 +171,10 @@ class NotificationOriginator:
         ):
         debug.logger & debug.flagApp and debug.logger('sendNotification: notificationTarget %s, notificationName %s, additionalVarBinds %s, contextName "%s", instanceIndex %s' % (notificationTarget, notificationName, additionalVarBinds, contextName, instanceIndex))
 
+        if contextName:
+            __SnmpAdminString, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'SnmpAdminString')
+            contextName = __SnmpAdminString(contextName)
+ 
         # 3.3
         ( notifyTag,
           notifyType ) = config.getNotificationInfo(
