@@ -6,6 +6,7 @@
 # * SNMPv3
 # * with USM users:
 #    'usr-md5-des', auth: MD5, priv DES, ContextEngineId: 8000000001020304
+#    'usr-md5-none', auth: MD5, priv NONE, ContextEngineId: 8000000001020304
 #    'usr-sha-aes128', auth: SHA, priv AES, ContextEngineId: 8000000001020304
 # * over IPv4/UDP, listening at 127.0.0.1:162
 # * print received data on stdout
@@ -14,6 +15,7 @@
 # receiver:
 #
 # $ snmptrap -v3 -u usr-md5-des -l authPriv -A authkey1 -X privkey1 -e 8000000001020304 127.0.0.1 123 1.3.6.1.6.3.1.1.5.1
+# $ snmptrap -v3 -u usr-md5-none -l authPriv -A authkey1 -e 8000000001020304 127.0.0.1 123 1.3.6.1.6.3.1.1.5.1
 # $ snmpinform -v3 -u usr-sha-aes128 -l authPriv -a SHA -A authkey1 -x AES -X privkey1 127.0.0.1 123 1.3.6.1.6.3.1.1.5.1
 #
 from pysnmp.entity import engine, config
@@ -49,6 +51,20 @@ config.addV3User(
     snmpEngine, 'usr-md5-des',
     config.usmHMACMD5AuthProtocol, 'authkey1',
     config.usmDESPrivProtocol, 'privkey1',
+    contextEngineId=v2c.OctetString(hexValue='8000000001020304')
+)
+
+# user: usr-md5-none, auth: MD5, priv NONE
+config.addV3User(
+    snmpEngine, 'usr-md5-none',
+    config.usmHMACMD5AuthProtocol, 'authkey1'
+)
+
+# user: usr-md5-none, auth: MD5, priv NONE, contextEngineId: 8000000001020304
+# this USM entry is used for TRAP receiving purposes
+config.addV3User(
+    snmpEngine, 'usr-md5-none',
+    config.usmHMACMD5AuthProtocol, 'authkey1',
     contextEngineId=v2c.OctetString(hexValue='8000000001020304')
 )
 
