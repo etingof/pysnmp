@@ -3,7 +3,7 @@
 #
 # Send SNMP SET request using the following options:
 #
-# * with SNMPv3 with user 'usr-none-none', no auth and no privacy protocols
+# * with SNMPv3 with user 'usr-md5-none', MD5 auth and no privacy protocols
 # * over IPv4/UDP
 # * to an Agent at localhost:161
 # * addressing particular set of Managed Objects at remote SNMP Engine by:
@@ -17,7 +17,7 @@ from pysnmp.proto import rfc1902
 cmdGen = cmdgen.CommandGenerator()
 
 errorIndication, errorStatus, errorIndex, varBinds = cmdGen.setCmd(
-    cmdgen.UsmUserData('usr-none-none'),
+    cmdgen.UsmUserData('usr-md5-none', 'authkey1'),
     cmdgen.UdpTransportTarget(('localhost', 161)),
     (cmdgen.MibVariable('SNMPv2-MIB', 'sysName', 0), 'new system name'),
     contextEngineId=rfc1902.OctetString(hexValue='8000000001020304'),
