@@ -5,8 +5,8 @@
 #
 # * SNMPv3
 # * with local snmpEngineId = 0x8000000001020304
-# * with user 'usr-sha-aes', auth: SHA, priv: AES128
-# * over IPv6/UDP
+# * with user 'usr-sha-aes128', auth: SHA, priv: AES128
+# * over IPv4/UDP
 # * send TRAP notification
 # * with TRAP ID 'authenticationFailure' specified as a MIB symbol
 # * do not include any additional managed object information
@@ -25,10 +25,10 @@ snmpEngineId = rfc1902.OctetString(hexValue='8000000001020304')
 ntfOrg = ntforg.NotificationOriginator(engine.SnmpEngine(snmpEngineId))
 
 errorIndication = ntfOrg.sendNotification(
-    ntforg.UsmUserData('usr-sha-aes', 'authkey1', 'privkey1',
+    ntforg.UsmUserData('usr-sha-aes128', 'authkey1', 'privkey1',
                        authProtocol=ntforg.usmHMACSHAAuthProtocol,
                        privProtocol=ntforg.usmAesCfb128Protocol),
-    ntforg.Udp6TransportTarget(('::1', 162)),
+    ntforg.UdpTransportTarget(('127.0.0.1', 162)),
     'trap',
     ntforg.MibVariable('SNMPv2-MIB', 'authenticationFailure')
 )
