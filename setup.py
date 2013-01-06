@@ -1,11 +1,12 @@
 #!/usr/bin/env python
-"""SNMP framework
+"""SNMP library for Python
 
    SNMP v1/v2c/v3 engine and apps written in pure-Python.
    Supports Manager/Agent/Proxy roles, scriptable MIBs,
    asynchronous operation and multiple transports.
 """
 import sys
+import os
 
 classifiers = """\
 Development Status :: 5 - Production/Stable
@@ -89,7 +90,7 @@ doclines = [ x.strip() for x in __doc__.split('\n') if x ]
  
 params.update( {
     'name': 'pysnmp',
-    'version': open('pysnmp/__init__.py').read().split('\'')[1],
+    'version': open(os.path.join('pysnmp','__init__.py')).read().split('\'')[1],
     'description': doclines[0],
     'long_description': ' '.join(doclines[1:]),
     'maintainer': 'Ilya Etingof <ilya@glas.net>',
@@ -125,7 +126,8 @@ params.update( {
                   'pysnmp.proto.acmod',
                   'pysnmp.proto.proxy',
                   'pysnmp.proto.api' ],
-    'scripts': [ 'tools/libsmi2pysnmp', 'tools/build-pysnmp-mib' ]
+    'scripts': [ os.path.join('tools','libsmi2pysnmp'), 
+                 os.path.join('tools', 'build-pysnmp-mib') ]
     } )
 
 setup(**params)
