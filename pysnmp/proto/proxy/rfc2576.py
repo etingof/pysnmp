@@ -142,7 +142,7 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
     if pduType in rfc3411.responseClassPDUs:
         # 4.1.2.2.1&2
         errorStatus = int(v1.apiPDU.getErrorStatus(v1Pdu))
-        errorIndex = int(v1.apiPDU.getErrorIndex(v1Pdu))
+        errorIndex = int(v1.apiPDU.getErrorIndex(v1Pdu, muteErrors=True))
         if errorStatus == 2: # noSuchName
             if origV2Pdu.tagSet == v2c.GetNextRequestPDU.tagSet:
                 v2VarBinds[errorIndex-1] = (
@@ -271,7 +271,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
             v1.apiPDU.setErrorStatus(
                 v1Pdu, __v2ToV1ErrorMap[v2ErrorStatus]
                 )
-            v1.apiPDU.setErrorIndex(v1Pdu, v2c.apiPDU.getErrorIndex(v2Pdu))
+            v1.apiPDU.setErrorIndex(v1Pdu, v2c.apiPDU.getErrorIndex(v2Pdu, muteErrors=True))
             
     # Translate Var-Binds
     if pduType in rfc3411.responseClassPDUs and \

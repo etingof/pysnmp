@@ -276,7 +276,7 @@ class CommandGeneratorBase:
         cbFun(sendRequestHandle,
               None,
               pMod.apiPDU.getErrorStatus(rspPDU),
-              pMod.apiPDU.getErrorIndex(rspPDU),
+              pMod.apiPDU.getErrorIndex(rspPDU, muteErrors=True),
               pMod.apiPDU.getVarBinds(rspPDU),
               cbCtx)
 
@@ -489,7 +489,7 @@ class NextCommandGenerator(NextCommandGeneratorSingleRun):
         
         if not cbFun(sendRequestHandle, errorIndication,
                      pMod.apiPDU.getErrorStatus(rspPDU),
-                     pMod.apiPDU.getErrorIndex(rspPDU),
+                     pMod.apiPDU.getErrorIndex(rspPDU, muteErrors=True),
                      varBindTable, cbCtx):
             debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, app says to stop walking' % sendRequestHandle)
             return  # app says enough
@@ -625,7 +625,7 @@ class BulkCommandGenerator(BulkCommandGeneratorSingleRun):
 
         if not cbFun(sendRequestHandle, errorIndication,
                      pMod.apiBulkPDU.getErrorStatus(rspPDU),
-                     pMod.apiBulkPDU.getErrorIndex(rspPDU),
+                     pMod.apiBulkPDU.getErrorIndex(rspPDU, muteErrors=True),
                      varBindTable, cbCtx):
             debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, app says to stop walking' % sendRequestHandle)
             return # app says enough

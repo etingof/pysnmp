@@ -140,7 +140,7 @@ class NotificationOriginator:
             pMod = api.protoModules[pduVersion]
             self._handleResponse(metaSendPduHandle, None,
                                  pMod.apiPDU.getErrorStatus(PDU),
-                                 pMod.apiPDU.getErrorIndex(PDU),
+                                 pMod.apiPDU.getErrorIndex(PDU,muteErrors=True),
                                  pMod.apiPDU.getVarBinds(PDU),            
                                  cbFun, cbCtx)
 
