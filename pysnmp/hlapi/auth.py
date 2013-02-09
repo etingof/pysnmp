@@ -1,4 +1,5 @@
 from pysnmp.entity import config
+from pysnmp import error
 from pyasn1.compat.octets import null
 
 class CommunityData:
