@@ -168,9 +168,9 @@ class CommandResponderBase:
         except pysnmp.smi.error.ResourceUnavailableError:
             errorStatus, errorIndex = 'resourceUnavailable', sys.exc_info()[1]['idx']+1
         except pysnmp.smi.error.CommitFailedError:
-            errorStatus, errorIndex = 'commitFailedError', sys.exc_info()[1]['idx']+1
+            errorStatus, errorIndex = 'commitFailed', sys.exc_info()[1]['idx']+1
         except pysnmp.smi.error.UndoFailedError:
-            errorStatus, errorIndex = 'undoFailedError', sys.exc_info()[1]['idx']+1
+            errorStatus, errorIndex = 'undoFailed', sys.exc_info()[1]['idx']+1
         except pysnmp.smi.error.AuthorizationError:
             errorStatus, errorIndex = 'authorizationError', sys.exc_info()[1]['idx']+1
         except pysnmp.smi.error.NotWritableError:

@@ -7,6 +7,7 @@ Revision 4.2.5rc0
 - Standard SNMP Apps and built-in proxy now ignores malformed errorIndex
   value.
 - Missing import added to oneliner auth module.
+- Typos fixed in error-status constants at CommandResponder
 
 Revision 4.2.4
 --------------
