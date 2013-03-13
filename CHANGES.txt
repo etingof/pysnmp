@@ -7,6 +7,8 @@ Revision 4.2.5rc0
 - Standard SNMP Apps and built-in proxy now ignores malformed errorIndex
   value.
 - Missing import added to oneliner auth module.
+- The $PYSNMP_MIB_DIR & $PYSNMP_MIB_DIRS & $PYSNMP_MIB_PKGS path separator
+  made platform-specific.
 - Typos fixed in error-status constants at CommandResponder
 
 Revision 4.2.4

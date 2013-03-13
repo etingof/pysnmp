@@ -163,22 +163,24 @@ class DirMibSource(__AbstractMibSource):
 
 class MibBuilder:
     loadTexts = 0
-    defaultCoreMibs = 'pysnmp.smi.mibs.instances:pysnmp.smi.mibs'
+    defaultCoreMibs = os.pathsep.join(
+        ('pysnmp.smi.mibs.instances', 'pysnmp.smi.mibs')
+    )
     defaultMiscMibs = 'pysnmp_mibs'
     moduleID = 'PYSNMP_MODULE_ID'
     def __init__(self):
         self.lastBuildId = self._autoName = 0
         sources = []
-        for m in os.environ.get('PYSNMP_MIB_PKGS', self.defaultCoreMibs).split(':'):
+        for m in os.environ.get('PYSNMP_MIB_PKGS', self.defaultCoreMibs).split(os.pathsep):
             sources.append(ZipMibSource(m))
         # Compatibility variable
         if 'PYSNMP_MIB_DIR' in os.environ:
             os.environ['PYSNMP_MIB_DIRS'] = os.environ['PYSNMP_MIB_DIR']
         if 'PYSNMP_MIB_DIRS' in os.environ:
-            for m in os.environ['PYSNMP_MIB_DIRS'].split(':'):
+            for m in os.environ['PYSNMP_MIB_DIRS'].split(os.pathsep):
                 sources.append(DirMibSource(m))
         if self.defaultMiscMibs:
-            for m in self.defaultMiscMibs.split(':'):
+            for m in self.defaultMiscMibs.split(os.pathsep):
                 sources.append(ZipMibSource(m))
         self.mibSymbols = {}
         self.__modSeen = {}
