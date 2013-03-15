@@ -20,12 +20,9 @@ class TwistedDispatcher(AbstractTransportDispatcher):
         self.__transportCount = 0
         if 'timeout' in kwargs:
             self.setTimerResolution(kwargs['timeout'])
-        else:
-            self.setTimerResolution(1.0)            
-        self.loopingcall = task.LoopingCall(self.handleTimeout)
-
-    def handleTimeout(self):
-        self.handleTimerTick(time.time())
+        self.loopingcall = task.LoopingCall(
+            lambda self=self: self.handleTimerTick(time.time())
+        )
 
     def runDispatcher(self, timeout=0.0):
         if not reactor.running:

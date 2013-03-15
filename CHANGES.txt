@@ -10,6 +10,8 @@ Revision 4.2.5rc0
 - The $PYSNMP_MIB_DIR & $PYSNMP_MIB_DIRS & $PYSNMP_MIB_PKGS path separator
   made platform-specific.
 - Fix of rounding error to base I/O dispatcher's next timer call calculation.
+- Explicit twisted dispatcher's timer resolution (of 1 sec) removed to make
+  use of global default of 0.5 sec.
 - Typos fixed in error-status constants at CommandResponder
 - Missing import added to oneliner auth module.
 - Cosmetic changes to v3arch example scripts.
