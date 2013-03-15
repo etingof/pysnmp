@@ -233,7 +233,7 @@ class CommandGeneratorBase:
 
         snmpEngine.transportDispatcher.jobStarted(id(self))
 
-        debug.logger & debug.flagApp and debug.logger('_sendPdu: sendPduHandle %s, timeout %d, retry %d of %d' % (sendPduHandle, timeout, retries, retryCount))
+        debug.logger & debug.flagApp and debug.logger('_sendPdu: sendPduHandle %s, timeout %d*10 ms/%d ticks, retry %d of %d' % (sendPduHandle, timeout, timeoutInTicks, retries, retryCount))
 
         self.__pendingReqs[sendPduHandle] = (
             transportDomain,

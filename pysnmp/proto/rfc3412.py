@@ -131,9 +131,9 @@ class MsgAndPduDispatcher:
                 cbFun=cbFun,
                 cbCtx=cbCtx
                 )
-            debug.logger & debug.flagDsp and debug.logger('sendPdu: current time in ticks %d' % (snmpEngine.transportDispatcher.getTimerTicks(),))
+            debug.logger & debug.flagDsp and debug.logger('sendPdu: current time %d ticks, one tick is %s seconds' % (snmpEngine.transportDispatcher.getTimerTicks(), snmpEngine.transportDispatcher.getTimerResolution()))
 
-        debug.logger & debug.flagDsp and debug.logger('sendPdu: new sendPduHandle %s, timeout %s, cbFun %s' % (sendPduHandle, timeout, cbFun))
+        debug.logger & debug.flagDsp and debug.logger('sendPdu: new sendPduHandle %s, timeout %s ticks, cbFun %s' % (sendPduHandle, timeout, cbFun))
 
         # 4.1.1.4 & 4.1.1.5
         try:
