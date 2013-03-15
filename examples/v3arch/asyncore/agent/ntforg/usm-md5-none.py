@@ -60,7 +60,7 @@ snmpContext = context.SnmpContext(snmpEngine)
 # Create Notification Originator App instance. 
 ntfOrg = ntforg.NotificationOriginator(snmpContext)
  
-# Error/confirmation reciever
+# Error/confirmation receiver
 def cbFun(sendRequestHandle, errorIndication, cbCtx):
     print('Notification %s, status - %s' % (
         sendRequestHandle, errorIndication and errorIndication or 'delivered'

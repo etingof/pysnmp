@@ -34,7 +34,7 @@ config.addTargetParams(snmpEngine, 'my-creds', 'usr-md5-des', 'authPriv')
 
 #
 # Setup transport endpoint and bind it with security settings yielding
-# a target name (choose one entry depending of the transport needed).
+# a target name
 #
 
 # UDP/IPv4
@@ -49,7 +49,7 @@ config.addTargetAddr(
     'my-creds'
 )
 
-# Error/response reciever
+# Error/response receiver
 def cbFun(sendRequesthandle, errorIndication, errorStatus, errorIndex,
           varBindTable, cbCtx):
     if errorIndication:
