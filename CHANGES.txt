@@ -6,6 +6,7 @@ Revision 4.2.5rc0
   value what sometimes happens with buggy SNMP implementations.
 - Standard SNMP Apps and built-in proxy now ignores malformed errorIndex
   value.
+- Built-in logging now includes timestamps.
 - Missing import added to oneliner auth module.
 - The $PYSNMP_MIB_DIR & $PYSNMP_MIB_DIRS & $PYSNMP_MIB_PKGS path separator
   made platform-specific.

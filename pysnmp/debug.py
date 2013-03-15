@@ -1,4 +1,5 @@
 import sys
+import time
 from pyasn1.compat.octets import octs2ints
 from pysnmp import error
 from pysnmp import __version__
@@ -54,13 +55,17 @@ class Debug:
         return 'logger %s, flags %x' % (self._printer, self._flags)
     
     def __call__(self, msg):
-        self._printer('DBG: %s\n' % msg)
+        self._printer('DBG: [%s]: %s\n' % (self.timestamp(), msg))
 
     def __and__(self, flag):
         return self._flags & flag
 
     def __rand__(self, flag):
         return flag & self._flags
+
+    def timestamp(self):
+        return time.strftime('%H:%M:%S', time.localtime()) + \
+               '.%s' % int((time.time() % 1) * 1000)
 
 # This will yield false from bitwise and with a flag, and save
 # on unnecessary calls
