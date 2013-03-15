@@ -33,7 +33,7 @@ else:
     if errorStatus:
         print('%s at %s' % (
             errorStatus.prettyPrint(),
-            errorIndex and varBindTable[-1][int(errorIndex)-1] or '?'
+            errorIndex and varBindTable[-1][int(errorIndex)-1][0] or '?'
             )
         )
     else:

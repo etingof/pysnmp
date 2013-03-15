@@ -56,7 +56,7 @@ def cbFun(sendRequestHandle,
     elif errorStatus and errorStatus != 2:
         print('%s at %s' % (
             errorStatus.prettyPrint(),
-            errorIndex and varBinds[-1][int(errorIndex)-1] or '?'
+            errorIndex and varBinds[int(errorIndex)-1][0] or '?'
             )
         )
     else:

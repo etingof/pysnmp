@@ -59,7 +59,7 @@ def cbFun(sendRequestHandle,
     if errorStatus and errorStatus != 2:
         print('%s at %s' % (
             errorStatus.prettyPrint(),
-            errorIndex and varBindTable[-1][int(errorIndex)-1] or '?'
+            errorIndex and varBindTable[-1][int(errorIndex)-1][0] or '?'
             )
         )
         return  # stop on error

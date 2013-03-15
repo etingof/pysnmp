@@ -27,7 +27,7 @@ else:
     if errorStatus:
         print('%s at %s' % (
             errorStatus.prettyPrint(),
-            errorIndex and varBinds[int(errorIndex)-1] or '?'
+            errorIndex and varBinds[int(errorIndex)-1][0] or '?'
             )
         )
     else:
