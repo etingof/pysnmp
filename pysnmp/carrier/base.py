@@ -27,6 +27,7 @@ class AbstractTransportDispatcher:
         self.__timerCallables = []
         self.__ticks = 0
         self.__timerResolution = 0.5
+        self.__timerDelta = self.__timerResolution * 0.05
         self.__nextTime = 0
         
     def _cbFun(self, incomingTransport, transportAddress, incomingMessage):
@@ -112,18 +113,19 @@ class AbstractTransportDispatcher:
         if timerResolution < 0.01 or timerResolution > 10:
             raise error.CarrierError('Impossible timer resolution')
         self.__timerResolution = timerResolution
+        self.__timerDelta = timerResolution * 0.05
     
     def getTimerTicks(self): return self.__ticks
     
     def handleTimerTick(self, timeNow):
         if self.__nextTime == 0:   # initial initialization
-            self.__nextTime = timeNow + self.__timerResolution
+            self.__nextTime = timeNow + self.__timerResolution - self.__timerDelta
 
-        if self.__nextTime > timeNow:
+        if self.__nextTime >= timeNow:
             return
         
         self.__ticks += 1
-        self.__nextTime = timeNow + self.__timerResolution
+        self.__nextTime = timeNow + self.__timerResolution - self.__timerDelta
 
         for timerCallable in self.__timerCallables:
             timerCallable(timeNow)
