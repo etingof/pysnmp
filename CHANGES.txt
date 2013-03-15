@@ -12,6 +12,8 @@ Revision 4.2.5rc0
 - Fix of rounding error to base I/O dispatcher's next timer call calculation.
 - Explicit twisted dispatcher's timer resolution (of 1 sec) removed to make
   use of global default of 0.5 sec.
+- Fix to twisted/udp non-default local endpoint binding features. Common
+  socket ('host', port) notation is now supported.
 - Typos fixed in error-status constants at CommandResponder
 - Missing import added to oneliner auth module.
 - Cosmetic changes to v3arch example scripts.

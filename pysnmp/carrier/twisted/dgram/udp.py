@@ -9,14 +9,14 @@ domainName = snmpUDPDomain = (1, 3, 6, 1, 6, 1, 1)
 class UdpTwistedTransport(DgramTwistedTransport):
     # AbstractTwistedTransport API
     
-    def openClientMode(self, iface=''):
+    def openClientMode(self, iface=('', 0)):
         try:
-            self._lport = reactor.listenUDP(0, self, iface)
+            self._lport = reactor.listenUDP(iface[1], self, iface[0])
         except Exception:
             raise error.CarrierError(sys.exc_info()[1])
         return self
 
-    def openServerMode(self, iface=None):
+    def openServerMode(self, iface=('', 161)):
         try:
             self._lport = reactor.listenUDP(iface[1], self, iface[0])
         except Exception:
