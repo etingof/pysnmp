@@ -52,17 +52,17 @@ config.addTargetAddr(
 # Error/response reciever
 def cbFun(sendRequestHandle,
           errorIndication, errorStatus, errorIndex,
-          varBindTable, cbCtx):
+          varBinds, cbCtx):
     if errorIndication:
         print(errorIndication)
     elif errorStatus:
         print('%s at %s' % (
             errorStatus.prettyPrint(),
-            errorIndex and varBindTable[-1][int(errorIndex)-1] or '?'
+            errorIndex and varBinds[-1][int(errorIndex)-1] or '?'
             )
         )
     else:
-        for oid, val in varBindTable:
+        for oid, val in varBinds:
             print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
 
 # Prepare and send a request message, pass custom ContextEngineId & ContextName

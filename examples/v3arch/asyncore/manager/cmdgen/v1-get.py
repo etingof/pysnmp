@@ -48,7 +48,7 @@ config.addTargetAddr(
 # Error/response reciever
 def cbFun(sendRequestHandle,
           errorIndication, errorStatus, errorIndex,
-          varBindTable, cbCtx):
+          varBinds, cbCtx):
     if errorIndication:
         print(errorIndication)
     # SNMPv1 response may contain noSuchName error *and* SNMPv2c exception,
@@ -56,11 +56,11 @@ def cbFun(sendRequestHandle,
     elif errorStatus and errorStatus != 2:
         print('%s at %s' % (
             errorStatus.prettyPrint(),
-            errorIndex and varBindTable[-1][int(errorIndex)-1] or '?'
+            errorIndex and varBinds[-1][int(errorIndex)-1] or '?'
             )
         )
     else:
-        for oid, val in varBindTable:
+        for oid, val in varBinds:
             print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
 
 # Prepare and send a request message

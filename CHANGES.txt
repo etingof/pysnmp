@@ -10,6 +10,7 @@ Revision 4.2.5rc0
 - The $PYSNMP_MIB_DIR & $PYSNMP_MIB_DIRS & $PYSNMP_MIB_PKGS path separator
   made platform-specific.
 - Typos fixed in error-status constants at CommandResponder
+- Cosmetic changes to Native API's GET/SET example scripts.
 
 Revision 4.2.4
 --------------
