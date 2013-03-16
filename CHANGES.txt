@@ -1,6 +1,8 @@
 Revision 4.2.5rc1
 -----------------
 
+- A dozen of lightweight Twisted-based example scripts replaced more
+  complex example implementations used previously.
 - Packet-level SNMP API (pysnmp.proto.api) getErrorIndex() method can now
   be instructed to ignore portentially malformed errorIndex SNMP packet
   value what sometimes happens with buggy SNMP implementations.
