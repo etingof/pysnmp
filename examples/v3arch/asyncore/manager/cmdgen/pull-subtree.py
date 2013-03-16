@@ -27,7 +27,7 @@ snmpEngine = engine.SnmpEngine()
 # SNMPv3/USM setup
 #
 
-# user: usr-md5-des, auth: MD5, priv DES
+# user: usr-none-none, auth: none, priv: none
 config.addV3User(
     snmpEngine, 'usr-none-none',
 )
