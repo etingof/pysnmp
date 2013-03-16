@@ -1,4 +1,4 @@
-Revision 4.2.5rc0
+Revision 4.2.5rc1
 -----------------
 
 - Packet-level SNMP API (pysnmp.proto.api) getErrorIndex() method can now
@@ -9,6 +9,14 @@ Revision 4.2.5rc0
 - Built-in logging now includes timestamps.
 - The $PYSNMP_MIB_DIR & $PYSNMP_MIB_DIRS & $PYSNMP_MIB_PKGS path separator
   made platform-specific.
+- Change to rfc2576.v1tov2() logic: errorStatus = noSuchName is now 
+  translated into rfc1905.noSuchObject exception value for *all* var-bindings
+  at once. Although RFC2576 does not suggest error-status -> v2c exception
+  translation, historically pysnmp used to perform it for a long time so we
+  can't easily stop doing that.
+- Fix to rfc2576.v1tov2() logic: errorStatus = noSuchName is now translated
+  into rfc1905.noSuchObject exception value for *all* var-bindings. Although
+  this is not mentioned in RFC, it looks as a more consistent approach.
 - Fix of rounding error to base I/O dispatcher's next timer call calculation.
 - Explicit twisted dispatcher's timer resolution (of 1 sec) removed to make
   use of global default of 0.5 sec.

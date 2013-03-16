@@ -145,13 +145,14 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
         errorIndex = int(v1.apiPDU.getErrorIndex(v1Pdu, muteErrors=True))
         if errorStatus == 2: # noSuchName
             if origV2Pdu.tagSet == v2c.GetNextRequestPDU.tagSet:
-                v2VarBinds[errorIndex-1] = (
-                    v2VarBinds[errorIndex-1][0], rfc1905.endOfMibView
-                    )
+                v2VarBinds = [
+                    (o, rfc1905.endOfMibView) for o, v in v2VarBinds
+                ]
             else:
-                v2VarBinds[errorIndex-1] = (
-                    v2VarBinds[errorIndex-1][0], rfc1905.noSuchObject
-                    )
+                v2VarBinds = [
+                    (o, rfc1905.noSuchObject) for o, v in v2VarBinds
+                ]
+
         # one-to-one mapping
         v2c.apiPDU.setErrorStatus(v2Pdu, errorStatus)
         v2c.apiPDU.setErrorIndex(v2Pdu, errorIndex)
