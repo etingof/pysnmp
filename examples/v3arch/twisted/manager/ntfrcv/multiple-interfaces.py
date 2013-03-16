@@ -7,6 +7,7 @@
 # * with SNMP community "public"
 # * over IPv4/UDP, listening at 127.0.0.1:162
 #   over IPv4/UDP, listening at 127.0.0.1:2162
+# * using Twisted framework for network transport
 # * print received data on stdout
 # 
 # Either of the following Net-SNMP's commands will send notifications to this

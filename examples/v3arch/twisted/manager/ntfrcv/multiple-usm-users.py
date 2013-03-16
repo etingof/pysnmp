@@ -9,6 +9,7 @@
 #    'usr-md5-none', auth: MD5, priv NONE, ContextEngineId: 8000000001020304
 #    'usr-sha-aes128', auth: SHA, priv AES, ContextEngineId: 8000000001020304
 # * over IPv4/UDP, listening at 127.0.0.1:162
+# * using Twisted framework for network transport
 # * print received data on stdout
 # 
 # Either of the following Net-SNMP's commands will send notifications to this
