@@ -1,6 +1,8 @@
 Revision 4.2.5rc1
 -----------------
 
+- License updated to vanilla BSD 2-Clause to ease package use
+  (http://opensource.org/licenses/BSD-2-Clause).
 - A dozen of lightweight Twisted-based example scripts replaced more
   complex example implementations used previously.
 - Packet-level SNMP API (pysnmp.proto.api) getErrorIndex() method can now
