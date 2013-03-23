@@ -9,6 +9,7 @@
 # * serving custom Managed Object Instance defined within this script
 # * allow read access only to the subtree where the custom MIB object resides
 # * over IPv4/UDP, listening at 127.0.0.1:161
+# * using Twisted fraework for network transport
 # 
 # Either of the following Net-SNMP's commands will walk this Agent:
 #

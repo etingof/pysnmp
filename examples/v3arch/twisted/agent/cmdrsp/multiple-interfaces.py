@@ -8,6 +8,7 @@
 # * with SNMP community "public"
 # * allow access to SNMPv2-MIB objects (1.3.6.1.2.1)
 # * over IPv4/UDP, listening at 127.0.0.1:161 and 127.0.0.2:161 interfaces
+# * using Twisted framework for network transport
 # 
 # Either of the following Net-SNMP's commands will walk this Agent:
 #
