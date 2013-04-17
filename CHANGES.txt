@@ -1,4 +1,4 @@
-Revision 4.2.5rc0
+Revision 4.2.5rc1
 -----------------
 
 - License updated to vanilla BSD 2-Clause to ease package use
