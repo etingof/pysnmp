@@ -94,56 +94,65 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         usmUserEntry, = mibInstrumController.mibBuilder.importSymbols(
             'SNMP-USER-BASED-SM-MIB', 'usmUserEntry'
             )
-        tblIdx = usmUserEntry.getInstIdFromIndices(
+        tblIdx1 = usmUserEntry.getInstIdFromIndices(
             snmpEngineID.syntax, securityName
             )
         # Get proto protocols
         usmUserSecurityName = usmUserEntry.getNode(
-            usmUserEntry.name + (3,) + tblIdx
+            usmUserEntry.name + (3,) + tblIdx1
+            )
+        usmUserCloneFrom = usmUserEntry.getNode(
+            usmUserEntry.name + (4,) + tblIdx1
             )
         usmUserAuthProtocol = usmUserEntry.getNode(
-            usmUserEntry.name + (5,) + tblIdx
+            usmUserEntry.name + (5,) + tblIdx1
             )
         usmUserPrivProtocol = usmUserEntry.getNode(
-            usmUserEntry.name + (8,) + tblIdx
+            usmUserEntry.name + (8,) + tblIdx1
             )
         # Get proto keys
         pysnmpUsmKeyEntry, = mibInstrumController.mibBuilder.importSymbols(
             'PYSNMP-USM-MIB', 'pysnmpUsmKeyEntry'
             )
         pysnmpUsmKeyAuth = pysnmpUsmKeyEntry.getNode(
-            pysnmpUsmKeyEntry.name + (3,) + tblIdx
+            pysnmpUsmKeyEntry.name + (3,) + tblIdx1
             )
         pysnmpUsmKeyPriv = pysnmpUsmKeyEntry.getNode(
-            pysnmpUsmKeyEntry.name + (4,) + tblIdx
+            pysnmpUsmKeyEntry.name + (4,) + tblIdx1
             )        
         
         # Create new row from proto values
-        
-        tblIdx = usmUserEntry.getInstIdFromIndices(
+
+        tblIdx2 = usmUserEntry.getInstIdFromIndices(
             securityEngineID, securityName
             )
+
         # New row
         mibInstrumController.writeVars(
-            ((usmUserEntry.name + (13,) + tblIdx, 4),)
+            ((usmUserEntry.name + (13,) + tblIdx2, 4),)
             )
         # Set protocols
         usmUserEntry.getNode(
-            usmUserEntry.name + (3,) + tblIdx
-            ).syntax = usmUserSecurityName.syntax
+            usmUserEntry.name + (3,) + tblIdx2
+        ).syntax = usmUserSecurityName.syntax
         usmUserEntry.getNode(
-            usmUserEntry.name + (5,) + tblIdx
-            ).syntax = usmUserAuthProtocol.syntax
+            usmUserEntry.name + (5,) + tblIdx2
+        ).syntax = usmUserAuthProtocol.syntax
         usmUserEntry.getNode(
-            usmUserEntry.name + (8,) + tblIdx
-            ).syntax = usmUserPrivProtocol.syntax
+            usmUserEntry.name + (8,) + tblIdx2
+        ).syntax = usmUserPrivProtocol.syntax
+
+        # Store a reference to original row
+        usmUserEntry.getNode(
+            usmUserEntry.name + (4,) + tblIdx2
+        ).syntax = usmUserCloneFrom.syntax.clone(tblIdx1)
         
         # Localize and set keys
         pysnmpUsmKeyEntry, = mibInstrumController.mibBuilder.importSymbols(
             'PYSNMP-USM-MIB', 'pysnmpUsmKeyEntry'
             )
         pysnmpUsmKeyAuthLocalized = pysnmpUsmKeyEntry.getNode(
-            pysnmpUsmKeyEntry.name + (1,) + tblIdx
+            pysnmpUsmKeyEntry.name + (1,) + tblIdx2
             )
         if usmUserAuthProtocol.syntax in self.authServices:
             localizeKey = self.authServices[usmUserAuthProtocol.syntax].localizeKey
@@ -158,7 +167,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         if localAuthKey is not None:
             pysnmpUsmKeyAuthLocalized.syntax = pysnmpUsmKeyAuthLocalized.syntax.clone(localAuthKey)
         pysnmpUsmKeyPrivLocalized = pysnmpUsmKeyEntry.getNode(
-            pysnmpUsmKeyEntry.name + (2,) + tblIdx
+            pysnmpUsmKeyEntry.name + (2,) + tblIdx2
             )
         if usmUserPrivProtocol.syntax in self.privServices:
             localizeKey = self.privServices[usmUserPrivProtocol.syntax].localizeKey

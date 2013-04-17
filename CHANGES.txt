@@ -1,4 +1,4 @@
-Revision 4.2.5rc1
+Revision 4.2.5rc0
 -----------------
 
 - License updated to vanilla BSD 2-Clause to ease package use
@@ -27,6 +27,8 @@ Revision 4.2.5rc1
   use of global default of 0.5 sec.
 - Fix to twisted/udp non-default local endpoint binding features. Common
   socket ('host', port) notation is now supported.
+- The delV3User() function improved to drop all rows from USM table that
+  were cloned from the target one.
 - Typos fixed in error-status constants at CommandResponder
 - Missing import added to oneliner auth module.
 - Cosmetic changes to v3arch example scripts.

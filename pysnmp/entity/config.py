@@ -126,37 +126,37 @@ def addV3User(snmpEngine, securityName,
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((usmUserEntry.name + (13,) + tblIdx1, 'destroy'),)
-        )
+    )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((usmUserEntry.name + (13,) + tblIdx1, 'createAndGo'),
          (usmUserEntry.name + (3,) + tblIdx1, securityName),
          (usmUserEntry.name + (4,) + tblIdx1, zeroDotZero.name),
          (usmUserEntry.name + (5,) + tblIdx1, authProtocol),
          (usmUserEntry.name + (8,) + tblIdx1, privProtocol))
-        )
+    )
 
     # Localize keys
     if authProtocol in authServices:
         hashedAuthPassphrase = authServices[authProtocol].hashPassphrase(
             authKey and authKey or null
-            )
+        )
         localAuthKey = authServices[authProtocol].localizeKey(
             hashedAuthPassphrase, snmpEngineID
-            )
+        )
     else:
         raise error.PySnmpError('Unknown auth protocol %s' % (authProtocol,))
 
     if privProtocol in privServices:
         hashedPrivPassphrase = privServices[privProtocol].hashPassphrase(
             authProtocol, privKey and privKey or null
-            )
+        )
         localPrivKey = privServices[privProtocol].localizeKey(
             authProtocol, hashedPrivPassphrase, snmpEngineID
-            )
+        )
     else:
         raise error.PySnmpError(
             'Unknown priv protocol %s' % (privProtocol,)
-            )
+        )
 
     # Commit localized keys
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
@@ -184,10 +184,25 @@ def delV3User(snmpEngine, securityName, contextEngineId=None):
         )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((usmUserEntry.name + (13,) + tblIdx1, 'destroy'),)
-        )
+    )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((pysnmpUsmSecretEntry.name + (4,) + tblIdx2, 'destroy'),)
+    )
+
+    # Drop all derived rows
+    varBinds = initialVarBinds = (
+        (usmUserEntry.name + (1,), None),
+        (usmUserEntry.name + (4,), None)
+    )
+    while True:
+        varBinds = snmpEngine.msgAndPduDsp.mibInstrumController.readNextVars(
+            varBinds
         )
+        if varBinds[0][0][:len(initialVarBinds[0][0])]!=initialVarBinds[0][0]:
+            break
+        elif varBinds[1][1] == tblIdx1:  # cloned from this entry
+            delV3User(snmpEngine, securityName, varBinds[0][1])
+            varBinds = initialVarBinds
 
 def __cookTargetParamsInfo(snmpEngine, name):
     snmpTargetParamsEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-TARGET-MIB', 'snmpTargetParamsEntry')
