@@ -65,7 +65,7 @@ class Debug:
 
     def timestamp(self):
         return time.strftime('%H:%M:%S', time.localtime()) + \
-               '.%s' % int((time.time() % 1) * 1000)
+               '.%.3d' % int((time.time() % 1) * 1000)
 
 # This will yield false from bitwise and with a flag, and save
 # on unnecessary calls
