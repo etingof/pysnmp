@@ -18,6 +18,8 @@ Revision 4.2.5rc1
   at once. Although RFC2576 does not suggest error-status -> v2c exception
   translation, historically pysnmp used to perform it for a long time so we
   can't easily stop doing that.
+- The snmpCommunityTable row selection improved to follow RFC2576, clause
+  5.2.1.
 - Fix to Twisted-based NotificationOriginator to make it serving INFORMs again.
 - Fix to rfc2576.v1tov2() logic: errorStatus = noSuchName is now translated
   into rfc1905.noSuchObject exception value for *all* var-bindings. Although

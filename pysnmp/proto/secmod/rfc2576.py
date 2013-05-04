@@ -270,13 +270,24 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
             debug.logger & debug.flagSM and debug.logger('_com2sec: built tag & community to securityName map (securityModel %s), version %s: %s' % (self.securityModelID, self.__communityBranchId, self.__tagAndCommunityToSecurityMap))
 
         if communityName in self.__communityToTagMap:
-            if self.__emptyTag in self.__communityToTagMap[communityName]:
-                return self.__tagAndCommunityToSecurityMap[(self.__emptyTag, communityName)]
-
             if transportInformation in self.__transportToTagMap:
                 tags = self.__transportToTagMap[transportInformation].intersection(self.__communityToTagMap[communityName])
-                if tags:
-                    return self.__tagAndCommunityToSecurityMap[(tags.pop(), communityName)]
+                candidateSecurityNames = [
+                    self.__tagAndCommunityToSecurityMap[(t, communityName)] for t in tags
+                ]
+            else:
+                 candidateSecurityNames = []
+
+            if self.__emptyTag in self.__communityToTagMap[communityName]:
+                candidateSecurityNames.append(
+                    self.__tagAndCommunityToSecurityMap[(self.__emptyTag, communityName)]
+                )
+             
+            # 5.2.1 (row selection in snmpCommunityTable)
+            if candidateSecurityNames: 
+                chosenSecurityName = min(candidateSecurityNames, key=lambda x:str(x[0]))
+                debug.logger & debug.flagSM and debug.logger('_com2sec: securityName candidates for communityName \'%s\' are %s; choosing securityName \'%s\'' % (communityName, candidateSecurityNames, chosenSecurityName[0]))
+                return chosenSecurityName
 
         raise error.StatusInformation()
  
