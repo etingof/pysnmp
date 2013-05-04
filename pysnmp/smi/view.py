@@ -198,7 +198,7 @@ class MibViewController:
                 str='Can\'t resolve node name %s::%s at %s' % 
                 (modName, nodeName, self)
                 )
-        debug.logger & debug.flagMIB and debug.logger('getNodeNameByOid: resolved %s:%s -> %s' % (modName, nodeName, label + suffix))
+        debug.logger & debug.flagMIB and debug.logger('getNodeNameByOid: resolved %s:%s -> %s.%s' % (modName, nodeName, label, suffix))
         return oid, label, suffix
 
     def getNodeNameByDesc(self, nodeName, modName=''):
