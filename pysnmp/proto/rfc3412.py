@@ -156,16 +156,26 @@ class MsgAndPduDispatcher:
                 )
             debug.logger & debug.flagDsp and debug.logger('sendPdu: MP succeeded')
         except error.StatusInformation:
+            if expectResponse:
+                self.__cache.pop(sendPduHandle)
 # XXX is it still needed here?
 #            self.releaseStateInformation(snmpEngine, sendPduHandle, messageProcessingModel)
             raise
 
         # 4.1.1.6
         if snmpEngine.transportDispatcher is None:
+            if expectResponse:
+                self.__cache.pop(sendPduHandle)
             raise error.PySnmpError('Transport dispatcher not set')
-        snmpEngine.transportDispatcher.sendMessage(
-            outgoingMessage, destTransportDomain, destTransportAddress
+
+        try:
+            snmpEngine.transportDispatcher.sendMessage(
+                outgoingMessage, destTransportDomain, destTransportAddress
             )
+        except PySnmpError:
+            if expectResponse:
+                self.__cache.pop(sendPduHandle)
+            raise
         
         # Update cache with orignal req params (used for retrying)
         if expectResponse:
@@ -180,7 +190,7 @@ class MsgAndPduDispatcher:
                 contextName=contextName,
                 pduVersion=pduVersion,
                 PDU=PDU
-                )
+            )
 
         return sendPduHandle
 

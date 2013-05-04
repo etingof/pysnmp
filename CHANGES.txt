@@ -31,6 +31,8 @@ Revision 4.2.5rc1
   socket ('host', port) notation is now supported.
 - The delV3User() function improved to drop all rows from USM table that
   were cloned from the target one.
+- Fix to exceptions handling at MsgAndPduDispatcher.sendPdu() to avoid
+  sendPduHandle miss (followed by system crash) on cache expiration run.
 - Typos fixed in error-status constants at CommandResponder
 - Missing import added to oneliner auth module.
 - Cosmetic changes to v3arch example scripts.
