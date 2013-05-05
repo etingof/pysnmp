@@ -83,10 +83,6 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                                    snmpCommunitySecurityName.name + instId
                                ).syntax
 
-                if _securityName not in self.__nameToModelMap or \
-                    self.securityModelID not in self.__nameToModelMap[_securityName]:
-                    continue
-
                 _contextEngineId = snmpCommunityContextEngineId.getNode(
                                       snmpCommunityContextEngineId.name + instId
                                   ).syntax
@@ -239,12 +235,6 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                                    snmpCommunitySecurityName.name + instId
                                ).syntax
 
-                # Filter community table by security model
-                # *if* there are conflicting security names
-                if securityName in self.__nameToModelMap and \
-                     self.securityModelID not in self.__nameToModelMap[securityName]:
-                    continue
-
                 contextEngineId = snmpCommunityContextEngineId.getNode(
                                       snmpCommunityContextEngineId.name + instId
                                   ).syntax
@@ -257,7 +247,14 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                                    snmpCommunityTransportTag.name + instId
                                ).syntax
 
-                self.__tagAndCommunityToSecurityMap[(transportTag, nextMibNode.syntax)] = (securityName, contextEngineId, contextName)
+                _tagAndCommunity = transportTag, nextMibNode.syntax
+
+                if _tagAndCommunity not in self.__tagAndCommunityToSecurityMap:
+                    self.__tagAndCommunityToSecurityMap[_tagAndCommunity] = set()
+
+                self.__tagAndCommunityToSecurityMap[_tagAndCommunity].add(
+                    (securityName, contextEngineId, contextName)
+                )
 
                 if nextMibNode.syntax not in self.__communityToTagMap:
                     self.__communityToTagMap[nextMibNode.syntax] = set()
@@ -272,24 +269,28 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         if communityName in self.__communityToTagMap:
             if transportInformation in self.__transportToTagMap:
                 tags = self.__transportToTagMap[transportInformation].intersection(self.__communityToTagMap[communityName])
-                candidateSecurityNames = [
-                    self.__tagAndCommunityToSecurityMap[(t, communityName)] for t in tags
-                ]
+            elif self.__emptyTag in self.__communityToTagMap[communityName]:
+                tags = [ self.__emptyTag ]
             else:
-                 candidateSecurityNames = []
-
-            if self.__emptyTag in self.__communityToTagMap[communityName]:
-                candidateSecurityNames.append(
-                    self.__tagAndCommunityToSecurityMap[(self.__emptyTag, communityName)]
+                raise error.StatusInformation(
+                    errorIndication = errind.unknownCommunityName
                 )
-             
+
+            candidateSecurityNames = []
+
+            for x in [ self.__tagAndCommunityToSecurityMap[(t, communityName)] for t in tags ]:
+                candidateSecurityNames.extend(list(x))
+
             # 5.2.1 (row selection in snmpCommunityTable)
+            # Picks first match but favors entries already in targets table
             if candidateSecurityNames: 
-                chosenSecurityName = min(candidateSecurityNames, key=lambda x:str(x[0]))
+                chosenSecurityName = min(candidateSecurityNames, key=lambda x,m=self.__nameToModelMap,v=self.securityModelID: (not int(x[0] in m and v in m[x[0]]), str(x[0])))
                 debug.logger & debug.flagSM and debug.logger('_com2sec: securityName candidates for communityName \'%s\' are %s; choosing securityName \'%s\'' % (communityName, candidateSecurityNames, chosenSecurityName[0]))
                 return chosenSecurityName
 
-        raise error.StatusInformation()
+        raise error.StatusInformation(
+            errorIndication = errind.unknownCommunityName
+        )
  
     def generateRequestMsg(
         self,

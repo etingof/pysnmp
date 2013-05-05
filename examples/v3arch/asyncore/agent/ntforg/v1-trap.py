@@ -28,7 +28,7 @@ from pysnmp.proto.api import v2c
 snmpEngine = engine.SnmpEngine()
 
 # SecurityName <-> CommunityName mapping
-config.addV1System(snmpEngine, 'my-area', 'public')
+config.addV1System(snmpEngine, 'my-area', 'public', transportTag='all-my-managers')
 
 # Specify security settings per SecurityName (SNMPv1 -> 0)
 config.addTargetParams(snmpEngine, 'my-creds', 'my-area', 'noAuthNoPriv', 0)
