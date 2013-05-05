@@ -8,7 +8,7 @@
 #   with SNMPv3, user 'usr-md5-des', MD5 auth and DES privacy
 # * over IPv4/UDP and 
 #   over IPv6/UDP
-# * to an Agent at localhost:161 and
+# * to an Agent at demo.snmplabs.com:161 and
 #   to an Agent at [::1]:161
 # * for instances of SNMPv2-MIB::sysDescr.0 and
 #   SNMPv2-MIB::sysLocation.0 MIB objects
@@ -20,20 +20,26 @@ from pysnmp.entity.rfc3413.oneliner import cmdgen
 targets = (
     # 1-st target (SNMPv1 over IPv4/UDP)
     ( cmdgen.CommunityData('public', mpModel=0),
-      cmdgen.UdpTransportTarget(('localhost', 161)),
+      cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
       ( cmdgen.MibVariable('SNMPv2-MIB', 'sysDescr', 0),
         cmdgen.MibVariable('SNMPv2-MIB', 'sysLocation', 0) ) ),
     # 2-nd target (SNMPv2c over IPv4/UDP)
     ( cmdgen.CommunityData('public'),
-      cmdgen.UdpTransportTarget(('localhost', 161)),
+      cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
       ( cmdgen.MibVariable('SNMPv2-MIB', 'sysDescr', 0),
         cmdgen.MibVariable('SNMPv2-MIB', 'sysLocation', 0) ) ),
-    # 3-nd target (SNMPv3 over IPv4/UDP)
+    # 3-nd target (SNMPv2c over IPv4/UDP) - same community and 
+    # different transport address.
+    ( cmdgen.CommunityData('public'),
+      cmdgen.UdpTransportTarget(('localhost', 161)),
+      ( cmdgen.MibVariable('SNMPv2-MIB', 'sysContact', 0),
+        cmdgen.MibVariable('SNMPv2-MIB', 'sysName', 0) ) ),
+    # 4-nd target (SNMPv3 over IPv4/UDP)
     ( cmdgen.UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
-      cmdgen.UdpTransportTarget(('localhost', 161)),
+      cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
       ( cmdgen.MibVariable('SNMPv2-MIB', 'sysDescr', 0),
         cmdgen.MibVariable('SNMPv2-MIB', 'sysLocation', 0) ) ),
-    # 4-th target (SNMPv3 over IPv6/UDP)
+    # 5-th target (SNMPv3 over IPv6/UDP)
     ( cmdgen.UsmUserData('usr-md5-none', 'authkey1'),
       cmdgen.Udp6TransportTarget(('::1', 161)),
       ( cmdgen.MibVariable('SNMPv2-MIB', 'sysDescr', 0),

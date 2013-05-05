@@ -6,7 +6,7 @@
 # * with SNMPv3 with user 'usr-md5-des', MD5 auth and DES privacy protocols
 # * use remote SNMP Engine ID 0x8000000004030201 (USM autodiscovery will run)
 # * over IPv4/UDP
-# * to an Agent at localhost:161
+# * to an Agent at demo.snmplabs.com:161
 # * setting SNMPv2-MIB::sysName.0 to new value (type taken from MIB)
 #
 from pysnmp.entity.rfc3413.oneliner import cmdgen
@@ -19,8 +19,8 @@ errorIndication, errorStatus, errorIndex, varBinds = cmdGen.setCmd(
         'usr-md5-des', 'authkey1', 'privkey1',
         contextEngineId=rfc1902.OctetString(hexValue='8000000004030201')
     ),
-    cmdgen.UdpTransportTarget(('localhost', 161)),
-    (cmdgen.MibVariable('SNMPv2-MIB', 'sysName', 0), 'new system name'),
+    cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
+    (cmdgen.MibVariable('SNMPv2-MIB', 'sysORDescr', 1), 'new system name'),
 )
 
 # Check for errors and print out results

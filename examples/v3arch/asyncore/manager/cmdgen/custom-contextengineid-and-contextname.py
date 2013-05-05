@@ -6,12 +6,12 @@
 #     for MIB instance identified by contextEngineId: 8000000001020304,
 #                                    contextName: my-context
 #     over IPv4/UDP
-#     to an Agent at 127.0.0.1:161
+#     to an Agent at 195.218.195.228:161
 #     for an OID in tuple form
 #
 # This script performs similar to the following Net-SNMP command:
 #
-# $ snmpget -v3 -l authNoPriv -u usr-md5-none -A authkey1 -E 8000000001020304 -n my-context -ObentU 127.0.0.1:161  1.3.6.1.2.1.1.1.0
+# $ snmpget -v3 -l authNoPriv -u usr-md5-none -A authkey1 -E 8000000001020304 -n my-context -ObentU 195.218.195.228:161  1.3.6.1.2.1.1.1.0
 #
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asynsock.dgram import udp
@@ -45,7 +45,7 @@ config.addSocketTransport(
 )
 config.addTargetAddr(
     snmpEngine, 'my-router',
-    udp.domainName, ('127.0.0.1', 161),
+    udp.domainName, ('195.218.195.228', 161),
     'my-creds'
 )
 

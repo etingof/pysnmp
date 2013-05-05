@@ -4,14 +4,14 @@
 # Send a series of SNMP GETNEXT requests
 #     with SNMPv2c, community 'public'
 #     over IPv4/UDP
-#     to an Agent at 127.0.0.1:161
-#     sending packets from local interface 127.0.0.1, local port 1024
+#     to an Agent at 195.218.195.228:161
+#     sending packets from primary local interface 0.0.0.0, local port 1024
 #     for two OIDs in tuple form
 #     stop on end-of-mib condition for both OIDs
 #
 # This script performs similar to the following Net-SNMP command:
 #
-# $ snmpwalk -v2c -c public -ObentU 127.0.0.1 1.3.6.1.2.1.1 1.3.6.1.4.1.1
+# $ snmpwalk -v2c -c public -ObentU 195.218.195.228 1.3.6.1.2.1.1 1.3.6.1.4.1.1
 #
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asynsock.dgram import udp
@@ -39,11 +39,11 @@ config.addTargetParams(snmpEngine, 'my-creds', 'my-area', 'noAuthNoPriv', 0)
 config.addSocketTransport(
     snmpEngine,
     udp.domainName,
-    udp.UdpSocketTransport().openClientMode(('127.0.0.1', 1024))
+    udp.UdpSocketTransport().openClientMode(('0.0.0.0', 1024))
 )
 config.addTargetAddr(
     snmpEngine, 'my-router',
-    udp.domainName, ('127.0.0.1', 161),
+    udp.domainName, ('195.218.195.228', 161),
     'my-creds'
 )
 

@@ -4,14 +4,14 @@
 # Send a series of SNMP GETBULK requests
 #     with SNMPv3 with user 'usr-md5-des', MD5 auth and DES privacy protocols
 #     over IPv4/UDP
-#     to an Agent at 127.0.0.1:161
+#     to an Agent at 195.218.195.228:161
 #     with values non-repeaters = 1, max-repetitions = 25
 #     for two OIDs in tuple form (first OID is non-repeating)
 #     stop on end-of-mib condition for both OIDs
 #
 # This script performs similar to the following Net-SNMP command:
 #
-# $ snmpbulkwalk -v3 -l authPriv -u usr-md5-des -A authkey1 -X privkey1 -C n1 -C r25 -ObentU 127.0.0.1 1.3.6.1.2.1.1 1.3.6.1.4.1.1
+# $ snmpbulkwalk -v3 -l authPriv -u usr-md5-des -A authkey1 -X privkey1 -C n1 -C r25 -ObentU 195.218.195.228 1.3.6.1.2.1.1 1.3.6.1.4.1.1
 #
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdgen
@@ -45,7 +45,7 @@ config.addSocketTransport(
 )
 config.addTargetAddr(
     snmpEngine, 'my-router',
-    udp.domainName, ('127.0.0.1', 161),
+    udp.domainName, ('195.218.195.228', 161),
     'my-creds'
 )
 

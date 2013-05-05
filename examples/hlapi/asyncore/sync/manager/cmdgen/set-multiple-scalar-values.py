@@ -5,7 +5,7 @@
 #
 # * with SNMPv1, community 'public'
 # * over IPv4/UDP
-# * to an Agent at localhost:161
+# * to an Agent at demo.snmplabs.com:161
 # * setting two OIDs to new values (types explicitly specified)
 #
 from pysnmp.entity.rfc3413.oneliner import cmdgen
@@ -15,10 +15,10 @@ cmdGen = cmdgen.CommandGenerator()
 
 errorIndication, errorStatus, errorIndex, varBinds = cmdGen.setCmd(
     cmdgen.CommunityData('public', mpModel=0),
-    cmdgen.UdpTransportTarget(('localhost', 161)),
-    ('1.3.6.1.2.1.1.2.0', rfc1902.ObjectName('1.3.6.1.4.1.20408.1.1')),
-    ('1.3.6.1.2.1.1.2.0', '1.3.6.1.4.1.20408.1.1'),
-    ('1.3.6.1.2.1.1.5.0', rfc1902.OctetString('new system name'))
+    cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
+    ('1.3.6.1.2.1.1.9.1.2.1', rfc1902.ObjectName('1.3.6.1.4.1.20408.1.1')),
+    ('1.3.6.1.2.1.1.9.1.2.1', '1.3.6.1.4.1.20408.1.1'),
+    ('1.3.6.1.2.1.1.9.1.3.1', rfc1902.OctetString('new system name'))
 )
 
 # Check for errors and print out results

@@ -58,7 +58,7 @@ transportDispatcher.registerTransport(
 
 # Pass message to dispatcher
 transportDispatcher.sendMessage(
-    encoder.encode(reqMsg), udp.domainName, ('localhost', 161)
+    encoder.encode(reqMsg), udp.domainName, ('demo.snmplabs.com', 161)
 )
 transportDispatcher.jobStarted(1)
 

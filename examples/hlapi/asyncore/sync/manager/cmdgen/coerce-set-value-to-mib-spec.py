@@ -5,7 +5,7 @@
 #
 # * with SNMPv2c, community 'public'
 # * over IPv4/UDP
-# * to an Agent at localhost:161
+# * to an Agent at demo.snmplabs.com:161
 # * setting SNMPv2-MIB::sysName.0 to new value (type taken from MIB)
 #
 from pysnmp.entity.rfc3413.oneliner import cmdgen
@@ -14,8 +14,8 @@ cmdGen = cmdgen.CommandGenerator()
 
 errorIndication, errorStatus, errorIndex, varBinds = cmdGen.setCmd(
     cmdgen.CommunityData('public'),
-    cmdgen.UdpTransportTarget(('localhost', 161)),
-    (cmdgen.MibVariable('SNMPv2-MIB', 'sysName', 0), 'new system name')
+    cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
+    (cmdgen.MibVariable('SNMPv2-MIB', 'sysORDescr', 1), 'new system name')
 )
 
 # Check for errors and print out results

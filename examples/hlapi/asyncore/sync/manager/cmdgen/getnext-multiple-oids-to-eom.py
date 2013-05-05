@@ -5,7 +5,7 @@
 #
 # * with SNMPv2c, community 'public'
 # * over IPv4/UDP
-# * to an Agent at localhost:161
+# * to an Agent at demo.snmplabs.com:161
 # * for two OIDs in string form
 # * stop when response OIDs leave the scopes of initial OIDs
 #
@@ -15,7 +15,7 @@ cmdGen = cmdgen.CommandGenerator()
 
 errorIndication, errorStatus, errorIndex, varBindTable = cmdGen.nextCmd(
     cmdgen.CommunityData('public'),
-    cmdgen.UdpTransportTarget(('localhost', 161)),
+    cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
     '1.3.6.1.2.1.2.2.1.2',
     '1.3.6.1.2.1.2.2.1.3',
 )

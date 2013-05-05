@@ -5,7 +5,7 @@
 #
 # * with SNMPv3 with user 'usr-md5-none', MD5 auth and no privacy protocols
 # * over IPv4/UDP
-# * to an Agent at localhost:161
+# * to an Agent at demo.snmplabs.com:161
 # * addressing particular set of Managed Objects at remote SNMP Engine by:
 #   * contextEngineId 0x8000000001020304 and
 #   * contextName 'my-context'
@@ -18,8 +18,8 @@ cmdGen = cmdgen.CommandGenerator()
 
 errorIndication, errorStatus, errorIndex, varBinds = cmdGen.setCmd(
     cmdgen.UsmUserData('usr-md5-none', 'authkey1'),
-    cmdgen.UdpTransportTarget(('localhost', 161)),
-    (cmdgen.MibVariable('SNMPv2-MIB', 'sysName', 0), 'new system name'),
+    cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
+    (cmdgen.MibVariable('SNMPv2-MIB', 'sysORDescr', 1), 'new system name'),
     contextEngineId=rfc1902.OctetString(hexValue='8000000001020304'),
     contextName='my-context'
 )

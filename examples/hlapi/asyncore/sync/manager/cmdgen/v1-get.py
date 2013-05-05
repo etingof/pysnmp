@@ -5,7 +5,7 @@
 #
 # * with SNMPv1, community 'public'
 # * over IPv4/UDP
-# * to an Agent at localhost:161
+# * to an Agent at demo.snmplabs.com:161
 # * for two instances of SNMPv2-MIB::sysDescr.0 MIB object,
 # * one in label and another in MIB symbol form
 #
@@ -15,7 +15,7 @@ cmdGen = cmdgen.CommandGenerator()
 
 errorIndication, errorStatus, errorIndex, varBinds = cmdGen.getCmd(
     cmdgen.CommunityData('public', mpModel=0),
-    cmdgen.UdpTransportTarget(('localhost', 161)),
+    cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
     cmdgen.MibVariable('iso.org.dod.internet.mgmt.mib-2.system.sysDescr.0'),
     cmdgen.MibVariable('SNMPv2-MIB', 'sysDescr', 0)
 )

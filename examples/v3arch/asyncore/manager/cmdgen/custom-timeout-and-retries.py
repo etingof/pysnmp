@@ -4,13 +4,13 @@
 # Send a SNMP GET request
 #     with SNMPv2c, community 'public'
 #     over IPv4/UDP
-#     to an Agent at 127.0.0.1:161
+#     to an Agent at 195.218.195.228:161
 #     wait 3 seconds for response, retry 5 times (plus one initial attempt)
 #     for an OID in tuple form
 #
 # This script performs similar to the following Net-SNMP command:
 #
-# $ snmpget -v2c -c public -ObentU -r 5 -t 1 127.0.0.1 1.3.6.1.2.1.1.1.0
+# $ snmpget -v2c -c public -ObentU -r 5 -t 1 195.218.195.228 1.3.6.1.2.1.1.1.0
 #
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asynsock.dgram import udp
@@ -42,7 +42,7 @@ config.addSocketTransport(
 )
 config.addTargetAddr(
     snmpEngine, 'my-router',
-    udp.domainName, ('127.0.0.1', 161),
+    udp.domainName, ('195.218.195.228', 161),
     'my-creds',
     timeout=300,  # in 1/100 sec
     retryCount=5

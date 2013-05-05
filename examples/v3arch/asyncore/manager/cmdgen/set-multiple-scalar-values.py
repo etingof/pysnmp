@@ -4,12 +4,12 @@
 # Send a SNMP SET request
 #     with SNMPv1 with community name 'private'
 #     over IPv4/UDP
-#     to an Agent at 127.0.0.1:161
+#     to an Agent at 195.218.195.228:161
 #     for OIDs in tuple form and an integer and string-typed values
 #
 # This script performs similar to the following Net-SNMP command:
 #
-# $ snmpset -v1 -c private -ObentU 127.0.0.1:161 1.3.6.1.2.1.1.1.0 s 'my value'  1.3.6.1.2.1.1.7.0 i 123 
+# $ snmpset -v1 -c private -ObentU 195.218.195.228:161 1.3.6.1.2.1.1.9.1.3.1 s 'my value'  1.3.6.1.2.1.1.9.1.4.1 t 123 
 #
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asynsock.dgram import udp
@@ -42,7 +42,7 @@ config.addSocketTransport(
 )
 config.addTargetAddr(
     snmpEngine, 'my-router',
-    udp.domainName, ('127.0.0.1', 161),
+    udp.domainName, ('195.218.195.228', 161),
     'my-creds'
 )
 
@@ -68,8 +68,8 @@ def cbFun(sendRequestHandle,
 cmdgen.SetCommandGenerator().sendReq(
     snmpEngine,
     'my-router',
-    ( ((1,3,6,1,2,1,1,1,0), rfc1902.OctetString('my value')),
-      ((1,3,6,1,2,1,1,7,0), rfc1902.Integer(123)) ),
+    ( ((1,3,6,1,2,1,1,9,1,3,1), rfc1902.OctetString('my value')),
+      ((1,3,6,1,2,1,1,9,1,4,1), rfc1902.Integer(123)) ),
     cbFun
 )
 

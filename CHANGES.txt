@@ -7,6 +7,8 @@ Revision 4.2.5rc1
   complex example implementations used previously.
 - SNMP Proxy example apps separated into a larger set of more specialized
   ones.
+- Most of Command Generator examples re-pointed to a live SNMP Agent
+  at demo.snmplabs.com to ease experimentation and adoption.
 - Packet-level SNMP API (pysnmp.proto.api) getErrorIndex() method can now
   be instructed to ignore portentially malformed errorIndex SNMP packet
   value what sometimes happens with buggy SNMP implementations.

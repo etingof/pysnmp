@@ -5,7 +5,7 @@
 #
 # * with SNMPv3, user 'usr-sha-aes128', SHA auth, AES128 privacy
 # * over IPv4/UDP
-# * to an Agent at localhost:161
+# * to an Agent at demo.snmplabs.com:161
 # * for TCP-MIB::tcpConnLocalAddress."0.0.0.0".22."0.0.0.0".0 MIB object
 #
 from pysnmp.entity.rfc3413.oneliner import cmdgen
@@ -16,7 +16,7 @@ errorIndication, errorStatus, errorIndex, varBinds = cmdGen.getCmd(
     cmdgen.UsmUserData('usr-sha-aes128', 'authkey1', 'privkey1',
                        authProtocol=cmdgen.usmHMACSHAAuthProtocol,
                        privProtocol=cmdgen.usmAesCfb128Protocol ),
-    cmdgen.UdpTransportTarget(('localhost', 161)),
+    cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
     cmdgen.MibVariable('TCP-MIB', 'tcpConnLocalAddress', '0.0.0.0', 22, '0.0.0.0', 0)
 )
 

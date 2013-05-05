@@ -15,8 +15,8 @@ pMod.apiPDU.setDefaults(reqPDU)
 pMod.apiPDU.setVarBinds(
     reqPDU,
     # A list of Var-Binds to SET
-    ( ('1.3.6.1.2.1.1.1.0', pMod.OctetString('New system description')),
-      ('1.3.6.1.2.1.1.3.0', pMod.TimeTicks(12)) )
+    ( ('1.3.6.1.2.1.1.9.1.3.1', pMod.OctetString('New system description')),
+      ('1.3.6.1.2.1.1.9.1.4.1', pMod.TimeTicks(12)) )
     )
 
 # Build message
@@ -44,7 +44,7 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
                 print(errorStatus.prettyPrint())
             else:
                 for oid, val in pMod.apiPDU.getVarBinds(rspPDU):
-                    print('%s = %s' (oid.prettyPrint(), val.prettyPrint()))
+                    print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
             transportDispatcher.jobFinished(1)
     return wholeMsg
 
@@ -60,7 +60,7 @@ transportDispatcher.registerTransport(
 
 # Pass message to dispatcher
 transportDispatcher.sendMessage(
-    encoder.encode(reqMsg), udp.domainName, ('localhost', 161)
+    encoder.encode(reqMsg), udp.domainName, ('demo.snmplabs.com', 161)
 )
 transportDispatcher.jobStarted(1)
 

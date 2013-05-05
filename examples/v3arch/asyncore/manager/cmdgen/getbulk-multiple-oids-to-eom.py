@@ -4,14 +4,14 @@
 # Send a series of SNMP GETBULK requests
 #     with SNMPv2c, community 'public'
 #     over IPv4/UDP
-#     to an Agent at 127.0.0.1:161
+#     to an Agent at 195.218.195.228:161
 #     with values non-repeaters = 0, max-repetitions = 25
 #     for two OIDs in tuple form
 #     stop on end-of-mib condition for both OIDs
 #
 # This script performs similar to the following Net-SNMP command:
 #
-# $ snmpbulkwalk -v2c -c public -C n0 -C r25 -ObentU 127.0.0.1 1.3.6.1.2.1.1 1.3.6.1.4.1.1
+# $ snmpbulkwalk -v2c -c public -C n0 -C r25 -ObentU 195.218.195.228 1.3.6.1.2.1.1 1.3.6.1.4.1.1
 #
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdgen
@@ -43,7 +43,7 @@ config.addSocketTransport(
 )
 config.addTargetAddr(
     snmpEngine, 'my-router',
-    udp.domainName, ('127.0.0.1', 161),
+    udp.domainName, ('195.218.195.228', 161),
     'my-creds'
 )
 

@@ -5,7 +5,7 @@
 #
 # * with SNMPv1, community 'public'
 # * over IPv4/UDP
-# * to an Agent at localhost:161
+# * to an Agent at demo.snmplabs.com:161
 # * for some columns of the IF-MIB::ifEntry table
 # * stop when response OIDs leave the scopes of initial OIDs
 #
@@ -17,7 +17,7 @@ cmdGen = cmdgen.CommandGenerator()
 
 errorIndication, errorStatus, errorIndex, varBindTable = cmdGen.nextCmd(
     cmdgen.CommunityData('public', mpModel=0),
-    cmdgen.UdpTransportTarget(('localhost', 161)),
+    cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
     cmdgen.MibVariable('IF-MIB', 'ifDescr'),
     cmdgen.MibVariable('IF-MIB', 'ifType'),
     cmdgen.MibVariable('IF-MIB', 'ifMtu'),
