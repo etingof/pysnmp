@@ -5,6 +5,8 @@ Revision 4.2.5rc1
   (http://opensource.org/licenses/BSD-2-Clause).
 - A dozen of lightweight Twisted-based example scripts replaced more
   complex example implementations used previously.
+- SNMP Proxy example apps separated into a larger set of more specialized
+  ones.
 - Packet-level SNMP API (pysnmp.proto.api) getErrorIndex() method can now
   be instructed to ignore portentially malformed errorIndex SNMP packet
   value what sometimes happens with buggy SNMP implementations.
