@@ -11,6 +11,10 @@ Revision 4.2.5rc1
 - Standard SNMP Apps and built-in proxy now ignores malformed errorIndex
   value.
 - Built-in logging now includes timestamps.
+- Multi-lingual capabilities of all CommandGenerator & NotificationOriginator
+  apps re-worked and improved. For instance it is now it's possible to run
+  getBulk() against a SNMPv1 Agent invoking built-in SNMP Proxy behind the
+  scene.
 - The $PYSNMP_MIB_DIR & $PYSNMP_MIB_DIRS & $PYSNMP_MIB_PKGS path separator
   made platform-specific.
 - Change to rfc2576.v1tov2() logic: errorStatus = noSuchName is now 

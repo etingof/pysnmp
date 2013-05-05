@@ -44,7 +44,6 @@ class NotificationOriginator:
           origSecurityLevel,
           origContextEngineId,
           origContextName,
-          origPduVersion,
           origPdu,
           origTimeout,
           origRetryCount,
@@ -75,7 +74,15 @@ class NotificationOriginator:
 
             # Convert timeout in seconds into timeout in timer ticks
             timeoutInTicks = float(origTimeout)/100/snmpEngine.transportDispatcher.getTimerResolution()
-        
+
+            # User-side API assumes SMIv2
+            if messageProcessingModel == 0:
+                reqPDU = rfc2576.v2ToV1(origPdu)
+                pduVersion = 0
+            else:
+                reqPDU = origPdu
+                pduVersion = 1
+ 
             # 3.3.6a
             try:
                 sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(
@@ -88,8 +95,8 @@ class NotificationOriginator:
                     origSecurityLevel,
                     origContextEngineId,
                     origContextName,
-                    origPduVersion,
-                    origPdu,
+                    pduVersion,
+                    reqPDU,
                     1,                              # expectResponse
                     timeoutInTicks,
                     self.processResponsePdu,
@@ -125,7 +132,6 @@ class NotificationOriginator:
                 origSecurityLevel,
                 origContextEngineId,
                 origContextName,
-                origPduVersion,
                 origPdu,
                 origTimeout,
                 origRetryCount,
@@ -137,11 +143,15 @@ class NotificationOriginator:
         # 3.3.6c
         if not self.__pendingNotifications[metaSendPduHandle]:
             del self.__pendingNotifications[metaSendPduHandle]
-            pMod = api.protoModules[pduVersion]
+
+            # User-side API assumes SMIv2
+            if messageProcessingModel == 0:
+                PDU = rfc2576.v1ToV2(PDU, origPdu)
+
             self._handleResponse(metaSendPduHandle, None,
-                                 pMod.apiPDU.getErrorStatus(PDU),
-                                 pMod.apiPDU.getErrorIndex(PDU,muteErrors=True),
-                                 pMod.apiPDU.getVarBinds(PDU),            
+                                 v2c.apiPDU.getErrorStatus(PDU),
+                                 v2c.apiPDU.getErrorIndex(PDU,muteErrors=True),
+                                 v2c.apiPDU.getVarBinds(PDU),            
                                  cbFun, cbCtx)
 
     def _handleResponse(self,
@@ -270,9 +280,10 @@ class NotificationOriginator:
 
             # User-side API assumes SMIv2
             if messageProcessingModel == 0:
-                pdu = rfc2576.v2ToV1(pdu)
+                reqPDU = rfc2576.v2ToV1(pdu)
                 pduVersion = 0
             else:
+                reqPDU = pdu
                 pduVersion = 1
             
             # 3.3.5
@@ -289,7 +300,7 @@ class NotificationOriginator:
                         self.snmpContext.contextEngineId,
                         contextName,
                         pduVersion,
-                        pdu,
+                        reqPDU,
                         None
                     )
                 except error.StatusInformation:
@@ -322,7 +333,7 @@ class NotificationOriginator:
                         self.snmpContext.contextEngineId,
                         contextName,
                         pduVersion,
-                        pdu,
+                        reqPDU,
                         1,                      # expectResponse
                         timeoutInTicks,
                         self.processResponsePdu,
@@ -354,7 +365,6 @@ class NotificationOriginator:
                     securityLevel,
                     self.snmpContext.contextEngineId,
                     contextName,
-                    pduVersion,
                     pdu,
                     timeout,
                     retryCount,
