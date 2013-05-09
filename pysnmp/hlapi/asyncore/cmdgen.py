@@ -77,14 +77,17 @@ class AsynCommandGenerator:
             )
             self.__knownParams[k] = paramsName
 
-        if transportTarget.transportDomain not in self.__knownTransports:
+        if transportTarget.transportDomain in self.__knownTransports:
+            transport, useCount = self.__knownTransports[transportTarget.transportDomain]
+            self.__knownTransports[transportTarget.transportDomain] = transport, useCount + 1
+        else:
             transport = transportTarget.openClientMode()
             config.addSocketTransport(
                 self.snmpEngine,
                 transportTarget.transportDomain,
                 transport
             )
-            self.__knownTransports[transportTarget.transportDomain] = transport
+            self.__knownTransports[transportTarget.transportDomain] = transport, 1
 
         k = ( paramsName,
               transportTarget.transportDomain,
@@ -108,8 +111,20 @@ class AsynCommandGenerator:
 
         return addrName, paramsName
 
-    def uncfgCmdGen(self):
-        for authData in self.__knownAuths.values():
+    def uncfgCmdGen(self, authData=None):
+        if authData:
+            if authData.securityName in self.__knownAuths:
+                securityNames = ( authData.securityName, )
+            else:
+                raise error.PySnmpError('Unknown authData %s' % (authData,))
+        else:
+            securityNames = self.__knownAuths.keys()
+
+        addrNames, paramsNames = set(), set()
+
+        for securityName in securityNames:
+            authData = self.__knownAuths[securityName] 
+            del self.__knownAuths[authData.securityName]
             if isinstance(authData, CommunityData):
                 config.delV1System(
                     self.snmpEngine,
@@ -121,27 +136,40 @@ class AsynCommandGenerator:
                     )
             else:
                 raise error.PySnmpError('Unsupported authentication object')
-        self.__knownAuths.clear()
 
-        for paramsName in self.__knownParams.values():
-            config.delTargetParams(
-                self.snmpEngine, paramsName
+            k = authData.securityName, authData.securityLevel, authData.mpModel
+            if k in self.__knownParams:
+                paramsName = self.__knownParams[k]
+                del self.__knownParams[k]
+                config.delTargetParams(
+                    self.snmpEngine, paramsName
                 )
-        self.__knownParams.clear()
-        
-        for transportDomain, transport in self.__knownTransports.items():
-            config.delSocketTransport(
-                self.snmpEngine, transportDomain
-                )
-            transport.closeTransport()
-        self.__knownTransports.clear()
+                paramsNames.add(paramsName)
+            else:
+                raise error.PySnmpError('Unknown target %s/%s/%s' % k)
 
-        for addrName in self.__knownTransportAddrs.values():
-            config.delTargetAddr(
-                self.snmpEngine, addrName
+            addrKeys = [ x for x in self.__knownTransportAddrs if x[0] == paramsName ]
+
+            for addrKey in addrKeys:
+                config.delTargetAddr(
+                    self.snmpEngine, self.__knownTransportAddrs[addrKey]
                 )
-        self.__knownTransportAddrs.clear()
-                
+                self.__knownTransportAddrs[addrKey]
+
+                addrNames.add(addrKey)
+
+                if addrKey[1] in self.__knownTransports:
+                    transport, useCount = self.__knownTransports[addrKey[1]]
+                    if useCount > 1:
+                        useCount -= 1
+                        self.__knownTransports[addrKey[1]] = transport,useCount
+                    else:
+                        config.delSocketTransport(self.snmpEngine, addrKey[1])
+                        transport.close()
+                        del self.__knownTransports[addrKey[1]]
+
+        return addrNames, paramsNames
+
     def makeReadVarBinds(self, varNames):
         varBinds = []
         for varName in varNames:

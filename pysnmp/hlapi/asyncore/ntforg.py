@@ -1,6 +1,6 @@
 from pyasn1.type import base
 from pyasn1.compat.octets import null
-from pysnmp import nextid
+from pysnmp import nextid, error
 from pysnmp.entity import config
 from pysnmp.entity.rfc3413 import ntforg, context
 from pysnmp.entity.rfc3413.oneliner.mibvar import MibVariable
@@ -52,10 +52,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                     notifyType
                 )
                 self.__knownNotifyNames[k] = notifyName, paramsName
-        k = ( authData.securityModel,
-              authData.securityName,
-              authData.securityLevel )
-        if k not in self.__knownAuths:
+        if  authData.securityName not in self.__knownAuths:
             subTree = (1,3,6)
             config.addTrapUser(
                 self.snmpEngine,
@@ -63,8 +60,8 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                 authData.securityName,
                 authData.securityLevel,
                 subTree
-                )
-            self.__knownAuths[k] = subTree
+            )
+            self.__knownAuths[authData.securityName] = authData, subTree
         if self.snmpContext is None:
             self.snmpContext = context.SnmpContext(self.snmpEngine)
             config.addContext(
@@ -72,21 +69,35 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
             )
         return notifyName
     
-    def uncfgNtfOrg(self):
-        for notifyName, paramsName in self.__knownNotifyNames.values():
+    def uncfgNtfOrg(self, authData=None):
+        if authData:
+            if authData.securityName in self.__knownAuths:
+                securityNames = ( authData.securityName, )
+            else:
+                raise error.PySnmpError('Unknown authData %s' % (authData,))
+        else:
+            securityNames = self.__knownAuths.keys()
+
+        addrNames, paramsNames = self.uncfgCmdGen(authData)
+
+        notifyAndParamsNames = [ (self.__knownNotifyNames[x], x) for x in self.__knownNotifyNames.keys() if x[0] in paramsNames ]
+
+        for (notifyName, paramsName), k in notifyAndParamsNames:
             config.delNotificationTarget(
                 self.snmpEngine, notifyName, paramsName
                 )
-        for k, subTree in self.__knownAuths.items():
-            securityModel, securityName, securityLevel = k
+            del self.__knownNotifyNames[k]
+
+        for securityName in securityNames:
+            authData, subTree = self.__knownAuths[securityName]
             config.delTrapUser(
                 self.snmpEngine,
-                securityModel,
-                securityName,
-                securityLevel,
+                authData.securityModel,
+                authData.securityName,
+                authData.securityLevel,
                 subTree
-                )
-        self.uncfgCmdGen()
+            )
+            del self.__knownAuths[securityName]
 
     def sendNotification(self, authData, transportTarget, notifyType,
                          notificationType, varBinds=None,
