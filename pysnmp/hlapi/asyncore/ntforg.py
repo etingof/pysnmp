@@ -100,7 +100,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
             del self.__knownAuths[securityName]
 
     def sendNotification(self, authData, transportTarget, notifyType,
-                         notificationType, varBinds=None,
+                         notificationType, varBinds=(),
                          cbInfo=(None, None), 
                          lookupNames=False, lookupValues=False,
                          contextName=null):
@@ -144,27 +144,8 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
             notificationType = notificationType.resolveWithMib(self.mibViewController, oidOnly=True)
         elif isinstance(notificationType[0], tuple):  # legacy
             notificationType = MibVariable(notificationType[0][0], notificationType[0][1], *notificationType[1:]).resolveWithMib(self.mibViewController)
-        additionalVarBinds = []
-        if varBinds:
-            for varName, varVal in varBinds:
-                if isinstance(varName, MibVariable):
-                    varName.resolveWithMib(self.mibViewController)
-                    if not isinstance(varVal, base.AbstractSimpleAsn1Item):
-                        varVal = varName.getMibNode().getSyntax().clone(varVal)
-                elif isinstance(varName[0], tuple):  # legacy
-                    varName = MibVariable(varName[0][0], varName[0][1], *varName[1:]).resolveWithMib(self.mibViewController)
-                    if not isinstance(varVal, base.AbstractSimpleAsn1Item):
-                        varVal = varName.getMibNode().getSyntax().clone(varVal)
-                else:
-                    if isinstance(varVal, base.AbstractSimpleAsn1Item):
-                        varName = MibVariable(varName).resolveWithMib(self.mibViewController, oidOnly=True)
-                    else:
-                        varName = MibVariable(varName).resolveWithMib(self.mibViewController)
-                        varVal = varName.getMibNode().getSyntax().clone(varVal)
-                    
-                additionalVarBinds.append((varName, varVal))
 
-        return ntforg.NotificationOriginator(self.snmpContext).sendNotification(self.snmpEngine, notifyName, notificationType, additionalVarBinds, __cbFun, (lookupNames, lookupValues, cbFun, cbCtx), contextName)
+        return ntforg.NotificationOriginator(self.snmpContext).sendNotification(self.snmpEngine, notifyName, notificationType, self.makeVarBinds(varBinds), __cbFun, (lookupNames, lookupValues, cbFun, cbCtx), contextName)
 
     asyncSendNotification = sendNotification
   

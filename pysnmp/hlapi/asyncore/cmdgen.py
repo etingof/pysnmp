@@ -170,19 +170,36 @@ class AsynCommandGenerator:
 
         return addrNames, paramsNames
 
+    # compatibility stub
     def makeReadVarBinds(self, varNames):
-        varBinds = []
-        for varName in varNames:
+        return self.makeVarBinds(
+            [ (x, self._null) for x in varNames ], oidOnly=True
+        )
+
+    def makeVarBinds(self, varBinds, oidOnly=False):
+        __varBinds = []
+        for varName, varVal in varBinds:
             if isinstance(varName, MibVariable):
-                varName.resolveWithMib(
-                    self.mibViewController, oidOnly=True
-                )
+                if oidOnly or isinstance(varVal, base.AbstractSimpleAsn1Item):
+                    varName.resolveWithMib(self.mibViewController, oidOnly=True)
+                else:
+                    varName.resolveWithMib(self.mibViewController)
+                    varVal = varName.getMibNode().getSyntax().clone(varVal)
             elif isinstance(varName[0], tuple):  # legacy
                 varName = MibVariable(varName[0][0], varName[0][1], *varName[1:]).resolveWithMib(self.mibViewController)
+                if not oidOnly and \
+                        not isinstance(varVal, base.AbstractSimpleAsn1Item):
+                    varVal = varName.getMibNode().getSyntax().clone(varVal)
             else:
-                varName = MibVariable(varName).resolveWithMib(self.mibViewController, oidOnly=True)
-            varBinds.append((varName, self._null))
-        return varBinds
+                if oidOnly or isinstance(varVal, base.AbstractSimpleAsn1Item):
+                    varName = MibVariable(varName).resolveWithMib(self.mibViewController, oidOnly=True)
+                else:
+                    varName = MibVariable(varName).resolveWithMib(self.mibViewController)
+                    varVal = varName.getMibNode().getSyntax().clone(varVal)
+
+            __varBinds.append((varName, varVal))
+
+        return __varBinds
 
     def unmakeVarBinds(self, varBinds, lookupNames, lookupValues):
         if lookupNames or lookupValues:
@@ -264,28 +281,12 @@ class AsynCommandGenerator:
         addrName, paramsName = self.cfgCmdGen(
             authData, transportTarget
         )
-        __varBinds = []
-        for varName, varVal in varBinds:
-            if isinstance(varName, MibVariable):
-                varName.resolveWithMib(self.mibViewController)
-                if not isinstance(varVal, base.AbstractSimpleAsn1Item):
-                    varVal = varName.getMibNode().getSyntax().clone(varVal)
-            elif isinstance(varName[0], tuple):  # legacy
-                varName = MibVariable(varName[0][0], varName[0][1], *varName[1:]).resolveWithMib(self.mibViewController)
-                if not isinstance(varVal, base.AbstractSimpleAsn1Item):
-                    varVal = varName.getMibNode().getSyntax().clone(varVal)
-            else:
-                if isinstance(varVal, base.AbstractSimpleAsn1Item):
-                    varName = MibVariable(varName).resolveWithMib(self.mibViewController, oidOnly=True)
-                else:
-                    varName = MibVariable(varName).resolveWithMib(self.mibViewController)
-                    varVal = varName.getMibNode().getSyntax().clone(varVal)
 
-            __varBinds.append((varName, varVal))
+
         return cmdgen.SetCommandGenerator().sendReq(
             self.snmpEngine,
             addrName,
-            __varBinds,
+            self.makeVarBinds(varBinds),
             __cbFun,
             (lookupNames, lookupValues, cbFun, cbCtx),
             contextEngineId, contextName

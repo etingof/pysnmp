@@ -28,6 +28,9 @@ Revision 4.2.5rc1
   can't easily stop doing that.
 - The snmpCommunityTable row selection improved to follow RFC2576, clause
   5.2.1.
+- AsynCommandGenerator.makeReadVarBinds() generalized into a new
+  makeVarBinds() method which replaces somewhat redundant code at setCmd()
+  and AsynNotificationOriginator.sendNotification().
 - AsynCommandGenerator.uncfgCmdGen() & AsynNotificationOriginator.uncfgCmdGen()
   methods now accept optional authData parameter to remove specific entries
   from LCD. This can be useful for modifying security parameters for
