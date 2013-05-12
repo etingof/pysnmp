@@ -284,7 +284,8 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
             # 5.2.1 (row selection in snmpCommunityTable)
             # Picks first match but favors entries already in targets table
             if candidateSecurityNames: 
-                chosenSecurityName = min(candidateSecurityNames, key=lambda x,m=self.__nameToModelMap,v=self.securityModelID: (not int(x[0] in m and v in m[x[0]]), str(x[0])))
+                candidateSecurityNames.sort(key=lambda x,m=self.__nameToModelMap,v=self.securityModelID: (not int(x[0] in m and v in m[x[0]]), str(x[0])))
+                chosenSecurityName = candidateSecurityNames[0]  # min()
                 debug.logger & debug.flagSM and debug.logger('_com2sec: securityName candidates for communityName \'%s\' are %s; choosing securityName \'%s\'' % (communityName, candidateSecurityNames, chosenSecurityName[0]))
                 return chosenSecurityName
 
