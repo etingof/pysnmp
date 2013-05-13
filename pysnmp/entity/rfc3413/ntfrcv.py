@@ -15,7 +15,7 @@ class NotificationReceiver:
     def __init__(self, snmpEngine, cbFun, cbCtx=None):
         snmpEngine.msgAndPduDsp.registerContextEngineId(
             null, self.pduTypes, self.processPdu # '' is a wildcard
-            )
+        )
         self.__cbFunVer = 0
         self.__cbFun = cbFun
         self.__cbCtx = cbCtx
@@ -23,7 +23,8 @@ class NotificationReceiver:
     def close(self, snmpEngine):
         snmpEngine.msgAndPduDsp.unregisterContextEngineId(
             null, self.pduTypes
-            )
+        )
+        self.__cbFun = self.__cbCtx = None
 
     def processPdu(
         self,

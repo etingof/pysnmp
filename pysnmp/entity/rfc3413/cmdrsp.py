@@ -25,6 +25,7 @@ class CommandResponderBase:
         snmpEngine.msgAndPduDsp.unregisterContextEngineId(
             self.snmpContext.contextEngineId, self.pduTypes
             )
+        self.snmpContext = self.__pendingReqs = None
 
     def sendRsp(self, snmpEngine, stateReference,
                      errorStatus, errorIndex, varBinds):

@@ -1,4 +1,4 @@
-Revision 4.2.5rc1
+Revision 4.2.5rc2
 -----------------
 
 - License updated to vanilla BSD 2-Clause to ease package use
@@ -58,6 +58,8 @@ Revision 4.2.5rc1
   were cloned from the target one.
 - Fix to exceptions handling at MsgAndPduDispatcher.sendPdu() to avoid
   sendPduHandle miss (followed by system crash) on cache expiration run.
+- Break cyclic references at CommandResponder and NotificationReceiver apps
+  through close() method.
 - Typos fixed in error-status constants at CommandResponder
 - Missing import added to oneliner auth module.
 - Cosmetic changes to v3arch example scripts.
