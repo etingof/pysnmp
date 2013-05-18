@@ -49,19 +49,19 @@ privServices = {
     nopriv.NoPriv.serviceID: nopriv.NoPriv()
     }
     
-def __cookV1SystemInfo(snmpEngine, securityName):
+def __cookV1SystemInfo(snmpEngine, communityIndex):
     snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
     snmpCommunityEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-COMMUNITY-MIB', 'snmpCommunityEntry')
-    tblIdx = snmpCommunityEntry.getInstIdFromIndices(securityName)
+    tblIdx = snmpCommunityEntry.getInstIdFromIndices(communityIndex)
     return snmpCommunityEntry, tblIdx, snmpEngineID
     
-def addV1System(snmpEngine, securityName, communityName,
+def addV1System(snmpEngine, communityIndex, communityName,
                 contextEngineId=None, contextName=None,
-                transportTag=None):
+                transportTag=None, securityName=None):
     snmpCommunityEntry, tblIdx, snmpEngineID = __cookV1SystemInfo(
-        snmpEngine, securityName
-        )
+        snmpEngine, communityIndex
+    )
 
     if contextEngineId is None:
         contextEngineId = snmpEngineID.syntax
@@ -73,36 +73,37 @@ def addV1System(snmpEngine, securityName, communityName,
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpCommunityEntry.name + (8,) + tblIdx, 'destroy'),)
-        )
+    )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpCommunityEntry.name + (8,) + tblIdx, 'createAndGo'),
+         (snmpCommunityEntry.name + (1,) + tblIdx, communityIndex),
          (snmpCommunityEntry.name + (2,) + tblIdx, communityName),
-         (snmpCommunityEntry.name + (3,) + tblIdx, securityName),
+         (snmpCommunityEntry.name + (3,) + tblIdx, securityName is not None and securityName or communityIndex),
          (snmpCommunityEntry.name + (4,) + tblIdx, contextEngineId),
          (snmpCommunityEntry.name + (5,) + tblIdx, contextName),
          (snmpCommunityEntry.name + (6,) + tblIdx, transportTag),
          (snmpCommunityEntry.name + (7,) + tblIdx, 'nonVolatile'))
-        )
+    )
 
-def delV1System(snmpEngine, securityName):
+def delV1System(snmpEngine, communityIndex):
     snmpCommunityEntry, tblIdx, snmpEngineID = __cookV1SystemInfo(
-        snmpEngine, securityName
-        )
+        snmpEngine, communityIndex
+    )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpCommunityEntry.name + (8,) + tblIdx, 'destroy'),)
-        )
+    )
 
-def __cookV3UserInfo(snmpEngine, securityName, contextEngineId):
+def __cookV3UserInfo(snmpEngine, securityName, securityEngineId):
     snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
-    if contextEngineId is None:
+    if securityEngineId is None:
         snmpEngineID = snmpEngineID.syntax
     else:
-        snmpEngineID = snmpEngineID.syntax.clone(contextEngineId)
+        snmpEngineID = snmpEngineID.syntax.clone(securityEngineId)
 
     usmUserEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmUserEntry')
     tblIdx1 = usmUserEntry.getInstIdFromIndices(
         snmpEngineID, securityName
-        )
+    )
 
     pysnmpUsmSecretEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('PYSNMP-USM-MIB', 'pysnmpUsmSecretEntry')
     tblIdx2 = pysnmpUsmSecretEntry.getInstIdFromIndices(securityName)
@@ -112,11 +113,13 @@ def __cookV3UserInfo(snmpEngine, securityName, contextEngineId):
 def addV3User(snmpEngine, securityName,
               authProtocol=usmNoAuthProtocol, authKey=None,
               privProtocol=usmNoPrivProtocol, privKey=None,
-              contextEngineId=None):
+              contextEngineId=None, securityEngineId=None):
+    if securityEngineId is None:  # backward compatibility
+        securityEngineId = contextEngineId
     ( snmpEngineID, usmUserEntry, tblIdx1,
       pysnmpUsmSecretEntry, tblIdx2 ) = __cookV3UserInfo(
-        snmpEngine, securityName, contextEngineId
-        )
+        snmpEngine, securityName, securityEngineId
+    )
 
     # Load augmenting table before creating new row in base one
     pysnmpUsmKeyEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('PYSNMP-USM-MIB', 'pysnmpUsmKeyEntry')
@@ -129,6 +132,7 @@ def addV3User(snmpEngine, securityName,
     )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((usmUserEntry.name + (13,) + tblIdx1, 'createAndGo'),
+         (usmUserEntry.name + (2,) + tblIdx1, securityName),
          (usmUserEntry.name + (3,) + tblIdx1, securityName),
          (usmUserEntry.name + (4,) + tblIdx1, zeroDotZero.name),
          (usmUserEntry.name + (5,) + tblIdx1, authProtocol),
@@ -177,11 +181,14 @@ def addV3User(snmpEngine, securityName,
          (pysnmpUsmSecretEntry.name + (3,) + tblIdx2, privKey),)
         )
 
-def delV3User(snmpEngine, securityName, contextEngineId=None):
+def delV3User(snmpEngine, securityName, contextEngineId=None,
+              securityEngineId=None):
+    if securityEngineId is None:  # backward compatibility
+        securityEngineId = contextEngineId
     ( snmpEngineID, usmUserEntry, tblIdx1,
       pysnmpUsmSecretEntry, tblIdx2 ) = __cookV3UserInfo(
-        snmpEngine, securityName, contextEngineId
-        )
+        snmpEngine, securityName, securityEngineId
+    )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((usmUserEntry.name + (13,) + tblIdx1, 'destroy'),)
     )
@@ -191,17 +198,18 @@ def delV3User(snmpEngine, securityName, contextEngineId=None):
 
     # Drop all derived rows
     varBinds = initialVarBinds = (
-        (usmUserEntry.name + (1,), None),
-        (usmUserEntry.name + (4,), None)
+        (usmUserEntry.name + (1,), None),  # usmUserEngineID
+        (usmUserEntry.name + (3,), None),  # usmSecurityName
+        (usmUserEntry.name + (4,), None)   # usmUserCloneFrom
     )
-    while True:
+    while varBinds:
         varBinds = snmpEngine.msgAndPduDsp.mibInstrumController.readNextVars(
             varBinds
         )
         if varBinds[0][0][:len(initialVarBinds[0][0])]!=initialVarBinds[0][0]:
             break
-        elif varBinds[1][1] == tblIdx1:  # cloned from this entry
-            delV3User(snmpEngine, securityName, varBinds[0][1])
+        elif varBinds[2][1] == tblIdx1:  # cloned from this entry
+            delV3User(snmpEngine, varBinds[1][1], varBinds[0][1])
             varBinds = initialVarBinds
 
 def __cookTargetParamsInfo(snmpEngine, name):

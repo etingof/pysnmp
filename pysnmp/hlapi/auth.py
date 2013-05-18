@@ -8,10 +8,9 @@ class CommunityData:
     securityLevel = 'noAuthNoPriv'
     contextName = null
     tag = null
-    def __init__(self, securityName, communityName=None, mpModel=None,
-                 contextEngineId=None, contextName=None, tag=None):
-        self.securityName = securityName
-        self.communityName = communityName
+    def __init__(self, communityIndex, communityName=None, mpModel=None,
+                 contextEngineId=None, contextName=None, tag=None,
+                 securityName=None):
         if mpModel is not None:
             self.mpModel = mpModel
             self.securityModel = mpModel + 1
@@ -22,20 +21,28 @@ class CommunityData:
             self.tag = tag
         # Autogenerate securityName if not specified
         if communityName is None:
-            self.communityName = securityName
-            self.securityName = 's%s' % hash(
-                ( securityName, self.mpModel,
+            self.communityName = communityIndex
+            self.communityIndex = self.securityName = 's%s' % hash(
+                ( communityIndex, self.mpModel,
                   self.contextEngineId, self.contextName, self.tag )
                 )
-            
+        else:
+            self.communityIndex = communityIndex
+            self.communityName = communityName
+            self.securityName = securityName is not None and securityName or communityIndex
+
+    def __hash__(self):
+        raise TypeError('%s is not hashable' % self.__class__.__name__)
+
     def __repr__(self):
-        return '%s("%s", <COMMUNITY>, %r, %r, %r, %r)' % (
+        return '%s("%s", <COMMUNITY>, %r, %r, %r, %r, %r)' % (
             self.__class__.__name__,
-            self.securityName,
+            self.communityIndex,
             self.mpModel,
             self.contextEngineId,
             self.contextName,
-            self.tag
+            self.tag,
+            self.securityName
         )
 
 class UsmUserData:
@@ -77,6 +84,9 @@ class UsmUserData:
         if contextName is not None:
             self.contextName = contextName
         
+    def __hash__(self):
+        raise TypeError('%s is not hashable' % self.__class__.__name__)
+
     def __repr__(self):
         return '%s("%s", <AUTHKEY>, <PRIVKEY>, %r, %r, %r, %r)' % (
             self.__class__.__name__,
