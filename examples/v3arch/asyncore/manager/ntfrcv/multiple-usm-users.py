@@ -45,13 +45,13 @@ config.addV3User(
     config.usmDESPrivProtocol, 'privkey1'
 )
 
-# user: usr-md5-des, auth: MD5, priv DES, contextEngineId: 8000000001020304
+# user: usr-md5-des, auth: MD5, priv DES, securityEngineId: 8000000001020304
 # this USM entry is used for TRAP receiving purposes
 config.addV3User(
     snmpEngine, 'usr-md5-des',
     config.usmHMACMD5AuthProtocol, 'authkey1',
     config.usmDESPrivProtocol, 'privkey1',
-    contextEngineId=v2c.OctetString(hexValue='8000000001020304')
+    securityEngineId=v2c.OctetString(hexValue='8000000001020304')
 )
 
 # user: usr-md5-none, auth: MD5, priv NONE
@@ -60,12 +60,12 @@ config.addV3User(
     config.usmHMACMD5AuthProtocol, 'authkey1'
 )
 
-# user: usr-md5-none, auth: MD5, priv NONE, contextEngineId: 8000000001020304
+# user: usr-md5-none, auth: MD5, priv NONE, securityEngineId: 8000000001020304
 # this USM entry is used for TRAP receiving purposes
 config.addV3User(
     snmpEngine, 'usr-md5-none',
     config.usmHMACMD5AuthProtocol, 'authkey1',
-    contextEngineId=v2c.OctetString(hexValue='8000000001020304')
+    securityEngineId=v2c.OctetString(hexValue='8000000001020304')
 )
 
 # user: usr-sha-aes128, auth: SHA, priv AES
@@ -74,13 +74,13 @@ config.addV3User(
     config.usmHMACSHAAuthProtocol, 'authkey1',
     config.usmAesCfb128Protocol, 'privkey1'
 )
-# user: usr-sha-aes128, auth: SHA, priv AES, contextEngineId: 8000000001020304
+# user: usr-sha-aes128, auth: SHA, priv AES, securityEngineId: 8000000001020304
 # this USM entry is used for TRAP receiving purposes
 config.addV3User(
     snmpEngine, 'usr-sha-aes128',
     config.usmHMACSHAAuthProtocol, 'authkey1',
     config.usmAesCfb128Protocol, 'privkey1',
-    contextEngineId=v2c.OctetString(hexValue='8000000001020304')
+    securityEngineId=v2c.OctetString(hexValue='8000000001020304')
 )
 
 # Callback function for receiving notifications
