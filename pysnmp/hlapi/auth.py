@@ -58,7 +58,10 @@ class UsmUserData:
     def __init__(self, securityName,
                  authKey=None, privKey=None,
                  authProtocol=None, privProtocol=None,
-                 contextEngineId=None, contextName=None):
+                 securityEngineId=None,
+                 # deprecated parameters follow
+                 contextName=None,
+                 contextEngineId=None):
         self.securityName = securityName
         
         if authKey is not None:
@@ -80,7 +83,12 @@ class UsmUserData:
             else:
                 self.privProtocol = privProtocol
 
-        self.contextEngineId = contextEngineId
+        # the contextEngineId parameter is actually a securityEngineId
+        if securityEngineId is None:
+            securityEngineId = contextEngineId
+        self.contextEngineId = self.securityEngineId = securityEngineId
+
+        # the contextName parameter should never be used here
         if contextName is not None:
             self.contextName = contextName
         
@@ -88,11 +96,10 @@ class UsmUserData:
         raise TypeError('%s is not hashable' % self.__class__.__name__)
 
     def __repr__(self):
-        return '%s("%s", <AUTHKEY>, <PRIVKEY>, %r, %r, %r, %r)' % (
+        return '%s("%s", <AUTHKEY>, <PRIVKEY>, %r, %r, %r)' % (
             self.__class__.__name__,
             self.securityName,
             self.authProtocol,
             self.privProtocol,
-            self.contextEngineId,
-            self.contextName
+            self.securityEngineId
         )

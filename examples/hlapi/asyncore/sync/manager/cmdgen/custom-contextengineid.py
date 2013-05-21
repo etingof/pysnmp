@@ -17,7 +17,7 @@ cmdGen = cmdgen.CommandGenerator()
 errorIndication, errorStatus, errorIndex, varBinds = cmdGen.setCmd(
     cmdgen.UsmUserData(
         'usr-md5-des', 'authkey1', 'privkey1',
-        contextEngineId=rfc1902.OctetString(hexValue='8000000004030201')
+        securityEngineId=rfc1902.OctetString(hexValue='8000000004030201')
     ),
     cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
     (cmdgen.MibVariable('SNMPv2-MIB', 'sysORDescr', 1), 'new system name'),
