@@ -42,6 +42,9 @@ Revision 4.2.5rc2
   renamed into securityEngineId as it's semantically correct
 - Oneliner transport target classes now support the getTransportInfo()
   method that returns network addresses used on protocol level.
+- The SnmpV3MessageProcessingModel.getPeerEngineInfo() method is implemented
+  to communicate discovered peer SNMP engine information to SNMP apps what
+  can be used for fine usmUserTable configuration.
 - AsynNotificationOriginator.cfgCmdGen() does not take into account
   securityModel & securityLevel when reducing LCD access via addTrapUser().
   This improves LCD consistency on sparse add/del operatons but also

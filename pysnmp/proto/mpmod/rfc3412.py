@@ -67,10 +67,19 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
     def __init__(self):
         AbstractMessageProcessingModel.__init__(self)
         self.__scopedPDU = ScopedPDU()
-        self.__engineIDs = {}
-        self.__engineIDsExpQueue = {}
+        self.__engineIdCache = {}
+        self.__engineIdCacheExpQueue = {}
         self.__expirationTimer = 0
-        
+       
+    def getPeerEngineInfo(self, transportDomain, transportAddress):
+        k = transportDomain, transportAddress
+        if k in self.__engineIdCache:
+            return self.__engineIdCache[k]['securityEngineId'], \
+                   self.__engineIdCache[k]['contextEngineId'], \
+                   self.__engineIdCache[k]['contextName']
+        else:
+            return None, None, None
+         
     # 7.1.1a
     def prepareOutgoingMessage(
         self,
@@ -97,8 +106,8 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: new msgID %s' % msgID)
 
         k = (transportDomain, transportAddress)
-        if k in self.__engineIDs:
-            peerSnmpEngineData = self.__engineIDs[k]
+        if k in self.__engineIdCache:
+            peerSnmpEngineData = self.__engineIdCache[k]
         else:
             peerSnmpEngineData = None
 
@@ -110,11 +119,11 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 contextEngineId = snmpEngineID
             else:
                 contextEngineId = peerSnmpEngineData['contextEngineId']
-                # Defaulting contextEngineID to securityEngineID should
+                # Defaulting contextEngineID to securityEngineId should
                 # probably be done on Agent side (see 7.1.3.d.2,) so this
                 # is a sort of workaround.
                 if not contextEngineId:
-                    contextEngineId = peerSnmpEngineData['securityEngineID']
+                    contextEngineId = peerSnmpEngineData['securityEngineId']
         # 7.1.5
         if not contextName:
             contextName = self._emptyStr
@@ -185,11 +194,11 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
 
         # 7.1.9.a
         if pdu.tagSet in rfc3411.unconfirmedClassPDUs:
-            securityEngineID = snmpEngineID
+            securityEngineId = snmpEngineID
         else:
             if peerSnmpEngineData is None:
                 # Force engineID discovery (rfc3414, 4)
-                securityEngineID = securityName = self._emptyStr
+                securityEngineId = securityName = self._emptyStr
                 securityLevel = 1
                 # Clear possible auth&priv flags
                 headerData.setComponentByPosition(
@@ -212,9 +221,9 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 )
                 debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: force engineID discovery')
             else:
-                securityEngineID = peerSnmpEngineData['securityEngineID']
+                securityEngineId = peerSnmpEngineData['securityEngineId']
 
-        debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: securityModel %r, securityEngineID %r, securityName %r, securityLevel %r' % (securityModel, securityEngineID, securityName, securityLevel))
+        debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: securityModel %r, securityEngineId %r, securityName %r, securityLevel %r' % (securityModel, securityEngineId, securityName, securityLevel))
              
         # 7.1.9.b
         ( securityParameters,
@@ -224,7 +233,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             msg,
             snmpEngineMaxMessageSize.syntax,
             securityModel,
-            securityEngineID,
+            securityEngineId,
             securityName,
             securityLevel,
             scopedPDU
@@ -417,7 +426,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 errorIndication = errind.unsupportedSecurityModel
                 )
 
-        debug.logger & debug.flagMP and debug.logger('prepareResponseMessage: securityModel %r, securityEngineID %r, securityName %r, securityLevel %r' % (securityModel, snmpEngineID, securityName, securityLevel))
+        debug.logger & debug.flagMP and debug.logger('prepareResponseMessage: securityModel %r, securityEngineId %r, securityName %r, securityLevel %r' % (securityModel, snmpEngineID, securityName, securityLevel))
 
         # 7.1.8a
         try:
@@ -511,7 +520,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         # 7.2.6
         smHandler = snmpEngine.securityModels[securityModel]
         try:
-            ( securityEngineID,
+            ( securityEngineId,
               securityName,
               scopedPDU,
               maxSizeResponseScopedPDU,
@@ -598,26 +607,26 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                     # (seems to be irrelevant on Py3 but just in case)
                     del origTraceback
         else:
-            # Sniff for engineIDs
+            # Sniff for engineIdCache
             k = (transportDomain, transportAddress)
-            if k not in self.__engineIDs:
+            if k not in self.__engineIdCache:
                 contextEngineId, contextName, pdus = scopedPDU
                 pdu = pdus.getComponent()
                 # Here we assume that authentic/default EngineIDs
                 # come only in the course of engine-to-engine communication.
                 if pdu.tagSet in rfc3411.internalClassPDUs:
-                    self.__engineIDs[k] = {
-                        'securityEngineID': securityEngineID,
+                    self.__engineIdCache[k] = {
+                        'securityEngineId': securityEngineId,
                         'contextEngineId': contextEngineId,
                         'contextName': contextName
-                        }
+                    }
 
                     expireAt = int(self.__expirationTimer + 300 / snmpEngine.transportDispatcher.getTimerResolution())
-                    if expireAt not in self.__engineIDsExpQueue:
-                        self.__engineIDsExpQueue[expireAt] = []
-                    self.__engineIDsExpQueue[expireAt].append(k)
+                    if expireAt not in self.__engineIdCacheExpQueue:
+                        self.__engineIdCacheExpQueue[expireAt] = []
+                    self.__engineIdCacheExpQueue[expireAt].append(k)
                     
-                    debug.logger & debug.flagMP and debug.logger('prepareDataElements: cache securityEngineID %r for %r %r' % (securityEngineID, transportDomain, transportAddress))
+                    debug.logger & debug.flagMP and debug.logger('prepareDataElements: cache securityEngineId %r for %r %r' % (securityEngineId, transportDomain, transportAddress))
 
         snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
         snmpEngineID = snmpEngineID.syntax
@@ -714,7 +723,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         # 7.2.13
         if pduType in rfc3411.confirmedClassPDUs:
             # 7.2.13a
-            if securityEngineID != snmpEngineID:
+            if securityEngineId != snmpEngineID:
                 smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(
                     errorIndication = errind.engineIDMismatch
@@ -784,11 +793,11 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             )
 
     def __expireEnginesInfo(self):
-        if self.__expirationTimer in self.__engineIDsExpQueue:
-            for engineKey in self.__engineIDsExpQueue[self.__expirationTimer]:
-                del self.__engineIDs[engineKey]
+        if self.__expirationTimer in self.__engineIdCacheExpQueue:
+            for engineKey in self.__engineIdCacheExpQueue[self.__expirationTimer]:
+                del self.__engineIdCache[engineKey]
                 debug.logger & debug.flagMP and debug.logger('__expireEnginesInfo: expiring %r' % (engineKey,))
-            del self.__engineIDsExpQueue[self.__expirationTimer]
+            del self.__engineIdCacheExpQueue[self.__expirationTimer]
         self.__expirationTimer = self.__expirationTimer + 1
         
     def receiveTimerTick(self, snmpEngine, timeNow):
