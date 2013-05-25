@@ -189,11 +189,8 @@ def addV3User(snmpEngine, userName,
 def delV3User(snmpEngine,
               userName,
               securityEngineId=None,
-              securityName=None,
               # deprecated parameters follow
               contextEngineId=None):
-    if securityName is None:
-        securityName = userName
     if securityEngineId is None:  # backward compatibility
         securityEngineId = contextEngineId
     ( snmpEngineID, usmUserEntry, tblIdx1,
