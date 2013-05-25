@@ -17,6 +17,9 @@ class _AbstractTransportTarget:
             self.timeout, self.retries, self.tagList
         )
 
+    def getTransportInfo(self):
+        return self.transportDomain, self.transportAddr
+
     def openClientMode(self):
         self.transport = self.protoTransport().openClientMode()
         return self.transport
