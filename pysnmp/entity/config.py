@@ -113,7 +113,9 @@ def __cookV3UserInfo(snmpEngine, securityName, securityEngineId):
 def addV3User(snmpEngine, securityName,
               authProtocol=usmNoAuthProtocol, authKey=None,
               privProtocol=usmNoPrivProtocol, privKey=None,
-              contextEngineId=None, securityEngineId=None):
+              securityEngineId=None,
+              # deprecated parameters follow
+              contextEngineId=None):
     if securityEngineId is None:  # backward compatibility
         securityEngineId = contextEngineId
     ( snmpEngineID, usmUserEntry, tblIdx1,
@@ -181,8 +183,11 @@ def addV3User(snmpEngine, securityName,
          (pysnmpUsmSecretEntry.name + (3,) + tblIdx2, privKey),)
         )
 
-def delV3User(snmpEngine, securityName, contextEngineId=None,
-              securityEngineId=None):
+def delV3User(snmpEngine,
+              securityName,
+              securityEngineId=None,
+              # deprecated parameters follow
+              contextEngineId=None):
     if securityEngineId is None:  # backward compatibility
         securityEngineId = contextEngineId
     ( snmpEngineID, usmUserEntry, tblIdx1,
