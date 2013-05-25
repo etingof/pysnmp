@@ -110,17 +110,20 @@ def __cookV3UserInfo(snmpEngine, securityName, securityEngineId):
 
     return snmpEngineID, usmUserEntry, tblIdx1, pysnmpUsmSecretEntry, tblIdx2
 
-def addV3User(snmpEngine, securityName,
+def addV3User(snmpEngine, userName,
               authProtocol=usmNoAuthProtocol, authKey=None,
               privProtocol=usmNoPrivProtocol, privKey=None,
               securityEngineId=None,
+              securityName=None,
               # deprecated parameters follow
               contextEngineId=None):
+    if securityName is None:
+        securityName = userName
     if securityEngineId is None:  # backward compatibility
         securityEngineId = contextEngineId
     ( snmpEngineID, usmUserEntry, tblIdx1,
       pysnmpUsmSecretEntry, tblIdx2 ) = __cookV3UserInfo(
-        snmpEngine, securityName, securityEngineId
+        snmpEngine, userName, securityEngineId
     )
 
     # Load augmenting table before creating new row in base one
@@ -134,7 +137,7 @@ def addV3User(snmpEngine, securityName,
     )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((usmUserEntry.name + (13,) + tblIdx1, 'createAndGo'),
-         (usmUserEntry.name + (2,) + tblIdx1, securityName),
+         (usmUserEntry.name + (2,) + tblIdx1, userName),
          (usmUserEntry.name + (3,) + tblIdx1, securityName),
          (usmUserEntry.name + (4,) + tblIdx1, zeroDotZero.name),
          (usmUserEntry.name + (5,) + tblIdx1, authProtocol),
@@ -184,15 +187,18 @@ def addV3User(snmpEngine, securityName,
         )
 
 def delV3User(snmpEngine,
-              securityName,
+              userName,
               securityEngineId=None,
+              securityName=None,
               # deprecated parameters follow
               contextEngineId=None):
+    if securityName is None:
+        securityName = userName
     if securityEngineId is None:  # backward compatibility
         securityEngineId = contextEngineId
     ( snmpEngineID, usmUserEntry, tblIdx1,
       pysnmpUsmSecretEntry, tblIdx2 ) = __cookV3UserInfo(
-        snmpEngine, securityName, securityEngineId
+        snmpEngine, userName, securityEngineId
     )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((usmUserEntry.name + (13,) + tblIdx1, 'destroy'),)
@@ -204,7 +210,7 @@ def delV3User(snmpEngine,
     # Drop all derived rows
     varBinds = initialVarBinds = (
         (usmUserEntry.name + (1,), None),  # usmUserEngineID
-        (usmUserEntry.name + (3,), None),  # usmSecurityName
+        (usmUserEntry.name + (2,), None),  # usmUserName
         (usmUserEntry.name + (4,), None)   # usmUserCloneFrom
     )
     while varBinds:

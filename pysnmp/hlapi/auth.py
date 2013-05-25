@@ -55,14 +55,20 @@ class UsmUserData:
     contextName = null
     # the contextEngineId/contextName values stored here should
     # be used for USM configuration only, not for PDU contents
-    def __init__(self, securityName,
+    def __init__(self, userName,
                  authKey=None, privKey=None,
                  authProtocol=None, privProtocol=None,
                  securityEngineId=None,
-                 # deprecated parameters follow
+                 # deprecated parameters begin
                  contextName=None,
-                 contextEngineId=None):
-        self.securityName = securityName
+                 contextEngineId=None,
+                 # deprecated parameters end
+                 securityName=None):
+        self.userName = userName
+        if securityName is None:
+            self.securityName = userName
+        else:
+            self.securityName = securityName
         
         if authKey is not None:
             self.authKey = authKey
@@ -96,10 +102,11 @@ class UsmUserData:
         raise TypeError('%s is not hashable' % self.__class__.__name__)
 
     def __repr__(self):
-        return '%s("%s", <AUTHKEY>, <PRIVKEY>, %r, %r, %r)' % (
+        return '%s("%s", <AUTHKEY>, <PRIVKEY>, %r, %r, %r, securityName=%r)'%(
             self.__class__.__name__,
-            self.securityName,
+            self.userName,
             self.authProtocol,
             self.privProtocol,
-            self.securityEngineId
+            self.securityEngineId,
+            self.securityName
         )

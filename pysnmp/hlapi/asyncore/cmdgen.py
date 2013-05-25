@@ -56,14 +56,15 @@ class AsynCommandGenerator:
                 )
                 self.__knownAuths[authData.communityIndex] = authData
         elif isinstance(authData, UsmUserData):
-            authDataKey = authData.securityName, authData.securityEngineId
+            authDataKey = authData.userName, authData.securityEngineId
             if authDataKey not in self.__knownAuths:
                 config.addV3User(
                     self.snmpEngine,
-                    authData.securityName,
+                    authData.userName,
                     authData.authProtocol, authData.authKey,
                     authData.privProtocol, authData.privKey,
-                    authData.securityEngineId
+                    authData.securityEngineId,
+                    securityName=authData.securityName
                 )
                 self.__knownAuths[authDataKey] = authData
         else:
@@ -121,7 +122,7 @@ class AsynCommandGenerator:
             if isinstance(authData, CommunityData):
                 authDataKey = authData.communityIndex
             elif isinstance(authData, UsmUserData):
-                authDataKey = authData.securityName, authData.securityEngineId
+                authDataKey = authData.userName, authData.securityEngineId
             else:
                 raise error.PySnmpError('Unsupported authentication object')
             if authDataKey in self.__knownAuths:
@@ -144,7 +145,7 @@ class AsynCommandGenerator:
             elif isinstance(authDataX, UsmUserData):
                 config.delV3User(
                     self.snmpEngine,
-                    authDataX.securityName, 
+                    authDataX.userName, 
                     authDataX.securityEngineId
                 )
             else:
@@ -161,7 +162,7 @@ class AsynCommandGenerator:
                 )
                 paramsNames.add(paramsName)
             else:
-                raise error.PySnmpError('Unknown target %s/%s/%s' % paramsKey)
+                raise error.PySnmpError('Unknown target %s' % paramsKey)
 
             addrKeys = [ x for x in self.__knownTransportAddrs if x[0] == paramsName ]
 

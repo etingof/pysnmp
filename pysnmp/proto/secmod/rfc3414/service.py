@@ -46,20 +46,67 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         self.__timeline = {}
         self.__timelineExpQueue = {}
         self.__expirationTimer = 0
+        self.__paramsBranchId = -1
+
+    def __sec2usr(self, snmpEngine,  securityName, securityEngineID=None):
+        usmUserEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmUserEngineID')
+        if self.__paramsBranchId != usmUserEngineID.branchVersionId:
+            usmUserName, usmUserSecurityName = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmUserName', 'usmUserSecurityName')
+
+            self.__securityToUserMap = {}
+
+            nextMibNode = usmUserEngineID
+            while 1:
+                try:
+                    nextMibNode = usmUserEngineID.getNextNode(
+                                      nextMibNode.name
+                                  )
+                except NoSuchInstanceError:
+                    self.__paramsBranchId = usmUserEngineID.branchVersionId
+                    debug.logger & debug.flagSM and debug.logger('_sec2usr: built snmpEngineId + securityName to userName map, version %s: %r' % (self.__paramsBranchId, self.__securityToUserMap))
+                    break
+
+                instId = nextMibNode.name[len(usmUserSecurityName.name):]
+
+                __engineID = usmUserEngineID.getNode(usmUserEngineID.name + instId).syntax
+                __userName = usmUserName.getNode(usmUserName.name + instId).syntax
+                __securityName = usmUserSecurityName.getNode(usmUserSecurityName.name + instId).syntax
+
+                k = __engineID, __securityName
+
+                # first (lesser) securityName wins
+                if k not in self.__securityToUserMap:
+                    self.__securityToUserMap[k] = __userName
+
+        if securityEngineID is None:
+            snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+            securityEngineID = snmpEngineID.syntax
+
+        userName = self.__securityToUserMap.get(
+                       (securityEngineID, securityName), securityName
+                   )
+     
+        debug.logger & debug.flagSM and debug.logger('_sec2usr: using userName %r for snmpEngineId %r, securityName %r' % (userName, securityEngineID, securityName))
+
+        return userName
 
     def __getUserInfo(
-        self, mibInstrumController, securityEngineID, securityName
+        self, mibInstrumController, securityEngineID, userName
         ):
         usmUserEntry, = mibInstrumController.mibBuilder.importSymbols(
             'SNMP-USER-BASED-SM-MIB', 'usmUserEntry'
-            )
+        )
         tblIdx = usmUserEntry.getInstIdFromIndices(
-            securityEngineID, securityName
-            )
-        # Get protocols
+            securityEngineID, userName
+        )
+        # Get userName & securityName
+        usmUserName = usmUserEntry.getNode(
+            usmUserEntry.name + (2,) + tblIdx
+        ).syntax
         usmUserSecurityName = usmUserEntry.getNode(
             usmUserEntry.name + (3,) + tblIdx
-            ).syntax
+        ).syntax
+        # Get protocols
         usmUserAuthProtocol = usmUserEntry.getNode(
             usmUserEntry.name + (5,) + tblIdx
             ).syntax
@@ -77,65 +124,66 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             pysnmpUsmKeyEntry.name + (2,) + tblIdx
             ).syntax
         return (
-            usmUserSecurityName,  # XXX function needed?
+            usmUserName,
+            usmUserSecurityName,
             usmUserAuthProtocol,
             pysnmpUsmKeyAuthLocalized,
             usmUserPrivProtocol,
             pysnmpUsmKeyPrivLocalized
-            )
+        )
 
     def __cloneUserInfo(
-        self, mibInstrumController, securityEngineID, securityName
+            self, mibInstrumController, securityEngineID, userName
         ):
         snmpEngineID, = mibInstrumController.mibBuilder.importSymbols(
             '__SNMP-FRAMEWORK-MIB', 'snmpEngineID'
-            )
+        )
         # Proto entry
         usmUserEntry, = mibInstrumController.mibBuilder.importSymbols(
             'SNMP-USER-BASED-SM-MIB', 'usmUserEntry'
-            )
+        )
         tblIdx1 = usmUserEntry.getInstIdFromIndices(
-            snmpEngineID.syntax, securityName
-            )
+            snmpEngineID.syntax, userName
+        )
         # Get proto protocols
         usmUserName = usmUserEntry.getNode(
             usmUserEntry.name + (2,) + tblIdx1
-            )
+        )
         usmUserSecurityName = usmUserEntry.getNode(
             usmUserEntry.name + (3,) + tblIdx1
-            )
+        )
         usmUserCloneFrom = usmUserEntry.getNode(
             usmUserEntry.name + (4,) + tblIdx1
-            )
+        )
         usmUserAuthProtocol = usmUserEntry.getNode(
             usmUserEntry.name + (5,) + tblIdx1
-            )
+        )
         usmUserPrivProtocol = usmUserEntry.getNode(
             usmUserEntry.name + (8,) + tblIdx1
-            )
+        )
         # Get proto keys
         pysnmpUsmKeyEntry, = mibInstrumController.mibBuilder.importSymbols(
             'PYSNMP-USM-MIB', 'pysnmpUsmKeyEntry'
-            )
+        )
         pysnmpUsmKeyAuth = pysnmpUsmKeyEntry.getNode(
             pysnmpUsmKeyEntry.name + (3,) + tblIdx1
-            )
+        )
         pysnmpUsmKeyPriv = pysnmpUsmKeyEntry.getNode(
             pysnmpUsmKeyEntry.name + (4,) + tblIdx1
-            )        
+        )        
         
         # Create new row from proto values
 
         tblIdx2 = usmUserEntry.getInstIdFromIndices(
-            securityEngineID, securityName
-            )
+            securityEngineID, userName
+        )
 
         # New row
         mibInstrumController.writeVars(
             ((usmUserEntry.name + (13,) + tblIdx2, 4),)
-            )
+        )
 
-        # Set usernames
+        # Set user&securityNames
         usmUserEntry.getNode(
             usmUserEntry.name + (2,) + tblIdx2
         ).syntax = usmUserName.syntax
@@ -192,12 +240,13 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         if localPrivKey is not None:
             pysnmpUsmKeyPrivLocalized.syntax = pysnmpUsmKeyPrivLocalized.syntax.clone(localPrivKey)
         return (
-            usmUserSecurityName.syntax,  # XXX function needed?
+            usmUserName.syntax,
+            usmUserSecurityName.syntax,
             usmUserAuthProtocol.syntax,
             pysnmpUsmKeyAuthLocalized.syntax,
             usmUserPrivProtocol.syntax,
             pysnmpUsmKeyPrivLocalized.syntax
-            )
+        )
               
     def __generateRequestOrResponseMsg(
         self,
@@ -240,13 +289,15 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             # 3.1.1b
             try:
                 ( usmUserName,
+                  usmUserSecurityName,
                   usmUserAuthProtocol,
                   usmUserAuthKeyLocalized,
                   usmUserPrivProtocol,
                   usmUserPrivKeyLocalized ) = self.__getUserInfo(
                     snmpEngine.msgAndPduDsp.mibInstrumController,
-                    securityEngineID, securityName
-                    )
+                    securityEngineID,
+                    self.__sec2usr(snmpEngine, securityName, securityEngineID)
+                )
                 debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: read user info')
             except NoSuchInstanceError:
                 pysnmpUsmDiscovery, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__PYSNMP-USM-MIB', 'pysnmpUsmDiscovery')
@@ -254,14 +305,15 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 if not __reportUnknownName:
                     try:
                         ( usmUserName,
+                          usmUserSecurityName,
                           usmUserAuthProtocol,
                           usmUserAuthKeyLocalized,
                           usmUserPrivProtocol,
                           usmUserPrivKeyLocalized ) = self.__cloneUserInfo(
                             snmpEngine.msgAndPduDsp.mibInstrumController,
                             securityEngineID,
-                            securityName
-                            )
+                            self.__sec2usr(snmpEngine, securityName)
+                        )
                     except NoSuchInstanceError:
                         __reportUnknownName = 1
 
@@ -278,7 +330,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             usmUserAuthKeyLocalized = usmUserPrivKeyLocalized = None
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: use empty USM data')
             
-        debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: local user usmUserName %r usmUserAuthProtocol %s usmUserPrivProtocol %s securityEngineID %r securityName %r' % (usmUserName, usmUserAuthProtocol, usmUserPrivProtocol, securityEngineID, securityName))
+        debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: local usmUserName %r usmUserSecurityName %r usmUserAuthProtocol %s usmUserPrivProtocol %s securityEngineID %r securityName %r' % (usmUserName, usmUserSecurityName, usmUserAuthProtocol, usmUserPrivProtocol, securityEngineID, securityName))
 
         msg = globalData
         
@@ -360,14 +412,14 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 usmUserPrivKeyLocalized,
                 ( snmpEngineBoots, snmpEngineTime, None ),
                 dataToEncrypt
-                )
+            )
 
             securityParameters.setComponentByPosition(
                 5, privParameters, verifyConstraints=False
-                )
+            )
             scopedPDUData.setComponentByPosition(
                 1, encryptedData, verifyConstraints=False
-                )
+            )
 
             debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: scopedPDU ciphered into %s' % debug.hexdump(encryptedData))
 
@@ -380,18 +432,18 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         # 3.1.5
         securityParameters.setComponentByPosition(
             0, securityEngineID, verifyConstraints=False
-            )
+        )
         securityParameters.setComponentByPosition(
             1, snmpEngineBoots, verifyConstraints=False
-            )
+        )
         securityParameters.setComponentByPosition(
             2, snmpEngineTime, verifyConstraints=False
-            )
+        )
     
         # 3.1.7
         securityParameters.setComponentByPosition(
             3, usmUserName, verifyConstraints=False
-            )
+        )
 
         # 3.1.8a
         if securityLevel == 3 or securityLevel == 2:
@@ -615,7 +667,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         if msgUserName:
             # 3.2.4
             try:
-                ( usmUserSecurityName,
+                ( usmUserName,
+                  usmUserSecurityName,
                   usmUserAuthProtocol,
                   usmUserAuthKeyLocalized,
                   usmUserPrivProtocol,
@@ -623,14 +676,15 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     snmpEngine.msgAndPduDsp.mibInstrumController,
                     msgAuthoritativeEngineID,
                     msgUserName
-                    )
+                )
                 debug.logger & debug.flagSM and debug.logger('processIncomingMsg: read user info from LCD')
             except NoSuchInstanceError:
                 pysnmpUsmDiscoverable, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__PYSNMP-USM-MIB', 'pysnmpUsmDiscoverable')
                 __reportUnknownName = not pysnmpUsmDiscoverable.syntax
                 if not __reportUnknownName:
                     try:
-                        ( usmUserSecurityName,
+                        ( usmUserName,
+                          usmUserSecurityName,
                           usmUserAuthProtocol,
                           usmUserAuthKeyLocalized,
                           usmUserPrivProtocol,
@@ -638,7 +692,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                             snmpEngine.msgAndPduDsp.mibInstrumController,
                             msgAuthoritativeEngineID,
                             msgUserName
-                            )
+                        )
                         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: cloned user info')
                     except NoSuchInstanceError:
                         __reportUnknownName = 1
@@ -663,7 +717,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             usmUserPrivProtocol = nopriv.NoPriv.serviceID
             usmUserAuthKeyLocalized = usmUserPrivKeyLocalized = None
 
-        debug.logger & debug.flagSM and debug.logger('processIncomingMsg: now have usmUserSecurityName %s usmUserAuthProtocol %s usmUserPrivProtocol %s for msgUserName %s' % (usmUserSecurityName, usmUserAuthProtocol, usmUserPrivProtocol, msgUserName))
+        debug.logger & debug.flagSM and debug.logger('processIncomingMsg: now have usmUserName %r usmUserSecurityName %r usmUserAuthProtocol %r usmUserPrivProtocol %r for msgUserName %r' % (usmUserName, usmUserSecurityName, usmUserAuthProtocol, usmUserPrivProtocol, msgUserName))
 
         # 3.2.11 (moved up here to let Reports be authenticated & encrypted)
         self._cache.pop(securityStateReference)
@@ -673,7 +727,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             usmUserAuthKeyLocalized=usmUserAuthKeyLocalized,
             usmUserPrivProtocol=usmUserPrivProtocol,
             usmUserPrivKeyLocalized=usmUserPrivKeyLocalized
-            )
+        )
 
         # 3.2.5
         if msgAuthoritativeEngineID == snmpEngineID:

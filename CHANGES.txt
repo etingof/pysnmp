@@ -35,9 +35,9 @@ Revision 4.2.5rc2
   methods now accept optional authData parameter to remove specific entries
   from LCD. This can be useful for modifying security parameters for
   specific securityName.
-- SNMP credentials management reworked to allow multiple securityNames's in
-  snmpCommunityEntry and usmUserEntry tables. Changes made to addV1System(),
-  addV3User() functions as well as to their oneliner's wrappers.
+- SNMP credentials management reworked to separate userName from securityName
+  in snmpCommunityEntry and usmUserEntry tables. Changes made to addV1System(),
+  addV3User() functions as well as to their oneliner's wrappers. 
 - The contextEngineId parameter of config.addV3User() and auth.UsmUserData()
   renamed into securityEngineId as it's semantically correct
 - Oneliner transport target classes now support the getTransportInfo()
