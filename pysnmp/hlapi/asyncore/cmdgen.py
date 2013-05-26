@@ -130,7 +130,7 @@ class AsynCommandGenerator:
             else:
                 raise error.PySnmpError('Unknown authData %s' % (authData,))
         else:
-            authDataKeys = self.__knownAuths.keys()
+            authDataKeys = list(self.__knownAuths.keys())
 
         addrNames, paramsNames = set(), set()
 
