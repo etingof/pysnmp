@@ -1,9 +1,11 @@
 # Implements I/O over asynchronous sockets
 from time import time
 from select import select
+from sys import exc_info
 from asyncore import socket_map
+from asyncore import loop
 from pysnmp.carrier.base import AbstractTransportDispatcher
-from asyncore import poll
+from pysnmp.error import PySnmpError
 
 class AsynsockDispatcher(AbstractTransportDispatcher):
     def __init__(self):
@@ -30,5 +32,9 @@ class AsynsockDispatcher(AbstractTransportDispatcher):
     
     def runDispatcher(self, timeout=0.0):
         while self.jobsArePending() or self.transportsAreWorking():
-            poll(timeout and timeout or self.timeout, self.__sockMap)
+            try:
+                loop(timeout and timeout or self.timeout,
+                     use_poll=True, map=self.__sockMap, count=1)
+            except:
+                raise PySnmpError('poll error: %s' % exc_info()[1])
             self.handleTimerTick(time())

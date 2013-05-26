@@ -28,6 +28,9 @@ Revision 4.2.5rc2
   can't easily stop doing that.
 - The snmpCommunityTable row selection improved to follow RFC2576, clause
   5.2.1.
+- Asyncore-based dispatcher attempts to use poll() whenever available
+  on the platform. It would help handling a really large number (>1024) 
+  of file descriptors.
 - AsynCommandGenerator.makeReadVarBinds() generalized into a new
   makeVarBinds() method which replaces somewhat redundant code at setCmd()
   and AsynNotificationOriginator.sendNotification().
