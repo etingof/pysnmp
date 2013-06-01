@@ -36,7 +36,7 @@ config.addTargetParams(snmpEngine, 'my-creds', 'usr-md5-none', 'authNoPriv')
 #
 
 # UDP/IPv6
-config.addSocketTransport(
+config.addTransport(
     snmpEngine,
     udp6.domainName,
     udp6.Udp6SocketTransport().openClientMode()

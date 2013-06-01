@@ -30,7 +30,7 @@ snmpEngine = engine.SnmpEngine()
 # Transport setup
 
 # UDP over IPv4
-config.addSocketTransport(
+config.addTransport(
     snmpEngine,
     udp.domainName,
     udp.UdpTransport().openServerMode(('127.0.0.1', 162))

@@ -25,7 +25,7 @@ snmpEngine = engine.SnmpEngine(rfc1902.OctetString(hexValue='8000000004030201'))
 # Transport setup
 
 # UDP over IPv4
-config.addSocketTransport(
+config.addTransport(
     snmpEngine,
     udp.domainName,
     udp.UdpTransport().openServerMode(('127.0.0.1', 161))

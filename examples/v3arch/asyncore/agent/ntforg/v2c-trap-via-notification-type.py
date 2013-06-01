@@ -75,7 +75,7 @@ config.addTargetParams(snmpEngine, 'my-creds', 'my-area', 'noAuthNoPriv', 1)
 # a target name:
 
 # UDP/IPv4
-config.addSocketTransport(
+config.addTransport(
     snmpEngine,
     udp.domainName,
     udp.UdpSocketTransport().openClientMode()

@@ -36,7 +36,7 @@ config.addTargetParams(snmpEngine, 'my-creds', 'usr-sha-aes', 'authPriv')
 #
 
 # UDP/IPv4
-config.addSocketTransport(
+config.addTransport(
     snmpEngine,
     udp.domainName,
     udp.UdpSocketTransport().openClientMode()

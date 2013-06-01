@@ -26,13 +26,13 @@ snmpEngine = engine.SnmpEngine()
 # Transport setup
 
 # UDP over IPv4 at 127.0.0.1:161
-config.addSocketTransport(
+config.addTransport(
     snmpEngine,
     udp.domainName,
     udp.UdpTransport().openServerMode(('127.0.0.1', 161))
 )
 # UDP over IPv6 at [::1]:161
-config.addSocketTransport(
+config.addTransport(
     snmpEngine,
     udp6.domainName,
     udp6.Udp6Transport().openServerMode(('::1', 161))

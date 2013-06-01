@@ -21,7 +21,6 @@ from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdrsp, context
 from pysnmp.proto import rfc1902
 from pysnmp.carrier.twisted.dgram import udp
-from pysnmp.carrier.twisted import dispatch
 
 # Create SNMP engine with autogenernated engineID and pre-bound
 # to socket transport dispatcher
@@ -29,11 +28,8 @@ snmpEngine = engine.SnmpEngine()
 
 # Transport setup
 
-# Instantiate and register Twisted dispatcher at SNMP engine
-snmpEngine.registerTransportDispatcher(dispatch.TwistedDispatcher())
-
 # UDP over IPv4
-config.addSocketTransport(
+config.addTransport(
     snmpEngine,
     udp.domainName,
     udp.UdpTwistedTransport().openServerMode(('127.0.0.1', 161))

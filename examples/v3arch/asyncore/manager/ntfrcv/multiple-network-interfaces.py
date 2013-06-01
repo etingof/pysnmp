@@ -26,14 +26,14 @@ snmpEngine = engine.SnmpEngine()
 # Transport setup
 
 # UDP over IPv4, first listening interface/port
-config.addSocketTransport(
+config.addTransport(
     snmpEngine,
     udp.domainName + (1,),
     udp.UdpTransport().openServerMode(('127.0.0.1', 162))
 )
 
 # UDP over IPv4, second listening interface/port
-config.addSocketTransport(
+config.addTransport(
     snmpEngine,
     udp.domainName + (2,),
     udp.UdpTransport().openServerMode(('127.0.0.1', 2162))

@@ -18,7 +18,6 @@
 #
 from twisted.internet import reactor
 from pysnmp.entity import engine, config
-from pysnmp.carrier.twisted import dispatch
 from pysnmp.carrier.twisted.dgram import udp
 from pysnmp.entity.rfc3413 import ntfrcv
 
@@ -28,18 +27,15 @@ snmpEngine = engine.SnmpEngine()
 
 # Transport setup
 
-# Instantiate and register Twisted dispatcher at SNMP engine
-snmpEngine.registerTransportDispatcher(dispatch.TwistedDispatcher())
-
 # UDP over IPv4, first listening interface/port
-config.addSocketTransport(
+config.addTransport(
     snmpEngine,
     udp.domainName + (1,),
     udp.UdpTwistedTransport().openServerMode(('127.0.0.1', 162))
 )
 
 # UDP over IPv4, second listening interface/port
-config.addSocketTransport(
+config.addTransport(
     snmpEngine,
     udp.domainName + (2,),
     udp.UdpTwistedTransport().openServerMode(('127.0.0.1', 2162))

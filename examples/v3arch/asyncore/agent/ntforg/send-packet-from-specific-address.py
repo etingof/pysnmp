@@ -28,7 +28,7 @@ config.addTargetParams(snmpEngine, 'my-creds', 'my-area', 'noAuthNoPriv', 0)
 # Setup transport endpoint and bind it with security settings yielding
 # a target name. Pay attention to the openClientMode() parameter -- it's
 # used to originate packets from particular local IP:port
-config.addSocketTransport(
+config.addTransport(
     snmpEngine,
     udp.domainName,
     udp.UdpSocketTransport().openClientMode(iface=('127.0.0.1', 1024))

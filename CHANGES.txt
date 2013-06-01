@@ -47,6 +47,10 @@ Revision 4.2.5rc2
   to facilitate authentication data management in user applications.
 - Oneliner transport target classes now support the getTransportInfo()
   method that returns network addresses used on protocol level.
+- The config.addSocketTransport() helper renamed into config.addTransport()
+  and improved by automatically instantiating compatible TransportDispatcher
+  making it dispatcher-agnostic. As an additional bonus, application may not
+  call registerTransportDispatcher() as it would be called by addTransport().
 - The SnmpV3MessageProcessingModel.getPeerEngineInfo() method is implemented
   to communicate discovered peer SNMP engine information to SNMP apps what
   can be used for fine usmUserTable configuration.

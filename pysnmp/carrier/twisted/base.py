@@ -8,8 +8,10 @@
 #
 #  Description: twisted DatagramProtocol UDP transport
 #
+from pysnmp.carrier.twisted.dispatch import TwistedDispatcher
 
 class AbstractTwistedTransport:
+    protoTransportDispatcher = TwistedDispatcher
     """Base Twisted Transport, to be used with TwistedDispatcher"""
     def __init__(self):
         self._writeQ = []

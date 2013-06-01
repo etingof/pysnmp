@@ -88,7 +88,7 @@ class AsynCommandGenerator:
             self.__knownTransports[transportTarget.transportDomain] = transport, useCount + 1
         else:
             transport = transportTarget.openClientMode()
-            config.addSocketTransport(
+            config.addTransport(
                 self.snmpEngine,
                 transportTarget.transportDomain,
                 transport
@@ -180,8 +180,8 @@ class AsynCommandGenerator:
                         useCount -= 1
                         self.__knownTransports[addrKey[1]] = transport,useCount
                     else:
-                        config.delSocketTransport(self.snmpEngine, addrKey[1])
-                        transport.close()
+                        config.delTransport(self.snmpEngine, addrKey[1])
+                        transport.closeTransport()
                         del self.__knownTransports[addrKey[1]]
 
         return addrNames, paramsNames

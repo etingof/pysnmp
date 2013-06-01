@@ -33,7 +33,7 @@ snmpEngine = engine.SnmpEngine()
 # Agent section
 
 # UDP over IPv6
-config.addSocketTransport(
+config.addTransport(
     snmpEngine,
     udp6.domainName,
     udp6.Udp6Transport().openServerMode(('::1', 161))
@@ -42,7 +42,7 @@ config.addSocketTransport(
 # Manager section
 
 # UDP over IPv4
-config.addSocketTransport(
+config.addTransport(
     snmpEngine,
     udp.domainName,
     udp.UdpTransport().openClientMode()

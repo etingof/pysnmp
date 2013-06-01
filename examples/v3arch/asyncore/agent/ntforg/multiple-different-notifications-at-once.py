@@ -42,7 +42,7 @@ config.addTargetParams(snmpEngine, 'my-creds-2', 'usr-md5-none', 'authNoPriv')
 
 # Setup transport endpoint and bind it with security settings yielding
 # a target name
-config.addSocketTransport(
+config.addTransport(
     snmpEngine,
     udp.domainName,
     udp.UdpSocketTransport().openClientMode()

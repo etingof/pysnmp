@@ -1,7 +1,6 @@
 # Initial SNMP engine configuration functions. During further operation,
 # SNMP engine might be configured remotely (through SNMP).
 from pyasn1.compat.octets import null
-from pysnmp.carrier.asynsock import dispatch
 from pysnmp.carrier.asynsock.dgram import udp, udp6, unix
 from pysnmp.proto import rfc3412
 from pysnmp.entity import engine
@@ -311,20 +310,27 @@ def delTargetAddr(snmpEngine, addrName):
         ((snmpTargetAddrEntry.name + (9,) + tblIdx, 'destroy'),)
         )
 
-def addSocketTransport(snmpEngine, transportDomain, transport):
-    """Add transport object to socket dispatcher of snmpEngine"""
-    if not snmpEngine.transportDispatcher:
-        snmpEngine.registerTransportDispatcher(dispatch.AsynsockDispatcher())
+def addTransport(snmpEngine, transportDomain, transport):
+    if snmpEngine.transportDispatcher:
+        if not isinstance(snmpEngine.transportDispatcher,
+                          transport.protoTransportDispatcher):
+            raise error.PySnmpError('Transport %r is not compatible with dispatcher %r' % (transport, snmpEngine.transportDispatcher))
+    else:
+        snmpEngine.registerTransportDispatcher(
+            transport.protoTransportDispatcher()
+        )
     snmpEngine.transportDispatcher.registerTransport(
         transportDomain, transport
-        )
+    )
 
-def delSocketTransport(snmpEngine, transportDomain):
-    """Unregister transport object at socket dispatcher of snmpEngine"""
+def delTransport(snmpEngine, transportDomain):
     if not snmpEngine.transportDispatcher:
         return
     snmpEngine.transportDispatcher.unregisterTransport(transportDomain)
     snmpEngine.unregisterTransportDispatcher()
+
+addSocketTransport = addTransport
+delSocketTransport = delTransport
 
 # VACM shortcuts
 

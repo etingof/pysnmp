@@ -2,9 +2,11 @@
 import socket, sys
 import asyncore
 from pysnmp.carrier import error
+from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
 from pysnmp import debug
 
 class AbstractSocketTransport(asyncore.dispatcher):
+    protoTransportDispatcher = AsynsockDispatcher
     sockFamily = sockType = None
     retryCount = 0; retryInterval = 0
     bufferSize = 131070
