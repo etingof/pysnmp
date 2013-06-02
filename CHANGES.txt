@@ -9,6 +9,7 @@ Revision 4.2.5rc2
   ones.
 - Most of Command Generator examples re-pointed to a live SNMP Agent
   at demo.snmplabs.com to ease experimentation and adoption.
+- Multithreaded oneliner CommandGenerator example added.
 - Packet-level SNMP API (pysnmp.proto.api) getErrorIndex() method can now
   be instructed to ignore portentially malformed errorIndex SNMP packet
   value what sometimes happens with buggy SNMP implementations.
