@@ -1,5 +1,6 @@
 # MP-specific cache management
 from pysnmp.proto.mpmod import cache
+from pysnmp.proto import error
 
 class AbstractMessageProcessingModel:
     def __init__(self):

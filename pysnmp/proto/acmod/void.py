@@ -1,5 +1,6 @@
 # Void Access Control Model
 from pysnmp.proto import errind, error
+from pysnmp import debug
 
 # rfc3415 3.2
 class Vacm:

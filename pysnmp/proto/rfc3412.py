@@ -251,8 +251,8 @@ class MsgAndPduDispatcher:
                len(outgoingMessage) > snmpEngineMaxMessageSize.syntax:
             snmpSilentDrops, = self.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpSilentDrops')
             snmpSilentDrops.syntax = snmpSilentDrops.syntax + 1
-            raise error.MessageTooBigError()
-        
+            raise error.StatusInformation(errorIndication=errind.tooBig)
+
         # 4.1.2.4
         snmpEngine.transportDispatcher.sendMessage(
             outgoingMessage,

@@ -196,7 +196,7 @@ def getNotificationInfo(snmpEngine, notificationTarget):
             ).syntax
 
         except NoSuchInstanceError:
-            raise SmiError('Target %s not configured at LCD' % paramsName)
+            raise SmiError('Target %s not configured at LCD' % notificationTarget)
 
         targetToNotifyMap[notificationTarget] = (
             snmpNotifyTag,
