@@ -1,5 +1,5 @@
 # MIB modules loader
-import os, sys, imp, struct, marshal, time
+import os, sys, imp, struct, marshal, time, traceback
 from pysnmp.smi import error
 from pysnmp import debug
 
@@ -90,7 +90,13 @@ class __AbstractMibSource:
             return self._getData(f+pySfx, pyMode), pySfx
 
         raise IOError('No suitable module found')
-            
+
+    # Interfaces for subclasses
+    def _init(self): raise NotImplementedError()
+    def _listdir(self): raise NotImplementedError()
+    def _getTimestamp(self, f): raise NotImplementedError()
+    def _getData(self, f, mode=None): NotImplementedError()
+
 class ZipMibSource(__AbstractMibSource):
     def _init(self):
         try:
@@ -250,7 +256,7 @@ class MibBuilder:
                 except Exception:
                     del self.__modPathsSeen[modPath]
                     raise error.SmiError(
-                        'MIB module \"%s\" load error: %s' % (modPath, sys.exc_info()[1])
+                        'MIB module \"%s\" load error: %s' % (modPath, traceback.format_exception(*sys.exc_info()))
                         )
 
                 self.__modSeen[modName] = modPath

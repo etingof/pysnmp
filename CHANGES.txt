@@ -60,6 +60,7 @@ Revision 4.2.5rc2
   This improves LCD consistency on sparse add/del operatons but also
   does not let you to configure different securityModels per securityname
   at VACM though the cfgCmdGen() wrapper.
+- MIB builder traceback formatting and reporting improved.
 - Fix and significant logic rework of snmpCommunityTable to make it working
   in both Generator and Responder modes and better follow RFC2576 
   requirements on sequential entries lookup and selection. As a side effect,
