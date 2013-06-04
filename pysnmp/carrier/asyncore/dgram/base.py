@@ -12,7 +12,7 @@ sockErrors = { # Ignore these socket errors
     errno.EAGAIN: 0,
     errno.EWOULDBLOCK: 0
     }
-if 'EBADFD' in errno:
+if hasattr(errno, 'EBADFD'):
     # bad FD may happen upon FD closure on n-1 select() event
     sockErrors[errno.EBADFD] = 1
 

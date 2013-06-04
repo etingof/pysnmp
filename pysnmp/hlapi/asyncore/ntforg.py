@@ -1,4 +1,3 @@
-from pyasn1.type import base
 from pyasn1.compat.octets import null
 from pysnmp import nextid, error
 from pysnmp.entity import config

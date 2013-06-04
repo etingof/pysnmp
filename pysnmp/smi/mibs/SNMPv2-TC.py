@@ -108,9 +108,9 @@ class TextualConvention:
 
                 # 5
                 if d and displaySep and repeatIndicator is not None:
-                        repeatTerminator = d[0]
-                        displaySep = ''
-                        d = d[1:]
+                    repeatTerminator = d[0]
+                    displaySep = ''
+                    d = d[1:]
                 else:
                     repeatTerminator = None
 

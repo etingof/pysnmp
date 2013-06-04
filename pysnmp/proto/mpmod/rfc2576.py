@@ -5,7 +5,6 @@ from pyasn1.type import univ
 from pyasn1.compat.octets import null
 from pyasn1.error import PyAsn1Error
 from pysnmp.proto.mpmod.base import AbstractMessageProcessingModel
-from pysnmp.proto.secmod import rfc2576
 from pysnmp.proto import rfc3411, errind, error
 from pysnmp.proto.api import v1, v2c
 from pysnmp import debug

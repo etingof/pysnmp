@@ -4,7 +4,8 @@ from pysnmp import error
 from pyasn1.compat.octets import null
 
 class _AbstractTransportTarget:
-    transportDomain = protoTransport = None
+    transportDomain = None
+    protoTransport = NotImplementedError
     def __init__(self, transportAddr, timeout=1, retries=5, tagList=null):
         self.transportAddr = self._resolveAddr(transportAddr)
         self.timeout = timeout
@@ -23,6 +24,8 @@ class _AbstractTransportTarget:
     def openClientMode(self):
         self.transport = self.protoTransport().openClientMode()
         return self.transport
+
+    def _resolveAddr(self, transportAddr): raise NotImplementedError()
 
 class UdpTransportTarget(_AbstractTransportTarget):
     transportDomain = udp.domainName

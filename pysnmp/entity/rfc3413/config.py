@@ -1,6 +1,5 @@
 # Shortcuts to MIB instrumentation items used internally in SNMP applications
 from pysnmp.smi.error import SmiError, NoSuchInstanceError
-from pysnmp.smi.exval import noSuchInstance
 from pysnmp.entity import config
 
 def getTargetAddr(snmpEngine, snmpTargetAddrName):

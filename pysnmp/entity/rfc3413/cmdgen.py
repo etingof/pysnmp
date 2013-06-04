@@ -1,6 +1,6 @@
 import sys
 from pysnmp.entity.rfc3413 import config
-from pysnmp.proto import rfc1157, rfc1905, errind
+from pysnmp.proto import rfc1905, errind
 from pysnmp.proto.api import v2c
 from pysnmp.proto.proxy import rfc2576
 from pysnmp import error, nextid, debug

@@ -3,6 +3,7 @@ from pysnmp.proto.mpmod import cache
 from pysnmp.proto import error
 
 class AbstractMessageProcessingModel:
+    snmpMsgSpec = NotImplementedError
     def __init__(self):
         self._snmpMsgSpec = self.snmpMsgSpec()  # local copy
         self._cache = cache.Cache()

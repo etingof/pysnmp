@@ -3,7 +3,6 @@
 # Python version sys.version_info(major=2, minor=7, micro=2, releaselevel='final', serial=0)
 
 try:
-    import socket
     import os
 except ImportError:
     pass
@@ -43,8 +42,11 @@ class SnmpEngineID(TextualConvention, OctetString):
 
 class SnmpEngineTime(Integer32):
     def clone(self, value=None, tagSet=None, subtypeSpec=None):
-        if value is None and self._value is not None:
-            value = int(time.time())-self._value
+        if value is None:
+            try:
+                value = time.time() - self
+            except:
+                pass
         return Integer32.clone(self, value, tagSet, subtypeSpec)
 
 class SnmpMessageProcessingModel(Integer32):

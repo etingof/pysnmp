@@ -1,6 +1,6 @@
-from pysnmp.proto import rfc1901, rfc1902, rfc1905, error
+from pysnmp.proto import rfc1901, rfc1902, rfc1905
 from pysnmp.proto.api import v1
-from pyasn1.type import univ, namedtype, namedval, constraint
+from pyasn1.type import univ, constraint
 
 # Shortcuts to SNMP types
 Null = univ.Null

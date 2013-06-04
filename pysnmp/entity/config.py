@@ -2,13 +2,10 @@
 # SNMP engine might be configured remotely (through SNMP).
 from pyasn1.compat.octets import null
 from pysnmp.carrier.asynsock.dgram import udp, udp6, unix
-from pysnmp.proto import rfc3412
-from pysnmp.entity import engine
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha, noauth
 from pysnmp.proto.secmod.rfc3414.priv import des, nopriv
 from pysnmp.proto.secmod.rfc3826.priv import aes
 from pysnmp.proto.secmod.eso.priv import des3, aes192, aes256
-from pysnmp.smi.error import NotWritableError
 from pysnmp import error
 
 # A shortcut to popular constants

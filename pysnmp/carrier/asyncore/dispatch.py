@@ -1,6 +1,5 @@
 # Implements I/O over asynchronous sockets
 from time import time
-from select import select
 from sys import exc_info
 from asyncore import socket_map
 from asyncore import loop

@@ -234,7 +234,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
                            v2c.apiTrapPDU.snmpTrapEnterprise):
                 continue
             __v2VarBinds.append((oid, val))
-        v2VarBinds = __v2VarBinds;
+        v2VarBinds = __v2VarBinds
         
         # 3.2.6 --> done below
 

@@ -3,7 +3,7 @@ from pyasn1.compat.octets import null
 from pysnmp.entity.rfc3413 import config
 from pysnmp.proto.proxy import rfc2576
 from pysnmp.proto.api import v2c
-from pysnmp.proto import api, error
+from pysnmp.proto import error
 from pysnmp import nextid
 from pysnmp import debug
 

@@ -698,18 +698,18 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         __reportUnknownName = 1
                 debug.logger & debug.flagSM and debug.logger('processIncomingMsg: unknown securityEngineID %r msgUserName %r' % (msgAuthoritativeEngineID, msgUserName))
                 if __reportUnknownName:
-                        usmStatsUnknownUserNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownUserNames')
-                        usmStatsUnknownUserNames.syntax = usmStatsUnknownUserNames.syntax+1
-                        raise error.StatusInformation(
-                            errorIndication = errind.unknownSecurityName,
-                            oid = usmStatsUnknownUserNames.name,
-                            val = usmStatsUnknownUserNames.syntax,
-                            securityStateReference=securityStateReference,
-                            securityLevel=securityLevel,
-                            contextEngineId=contextEngineId,
-                            contextName=contextName,
-                            maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
-                            )
+                    usmStatsUnknownUserNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownUserNames')
+                    usmStatsUnknownUserNames.syntax = usmStatsUnknownUserNames.syntax+1
+                    raise error.StatusInformation(
+                        errorIndication = errind.unknownSecurityName,
+                        oid = usmStatsUnknownUserNames.name,
+                        val = usmStatsUnknownUserNames.syntax,
+                        securityStateReference=securityStateReference,
+                        securityLevel=securityLevel,
+                        contextEngineId=contextEngineId,
+                        contextName=contextName,
+                        maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
+                        )
         else:
             # empty username used for engineID discovery
             usmUserName = usmUserSecurityName = null
@@ -904,14 +904,14 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     )
 
             try:
-               decryptedData = privHandler.decryptData(
+                decryptedData = privHandler.decryptData(
                     usmUserPrivKeyLocalized,
-                    ( securityParameters.getComponentByPosition(1),
-                      securityParameters.getComponentByPosition(2),
-                      securityParameters.getComponentByPosition(5) ),
-                    encryptedPDU
+                        ( securityParameters.getComponentByPosition(1),
+                          securityParameters.getComponentByPosition(2),
+                          securityParameters.getComponentByPosition(5) ),
+                        encryptedPDU
                     )
-               debug.logger & debug.flagSM and debug.logger('processIncomingMsg: PDU deciphered into %s' % debug.hexdump(decryptedData))
+                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: PDU deciphered into %s' % debug.hexdump(decryptedData))
             except error.StatusInformation:
                 usmStatsDecryptionErrors, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsDecryptionErrors')
                 usmStatsDecryptionErrors.syntax = usmStatsDecryptionErrors.syntax+1

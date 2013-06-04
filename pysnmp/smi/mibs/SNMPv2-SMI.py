@@ -1086,7 +1086,7 @@ class MibTableRow(MibTree):
     def getInstIdFromIndices(self, *indices):
         """Return column instance identification from indices"""
         if indices in self.__idxToIdCache:
-          return self.__idxToIdCache[indices]
+            return self.__idxToIdCache[indices]
         idx = 0; idxLen = len(indices); instId = ()
         for impliedFlag, modName, symName in self.indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)

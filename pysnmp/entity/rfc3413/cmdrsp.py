@@ -1,5 +1,5 @@
 import sys
-from pysnmp.proto import rfc1157, rfc1902, rfc1905, rfc3411, errind, error
+from pysnmp.proto import rfc1902, rfc1905, rfc3411, errind, error
 from pysnmp.proto.api import v2c  # backend is always SMIv2 compliant
 from pysnmp.proto.proxy import rfc2576
 import pysnmp.smi.error

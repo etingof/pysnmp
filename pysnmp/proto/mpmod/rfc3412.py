@@ -1,7 +1,6 @@
 # SNMP v3 message processing model implementation
 import sys
 from pysnmp.proto.mpmod.base import AbstractMessageProcessingModel
-from pysnmp.proto.secmod import rfc3414
 from pysnmp.proto import rfc1905, rfc3411, api, errind, error
 from pyasn1.type import univ, namedtype, constraint
 from pyasn1.codec.ber import decoder
