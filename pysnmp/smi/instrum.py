@@ -1,5 +1,6 @@
 # MIB modules management
 import sys
+import traceback
 from pysnmp.smi import error
 from pysnmp import debug
 
@@ -218,7 +219,7 @@ class MibInstrumController(AbstractMibInstrumController):
                     if origExc is None:  # Take the first exception
                         origExc, origTraceback = sys.exc_info()[1:3]
                     status = 'err'
-                    debug.logger & debug.flagIns and debug.logger('flipFlopFsm: fun %s failed %s for %s=%r' % (f, origExc, name, val))
+                    debug.logger & debug.flagIns and debug.logger('flipFlopFsm: fun %s failed %s for %s=%r with traceback: %s' % (f, origExc, name, val, traceback.format_exc(origTraceback)))
                     break
                 else:
                     debug.logger & debug.flagIns and debug.logger('flipFlopFsm: fun %s suceeded for %s=%r' % (f, name, val))
@@ -227,7 +228,7 @@ class MibInstrumController(AbstractMibInstrumController):
                 idx = idx + 1
         if origExc:
             if sys.version_info[0] <= 2:
-                raise origExc, None, origTraceback
+                raise origExc
             else:
                 try:
                     raise origExc.with_traceback(origTraceback)

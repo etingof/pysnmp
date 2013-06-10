@@ -1,4 +1,5 @@
 import sys
+import traceback
 from pysnmp.smi.indices import OidOrderedDict
 from pysnmp.smi import exval, error
 from pysnmp.proto import rfc1902
@@ -532,10 +533,10 @@ class MibScalarInstance(MibTree):
             else:
                 return self.syntax.clone(value)
         except PyAsn1Error:
-            why = sys.exc_info()[1]
-            debug.logger & debug.flagIns and debug.logger('setValue: %s=%r failed: %s' % (self.name, value, why))
-            if isinstance(why, error.TableRowManagement):
-                raise why
+            exc_t, exc_v, exc_tb = sys.exc_info()
+            debug.logger & debug.flagIns and debug.logger('setValue: %s=%r failed %s with traceback %s' % (self.name, value, exc_v, traceback.format_exc(exc_tb)))
+            if isinstance(exc_v, error.TableRowManagement):
+                raise exc_v
             else:
                 raise error.WrongValueError(idx=idx, name=name, msg=why)
 
