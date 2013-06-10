@@ -59,33 +59,7 @@ usmUserEngineID = MibTableColumn((1, 3, 6, 1, 6, 3, 15, 1, 2, 2, 1, 1), SnmpEngi
 if mibBuilder.loadTexts: usmUserEngineID.setDescription("An SNMP engine's administratively-unique identifier.\n\nIn a simple agent, this value is always that agent's\nown snmpEngineID value.\n\nThe value can also take the value of the snmpEngineID\nof a remote SNMP engine with which this user can\ncommunicate.")
 usmUserName = MibTableColumn((1, 3, 6, 1, 6, 3, 15, 1, 2, 2, 1, 2), SnmpAdminString().subtype(subtypeSpec=ValueSizeConstraint(1, 32))).setMaxAccess("noaccess")
 if mibBuilder.loadTexts: usmUserName.setDescription("A human readable string representing the name of\nthe user.\n\nThis is the (User-based Security) Model dependent\nsecurity ID.")
-# Automatically initialize this column value from index name
-class UsmUserSecurityName(MibTableColumn):
-    def __getUsmUserName(self, name):
-        __usmUserEntry, = mibBuilder.importSymbols(
-            'SNMP-USER-BASED-SM-MIB', 'usmUserEntry'
-            )
-        __usmUserEngineID, __usmUserName = __usmUserEntry.getIndicesFromInstId(
-            name[len(self.name):]
-            )
-        return __usmUserName        
-    def createTest(self, name, val, idx, acInfo):
-        return MibTableColumn.createTest(
-            self, name, self.__getUsmUserName(name), idx, acInfo
-            )
-    def createCommit(self, name, val, idx, acInfo):
-        return MibTableColumn.createCommit(
-            self, name, self.__getUsmUserName(name), idx, acInfo
-            )
-    def createCleanup(self, name, val, idx, acInfo):
-        return MibTableColumn.createCleanup(
-            self, name, self.__getUsmUserName(name), idx, acInfo
-            )
-    def createUndo(self, name, val, idx, acInfo):
-        return MibTableColumn.createUndo(
-            self, name, self.__getUsmUserName(name), idx, acInfo
-            )
-usmUserSecurityName = UsmUserSecurityName((1, 3, 6, 1, 6, 3, 15, 1, 2, 2, 1, 3), SnmpAdminString()).setMaxAccess("readonly")
+usmUserSecurityName = MibTableColumn((1, 3, 6, 1, 6, 3, 15, 1, 2, 2, 1, 3), SnmpAdminString()).setMaxAccess("noaccess")
 if mibBuilder.loadTexts: usmUserSecurityName.setDescription("A human readable string representing the user in\nSecurity Model independent format.\n\nThe default transformation of the User-based Security\nModel dependent security ID to the securityName and\nvice versa is the identity function so that the\nsecurityName is the same as the userName.")
 usmUserCloneFrom = MibTableColumn((1, 3, 6, 1, 6, 3, 15, 1, 2, 2, 1, 4), RowPointer((0,0))).setMaxAccess("readcreate")
 if mibBuilder.loadTexts: usmUserCloneFrom.setDescription("A pointer to another conceptual row in this\nusmUserTable.  The user in this other conceptual\nrow is called the clone-from user.\n\nWhen a new user is created (i.e., a new conceptual\nrow is instantiated in this table), the privacy and\nauthentication parameters of the new user must be\ncloned from its clone-from user. These parameters are:\n  - authentication protocol (usmUserAuthProtocol)\n  - privacy protocol (usmUserPrivProtocol)\nThey will be copied regardless of what the current\nvalue is.\n\nCloning also causes the initial values of the secret\nauthentication key (authKey) and the secret encryption\n\nkey (privKey) of the new user to be set to the same\nvalues as the corresponding secrets of the clone-from\nuser to allow the KeyChange process to occur as\nrequired during user creation.\n\nThe first time an instance of this object is set by\na management operation (either at or after its\ninstantiation), the cloning process is invoked.\nSubsequent writes are successful but invoke no\naction to be taken by the receiver.\nThe cloning process fails with an 'inconsistentName'\nerror if the conceptual row representing the\nclone-from user does not exist or is not in an active\nstate when the cloning process is invoked.\n\nWhen this object is read, the ZeroDotZero OID\nis returned.")
