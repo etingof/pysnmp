@@ -538,7 +538,7 @@ class MibScalarInstance(MibTree):
             if isinstance(exc_v, error.TableRowManagement):
                 raise exc_v
             else:
-                raise error.WrongValueError(idx=idx, name=name, msg=why)
+                raise error.WrongValueError(idx=idx, name=name, msg=exc_v)
 
     #
     # Subtree traversal
