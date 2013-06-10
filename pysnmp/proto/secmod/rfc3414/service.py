@@ -56,6 +56,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             self.__securityToUserMap = {}
 
             nextMibNode = usmUserEngineID
+
             while 1:
                 try:
                     nextMibNode = usmUserEngineID.getNextNode(
@@ -82,9 +83,11 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
             securityEngineID = snmpEngineID.syntax
 
-        userName = self.__securityToUserMap.get(
-                       (securityEngineID, securityName), securityName
-                   )
+        try:
+            userName = self.__securityToUserMap[(securityEngineID, securityName)]
+        except KeyError:
+            debug.logger & debug.flagSM and debug.logger('_sec2usr: no entry exists for snmpEngineId %r, securityName %r' % (securityEngineID, securityName))
+            raise NoSuchInstanceError()  # emulate MIB lookup
      
         debug.logger & debug.flagSM and debug.logger('_sec2usr: using userName %r for snmpEngineId %r, securityName %r' % (userName, securityEngineID, securityName))
 
