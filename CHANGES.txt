@@ -27,6 +27,8 @@ Revision 4.2.5rc2
   at once. Although RFC2576 does not suggest error-status -> v2c exception
   translation, historically pysnmp used to perform it for a long time so we
   can't easily stop doing that.
+- Exception re-raising improved at MibInstrumController.flipFlopFsm() so
+  that original traceback is preserved.
 - The snmpCommunityTable row selection improved to follow RFC2576, clause
   5.2.1.
 - Asyncore-based dispatcher attempts to use poll() whenever available

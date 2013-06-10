@@ -215,10 +215,10 @@ class MibInstrumController(AbstractMibInstrumController):
                     # on subscription
                     rval = f(tuple(name), val, idx, acInfo)
                 except error.SmiError:
-                    debug.logger & debug.flagIns and debug.logger('flipFlopFsm: fun %s failed %s for %s=%r' % (f, sys.exc_info()[1], name, val))
                     if origExc is None:  # Take the first exception
                         origExc, origTraceback = sys.exc_info()[1:3]
                     status = 'err'
+                    debug.logger & debug.flagIns and debug.logger('flipFlopFsm: fun %s failed %s for %s=%r' % (f, origExc, name, val))
                     break
                 else:
                     debug.logger & debug.flagIns and debug.logger('flipFlopFsm: fun %s suceeded for %s=%r' % (f, name, val))
@@ -227,7 +227,7 @@ class MibInstrumController(AbstractMibInstrumController):
                 idx = idx + 1
         if origExc:
             if sys.version_info[0] <= 2:
-                raise origExc
+                raise origExc, None, origTraceback
             else:
                 try:
                     raise origExc.with_traceback(origTraceback)
