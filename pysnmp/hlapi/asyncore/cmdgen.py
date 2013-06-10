@@ -162,7 +162,7 @@ class AsynCommandGenerator:
                 )
                 paramsNames.add(paramsName)
             else:
-                raise error.PySnmpError('Unknown target %s' % paramsKey)
+                raise error.PySnmpError('Unknown target %s' % (paramsKey,))
 
             addrKeys = [ x for x in self.__knownTransportAddrs if x[0] == paramsName ]
 
