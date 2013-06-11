@@ -217,7 +217,7 @@ class MibInstrumController(AbstractMibInstrumController):
                     rval = f(tuple(name), val, idx, acInfo)
                 except error.SmiError:
                     exc_t, exc_v, exc_tb = sys.exc_info()
-                    debug.logger & debug.flagIns and debug.logger('flipFlopFsm: fun %s exception %s for %s=%r with traceback: %s' % (f, exc_t, name, val, traceback.format_exc(exc_tb)))
+                    debug.logger & debug.flagIns and debug.logger('flipFlopFsm: fun %s exception %s for %s=%r with traceback: %s' % (f, exc_t, name, val, traceback.format_exception(exc_t, exc_v, exc_tb)))
                     if origExc is None:  # Take the first exception
                         origExc, origTraceback = exc_v, exc_tb
                     status = 'err'

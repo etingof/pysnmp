@@ -534,7 +534,7 @@ class MibScalarInstance(MibTree):
                 return self.syntax.clone(value)
         except PyAsn1Error:
             exc_t, exc_v, exc_tb = sys.exc_info()
-            debug.logger & debug.flagIns and debug.logger('setValue: %s=%r failed %s with traceback %s' % (self.name, value, exc_v, traceback.format_exc(exc_tb)))
+            debug.logger & debug.flagIns and debug.logger('setValue: %s=%r failed with traceback %s' % (self.name, value, traceback.format_exception(exc_t, exc_v, exc_tb)))
             if isinstance(exc_v, error.TableRowManagement):
                 raise exc_v
             else:
