@@ -40,7 +40,8 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
         for tag in tagList:
             notifyNameKey = paramsName, tag, notifyType
             if notifyNameKey in self.__knownNotifyNames:
-                notifyName, _ = self.__knownNotifyNames[notifyNameKey]
+                notifyName, paramsName, useCount = self.__knownNotifyNames[notifyNameKey]
+                self.__knownNotifyNames[notifyNameKey] = notifyName, paramsName, useCount + 1
             else:
                 notifyName = 'n%s' % nextID()
                 config.addNotificationTarget(
@@ -50,9 +51,12 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                     tag,
                     notifyType
                 )
-                self.__knownNotifyNames[notifyNameKey] = notifyName, paramsName
+                self.__knownNotifyNames[notifyNameKey] = notifyName, paramsName, 1
         authDataKey = authData.securityName, authData.securityModel
-        if  authDataKey not in self.__knownAuths:
+        if  authDataKey in self.__knownAuths:
+            authDataX, subTree, useCount = self.__knownAuths[authDataKey]
+            self.__knownAuths[authDataKey] = authDataX, subTree, useCount + 1
+        else:
             subTree = (1,3,6)
             config.addTrapUser(
                 self.snmpEngine,
@@ -61,7 +65,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                 authData.securityLevel,
                 subTree
             )
-            self.__knownAuths[authDataKey] = authData, subTree
+            self.__knownAuths[authDataKey] = authData, subTree, 1
         if self.snmpContext is None:
             self.snmpContext = context.SnmpContext(self.snmpEngine)
             config.addContext(
@@ -83,22 +87,30 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
 
         notifyAndParamsNames = [ (self.__knownNotifyNames[x], x) for x in self.__knownNotifyNames.keys() if x[0] in paramsNames ]
 
-        for (notifyName, paramsName), notifyNameKey in notifyAndParamsNames:
-            config.delNotificationTarget(
-                self.snmpEngine, notifyName, paramsName
+        for (notifyName, paramsName, useCount), notifyNameKey in notifyAndParamsNames:
+            useCount -= 1
+            if useCount:
+                self.__knownNotifyNames[notifyNameKey] = notifyName, paramsName, useCount
+            else:
+                config.delNotificationTarget(
+                    self.snmpEngine, notifyName, paramsName
                 )
-            del self.__knownNotifyNames[notifyNameKey]
+                del self.__knownNotifyNames[notifyNameKey]
 
         for authDataKey in authDataKeys:
-            authDataX, subTree = self.__knownAuths[authDataKey]
-            config.delTrapUser(
-                self.snmpEngine,
-                authDataX.securityModel,
-                authDataX.securityName,
-                authDataX.securityLevel,
-                subTree
-            )
-            del self.__knownAuths[authDataKey]
+            authDataX, subTree, useCount = self.__knownAuths[authDataKey]
+            useCount -= 1
+            if useCount:
+                self.__knownAuths[authDataKey] = authDataX, subTree, useCount
+            else:
+                config.delTrapUser(
+                    self.snmpEngine,
+                    authDataX.securityModel,
+                    authDataX.securityName,
+                    authDataX.securityLevel,
+                    subTree
+                )
+                del self.__knownAuths[authDataKey]
 
     def sendNotification(self, authData, transportTarget, notifyType,
                          notificationType, varBinds=(),

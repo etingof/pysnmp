@@ -74,14 +74,15 @@ class AsynCommandGenerator:
                     authData.securityLevel, \
                     authData.mpModel
         if paramsKey in self.__knownParams:
-            paramsName = self.__knownParams[paramsKey]
+            paramsName, useCount = self.__knownParams[paramsKey]
+            self.__knownParams[paramsKey] = paramsName, useCount + 1
         else:
             paramsName = 'p%s' % nextID()
             config.addTargetParams(
                 self.snmpEngine, paramsName,
                 authData.securityName, authData.securityLevel, authData.mpModel
             )
-            self.__knownParams[paramsKey] = paramsName
+            self.__knownParams[paramsKey] = paramsName, 1
 
         if transportTarget.transportDomain in self.__knownTransports:
             transport, useCount = self.__knownTransports[transportTarget.transportDomain]
@@ -101,7 +102,8 @@ class AsynCommandGenerator:
                          transportTarget.tagList )
 
         if transportKey in self.__knownTransportAddrs:
-            addrName = self.__knownTransportAddrs[transportKey]
+            addrName, useCount = self.__knownTransportAddrs[transportKey]
+            self.__knownTransportAddrs[transportKey] = addrName, useCount + 1
         else:
             addrName = 'a%s' % nextID()
             config.addTargetAddr(
@@ -113,7 +115,7 @@ class AsynCommandGenerator:
                 transportTarget.retries,
                 transportTarget.tagList
             )
-            self.__knownTransportAddrs[transportKey] = addrName
+            self.__knownTransportAddrs[transportKey] = addrName, 1
 
         return addrName, paramsName
 
@@ -155,34 +157,40 @@ class AsynCommandGenerator:
                         authDataX.securityLevel, \
                         authDataX.mpModel
             if paramsKey in self.__knownParams:
-                paramsName = self.__knownParams[paramsKey]
-                del self.__knownParams[paramsKey]
-                config.delTargetParams(
-                    self.snmpEngine, paramsName
-                )
-                paramsNames.add(paramsName)
+                paramsName, useCount = self.__knownParams[paramsKey]
+                useCount -= 1
+                if useCount:
+                    self.__knownParams[paramsKey] = paramsName, useCount
+                else:
+                    del self.__knownParams[paramsKey]
+                    config.delTargetParams(
+                        self.snmpEngine, paramsName
+                    )
+                    paramsNames.add(paramsName)
             else:
                 raise error.PySnmpError('Unknown target %s' % (paramsKey,))
 
             addrKeys = [ x for x in self.__knownTransportAddrs if x[0] == paramsName ]
 
             for addrKey in addrKeys:
-                config.delTargetAddr(
-                    self.snmpEngine, self.__knownTransportAddrs[addrKey]
-                )
-                self.__knownTransportAddrs[addrKey]
+                addrName, useCount = self.__knownTransportAddrs[addrKey]
+                useCount -= 1
+                if useCount:
+                    self.__knownTransportAddrs[addrKey] = addrName, useCount
+                else:
+                    config.delTargetAddr(self.snmpEngine, addrName)
 
-                addrNames.add(addrKey)
+                    addrNames.add(addrKey)
 
-                if addrKey[1] in self.__knownTransports:
-                    transport, useCount = self.__knownTransports[addrKey[1]]
-                    if useCount > 1:
-                        useCount -= 1
-                        self.__knownTransports[addrKey[1]] = transport,useCount
-                    else:
-                        config.delTransport(self.snmpEngine, addrKey[1])
-                        transport.closeTransport()
-                        del self.__knownTransports[addrKey[1]]
+                    if addrKey[1] in self.__knownTransports:
+                        transport, useCount = self.__knownTransports[addrKey[1]]
+                        if useCount > 1:
+                            useCount -= 1
+                            self.__knownTransports[addrKey[1]] = transport, useCount
+                        else:
+                            config.delTransport(self.snmpEngine, addrKey[1])
+                            transport.closeTransport()
+                            del self.__knownTransports[addrKey[1]]
 
         return addrNames, paramsNames
 
