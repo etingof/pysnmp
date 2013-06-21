@@ -85,6 +85,7 @@ class AsynCommandGenerator:
             self.__knownParams[paramsKey] = paramsName, 1
 
         if transportTarget.transportDomain in self.__knownTransports:
+            transportTarget.verifyDispatcherCompatibility(self.snmpEngine)
             transport, useCount = self.__knownTransports[transportTarget.transportDomain]
             self.__knownTransports[transportTarget.transportDomain] = transport, useCount + 1
         else:

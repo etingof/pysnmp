@@ -25,6 +25,10 @@ class _AbstractTransportTarget:
         self.transport = self.protoTransport().openClientMode()
         return self.transport
 
+    def verifyDispatcherCompatibility(self, snmpEngine):
+        if not self.protoTransport.isCompatibleWithDispatcher(snmpEngine.transportDispatcher):
+            raise error.PySnmpError('Transport %r is not compatible with dispatcher %r' % (self.protoTransport, snmpEngine.transportDispatcher))
+
     def _resolveAddr(self, transportAddr): raise NotImplementedError()
 
 class UdpTransportTarget(_AbstractTransportTarget):

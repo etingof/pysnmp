@@ -309,8 +309,7 @@ def delTargetAddr(snmpEngine, addrName):
 
 def addTransport(snmpEngine, transportDomain, transport):
     if snmpEngine.transportDispatcher:
-        if not isinstance(snmpEngine.transportDispatcher,
-                          transport.protoTransportDispatcher):
+        if not transport.isCompatibleWithDispatcher(snmpEngine.transportDispatcher): 
             raise error.PySnmpError('Transport %r is not compatible with dispatcher %r' % (transport, snmpEngine.transportDispatcher))
     else:
         snmpEngine.registerTransportDispatcher(

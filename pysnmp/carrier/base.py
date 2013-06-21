@@ -156,3 +156,10 @@ class AbstractTransportDispatcher:
             self.unregisterTransport(tDomain)
         self.unregisterRecvCbFun()
         self.unregisterTimerCbFun()
+
+
+class AbstractTransport:
+    protoTransportDispatcher = None
+    @classmethod
+    def isCompatibleWithDispatcher(cls, transportDispatcher):
+        return isinstance(transportDispatcher, cls.protoTransportDispatcher)
