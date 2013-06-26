@@ -8,10 +8,10 @@
 #
 # Description: Transport dispatcher based on twisted.internet.reactor
 #
-import sys, time
+import sys, time, traceback
 from twisted.internet import reactor, task
 from pysnmp.carrier.base import AbstractTransportDispatcher
-from pysnmp.carrier import error
+from pysnmp.error import PySnmpError
 
 class TwistedDispatcher(AbstractTransportDispatcher):
     """TransportDispatcher based on twisted.internet.reactor"""
@@ -28,8 +28,10 @@ class TwistedDispatcher(AbstractTransportDispatcher):
         if not reactor.running:
             try:
                 reactor.run()
-            except Exception:
-                raise error.CarrierError(sys.exc_info()[1])
+            except KeyboardInterrupt:
+                raise
+            except:
+                raise PySnmpError('reactor error: %s' % ';'.join(traceback.format_exception(*sys.exc_info())))
 
     # jobstarted/jobfinished might be okay as-is
 

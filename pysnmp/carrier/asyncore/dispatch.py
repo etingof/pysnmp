@@ -1,6 +1,7 @@
 # Implements I/O over asynchronous sockets
 from time import time
 from sys import exc_info
+from traceback import format_exception
 from asyncore import socket_map
 from asyncore import loop
 from pysnmp.carrier.base import AbstractTransportDispatcher
@@ -37,5 +38,5 @@ class AsynsockDispatcher(AbstractTransportDispatcher):
             except KeyboardInterrupt:
                 raise
             except:
-                raise PySnmpError('poll error: %s' % exc_info()[1])
+                raise PySnmpError('poll error: %s' % ';'.join(format_exception(*exc_info())))
             self.handleTimerTick(time())
