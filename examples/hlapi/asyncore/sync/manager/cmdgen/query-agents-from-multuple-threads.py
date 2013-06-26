@@ -66,7 +66,7 @@ class Worker(Thread):
             self.responses.append(
                 self.cmdGen.getCmd(
                     authData, transportTarget, *varNames,
-                    lookupNames=True, lookupValues=True
+                    **{ 'lookupNames': True, 'lookupValues': True }
                 )
             )
             self.requests.task_done()
