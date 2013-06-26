@@ -270,6 +270,10 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             # 3.1.1a
             cachedSecurityData = self._cache.pop(securityStateReference)
             usmUserName = cachedSecurityData['msgUserName']
+            if 'usmUserSecurityName' in cachedSecurityData:
+                usmUserSecurityName = cachedSecurityData['usmUserSecurityName']
+            else:
+                usmUserSecurityName = usmUserName
             if 'usmUserAuthProtocol' in cachedSecurityData:
                 usmUserAuthProtocol = cachedSecurityData['usmUserAuthProtocol']
             else:
@@ -726,6 +730,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         self._cache.pop(securityStateReference)
         securityStateReference = self._cache.push(
             msgUserName=securityParameters.getComponentByPosition(3),
+            usmUserSecurityName=usmUserSecurityName,
             usmUserAuthProtocol=usmUserAuthProtocol,
             usmUserAuthKeyLocalized=usmUserAuthKeyLocalized,
             usmUserPrivProtocol=usmUserPrivProtocol,
