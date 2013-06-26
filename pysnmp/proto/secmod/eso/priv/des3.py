@@ -79,7 +79,7 @@ class Des3(base.AbstractEncryptionService):
     
     def __getDecryptionKey(self, privKey, salt):
         return privKey[:24].asOctets(), \
-               univ.OctetString(map(lambda x,y:x^y, salt, privKey[24:32].asNumbers())).asOctets()
+               univ.OctetString(map(lambda x,y:x^y, salt.asNumbers(), privKey[24:32].asNumbers())).asOctets()
 
     # 5.1.1.2
     def encryptData(self, encryptKey, privParameters, dataToEncrypt):
@@ -103,7 +103,7 @@ class Des3(base.AbstractEncryptionService):
         ciphertext = null
         while plaintext:
             cipherblock = des3Obj.encrypt(
-                univ.OctetString(map(lambda x,y:x^y, univ.OctetString(cipherblock).asNumbers(), univ.OctetString(plaintext[:8]).asNumbers()))
+                univ.OctetString(map(lambda x,y:x^y, univ.OctetString(cipherblock).asNumbers(), univ.OctetString(plaintext[:8]).asNumbers())).asOctets()
                 )
             ciphertext = ciphertext + cipherblock
             plaintext = plaintext[8:]
