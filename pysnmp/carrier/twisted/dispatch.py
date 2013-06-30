@@ -47,7 +47,6 @@ class TwistedDispatcher(AbstractTransportDispatcher):
         t = AbstractTransportDispatcher.getTransport(self, tDomain)
         if t is not None:
             AbstractTransportDispatcher.unregisterTransport(self, tDomain)
-            t.closeTransport()
             self.__transportCount = self.__transportCount - 1
 
         # The last transport has been removed, stop the timeout
