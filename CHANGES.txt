@@ -79,6 +79,10 @@ Revision 4.2.5rc2
   use of global default of 0.5 sec.
 - Fix to twisted/udp non-default local endpoint binding features. Common
   socket ('host', port) notation is now supported.
+- Fix to Twisted-based transport to make it closing UDP port / UNIX pipe
+  on shutdown.
+- Fix to Twisted-based dispatcher not to close transport on unregistration
+  at dispatcher as transports can potentially be reused elsewhere.
 - The delV3User() function improved to drop all rows from USM table that
   were cloned from the target one.
 - Fix to exceptions handling at MsgAndPduDispatcher.sendPdu() to avoid
