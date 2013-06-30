@@ -23,4 +23,9 @@ class UdpTwistedTransport(DgramTwistedTransport):
             raise error.CarrierError(sys.exc_info()[1])
         return self
 
+    def closeTransport(self):
+        d = self._lport.stopListening()
+        d and d.addCallback(lambda x: None)
+        DgramTwistedTransport.closeTransport(self)
+
 UdpTransport = UdpTwistedTransport
