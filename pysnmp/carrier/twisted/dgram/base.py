@@ -31,7 +31,6 @@ class DgramTwistedTransport(DatagramProtocol, AbstractTwistedTransport):
 
     def stopProtocol(self):
         debug.logger & debug.flagIO and debug.logger('stopProtocol: invoked')
-        self.closeTransport()
 
     def sendMessage(self, outgoingMessage, transportAddress):
         debug.logger & debug.flagIO and debug.logger('startProtocol: %s transportAddress %r outgoingMessage %s' % ((self.transport is None and "queuing" or "sending"), transportAddress, debug.hexdump(outgoingMessage)))
