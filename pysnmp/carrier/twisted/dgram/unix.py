@@ -24,4 +24,9 @@ class UnixTwistedTransport(DgramTwistedTransport):
         
         return self
 
+    def closeTransport(self):
+        d = self._lport.stopListening()
+        d and d.addCallback(lambda x: None)
+        DgramTwistedTransport.closeTransport(self)
+
 UnixTransport = UnixTwistedTransport
