@@ -154,12 +154,26 @@ class AbstractTransportDispatcher:
         for tDomain in list(self.__transports):
             self.__transports[tDomain].closeTransport()
             self.unregisterTransport(tDomain)
+        self.__transports.clear()
         self.unregisterRecvCbFun()
         self.unregisterTimerCbFun()
 
-
 class AbstractTransport:
     protoTransportDispatcher = None
+    _cbFun = None
     @classmethod
     def isCompatibleWithDispatcher(cls, transportDispatcher):
         return isinstance(transportDispatcher, cls.protoTransportDispatcher)
+
+    def registerCbFun(self, cbFun):
+        if self._cbFun:
+            raise error.CarrierError(
+                'Callback function %s already registered at %s' % (self.__cbFun, self)
+                )
+        self._cbFun = cbFun
+
+    def unregisterCbFun(self):
+        self._cbFun = None
+
+    def closeTransport(self):
+        self.unregisterCbFun()

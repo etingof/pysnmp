@@ -16,14 +16,3 @@ class AbstractTwistedTransport(AbstractTransport):
     """Base Twisted Transport, to be used with TwistedDispatcher"""
     def __init__(self):
         self._writeQ = []
-
-    # AbstractTwistedTransport API
-    
-    def registerCbFun(self, cbFun):
-        self._cbFun = cbFun
-
-    def unregisterCbFun(self):
-        self._cbFun = None
-
-    def closeTransport(self):
-        self.unregisterCbFun()

@@ -59,14 +59,8 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
     def sendMessage(self, outgoingMessage, transportAddress):
         raise error.CarrierError('Method not implemented')
 
-    def registerCbFun(self, cbFun):
-        self._cbFun = cbFun
-
-    def unregisterCbFun(self):
-        self._cbFun = None
-
     def closeTransport(self):
-        self.unregisterCbFun()
+        AbstractTransport.closeTransport(self)
         self.close()
         
     # asyncore API
