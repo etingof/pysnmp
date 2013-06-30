@@ -315,15 +315,25 @@ def addTransport(snmpEngine, transportDomain, transport):
         snmpEngine.registerTransportDispatcher(
             transport.protoTransportDispatcher()
         )
+        # here we note that we have created transportDispatcher automatically
+        snmpEngine.cache['automaticTransportDispatcher'] = 0
     snmpEngine.transportDispatcher.registerTransport(
         transportDomain, transport
     )
+    if 'automaticTransportDispatcher' in snmpEngine.cache:
+        snmpEngine.cache['automaticTransportDispatcher'] += 1
 
 def delTransport(snmpEngine, transportDomain):
     if not snmpEngine.transportDispatcher:
         return
     snmpEngine.transportDispatcher.unregisterTransport(transportDomain)
-    snmpEngine.unregisterTransportDispatcher()
+    # automatically shutdown automatically created transportDispatcher
+    if 'automaticTransportDispatcher' in snmpEngine.cache:
+        snmpEngine.cache['automaticTransportDispatcher'] -= 1
+        if not snmpEngine.cache['automaticTransportDispatcher']:
+            snmpEngine.transportDispatcher.closeDispatcher()
+            snmpEngine.unregisterTransportDispatcher()
+            del snmpEngine.cache['automaticTransportDispatcher']
 
 addSocketTransport = addTransport
 delSocketTransport = delTransport
