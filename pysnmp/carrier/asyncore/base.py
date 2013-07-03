@@ -12,6 +12,7 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
     retryCount = 0; retryInterval = 0
     bufferSize = 131070
     def __init__(self, sock=None, sockMap=None):
+        asyncore.dispatcher.__init__(self)
         if sock is None:
             if self.sockFamily is None:
                 raise error.CarrierError(
@@ -35,12 +36,26 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
             except Exception:
                 debug.logger & debug.flagIO and debug.logger('%s: socket buffer size option mangling failure for buffer %d: %s' % (self.__class__.__name__, b, sys.exc_info()[1]))
 
-        if sockMap is None:
-            # The socket map is managed by the AsynsockDispatcher on
-            # which this transport is registered, so this is a fake
-            # socket map to avoid registering with deafult asyncore map.
-            sockMap = {}
-        asyncore.dispatcher.__init__(self, sock, sockMap)
+        # The socket map is managed by the AsynsockDispatcher on
+        # which this transport is registered. Here we just prepare
+        # socket and postpone transport registration at dispatcher
+        # till AsynsockDispatcher invokes registerSocket()
+
+        sock.setblocking(0)
+        self.set_socket(sock)
+
+    # The following two methods are part of base class so here we overwrite
+    # them to separate socket management from dispatcher registration tasks.
+    # These two are just for dispatcher registration.
+    def add_channel(self, map=None):
+        if map is not None:
+            map[self._fileno] = self
+            self.connected = True
+
+    def del_channel(self, map=None):
+        if map is not None and self._fileno in map:
+            del map[self._fileno]
+            self.connected = False
 
     def registerSocket(self, sockMap=None):
         self.add_channel(sockMap)

@@ -83,6 +83,9 @@ Revision 4.2.5rc2
   on shutdown.
 - Fix to Twisted-based dispatcher not to close transport on unregistration
   at dispatcher as transports can potentially be reused elsewhere.
+- Fix to asyncore-based transport to work only with AsynsockDispatcher's
+  socket map and not to touch default asyncore's one. The latter have caused
+  dispatcher/transport restarting issues.
 - The delV3User() function improved to drop all rows from USM table that
   were cloned from the target one.
 - Fix to exceptions handling at MsgAndPduDispatcher.sendPdu() to avoid
