@@ -2,17 +2,73 @@
 # by libsmi2pysnmp-0.1.3 at Tue Apr  3 16:58:37 2012,
 # Python version sys.version_info(major=2, minor=7, micro=2, releaselevel='final', serial=0)
 
+from socket import AF_INET, has_ipv6
+
 try:
-    from socket import inet_ntop, inet_pton, AF_INET, AF_INET6, has_ipv6
+    from socket import AF_INET6
 except ImportError:
     has_ipv6 = False
 
-if not has_ipv6:
-    from socket import inet_ntoa, inet_aton, AF_INET
-    inet_ntop = lambda x,y: inet_ntoa(y)
-    inet_pton = lambda x,y: inet_aton(y)
-    AF_INET6 = None
-    
+try:
+    from socket import inet_ntop, inet_pton
+except ImportError:
+    import sys
+    if sys.platform != "win32":
+        from socket import inet_ntoa, inet_aton
+        inet_ntop = lambda x,y: inet_ntoa(y)
+        inet_pton = lambda x,y: inet_aton(y)
+        has_ipv6 = False
+    elif has_ipv6:
+        import ctypes
+ 
+        class sockaddr(ctypes.Structure):
+            _fields_ = [("sa_family", ctypes.c_short),
+                        ("__pad1", ctypes.c_ushort),
+                        ("ipv4_addr", ctypes.c_byte * 4),
+                        ("ipv6_addr", ctypes.c_byte * 16),
+                        ("__pad2", ctypes.c_ulong)]
+ 
+        WSAStringToAddressA = ctypes.windll.ws2_32.WSAStringToAddressA
+        WSAAddressToStringA = ctypes.windll.ws2_32.WSAAddressToStringA
+ 
+        def inet_pton(address_family, ip_string):
+            addr = sockaddr()
+            addr.sa_family = address_family
+            addr_size = ctypes.c_int(ctypes.sizeof(addr))
+ 
+            if WSAStringToAddressA(ip_string, address_family, None, ctypes.byref(addr), ctypes.byref(addr_size)) != 0:
+                raise socket.error(ctypes.FormatError())
+ 
+            if address_family == socket.AF_INET:
+                return string_at(addr.ipv4_addr, 4)
+            if address_family == socket.AF_INET6:
+                return string_at(addr.ipv6_addr, 16)
+ 
+            raise socket.error('unknown address family')
+ 
+        def inet_ntop(address_family, packed_ip):
+            addr = sockaddr()
+            addr.sa_family = address_family
+            addr_size = ctypes.c_int(ctypes.sizeof(addr))
+            ip_string = ctypes.create_string_buffer(128)
+            ip_string_size = ctypes.c_int(ctypes.sizeof(addr))
+ 
+            if address_family == socket.AF_INET:
+                if len(packed_ip) != ctypes.sizeof(addr.ipv4_addr):
+                    raise socket.error('packed IP wrong length for inet_ntoa')
+                ctypes.memmove(addr.ipv4_addr, packed_ip, 4)
+            elif address_family == socket.AF_INET6:
+                if len(packed_ip) != ctypes.sizeof(addr.ipv6_addr):
+                    raise socket.error('packed IP wrong length for inet_ntoa')
+                ctypes.memmove(addr.ipv6_addr, packed_ip, 16)
+            else:
+                raise socket.error('unknown address family')
+ 
+            if WSAAddressToStringA(ctypes.byref(addr), addr_size, None, ip_string, ctypes.byref(ip_string_size)) != 0:
+                raise socket.error(ctypes.FormatError())
+ 
+            return ip_string[:ip_string_size.value]
+
 from pyasn1.compat.octets import int2oct, oct2int
 from pysnmp import error
 
@@ -67,7 +123,7 @@ class TransportAddressIPv6(TextualConvention, OctetString):
     fixedLength = 18
 
     def prettyIn(self, value):
-        if AF_INET6 is None:
+        if not has_ipv6:
             raise error.PySnmpError('IPv6 not supported by platform')
         if isinstance(value, tuple):
             value = inet_pton(AF_INET6, value[0]) + \
@@ -78,7 +134,7 @@ class TransportAddressIPv6(TextualConvention, OctetString):
     # Socket address syntax coercion
     def __getitem__(self, i):
         if not hasattr(self, '__tuple_value'):
-            if AF_INET6 is None:
+            if not has_ipv6:
                 raise error.PySnmpError('IPv6 not supported by platform')
             v = self.asOctets()
             self.__tuple_value = (
