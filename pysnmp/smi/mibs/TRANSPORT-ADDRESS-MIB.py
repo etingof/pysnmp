@@ -2,7 +2,7 @@
 # by libsmi2pysnmp-0.1.3 at Tue Apr  3 16:58:37 2012,
 # Python version sys.version_info(major=2, minor=7, micro=2, releaselevel='final', serial=0)
 
-from socket import AF_INET, has_ipv6
+from socket import AF_INET, error, has_ipv6
 
 try:
     from socket import AF_INET6
@@ -37,14 +37,14 @@ except ImportError:
             addr_size = ctypes.c_int(ctypes.sizeof(addr))
  
             if WSAStringToAddressA(ip_string, address_family, None, ctypes.byref(addr), ctypes.byref(addr_size)) != 0:
-                raise socket.error(ctypes.FormatError())
+                raise error(ctypes.FormatError())
  
-            if address_family == socket.AF_INET:
-                return string_at(addr.ipv4_addr, 4)
-            if address_family == socket.AF_INET6:
-                return string_at(addr.ipv6_addr, 16)
+            if address_family == AF_INET:
+                return ctypes.string_at(addr.ipv4_addr, 4)
+            if address_family == AF_INET6:
+                return ctypes.string_at(addr.ipv6_addr, 16)
  
-            raise socket.error('unknown address family')
+            raise error('unknown address family')
  
         def inet_ntop(address_family, packed_ip):
             addr = sockaddr()
@@ -53,21 +53,21 @@ except ImportError:
             ip_string = ctypes.create_string_buffer(128)
             ip_string_size = ctypes.c_int(ctypes.sizeof(addr))
  
-            if address_family == socket.AF_INET:
+            if address_family == AF_INET:
                 if len(packed_ip) != ctypes.sizeof(addr.ipv4_addr):
-                    raise socket.error('packed IP wrong length for inet_ntoa')
+                    raise error('packed IP wrong length for inet_ntoa')
                 ctypes.memmove(addr.ipv4_addr, packed_ip, 4)
-            elif address_family == socket.AF_INET6:
+            elif address_family == AF_INET6:
                 if len(packed_ip) != ctypes.sizeof(addr.ipv6_addr):
-                    raise socket.error('packed IP wrong length for inet_ntoa')
+                    raise error('packed IP wrong length for inet_ntoa')
                 ctypes.memmove(addr.ipv6_addr, packed_ip, 16)
             else:
-                raise socket.error('unknown address family')
+                raise error('unknown address family')
  
             if WSAAddressToStringA(ctypes.byref(addr), addr_size, None, ip_string, ctypes.byref(ip_string_size)) != 0:
-                raise socket.error(ctypes.FormatError())
+                raise error(ctypes.FormatError())
  
-            return ip_string[:ip_string_size.value]
+            return ip_string[:ip_string_size.value-1]
 
 from pyasn1.compat.octets import int2oct, oct2int
 from pysnmp import error
