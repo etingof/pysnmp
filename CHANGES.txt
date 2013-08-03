@@ -94,6 +94,8 @@ Revision 4.2.5rc2
 - Break cyclic references at CommandResponder and NotificationReceiver apps
   through close() method.
 - Fix to octet string typing at 3DES codec (used to throw an exception).
+- Fix to SnmpAdminString, SnmpTagList, SnmpTagValue types to make them
+  supporting UTF-8 initializers.
 - Typos fixed in error-status constants at CommandResponder
 - Missing import added to oneliner auth module.
 - Cosmetic changes to v3arch example scripts.

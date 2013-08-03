@@ -18,6 +18,7 @@ from pysnmp.smi import error
 class SnmpTagList(TextualConvention, OctetString):
     displayHint = "255t"
     subtypeSpec = OctetString.subtypeSpec+ValueSizeConstraint(0,255)
+    encoding = 'utf-8'
     _delimiters = (' ', '\n', '\t', '\t')
     def prettyIn(self, value):
         inDelim = True
@@ -35,6 +36,7 @@ class SnmpTagList(TextualConvention, OctetString):
 class SnmpTagValue(TextualConvention, OctetString):
     displayHint = "255t"
     subtypeSpec = OctetString.subtypeSpec+ValueSizeConstraint(0,255)
+    encoding = 'utf-8'
     _delimiters = (' ', '\n', '\t', '\t')
     def prettyIn(self, value):
         for v in str(value):

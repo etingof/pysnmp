@@ -22,6 +22,7 @@ import time
 class SnmpAdminString(TextualConvention, OctetString):
     displayHint = "255t"
     subtypeSpec = OctetString.subtypeSpec+ValueSizeConstraint(0,255)
+    encoding = 'utf-8'
  
 class SnmpEngineID(TextualConvention, OctetString):
     subtypeSpec = OctetString.subtypeSpec+ValueSizeConstraint(5,32)
