@@ -131,6 +131,10 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         snmpEngineID = snmpEngineID.syntax
 
         # rfc3412: 7.1.2.b
+        if stateReference is None:
+            raise error.StatusInformation(
+                errorIndication = errind.nonReportable
+            )
         cachedParams = self._cache.popByStateRef(stateReference)
         msgID = cachedParams['msgID']
         contextEngineId = cachedParams['contextEngineId']
@@ -152,7 +156,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             # rfc3412: 7.1.3b (always discard)
             raise error.StatusInformation(
                 errorIndication = errind.nonReportable
-                )
+            )
 
         # rfc3412: 7.1.4
         # Since there's no SNMP engine identification in v1/2c,
@@ -283,10 +287,6 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         pduVersion = msgVersion
         pduType = pdu.tagSet
         
-        # XXX use cache
-        # set stateref to null as in v3 model
-        stateReference = securityStateReference
-
         # rfc3412: 7.2.8, 7.2.9 -> noop
 
         # rfc3412: 7.2.10
@@ -308,6 +308,10 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         else:
             sendPduHandle = None
 
+        # state is only saved for incoming confirmed-type requests
+        stateReference = None
+
+        # no error by default
         statusInformation = None
 
         # rfc3412: 7.2.11 -> noop

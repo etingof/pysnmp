@@ -96,6 +96,8 @@ Revision 4.2.5rc2
 - Fix to octet string typing at 3DES codec (used to throw an exception).
 - Fix to SnmpAdminString, SnmpTagList, SnmpTagValue types to make them
   supporting UTF-8 initializers.
+- Fix to v1/v2c message processing module which used to refer to a
+  bogus stateReference in some cases what causes SNMP engine crashes.
 - Typos fixed in error-status constants at CommandResponder
 - Missing import added to oneliner auth module.
 - Cosmetic changes to v3arch example scripts.
