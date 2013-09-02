@@ -98,6 +98,8 @@ Revision 4.2.5rc2
   supporting UTF-8 initializers.
 - Fix to v1/v2c message processing module which used to refer to a
   bogus stateReference in some cases what causes SNMP engine crashes.
+- Asyncsock sockets now configured with SO_REUSEADDR option to fix possible
+  Windows error 10048.
 - Typos fixed in error-status constants at CommandResponder
 - Missing import added to oneliner auth module.
 - Cosmetic changes to v3arch example scripts.

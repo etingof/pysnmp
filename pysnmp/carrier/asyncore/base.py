@@ -41,6 +41,7 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
         # socket and postpone transport registration at dispatcher
         # till AsynsockDispatcher invokes registerSocket()
 
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.setblocking(0)
         self.set_socket(sock)
 
