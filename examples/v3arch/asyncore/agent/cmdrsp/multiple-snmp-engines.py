@@ -16,7 +16,8 @@
 # * allow write access to SNMPv2-MIB objects (1.3.6.1.2.1)
 # * over IPv4/UDP, listening at 127.0.0.1:161
 # 
-# Either of the following Net-SNMP's commands will walk the first Agent:
+# The following Net-SNMP commands will walk the first and the second
+# Agent respectively:
 #
 # $ snmpwalk -v3 -u usr-md5-des -l authPriv -A authkey1 -X privkey1 127.0.0.1 usmUserEntry
 # $ snmpwalk -v3 -u usr-md5-des -l authPriv -A authkey1 -X privkey1 127.0.0.2 usmUserEntry
@@ -31,12 +32,15 @@ from pysnmp.carrier.asynsock.dgram import udp
 
 # Configuration parameters for each of SNMP Engines
 snmpEngineInfo = (
-    ( '0102030405060708', udp.domainName + (1,), ('127.0.0.1', 1161) ),
-    ( '0807060504030201', udp.domainName + (2,), ('127.0.0.1', 1162) )
+    ( '0102030405060708', udp.domainName + (0,), ('127.0.0.1', 161) ),
+    ( '0807060504030201', udp.domainName + (1,), ('127.0.0.2', 161) )
 )
 
 # Instantiate the single transport dispatcher object
 transportDispatcher = AsynsockDispatcher()
+
+# Setup a custom data routing function to select snmpEngine by transportDomain
+transportDispatcher.registerRoutingCbFun(lambda td,t,d: td)
 
 # Instantiate and configure SNMP Engines 
 for snmpEngineId, transportDomain, transportAddress in snmpEngineInfo:
