@@ -22,44 +22,64 @@ class TimerCallable:
 class AbstractTransportDispatcher:
     def __init__(self):
         self.__transports = {}
+        self.__transportDomainMap = {}
         self.__jobs = {}
-        self.__recvCbFun = None
+        self.__recvCallables = {}
         self.__timerCallables = []
         self.__ticks = 0
         self.__timerResolution = 0.5
         self.__timerDelta = self.__timerResolution * 0.05
         self.__nextTime = 0
+        # default data routing callback function.
+        self.__routingCbFun = lambda x,y,z: x
         
     def _cbFun(self, incomingTransport, transportAddress, incomingMessage):
-        for name, transport in self.__transports.items():
-            if transport is incomingTransport:
-                transportDomain = name
-                break
+        if incomingTransport in self.__transportDomainMap:
+            transportDomain = self.__transportDomainMap[incomingTransport]
         else:
             raise error.CarrierError(
                 'Unregistered transport %s' % (incomingTransport,)
                 )
-       
-        if self.__recvCbFun:
-            self.__recvCbFun(
+
+        recvId = self.__routingCbFun(
+            transportDomain, transportAddress, incomingMessage
+        )
+
+        if recvId in self.__recvCallables:
+            self.__recvCallables[recvId](
                 self, transportDomain, transportAddress, incomingMessage
-                )
+            )
         else:
             raise error.CarrierError(
-                'Receive callback not registered -- loosing incoming event'
-                )
+                'No callback for "%r" found - loosing incoming event'%(recvId,)
+            )
 
     # Dispatcher API
 
-    def registerRecvCbFun(self, recvCbFun):
-        if self.__recvCbFun:
-            raise error.CarrierError(
-                'Receive callback already registered'
-                )
-        self.__recvCbFun = recvCbFun
+    def registerRoutingCbFun(self, routingCbFun):
+        if self.__routingCbFun:
+             raise error.CarrierError(
+                'Data routing callback already registered'
+            )
+        self.__routingCbFun = routingCbFun
 
-    def unregisterRecvCbFun(self):
-        self.__recvCbFun = None
+    def unregisterRoutingCbFun(self):
+        if self.__routingCbFun:
+            self.__routingCbFun = None
+
+    def registerRecvCbFun(self, recvCb, recvId=None):
+        if recvId in self.__recvCallables:
+             raise error.CarrierError(
+                'Receive callback %r already registered' % (recvId is None and '<default>' or recvId,)
+            )
+        self.__recvCallables[recvId] = recvCb
+
+    def unregisterRecvCbFun(self, recvId=None):
+        if recvId is None:
+            self.__recvCallables = []
+        else:
+            if recvId in self.__recvCallables:
+                del self.__recvCallables[recvId]
 
     def registerTimerCbFun(self, timerCbFun, tickInterval=None):
         if not tickInterval:
@@ -79,6 +99,7 @@ class AbstractTransportDispatcher:
                 )
         transport.registerCbFun(self._cbFun)
         self.__transports[tDomain] = transport
+        self.__transportDomainMap[transport] = tDomain
 
     def unregisterTransport(self, tDomain):
         if tDomain not in self.__transports:
@@ -86,6 +107,7 @@ class AbstractTransportDispatcher:
                 'Transport %s not registered' % (tDomain,)
                 )
         self.__transports[tDomain].unregisterCbFun()
+        del self.__transportDomainMap[self.__transports[tDomain]]
         del self.__transports[tDomain]
 
     def getTransport(self, transportDomain):

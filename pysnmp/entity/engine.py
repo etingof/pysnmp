@@ -36,7 +36,7 @@ class SnmpEngine:
             rfc3415.Vacm.accessModelID: rfc3415.Vacm()
         }
         
-        self.transportDispatcher = None
+        self.transportDispatcher = self.__recvId = None
         
         if self.msgAndPduDsp.mibInstrumController is None:
             raise error.PySnmpError(
@@ -70,24 +70,25 @@ class SnmpEngine:
         for smHandler in self.securityModels.values():
             smHandler.receiveTimerTick(self, timeNow)
         
-    def registerTransportDispatcher(self, transportDispatcher):
+    def registerTransportDispatcher(self, transportDispatcher, recvId=None):
         if self.transportDispatcher is not None:
             raise error.PySnmpError(
                 'Transport dispatcher already registered'
             )
         transportDispatcher.registerRecvCbFun(
-            self.__receiveMessageCbFun
+            self.__receiveMessageCbFun, recvId
         )
         transportDispatcher.registerTimerCbFun(
             self.__receiveTimerTickCbFun
-        )        
+        )
         self.transportDispatcher = transportDispatcher
+        self.__recvId = recvId
 
     def unregisterTransportDispatcher(self):
         if self.transportDispatcher is None:
             raise error.PySnmpError(
                 'Transport dispatcher not registered'
             )
-        self.transportDispatcher.unregisterRecvCbFun()
+        self.transportDispatcher.unregisterRecvCbFun(self.__recvId)
         self.transportDispatcher.unregisterTimerCbFun()
         self.transportDispatcher = None

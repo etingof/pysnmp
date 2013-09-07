@@ -29,6 +29,12 @@ Revision 4.2.5rc2
   can't easily stop doing that.
 - Exception re-raising improved at MibInstrumController.flipFlopFsm() and
   asynsock/twisted dispatchers so that original traceback is preserved.
+- A single instance of transport dispatcher can now serve multiple
+  receivers (identified by IDs) chosen by a public data routing method.
+- SnmpEngine.[un]registerTransportDispatcher() methods now accept optional
+  receiver ID token to be used by transport dispatcher's data router. This
+  allows for multiple SNMP engines registration with a single transport
+  dispatcher.
 - The snmpCommunityTable row selection improved to follow RFC2576, clause
   5.2.1.
 - Asyncore-based dispatcher attempts to use poll() whenever available
