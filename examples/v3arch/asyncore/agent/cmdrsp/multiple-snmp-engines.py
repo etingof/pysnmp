@@ -18,8 +18,8 @@
 # The following Net-SNMP commands will walk the first and the second
 # Agent respectively:
 #
-# $ snmpwalk -v3 -u usr-md5-des -l authPriv -A authkey1 -X privkey1 127.0.0.1 usmUserEntry
-# $ snmpwalk -v3 -u usr-md5-des -l authPriv -A authkey1 -X privkey1 127.0.0.2 usmUserEntry
+# $ snmpwalk -Ob -v3 -u usr-md5-des -l authPriv -A authkey1 -X privkey1 127.0.0.1 usmUserEntry
+# $ snmpwalk -Ob -v3 -u usr-md5-des -l authPriv -A authkey1 -X privkey1 127.0.0.2 usmUserEntry
 #
 # Notice differently configured snmpEngineId's in usmUserEntry columns.
 #
