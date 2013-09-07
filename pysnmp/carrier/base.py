@@ -30,8 +30,7 @@ class AbstractTransportDispatcher:
         self.__timerResolution = 0.5
         self.__timerDelta = self.__timerResolution * 0.05
         self.__nextTime = 0
-        # default data routing callback function.
-        self.__routingCbFun = lambda x,y,z: x
+        self.__routingCbFun = None
         
     def _cbFun(self, incomingTransport, transportAddress, incomingMessage):
         if incomingTransport in self.__transportDomainMap:
@@ -41,9 +40,12 @@ class AbstractTransportDispatcher:
                 'Unregistered transport %s' % (incomingTransport,)
                 )
 
-        recvId = self.__routingCbFun(
-            transportDomain, transportAddress, incomingMessage
-        )
+        if self.__routingCbFun:
+            recvId = self.__routingCbFun(
+                transportDomain, transportAddress, incomingMessage
+            )
+        else:
+            recvId = None
 
         if recvId in self.__recvCallables:
             self.__recvCallables[recvId](
