@@ -11,10 +11,9 @@
 # queries with the following options:
 #
 # * SNMPv3
-# * with USM user 'usr-md5-des', auth: MD5, priv DES or
+# * with USM user 'usr-md5-des', auth: MD5, priv DES
 # * allow read access to SNMPv2-MIB objects (1.3.6)
 # * allow write access to SNMPv2-MIB objects (1.3.6.1.2.1)
-# * over IPv4/UDP, listening at 127.0.0.1:161
 # 
 # The following Net-SNMP commands will walk the first and the second
 # Agent respectively:
