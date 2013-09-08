@@ -77,11 +77,8 @@ class AbstractTransportDispatcher:
         self.__recvCallables[recvId] = recvCb
 
     def unregisterRecvCbFun(self, recvId=None):
-        if recvId is None:
-            self.__recvCallables = []
-        else:
-            if recvId in self.__recvCallables:
-                del self.__recvCallables[recvId]
+        if recvId in self.__recvCallables:
+            del self.__recvCallables[recvId]
 
     def registerTimerCbFun(self, timerCbFun, tickInterval=None):
         if not tickInterval:
