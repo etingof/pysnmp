@@ -329,6 +329,13 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         errorIndication = errind.unknownSecurityName
                         )
                 debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: clone user info')
+            except PyAsn1Error:
+                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: %s' % (sys.exc_info()[1],))
+                snmpInGenErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInGenErrs')
+                snmpInGenErrs.syntax = snmpInGenErrs.syntax + 1
+                raise error.StatusInformation(
+                    errorIndication=errind.invalidMsg
+                )
         else:
             # empty username used for engineID discovery
             usmUserName = usmUserSecurityName = null
@@ -717,6 +724,13 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         contextName=contextName,
                         maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
                         )
+            except PyAsn1Error:
+                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: %s' % (sys.exc_info()[1],))
+                snmpInGenErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInGenErrs')
+                snmpInGenErrs.syntax = snmpInGenErrs.syntax + 1
+                raise error.StatusInformation(
+                    errorIndication=errind.invalidMsg
+                )
         else:
             # empty username used for engineID discovery
             usmUserName = usmUserSecurityName = null

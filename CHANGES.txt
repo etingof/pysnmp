@@ -106,6 +106,7 @@ Revision 4.2.5rc2
   bogus stateReference in some cases what causes SNMP engine crashes.
 - Asyncsock sockets now configured with SO_REUSEADDR option to fix possible
   Windows error 10048.
+- Gracefully handle malformed SnmpEngineID at USM coming from SNMPv3 header.
 - Typos fixed in error-status constants at CommandResponder
 - Missing import added to oneliner auth module.
 - Cosmetic changes to v3arch example scripts.
