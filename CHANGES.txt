@@ -69,6 +69,7 @@ Revision 4.2.5rc2
   does not let you to configure different securityModels per securityname
   at VACM though the cfgCmdGen() wrapper.
 - MIB builder traceback formatting and reporting improved.
+- SNMP Engine object now has a snmpEngineID attribute exposed.
 - Fix to inet_ntop()/inet_pton() support on Windows at TRANSPORT-ADDRESS-MIB.
 - Fix to usmUserSecurityName table column implementation -- automatic value
   generation from index value removed.

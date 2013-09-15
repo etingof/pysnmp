@@ -46,9 +46,10 @@ class SnmpEngine:
         snmpEngineMaxMessageSize.syntax = snmpEngineMaxMessageSize.syntax.clone(maxMessageSize)
         snmpEngineBoots, = self.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineBoots')
         snmpEngineBoots.syntax = snmpEngineBoots.syntax + 1        
+        origSnmpEngineID, = self.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
         if snmpEngineID is not None:
-            origSnmpEngineID, = self.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
             origSnmpEngineID.syntax = origSnmpEngineID.syntax.clone(snmpEngineID)
+        self.snmpEngineID = origSnmpEngineID.syntax
 
     # Transport dispatcher bindings
     
