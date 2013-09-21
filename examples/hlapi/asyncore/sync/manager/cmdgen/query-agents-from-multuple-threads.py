@@ -69,7 +69,8 @@ class Worker(Thread):
                     **{ 'lookupNames': True, 'lookupValues': True }
                 )
             )
-            self.requests.task_done()
+            if hasattr(self.requests, 'task_done'):  # 2.5+
+                self.requests.task_done()
 
 class ThreadPool:
     def __init__(self, num_threads):
@@ -83,7 +84,15 @@ class ThreadPool:
 
     def getResponses(self): return self.responses
 
-    def waitCompletion(self): self.requests.join()
+    def waitCompletion(self):
+        if hasattr(self.requests, 'join'):
+            self.requests.join()  # 2.5+
+        else:
+            from time import sleep
+            # this is a lame substitute for missing .join()
+            # adding an explicit synchronization might be a better solution
+            while not self.requests.empty():  
+                sleep(1) 
 
 pool = ThreadPool(3)
 
