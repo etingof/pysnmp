@@ -40,6 +40,10 @@ def howto_install_setuptools():
    Then you could make eggs from this package.
 """)
 
+if sys.version_info[:2] < (2, 4):
+    print("ERROR: this package requires Python 2.4 or later!")
+    sys.exit(1)
+
 try:
     from setuptools import setup
     params = {
