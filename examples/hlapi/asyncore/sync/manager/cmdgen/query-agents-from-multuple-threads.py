@@ -14,7 +14,11 @@
 # * for instances of SNMPv2-MIB::sysDescr.0 and
 #   SNMPv2-MIB::sysLocation.0 MIB objects
 #
-from Queue import Queue
+from sys import version_info
+if version_info[0] == 2:
+    from Queue import Queue
+else:
+    from queue import Queue
 from threading import Thread
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 
