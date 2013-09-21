@@ -35,6 +35,7 @@ Revision 4.2.5rc2
   receiver ID token to be used by transport dispatcher's data router. This
   allows for multiple SNMP engines registration with a single transport
   dispatcher.
+- Distribute is gone, switched to setuptools completely.
 - The snmpCommunityTable row selection improved to follow RFC2576, clause
   5.2.1.
 - Asyncore-based dispatcher attempts to use poll() whenever available
