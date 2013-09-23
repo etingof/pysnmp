@@ -52,6 +52,8 @@ try:
         }
     if sys.platform.lower()[:3] != 'win':
         params['install_requires'].append('pycrypto>=2.4.1')
+    elif sys.version_info[:2] < (2, 5):
+        params['install_requires'].append('ctypes')
 
 except ImportError:
     for arg in sys.argv:
@@ -64,6 +66,15 @@ except ImportError:
         params['requires'] = [ 'pyasn1(>=0.1.2)' ]
         if sys.platform.lower()[:3] != 'win':
             params['requires'].append('pycrypto(>=2.4.1)')
+    elif sys.platform.lower()[:3] == 'win':
+        try:
+            import ctypes
+        except ImportError:
+            sys.stderr.write("""WARNING! WARNING! WARNING!
+Handling IPv6 addresses requires the ctypes module. Please install it on
+your system if you need PySNMP supporting IPv6 addressing:
+http://downloads.sourceforge.net/project/ctypes/ctypes/1.0.2/ctypes-1.0.2.tar.gz
+""")
 
 if sys.platform.lower()[:3] == 'win':
     try:

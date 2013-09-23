@@ -2,6 +2,7 @@
 # by libsmi2pysnmp-0.1.3 at Tue Apr  3 16:58:37 2012,
 # Python version sys.version_info(major=2, minor=7, micro=2, releaselevel='final', serial=0)
 
+from pysnmp.error import PySnmpError
 from socket import AF_INET, error, has_ipv6
 
 try:
@@ -19,7 +20,10 @@ except ImportError:
         inet_pton = lambda x,y: inet_aton(y)
         has_ipv6 = False
     elif has_ipv6:
-        import ctypes
+        try:
+            import ctypes
+        except ImportError:
+            raise PySnmpError('Need ctypes module to handle IPv6 addresses')
  
         class sockaddr(ctypes.Structure):
             _fields_ = [("sa_family", ctypes.c_short),
