@@ -5,7 +5,7 @@
 #     with SNMPv2c, community 'public'
 #     over IPv4/UDP
 #     to an Agent at 195.218.195.228:161
-#     sending packets from primary local interface 0.0.0.0, local port 1024
+#     sending packets from primary local interface 0.0.0.0, local port 61024
 #     for two OIDs in tuple form
 #     stop on end-of-mib condition for both OIDs
 #
@@ -39,7 +39,7 @@ config.addTargetParams(snmpEngine, 'my-creds', 'my-area', 'noAuthNoPriv', 0)
 config.addTransport(
     snmpEngine,
     udp.domainName,
-    udp.UdpSocketTransport().openClientMode(('0.0.0.0', 1024))
+    udp.UdpSocketTransport().openClientMode(('0.0.0.0', 61024))
 )
 config.addTargetAddr(
     snmpEngine, 'my-router',
@@ -71,7 +71,7 @@ cmdgen.NextCommandGenerator().sendReq(
     snmpEngine,
     'my-router',
     ( ((1,3,6,1,2,1,1), None),
-      ((1,3,6,1,4,1,1), None), ),
+      ((1,3,6,1,2,1,11), None), ),
     cbFun
 )
 
