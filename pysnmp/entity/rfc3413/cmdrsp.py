@@ -145,7 +145,6 @@ class CommandResponderBase:
                 snmpEngine, stateReference,
                 contextName, PDU, (self.__verifyAccess, acCtx)
                 )
-            return
         # SNMPv2 SMI exceptions
         except pysnmp.smi.error.GenError:
             errorIndication = sys.exc_info()[1]
@@ -182,6 +181,8 @@ class CommandResponderBase:
             errorStatus, errorIndex = 'genErr', len(varBinds) and 1 or 0
         except pysnmp.error.PySnmpError:
             self.releaseStateInformation(stateReference)
+            return
+        else:  # successful request processor must release state info
             return
         
         self.sendRsp(
