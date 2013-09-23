@@ -7,7 +7,7 @@
 # * with community name 'public'
 # * over IPv4/UDP
 # * to a Manager at 127.0.0.1 UDP port 162
-# * from local address 127.0.0.1, UDP port 1024
+# * from local address 127.0.0.1, UDP port 61024
 # * send TRAP notification
 # * with TRAP ID 'coldStart' specified as an OID
 #
@@ -31,7 +31,7 @@ config.addTargetParams(snmpEngine, 'my-creds', 'my-area', 'noAuthNoPriv', 0)
 config.addTransport(
     snmpEngine,
     udp.domainName,
-    udp.UdpSocketTransport().openClientMode(iface=('127.0.0.1', 1024))
+    udp.UdpSocketTransport().openClientMode(iface=('127.0.0.1', 61024))
 )
 config.addTargetAddr(
     snmpEngine, 'my-nms',
