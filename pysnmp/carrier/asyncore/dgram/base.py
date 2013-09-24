@@ -44,6 +44,8 @@ class DgramSocketTransport(AbstractSocketTransport):
             )
         debug.logger & debug.flagIO and debug.logger('sendMessage: outgoingMessage queued (%d octets) %s' % (len(outgoingMessage), debug.hexdump(outgoingMessage)))
 
+    def normalizeAddress(self, addr): return addr
+
     def __getsockname(self):
         # one evil OS does not seem to support getsockname() for DGRAM sockets
         try:
@@ -72,16 +74,7 @@ class DgramSocketTransport(AbstractSocketTransport):
     def handle_read(self):
         try:
             incomingMessage, transportAddress = self.socket.recvfrom(65535)
-            if '%' in transportAddress[0]:  # strip zone ID
-                transportAddress = (transportAddress[0].split('%')[0],
-                                    transportAddress[1],
-                                    0, # flowinfo
-                                    0) # scopeid
-            else:
-                transportAddress = (transportAddress[0],
-                                    transportAddress[1],
-                                    0,  # flowinfo
-                                    0)  # scopeid
+            transportAddress = self.normalizeAddress(transportAddress)
             debug.logger & debug.flagIO and debug.logger('handle_read: transportAddress %r -> %r incomingMessage (%d octets) %s' % (transportAddress, self.__getsockname(), len(incomingMessage), debug.hexdump(incomingMessage)))
             if not incomingMessage:
                 self.handle_close()
