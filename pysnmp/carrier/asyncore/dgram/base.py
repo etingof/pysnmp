@@ -72,6 +72,16 @@ class DgramSocketTransport(AbstractSocketTransport):
     def handle_read(self):
         try:
             incomingMessage, transportAddress = self.socket.recvfrom(65535)
+            if '%' in transportAddress[0]:  # strip zone ID
+                transportAddress = (transportAddress[0].split('%')[0],
+                                    transportAddress[1],
+                                    0, # flowinfo
+                                    0) # scopeid
+            else:
+                transportAddress = (transportAddress[0],
+                                    transportAddress[1],
+                                    0,  # flowinfo
+                                    0)  # scopeid
             debug.logger & debug.flagIO and debug.logger('handle_read: transportAddress %r -> %r incomingMessage (%d octets) %s' % (transportAddress, self.__getsockname(), len(incomingMessage), debug.hexdump(incomingMessage)))
             if not incomingMessage:
                 self.handle_close()
