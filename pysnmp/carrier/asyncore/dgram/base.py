@@ -44,7 +44,7 @@ class DgramSocketTransport(AbstractSocketTransport):
             )
         debug.logger & debug.flagIO and debug.logger('sendMessage: outgoingMessage queued (%d octets) %s' % (len(outgoingMessage), debug.hexdump(outgoingMessage)))
 
-    def normalizeAddress(self, addr): return addr
+    def normalizeAddress(self, transportAddress): return transportAddress
 
     def __getsockname(self):
         # one evil OS does not seem to support getsockname() for DGRAM sockets

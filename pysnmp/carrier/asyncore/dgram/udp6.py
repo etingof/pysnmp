@@ -10,7 +10,7 @@ domainName = snmpUDP6Domain = (1, 3, 6, 1, 2, 1, 100, 1, 2)
 class Udp6SocketTransport(DgramSocketTransport):
     sockFamily = AF_INET6
 
-    def normalizeAddress(self, addr):
+    def normalizeAddress(self, transportAddress):
         if '%' in transportAddress[0]:  # strip zone ID
             return (transportAddress[0].split('%')[0],
                     transportAddress[1],
