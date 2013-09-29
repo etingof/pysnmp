@@ -490,7 +490,7 @@ class MibScalar(MibTree):
         (acFun, acCtx) = acInfo
         # have to dublicate AC here as *Next code above treats
         # noAccess as a noSuchObject at the Test stage, goes on
-        # to Readingg
+        # to Reading
         if acFun:
             if self.maxAccess not in (
                 'readonly', 'readwrite', 'readcreate'
