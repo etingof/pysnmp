@@ -13,7 +13,7 @@
 # receiver:
 #
 # $ snmptrap -v1 -c public 127.0.0.1 1.3.6.1.4.1.20408.4.1.1.2 127.0.0.1 1 1 123 1.3.6.1.2.1.1.1.0 s test
-# $ snmptrap -v2c -c public udp6:[::1] 123 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.5.0 s test
+# $ snmptrap -v2c -c public udp6:[::1]:162 123 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.5.0 s test
 # $ snmpinform -v2c -c public 127.0.0.1 123 1.3.6.1.6.3.1.1.5.1
 #
 from pysnmp.entity import engine, config
