@@ -14,6 +14,7 @@
 # Either of the following Net-SNMP's commands will walk this Agent:
 #
 # $ snmpwalk -v3 -u usr-md5-none -l authNoPriv -A authkey1 -E 8000000001020304 -n my-context 127.0.0.1 .1.3.6
+# $ snmpwalk -v3 -u usr-md5-none -l authNoPriv -A authkey1 -E 8000000001020304 127.0.0.1 .1.3.6
 #
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdrsp, context
