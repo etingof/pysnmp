@@ -308,9 +308,6 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         else:
             sendPduHandle = None
 
-        # state is only saved for incoming confirmed-type requests
-        stateReference = None
-
         # no error by default
         statusInformation = None
 
@@ -330,6 +327,8 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                     errorIndication = errind.dataMismatch
                     )
             
+            stateReference = None
+
             # rfc3412: 7.2.12c
             smHandler.releaseStateInformation(securityStateReference)
 
@@ -398,8 +397,12 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
         # rfc3412: 7.2.14
         if pduType in rfc3411.unconfirmedClassPDUs:
+            # Pass new stateReference to let app browse request details
+            stateReference = self._cache.newStateReference()
+
             # This is not specified explicitly in RFC
             smHandler.releaseStateInformation(securityStateReference)
+
             return ( messageProcessingModel,
                      securityModel,
                      securityName,

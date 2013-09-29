@@ -108,6 +108,11 @@ Revision 4.2.5rc2
   bogus stateReference in some cases what causes SNMP engine crashes.
 - Fix to IPv6 transport to zero ZoneID, FlowID and ScopeID components
   sometimes coming along with incoming packet.
+- Fix to SNMPv1 MP module to pass stateReference to registered app on
+  unconfirmed notifications reception (to let NotificationReceiver
+  Apps browsing request details).
+  (transport information at the moment) at SNMP engine.
+-
 - Asyncsock sockets now configured with SO_REUSEADDR option to fix possible
   Windows error 10048.
 - Gracefully handle malformed SnmpEngineID at USM coming from SNMPv3 header.
