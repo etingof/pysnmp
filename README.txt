@@ -15,11 +15,12 @@ FEATURES
   Managed Objects
 * Complete SNMP entity implementation
 * USM Extended Security Options support (3DES, 192/256-bit AES encryption)
-* Extensible network transports framework (UDP/IPv4, UDP/IPv6 and UNIX domain sockets already implemented)
+* Extensible network transports framework (UDP/IPv4, UDP/IPv6 and UNIX domain
+  sockets already implemented)
 * Asynchronous socket-based IO API support
 * Twisted (http://twistedmatrix.com) integration
 * Python eggs and py2exe friendly
-* 100% Python, works with Python 2.4 though 3.3 (alpha 2)
+* 100% Python, works with Python 2.4 though 3.4 (alpha 3)
 * MT-safe (only if run locally to a thread)
 
 Features, specific to SNMPv3 model include:
@@ -43,8 +44,7 @@ INSTALLATION
 
 The PySNMP package uses setuptools for package management. The PyASN1 [8]
 package is required. For secure SNMPv3 communication, PyCrypto [9]
-should also be installed. In case of Python 3, a SVN version of Python 3
-compliant release of PyCrypto is needed.
+should also be installed.
 
 OPERATION
 ---------
