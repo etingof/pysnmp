@@ -4,7 +4,8 @@
 # Send SNMP GET request using the following options:
 #
 # * with SNMPv3 with user 'usr-md5-des', MD5 auth and DES privacy protocols
-# * use remote SNMP Engine ID 0x8000000004030201 (USM autodiscovery will run)
+# * use remote SNMP Engine ID 0x80004fb805636c6f75644dab22cc (USM
+#   autodiscovery will run)
 # * over IPv4/UDP
 # * to an Agent at demo.snmplabs.com:161
 # * setting SNMPv2-MIB::sysName.0 to new value (type taken from MIB)
@@ -17,7 +18,9 @@ cmdGen = cmdgen.CommandGenerator()
 errorIndication, errorStatus, errorIndex, varBinds = cmdGen.setCmd(
     cmdgen.UsmUserData(
         'usr-md5-des', 'authkey1', 'privkey1',
-        securityEngineId=rfc1902.OctetString(hexValue='8000000004030201')
+        securityEngineId=rfc1902.OctetString(
+            hexValue='80004fb805636c6f75644dab22cc'
+        )
     ),
     cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
     (cmdgen.MibVariable('SNMPv2-MIB', 'sysORDescr', 1), 'new system name'),

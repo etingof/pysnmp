@@ -66,7 +66,7 @@ def cbFun(sendRequestHandle,
 cmdgen.SetCommandGenerator().sendReq(
     snmpEngine,
     'my-router',
-    ( ((1,3,6,1,2,1,1,9,1,4,1), rfc1902.Integer(123)), ),
+    ( ((1,3,6,1,2,1,1,9,1,4,1), rfc1902.TimeTicks(123)), ),
     cbFun
 )
 

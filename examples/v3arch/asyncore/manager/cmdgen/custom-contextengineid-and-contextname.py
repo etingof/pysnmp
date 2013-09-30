@@ -3,15 +3,16 @@
 #
 # Send a SNMP GET request
 #     with SNMPv3 with user 'usr-md5-none', SHA auth and no privacy protocols
-#     for MIB instance identified by contextEngineId: 8000000001020304,
-#                                    contextName: my-context
+#     for MIB instance identified by 
+#     contextEngineId: 0x80004fb805636c6f75644dab22cc,
+#     contextName: da761cfc8c94d3aceef4f60f049105ba
 #     over IPv4/UDP
 #     to an Agent at 195.218.195.228:161
 #     for an OID in tuple form
 #
 # This script performs similar to the following Net-SNMP command:
 #
-# $ snmpget -v3 -l authNoPriv -u usr-md5-none -A authkey1 -E 8000000001020304 -n my-context -ObentU 195.218.195.228:161  1.3.6.1.2.1.1.1.0
+# $ snmpget -v3 -l authNoPriv -u usr-md5-none -A authkey1 -E 80004fb805636c6f75644dab22cc -n da761cfc8c94d3aceef4f60f049105ba -ObentU 195.218.195.228:161  1.3.6.1.2.1.1.1.0
 #
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asynsock.dgram import udp
@@ -71,8 +72,8 @@ cmdgen.GetCommandGenerator().sendReq(
     'my-router',
     ( ((1,3,6,1,2,1,1,1,0), None), ),
     cbFun,
-    contextEngineId=rfc1902.OctetString(hexValue='8000000001020304'),
-    contextName=rfc1902.OctetString('my-context')
+    contextEngineId=rfc1902.OctetString(hexValue='80004fb805636c6f75644dab22cc'),
+    contextName=rfc1902.OctetString('da761cfc8c94d3aceef4f60f049105ba')
 )
 
 # Run I/O dispatcher which would send pending queries and process responses
