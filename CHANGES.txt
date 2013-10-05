@@ -1,5 +1,10 @@
-Revision 4.2.5rc2
+Revision 4.2.6rc0
 -----------------
+
+- Fix to sendNotification() error handling at NotificationOriginator.
+
+Revision 4.2.5
+--------------
 
 - License updated to vanilla BSD 2-Clause to ease package use
   (http://opensource.org/licenses/BSD-2-Clause).

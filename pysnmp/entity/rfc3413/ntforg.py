@@ -306,8 +306,10 @@ class NotificationOriginator:
                 except error.StatusInformation:
                     statusInformation = sys.exc_info()[1]
                     debug.logger & debug.flagApp and debug.logger('sendReq: metaSendPduHandle %s: sendPdu() failed with %r' % (metaSendPduHandle, statusInformation))
-                    if not self.__pendingNotifications[metaSendPduHandle]:
-                        del self.__pendingNotifications[metaSendPduHandle]
+                    if metaSendPduHandle not in self.__pendingNotifications or \
+                            not self.__pendingNotifications[metaSendPduHandle]:
+                        if metaSendPduHandle in self.__pendingNotifications:
+                            del self.__pendingNotifications[metaSendPduHandle]
                         self._handleResponse(
                             metaSendPduHandle,
                             statusInformation['errorIndication'],
@@ -342,8 +344,10 @@ class NotificationOriginator:
                 except error.StatusInformation:
                     statusInformation = sys.exc_info()[1]
                     debug.logger & debug.flagApp and debug.logger('sendReq: metaSendPduHandle %s: sendPdu() failed with %r' % (metaSendPduHandle, statusInformation))
-                    if not self.__pendingNotifications[metaSendPduHandle]:
-                        del self.__pendingNotifications[metaSendPduHandle]
+                    if metaSendPduHandle not in self.__pendingNotifications or \
+                            not self.__pendingNotifications[metaSendPduHandle]:
+                        if metaSendPduHandle in self.__pendingNotifications:
+                            del self.__pendingNotifications[metaSendPduHandle]
                         self._handleResponse(
                             metaSendPduHandle,
                             statusInformation['errorIndication'],
