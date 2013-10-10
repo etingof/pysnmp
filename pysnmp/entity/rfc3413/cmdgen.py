@@ -299,7 +299,7 @@ class GetCommandGenerator(CommandGeneratorBase):
         
         v2c.apiPDU.setVarBinds(reqPDU, varBinds)
 
-        requestHandle = getNextHandle()
+        sendRequestHandle = getNextHandle()
 
         try:        
             self._sendPdu(
@@ -316,16 +316,16 @@ class GetCommandGenerator(CommandGeneratorBase):
                 timeout,
                 retryCount,
                 0, # retries
-                requestHandle,
+                sendRequestHandle,
                 (self.processResponsePdu, (cbFun, cbCtx))            
             )
         except StatusInformation:
             statusInformation = sys.exc_info()[1]
-            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (requestHandle, statusInformation))
-            cbFun(requestHandle, statusInformation['errorIndication'],
+            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (sendRequestHandle, statusInformation))
+            cbFun(sendRequestHandle, statusInformation['errorIndication'],
                   0, 0, (), cbCtx)
 
-        return requestHandle
+        return sendRequestHandle
     
 class SetCommandGenerator(CommandGeneratorBase):
     def sendReq(
@@ -352,7 +352,7 @@ class SetCommandGenerator(CommandGeneratorBase):
 
         v2c.apiPDU.setVarBinds(reqPDU, varBinds)
 
-        requestHandle = getNextHandle()        
+        sendRequestHandle = getNextHandle()        
 
         try:        
             self._sendPdu(
@@ -369,16 +369,16 @@ class SetCommandGenerator(CommandGeneratorBase):
                 timeout,
                 retryCount,
                 0, # retries
-                requestHandle,
+                sendRequestHandle,
                 (self.processResponsePdu, (cbFun, cbCtx))            
             )
         except StatusInformation:
             statusInformation = sys.exc_info()[1]
-            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (requestHandle, statusInformation))
-            cbFun(requestHandle, statusInformation['errorIndication'],
+            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (sendRequestHandle, statusInformation))
+            cbFun(sendRequestHandle, statusInformation['errorIndication'],
                   0, 0, (), cbCtx)
 
-        return requestHandle
+        return sendRequestHandle
 
 class NextCommandGeneratorSingleRun(CommandGeneratorBase):
     def sendReq(
@@ -405,7 +405,7 @@ class NextCommandGeneratorSingleRun(CommandGeneratorBase):
         
         v2c.apiPDU.setVarBinds(reqPDU, varBinds)
 
-        requestHandle = getNextHandle()        
+        sendRequestHandle = getNextHandle()        
 
         try:        
             self._sendPdu(
@@ -422,16 +422,16 @@ class NextCommandGeneratorSingleRun(CommandGeneratorBase):
                 timeout,
                 retryCount,
                 0, # retries
-                requestHandle,
+                sendRequestHandle,
                 (self.processResponsePdu, (cbFun, cbCtx))            
             )
         except StatusInformation:
             statusInformation = sys.exc_info()[1]
-            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (requestHandle, statusInformation))
-            cbFun(requestHandle, statusInformation['errorIndication'],
+            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (sendRequestHandle, statusInformation))
+            cbFun(sendRequestHandle, statusInformation['errorIndication'],
                   0, 0, (), cbCtx)
 
-        return requestHandle
+        return sendRequestHandle
  
 class NextCommandGenerator(NextCommandGeneratorSingleRun):
     def _handleResponse(
@@ -477,8 +477,6 @@ class NextCommandGenerator(NextCommandGeneratorSingleRun):
     
         v2c.apiPDU.setRequestID(PDU, v2c.getNextRequestID())
         v2c.apiPDU.setVarBinds(PDU, varBinds)
-
-        sendRequestHandle = getNextHandle()
 
         try:
             self._sendPdu(
@@ -534,7 +532,7 @@ class BulkCommandGeneratorSingleRun(CommandGeneratorBase):
 
         v2c.apiBulkPDU.setVarBinds(reqPDU, varBinds)
 
-        requestHandle = getNextHandle()        
+        sendRequestHandle = getNextHandle()        
 
         try:        
             self._sendPdu(
@@ -551,16 +549,16 @@ class BulkCommandGeneratorSingleRun(CommandGeneratorBase):
                 timeout,
                 retryCount,
                 0, # retries
-                requestHandle,
+                sendRequestHandle,
                 (self.processResponsePdu, (cbFun, cbCtx))            
             )
         except StatusInformation:
             statusInformation = sys.exc_info()[1]
-            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (requestHandle, statusInformation))
-            cbFun(requestHandle, statusInformation['errorIndication'],
+            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (sendRequestHandle, statusInformation))
+            cbFun(sendRequestHandle, statusInformation['errorIndication'],
                   0, 0, (), cbCtx)
 
-        return requestHandle
+        return sendRequestHandle
  
 class BulkCommandGenerator(BulkCommandGeneratorSingleRun):
     def _handleResponse(
@@ -605,8 +603,6 @@ class BulkCommandGenerator(BulkCommandGeneratorSingleRun):
     
         v2c.apiBulkPDU.setRequestID(PDU, v2c.getNextRequestID())
         v2c.apiBulkPDU.setVarBinds(PDU, varBinds)
-
-        sendRequestHandle = getNextHandle()
 
         try:        
             self._sendPdu(
