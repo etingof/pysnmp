@@ -1,6 +1,7 @@
 Revision 4.2.6rc0
 -----------------
 
+- Memory leak fixed in CommandForwarder examples.
 - Fix to CommandGenerator to make sendRequestHandle persistent across
   multiple iterations of GETNEXT/GETBULK queries.
 - Fix to sendNotification() error handling at NotificationOriginator.

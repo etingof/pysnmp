@@ -126,6 +126,8 @@ class CommandResponder(cmdrsp.CommandResponderBase):
             snmpEngine, stateReference,  errorStatus, errorIndex, varBinds
         )
 
+        self.releaseStateInformation(stateReference)
+
 CommandResponder(snmpEngine, context.SnmpContext(snmpEngine))
 
 snmpEngine.transportDispatcher.jobStarted(1) # this job would never finish
