@@ -7,6 +7,7 @@
 # * with SNMP community "public"
 # * over IPv4/UDP, listening at 127.0.0.1:162
 #   over IPv6/UDP, listening at [::1]:162
+# * registers its own execution observer to snmpEngine
 # * print received data on stdout
 # 
 # Either of the following Net-SNMP's commands will send notifications to this
@@ -23,6 +24,27 @@ from pysnmp.entity.rfc3413 import ntfrcv
 # Create SNMP engine with autogenernated engineID and pre-bound
 # to socket transport dispatcher
 snmpEngine = engine.SnmpEngine()
+
+# Execution point observer setup
+
+# Register a callback to be invoked at specified execution point of 
+# SNMP Engine and passed local variables at code point's local scope
+def requestObserver(snmpEngine, execpoint, variables, cbCtx):
+    print('Execution point: %s' % execpoint)
+    print('* transportDomain: %s' % '.'.join([str(x) for x in variables['transportDomain']]))
+    print('* transportAddress: %s' % '@'.join([str(x) for x in variables['transportAddress']]))
+    print('* securityModel: %s' % variables['securityModel'])
+    print('* securityName: %s' % variables['securityName'])
+    print('* securityLevel: %s' % variables['securityLevel'])
+    print('* contextEngineId: %s' % variables['contextEngineId'].prettyPrint())
+    print('* contextName: %s' % variables['contextName'].prettyPrint())
+    print('* PDU: %s' % variables['pdu'].prettyPrint())
+
+snmpEngine.observer.registerObserver(
+    requestObserver,
+    'rfc3412.receiveMessage:request',
+    'rfc3412.returnResponsePdu'
+)
 
 # Transport setup
 
@@ -65,5 +87,6 @@ snmpEngine.transportDispatcher.jobStarted(1) # this job would never finish
 try:
     snmpEngine.transportDispatcher.runDispatcher()
 except:
+    snmpEngine.observer.unregisterObserver()
     snmpEngine.transportDispatcher.closeDispatcher()
     raise

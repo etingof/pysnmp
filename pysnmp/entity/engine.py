@@ -7,12 +7,15 @@ from pysnmp.proto.secmod.rfc2576 import SnmpV1SecurityModel, \
      SnmpV2cSecurityModel
 from pysnmp.proto.secmod.rfc3414 import SnmpUSMSecurityModel
 from pysnmp.proto.acmod import rfc3415, void
+from pysnmp.entity import observer
 from pysnmp import error
 
 class SnmpEngine:
     def __init__(self, snmpEngineID=None, maxMessageSize=65507,
                  msgAndPduDsp=None):
         self.cache = {}
+        
+        self.observer = observer.MetaObserver()
 
         if msgAndPduDsp is None:
             self.msgAndPduDsp = MsgAndPduDispatcher()
@@ -63,14 +66,14 @@ class SnmpEngine:
         self.msgAndPduDsp.receiveMessage(
             self, transportDomain, transportAddress, wholeMsg
         )
-                                         
+
     def __receiveTimerTickCbFun(self, timeNow):
         self.msgAndPduDsp.receiveTimerTick(self, timeNow)
         for mpHandler in self.messageProcessingSubsystems.values():
             mpHandler.receiveTimerTick(self, timeNow)
         for smHandler in self.securityModels.values():
             smHandler.receiveTimerTick(self, timeNow)
-        
+
     def registerTransportDispatcher(self, transportDispatcher, recvId=None):
         if self.transportDispatcher is not None and \
                 self.transportDispatcher is not transportDispatcher:

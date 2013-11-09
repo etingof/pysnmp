@@ -84,13 +84,11 @@ config.addV3User(
 )
 
 # Callback function for receiving notifications
-def cbFun(snmpEngine,
-          stateReference,
-          contextEngineId, contextName,
-          varBinds,
-          cbCtx):
-    print('Notification received, ContextEngineId "%s", ContextName "%s"' % (
-        contextEngineId.prettyPrint(), contextName.prettyPrint()
+def cbFun(snmpEngine, stateReference, contextEngineId, contextName,
+          varBinds, cbCtx):
+    print('Notification from ContextEngineId "%s", ContextName "%s"' % (
+        contextEngineId.prettyPrint(),
+        contextName.prettyPrint()
         )
     )
     for name, val in varBinds:

@@ -23,8 +23,21 @@ cmdGen = cmdgen.CommandGenerator(snmpEngine)
 transportTarget = cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161))
 
 #
-# Discover remote SNMP EngineID
+# To discover remote SNMP EngineID we will tap on SNMP engine inner workings
+# by setting up execution point observer setup on INTERNAL class PDU processing
 #
+
+observerContext = {}
+
+# Register a callback to be invoked at specified execution point of 
+# SNMP Engine and passed local variables at execution point's local scope
+snmpEngine.observer.registerObserver(
+    lambda e,p,v,c: c.update(securityEngineId=v['securityEngineId']),
+    'rfc3412.prepareDataElements:internal',
+    cbCtx=observerContext
+)
+
+# Send probe SNMP request with invalid credentials
 
 authData = cmdgen.UsmUserData('non-existing-user')
 
@@ -32,18 +45,15 @@ errorIndication, errorStatus, errorIndex, varBinds = cmdGen.getCmd(
     authData, transportTarget
 )
 
-# Check for errors and print out results
-if errorIndication == 'unknownUserName':
-    snmpV3MessageProcessor = snmpEngine.messageProcessingSubsystems[3]
-    securityEngineId, contextEngineId, contextName = snmpV3MessageProcessor.getPeerEngineInfo(*transportTarget.getTransportInfo())
-    if securityEngineId:
-        print('securityEngineId = %s' % securityEngineId.prettyPrint())
-    else:
-        print('Peer EngineID not available')
-        raise Exception()
-else:
-    print('Can\'t discover peer EngineID', errorIndication)
+# See if our SNMP engine received REPORT PDU containing securityEngineId
+
+if 'securityEngineId' not in observerContext:
+    print("Can't discover peer EngineID, errorIndication: %s" % errorIndication)
     raise Exception()
+
+securityEngineId = observerContext.pop('securityEngineId')
+
+print('Remote securityEngineId = %s' % securityEngineId.prettyPrint())
 
 #
 # Query remote SNMP Engine using usmUserTable entry configured for it

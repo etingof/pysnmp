@@ -89,12 +89,9 @@ config.addV3User(
 # -- end of SNMPv3/USM setup
 
 # Callback function for receiving notifications
-def cbFun(snmpEngine,
-          stateReference,
-          contextEngineId, contextName,
-          varBinds,
-          cbCtx):
-    print('Notification received, ContextEngineId "%s", ContextName "%s"' % (
+def cbFun(snmpEngine, stateReference, contextEngineId, contextName,
+          varBinds, cbCtx):
+    print('Notification from ContextEngineId "%s", ContextName "%s"' % (
             contextEngineId.prettyPrint(), contextName.prettyPrint()
         )
     )

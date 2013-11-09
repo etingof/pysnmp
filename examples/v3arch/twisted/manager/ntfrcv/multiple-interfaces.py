@@ -47,15 +47,11 @@ config.addTransport(
 config.addV1System(snmpEngine, 'my-area', 'public')
 
 # Callback function for receiving notifications
-def cbFun(snmpEngine,
-          stateReference,
-          contextEngineId, contextName,
-          varBinds,
-          cbCtx):
-    transportDomain, transportAddress = snmpEngine.msgAndPduDsp.getTransportInfo(stateReference)
-    print('Notification from %s, SNMP Engine %s, Context %s' % (
-            transportAddress, contextEngineId.prettyPrint(),
-            contextName.prettyPrint()
+def cbFun(snmpEngine, stateReference, contextEngineId, contextName,
+          varBinds, cbCtx):
+    print('Notification from ContextEngineId "%s", Context "%s"' % (
+        contextEngineId.prettyPrint(),
+        contextName.prettyPrint()
         )
     )
     for name, val in varBinds:

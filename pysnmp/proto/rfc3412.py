@@ -33,9 +33,10 @@ class MsgAndPduDispatcher:
         # Source of sendPduHandle and cache of requesting apps
         self.__sendPduHandle = nextid.Integer(0xffffff)
 
-        # To pass transport info to app
+        # To pass transport info to app (legacy)
         self.__transportInfo = {}
 
+    # legacy
     def getTransportInfo(self, stateReference):
         if stateReference in self.__transportInfo:
             return self.__transportInfo[stateReference]
@@ -135,14 +136,17 @@ class MsgAndPduDispatcher:
 
         debug.logger & debug.flagDsp and debug.logger('sendPdu: new sendPduHandle %s, timeout %s ticks, cbFun %s' % (sendPduHandle, timeout, cbFun))
 
+        origTransportDomain = transportDomain
+        origTransportAddress = transportAddress
+
         # 4.1.1.4 & 4.1.1.5
         try:
-            ( destTransportDomain,
-              destTransportAddress,
+            ( transportDomain,
+              transportAddress,
               outgoingMessage ) = mpHandler.prepareOutgoingMessage(
                 snmpEngine,
-                transportDomain,
-                transportAddress,
+                origTransportDomain,
+                origTransportAddress,
                 messageProcessingModel,
                 securityModel,
                 securityName,
@@ -168,21 +172,38 @@ class MsgAndPduDispatcher:
                 self.__cache.pop(sendPduHandle)
             raise error.PySnmpError('Transport dispatcher not set')
 
+        snmpEngine.observer.storeExecutionContext(
+            snmpEngine,
+            'rfc3412.sendPdu',
+            dict(transportDomain=transportDomain,
+                 transportAddress=transportAddress,
+                 outgoingMessage=outgoingMessage,
+                 messageProcessingModel=messageProcessingModel,
+                 securityModel=securityModel,
+                 securityName=securityName,
+                 securityLevel=securityLevel,
+                 contextEngineId=contextEngineId,
+                 contextName=contextName,
+                 pdu=PDU)              
+        )
+
         try:
             snmpEngine.transportDispatcher.sendMessage(
-                outgoingMessage, destTransportDomain, destTransportAddress
+                outgoingMessage, transportDomain, transportAddress
             )
         except PySnmpError:
             if expectResponse:
                 self.__cache.pop(sendPduHandle)
             raise
         
+        snmpEngine.observer.clearExecutionContext(snmpEngine, 'rfc3412.sendPdu')
+
         # Update cache with orignal req params (used for retrying)
         if expectResponse:
             self.__cache.update(
                 sendPduHandle,
-                transportDomain=transportDomain,
-                transportAddress=transportAddress,
+                transportDomain=origTransportDomain,
+                transportAddress=origTransportAddress,
                 securityModel=securityModel,
                 securityName=securityName,
                 securityLevel=securityLevel,
@@ -210,7 +231,6 @@ class MsgAndPduDispatcher:
         stateReference,
         statusInformation
         ):
-        """PDU dispatcher -- prepare and serialize a response"""
         # Extract input values and initialize defaults
         k = int(messageProcessingModel)
         if k in snmpEngine.messageProcessingSubsystems:
@@ -224,8 +244,8 @@ class MsgAndPduDispatcher:
 
         # 4.1.2.2
         try:
-            ( destTransportDomain,
-              destTransportAddress,
+            ( transportDomain,
+              transportAddress,
               outgoingMessage ) = mpHandler.prepareResponseMessage(
                 snmpEngine,
                 messageProcessingModel,
@@ -239,7 +259,7 @@ class MsgAndPduDispatcher:
                 maxSizeResponseScopedPDU,
                 stateReference,
                 statusInformation
-                )
+            )
             debug.logger & debug.flagDsp and debug.logger('returnResponsePdu: MP suceeded')
         except error.StatusInformation:
             # 4.1.2.3
@@ -253,12 +273,31 @@ class MsgAndPduDispatcher:
             snmpSilentDrops.syntax = snmpSilentDrops.syntax + 1
             raise error.StatusInformation(errorIndication=errind.tooBig)
 
+        snmpEngine.observer.storeExecutionContext(
+            snmpEngine,
+            'rfc3412.returnResponsePdu',
+            dict(transportDomain=transportDomain,
+                 transportAddress=transportAddress,
+                 outgoingMessage=outgoingMessage,
+                 messageProcessingModel=messageProcessingModel,
+                 securityModel=securityModel,
+                 securityName=securityName,
+                 securityLevel=securityLevel,
+                 contextEngineId=contextEngineId,
+                 contextName=contextName,
+                 pdu=PDU)
+        )
+
         # 4.1.2.4
         snmpEngine.transportDispatcher.sendMessage(
             outgoingMessage,
-            destTransportDomain,
-            destTransportAddress
-            )
+            transportDomain,
+            transportAddress
+        )
+
+        snmpEngine.observer.clearExecutionContext(
+            snmpEngine, 'rfc3412.returnResponsePdu'
+        )
 
     # 4.2.1    
     def receiveMessage(
@@ -396,11 +435,27 @@ class MsgAndPduDispatcher:
                 # 4.2.2.1.2.d
                 return restOfWholeMsg
             else:
-                # Pass transport info to app
+                snmpEngine.observer.storeExecutionContext(
+                    snmpEngine,
+                    'rfc3412.receiveMessage:request',
+                    dict(transportDomain=transportDomain,
+                         transportAddress=transportAddress,
+                         wholeMsg=wholeMsg,
+                         messageProcessingModel=messageProcessingModel,
+                         securityModel=securityModel,
+                         securityName=securityName,
+                         securityLevel=securityLevel,
+                         contextEngineId=contextEngineId,
+                         contextName=contextName,
+                         pdu=PDU)
+                )
+
+                # pass transport info to app (legacy)
                 if stateReference is not None:
                     self.__transportInfo[stateReference] = (
                         transportDomain, transportAddress
-                        )
+                    )
+
                 # 4.2.2.1.3
                 processPdu(
                     snmpEngine,
@@ -414,9 +469,16 @@ class MsgAndPduDispatcher:
                     PDU,
                     maxSizeResponseScopedPDU,
                     stateReference
-                    )
+                )
+        
+                snmpEngine.observer.clearExecutionContext(
+                    snmpEngine, 'rfc3412.receiveMessage:request'
+                )
+
+                # legacy
                 if stateReference is not None:
                     del self.__transportInfo[stateReference]
+
                 debug.logger & debug.flagDsp and debug.logger('receiveMessage: processPdu succeeded')
                 return restOfWholeMsg
         else:
@@ -436,6 +498,21 @@ class MsgAndPduDispatcher:
             # 4.2.2.2.3
             # no-op ? XXX
 
+            snmpEngine.observer.storeExecutionContext(
+                snmpEngine,
+                'rfc3412.receiveMessage:response',
+                dict(transportDomain=transportDomain,
+                     transportAddress=transportAddress,
+                     wholeMsg=wholeMsg,
+                     messageProcessingModel=messageProcessingModel,
+                     securityModel=securityModel,
+                     securityName=securityName,
+                     securityLevel=securityLevel,
+                     contextEngineId=contextEngineId,
+                     contextName=contextName,
+                     pdu=PDU)
+            )
+
             # 4.2.2.2.4
             processResponsePdu = cachedParams['cbFun']
             processResponsePdu(
@@ -451,7 +528,12 @@ class MsgAndPduDispatcher:
                 statusInformation,
                 cachedParams['sendPduHandle'],
                 cachedParams['cbCtx']
-                )
+            )
+
+            snmpEngine.observer.clearExecutionContext(
+                snmpEngine, 'rfc3412.receiveMessage:response'
+            )
+
             debug.logger & debug.flagDsp and debug.logger('receiveMessage: processResponsePdu succeeded')
             return restOfWholeMsg
 

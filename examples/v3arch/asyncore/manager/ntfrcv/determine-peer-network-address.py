@@ -6,14 +6,13 @@
 # * SNMPv1/SNMPv2c
 # * with SNMP community "public"
 # * over IPv4/UDP, listening at 127.0.0.1:162
-#   over IPv4/UDP, listening at 127.0.0.1:2162
+# * use observer facility to pull lower-level request details from SNMP engine
 # * print received data on stdout
 # 
 # Either of the following Net-SNMP's commands will send notifications to this
 # receiver:
 #
 # $ snmptrap -v2c -c public 127.0.0.1:162 123 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.5.0 s test
-# $ snmpinform -v2c -c public 127.0.0.1:2162 123 1.3.6.1.6.3.1.1.5.1
 #
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asynsock.dgram import udp
@@ -32,13 +31,6 @@ config.addTransport(
     udp.UdpTransport().openServerMode(('127.0.0.1', 162))
 )
 
-# UDP over IPv4, second listening interface/port
-config.addTransport(
-    snmpEngine,
-    udp.domainName + (2,),
-    udp.UdpTransport().openServerMode(('127.0.0.1', 2162))
-)
-
 # SNMPv1/2c setup
 
 # SecurityName <-> CommunityName mapping
@@ -47,7 +39,14 @@ config.addV1System(snmpEngine, 'my-area', 'public')
 # Callback function for receiving notifications
 def cbFun(snmpEngine, stateReference, contextEngineId, contextName,
           varBinds, cbCtx):
-    print('Notification from ContextEngineId "%s", ContextName "%s"' % (
+    # Get an execution context...
+    execContext = snmpEngine.observer.getExecutionContext(
+        'rfc3412.receiveMessage:request'
+    )
+
+    # ... and use inner SNMP engine data to figure out peer address
+    print('Notification from %s, ContextEngineId "%s", ContextName "%s"' % (
+        '@'.join([str(x) for x in execContext['transportAddress']]),
         contextEngineId.prettyPrint(),
         contextName.prettyPrint()
         )

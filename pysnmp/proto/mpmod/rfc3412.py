@@ -259,6 +259,23 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 transportAddress=transportAddress
                 )
 
+        snmpEngine.observer.storeExecutionContext(
+            snmpEngine,
+            'rfc3412.prepareOutgoingMessage',
+            dict(transportDomain=transportDomain,
+                 transportAddress=transportAddress,
+                 wholeMsg=wholeMsg,
+                 securityModel=securityModel,
+                 securityName=securityName,
+                 securityLevel=securityLevel,
+                 contextEngineId=contextEngineId,
+                 contextName=contextName,
+                 pdu=pdu)
+        )
+        snmpEngine.observer.clearExecutionContext(
+            snmpEngine, 'rfc3412.prepareOutgoingMessage'
+        )
+
         return ( transportDomain,
                  transportAddress,
                  wholeMsg )
@@ -296,7 +313,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         transportAddress = cachedParams['transportAddress']
 
         debug.logger & debug.flagMP and debug.logger('prepareResponseMessage: stateReference %s' % (stateReference))
-        
+       
         # 7.1.3
         if statusInformation is not None and 'oid' in statusInformation:
             # 7.1.3a
@@ -389,7 +406,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         # XXX need to coerce MIB value as it has incompatible constraints set
         headerData.setComponentByPosition(
             1, snmpEngineMaxMessageSize.syntax, verifyConstraints=False
-            )
+        )
 
         # 7.1.7d
         msgFlags = 0
@@ -451,6 +468,23 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         # Message size constraint verification
         if len(wholeMsg) > min(snmpEngineMaxMessageSize.syntax, maxMessageSize):
             raise error.StatusInformation(errorIndication=errind.tooBig)
+
+        snmpEngine.observer.storeExecutionContext(
+            snmpEngine,
+            'rfc3412.prepareResponseMessage',
+            dict(transportDomain=transportDomain,
+                 transportAddress=transportAddress,
+                 securityModel=securityModel,
+                 securityName=securityName,
+                 securityLevel=securityLevel,
+                 contextEngineId=contextEngineId,
+                 contextName=contextName,
+                 securityEngineId=snmpEngineID,
+                 pdu=pdu)
+        )
+        snmpEngine.observer.clearExecutionContext(
+            snmpEngine, 'rfc3412.prepareResponseMessage'
+        )
 
         return ( transportDomain, transportAddress, wholeMsg )
 
@@ -674,6 +708,23 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 
             # 7.2.11b (incomplete implementation)
 
+            snmpEngine.observer.storeExecutionContext(
+                snmpEngine,
+                'rfc3412.prepareDataElements:internal',
+                dict(transportDomain=transportDomain,
+                     transportAddress=transportAddress,
+                     securityModel=securityModel,
+                     securityName=securityName,
+                     securityLevel=securityLevel,
+                     contextEngineId=contextEngineId,
+                     contextName=contextName,
+                     securityEngineId=securityEngineId,
+                     pdu=pdu)
+            )
+            snmpEngine.observer.clearExecutionContext(
+                snmpEngine, 'rfc3412.prepareDataElements:internal'
+            )
+
             # 7.2.11c
             smHandler.releaseStateInformation(securityStateReference)
 
@@ -700,6 +751,23 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                     errorIndication = errind.dataMismatch
                     )
                         
+            snmpEngine.observer.storeExecutionContext(
+                snmpEngine,
+                'rfc3412.prepareDataElements:response',
+                dict(transportDomain=transportDomain,
+                     transportAddress=transportAddress,
+                     securityModel=securityModel,
+                     securityName=securityName,
+                     securityLevel=securityLevel,
+                     contextEngineId=contextEngineId,
+                     contextName=contextName,
+                     securityEngineId=securityEngineId,
+                     pdu=pdu)
+            )
+            snmpEngine.observer.clearExecutionContext(
+                snmpEngine, 'rfc3412.prepareDataElements:response'
+            )
+
             # 7.2.12c
             smHandler.releaseStateInformation(securityStateReference)
             stateReference = None
@@ -749,6 +817,23 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
 
             debug.logger & debug.flagMP and debug.logger('prepareDataElements: new stateReference %s' % stateReference)
 
+            snmpEngine.observer.storeExecutionContext(
+                snmpEngine,
+                'rfc3412.prepareDataElements:confirmed',
+                dict(transportDomain=transportDomain,
+                     transportAddress=transportAddress,
+                     securityModel=securityModel,
+                     securityName=securityName,
+                     securityLevel=securityLevel,
+                     contextEngineId=contextEngineId,
+                     contextName=contextName,
+                     securityEngineId=securityEngineId,
+                     pdu=pdu)
+            )
+            snmpEngine.observer.clearExecutionContext(
+                snmpEngine, 'rfc3412.prepareDataElements:confirmed'
+            )
+
             # 7.2.13c
             return ( messageProcessingModel,
                      securityModel,
@@ -768,7 +853,24 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         if pduType in rfc3411.unconfirmedClassPDUs:
             # Pass new stateReference to let app browse request details
             stateReference = self._cache.newStateReference()
-            
+
+            snmpEngine.observer.storeExecutionContext(
+                snmpEngine,
+                'rfc3412.prepareDataElements:unconfirmed',
+                dict(transportDomain=transportDomain,
+                     transportAddress=transportAddress,
+                     securityModel=securityModel,
+                     securityName=securityName,
+                     securityLevel=securityLevel,
+                     contextEngineId=contextEngineId,
+                     contextName=contextName,
+                     securityEngineId=securityEngineId,
+                     pdu=pdu)
+            )
+            snmpEngine.observer.clearExecutionContext(
+                snmpEngine, 'rfc3412.prepareDataElements:unconfirmed'
+            )
+
             # This is not specified explicitly in RFC
             smHandler.releaseStateInformation(securityStateReference)
             
