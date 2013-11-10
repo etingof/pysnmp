@@ -8,6 +8,9 @@
 #     for an OID in tuple form
 #     also registers its own execution observer to snmpEngine
 #
+# While execution, this script will report some details on request processing 
+# as seen by rfc3412.sendPdu() and rfc3412.receiveMessage() abstract interfaces.
+#
 # This script performs similar to the following Net-SNMP command:
 #
 # $ snmpget -v3 -l authPriv -u usr-sha-aes -a SHA -A authkey1 -x AES -X privkey1 -ObentU 195.218.195.228:161  1.3.6.1.2.1.1.1.0
