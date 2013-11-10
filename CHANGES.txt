@@ -7,6 +7,10 @@ Revision 4.2.6rc0
   of pysnmp engine. Previously introduced non-RFC APIs (like
   getting peer's transport endpoint) will be gradually migrated to
   this new framework.
+- Internal oneliner apps configuration cache moved from respective
+  apps objects to [a singular] snmpEngine object. That would allow
+  for better cache reuse and allow for a single app working with
+  many snmpEngine instances.
 - Memory leak fixed in CommandForwarder examples.
 - Fix to CommandGenerator to make sendRequestHandle persistent across
   multiple iterations of GETNEXT/GETBULK queries.

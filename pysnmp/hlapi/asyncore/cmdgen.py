@@ -28,10 +28,6 @@ nextID = nextid.Integer(0xffffffff)
 class AsynCommandGenerator:
     _null = univ.Null('')
     def __init__(self, snmpEngine=None):
-        self.__knownAuths = {}
-        self.__knownParams = {}
-        self.__knownTransports = {}
-        self.__knownTransportAddrs = {}
         if snmpEngine is None:
             self.snmpEngine = engine.SnmpEngine()
         else:
@@ -39,12 +35,19 @@ class AsynCommandGenerator:
         self.mibViewController = view.MibViewController(
             self.snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
         )
+        if 'cmdgen' not in self.snmpEngine.cache:
+            self.snmpEngine.cache['cmdgen'] = { 'auth': {},
+                                                'parm': {},
+                                                'tran': {},
+                                                'addr': {} }
 
-    def __del__(self): self.uncfgCmdGen()
+    def __del__(self):
+        self.uncfgCmdGen()
 
     def cfgCmdGen(self, authData, transportTarget):
+        cache = self.snmpEngine.cache['cmdgen']
         if isinstance(authData, CommunityData):
-            if authData.communityIndex not in self.__knownAuths:
+            if authData.communityIndex not in cache['auth']:
                 config.addV1System(
                     self.snmpEngine,
                     authData.communityIndex,
@@ -54,10 +57,10 @@ class AsynCommandGenerator:
                     authData.tag,
                     authData.securityName
                 )
-                self.__knownAuths[authData.communityIndex] = authData
+                cache['auth'][authData.communityIndex] = authData
         elif isinstance(authData, UsmUserData):
             authDataKey = authData.userName, authData.securityEngineId
-            if authDataKey not in self.__knownAuths:
+            if authDataKey not in cache['auth']:
                 config.addV3User(
                     self.snmpEngine,
                     authData.userName,
@@ -66,28 +69,28 @@ class AsynCommandGenerator:
                     authData.securityEngineId,
                     securityName=authData.securityName
                 )
-                self.__knownAuths[authDataKey] = authData
+                cache['auth'][authDataKey] = authData
         else:
             raise error.PySnmpError('Unsupported authentication object')
 
         paramsKey = authData.securityName, \
                     authData.securityLevel, \
                     authData.mpModel
-        if paramsKey in self.__knownParams:
-            paramsName, useCount = self.__knownParams[paramsKey]
-            self.__knownParams[paramsKey] = paramsName, useCount + 1
+        if paramsKey in cache['parm']:
+            paramsName, useCount = cache['parm'][paramsKey]
+            cache['parm'][paramsKey] = paramsName, useCount + 1
         else:
             paramsName = 'p%s' % nextID()
             config.addTargetParams(
                 self.snmpEngine, paramsName,
                 authData.securityName, authData.securityLevel, authData.mpModel
             )
-            self.__knownParams[paramsKey] = paramsName, 1
+            cache['parm'][paramsKey] = paramsName, 1
 
-        if transportTarget.transportDomain in self.__knownTransports:
+        if transportTarget.transportDomain in cache['tran']:
             transportTarget.verifyDispatcherCompatibility(self.snmpEngine)
-            transport, useCount = self.__knownTransports[transportTarget.transportDomain]
-            self.__knownTransports[transportTarget.transportDomain] = transport, useCount + 1
+            transport, useCount = cache['tran'][transportTarget.transportDomain]
+            cache['tran'][transportTarget.transportDomain] = transport, useCount + 1
         else:
             transport = transportTarget.openClientMode()
             config.addTransport(
@@ -95,16 +98,16 @@ class AsynCommandGenerator:
                 transportTarget.transportDomain,
                 transport
             )
-            self.__knownTransports[transportTarget.transportDomain] = transport, 1
+            cache['tran'][transportTarget.transportDomain] = transport, 1
 
         transportKey = ( paramsName,
                          transportTarget.transportDomain,
                          transportTarget.transportAddr,
                          transportTarget.tagList )
 
-        if transportKey in self.__knownTransportAddrs:
-            addrName, useCount = self.__knownTransportAddrs[transportKey]
-            self.__knownTransportAddrs[transportKey] = addrName, useCount + 1
+        if transportKey in cache['addr']:
+            addrName, useCount = cache['addr'][transportKey]
+            cache['addr'][transportKey] = addrName, useCount + 1
         else:
             addrName = 'a%s' % nextID()
             config.addTargetAddr(
@@ -116,11 +119,12 @@ class AsynCommandGenerator:
                 transportTarget.retries,
                 transportTarget.tagList
             )
-            self.__knownTransportAddrs[transportKey] = addrName, 1
+            cache['addr'][transportKey] = addrName, 1
 
         return addrName, paramsName
 
     def uncfgCmdGen(self, authData=None):
+        cache = self.snmpEngine.cache['cmdgen']
         if authData:
             if isinstance(authData, CommunityData):
                 authDataKey = authData.communityIndex
@@ -128,18 +132,18 @@ class AsynCommandGenerator:
                 authDataKey = authData.userName, authData.securityEngineId
             else:
                 raise error.PySnmpError('Unsupported authentication object')
-            if authDataKey in self.__knownAuths:
+            if authDataKey in cache['auth']:
                 authDataKeys = ( authDataKey, )
             else:
                 raise error.PySnmpError('Unknown authData %s' % (authData,))
         else:
-            authDataKeys = list(self.__knownAuths.keys())
+            authDataKeys = list(cache['auth'].keys())
 
         addrNames, paramsNames = set(), set()
 
         for authDataKey in authDataKeys:
-            authDataX = self.__knownAuths[authDataKey] 
-            del self.__knownAuths[authDataKey]
+            authDataX = cache['auth'][authDataKey] 
+            del cache['auth'][authDataKey]
             if isinstance(authDataX, CommunityData):
                 config.delV1System(
                     self.snmpEngine,
@@ -157,13 +161,13 @@ class AsynCommandGenerator:
             paramsKey = authDataX.securityName, \
                         authDataX.securityLevel, \
                         authDataX.mpModel
-            if paramsKey in self.__knownParams:
-                paramsName, useCount = self.__knownParams[paramsKey]
+            if paramsKey in cache['parm']:
+                paramsName, useCount = cache['parm'][paramsKey]
                 useCount -= 1
                 if useCount:
-                    self.__knownParams[paramsKey] = paramsName, useCount
+                    cache['parm'][paramsKey] = paramsName, useCount
                 else:
-                    del self.__knownParams[paramsKey]
+                    del cache['parm'][paramsKey]
                     config.delTargetParams(
                         self.snmpEngine, paramsName
                     )
@@ -171,27 +175,27 @@ class AsynCommandGenerator:
             else:
                 raise error.PySnmpError('Unknown target %s' % (paramsKey,))
 
-            addrKeys = [ x for x in self.__knownTransportAddrs if x[0] == paramsName ]
+            addrKeys = [ x for x in cache['addr'] if x[0] == paramsName ]
 
             for addrKey in addrKeys:
-                addrName, useCount = self.__knownTransportAddrs[addrKey]
+                addrName, useCount = cache['addr'][addrKey]
                 useCount -= 1
                 if useCount:
-                    self.__knownTransportAddrs[addrKey] = addrName, useCount
+                    cache['addr'][addrKey] = addrName, useCount
                 else:
                     config.delTargetAddr(self.snmpEngine, addrName)
 
                     addrNames.add(addrKey)
 
-                    if addrKey[1] in self.__knownTransports:
-                        transport, useCount = self.__knownTransports[addrKey[1]]
+                    if addrKey[1] in cache['tran']:
+                        transport, useCount = cache['tran'][addrKey[1]]
                         if useCount > 1:
                             useCount -= 1
-                            self.__knownTransports[addrKey[1]] = transport, useCount
+                            cache['tran'][addrKey[1]] = transport, useCount
                         else:
                             config.delTransport(self.snmpEngine, addrKey[1])
                             transport.closeTransport()
-                            del self.__knownTransports[addrKey[1]]
+                            del cache['tran'][addrKey[1]]
 
         return addrNames, paramsNames
 

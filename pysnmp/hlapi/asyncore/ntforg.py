@@ -27,21 +27,22 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
     def __init__(self, snmpEngine=None, snmpContext=None):
         cmdgen.AsynCommandGenerator.__init__(self, snmpEngine)
         self.snmpContext = snmpContext
-        self.__knownNotifyNames = {}
-        self.__knownAuths = {}
-
+        if 'ntforg' not in self.snmpEngine.cache:
+            self.snmpEngine.cache['ntforg'] = { 'auth': {},
+                                                'name': {} }
     def __del__(self): self.uncfgNtfOrg()
 
     def cfgNtfOrg(self, authData, transportTarget, notifyType):
+        cache = self.snmpEngine.cache['ntforg']
         addrName, paramsName = self.cfgCmdGen(authData, transportTarget)
         tagList = transportTarget.tagList.split()
         if not tagList:
             tagList = ['']
         for tag in tagList:
             notifyNameKey = paramsName, tag, notifyType
-            if notifyNameKey in self.__knownNotifyNames:
-                notifyName, paramsName, useCount = self.__knownNotifyNames[notifyNameKey]
-                self.__knownNotifyNames[notifyNameKey] = notifyName, paramsName, useCount + 1
+            if notifyNameKey in cache['name']:
+                notifyName, paramsName, useCount = cache['name'][notifyNameKey]
+                cache['name'][notifyNameKey] = notifyName, paramsName, useCount + 1
             else:
                 notifyName = 'n%s' % nextID()
                 config.addNotificationTarget(
@@ -51,11 +52,11 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                     tag,
                     notifyType
                 )
-                self.__knownNotifyNames[notifyNameKey] = notifyName, paramsName, 1
+                cache['name'][notifyNameKey] = notifyName, paramsName, 1
         authDataKey = authData.securityName, authData.securityModel
-        if  authDataKey in self.__knownAuths:
-            authDataX, subTree, useCount = self.__knownAuths[authDataKey]
-            self.__knownAuths[authDataKey] = authDataX, subTree, useCount + 1
+        if  authDataKey in cache['auth']:
+            authDataX, subTree, useCount = cache['auth'][authDataKey]
+            cache['auth'][authDataKey] = authDataX, subTree, useCount + 1
         else:
             subTree = (1,3,6)
             config.addTrapUser(
@@ -65,7 +66,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                 authData.securityLevel,
                 subTree
             )
-            self.__knownAuths[authDataKey] = authData, subTree, 1
+            cache['auth'][authDataKey] = authData, subTree, 1
         if self.snmpContext is None:
             self.snmpContext = context.SnmpContext(self.snmpEngine)
             config.addContext(
@@ -74,34 +75,35 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
         return notifyName
     
     def uncfgNtfOrg(self, authData=None):
+        cache = self.snmpEngine.cache['ntforg']
         if authData:
             authDataKey = authData.securityName, authData.securityModel
-            if authDataKey in self.__knownAuths:
+            if authDataKey in cache['auth']:
                 authDataKeys = ( authDataKey, )
             else:
                 raise error.PySnmpError('Unknown authData %s' % (authData,))
         else:
-            authDataKeys = self.__knownAuths.keys()
+            authDataKeys = cache['auth'].keys()
 
         addrNames, paramsNames = self.uncfgCmdGen(authData)
 
-        notifyAndParamsNames = [ (self.__knownNotifyNames[x], x) for x in self.__knownNotifyNames.keys() if x[0] in paramsNames ]
+        notifyAndParamsNames = [ (cache['name'][x], x) for x in cache['name'].keys() if x[0] in paramsNames ]
 
         for (notifyName, paramsName, useCount), notifyNameKey in notifyAndParamsNames:
             useCount -= 1
             if useCount:
-                self.__knownNotifyNames[notifyNameKey] = notifyName, paramsName, useCount
+                cache['name'][notifyNameKey] = notifyName, paramsName, useCount
             else:
                 config.delNotificationTarget(
                     self.snmpEngine, notifyName, paramsName
                 )
-                del self.__knownNotifyNames[notifyNameKey]
+                del cache['name'][notifyNameKey]
 
         for authDataKey in authDataKeys:
-            authDataX, subTree, useCount = self.__knownAuths[authDataKey]
+            authDataX, subTree, useCount = cache['auth'][authDataKey]
             useCount -= 1
             if useCount:
-                self.__knownAuths[authDataKey] = authDataX, subTree, useCount
+                cache['auth'][authDataKey] = authDataX, subTree, useCount
             else:
                 config.delTrapUser(
                     self.snmpEngine,
@@ -110,7 +112,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                     authDataX.securityLevel,
                     subTree
                 )
-                del self.__knownAuths[authDataKey]
+                del cache['auth'][authDataKey]
 
     def sendNotification(self, authData, transportTarget, notifyType,
                          notificationType, varBinds=(),
