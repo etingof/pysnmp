@@ -6,7 +6,7 @@
 # * SNMPv2c and SNMPv3
 # * with community name 'public' or USM username usr-md5-des
 # * over IPv4/UDP
-# * send TRAP notification
+# * send INFORM notification
 # * to multiple Managers
 # * with TRAP ID 'coldStart' specified as a MIB symbol
 # * include managed object information specified as var-bind objects pair
