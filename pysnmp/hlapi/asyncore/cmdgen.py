@@ -25,31 +25,28 @@ usmNoPrivProtocol = config.usmNoPrivProtocol
 
 nextID = nextid.Integer(0xffffffff)
 
-class AsynCommandGenerator:
+class AsyncCommandGenerator:
     _null = univ.Null('')
-    def __init__(self, snmpEngine=None):
-        if snmpEngine is None:
-            self.snmpEngine = engine.SnmpEngine()
-        else:
-            self.snmpEngine = snmpEngine
-        self.mibViewController = view.MibViewController(
-            self.snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
-        )
-        if 'cmdgen' not in self.snmpEngine.cache:
-            self.snmpEngine.cache['cmdgen'] = { 'auth': {},
-                                                'parm': {},
-                                                'tran': {},
-                                                'addr': {} }
 
-    def __del__(self):
-        self.uncfgCmdGen()
+    def _getCmdCache(self, snmpEngine):
+        if 'cmdgen' not in snmpEngine.cache:
+            snmpEngine.cache['cmdgen'] = { 
+                'auth': {},
+                'parm': {},
+                'tran': {},
+                'addr': {},
+           }
+        if 'mibViewController' not in snmpEngine.cache['cmdgen']:
+            snmpEngine.cache['cmdgen']['mibViewController'] = view.MibViewController(snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder)
 
-    def cfgCmdGen(self, authData, transportTarget):
-        cache = self.snmpEngine.cache['cmdgen']
+        return snmpEngine.cache['cmdgen']
+
+    def cfgCmdGen(self, snmpEngine, authData, transportTarget):
+        cache = self._getCmdCache(snmpEngine)
         if isinstance(authData, CommunityData):
             if authData.communityIndex not in cache['auth']:
                 config.addV1System(
-                    self.snmpEngine,
+                    snmpEngine,
                     authData.communityIndex,
                     authData.communityName,
                     authData.contextEngineId,
@@ -62,7 +59,7 @@ class AsynCommandGenerator:
             authDataKey = authData.userName, authData.securityEngineId
             if authDataKey not in cache['auth']:
                 config.addV3User(
-                    self.snmpEngine,
+                    snmpEngine,
                     authData.userName,
                     authData.authProtocol, authData.authKey,
                     authData.privProtocol, authData.privKey,
@@ -82,19 +79,21 @@ class AsynCommandGenerator:
         else:
             paramsName = 'p%s' % nextID()
             config.addTargetParams(
-                self.snmpEngine, paramsName,
+                snmpEngine, paramsName,
                 authData.securityName, authData.securityLevel, authData.mpModel
             )
             cache['parm'][paramsKey] = paramsName, 1
 
         if transportTarget.transportDomain in cache['tran']:
-            transportTarget.verifyDispatcherCompatibility(self.snmpEngine)
             transport, useCount = cache['tran'][transportTarget.transportDomain]
+            transportTarget.verifyDispatcherCompatibility(snmpEngine)
             cache['tran'][transportTarget.transportDomain] = transport, useCount + 1
+        elif config.getTransport(snmpEngine, transportTarget.transportDomain):
+            transportTarget.verifyDispatcherCompatibility(snmpEngine)
         else:
             transport = transportTarget.openClientMode()
             config.addTransport(
-                self.snmpEngine,
+                snmpEngine,
                 transportTarget.transportDomain,
                 transport
             )
@@ -111,7 +110,7 @@ class AsynCommandGenerator:
         else:
             addrName = 'a%s' % nextID()
             config.addTargetAddr(
-                self.snmpEngine, addrName,
+                snmpEngine, addrName,
                 transportTarget.transportDomain,
                 transportTarget.transportAddr,
                 paramsName,
@@ -123,8 +122,8 @@ class AsynCommandGenerator:
 
         return addrName, paramsName
 
-    def uncfgCmdGen(self, authData=None):
-        cache = self.snmpEngine.cache['cmdgen']
+    def uncfgCmdGen(self, snmpEngine, authData=None):
+        cache = self._getCmdCache(snmpEngine)
         if authData:
             if isinstance(authData, CommunityData):
                 authDataKey = authData.communityIndex
@@ -146,12 +145,12 @@ class AsynCommandGenerator:
             del cache['auth'][authDataKey]
             if isinstance(authDataX, CommunityData):
                 config.delV1System(
-                    self.snmpEngine,
+                    snmpEngine,
                     authDataX.communityIndex
                 )
             elif isinstance(authDataX, UsmUserData):
                 config.delV3User(
-                    self.snmpEngine,
+                    snmpEngine,
                     authDataX.userName, 
                     authDataX.securityEngineId
                 )
@@ -169,7 +168,7 @@ class AsynCommandGenerator:
                 else:
                     del cache['parm'][paramsKey]
                     config.delTargetParams(
-                        self.snmpEngine, paramsName
+                        snmpEngine, paramsName
                     )
                     paramsNames.add(paramsName)
             else:
@@ -183,7 +182,7 @@ class AsynCommandGenerator:
                 if useCount:
                     cache['addr'][addrKey] = addrName, useCount
                 else:
-                    config.delTargetAddr(self.snmpEngine, addrName)
+                    config.delTargetAddr(snmpEngine, addrName)
 
                     addrNames.add(addrKey)
 
@@ -193,48 +192,46 @@ class AsynCommandGenerator:
                             useCount -= 1
                             cache['tran'][addrKey[1]] = transport, useCount
                         else:
-                            config.delTransport(self.snmpEngine, addrKey[1])
+                            config.delTransport(snmpEngine, addrKey[1])
                             transport.closeTransport()
                             del cache['tran'][addrKey[1]]
 
         return addrNames, paramsNames
 
-    # compatibility stub
-    def makeReadVarBinds(self, varNames):
-        return self.makeVarBinds(
-            [ (x, self._null) for x in varNames ], oidOnly=True
-        )
-
-    def makeVarBinds(self, varBinds, oidOnly=False):
+    def makeVarBinds(self, snmpEngine, varBinds, oidOnly=False):
+        cache = self._getCmdCache(snmpEngine)
+        mibViewController = cache['mibViewController']
         __varBinds = []
         for varName, varVal in varBinds:
             if isinstance(varName, MibVariable):
                 if oidOnly or isinstance(varVal, base.AbstractSimpleAsn1Item):
-                    varName.resolveWithMib(self.mibViewController, oidOnly=True)
+                    varName.resolveWithMib(mibViewController, oidOnly=True)
                 else:
-                    varName.resolveWithMib(self.mibViewController)
+                    varName.resolveWithMib(mibViewController)
                     varVal = varName.getMibNode().getSyntax().clone(varVal)
             elif isinstance(varName[0], tuple):  # legacy
-                varName = MibVariable(varName[0][0], varName[0][1], *varName[1:]).resolveWithMib(self.mibViewController)
+                varName = MibVariable(varName[0][0], varName[0][1], *varName[1:]).resolveWithMib(mibViewController)
                 if not oidOnly and \
                         not isinstance(varVal, base.AbstractSimpleAsn1Item):
                     varVal = varName.getMibNode().getSyntax().clone(varVal)
             else:
                 if oidOnly or isinstance(varVal, base.AbstractSimpleAsn1Item):
-                    varName = MibVariable(varName).resolveWithMib(self.mibViewController, oidOnly=True)
+                    varName = MibVariable(varName).resolveWithMib(mibViewController, oidOnly=True)
                 else:
-                    varName = MibVariable(varName).resolveWithMib(self.mibViewController)
+                    varName = MibVariable(varName).resolveWithMib(mibViewController)
                     varVal = varName.getMibNode().getSyntax().clone(varVal)
 
             __varBinds.append((varName, varVal))
 
         return __varBinds
 
-    def unmakeVarBinds(self, varBinds, lookupNames, lookupValues):
+    def unmakeVarBinds(self, snmpEngine, varBinds, lookupNames, lookupValues):
         if lookupNames or lookupValues:
+            cache = self._getCmdCache(snmpEngine)
+            mibViewController = cache['mibViewController']            
             _varBinds = []
             for name, value in varBinds:
-                varName = MibVariable(name).resolveWithMib(self.mibViewController)
+                varName = MibVariable(name).resolveWithMib(mibViewController)
                 if lookupNames:
                     name = varName
                 if lookupValues:
@@ -248,9 +245,18 @@ class AsynCommandGenerator:
         else:
             return varBinds
 
+    def makeVarBindsHead(self, snmpEngine, varNames):
+        return [ 
+            x[0] for x in self.makeVarBinds(
+                snmpEngine,
+                [ (x, univ.Null('')) for x in varNames ], oidOnly=True
+            )
+        ]
+
+
     # Async SNMP apps
 
-    def getCmd(self, authData, transportTarget, varNames, cbInfo,
+    def getCmd(self, snmpEngine, authData, transportTarget, varNames, cbInfo,
                lookupNames=False, lookupValues=False,
                contextEngineId=None, contextName=null):
         def __cbFun(sendRequestHandle,
@@ -262,31 +268,27 @@ class AsynCommandGenerator:
                 errorIndication,
                 errorStatus,
                 errorIndex,
-                self.unmakeVarBinds(varBinds, lookupNames, lookupValues),
+                self.unmakeVarBinds(
+                    snmpEngine, varBinds, lookupNames, lookupValues
+                ),
                 cbCtx
             )
-
-        # for backward compatibility
-        if contextName is null and authData.contextName:
-            contextName = authData.contextName
         
         (cbFun, cbCtx) = cbInfo
         addrName, paramsName = self.cfgCmdGen(
-            authData, transportTarget
+            snmpEngine, authData, transportTarget
         )
 
         return cmdgen.GetCommandGenerator().sendReq(
-            self.snmpEngine,
+            snmpEngine,
             addrName,
-            self.makeReadVarBinds(varNames),
+            self.makeVarBinds(snmpEngine, [(x, self._null) for x in varNames]),
             __cbFun,
             (lookupNames, lookupValues, cbFun, cbCtx),
             contextEngineId, contextName
         )
     
-    asyncGetCmd = getCmd
-    
-    def setCmd(self, authData, transportTarget, varBinds, cbInfo,
+    def setCmd(self, snmpEngine, authData, transportTarget, varBinds, cbInfo,
                lookupNames=False, lookupValues=False,
                contextEngineId=None, contextName=null):
         def __cbFun(sendRequestHandle,
@@ -298,32 +300,27 @@ class AsynCommandGenerator:
                 errorIndication,
                 errorStatus,
                 errorIndex,
-                self.unmakeVarBinds(varBinds, lookupNames, lookupValues),
+                self.unmakeVarBinds(
+                    snmpEngine, varBinds, lookupNames, lookupValues
+                ),
                 cbCtx
             )
 
-        # for backward compatibility
-        if contextName is null and authData.contextName:
-            contextName = authData.contextName
-        
         (cbFun, cbCtx) = cbInfo
         addrName, paramsName = self.cfgCmdGen(
-            authData, transportTarget
+            snmpEngine, authData, transportTarget
         )
 
-
         return cmdgen.SetCommandGenerator().sendReq(
-            self.snmpEngine,
+            snmpEngine,
             addrName,
-            self.makeVarBinds(varBinds),
+            self.makeVarBinds(snmpEngine, varBinds),
             __cbFun,
             (lookupNames, lookupValues, cbFun, cbCtx),
             contextEngineId, contextName
         )
     
-    asyncSetCmd = setCmd
-    
-    def nextCmd(self, authData, transportTarget, varNames, cbInfo,
+    def nextCmd(self, snmpEngine, authData, transportTarget, varNames, cbInfo,
                 lookupNames=False, lookupValues=False,
                 contextEngineId=None, contextName=null):
         def __cbFun(sendRequestHandle,
@@ -335,30 +332,24 @@ class AsynCommandGenerator:
                 errorIndication,
                 errorStatus,
                 errorIndex,
-                [ self.unmakeVarBinds(varBindTableRow, lookupNames, lookupValues) for varBindTableRow in varBindTable ],
+                [ self.unmakeVarBinds(snmpEngine, varBindTableRow, lookupNames, lookupValues) for varBindTableRow in varBindTable ],
                 cbCtx
             )
 
-        # for backward compatibility
-        if contextName is null and authData.contextName:
-            contextName = authData.contextName
-        
         (cbFun, cbCtx) = cbInfo
         addrName, paramsName = self.cfgCmdGen(
-            authData, transportTarget
+            snmpEngine, authData, transportTarget
         )
         return cmdgen.NextCommandGenerator().sendReq(
-            self.snmpEngine,
+            snmpEngine,
             addrName,
-            self.makeReadVarBinds(varNames),
+            self.makeVarBinds(snmpEngine, [(x, self._null) for x in varNames]),
             __cbFun,
             (lookupNames, lookupValues, cbFun, cbCtx),
             contextEngineId, contextName
         )
 
-    asyncNextCmd = nextCmd
-    
-    def bulkCmd(self, authData, transportTarget,
+    def bulkCmd(self, snmpEngine, authData, transportTarget,
                 nonRepeaters, maxRepetitions, varNames, cbInfo,
                 lookupNames=False, lookupValues=False,
                 contextEngineId=None, contextName=null):
@@ -371,27 +362,125 @@ class AsynCommandGenerator:
                 errorIndication,
                 errorStatus,
                 errorIndex,
-                [ self.unmakeVarBinds(varBindTableRow, lookupNames, lookupValues) for varBindTableRow in varBindTable ],
+                [ self.unmakeVarBinds(snmpEngine, varBindTableRow, lookupNames, lookupValues) for varBindTableRow in varBindTable ],
                 cbCtx
             )
+
+        (cbFun, cbCtx) = cbInfo
+        addrName, paramsName = self.cfgCmdGen(
+            snmpEngine, authData, transportTarget
+        )
+        return cmdgen.BulkCommandGenerator().sendReq(
+            snmpEngine,
+            addrName,
+            nonRepeaters, maxRepetitions,
+            self.makeVarBinds(snmpEngine, [(x, self._null) for x in varNames]),
+            __cbFun,
+            (lookupNames, lookupValues, cbFun, cbCtx),
+            contextEngineId, contextName
+        )
+
+# compatibility implementation, never use this class for new applications
+class AsynCommandGenerator:
+    def __init__(self, snmpEngine=None):
+        if snmpEngine is None:
+            self.snmpEngine = snmpEngine = engine.SnmpEngine()
+        else:
+            self.snmpEngine = snmpEngine
+
+        self.__asyncCmdGen = AsyncCommandGenerator()
+
+        # grab/create MibViewController from/for the real AsyncCommandGen
+        cache = self.__asyncCmdGen._getCmdCache(snmpEngine)
+        self.mibViewController = cache['mibViewController']
+
+    def __del__(self):
+        self.__asyncCmdGen.uncfgCmdGen(self.snmpEngine)
+
+    def cfgCmdGen(self, authData, transportTarget):
+        return self.__asyncCmdGen.cfgCmdGen(
+            self.snmpEngine, authData, transportTarget
+        )
+
+    def uncfgCmdGen(self, authData=None):
+        return self.__asyncCmdGen.uncfgCmdGen(
+            self.snmpEngine, authData
+        )
+
+    # compatibility stub
+    def makeReadVarBinds(self, varNames):
+        return self.makeVarBinds(
+            [ (x, univ.Null('')) for x in varNames ], oidOnly=True
+        )
+
+    def makeVarBinds(self, varBinds, oidOnly=False):
+        return self.__asyncCmdGen.makeVarBinds(
+            self.snmpEngine, varBinds, oidOnly
+        )
+
+    def unmakeVarBinds(self, varBinds, lookupNames, lookupValues):
+        return self.__asyncCmdGen.unmakeVarBinds(
+            self.snmpEngine, varBinds, lookupNames, lookupValues
+        )
+
+    def getCmd(self, authData, transportTarget, varNames, cbInfo,
+               lookupNames=False, lookupValues=False,
+               contextEngineId=None, contextName=null):
 
         # for backward compatibility
         if contextName is null and authData.contextName:
             contextName = authData.contextName
-        
-        (cbFun, cbCtx) = cbInfo
-        addrName, paramsName = self.cfgCmdGen(
-            authData, transportTarget
+
+        return self.__asyncCmdGen.getCmd(
+            self.snmpEngine, authData, transportTarget, varNames, cbInfo,
+            lookupNames, lookupValues, contextEngineId, contextName
         )
-        varBinds = self.makeReadVarBinds(varNames)
-        return cmdgen.BulkCommandGenerator().sendReq(
-            self.snmpEngine,
-            addrName,
-            nonRepeaters, maxRepetitions,
-            varBinds,
-            __cbFun,
-            (lookupNames, lookupValues, cbFun, cbCtx),
-            contextEngineId, contextName
+
+    asyncGetCmd = getCmd
+
+    def setCmd(self, authData, transportTarget, varBinds, cbInfo,
+               lookupNames=False, lookupValues=False,
+               contextEngineId=None, contextName=null):
+
+        # for backward compatibility
+        if contextName is null and authData.contextName:
+            contextName = authData.contextName
+
+        return self.__asyncCmdGen.setCmd(
+            self.snmpEngine, authData, transportTarget, varBinds, cbInfo,
+            lookupNames, lookupValues, contextEngineId, contextName
+        )
+
+    asyncSetCmd = setCmd
+
+    def nextCmd(self, authData, transportTarget, varNames, cbInfo,
+                lookupNames=False, lookupValues=False,
+                contextEngineId=None, contextName=null):
+
+        # for backward compatibility
+        if contextName is null and authData.contextName:
+            contextName = authData.contextName
+
+        return self.__asyncCmdGen.nextCmd(
+            self.snmpEngine, authData, transportTarget, varNames, cbInfo,
+            lookupNames, lookupValues, contextEngineId, contextName
+        )
+
+    asyncNextCmd = nextCmd
+
+    def bulkCmd(self, authData, transportTarget,
+                nonRepeaters, maxRepetitions, varNames, cbInfo,
+                lookupNames=False, lookupValues=False,
+                contextEngineId=None, contextName=null):
+
+        # for backward compatibility
+        if contextName is null and authData.contextName:
+            contextName = authData.contextName
+
+        return self.__asyncCmdGen.bulkCmd(
+            self.snmpEngine, authData, transportTarget,
+            nonRepeaters, maxRepetitions, varNames, cbInfo,
+            lookupNames, lookupValues, contextEngineId, contextName
         )
 
     asyncBulkCmd = bulkCmd
@@ -406,7 +495,7 @@ class CommandGenerator:
         # compatibility attributes
         self.snmpEngine = self.__asynCmdGen.snmpEngine
         self.mibViewController = self.__asynCmdGen.mibViewController
-       
+
     def getCmd(self, authData, transportTarget, *varNames, **kwargs):
         def __cbFun(sendRequestHandle,
                     errorIndication, errorStatus, errorIndex,
@@ -427,7 +516,7 @@ class CommandGenerator:
             kwargs.get('contextEngineId'),
             kwargs.get('contextName', null)
         )
-        self.__asynCmdGen.snmpEngine.transportDispatcher.runDispatcher()
+        self.snmpEngine.transportDispatcher.runDispatcher()
         return (
             appReturn['errorIndication'],
             appReturn['errorStatus'],
@@ -455,7 +544,7 @@ class CommandGenerator:
             kwargs.get('contextEngineId'),
             kwargs.get('contextName', null)
         )
-        self.__asynCmdGen.snmpEngine.transportDispatcher.runDispatcher()
+        self.snmpEngine.transportDispatcher.runDispatcher()
         return (
             appReturn['errorIndication'],
             appReturn['errorStatus'],
@@ -541,9 +630,7 @@ class CommandGenerator:
             lookupNames, lookupValues,
             contextEngineId, contextName
         )
-
-        self.__asynCmdGen.snmpEngine.transportDispatcher.runDispatcher()
-
+        self.snmpEngine.transportDispatcher.runDispatcher()
         return (
             appReturn['errorIndication'],
             appReturn['errorStatus'],
@@ -634,7 +721,7 @@ class CommandGenerator:
             contextEngineId, contextName
         )
 
-        self.__asynCmdGen.snmpEngine.transportDispatcher.runDispatcher()
+        self.snmpEngine.transportDispatcher.runDispatcher()
 
         return (
             appReturn['errorIndication'],

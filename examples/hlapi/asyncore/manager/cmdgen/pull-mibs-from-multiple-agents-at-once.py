@@ -12,6 +12,7 @@
 #   to an Agent at [::1]:161
 # * for multiple MIB subtrees and tables
 #
+from pysnmp.entity import engine
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 
 # List of targets in the followin format:
@@ -71,16 +72,18 @@ def cbFun(sendRequestHandle, errorIndication, errorStatus, errorIndex,
 
     return True # continue table retrieval
 
-cmdGen  = cmdgen.AsynCommandGenerator()
+snmpEngine = engine.SnmpEngine()
+
+cmdGen  = cmdgen.AsyncCommandGenerator()
 
 # Submit initial GETNEXT requests and wait for responses
 for authData, transportTarget, varNames in targets:
-    varBindHead = [ x[0] for x in cmdGen.makeReadVarBinds(varNames) ]
+    varBindHead = cmdGen.makeVarBindsHead(snmpEngine, varNames)
     cmdGen.nextCmd(
-        authData, transportTarget, varNames,
+        snmpEngine, authData, transportTarget, varNames,
         # User-space callback function and its context
         (cbFun, (varBindHead, authData, transportTarget)),
         lookupNames=True, lookupValues=True
     )
 
-cmdGen.snmpEngine.transportDispatcher.runDispatcher()
+snmpEngine.transportDispatcher.runDispatcher()

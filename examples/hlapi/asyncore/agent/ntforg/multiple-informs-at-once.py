@@ -12,6 +12,8 @@
 # * include managed object information specified as var-bind objects pair
 #
 from pysnmp.entity.rfc3413.oneliner import ntforg
+from pysnmp.entity.rfc3413 import context
+from pysnmp.entity import engine
 from pysnmp.proto import rfc1902
 
 # List of targets in the followin format:
@@ -25,8 +27,6 @@ targets = (
       ntforg.UdpTransportTarget(('localhost', 162)) )
 )
 
-ntfOrg = ntforg.AsynNotificationOriginator()
-
 def cbFun(sendRequestHandle, errorIndication, 
           errorStatus, errorIndex, varBinds, cbctx):
     if errorIndication:
@@ -39,8 +39,14 @@ def cbFun(sendRequestHandle, errorIndication,
         for name, val in varBinds:
             print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
 
+snmpEngine = engine.SnmpEngine()
+
+ntfOrg = ntforg.AsyncNotificationOriginator()
+
 for authData, transportTarget in targets:
     sendPduHandle = ntfOrg.sendNotification(
+        snmpEngine,
+        context.SnmpContext(snmpEngine),
         authData,
         transportTarget,
         'inform',
@@ -50,4 +56,4 @@ for authData, transportTarget in targets:
         cbInfo=(cbFun, None)
     )
 
-ntfOrg.snmpEngine.transportDispatcher.runDispatcher()
+snmpEngine.transportDispatcher.runDispatcher()

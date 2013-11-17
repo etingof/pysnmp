@@ -13,6 +13,7 @@
 # * for instances of SNMPv2-MIB::sysDescr.0 and
 #   SNMPv2-MIB::sysLocation.0 MIB objects
 #
+from pysnmp.entity import engine
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 
 # List of targets in the followin format:
@@ -70,15 +71,17 @@ def cbFun(sendRequestHandle, errorIndication, errorStatus, errorIndex,
         else:
             print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
 
-cmdGen  = cmdgen.AsynCommandGenerator()
+snmpEngine = engine.SnmpEngine()
+
+cmdGen  = cmdgen.AsyncCommandGenerator()
 
 # Submit GET requests
 for authData, transportTarget, varNames in targets:
     cmdGen.getCmd(
-        authData, transportTarget, varNames,
+        snmpEngine, authData, transportTarget, varNames,
         # User-space callback function and its context
         (cbFun, (authData, transportTarget)),
         lookupNames=True, lookupValues=True
     )
 
-cmdGen.snmpEngine.transportDispatcher.runDispatcher()
+snmpEngine.transportDispatcher.runDispatcher()

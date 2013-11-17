@@ -4,13 +4,22 @@ Revision 4.2.6rc0
 - Execution Observer facility implemented to give app an inside view
   of SNMP engine inner workings. This is thought to be a generic
   framework for viewing (and modifying) various internal states
-  of pysnmp engine. Previously introduced non-RFC APIs (like
-  getting peer's transport endpoint) will be gradually migrated to
-  this new framework.
+  of pysnmp engine. Previously introduced non-standard APIs (like
+  getting peer's transport endpoint which is not suggested in RFCs)
+  will be gradually migrated to this new framework.
 - Internal oneliner apps configuration cache moved from respective
   apps objects to [a singular] snmpEngine object. That would allow
   for better cache reuse and allow for a single app working with
   many snmpEngine instances.
+- Legacy interfaces and APIs dropped in new oneliner AsyncCommandGenerator
+  and AsyncNotificationOriginator classes (notice 'c' in Async). Original
+  AsynCommandGenerator and AsynNotificationOriginator implementations
+  rebuilt on top of these new optimized versions keeping all the legacy
+  for compatibility reasons. These classes no more keep references to 
+  SnmpEngine what makes them reusable with many SnmpEngine class instances.
+- Example on a single Transport Dispatcher use with multiple SnmpEngine's
+  in oneliner AsyncCommandGenerator & AsyncNotificationOriginator basaed
+  applicatons added.
 - Memory leak fixed in CommandForwarder examples.
 - Fix to CommandGenerator to make sendRequestHandle persistent across
   multiple iterations of GETNEXT/GETBULK queries.

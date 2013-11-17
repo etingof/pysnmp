@@ -323,6 +323,14 @@ def addTransport(snmpEngine, transportDomain, transport):
     if 'automaticTransportDispatcher' in snmpEngine.cache:
         snmpEngine.cache['automaticTransportDispatcher'] += 1
 
+def getTransport(snmpEngine, transportDomain):
+    if not snmpEngine.transportDispatcher:
+        return
+    try:
+        return snmpEngine.transportDispatcher.getTransport(transportDomain)
+    except error.PySnmpError:
+        return
+     
 def delTransport(snmpEngine, transportDomain):
     if not snmpEngine.transportDispatcher:
         return

@@ -12,6 +12,8 @@
 # * include managed object information specified as var-bind objects pair
 #
 from pysnmp.entity.rfc3413.oneliner import ntforg
+from pysnmp.entity.rfc3413 import context
+from pysnmp.entity import engine
 from pysnmp.proto import rfc1902
 
 # List of targets in the followin format:
@@ -25,10 +27,14 @@ targets = (
       ntforg.UdpTransportTarget(('localhost', 162)) )
 )
 
-ntfOrg = ntforg.AsynNotificationOriginator()
+snmpEngine = engine.SnmpEngine()
+
+ntfOrg = ntforg.AsyncNotificationOriginator()
 
 for authData, transportTarget in targets:
     ntfOrg.sendNotification(
+        snmpEngine,
+        context.SnmpContext(snmpEngine),
         authData,
         transportTarget,
         'trap',
@@ -37,4 +43,4 @@ for authData, transportTarget in targets:
             rfc1902.OctetString('my name') ), )
     )
 
-ntfOrg.snmpEngine.transportDispatcher.runDispatcher()
+snmpEngine.transportDispatcher.runDispatcher()
