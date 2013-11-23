@@ -590,6 +590,10 @@ class BulkCommandGenerator(BulkCommandGeneratorSingleRun):
             errorIndication, varBinds = getNextVarBinds(
                 v2c.apiBulkPDU.getVarBinds(PDU), varBindTable[-1]
             )
+            nonRepeaters = v2c.apiBulkPDU.getNonRepeaters(PDU) 
+            if nonRepeaters:
+                varBinds = v2c.apiBulkPDU.getVarBinds(PDU)[:nonRepeaters] + \
+                    varBinds[nonRepeaters:]
 
         if not cbFun(sendRequestHandle, errorIndication,
                      v2c.apiBulkPDU.getErrorStatus(rspPDU),
