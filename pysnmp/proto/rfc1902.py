@@ -107,14 +107,15 @@ class Counter64(univ.Integer):
 class Bits(univ.OctetString):
     namedValues = namedval.NamedValues()
     def __init__(self, value=None, tagSet=None, subtypeSpec=None,
+                 encoding=None, binValue=None, hexValue=None,
                  namedValues=None):
         if namedValues is None:
             self.__namedValues = self.namedValues
         else:
             self.__namedValues = namedValues
         univ.OctetString.__init__(
-            self, value, tagSet, subtypeSpec
-            )
+            self, value, tagSet, subtypeSpec, encoding, binValue, hexValue
+        )
 
     def prettyIn(self, bits):
         if not isinstance(bits, (tuple, list)):
@@ -143,9 +144,7 @@ class Bits(univ.OctetString):
                 if v & (0x01<<j):
                     name = self.__namedValues.getName(i*8+7-j)
                     if name is None:
-                        raise error.ProtocolError(
-                            'Unknown named value %s' % v
-                            )
+                        name = 'UnknownBit-%s' % (i*8+7-j,)
                     names.append(name)
                 j = j - 1
             i = i + 1

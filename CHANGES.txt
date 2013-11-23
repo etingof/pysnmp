@@ -18,8 +18,10 @@ Revision 4.2.6rc0
   for compatibility reasons. These classes no more keep references to 
   SnmpEngine what makes them reusable with many SnmpEngine class instances.
 - Example on a single Transport Dispatcher use with multiple SnmpEngine's
-  in oneliner AsyncCommandGenerator & AsyncNotificationOriginator basaed
+  in oneliner AsyncCommandGenerator & AsyncNotificationOriginator based
   applicatons added.
+- Fix to rfc1902.Bits type to make it accepting hex and binary initializers,
+  cope with missing bits identifieirs at prettyPrint().
 - Memory leak fixed in CommandForwarder examples.
 - Fix to CommandGenerator to make sendRequestHandle persistent across
   multiple iterations of GETNEXT/GETBULK queries.
