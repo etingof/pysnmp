@@ -13,10 +13,10 @@
 # individual request timeout in seconds) can be set on a per-target basis
 # as explained by the code that follows.
 #
-# Keep in mind that while timeout value can be specified in fraction of a
-# second, default pysnmp timer resolution is quite low (tenth of a second)
-# so there's no much point in using timeouts below 0.5. Internal timer
-# can be programmatically adjusted to finer resolution if needed.
+# Keep in mind that while timeout value can be specified in fractions of a
+# second, default pysnmp timer resolution is quite low (about 0.5 sec)
+# so there's no much point in using timeouts which is not a multiple of 0.5
+# Internal timer can be programmatically adjusted to finer resolution if needed.
 #
 # If retries value is set to 0, pysnmp will issue a single request. Even
 # if no response arrives, there will be no retry. Likewise, retries=1
