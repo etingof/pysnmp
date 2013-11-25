@@ -20,6 +20,7 @@ Revision 4.2.6rc0
 - Example on a single Transport Dispatcher use with multiple SnmpEngine's
   in oneliner AsyncCommandGenerator & AsyncNotificationOriginator based
   applicatons added.
+- Example script on transport timeout & retries manipulation added.
 - Some more examples on MIB lookup and use at oneliner CommandGenerator added.
 - Fix to rfc1902.Bits type to make it accepting hex and binary initializers,
   cope with missing bits identifieirs at prettyPrint().

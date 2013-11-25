@@ -1,0 +1,47 @@
+#
+# Command Generator
+#
+# Send SNMP GET request using the following options:
+#
+# * with SNMPv2c, community 'public'
+# * over IPv4/UDP
+# * to an Agent at demo.snmplabs.com:161
+# * for an OID in string form 
+# * use custom timeout and request retries values
+#
+# Transport timing settings (maximum number of request retries and 
+# individual request timeout in seconds) can be set on a per-target basis
+# as explained by the code that follows.
+#
+# Keep in mind that while timeout value can be specified in fraction of a
+# second, default pysnmp timer resolution is quite low (tenth of a second)
+# so there's no much point in using timeouts below 0.5. Internal timer
+# can be programmatically adjusted to finer resolution if needed.
+#
+# If retries value is set to 0, pysnmp will issue a single request. Even
+# if no response arrives, there will be no retry. Likewise, retries=1
+# means one initial request plus one retry.
+#
+from pysnmp.entity.rfc3413.oneliner import cmdgen
+
+cmdGen = cmdgen.CommandGenerator()
+
+errorIndication, errorStatus, errorIndex, varBinds = cmdGen.getCmd(
+    cmdgen.CommunityData('public'),
+    cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161),timeout=1.5,retries=0),
+    '1.3.6.1.2.1.1.1.0',
+)
+
+# Check for errors and print out results
+if errorIndication:
+    print(errorIndication)
+else:
+    if errorStatus:
+        print('%s at %s' % (
+            errorStatus.prettyPrint(),
+            errorIndex and varBinds[int(errorIndex)-1][0] or '?'
+            )
+        )
+    else:
+        for name, val in varBinds:
+            print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
