@@ -28,14 +28,23 @@ class DgramSocketTransport(AbstractSocketTransport):
             try:
                 self.socket.bind(iface)
             except socket.error:
-                raise error.CarrierError('bind() for %s failed: %s' % (iface is None and "<all local>" or iface, sys.exc_info()[1],))
+                raise error.CarrierError('bind() for %s failed: %s' % (iface is None and "<all local>" or iface, sys.exc_info()[1]))
         return self
-    
+
     def openServerMode(self, iface):
         try:
             self.socket.bind(iface)
         except socket.error:
             raise error.CarrierError('bind() for %s failed: %s' % (iface, sys.exc_info()[1],))
+        return self
+
+    def enableBroadcast(self, flag=True):
+        try:
+            self.socket.setsockopt(
+                socket.SOL_SOCKET, socket.SO_BROADCAST, flag
+            )
+        except socket.error:
+            raise error.CarrierError('setsockopt() for SO_BROADCAST failed: %s' % (sys.exc_info()[1],))
         return self
 
     def sendMessage(self, outgoingMessage, transportAddress):

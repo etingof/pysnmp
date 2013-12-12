@@ -151,14 +151,14 @@ class AbstractTransportDispatcher:
         for timerCallable in self.__timerCallables:
             timerCallable(timeNow)
 
-    def jobStarted(self, jobId):
+    def jobStarted(self, jobId, count=1):
         if jobId in self.__jobs:
-            self.__jobs[jobId] = self.__jobs[jobId] + 1
+            self.__jobs[jobId] += count
         else:
-            self.__jobs[jobId] = 1
+            self.__jobs[jobId] = count
 
-    def jobFinished(self, jobId):
-        self.__jobs[jobId] = self.__jobs[jobId] - 1
+    def jobFinished(self, jobId, count=1):
+        self.__jobs[jobId] -= count
         if self.__jobs[jobId] == 0:
             del self.__jobs[jobId]
 

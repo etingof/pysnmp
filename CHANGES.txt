@@ -22,6 +22,11 @@ Revision 4.2.6rc0
   applicatons added.
 - Example script on transport timeout & retries manipulation added.
 - Some more examples on MIB lookup and use at oneliner CommandGenerator added.
+- Broadcast socket option can now be enabled with the .enableBroadcast()
+  call for any datagram-based transport (namely, UDP and UDP6).
+- AbstractTransportDispatcher's jobStarted() and jobFinished() methods
+  now accept optional 'count' parameter which is a way for an app to indicate
+  how many responses are expected or have been processed in bulk.
 - Fix to rfc1902.Bits type to make it accepting hex and binary initializers,
   cope with missing bits identifieirs at prettyPrint().
 - Memory leak fixed in CommandForwarder examples.
