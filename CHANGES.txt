@@ -28,6 +28,8 @@ Revision 4.2.6rc0
   now accept optional 'count' parameter which is a way for an app to indicate
   how many responses are expected or have been processed in bulk.
 - Example script on SNMP Agents UDP broadcast-based discovery added.
+- Oneliner transport object now supports setLocalAddress() method to
+  force socket binding to specified local interface.
 - Fix to rfc1902.Bits type to make it accepting hex and binary initializers,
   cope with missing bits identifieirs at prettyPrint().
 - Memory leak fixed in CommandForwarder examples.

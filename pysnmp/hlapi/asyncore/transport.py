@@ -11,6 +11,7 @@ class _AbstractTransportTarget:
         self.timeout = timeout
         self.retries = retries
         self.tagList = tagList
+        self.iface = None
 
     def __repr__(self): 
         return '%s(%r, timeout=%r, retries=%r, tagList=%r)' % (
@@ -21,8 +22,12 @@ class _AbstractTransportTarget:
     def getTransportInfo(self):
         return self.transportDomain, self.transportAddr
 
+    def setLocalAddress(self, iface):
+        self.iface = iface
+        return self
+
     def openClientMode(self):
-        self.transport = self.protoTransport().openClientMode()
+        self.transport = self.protoTransport().openClientMode(self.iface)
         return self.transport
 
     def verifyDispatcherCompatibility(self, snmpEngine):
