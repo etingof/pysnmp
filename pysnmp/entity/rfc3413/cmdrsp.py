@@ -18,13 +18,13 @@ class CommandResponderBase:
         self.__pendingReqs = {}
 
     def handleMgmtOperation(
-        self, snmpEngine, stateReference, contextName, PDU, acInfo
+            self, snmpEngine, stateReference, contextName, PDU, acInfo
         ): pass
         
     def close(self, snmpEngine):
         snmpEngine.msgAndPduDsp.unregisterContextEngineId(
             self.snmpContext.contextEngineId, self.pduTypes
-            )
+        )
         self.snmpContext = self.__pendingReqs = None
 
     def sendRsp(self, snmpEngine, stateReference,
@@ -129,11 +129,6 @@ class CommandResponderBase:
             statusInformation
             )
 
-        acCtx = (
-            snmpEngine, securityModel, securityName, securityLevel,
-            contextName, PDU.getTagSet()
-            )
-
         # 3.2.5
         varBinds = v2c.apiPDU.getVarBinds(PDU)
         errorStatus, errorIndex = 'noError', 0
@@ -143,8 +138,8 @@ class CommandResponderBase:
         try:
             self.handleMgmtOperation(
                 snmpEngine, stateReference,
-                contextName, PDU, (self.__verifyAccess, acCtx)
-                )
+                contextName, PDU, (self.__verifyAccess, snmpEngine)
+            )
         # SNMPv2 SMI exceptions
         except pysnmp.smi.error.GenError:
             errorIndication = sys.exc_info()[1]
@@ -192,8 +187,19 @@ class CommandResponderBase:
         self.releaseStateInformation(stateReference)
         
     def __verifyAccess(self, name, syntax, idx, viewType, acCtx):
-        (snmpEngine, securityModel, securityName, securityLevel,
-         contextName, pduType) = acCtx
+        snmpEngine = acCtx
+        execCtx = snmpEngine.observer.getExecutionContext(
+                        'rfc3412.receiveMessage:request'
+        )
+        ( securityModel,
+          securityName,
+          securityLevel,
+          contextName,
+          pduType )  = ( execCtx['securityModel'],
+                         execCtx['securityName'],
+                         execCtx['securityLevel'],
+                         execCtx['contextName'],
+                         execCtx['pdu'].getTagSet() )
         try:
             snmpEngine.accessControlModel[self.acmID].isAccessAllowed(
                 snmpEngine, securityModel, securityName,
