@@ -32,6 +32,9 @@ Revision 4.2.6rc0
   force socket binding to specified local interface.
 - New public DgramSocketTransport.getLocalAddress() returns local endpoint
   address underlying BSD socket is currently bound to.
+- Passing request details to access control callback at CommandResponder
+  reworked towards more robust and simple design with the execution observer
+  facility.
 - Fix to rfc1902.Bits type to make it accepting hex and binary initializers,
   cope with missing bits identifieirs at prettyPrint().
 - Memory leak fixed in CommandForwarder examples.
