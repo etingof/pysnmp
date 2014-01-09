@@ -1,6 +1,8 @@
 Revision 4.2.6rc0
 -----------------
 
+- Critical error fixed in key localization procedure for AES192/AES256/3DES
+  cyphers. Previous versions might never worked properly in this respect.
 - Execution Observer facility implemented to give app an inside view
   of SNMP engine inner workings. This is thought to be a generic
   framework for viewing (and modifying) various internal states

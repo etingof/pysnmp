@@ -7,6 +7,14 @@ from pysnmp.proto.secmod.rfc3414 import localkey
 from pysnmp.proto import errind, error
 from pyasn1.type import univ
 from pyasn1.compat.octets import null
+from math import ceil
+
+try:
+    from hashlib import md5, sha1
+except ImportError:
+    import md5, sha
+    md5 = md5.new
+    sha1 = sha.new
 
 try:
     from Crypto.Cipher import DES3
@@ -19,6 +27,7 @@ random.seed()
 
 class Des3(base.AbstractEncryptionService):
     serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 3) # usm3DESEDEPrivProtocol
+    keySize = 32
     _localInt = random.randrange(0, 0xffffffff)
 
     def hashPassphrase(self, authProtocol, privKey):
@@ -34,19 +43,17 @@ class Des3(base.AbstractEncryptionService):
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
         if authProtocol == hmacmd5.HmacMd5.serviceID:
             localPrivKey = localkey.localizeKeyMD5(privKey, snmpEngineID)
-            localPrivKey = localPrivKey + localkey.localizeKeyMD5(
-                localPrivKey, snmpEngineID
-                )
+            while ceil(self.keySize/len(localPrivKey)):
+                localPrivKey = localPrivKey + md5(localPrivKey).digest()
         elif authProtocol == hmacsha.HmacSha.serviceID:
             localPrivKey = localkey.localizeKeySHA(privKey, snmpEngineID)
-            localPrivKey = localPrivKey + localkey.localizeKeySHA(
-                localPrivKey, snmpEngineID
-                )
+            while ceil(self.keySize/len(localPrivKey)):
+                localPrivKey = localPrivKey + sha1(localPrivKey).digest()
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
                 )
-        return localPrivKey[:32] # key+IV
+        return localPrivKey[:self.keySize] # key+IV
         
     # 5.1.1.1
     def __getEncryptionKey(self, privKey, snmpEngineBoots):
