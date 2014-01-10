@@ -20,11 +20,11 @@ class AbstractAes(aes.Aes):
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
         if authProtocol == hmacmd5.HmacMd5.serviceID:
             localPrivKey = localkey.localizeKeyMD5(privKey, snmpEngineID)
-            while ceil(self.keySize/len(localPrivKey)):
+            while ceil(self.keySize//len(localPrivKey)):
                 localPrivKey = localPrivKey + md5(localPrivKey).digest()
         elif authProtocol == hmacsha.HmacSha.serviceID:
             localPrivKey = localkey.localizeKeySHA(privKey, snmpEngineID)
-            while ceil(self.keySize/len(localPrivKey)):
+            while ceil(self.keySize//len(localPrivKey)):
                 localPrivKey = localPrivKey + sha1(localPrivKey).digest()
         else:
             raise error.ProtocolError(
