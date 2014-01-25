@@ -23,7 +23,7 @@ Revision 4.2.6rc0
   in oneliner AsyncCommandGenerator & AsyncNotificationOriginator based
   applicatons added.
 - Example script on transport timeout & retries manipulation added.
-- Example script explaining incoming message's communityName re-writing added.
+- Example script explaining incoming message's communityName re-mapping added.
 - Some more examples on MIB lookup and use at oneliner CommandGenerator added.
 - Broadcast socket option can now be enabled with the .enableBroadcast()
   call for any datagram-based transport (namely, UDP and UDP6).
