@@ -385,9 +385,20 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         # rfc2576: 5.2.1
         ( communityName, transportInformation ) = securityParameters
 
+        scope = dict(communityName=communityName, 
+                     transportInformation=transportInformation)
+
+        snmpEngine.observer.storeExecutionContext(
+            snmpEngine,
+            'rfc2576.processIncomingMsg:writable',
+            scope
+        )
+
         try:
             securityName, contextEngineId, contextName = self._com2sec(
-                snmpEngine, communityName, transportInformation
+                snmpEngine,
+                scope.get('communityName', communityName),
+                scope.get('transportInformation', transportInformation)
             )
         except error.StatusInformation:
             snmpInBadCommunityNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInBadCommunityNames')
@@ -404,12 +415,12 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
 
         stateReference = self._cache.push(
             communityName=communityName
-            )
+        )
         
         scopedPDU = (
             contextEngineId, contextName,
             msg.getComponentByPosition(2).getComponent()
-            )
+        )
         maxSizeResponseScopedPDU = maxMessageSize - 128
         securityStateReference = stateReference
 
