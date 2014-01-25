@@ -6,19 +6,21 @@
 #
 # * SNMPv2c
 # * with SNMP community "public"
-# * serving custom Managed Objects Table Instances defined within this script
-# * allow read access only to the subtree where the custom MIB objects resides
+# * define a simple SNMP Table within a newly created EXAMPLE-MIB
+# * pre-populate SNMP Table with a single row of values
+# * allow read access only to the subtree where example SNMP Table resides
 # * over IPv4/UDP, listening at 127.0.0.1:161
+# 
 # 
 # The following Net-SNMP's commands will populate and walk a table:
 #
-# $ snmpset -v2c -c public 127.0.0.1 1.3.6.6.1.5.2.1 s 'my value'
-# $ snmpset -v2c -c public 127.0.0.1 1.3.6.6.1.5.3.1 i 4
+# $ snmpset -v2c -c public 127.0.0.1 1.3.6.6.1.5.1.2.97.98.99 s 'my value'
+# $ snmpset -v2c -c public 127.0.0.1 1.3.6.6.1.5.1.4.97.98.99 i 4
 # $ snmpwalk -v2c -c public 127.0.0.1 1.3.6
 #
 # ...while the following command will destroy the same row
 # 
-# $ snmpset -v2c -c public 127.0.0.1 1.3.6.6.1.5.3.1 i 6
+# $ snmpset -v2c -c public 127.0.0.1 1.3.6.6.1.5.1.4.97.98.99 i 6
 # $ snmpwalk -v2c -c public 127.0.0.1 1.3.6
 #
 from pysnmp.entity import engine, config
@@ -49,7 +51,7 @@ config.addVacmUser(snmpEngine, 2, 'my-area', 'noAuthNoPriv', (1,3,6,6), (1,3,6,6
 # Create an SNMP context
 snmpContext = context.SnmpContext(snmpEngine)
 
-# --- create custom Managed Objects Table Instance ---
+# --- define custom SNMP Table within a newly defined EXAMPLE-MIB ---
 
 mibBuilder = snmpContext.getMibInstrum().getMibBuilder()
 
@@ -67,20 +69,44 @@ mibBuilder = snmpContext.getMibInstrum().getMibBuilder()
 RowStatus, = mibBuilder.importSymbols('SNMPv2-TC', 'RowStatus')
 
 mibBuilder.exportSymbols(
-  '__MY_MIB',
+  '__EXAMPLE-MIB',
   # table object
-  MibTable((1,3,6,6,1)).setMaxAccess('readcreate'),
+  exampleTable=MibTable((1,3,6,6,1)).setMaxAccess('readcreate'),
   # table row object, also carries references to table indices
-  MibTableRow((1,3,6,6,1,5)).setMaxAccess('readcreate').setIndexNames((0, '__MY_MIB', 'myTableIndex')),
-  # table column: value
-  MibTableColumn((1,3,6,6,1,5,2), v2c.OctetString()).setMaxAccess('readcreate'),
+  exampleTableEntry=MibTableRow((1,3,6,6,1,5)).setMaxAccess('readcreate').setIndexNames((0, '__EXAMPLE-MIB', 'exampleTableColumn1')),
+  # table column: string index
+  exampleTableColumn1=MibTableColumn((1,3,6,6,1,5,1), v2c.OctetString()).setMaxAccess('readcreate'),
+  # table column: string value
+  exampleTableColumn2=MibTableColumn((1,3,6,6,1,5,2), v2c.OctetString()).setMaxAccess('readcreate'),
+  # table column: integer value with default
+  exampleTableColumn3=MibTableColumn((1,3,6,6,1,5,3), v2c.Integer32(123)).setMaxAccess('readcreate'),
   # table column: row status
-  MibTableColumn((1,3,6,6,1,5,3), RowStatus()).setMaxAccess('readcreate'),
-  # table column: index, needs to be named to refer to as index column
-  myTableIndex=MibTableColumn((1,3,6,6,1,5,1), v2c.Integer()).setMaxAccess('readcreate')
+  exampleTableStatus=MibTableColumn((1,3,6,6,1,5,4), RowStatus()).setMaxAccess('readcreate')
 )
 
-# --- end of Managed Object Instance initialization ----
+# --- end of custom SNMP table definition, empty table now exists ---
+
+# --- populate custom SNMP table with one row ---
+
+( exampleTableEntry,
+  exampleTableColumn2,
+  exampleTableColumn3,
+  exampleTableStatus ) = mibBuilder.importSymbols(
+    '__EXAMPLE-MIB',
+    'exampleTableEntry',
+    'exampleTableColumn2',
+    'exampleTableColumn3',
+    'exampleTableStatus'
+)
+rowInstanceId = exampleTableEntry.getInstIdFromIndices('example record one')
+mibInstrumentation = snmpContext.getMibInstrum()
+mibInstrumentation.writeVars(
+    (  (exampleTableColumn2.name+rowInstanceId, 'my string value'),
+       (exampleTableColumn3.name+rowInstanceId, 123456),
+       (exampleTableStatus.name+rowInstanceId, 'createAndGo') )
+)
+
+# --- end of SNMP table population ---
 
 # Register SNMP Applications at the SNMP engine for particular SNMP context
 cmdrsp.GetCommandResponder(snmpEngine, snmpContext)
