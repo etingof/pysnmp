@@ -31,6 +31,18 @@ class OctetString(univ.OctetString):
     def getFixedLength(self):
         return self.fixedLength
 
+    def clone(self, value=None, tagSet=None, subtypeSpec=None,
+              encoding=None, binValue=None, hexValue=None):
+        return univ.OctetString.clone(
+            self, value, tagSet, subtypeSpec, encoding, binValue, hexValue
+        ).setFixedLength(self.getFixedLength())
+
+    def subtype(self, value=None, implicitTag=None, explicitTag=None,
+                      subtypeSpec=None):
+        return univ.OctetString.subtype(
+            self, value, implicitTag, explicitTag, subtypeSpec
+        ).setFixedLength(self.getFixedLength())
+
 class IpAddress(univ.OctetString):
     tagSet = univ.OctetString.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x00)
