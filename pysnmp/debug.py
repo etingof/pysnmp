@@ -32,7 +32,7 @@ flagMap = {
     }
 
 class Debug:
-    defaultPrinter = sys.stderr.write
+    defaultPrinter = sys.stderr and sys.stderr.write or None
     def __init__(self, *flags):
         self._flags = flagNone
         if not self.defaultPrinter:
