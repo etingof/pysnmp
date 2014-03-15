@@ -43,11 +43,11 @@ class OctetString(univ.OctetString):
             self, value, implicitTag, explicitTag, subtypeSpec
         ).setFixedLength(self.getFixedLength())
 
-class IpAddress(univ.OctetString):
-    tagSet = univ.OctetString.tagSet.tagImplicitly(
+class IpAddress(OctetString):
+    tagSet = OctetString.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x00)
         )
-    subtypeSpec = univ.OctetString.subtypeSpec+constraint.ValueSizeConstraint(
+    subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(
         4, 4
         )
     fixedLength = 4
@@ -58,7 +58,7 @@ class IpAddress(univ.OctetString):
                 value = [ int(x) for x in value.split('.') ]
             except:
                 raise error.ProtocolError('Bad IP address syntax %s' %  value)
-        value = univ.OctetString.prettyIn(self, value)
+        value = OctetString.prettyIn(self, value)
         if len(value) != 4:
             raise error.ProtocolError('Bad IP address syntax')
         return value
@@ -116,7 +116,7 @@ class Counter64(univ.Integer):
         0, 18446744073709551615
         )
 
-class Bits(univ.OctetString):
+class Bits(OctetString):
     namedValues = namedval.NamedValues()
     def __init__(self, value=None, tagSet=None, subtypeSpec=None,
                  encoding=None, binValue=None, hexValue=None,
@@ -125,13 +125,13 @@ class Bits(univ.OctetString):
             self.__namedValues = self.namedValues
         else:
             self.__namedValues = namedValues
-        univ.OctetString.__init__(
+        OctetString.__init__(
             self, value, tagSet, subtypeSpec, encoding, binValue, hexValue
         )
 
     def prettyIn(self, bits):
         if not isinstance(bits, (tuple, list)):
-            return univ.OctetString.prettyIn(self, bits) # raw bitstring
+            return OctetString.prettyIn(self, bits) # raw bitstring
         octets = []
         for bit in bits: # tuple of named bits
             v = self.__namedValues.getValue(bit)
@@ -143,7 +143,7 @@ class Bits(univ.OctetString):
             if d >= len(octets):
                 octets.extend([0] * (d - len(octets) + 1))
             octets[d] = octets[d] | 0x01 << (7-m)
-        return univ.OctetString.prettyIn(self, octets)
+        return OctetString.prettyIn(self, octets)
 
     def prettyOut(self, value):
         names = []
