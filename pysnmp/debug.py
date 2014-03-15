@@ -35,10 +35,9 @@ class Debug:
     defaultPrinter = sys.stderr.write
     def __init__(self, *flags):
         self._flags = flagNone
-        if self.defaultPrinter:
-            self._printer = self.defaultPrinter
-        else:
-            self._printer = lambda x: None  # stderr may not be available
+        if not self.defaultPrinter:
+            raise error.PySnmpError('Null debug writer specified')
+        self._printer = self.defaultPrinter
         self('running pysnmp version %s' % __version__)
         for f in flags:
             inverse = f and f[0] in ('!', '~')
