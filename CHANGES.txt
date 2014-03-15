@@ -54,6 +54,9 @@ Revision 4.2.6rc0
   on clone()'ing and subtype()'ing.
 - Fix to rfc1902.OctetString & Bits to base them on OctetString class to
   make the 'fixed length' property working.
+- Fix to .clone() method of rfc1902.Bits class to make its signature
+  matching the rest of classes. This may broke code which used to pass
+  namedValue parameter positionally rather than binding it by name.
 
 Revision 4.2.5
 --------------

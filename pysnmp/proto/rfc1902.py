@@ -38,7 +38,7 @@ class OctetString(univ.OctetString):
         ).setFixedLength(self.getFixedLength())
 
     def subtype(self, value=None, implicitTag=None, explicitTag=None,
-                      subtypeSpec=None):
+                subtypeSpec=None):
         return univ.OctetString.subtype(
             self, value, implicitTag, explicitTag, subtypeSpec
         ).setFixedLength(self.getFixedLength())
@@ -163,6 +163,7 @@ class Bits(OctetString):
         return ', '.join([ str(x) for x in names ])
 
     def clone(self, value=None, tagSet=None, subtypeSpec=None,
+              encoding=None, binValue=None, hexValue=None,
               namedValues=None):
         if value is None and tagSet is None and subtypeSpec is None \
                and namedValues is None:
@@ -175,7 +176,8 @@ class Bits(OctetString):
             subtypeSpec = self._subtypeSpec
         if namedValues is None:
             namedValues = self.__namedValues
-        return self.__class__(value, tagSet, subtypeSpec, namedValues)
+        return self.__class__(value, tagSet, subtypeSpec, encoding, 
+                              binValue, hexValue, namedValues)
 
     def subtype(self, value=None, implicitTag=None, explicitTag=None,
                 subtypeSpec=None, namedValues=None):
@@ -195,7 +197,8 @@ class Bits(OctetString):
             namedValues = self.__namedValues
         else:
             namedValues = namedValues + self.__namedValues
-        return self.__class__(value, tagSet, subtypeSpec, namedValues)
+        return self.__class__(value, tagSet, subtypeSpec,
+                              namedValues=namedValues)
 
 class ObjectName(univ.ObjectIdentifier): pass
 
