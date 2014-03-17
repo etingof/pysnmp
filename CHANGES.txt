@@ -57,6 +57,8 @@ Revision 4.2.6rc0
 - Fix to .clone() method of rfc1902.Bits class to make its signature
   matching the rest of classes. This may broke code which used to pass
   namedValue parameter positionally rather than binding it by name.
+- Fix to PDU translation service (proto.proxy.rfc2576) to make it
+  initializing errorIndex & errorStatus components of the resulting PDU.
 
 Revision 4.2.5
 --------------

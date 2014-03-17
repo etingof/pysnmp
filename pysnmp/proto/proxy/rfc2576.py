@@ -159,6 +159,10 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
 
         # 4.1.2.1 --> no-op
 
+    elif pduType in rfc3411.confirmedClassPDUs:
+        v2c.apiPDU.setErrorStatus(v2Pdu, 0)
+        v2c.apiPDU.setErrorIndex(v2Pdu, 0)
+
     if pduType not in rfc3411.notificationClassPDUs:
         v2c.apiPDU.setRequestID(v2Pdu, int(v1.apiPDU.getRequestID(v1Pdu)))
 
@@ -273,7 +277,11 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
                 v1Pdu, __v2ToV1ErrorMap[v2ErrorStatus]
                 )
             v1.apiPDU.setErrorIndex(v1Pdu, v2c.apiPDU.getErrorIndex(v2Pdu, muteErrors=True))
-            
+
+    elif pduType in rfc3411.confirmedClassPDUs:
+        v1.apiPDU.setErrorStatus(v1Pdu, 0)
+        v1.apiPDU.setErrorIndex(v1Pdu, 0)
+
     # Translate Var-Binds
     if pduType in rfc3411.responseClassPDUs and \
            v1.apiPDU.getErrorStatus(v1Pdu):
