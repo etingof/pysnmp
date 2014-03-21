@@ -9,7 +9,7 @@ from pysnmp.smi.error import NoSuchInstanceError
 from pysnmp.proto import rfc1155, errind, error
 from pysnmp import debug
 from pyasn1.type import univ, namedtype, constraint
-from pyasn1.codec.ber import encoder, decoder
+from pyasn1.codec.ber import encoder, decoder, eoo
 from pyasn1.error import PyAsn1Error
 from pyasn1.compat.octets import null
     
@@ -612,9 +612,14 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             snmpInASNParseErrs.syntax = snmpInASNParseErrs.syntax + 1
             raise error.StatusInformation(
                 errorIndication=errind.parseError
-                )
+            )
 
         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: %s' % (securityParameters.prettyPrint(),))
+
+        if eoo.endOfOctets.isSameTypeWith(securityParameters):
+            raise error.StatusInformation(
+                errorIndication=errind.parseError
+            )
 
         # 3.2.2
         msgAuthoritativeEngineID = securityParameters.getComponentByPosition(0)

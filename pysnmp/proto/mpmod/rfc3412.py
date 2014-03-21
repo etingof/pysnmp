@@ -3,7 +3,7 @@ import sys
 from pysnmp.proto.mpmod.base import AbstractMessageProcessingModel
 from pysnmp.proto import rfc1905, rfc3411, api, errind, error
 from pyasn1.type import univ, namedtype, constraint
-from pyasn1.codec.ber import decoder
+from pyasn1.codec.ber import decoder, eoo
 from pyasn1.error import PyAsn1Error
 from pysnmp import debug
 
@@ -511,6 +511,11 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                 )
 
         debug.logger & debug.flagMP and debug.logger('prepareDataElements: %s' % (msg.prettyPrint(),))
+
+        if eoo.endOfOctets.isSameTypeWith(msg):
+            raise error.StatusInformation(
+                errorIndication=errind.parseError
+            )
 
         # 7.2.3
         headerData = msg.getComponentByPosition(1)
