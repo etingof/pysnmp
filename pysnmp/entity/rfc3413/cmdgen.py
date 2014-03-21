@@ -35,7 +35,6 @@ class CommandGeneratorBase:
     _null = univ.Null('')
     def __init__(self):
         self.__pendingReqs = {}
-        self.__SnmpEngineID, self.__SnmpAdminString = None, None
             
     def processResponsePdu(
         self,
@@ -191,13 +190,12 @@ class CommandGeneratorBase:
         # Convert timeout in seconds into timeout in timer ticks
         timeoutInTicks = float(timeout)/100/snmpEngine.transportDispatcher.getTimerResolution()
 
-        if not self.__SnmpEngineID or not self.__SnmpAdminString:
-            self.__SnmpEngineID, self.__SnmpAdminString = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'SnmpEngineID', 'SnmpAdminString')
+        SnmpEngineID, SnmpAdminString = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'SnmpEngineID', 'SnmpAdminString')
 
         # Cast possible strings into bytes
         if contextEngineId:
-            contextEngineId = self.__SnmpEngineID(contextEngineId)
-        contextName = self.__SnmpAdminString(contextName)
+            contextEngineId = SnmpEngineID(contextEngineId)
+        contextName = SnmpAdminString(contextName)
 
         origPDU = reqPDU
 

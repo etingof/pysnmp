@@ -40,6 +40,8 @@ Revision 4.2.6rc0
   facility.
 - MIB instrumentation example improved to cover table index building facility.
 - Handle the case of null writer at Debug printer.
+- Do not cache snmpEngineId & snmpAdminString at CommandGenerator to let it
+  be reused with many different snmpEngines.
 - Multiple fixes to verify pyasn1 decoder.decode() return to withstand
   broken SNMP messages or its components.
 - Fix to rfc1902.Bits type to make it accepting hex and binary initializers,
