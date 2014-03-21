@@ -962,6 +962,11 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 raise error.StatusInformation(
                     errorIndication = errind.decryptionError
                     )
+
+            if eoo.endOfOctets.isSameTypeWith(scopedPDU):
+                raise error.StatusInformation(
+                    errorIndication=errind.decryptionError
+                )
         else:
             # 3.2.8b
             scopedPDU = scopedPduData.getComponentByPosition(0)
