@@ -62,6 +62,8 @@ Revision 4.2.6rc0
   namedValue parameter positionally rather than binding it by name.
 - Fix to PDU translation service (proto.proxy.rfc2576) to make it
   initializing errorIndex & errorStatus components of the resulting PDU.
+- Fix to MsgAndPduDispatcher.sendPdu() to clean up request queue on 
+  pysnmp-level processing failure.
 
 Revision 4.2.5
 --------------

@@ -159,11 +159,10 @@ class MsgAndPduDispatcher:
                 sendPduHandle
                 )
             debug.logger & debug.flagDsp and debug.logger('sendPdu: MP succeeded')
-        except error.StatusInformation:
+        except PySnmpError:
             if expectResponse:
                 self.__cache.pop(sendPduHandle)
-# XXX is it still needed here?
-#            self.releaseStateInformation(snmpEngine, sendPduHandle, messageProcessingModel)
+                self.releaseStateInformation(snmpEngine, sendPduHandle, messageProcessingModel)
             raise
 
         # 4.1.1.6
