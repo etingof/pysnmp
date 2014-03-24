@@ -68,6 +68,9 @@ Revision 4.2.6rc0
   unique PDU request-id's in both outgoing and incoming confirmed 
   and response PDU types. Duplicate request-id's in unrelated PDUs may
   cause cache errors otherwise.
+- Fix to licensing terms of multiple twisted backend modules to make
+  the whole pysnmp package licensed under BSD 2-Clause license. This
+  change has been explicitly permitted by the original modules authors.
 
 Revision 4.2.5
 --------------
