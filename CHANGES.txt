@@ -64,6 +64,10 @@ Revision 4.2.6rc0
   initializing errorIndex & errorStatus components of the resulting PDU.
 - Fix to MsgAndPduDispatcher.sendPdu() to clean up request queue on 
   pysnmp-level processing failure.
+- Fix to SNMPv1/v2c message processing subsystem to make it serving
+  unique PDU request-id's in both outgoing and incoming confirmed 
+  and response PDU types. Duplicate request-id's in unrelated PDUs may
+  cause cache errors otherwise.
 
 Revision 4.2.5
 --------------

@@ -38,8 +38,11 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         
         # rfc3412: 7.1.1b
         if pdu.tagSet in rfc3411.confirmedClassPDUs:
+            # serve unique PDU request-id
             pdu.setComponentByPosition(1)
-            msgID = pdu.getComponentByPosition(0)
+            msgID = self._cache.newMsgID()
+            reqID = pdu.getComponentByPosition(0)
+            debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: PDU request-id %s replaced with unique ID %s' % (reqID, msgID))            
             
         # rfc3412: 7.1.4
         # Since there's no SNMP engine identification in v1/2c,
@@ -77,10 +80,13 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.1.9.a & rfc2576: 5.2.1 --> no-op
 
         snmpEngineMaxMessageSize, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
+
+        # fix unique request-id right prior PDU serialization
+        if pdu.tagSet in rfc3411.confirmedClassPDUs:
+            pdu.setComponentByPosition(0, msgID)
             
         # rfc3412: 7.1.9.b
-        ( securityParameters,
-          wholeMsg ) = smHandler.generateRequestMsg(
+        ( securityParameters, wholeMsg ) = smHandler.generateRequestMsg(
             snmpEngine,
             self.messageProcessingModelID,
             globalData,
@@ -92,13 +98,17 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             scopedPDU
             )
 
+        # return original request-id right after PDU serialization
+        if pdu.tagSet in rfc3411.confirmedClassPDUs:
+            pdu.setComponentByPosition(0, reqID)
+
         # rfc3412: 7.1.9.c
         if pdu.tagSet in rfc3411.confirmedClassPDUs:
             # XXX rfc bug? why stateReference should be created?
             self._cache.pushByMsgId(
                 int(msgID),
                 sendPduHandle=sendPduHandle,
-                msgID=msgID,
+                reqID=reqID,
                 snmpEngineId=snmpEngineId,
                 securityModel=securityModel,
                 securityName=securityName,
@@ -157,6 +167,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             )
         cachedParams = self._cache.popByStateRef(stateReference)
         msgID = cachedParams['msgID']
+        reqID = cachedParams['reqID']
         contextEngineId = cachedParams['contextEngineId']
         contextName = cachedParams['contextName']
         securityModel = cachedParams['securityModel']
@@ -213,6 +224,9 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                 errorIndication = errind.unsupportedSecurityModel
                 )
 
+        # set original request-id right prior to PDU serialization
+        pdu.setComponentByPosition(0, reqID)
+        
         # rfc3412: 7.1.8.a
         ( securityParameters,
           wholeMsg ) = smHandler.generateResponseMsg(
@@ -228,6 +242,9 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             securityStateReference
             )
 
+        # recover unique request-id right after PDU serialization
+        pdu.setComponentByPosition(0, msgID)
+        
         snmpEngine.observer.storeExecutionContext(
             snmpEngine,
             'rfc2576.prepareResponseMessage',
@@ -333,7 +350,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
         # rfc3412: 7.2.10
         if pduType in rfc3411.responseClassPDUs:
-            # (wild hack: use PDU reqID at MsgID)
+            # get unique PDU request-id
             msgID = pdu.getComponentByPosition(0)
 
             # 7.2.10a
@@ -345,6 +362,9 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                     errorIndication = errind.dataMismatch
                     )
 
+            # recover original PDU request-id to return to app
+            pdu.setComponentByPosition(0, cachedReqParams['reqID'])
+                                       
             # 7.2.10b            
             sendPduHandle = cachedReqParams['sendPduHandle']
         else:
@@ -409,9 +429,12 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
         # rfc3412: 7.2.13
         if pduType in rfc3411.confirmedClassPDUs:
-            # (wild hack: use PDU reqID at MsgID)
-            msgID = pdu.getComponentByPosition(0)
-
+            # store original PDU request-id and replace it with a unique one
+            reqID = pdu.getComponentByPosition(0)
+            msgID = self._cache.newMsgID()
+            pdu.setComponentByPosition(0, msgID)
+            debug.logger & debug.flagMP and debug.logger('prepareDataElements: received PDU request-id %s replaced with unique ID %s' % (reqID, msgID))
+            
             # rfc3412: 7.2.13a
             snmpEngineId, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
             if securityEngineId != snmpEngineId.syntax:
@@ -426,6 +449,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                 stateReference,
                 msgVersion=messageProcessingModel,
                 msgID=msgID,
+                reqID=reqID,
                 contextEngineId=contextEngineId,
                 contextName=contextName,
                 securityModel=securityModel,
