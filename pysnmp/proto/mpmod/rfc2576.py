@@ -364,6 +364,8 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
             # recover original PDU request-id to return to app
             pdu.setComponentByPosition(0, cachedReqParams['reqID'])
+
+            debug.logger & debug.flagMP and debug.logger('prepareDataElements: unique PDU request-id %s replaced with original ID %s' % (msgID, cachedReqParams['reqID']))
                                        
             # 7.2.10b            
             sendPduHandle = cachedReqParams['sendPduHandle']
