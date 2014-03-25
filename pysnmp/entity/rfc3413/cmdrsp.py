@@ -154,6 +154,10 @@ class CommandResponderBase:
             errorStatus, errorIndex = 'noAccess', sys.exc_info()[1]['idx']+1
         except pysnmp.smi.error.WrongTypeError:
             errorStatus, errorIndex = 'wrongType', sys.exc_info()[1]['idx']+1
+        except pysnmp.smi.error.WrongLengthError:
+            errorStatus, errorIndex = 'wrongLength', sys.exc_info()[1]['idx']+1
+        except pysnmp.smi.error.WrongEncodingError:
+            errorStatus, errorIndex='wrongEncoding', sys.exc_info()[1]['idx']+1
         except pysnmp.smi.error.WrongValueError:
             errorStatus, errorIndex = 'wrongValue', sys.exc_info()[1]['idx']+1
         except pysnmp.smi.error.NoCreationError:

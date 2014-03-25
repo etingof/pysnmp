@@ -17,6 +17,8 @@ class MibOperationError(SmiError):
 class GenError(MibOperationError): pass
 class NoAccessError(MibOperationError): pass
 class WrongTypeError(MibOperationError): pass
+class WrongLengthError(MibOperationError): pass
+class WrongEncodingError(MibOperationError): pass
 class WrongValueError(MibOperationError): pass
 class NoCreationError(MibOperationError): pass
 class InconsistentValueError(MibOperationError): pass
