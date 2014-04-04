@@ -41,7 +41,7 @@ targets = (
       ntforg.UdpTransportTarget(('localhost', 162)) )
 )
 
-def cbFun(sendRequestHandle, errorIndication, 
+def cbFun(snmpEngine, sendRequestHandle, errorIndication, 
           errorStatus, errorIndex, varBinds, cbCtx):
     snmpEngine = cbCtx
     if errorIndication:
