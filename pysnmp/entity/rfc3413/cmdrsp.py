@@ -26,9 +26,9 @@ class CommandResponderBase:
             self.snmpContext.contextEngineId, self.pduTypes
         )
         self.snmpContext = self.__pendingReqs = None
-
+        
     def sendRsp(self, snmpEngine, stateReference,
-                     errorStatus, errorIndex, varBinds):
+                errorStatus, errorIndex, varBinds):
         ( messageProcessingModel,
           securityModel,
           securityName,
@@ -41,11 +41,26 @@ class CommandResponderBase:
           maxSizeResponseScopedPDU,
           statusInformation ) = self.__pendingReqs[stateReference]
 
-        debug.logger & debug.flagApp and debug.logger('sendRsp: stateReference %s, errorStatus %s, errorIndex %s, varBinds %s' % (stateReference, errorStatus, errorIndex, varBinds))
-        
         v2c.apiPDU.setErrorStatus(PDU, errorStatus)
         v2c.apiPDU.setErrorIndex(PDU, errorIndex)
         v2c.apiPDU.setVarBinds(PDU, varBinds)
+
+        debug.logger & debug.flagApp and debug.logger('sendRsp: stateReference %s, errorStatus %s, errorIndex %s, varBinds %s' % (stateReference, errorStatus, errorIndex, varBinds))
+        
+        self._sendRspPdu(snmpEngine, stateReference, PDU)
+        
+    def _sendRspPdu(self, snmpEngine, stateReference, PDU):
+        ( messageProcessingModel,
+          securityModel,
+          securityName,
+          securityLevel,
+          contextEngineId,
+          contextName,
+          pduVersion,
+          _,
+          origPdu,
+          maxSizeResponseScopedPDU,
+          statusInformation ) = self.__pendingReqs[stateReference]
 
         # Agent-side API complies with SMIv2
         if messageProcessingModel == 0:
