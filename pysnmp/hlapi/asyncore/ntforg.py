@@ -114,16 +114,18 @@ class AsyncNotificationOriginator(cmdgen.AsyncCommandGenerator):
 
     def sendNotification(self, snmpEngine, snmpContext,
                          authData, transportTarget, 
-                         notifyType, notificationType,
+                         notifyType,
+                         notificationType, instanceIndex,
                          varBinds=(),
                          cbInfo=(None, None), 
                          lookupNames=False, lookupValues=False,
                          contextName=null):
 
-        def __cbFun(sendRequestHandle, errorIndication,
+        def __cbFun(snmpEngine, sendRequestHandle, errorIndication,
                     errorStatus, errorIndex, varBinds, cbCtx):
             lookupNames, lookupValues, cbFun, cbCtx = cbCtx
             return cbFun and cbFun(
+                snmpEngine,
                 sendRequestHandle,
                 errorIndication,
                 errorStatus, errorIndex,
@@ -153,7 +155,7 @@ class AsyncNotificationOriginator(cmdgen.AsyncCommandGenerator):
                 cache['mibViewController'], oidOnly=True
             )
 
-        return ntforg.NotificationOriginator(snmpContext).sendNotification(snmpEngine, notifyName, notificationType, self.makeVarBinds(snmpEngine, varBinds), __cbFun, (lookupNames, lookupValues, cbFun, cbCtx), contextName)
+        return ntforg.NotificationOriginator().sendVarBinds(snmpEngine, snmpContext, contextName, notifyName, notificationType, instanceIndex, self.makeVarBinds(snmpEngine, varBinds), __cbFun, (lookupNames, lookupValues, cbFun, cbCtx))
 
 # substitute sendNotification return object for backward compatibility
 class ErrorIndicationReturn:
@@ -198,7 +200,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
                          lookupNames=False, lookupValues=False,
                          contextName=null):
 
-        def __cbFun(sendRequestHandle, errorIndication,
+        def __cbFun(snmpEngine, sendRequestHandle, errorIndication,
                     errorStatus, errorIndex, varBinds, cbCtx):
             cbFun, cbCtx = cbCtx
             try:
@@ -230,7 +232,7 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
         return self.__asyncNtfOrg.sendNotification(
             self.snmpEngine, self.snmpContext,
             authData, transportTarget,
-            notifyType, notificationType, varBinds, 
+            notifyType, notificationType, None, varBinds, 
             (__cbFun, cbInfo),
             lookupNames, lookupValues, contextName
         )

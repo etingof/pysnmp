@@ -3,6 +3,17 @@ Revision 4.2.6rc0
 
 - Critical error fixed in key localization procedure for AES192/AES256/3DES
   cyphers. Previous versions might never worked properly in this respect.
+- Major rewrite of native SNMPv3 CommandGenerator and NotificationOriginator
+  applications towards the following goals:
+  * avoid bonding with particular SNMP engine instance to promote single
+    app instance using many SNMP engine instances
+  * support two APIs for working with request data: one operates on the
+    whole PDU object while the other on PDU contents
+  * keep callback context data in stack rather than in stateful application
+    cache
+  * newly introduced sendVarBinds() method offers a more functional and
+    logical signatures.
+  * keep backward compatibility for all existing major/documented interfaces
 - Execution Observer facility implemented to give app an inside view
   of SNMP engine inner workings. This is thought to be a generic
   framework for viewing (and modifying) various internal states

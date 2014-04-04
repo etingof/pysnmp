@@ -31,27 +31,26 @@ def getNextVarBinds(origVarBinds, varBinds):
         
     return errorIndication, rspVarBinds
 
-class CommandGeneratorBase:
+class CommandGenerator:
     _null = univ.Null('')
     def __init__(self):
         self.__pendingReqs = {}
             
-    def processResponsePdu(
-        self,
-        snmpEngine,
-        messageProcessingModel,
-        securityModel,
-        securityName,
-        securityLevel,
-        contextEngineId,
-        contextName,
-        pduVersion,
-        PDU,
-        statusInformation,
-        sendPduHandle,
-        cbInfo
-        ):
-        (cbFun, cbCtx) = cbInfo
+    def processResponsePdu(self,
+                           snmpEngine,
+                           messageProcessingModel,
+                           securityModel,
+                           securityName,
+                           securityLevel,
+                           contextEngineId,
+                           contextName,
+                           pduVersion,
+                           PDU,
+                           statusInformation,
+                           sendPduHandle,
+                           cbCtx):
+        origSendRequestHandle, cbFun, cbCtx = cbCtx
+
         # 3.1.1
         if sendPduHandle not in self.__pendingReqs:
             raise error.PySnmpError('Missing sendPduHandle %s' % sendPduHandle)
@@ -68,11 +67,8 @@ class CommandGeneratorBase:
           origPdu,
           origTimeout,
           origRetryCount,
-          origRetries,
-          origSendRequestHandle ) = self.__pendingReqs[sendPduHandle]
+          origRetries ) = self.__pendingReqs.pop(sendPduHandle)
   
-        del self.__pendingReqs[sendPduHandle]
-
         snmpEngine.transportDispatcher.jobFinished(id(self))
 
         # 3.1.3
@@ -87,12 +83,17 @@ class CommandGeneratorBase:
                                        errind.unknownEngineID) and \
                                    origRetries == origRetryCount:
                 debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendPduHandle %s, retry count %d exceeded' % (sendPduHandle, origRetries))
-                cbFun(origSendRequestHandle,
-                      statusInformation['errorIndication'], 0, 0, (),
+                cbFun(snmpEngine,
+                      origSendRequestHandle,
+                      statusInformation['errorIndication'],
+                      None,
                       cbCtx)
                 return
             try:
-                self._sendPdu(
+                cbCtx = origSendRequestHandle, cbFun, cbCtx
+                cbFun = self.processResponsePdu
+        
+                sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(
                     snmpEngine,
                     origTransportDomain,
                     origTransportAddress,
@@ -102,20 +103,42 @@ class CommandGeneratorBase:
                     origSecurityLevel,
                     origContextEngineId,
                     origContextName,
+                    origPduVersion,
+                    origPdu,
+                    True,           # expectResponse
+                    origTimeout,    # already in ticks
+                    cbFun,
+                    cbCtx
+                )
+
+                snmpEngine.transportDispatcher.jobStarted(id(self))
+
+                self.__pendingReqs[sendPduHandle] = (
+                    origTransportDomain,
+                    origTransportAddress,
+                    origMessageProcessingModel,
+                    origSecurityModel,
+                    origSecurityName,
+                    origSecurityLevel,
+                    origContextEngineId,
+                    origContextName,
+                    origPduVersion,
                     origPdu,
                     origTimeout,
                     origRetryCount,
-                    origRetries + 1,
-                    origSendRequestHandle,
-                    (self.processResponsePdu, (cbFun, cbCtx))
+                    origRetries + 1
                 )
+                return
+        
             except StatusInformation:
                 statusInformation = sys.exc_info()[1]
                 debug.logger & debug.flagApp and debug.logger('processResponsePdu: origSendRequestHandle %s, _sendPdu() failed with %r' % (sendPduHandle, statusInformation))
-                cbFun(origSendRequestHandle,
-                      statusInformation['errorIndication'], 0, 0, (),
+                cbFun(snmpEngine,
+                      origSendRequestHandle,
+                      statusInformation['errorIndication'],
+                      None,
                       cbCtx)
-            return
+                return
 
         if origMessageProcessingModel != messageProcessingModel or \
            origSecurityModel != securityModel or \
@@ -124,7 +147,12 @@ class CommandGeneratorBase:
            origContextName and origContextName != contextName or \
            origPduVersion != pduVersion:
             debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendPduHandle %s, request/response data mismatch' % sendPduHandle)
-            cbFun(origSendRequestHandle, 'badResponse', 0, 0, (), cbCtx)
+
+            cbFun(snmpEngine,
+                  origSendRequestHandle,
+                  'badResponse', # errorIndication
+                  None,
+                  cbCtx)
             return
 
         # User-side API assumes SMIv2
@@ -134,58 +162,35 @@ class CommandGeneratorBase:
         # 3.1.2
         if v2c.apiPDU.getRequestID(PDU) != v2c.apiPDU.getRequestID(origPdu):
             debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendPduHandle %s, request-id/response-id mismatch' % sendPduHandle)
-            cbFun(origSendRequestHandle, 'badResponse', 0, 0, (), cbCtx)
+            cbFun(snmpEngine,
+                  origSendRequestHandle,
+                  'badResponse', # errorIndication
+                  None,
+                  cbCtx)
             return
 
-        self._handleResponse(
-            snmpEngine,
-            origTransportDomain,
-            origTransportAddress,
-            origMessageProcessingModel,
-            origSecurityModel,
-            origSecurityName,
-            origSecurityLevel,
-            origContextEngineId,
-            origContextName,
-            origPdu,
-            origTimeout,
-            origRetryCount,
-            PDU,
-            origSendRequestHandle,
-            (cbFun, cbCtx),
-        )
+        cbFun(snmpEngine,
+              origSendRequestHandle,
+              None, # errorIndication
+              PDU,
+              cbCtx)
 
-    def sendReq(
-        self,
-        snmpEngine,
-        addrName,
-        varBinds,
-        cbFun,
-        cbCtx=None,
-        contextEngineId=None,
-        contextName=''
-        ):
-        raise error.PySnmpError('Method not implemented')
-
-    def _sendPdu(
-        self,
-        snmpEngine,
-        transportDomain,
-        transportAddress,
-        messageProcessingModel,
-        securityModel,
-        securityName,
-        securityLevel,
-        contextEngineId,
-        contextName,
-        reqPDU,
-        timeout,
-        retryCount,
-        retries,
-        sendRequestHandle,
-        cbInfo
-        ):
-        (processResponsePdu, cbCtx) = cbInfo
+    def sendPdu(self,
+                snmpEngine,
+                targetName,
+                contextEngineId,
+                contextName,
+                PDU,
+                cbFun,
+                cbCtx):
+        ( transportDomain,
+          transportAddress,
+          timeout,
+          retryCount,
+          messageProcessingModel,
+          securityModel,
+          securityName,
+          securityLevel ) = config.getTargetInfo(snmpEngine, targetName)
 
         # Convert timeout in seconds into timeout in timer ticks
         timeoutInTicks = float(timeout)/100/snmpEngine.transportDispatcher.getTimerResolution()
@@ -197,15 +202,20 @@ class CommandGeneratorBase:
             contextEngineId = SnmpEngineID(contextEngineId)
         contextName = SnmpAdminString(contextName)
 
-        origPDU = reqPDU
+        origPDU = PDU
 
         # User-side API assumes SMIv2
         if messageProcessingModel == 0:
-            reqPDU = rfc2576.v2ToV1(reqPDU)
+            PDU = rfc2576.v2ToV1(PDU)
             pduVersion = 0
         else:
             pduVersion = 1
+
+        sendRequestHandle = getNextHandle()
  
+        cbCtx = sendRequestHandle, cbFun, cbCtx
+        cbFun = self.processResponsePdu
+        
         # 3.1
         sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(
             snmpEngine,
@@ -218,10 +228,10 @@ class CommandGeneratorBase:
             contextEngineId,
             contextName,
             pduVersion,
-            reqPDU,
+            PDU,
             1, # expectResponse
             timeoutInTicks,
-            processResponsePdu,
+            cbFun,
             cbCtx
         )
 
@@ -238,290 +248,229 @@ class CommandGeneratorBase:
             contextName,
             pduVersion,
             origPDU,
-            timeout,
+            timeoutInTicks,
             retryCount,
-            retries,
-            sendRequestHandle
+            0
         )
  
-        debug.logger & debug.flagApp and debug.logger('_sendPdu: sendPduHandle %s, timeout %d*10 ms/%d ticks, retry %d of %d' % (sendPduHandle, timeout, timeoutInTicks, retries, retryCount))
+        debug.logger & debug.flagApp and debug.logger('sendPdu: sendPduHandle %s, timeout %d*10 ms/%d ticks, retry %d of %d' % (sendPduHandle, timeout, timeoutInTicks, retries, retryCount))
 
-    def _handleResponse(
-        self,
-        snmpEngine,
-        transportDomain,
-        transportAddress,
-        messageProcessingModel,
-        securityModel,
-        securityName,
-        securityLevel,
-        contextEngineId,
-        contextName,
-        PDU,
-        timeout,
-        retryCount,
-        rspPDU,
-        sendRequestHandle,
-        cbInfo
-        ):
-        (cbFun, cbCtx) = cbInfo        
-        cbFun(sendRequestHandle,
-              None,
-              v2c.apiPDU.getErrorStatus(rspPDU),
-              v2c.apiPDU.getErrorIndex(rspPDU, muteErrors=True),
-              v2c.apiPDU.getVarBinds(rspPDU),
+        return sendRequestHandle
+
+class GetCommandGenerator(CommandGenerator):
+    def processResponseVarBinds(self,
+                                snmpEngine,
+                                sendRequestHandle,
+                                errorIndication,
+                                PDU,
+                                cbCtx):
+        cbFun, cbCtx = cbCtx
+
+        cbFun(snmpEngine,
+              sendRequestHandle,
+              errorIndication,
+              PDU and v2c.apiPDU.getErrorStatus(PDU) or 0,
+              PDU and v2c.apiPDU.getErrorIndex(PDU, muteErrors=True) or 0,
+              PDU and v2c.apiPDU.getVarBinds(PDU) or (),
               cbCtx)
 
-class GetCommandGenerator(CommandGeneratorBase):
-    def sendReq(
-        self,
-        snmpEngine,
-        addrName,
-        varBinds,
-        cbFun,
-        cbCtx=None,
-        contextEngineId=None,
-        contextName=''
-        ):
-        ( transportDomain,
-          transportAddress,
-          timeout,
-          retryCount,
-          messageProcessingModel,
-          securityModel,
-          securityName,
-          securityLevel ) = config.getTargetInfo(snmpEngine, addrName)
-
+    def sendVarBinds(self,
+                     snmpEngine,
+                     targetName,
+                     contextEngineId,
+                     contextName,
+                     varBinds,
+                     cbFun,
+                     cbCtx=None):
         reqPDU = v2c.GetRequestPDU()
         v2c.apiPDU.setDefaults(reqPDU)
         
         v2c.apiPDU.setVarBinds(reqPDU, varBinds)
 
-        sendRequestHandle = getNextHandle()
+        cbCtx = cbFun, cbCtx
+        cbFun = self.processResponseVarBinds
+        
+        return self.sendPdu(snmpEngine,
+                            targetName,
+                            contextEngineId,
+                            contextName,
+                            reqPDU,
+                            cbFun,
+                            cbCtx)
 
-        try:        
-            self._sendPdu(
-                snmpEngine,
-                transportDomain,
-                transportAddress,
-                messageProcessingModel,
-                securityModel,
-                securityName,
-                securityLevel,
-                contextEngineId,
-                contextName,
-                reqPDU,
-                timeout,
-                retryCount,
-                0, # retries
-                sendRequestHandle,
-                (self.processResponsePdu, (cbFun, cbCtx))            
-            )
-        except StatusInformation:
-            statusInformation = sys.exc_info()[1]
-            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (sendRequestHandle, statusInformation))
-            cbFun(sendRequestHandle, statusInformation['errorIndication'],
-                  0, 0, (), cbCtx)
+class SetCommandGenerator(CommandGenerator):
+    def processResponseVarBinds(self,
+                                snmpEngine,
+                                sendRequestHandle,
+                                errorIndication,
+                                PDU,
+                                cbCtx):
+        cbFun, cbCtx = cbCtx
 
-        return sendRequestHandle
-    
-class SetCommandGenerator(CommandGeneratorBase):
-    def sendReq(
-        self,
-        snmpEngine,
-        addrName,
-        varBinds,
-        cbFun,
-        cbCtx=None,
-        contextEngineId=None,
-        contextName=''
-        ):
-        ( transportDomain,
-          transportAddress,
-          timeout,
-          retryCount,
-          messageProcessingModel,
-          securityModel,
-          securityName,
-          securityLevel ) = config.getTargetInfo(snmpEngine, addrName)
+        cbFun(snmpEngine,
+              sendRequestHandle,
+              errorIndication,
+              PDU and v2c.apiPDU.getErrorStatus(PDU) or 0,
+              PDU and v2c.apiPDU.getErrorIndex(PDU, muteErrors=True) or 0,
+              PDU and v2c.apiPDU.getVarBinds(PDU) or (),
+              cbCtx)
 
+    def sendVarBinds(self,
+                     snmpEngine,
+                     targetName,
+                     contextEngineId,
+                     contextName,
+                     varBinds,
+                     cbFun,
+                     cbCtx=None):
         reqPDU = v2c.SetRequestPDU()
         v2c.apiPDU.setDefaults(reqPDU)
-
+        
         v2c.apiPDU.setVarBinds(reqPDU, varBinds)
 
-        sendRequestHandle = getNextHandle()        
+        cbCtx = cbFun, cbCtx
+        cbFun = self.processResponseVarBinds
+         
+        return self.sendPdu(snmpEngine,
+                            targetName,
+                            contextEngineId,
+                            contextName,
+                            reqPDU,
+                            cbFun,
+                            cbCtx)
 
-        try:        
-            self._sendPdu(
-                snmpEngine,
-                transportDomain,
-                transportAddress,
-                messageProcessingModel,
-                securityModel,
-                securityName,
-                securityLevel,
-                contextEngineId,
-                contextName,
-                reqPDU,
-                timeout,
-                retryCount,
-                0, # retries
-                sendRequestHandle,
-                (self.processResponsePdu, (cbFun, cbCtx))            
-            )
-        except StatusInformation:
-            statusInformation = sys.exc_info()[1]
-            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (sendRequestHandle, statusInformation))
-            cbFun(sendRequestHandle, statusInformation['errorIndication'],
-                  0, 0, (), cbCtx)
-
-        return sendRequestHandle
-
-class NextCommandGeneratorSingleRun(CommandGeneratorBase):
-    def sendReq(
-        self,
-        snmpEngine,
-        addrName,
-        varBinds,
-        cbFun,
-        cbCtx=None,
-        contextEngineId=None,
-        contextName=''
-        ):
-        ( transportDomain,
-          transportAddress,
-          timeout,
-          retryCount,
-          messageProcessingModel,
-          securityModel,
-          securityName,
-          securityLevel ) = config.getTargetInfo(snmpEngine, addrName)
-
+class NextCommandGeneratorSingleRun(CommandGenerator):
+    def processResponseVarBinds(self,
+                                snmpEngine,
+                                sendRequestHandle,
+                                errorIndication,
+                                PDU,
+                                cbCtx):
+        targetName, contextEngineId, contextName, reqPDU, cbFun, cbCtx = cbCtx
+        cbFun(snmpEngine,
+              sendRequestHandle,
+              errorIndication,
+              PDU and v2c.apiPDU.getErrorStatus(PDU) or 0,
+              PDU and v2c.apiPDU.getErrorIndex(PDU, muteErrors=True) or 0,
+              PDU and v2c.apiPDU.getVarBinds(PDU) or (),
+              cbCtx)
+    
+    def sendVarBinds(self,
+                     snmpEngine,
+                     targetName,
+                     contextEngineId,
+                     contextName,
+                     varBinds,
+                     cbFun,
+                     cbCtx=None):
         reqPDU = v2c.GetNextRequestPDU()
         v2c.apiPDU.setDefaults(reqPDU)
         
         v2c.apiPDU.setVarBinds(reqPDU, varBinds)
 
-        sendRequestHandle = getNextHandle()        
+        cbCtx = targetName, contextEngineId, contextName, reqPDU, cbFun, cbCtx
+        cbFun = self.processResponseVarBinds
 
-        try:        
-            self._sendPdu(
-                snmpEngine,
-                transportDomain,
-                transportAddress,
-                messageProcessingModel,
-                securityModel,
-                securityName,
-                securityLevel,
-                contextEngineId,
-                contextName,
-                reqPDU,
-                timeout,
-                retryCount,
-                0, # retries
-                sendRequestHandle,
-                (self.processResponsePdu, (cbFun, cbCtx))            
-            )
-        except StatusInformation:
-            statusInformation = sys.exc_info()[1]
-            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (sendRequestHandle, statusInformation))
-            cbFun(sendRequestHandle, statusInformation['errorIndication'],
-                  0, 0, (), cbCtx)
+        return self.sendPdu(snmpEngine,
+                            targetName,
+                            contextEngineId,
+                            contextName,
+                            reqPDU,
+                            cbFun,
+                            cbCtx)
 
-        return sendRequestHandle
- 
 class NextCommandGenerator(NextCommandGeneratorSingleRun):
-    def _handleResponse(
-        self,
-        snmpEngine,
-        transportDomain,
-        transportAddress,
-        messageProcessingModel,
-        securityModel,
-        securityName,
-        securityLevel,
-        contextEngineId,
-        contextName,
-        PDU,
-        timeout,
-        retryCount,
-        rspPDU,
-        sendRequestHandle,
-        cbInfo
-        ):
-        (cbFun, cbCtx) = cbInfo
+    def processResponseVarBinds(self,
+                                snmpEngine,
+                                sendRequestHandle,
+                                errorIndication,
+                                PDU,
+                                cbCtx):
+        targetName, contextEngineId, contextName, reqPDU, cbFun, cbCtx = cbCtx
 
-        varBindTable = v2c.apiPDU.getVarBindTable(PDU, rspPDU)
+        if errorIndication:
+            cbFun(snmpEngine,
+                  sendRequestHandle,
+                  errorIndication,
+                  0, 0, (),
+                  cbCtx)
+            return
+        
+        varBindTable = v2c.apiPDU.getVarBindTable(reqPDU, PDU)
 
-        if v2c.apiPDU.getErrorStatus(rspPDU):
+        if v2c.apiPDU.getErrorStatus(PDU):
             errorIndication, varBinds = None, ()
         elif not varBindTable:
             errorIndication, varBinds = errind.emptyResponse, ()
         else:
             errorIndication, varBinds = getNextVarBinds(
-                v2c.apiPDU.getVarBinds(PDU), varBindTable[-1]
+                v2c.apiPDU.getVarBinds(reqPDU), varBindTable[-1]
             )
         
-        if not cbFun(sendRequestHandle, errorIndication,
-                     v2c.apiPDU.getErrorStatus(rspPDU),
-                     v2c.apiPDU.getErrorIndex(rspPDU, muteErrors=True),
-                     varBindTable, cbCtx):
-            debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, app says to stop walking' % sendRequestHandle)
+        if not cbFun(snmpEngine,
+                     sendRequestHandle,
+                     errorIndication,
+                     v2c.apiPDU.getErrorStatus(PDU),
+                     v2c.apiPDU.getErrorIndex(PDU, muteErrors=True),
+                     varBindTable,    
+                     cbCtx):
+            debug.logger & debug.flagApp and debug.logger('processResponseVarBinds: sendRequestHandle %s, app says to stop walking' % sendRequestHandle)
             return  # app says enough
 
         if not varBinds:
             return # no more objects available
-    
-        v2c.apiPDU.setRequestID(PDU, v2c.getNextRequestID())
-        v2c.apiPDU.setVarBinds(PDU, varBinds)
 
+        v2c.apiPDU.setRequestID(reqPDU, v2c.getNextRequestID())
+        v2c.apiPDU.setVarBinds(reqPDU, varBinds)
+
+        cbCtx = targetName, contextEngineId, contextName, reqPDU, cbFun, cbCtx
+        cbFun = self.processResponseVarBinds
+        
         try:
-            self._sendPdu(
-                snmpEngine,
-                transportDomain,
-                transportAddress,
-                messageProcessingModel,
-                securityModel,
-                securityName,
-                securityLevel,
-                contextEngineId,
-                contextName,
-                PDU,
-                timeout,
-                retryCount,
-                0, # retries
-                sendRequestHandle,
-                (self.processResponsePdu, (cbFun, cbCtx))            
-            )
+            self.sendPdu(snmpEngine,
+                         targetName,
+                         contextEngineId,
+                         contextName,
+                         reqPDU,
+                         cbFun,
+                         cbCtx)
+            
         except StatusInformation:
             statusInformation = sys.exc_info()[1]
-            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (sendRequestHandle, statusInformation))
-            cbFun(sendRequestHandle, statusInformation['errorIndication'],
+            debug.logger & debug.flagApp and debug.logger('sendVarBinds: sendPduHandle %s: sendPdu() failed with %r' % (sendRequestHandle, statusInformation))
+            cbFun(snmpEngine,
+                  sendRequestHandle,
+                  statusInformation['errorIndication'],
                   0, 0, (), cbCtx)
- 
-class BulkCommandGeneratorSingleRun(CommandGeneratorBase):
-    def sendReq(
-        self,
-        snmpEngine,
-        addrName,
-        nonRepeaters,
-        maxRepetitions,
-        varBinds,
-        cbFun,
-        cbCtx=None,
-        contextEngineId=None,
-        contextName=''
-        ):
-        ( transportDomain,
-          transportAddress,
-          timeout,
-          retryCount,
-          messageProcessingModel,
-          securityModel,
-          securityName,
-          securityLevel ) = config.getTargetInfo(snmpEngine, addrName)
 
+class BulkCommandGeneratorSingleRun(CommandGenerator):
+    def processResponseVarBinds(self,
+                                snmpEngine,
+                                sendRequestHandle,
+                                errorIndication,
+                                PDU,
+                                cbCtx):
+        ( targetName,  nonRepeaters, maxRepetitions,
+          contextEngineId, contextName, reqPDU, cbFun, cbCtx ) = cbCtx
+
+        cbFun(snmpEngine,
+              sendRequestHandle,
+              errorIndication,
+              PDU and v2c.apiPDU.getErrorStatus(PDU) or 0,
+              PDU and v2c.apiPDU.getErrorIndex(PDU, muteErrors=True) or 0,
+              PDU and v2c.apiPDU.getVarBinds(PDU) or (),
+              cbCtx)
+
+    def sendVarBinds(self,
+                     snmpEngine,
+                     targetName,
+                     nonRepeaters,
+                     maxRepetitions,
+                     contextEngineId,
+                     contextName,
+                     varBinds,
+                     cbFun,
+                     cbCtx=None):
         reqPDU = v2c.GetBulkRequestPDU()
         v2c.apiBulkPDU.setDefaults(reqPDU)
         
@@ -530,102 +479,150 @@ class BulkCommandGeneratorSingleRun(CommandGeneratorBase):
 
         v2c.apiBulkPDU.setVarBinds(reqPDU, varBinds)
 
-        sendRequestHandle = getNextHandle()        
+        cbCtx = ( targetName, nonRepeaters, maxRepetitions,
+                  contextEngineId, contextName, reqPDU, cbFun, cbCtx )
+        cbFun = self.processResponseVarBinds
 
-        try:        
-            self._sendPdu(
-                snmpEngine,
-                transportDomain,
-                transportAddress,
-                messageProcessingModel,
-                securityModel,
-                securityName,
-                securityLevel,
-                contextEngineId,
-                contextName,
-                reqPDU,
-                timeout,
-                retryCount,
-                0, # retries
-                sendRequestHandle,
-                (self.processResponsePdu, (cbFun, cbCtx))            
-            )
-        except StatusInformation:
-            statusInformation = sys.exc_info()[1]
-            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (sendRequestHandle, statusInformation))
-            cbFun(sendRequestHandle, statusInformation['errorIndication'],
-                  0, 0, (), cbCtx)
+        return self.sendPdu(snmpEngine,
+                            targetName,
+                            contextEngineId,
+                            contextName,
+                            reqPDU,
+                            cbFun,
+                            cbCtx)
 
-        return sendRequestHandle
- 
+def _sendBulkReq(self,
+                 snmpEngine,
+                 targetName,
+                 nonRepeaters,
+                 maxRepetitions,
+                 varBinds,
+                 cbFun,
+                 cbCtx=None,
+                 contextEngineId=None,
+                 contextName=''):
+    cbCtx = cbFun, cbCtx
+    cbFun = __sendReqCbFun    
+    return self.sendVarBinds(snmpEngine,
+                             targetName,
+                             nonRepeaters,
+                             maxRepetitions,
+                             contextEngineId,
+                             contextName,
+                             varBinds,
+                             cbFun,
+                             cbCtx)
+
 class BulkCommandGenerator(BulkCommandGeneratorSingleRun):
-    def _handleResponse(
-        self,
-        snmpEngine,
-        transportDomain,
-        transportAddress,
-        messageProcessingModel,
-        securityModel,
-        securityName,
-        securityLevel,
-        contextEngineId,
-        contextName,
-        PDU,
-        timeout,
-        retryCount,
-        rspPDU,
-        sendRequestHandle,
-        cbInfo
-        ):
-        (cbFun, cbCtx) = cbInfo        
-        varBindTable = v2c.apiBulkPDU.getVarBindTable(PDU, rspPDU)
+    def processResponseVarBinds(self,
+                                snmpEngine,
+                                sendRequestHandle,
+                                errorIndication,
+                                PDU,
+                                cbCtx):
+        ( targetName,  nonRepeaters, maxRepetitions,
+          contextEngineId, contextName, reqPDU, cbFun, cbCtx ) = cbCtx
 
-        if v2c.apiBulkPDU.getErrorStatus(rspPDU):
+        if errorIndication:
+            cbFun(snmpEngine,
+                  sendRequestHandle,
+                  errorIndication,
+                  0, 0, (),
+                  cbCtx)
+            return
+        
+        varBindTable = v2c.apiBulkPDU.getVarBindTable(reqPDU, PDU)
+
+        if v2c.apiBulkPDU.getErrorStatus(PDU):
             errorIndication, varBinds = None, ()
         elif not varBindTable:
             errorIndication, varBinds = errind.emptyResponse, ()
         else:
             errorIndication, varBinds = getNextVarBinds(
-                v2c.apiBulkPDU.getVarBinds(PDU), varBindTable[-1]
+                v2c.apiBulkPDU.getVarBinds(reqPDU), varBindTable[-1]
             )
-            nonRepeaters = v2c.apiBulkPDU.getNonRepeaters(PDU) 
+            nonRepeaters = v2c.apiBulkPDU.getNonRepeaters(reqPDU) 
             if nonRepeaters:
-                varBinds = v2c.apiBulkPDU.getVarBinds(PDU)[:nonRepeaters] + \
+                varBinds = v2c.apiBulkPDU.getVarBinds(reqPDU)[:nonRepeaters]+\
                     varBinds[nonRepeaters:]
 
-        if not cbFun(sendRequestHandle, errorIndication,
-                     v2c.apiBulkPDU.getErrorStatus(rspPDU),
-                     v2c.apiBulkPDU.getErrorIndex(rspPDU, muteErrors=True),
+        if not cbFun(snmpEngine,
+                     sendRequestHandle,
+                     errorIndication,
+                     v2c.apiBulkPDU.getErrorStatus(PDU),
+                     v2c.apiBulkPDU.getErrorIndex(PDU, muteErrors=True),
                      varBindTable, cbCtx):
-            debug.logger & debug.flagApp and debug.logger('_handleResponse: sendRequestHandle %s, app says to stop walking' % sendRequestHandle)
+            debug.logger & debug.flagApp and debug.logger('processResponseVarBinds: sendRequestHandle %s, app says to stop walking' % sendRequestHandle)
             return # app says enough
 
         if not varBinds:
             return # no more objects available
     
-        v2c.apiBulkPDU.setRequestID(PDU, v2c.getNextRequestID())
-        v2c.apiBulkPDU.setVarBinds(PDU, varBinds)
+        v2c.apiBulkPDU.setRequestID(reqPDU, v2c.getNextRequestID())
+        v2c.apiBulkPDU.setVarBinds(reqPDU, varBinds)
 
-        try:        
-            self._sendPdu(
-                snmpEngine,
-                transportDomain,
-                transportAddress,
-                messageProcessingModel,
-                securityModel,
-                securityName,
-                securityLevel,
-                contextEngineId,
-                contextName,
-                PDU,
-                timeout,
-                retryCount,
-                0, # retries
-                sendRequestHandle,
-                (self.processResponsePdu, (cbFun, cbCtx))            
-            )
+        cbCtx = ( targetName, nonRepeaters, maxRepetitions,
+                  contextEngineId, contextName, reqPDU, cbFun, cbCtx )
+        cbFun = self.processResponseVarBinds
+
+        try:
+            self.sendPdu(snmpEngine,
+                         targetName,
+                         contextEngineId,
+                         contextName,
+                         reqPDU,
+                         cbFun,
+                         cbCtx)
+
         except StatusInformation:
             statusInformation = sys.exc_info()[1]
-            debug.logger & debug.flagApp and debug.logger('sendReq: sendPduHandle %s: _sendPdu() failed with %r' % (sendRequestHandle, statusInformation))
-            cbFun(sendRequestHandle, statusInformation['errorIndication'],
+            debug.logger & debug.flagApp and debug.logger('processResponseVarBinds: sendPduHandle %s: _sendPdu() failed with %r' % (sendRequestHandle, statusInformation))
+            cbFun(snmpEngine,
+                  sendRequestHandle,
+                  statusInformation['errorIndication'],
                   0, 0, (), cbCtx)
+
+#
+# Obsolete, compatibility interfaces.
+#
+
+def __sendReqCbFun(snmpEngine,
+                   sendRequestHandle,
+                   errorIndication,
+                   errorStatus,
+                   errorIndex,
+                   PDU,
+                   cbCtx):
+    cbFun, cbCtx = cbCtx
+    return cbFun(sendRequestHandle,
+                 errorIndication,
+                 errorStatus,
+                 errorIndex,
+                 PDU,
+                 cbCtx)
+
+def _sendReq(self,
+             snmpEngine,
+             targetName,
+             varBinds,
+             cbFun,
+             cbCtx=None,
+             contextEngineId=None,
+             contextName=''):
+    cbCtx = cbFun, cbCtx
+    cbFun = __sendReqCbFun    
+    return self.sendVarBinds(snmpEngine,
+                             targetName,
+                             contextEngineId,
+                             contextName,
+                             varBinds,
+                             cbFun,
+                             cbCtx)
+
+# install compatibility wrappers
+GetCommandGenerator.sendReq = _sendReq
+SetCommandGenerator.sendReq = _sendReq
+NextCommandGenerator.sendReq = _sendReq
+NextCommandGeneratorSingleRun.sendReq = _sendReq
+BulkCommandGenerator.sendReq = _sendBulkReq
+BulkCommandGeneratorSingleRun.sendReq = _sendBulkReq

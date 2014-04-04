@@ -2,6 +2,7 @@ import sys
 from pyasn1.compat.octets import null
 from pysnmp.entity.rfc3413 import config
 from pysnmp.proto.proxy import rfc2576
+from pysnmp.proto import rfc3411
 from pysnmp.proto.api import v2c
 from pysnmp.proto import error
 from pysnmp import nextid
@@ -11,26 +12,25 @@ getNextHandle = nextid.Integer(0x7fffffff)
 
 class NotificationOriginator:
     acmID = 3  # default MIB access control method to use
-    def __init__(self, snmpContext):
+    def __init__(self, snmpContext=None):
         self.__pendingReqs = {}
+        self.__metaSendPduHandles = {}
         self.__pendingNotifications = {}
-        self.snmpContext = snmpContext
+        self.snmpContext = snmpContext  # this is deprecated
 
-    def processResponsePdu(
-        self,
-        snmpEngine,
-        messageProcessingModel,
-        securityModel,
-        securityName,
-        securityLevel,
-        contextEngineId,
-        contextName,
-        pduVersion,
-        PDU,
-        statusInformation,
-        sendPduHandle,
-        cbInfo
-        ):
+    def processResponsePdu(self,
+                           snmpEngine,
+                           messageProcessingModel,
+                           securityModel,
+                           securityName,
+                           securityLevel,
+                           contextEngineId,
+                           contextName,
+                           pduVersion,
+                           PDU,
+                           statusInformation,
+                           sendPduHandle,
+                           cbInfo):
         (cbFun, cbCtx) = cbInfo
         # 3.3.6d
         if sendPduHandle not in self.__pendingReqs:
@@ -47,11 +47,9 @@ class NotificationOriginator:
           origPdu,
           origTimeout,
           origRetryCount,
-          origRetries,
-          metaSendPduHandle
-          ) = self.__pendingReqs[sendPduHandle]
+          origRetries ) = self.__pendingReqs.pop(sendPduHandle)
 
-        del self.__pendingReqs[sendPduHandle]
+        metaSendPduHandle = self.__metaSendPduHandles.pop(sendPduHandle)
 
         self.__pendingNotifications[metaSendPduHandle] -= 1
 
@@ -63,13 +61,11 @@ class NotificationOriginator:
                 debug.logger & debug.flagApp and debug.logger('processResponsePdu: metaSendPduHandle %s, sendPduHandle %s retry count %d exceeded' % (metaSendPduHandle, sendPduHandle, origRetries))
                 if not self.__pendingNotifications[metaSendPduHandle]:
                     del self.__pendingNotifications[metaSendPduHandle]
-                    self._handleResponse(
-                        metaSendPduHandle,
-                        statusInformation['errorIndication'],
-                        0, 0, (),
-                        cbFun,
-                        cbCtx
-                    )
+                    cbFun(snmpEngine,
+                          metaSendPduHandle,
+                          statusInformation['errorIndication'],
+                          None,
+                          cbCtx)
                 return
 
             # Convert timeout in seconds into timeout in timer ticks
@@ -107,13 +103,11 @@ class NotificationOriginator:
                 debug.logger & debug.flagApp and debug.logger('processResponsePdu: metaSendPduHandle %s: sendPdu() failed with %r ' % (metaSendPduHandle, statusInformation))
                 if not self.__pendingNotifications[metaSendPduHandle]:
                     del self.__pendingNotifications[metaSendPduHandle]
-                    self._handleResponse(
-                        metaSendPduHandle,
-                        statusInformation['errorIndication'],
-                        0, 0, (),
-                        cbFun,
-                        cbCtx
-                    )
+                    cbFun(snmpEngine,
+                          metaSendPduHandle,
+                          statusInformation['errorIndication'],
+                          None,
+                          cbCtx)
                 return
 
             self.__pendingNotifications[metaSendPduHandle] += 1
@@ -135,9 +129,10 @@ class NotificationOriginator:
                 origPdu,
                 origTimeout,
                 origRetryCount,
-                origRetries + 1,
-                metaSendPduHandle
+                origRetries + 1
             )
+            self.__metaSendPduHandles[sendPduHandle] = metaSendPduHandle
+            
             return
 
         # 3.3.6c
@@ -148,38 +143,125 @@ class NotificationOriginator:
             if messageProcessingModel == 0:
                 PDU = rfc2576.v1ToV2(PDU, origPdu)
 
-            self._handleResponse(metaSendPduHandle, None,
-                                 v2c.apiPDU.getErrorStatus(PDU),
-                                 v2c.apiPDU.getErrorIndex(PDU,muteErrors=True),
-                                 v2c.apiPDU.getVarBinds(PDU),            
-                                 cbFun, cbCtx)
+            cbFun(snmpEngine, metaSendPduHandle, None, PDU, cbCtx)
 
-    def _handleResponse(self,
-                        sendRequestHandle,
-                        errorIndication,
-                        errorStatus, errorIndex,
-                        varBinds,
-                        cbFun, cbCtx):
-        try:
-            # we need to pass response PDU information to user for INFORMs
-            cbFun(sendRequestHandle, errorIndication, 
-                  errorStatus, errorIndex, varBinds, cbCtx)
-        except TypeError:
-            # a backward compatible way of calling user function
-            cbFun(sendRequestHandle, errorIndication, cbCtx)
+    def sendPdu(self,
+                snmpEngine,
+                targetName,
+                contextEngineId,
+                contextName,
+                pdu,
+                cbFun=None,
+                cbCtx=None):
+        ( transportDomain,
+          transportAddress,
+          timeout,
+          retryCount,
+          params ) = config.getTargetAddr(snmpEngine, targetName)
+          
+        ( messageProcessingModel,
+          securityModel,
+          securityName,
+          securityLevel ) = config.getTargetParams(snmpEngine, params)
+
+        # User-side API assumes SMIv2
+        if messageProcessingModel == 0:
+            reqPDU = rfc2576.v2ToV1(pdu)
+            pduVersion = 0
+        else:
+            reqPDU = pdu
+            pduVersion = 1
+
+        # 3.3.5
+        if reqPDU.tagSet in rfc3411.confirmedClassPDUs:
+            # Convert timeout in seconds into timeout in timer ticks
+            timeoutInTicks = float(timeout)/100/snmpEngine.transportDispatcher.getTimerResolution()
+
+            cbCtx = cbFun, cbCtx
+            cbFun = self.processResponsePdu
+            
+            # 3.3.6a
+            sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(snmpEngine,
+                                                            transportDomain,
+                                                            transportAddress,
+                                                            messageProcessingModel,
+                                                            securityModel,
+                                                            securityName,
+                                                            securityLevel,
+                                                            contextEngineId,
+                                                            contextName,
+                                                            pduVersion,
+                                                            reqPDU,
+                                                            # expectResponse
+                                                            1,
+                                                            timeoutInTicks,
+                                                            cbFun,
+                                                            cbCtx)
+
+            debug.logger & debug.flagApp and debug.logger('sendVarBinds: sendPduHandle %s, timeout %d' % (sendPduHandle, timeout))
+
+            # 3.3.6b
+            self.__pendingReqs[sendPduHandle] = (
+                transportDomain,
+                transportAddress,
+                messageProcessingModel,
+                securityModel,
+                securityName,
+                securityLevel,
+                contextEngineId,
+                contextName,
+                pdu,
+                timeout,
+                retryCount,
+                1
+            )
+            snmpEngine.transportDispatcher.jobStarted(id(self))            
+        else:
+            snmpEngine.msgAndPduDsp.sendPdu(snmpEngine,
+                                            transportDomain,
+                                            transportAddress,
+                                            messageProcessingModel,
+                                            securityModel,
+                                            securityName,
+                                            securityLevel,
+                                            contextEngineId,
+                                            contextName,
+                                            pduVersion,
+                                            reqPDU,
+                                            None)  # do not expectResponse
+
+            sendPduHandle = None
+
+            debug.logger & debug.flagApp and debug.logger('sendVarBinds: message sent')
+
+        return sendPduHandle
+
+    def processResponseVarBinds(self,
+                                snmpEngine,
+                                metaSendPduHandle,
+                                errorIndication,
+                                pdu,
+                                cbCtx):
+            cbFun, cbCtx = cbCtx
+            cbFun(snmpEngine,
+                  metaSendPduHandle,
+                  errorIndication,
+                  pdu and v2c.apiPDU.getErrorStatus(pdu) or 0,
+                  pdu and v2c.apiPDU.getErrorIndex(pdu, muteErrors=True) or 0,
+                  pdu and v2c.apiPDU.getVarBinds(pdu) or (),
+                  cbCtx)
     
-    def sendNotification(
-        self,
-        snmpEngine,
-        notificationTarget,
-        notificationName,
-        additionalVarBinds=(),
-        cbFun=None,
-        cbCtx=None,
-        contextName=null,
-        instanceIndex=None
-        ):
-        debug.logger & debug.flagApp and debug.logger('sendNotification: notificationTarget %s, notificationName %s, additionalVarBinds %s, contextName "%s", instanceIndex %s' % (notificationTarget, notificationName, additionalVarBinds, contextName, instanceIndex))
+    def sendVarBinds(self,
+                     snmpEngine,
+                     snmpContext,
+                     contextName,
+                     notificationTarget,
+                     notificationName,
+                     instanceIndex,
+                     additionalVarBinds=(),
+                     cbFun=None,
+                     cbCtx=None):
+        debug.logger & debug.flagApp and debug.logger('sendVarBinds: notificationTarget %s, notificationName %s, additionalVarBinds %s, contextName "%s", instanceIndex %s' % (notificationTarget, notificationName, additionalVarBinds, contextName, instanceIndex))
 
         if contextName:
             __SnmpAdminString, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'SnmpAdminString')
@@ -188,14 +270,14 @@ class NotificationOriginator:
         # 3.3
         ( notifyTag,
           notifyType ) = config.getNotificationInfo(
-            snmpEngine, notificationTarget
+                snmpEngine, notificationTarget
             )
 
         metaSendPduHandle = getNextHandle()
 
-        debug.logger & debug.flagApp and debug.logger('sendNotification: metaSendPduHandle %s, notifyTag %s, notifyType %s' % (metaSendPduHandle, notifyTag, notifyType))
+        debug.logger & debug.flagApp and debug.logger('sendVarBinds: metaSendPduHandle %s, notifyTag %s, notifyType %s' % (metaSendPduHandle, notifyTag, notifyType))
 
-        contextMibInstrumCtl = self.snmpContext.getMibInstrum(contextName)
+        contextMibInstrumCtl = snmpContext.getMibInstrum(contextName)
        
         additionalVarBinds = [  (v2c.ObjectIdentifier(x),y) for x,y in additionalVarBinds ]
 
@@ -210,7 +292,7 @@ class NotificationOriginator:
               securityName,
               securityLevel ) = config.getTargetParams(snmpEngine, params)
 
-            debug.logger & debug.flagApp and debug.logger('sendNotification: metaSendPduHandle %s, notifyTag %s yields: transportDomain %s, transportAddress %r, securityModel %s, securityName %s, securityLevel %s' % (metaSendPduHandle, notifyTag, transportDomain, transportAddress, securityModel, securityName, securityLevel))
+            debug.logger & debug.flagApp and debug.logger('sendVarBinds: metaSendPduHandle %s, notifyTag %s yields: transportDomain %s, transportAddress %r, securityModel %s, securityName %s, securityLevel %s' % (metaSendPduHandle, notifyTag, transportDomain, transportAddress, securityModel, securityName, securityLevel))
 
             # 3.3.1 XXX
 # XXX filtering's yet to be implemented
@@ -237,7 +319,7 @@ class NotificationOriginator:
             if len(notificationName) == 2:  # ('MIB', 'symbol')
                 notificationTypeObject, = contextMibInstrumCtl.mibBuilder.importSymbols(*notificationName)
                 varBinds.append((snmpTrapOid.name, v2c.ObjectIdentifier(notificationTypeObject.name)))
-                debug.logger & debug.flagApp and debug.logger('sendNotification: notification type object is %s' % notificationTypeObject)
+                debug.logger & debug.flagApp and debug.logger('sendVarBinds: notification type object is %s' % notificationTypeObject)
                 for notificationObject in notificationTypeObject.getObjects():
                     mibNode, = contextMibInstrumCtl.mibBuilder.importSymbols(*notificationObject)
                     if instanceIndex:
@@ -245,7 +327,7 @@ class NotificationOriginator:
                     else:
                         mibNode = mibNode.getNextNode(mibNode.name)
                     varBinds.append((mibNode.name, mibNode.syntax))
-                    debug.logger & debug.flagApp and debug.logger('sendNotification: processed notification object %s, instance index %s, var-bind %s' % (notificationObject, instanceIndex is None and "<first>" or instanceIndex, mibNode))
+                    debug.logger & debug.flagApp and debug.logger('sendVarBinds: processed notification object %s, instance index %s, var-bind %s' % (notificationObject, instanceIndex is None and "<first>" or instanceIndex, mibNode))
             elif notificationName:  # numeric OID
                 varBinds.append(
                     (snmpTrapOid.name,
@@ -263,7 +345,7 @@ class NotificationOriginator:
                         securityLevel, 'notify', contextName, varName
                         )
                 except error.StatusInformation:
-                    debug.logger & debug.flagApp and debug.logger('sendNotification: OID %s not allowed for %s, droppping notification' % (varName, securityName))
+                    debug.logger & debug.flagApp and debug.logger('sendVarBinds: OID %s not allowed for %s, droppping notification' % (varName, securityName))
                     return
                 else:
                     varBinds.append((varName, varVal))
@@ -274,118 +356,101 @@ class NotificationOriginator:
             elif notifyType == 2:
                 pdu = v2c.InformRequestPDU()
             else:
-                raise RuntimeError()
+                raise error.ProtocolError('Unknown notify-type %r', notifyType)
+            
             v2c.apiPDU.setDefaults(pdu)
             v2c.apiPDU.setVarBinds(pdu, varBinds)
 
-            # User-side API assumes SMIv2
-            if messageProcessingModel == 0:
-                reqPDU = rfc2576.v2ToV1(pdu)
-                pduVersion = 0
-            else:
-                reqPDU = pdu
-                pduVersion = 1
+            cbCtx = cbFun, cbCtx
+            cbFun = self.processResponseVarBinds
             
             # 3.3.5
-            if notifyType == 1:
-                try:
-                    snmpEngine.msgAndPduDsp.sendPdu(
-                        snmpEngine,
-                        transportDomain,
-                        transportAddress,
-                        messageProcessingModel,
-                        securityModel,
-                        securityName,
-                        securityLevel,
-                        self.snmpContext.contextEngineId,
-                        contextName,
-                        pduVersion,
-                        reqPDU,
-                        None
-                    )
-                except error.StatusInformation:
-                    statusInformation = sys.exc_info()[1]
-                    debug.logger & debug.flagApp and debug.logger('sendReq: metaSendPduHandle %s: sendPdu() failed with %r' % (metaSendPduHandle, statusInformation))
-                    if metaSendPduHandle not in self.__pendingNotifications or \
-                            not self.__pendingNotifications[metaSendPduHandle]:
-                        if metaSendPduHandle in self.__pendingNotifications:
-                            del self.__pendingNotifications[metaSendPduHandle]
-                        self._handleResponse(
-                            metaSendPduHandle,
-                            statusInformation['errorIndication'],
-                            0, 0, (),
-                            cbFun,
-                            cbCtx
-                        )
-                    return metaSendPduHandle
-            else:
-                # Convert timeout in seconds into timeout in timer ticks
-                timeoutInTicks = float(timeout)/100/snmpEngine.transportDispatcher.getTimerResolution()
-
-                # 3.3.6a
-                try:
-                    sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(
-                        snmpEngine,
-                        transportDomain,
-                        transportAddress,
-                        messageProcessingModel,
-                        securityModel,
-                        securityName,
-                        securityLevel,
-                        self.snmpContext.contextEngineId,
-                        contextName,
-                        pduVersion,
-                        reqPDU,
-                        1,                      # expectResponse
-                        timeoutInTicks,
-                        self.processResponsePdu,
-                        (cbFun, cbCtx)
-                    )
-                except error.StatusInformation:
-                    statusInformation = sys.exc_info()[1]
-                    debug.logger & debug.flagApp and debug.logger('sendReq: metaSendPduHandle %s: sendPdu() failed with %r' % (metaSendPduHandle, statusInformation))
-                    if metaSendPduHandle not in self.__pendingNotifications or \
-                            not self.__pendingNotifications[metaSendPduHandle]:
-                        if metaSendPduHandle in self.__pendingNotifications:
-                            del self.__pendingNotifications[metaSendPduHandle]
-                        self._handleResponse(
-                            metaSendPduHandle,
-                            statusInformation['errorIndication'],
-                            0, 0, (),
-                            cbFun,
-                            cbCtx
-                        )
-                    return metaSendPduHandle
-
-                debug.logger & debug.flagApp and debug.logger('sendNotification: metaSendPduHandle %s, sendPduHandle %s, timeout %d' % (metaSendPduHandle, sendPduHandle, timeout))
+            try:
+                sendPduHandle = self.sendPdu(snmpEngine,
+                                             targetAddrName,
+                                             snmpContext.contextEngineId,
+                                             contextName,
+                                             pdu,
+                                             cbFun,
+                                             cbCtx)
                 
-                # 3.3.6b
-                self.__pendingReqs[sendPduHandle] = (
-                    transportDomain,
-                    transportAddress,
-                    messageProcessingModel,
-                    securityModel,
-                    securityName,
-                    securityLevel,
-                    self.snmpContext.contextEngineId,
-                    contextName,
-                    pdu,
-                    timeout,
-                    retryCount,
-                    1,
-                    metaSendPduHandle
-                )
-               
+            except error.StatusInformation:
+                statusInformation = sys.exc_info()[1]
+                debug.logger & debug.flagApp and debug.logger('sendVarBinds: metaSendPduHandle %s: sendVarBindsPdu() failed with %r' % (metaSendPduHandle, statusInformation))
+                if metaSendPduHandle not in self.__pendingNotifications or \
+                       not self.__pendingNotifications[metaSendPduHandle]:
+                    if metaSendPduHandle in self.__pendingNotifications:
+                        del self.__pendingNotifications[metaSendPduHandle]
+                    self._handleResponse(
+                        metaSendPduHandle,
+                        statusInformation['errorIndication'],
+                        0, 0, (),
+                        cbFun,
+                        cbCtx
+                    )
+                return metaSendPduHandle
+
+            debug.logger & debug.flagApp and debug.logger('sendVarBinds: metaSendPduHandle %s, timeout %d' % (metaSendPduHandle, timeout))
+
+            if notifyType == 2:
                 if metaSendPduHandle not in self.__pendingNotifications:
                     self.__pendingNotifications[metaSendPduHandle] = 0
                 self.__pendingNotifications[metaSendPduHandle] += 1
-
-                snmpEngine.transportDispatcher.jobStarted(id(self))
-
-        debug.logger & debug.flagApp and debug.logger('sendNotification: metaSendPduHandle %s, notification(s) sent' % metaSendPduHandle)
+                self.__metaSendPduHandles[sendPduHandle] = metaSendPduHandle
+                
+        debug.logger & debug.flagApp and debug.logger('sendVarBinds: metaSendPduHandle %s, notification(s) sent' % metaSendPduHandle)
 
         return metaSendPduHandle
 
+#
+# Obsolete, compatibility interfaces.
+#
+
+def _sendNotificationCbFun(snmpEngine,
+                           sendRequestHandle,
+                           errorIndication,
+                           errorStatus,
+                           errorIndex,
+                           varBinds,
+                           cbCtx):
+    cbFun, cbCtx = cbCtx
+        
+    try:
+        # we need to pass response PDU information to user for INFORMs
+        cbFun(sendRequestHandle, errorIndication, 
+              errorStatus, errorIndex, varBinds, cbCtx)
+    except TypeError:
+        # a backward compatible way of calling user function
+        cbFun(sendRequestHandle, errorIndication, cbCtx)
+
+def _sendNotification(self,
+                      snmpEngine,
+                      notificationTarget,
+                      notificationName,
+                      additionalVarBinds=(),
+                      cbFun=None,
+                      cbCtx=None,
+                      contextName=null,
+                      instanceIndex=None):
+    if self.snmpContext is None:
+        raise error.ProtocolError('SNMP context not specified')
+        
+    cbCtx = cbFun, cbCtx
+    cbFun = _sendNotificationCbFun
+
+    return self.sendVarBinds(snmpEngine,
+                             self.snmpContext,
+                             contextName,
+                             notificationTarget,
+                             notificationName,
+                             instanceIndex,
+                             additionalVarBinds,
+                             cbFun,
+                             cbCtx)
+
+# install compatibility wrapper
+NotificationOriginator.sendNotification = _sendNotification
+    
 # XXX
 # move/group/implement config setting/retrieval at a stand-alone module
 
