@@ -55,6 +55,9 @@ Revision 4.2.6rc0
   be reused with many different snmpEngines.
 - Multiple fixes to verify pyasn1 decoder.decode() return to withstand
   broken SNMP messages or its components.
+- Fix to authoritative engine side snmpEngineID discovery procedure: 
+  respond with notInTimeWindows rather then with unsupportedSecurityLevel
+  at time synchronization phase.
 - Fix to rfc1902.Bits type to make it accepting hex and binary initializers,
   cope with missing bits identifieirs at prettyPrint().
 - Memory leak fixed in CommandForwarder examples.
@@ -275,7 +278,7 @@ Revision 4.2.3
 --------------
 
 - SECURITY FIX: USM subsystem did not verify securityLevel of a request
-  to an authoritative SNMP engineinbound against auth/priv protocols
+  to an authoritative SNMP engine against auth/priv protocols
   configured for the user in question. That allowed unauthenticated/unciphered
   access to pysnmp-based Agent even if USM user is configured to provide one.
 - Oneliner [Asyn]CommandGenerator now supports optional keyword args

@@ -638,14 +638,15 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         # 3.2.3
         if msgAuthoritativeEngineID not in self.__timeline:
             debug.logger & debug.flagSM and debug.logger('processIncomingMsg: unknown securityEngineID %r' % (msgAuthoritativeEngineID,))
-            if not msgAuthoritativeEngineID:
+            if not msgAuthoritativeEngineID or  \
+                    not 4 < len(msgAuthoritativeEngineID) < 33:
                 # 3.2.3b
                 usmStatsUnknownEngineIDs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownEngineIDs')
                 usmStatsUnknownEngineIDs.syntax = usmStatsUnknownEngineIDs.syntax+1
-                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: null securityEngineID')
+                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: null or malformed msgAuthoritativeEngineID')
                 pysnmpUsmDiscoverable, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__PYSNMP-USM-MIB', 'pysnmpUsmDiscoverable')
                 if pysnmpUsmDiscoverable.syntax:
-                    debug.logger & debug.flagSM and debug.logger('processIncomingMsg: request EngineID discovery')
+                    debug.logger & debug.flagSM and debug.logger('processIncomingMsg: starting snmpEngineID discovery procedure')
 
                     # Report original contextName
                     if scopedPduData.getName() != 'plaintext':
@@ -756,6 +757,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             usmUserPrivKeyLocalized=usmUserPrivKeyLocalized
         )
 
+        msgAuthoritativeEngineBoots = securityParameters.getComponentByPosition(1)
+        msgAuthoritativeEngineTime = securityParameters.getComponentByPosition(2)
+
         # 3.2.5
         if msgAuthoritativeEngineID == snmpEngineID:
             # Authoritative SNMP engine: make sure securityLevel is sufficient
@@ -769,7 +773,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 if usmUserAuthProtocol == noauth.NoAuth.serviceID:
                     __badSecIndication = 'authNoPriv wanted while auth not expected'
                 if usmUserPrivProtocol != nopriv.NoPriv.serviceID:
-                    __badSecIndication = 'authNoPriv wanted while priv expected'
+                    # 4 (discovery phase always uses authenticated messages)
+                    if msgAuthoritativeEngineBoots or msgAuthoritativeEngineTime:
+                        __badSecIndication = 'authNoPriv wanted while priv expected'
 
             elif securityLevel == 1:
                 if usmUserAuthProtocol != noauth.NoAuth.serviceID:
@@ -863,9 +869,6 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     debug.logger & debug.flagSM and debug.logger('processIncomingMsg: read timeline snmpEngineBoots %s snmpEngineTime %s for msgAuthoritativeEngineID %r, idle time %s secs' % (snmpEngineBoots, snmpEngineTime, msgAuthoritativeEngineID, idleTime))
                 else:
                     raise error.ProtocolError('Peer SNMP engine info missing')
-
-            msgAuthoritativeEngineBoots = securityParameters.getComponentByPosition(1)
-            msgAuthoritativeEngineTime = securityParameters.getComponentByPosition(2)
 
             # 3.2.7a
             if msgAuthoritativeEngineID == snmpEngineID:
