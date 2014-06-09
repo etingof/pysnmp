@@ -27,8 +27,8 @@ class CommandResponderBase:
         )
         self.snmpContext = self.__pendingReqs = None
         
-    def sendRsp(self, snmpEngine, stateReference,
-                errorStatus, errorIndex, varBinds):
+    def sendVarBinds(self, snmpEngine, stateReference,
+                        errorStatus, errorIndex, varBinds):
         ( messageProcessingModel,
           securityModel,
           securityName,
@@ -45,11 +45,14 @@ class CommandResponderBase:
         v2c.apiPDU.setErrorIndex(PDU, errorIndex)
         v2c.apiPDU.setVarBinds(PDU, varBinds)
 
-        debug.logger & debug.flagApp and debug.logger('sendRsp: stateReference %s, errorStatus %s, errorIndex %s, varBinds %s' % (stateReference, errorStatus, errorIndex, varBinds))
+        debug.logger & debug.flagApp and debug.logger('sendVarBinds: stateReference %s, errorStatus %s, errorIndex %s, varBinds %s' % (stateReference, errorStatus, errorIndex, varBinds))
         
-        self._sendRspPdu(snmpEngine, stateReference, PDU)
-        
-    def _sendRspPdu(self, snmpEngine, stateReference, PDU):
+        self.sendPdu(snmpEngine, stateReference, PDU)
+
+    # backward compatibility
+    sendRsp = sendVarBinds
+
+    def sendPdu(self, snmpEngine, stateReference, PDU):
         ( messageProcessingModel,
           securityModel,
           securityName,
@@ -83,7 +86,7 @@ class CommandResponderBase:
                 statusInformation
                 )
         except error.StatusInformation:
-            debug.logger & debug.flagApp and debug.logger('sendRsp: stateReference %s, statusInformation %s' % (stateReference, sys.exc_info()[1]))
+            debug.logger & debug.flagApp and debug.logger('sendPdu: stateReference %s, statusInformation %s' % (stateReference, sys.exc_info()[1]))
             snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpSilentDrops')
             snmpSilentDrops.syntax = snmpSilentDrops.syntax + 1
 
@@ -199,9 +202,9 @@ class CommandResponderBase:
         else:  # successful request processor must release state info
             return
         
-        self.sendRsp(
+        self.sendVarBinds(
             snmpEngine, stateReference, errorStatus, errorIndex, varBinds
-            )
+        )
 
         self.releaseStateInformation(stateReference)
         
@@ -272,11 +275,11 @@ class GetCommandResponder(CommandResponderBase):
         (acFun, acCtx) = acInfo
         # rfc1905: 4.2.1.1
         mgmtFun = self.snmpContext.getMibInstrum(contextName).readVars
-        self.sendRsp(
+        self.sendVarBinds(
             snmpEngine, stateReference, 0, 0, mgmtFun(
                 v2c.apiPDU.getVarBinds(PDU), (acFun, acCtx)
-                )
             )
+        )
         self.releaseStateInformation(stateReference)
         
 class NextCommandResponder(CommandResponderBase):
@@ -293,7 +296,9 @@ class NextCommandResponder(CommandResponderBase):
         while 1:
             rspVarBinds = mgmtFun(varBinds, (acFun, acCtx))
             try:
-                self.sendRsp(snmpEngine, stateReference, 0, 0, rspVarBinds)
+                self.sendVarBinds(
+                    snmpEngine, stateReference, 0, 0, rspVarBinds
+                )
             except error.StatusInformation:
                 idx = sys.exc_info()[1]['idx']
                 varBinds[idx] = (rspVarBinds[idx][0], varBinds[idx][1])
@@ -343,9 +348,9 @@ class BulkCommandResponder(CommandResponderBase):
             M = M - 1
 
         if len(rspVarBinds):
-            self.sendRsp(
+            self.sendVarBinds(
                 snmpEngine, stateReference, 0, 0, rspVarBinds
-                )
+            )
             self.releaseStateInformation(stateReference)
         else:
             raise pysnmp.smi.error.SmiError()
@@ -361,11 +366,11 @@ class SetCommandResponder(CommandResponderBase):
         mgmtFun = self.snmpContext.getMibInstrum(contextName).writeVars
         # rfc1905: 4.2.5.1-13
         try:
-            self.sendRsp(
+            self.sendVarBinds(
                 snmpEngine, stateReference, 0, 0, mgmtFun(
                     v2c.apiPDU.getVarBinds(PDU), (acFun, acCtx)
-                    )
                 )
+            )
             self.releaseStateInformation(stateReference)
         except ( pysnmp.smi.error.NoSuchObjectError,
                  pysnmp.smi.error.NoSuchInstanceError ):
