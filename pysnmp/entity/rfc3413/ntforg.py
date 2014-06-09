@@ -253,9 +253,9 @@ class NotificationOriginator:
     
     def sendVarBinds(self,
                      snmpEngine,
+                     notificationTarget,
                      snmpContext,
                      contextName,
-                     notificationTarget,
                      notificationName,
                      instanceIndex,
                      additionalVarBinds=(),
@@ -439,9 +439,9 @@ def _sendNotification(self,
     cbFun = _sendNotificationCbFun
 
     return self.sendVarBinds(snmpEngine,
+                             notificationTarget,
                              self.snmpContext,
                              contextName,
-                             notificationTarget,
                              notificationName,
                              instanceIndex,
                              additionalVarBinds,

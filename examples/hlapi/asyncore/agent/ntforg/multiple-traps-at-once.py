@@ -34,10 +34,10 @@ ntfOrg = ntforg.AsyncNotificationOriginator()
 for authData, transportTarget in targets:
     ntfOrg.sendNotification(
         snmpEngine,
-        context.SnmpContext(snmpEngine),
         authData,
         transportTarget,
-        ntforg.ContextData(),
+        context.SnmpContext(snmpEngine),
+        ntforg.null,
         'trap',
         ntforg.MibVariable('SNMPv2-MIB', 'coldStart'),
         ( ( rfc1902.ObjectName('1.3.6.1.2.1.1.1.0'),

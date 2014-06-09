@@ -6,7 +6,6 @@ from pysnmp.entity.rfc3413.oneliner.mibvar import MibVariable
 from pysnmp.entity.rfc3413.oneliner.auth import CommunityData, UsmUserData
 from pysnmp.entity.rfc3413.oneliner.target import UdpTransportTarget, \
     Udp6TransportTarget, UnixTransportTarget 
-from pysnmp.entity.rfc3413.oneliner.ctx import ContextData
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 
 # Auth protocol
@@ -113,8 +112,9 @@ class AsyncNotificationOriginator(cmdgen.AsyncCommandGenerator):
                 )
                 del cache['auth'][authDataKey]
 
-    def sendNotification(self, snmpEngine, snmpContext,
-                         authData, transportTarget, contextData,
+    def sendNotification(self, snmpEngine,
+                         authData, transportTarget,
+                         snmpContext, contextName,
                          notifyType,
                          notificationType, instanceIndex,
                          varBinds=(),
@@ -155,7 +155,7 @@ class AsyncNotificationOriginator(cmdgen.AsyncCommandGenerator):
                 cache['mibViewController'], oidOnly=True
             )
 
-        return ntforg.NotificationOriginator().sendVarBinds(snmpEngine, snmpContext, contextData.contextName, notifyName, notificationType, instanceIndex, self.makeVarBinds(snmpEngine, varBinds), __cbFun, (lookupNames, lookupValues, cbFun, cbCtx))
+        return ntforg.NotificationOriginator().sendVarBinds(snmpEngine, notifyName, snmpContext, contextName, notificationType, instanceIndex, self.makeVarBinds(snmpEngine, varBinds), __cbFun, (lookupNames, lookupValues, cbFun, cbCtx))
 
 # substitute sendNotification return object for backward compatibility
 class ErrorIndicationReturn:
@@ -230,8 +230,9 @@ class AsynNotificationOriginator(cmdgen.AsynCommandGenerator):
             notificationType = MibVariable(notificationType[0][0], notificationType[0][1], *notificationType[1:]).resolveWithMib(self.mibViewController)
 
         return self.__asyncNtfOrg.sendNotification(
-            self.snmpEngine, self.snmpContext,
-            authData, transportTarget, ContextData(contextName=contextName),
+            self.snmpEngine,
+            authData, transportTarget, 
+            self.snmpContext, contextName,
             notifyType, notificationType, None, varBinds, 
             (__cbFun, cbInfo),
             lookupNames, lookupValues

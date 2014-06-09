@@ -74,10 +74,10 @@ for authData, transportTarget in targets:
             snmpEngineA or snmpEngineB
     sendPduHandle = ntfOrg.sendNotification(
         snmpEngine,
-        context.SnmpContext(snmpEngine),
         authData,
         transportTarget,
-        ntforg.ContextData(),
+        context.SnmpContext(snmpEngine),
+        ntforg.null,
         'inform',
         ntforg.MibVariable('SNMPv2-MIB', 'coldStart'),
         ( ( rfc1902.ObjectName('1.3.6.1.2.1.1.1.0'),
