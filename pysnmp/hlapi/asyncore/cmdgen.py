@@ -483,8 +483,9 @@ class AsynCommandGenerator:
         return self.__asyncCmdGen.bulkCmd(
             self.snmpEngine, 
             authData, transportTarget,
+            ContextData(contextEngineId, contextName),
             nonRepeaters, maxRepetitions,
-            ContextData(contextEngineId, contextName), varNames, cbInfo,
+            varNames, cbInfo,
             lookupNames, lookupValues
         )
 
