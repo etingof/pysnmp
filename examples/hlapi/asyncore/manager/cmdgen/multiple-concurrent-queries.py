@@ -78,7 +78,7 @@ cmdGen  = cmdgen.AsyncCommandGenerator()
 # Submit GET requests
 for authData, transportTarget, varNames in targets:
     cmdGen.getCmd(
-        snmpEngine, authData, transportTarget, varNames,
+        snmpEngine, authData, transportTarget, cmdgen.ContextData(), varNames,
         # User-space callback function and its context
         (cbFun, (authData, transportTarget)),
         lookupNames=True, lookupValues=True

@@ -80,7 +80,7 @@ cmdGen  = cmdgen.AsyncCommandGenerator()
 for authData, transportTarget, varNames in targets:
     varBindHead = cmdGen.makeVarBindsHead(snmpEngine, varNames)
     cmdGen.nextCmd(
-        snmpEngine, authData, transportTarget, varNames,
+        snmpEngine, authData, transportTarget, cmdgen.ContextData(), varNames,
         # User-space callback function and its context
         (cbFun, (varBindHead, authData, transportTarget)),
         lookupNames=True, lookupValues=True

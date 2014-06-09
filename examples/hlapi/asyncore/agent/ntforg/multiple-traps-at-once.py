@@ -37,6 +37,7 @@ for authData, transportTarget in targets:
         context.SnmpContext(snmpEngine),
         authData,
         transportTarget,
+        ntforg.ContextData(),
         'trap',
         ntforg.MibVariable('SNMPv2-MIB', 'coldStart'),
         ( ( rfc1902.ObjectName('1.3.6.1.2.1.1.1.0'),

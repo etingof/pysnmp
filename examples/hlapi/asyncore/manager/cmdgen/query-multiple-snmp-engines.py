@@ -96,7 +96,7 @@ for authData, transportTarget, varBinds in targets:
     snmpEngine = transportTarget.getTransportInfo()[1][1] % 3 and \
             snmpEngineA or snmpEngineB
     cmdGen.getCmd(
-        snmpEngine, authData, transportTarget, varBinds,
+        snmpEngine, authData, transportTarget, cmdgen.ContextData(), varBinds,
         (cbFun, (snmpEngine, authData, transportTarget))
     )
 
