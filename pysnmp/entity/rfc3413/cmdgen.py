@@ -133,6 +133,7 @@ class CommandGenerator:
             except StatusInformation:
                 statusInformation = sys.exc_info()[1]
                 debug.logger & debug.flagApp and debug.logger('processResponsePdu: origSendRequestHandle %s, _sendPdu() failed with %r' % (sendPduHandle, statusInformation))
+                origSendRequestHandle, cbFun, cbCtx = cbCtx
                 cbFun(snmpEngine,
                       origSendRequestHandle,
                       statusInformation['errorIndication'],
