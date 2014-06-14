@@ -45,6 +45,8 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
         sock.setblocking(0)
         self.set_socket(sock)
 
+    def __hash__(self): return hash(self.socket)
+
     # The following two methods are part of base class so here we overwrite
     # them to separate socket management from dispatcher registration tasks.
     # These two are just for dispatcher registration.

@@ -85,6 +85,8 @@ Revision 4.2.6rc0
 - Fix to licensing terms of multiple twisted backend modules to make
   the whole pysnmp package licensed under BSD 2-Clause license. This
   change has been explicitly permitted by the original modules authors.
+- Fix to asyncore-based transport not to use asyncore's cheap inheritance
+  from socket object what caused warnings.
 - Missing wrongLength and wrongEncoding SMI errors added.
 
 Revision 4.2.5
