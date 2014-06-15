@@ -13,7 +13,7 @@
 # 
 # The following Net-SNMP's command will send GET request to this Agent:
 #
-# $ snmpget -v3 -u usr-none-none -l noAuthNoPriv -n my-context 127.0.0.1 sysDescr.0
+# $ snmpget -v3 -u usr-none-none -l noAuthNoPriv -n my-context -Ir 127.0.0.1 sysDescr.0
 #
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdrsp, context
@@ -51,7 +51,7 @@ snmpContext = context.SnmpContext(snmpEngine)
 # always echos request var-binds in response.
 class EchoMibInstrumController(instrum.AbstractMibInstrumController):
     def readVars(self, vars, acInfo=(None, None)):
-        return vars
+        return [ (ov[0], v2c.OctetString('You queried OID %s' % ov[0])) for ov in vars]
 
 # Create a custom Management Instrumentation Controller and register at
 # SNMP Context under ContextName 'my-context'
