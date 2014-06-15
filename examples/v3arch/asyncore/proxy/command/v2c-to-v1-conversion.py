@@ -16,6 +16,11 @@
 #
 # $ snmpwalk -v1 -c public 195.218.195.228:161 system
 #
+# Warning: for production operation you would need to modify this script
+# so that it will re-map possible duplicate request-ID values, coming in
+# initial request PDUs from different Managers, into unique values to
+# avoid sending duplicate request-IDs to Agents.
+#
 from pysnmp.carrier.asynsock.dgram import udp
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdrsp, cmdgen, context
@@ -91,39 +96,31 @@ class CommandResponder(cmdrsp.CommandResponderBase):
     # SNMP request relay
     def handleMgmtOperation(self, snmpEngine, stateReference, contextName,
                             PDU, acInfo):
-        cbCtx = snmpEngine, stateReference
-        varBinds = v2c.apiPDU.getVarBinds(PDU)
+        cbCtx = stateReference, PDU
+        contextEngineId = None  # address authoritative SNMP Engine
         try:
-            if PDU.tagSet == v2c.GetBulkRequestPDU.tagSet:
-                self.cmdGenMap[PDU.tagSet].sendReq(
-                    snmpEngine, 'distant-agent', 
-                    v2c.apiBulkPDU.getNonRepeaters(PDU),
-                    v2c.apiBulkPDU.getMaxRepetitions(PDU),
-                    varBinds,
-                    self.handleResponse, cbCtx
-                )
-            elif PDU.tagSet in self.cmdGenMap:
-                self.cmdGenMap[PDU.tagSet].sendReq(
-                    snmpEngine, 'distant-agent', varBinds,
-                    self.handleResponse, cbCtx
-                )
+            self.cmdGenMap[PDU.tagSet].sendPdu(
+                snmpEngine, 'distant-agent', 
+                contextEngineId, contextName,
+                PDU,
+                self.handleResponsePdu, cbCtx
+            )
         except error.PySnmpError:
-            self.handleResponse(
-                stateReference,  'error', 0, 0, varBinds, cbCtx
+            self.handleResponsePdu(
+                stateReference,  'error', None, cbCtx
             )
 
     # SNMP response relay
-    def handleResponse(self, sendRequestHandle, errorIndication, 
-                       errorStatus, errorIndex, varBinds, cbCtx):
+    def handleResponsePdu(self, snmpEngine, sendRequestHandle,
+                          errorIndication, PDU, cbCtx):
+        stateReference, reqPDU = cbCtx
+
         if errorIndication:
-            errorStatus = 5
-            errorIndex = 0
-            varBinds = ()
+            PDU = v2c.apiPDU.getResponse(reqPDU)
+            PDU.setErrorStatus(PDU, 5)
 
-        snmpEngine, stateReference = cbCtx
-
-        self.sendRsp(
-            snmpEngine, stateReference,  errorStatus, errorIndex, varBinds
+        self.sendPdu(
+            snmpEngine, stateReference, PDU
         )
 
         self.releaseStateInformation(stateReference)
