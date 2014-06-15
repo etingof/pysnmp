@@ -81,7 +81,7 @@ class AsyncNotificationOriginator(cmdgen.AsyncCommandGenerator):
             else:
                 raise error.PySnmpError('Unknown authData %s' % (authData,))
         else:
-            authDataKeys = cache['auth'].keys()
+            authDataKeys = tuple(cache['auth'].keys())
 
         addrNames, paramsNames = self.uncfgCmdGen(snmpEngine, authData)
 
