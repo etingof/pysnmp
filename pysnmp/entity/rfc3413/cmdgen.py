@@ -492,28 +492,6 @@ class BulkCommandGeneratorSingleRun(CommandGenerator):
                             cbFun,
                             cbCtx)
 
-def _sendBulkReq(self,
-                 snmpEngine,
-                 targetName,
-                 nonRepeaters,
-                 maxRepetitions,
-                 varBinds,
-                 cbFun,
-                 cbCtx=None,
-                 contextEngineId=None,
-                 contextName=''):
-    cbCtx = cbFun, cbCtx
-    cbFun = __sendReqCbFun    
-    return self.sendVarBinds(snmpEngine,
-                             targetName,
-                             nonRepeaters,
-                             maxRepetitions,
-                             contextEngineId,
-                             contextName,
-                             varBinds,
-                             cbFun,
-                             cbCtx)
-
 class BulkCommandGenerator(BulkCommandGeneratorSingleRun):
     def processResponseVarBinds(self,
                                 snmpEngine,
@@ -592,14 +570,14 @@ def __sendReqCbFun(snmpEngine,
                    errorIndication,
                    errorStatus,
                    errorIndex,
-                   PDU,
+                   varBinds,
                    cbCtx):
     cbFun, cbCtx = cbCtx
     return cbFun(sendRequestHandle,
                  errorIndication,
                  errorStatus,
                  errorIndex,
-                 PDU,
+                 varBinds,
                  cbCtx)
 
 def _sendReq(self,
@@ -614,6 +592,28 @@ def _sendReq(self,
     cbFun = __sendReqCbFun    
     return self.sendVarBinds(snmpEngine,
                              targetName,
+                             contextEngineId,
+                             contextName,
+                             varBinds,
+                             cbFun,
+                             cbCtx)
+
+def _sendBulkReq(self,
+                 snmpEngine,
+                 targetName,
+                 nonRepeaters,
+                 maxRepetitions,
+                 varBinds,
+                 cbFun,
+                 cbCtx=None,
+                 contextEngineId=None,
+                 contextName=''):
+    cbCtx = cbFun, cbCtx
+    cbFun = __sendReqCbFun    
+    return self.sendVarBinds(snmpEngine,
+                             targetName,
+                             nonRepeaters,
+                             maxRepetitions,
                              contextEngineId,
                              contextName,
                              varBinds,
