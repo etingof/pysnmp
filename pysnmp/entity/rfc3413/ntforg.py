@@ -14,7 +14,7 @@ class NotificationOriginator:
     acmID = 3  # default MIB access control method to use
     def __init__(self, snmpContext=None):
         self.__pendingReqs = {}
-        self.__metaSendPduHandles = {}
+        self.__sendRequestHandles = {}
         self.__pendingNotifications = {}
         self.snmpContext = snmpContext  # this is deprecated
 
@@ -49,20 +49,20 @@ class NotificationOriginator:
           origRetryCount,
           origRetries ) = self.__pendingReqs.pop(sendPduHandle)
 
-        metaSendPduHandle = self.__metaSendPduHandles.pop(sendPduHandle)
+        sendRequestHandle = self.__sendRequestHandles.pop(sendPduHandle)
 
-        self.__pendingNotifications[metaSendPduHandle] -= 1
+        self.__pendingNotifications[sendRequestHandle] -= 1
 
         snmpEngine.transportDispatcher.jobFinished(id(self))
 
         if statusInformation:
-            debug.logger & debug.flagApp and debug.logger('processResponsePdu: metaSendPduHandle %s, sendPduHandle %s statusInformation %s' % (metaSendPduHandle, sendPduHandle, statusInformation))
+            debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendRequestHandle %s, sendPduHandle %s statusInformation %s' % (sendRequestHandle, sendPduHandle, statusInformation))
             if origRetries == origRetryCount:
-                debug.logger & debug.flagApp and debug.logger('processResponsePdu: metaSendPduHandle %s, sendPduHandle %s retry count %d exceeded' % (metaSendPduHandle, sendPduHandle, origRetries))
-                if not self.__pendingNotifications[metaSendPduHandle]:
-                    del self.__pendingNotifications[metaSendPduHandle]
+                debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendRequestHandle %s, sendPduHandle %s retry count %d exceeded' % (sendRequestHandle, sendPduHandle, origRetries))
+                if not self.__pendingNotifications[sendRequestHandle]:
+                    del self.__pendingNotifications[sendRequestHandle]
                     cbFun(snmpEngine,
-                          metaSendPduHandle,
+                          sendRequestHandle,
                           statusInformation['errorIndication'],
                           None,
                           cbCtx)
@@ -100,21 +100,21 @@ class NotificationOriginator:
                 )
             except error.StatusInformation:
                 statusInformation = sys.exc_info()[1]
-                debug.logger & debug.flagApp and debug.logger('processResponsePdu: metaSendPduHandle %s: sendPdu() failed with %r ' % (metaSendPduHandle, statusInformation))
-                if not self.__pendingNotifications[metaSendPduHandle]:
-                    del self.__pendingNotifications[metaSendPduHandle]
+                debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendRequestHandle %s: sendPdu() failed with %r ' % (sendRequestHandle, statusInformation))
+                if not self.__pendingNotifications[sendRequestHandle]:
+                    del self.__pendingNotifications[sendRequestHandle]
                     cbFun(snmpEngine,
-                          metaSendPduHandle,
+                          sendRequestHandle,
                           statusInformation['errorIndication'],
                           None,
                           cbCtx)
                 return
 
-            self.__pendingNotifications[metaSendPduHandle] += 1
+            self.__pendingNotifications[sendRequestHandle] += 1
 
             snmpEngine.transportDispatcher.jobStarted(id(self))
 
-            debug.logger & debug.flagApp and debug.logger('processResponsePdu: metaSendPduHandle %s, sendPduHandle %s, timeout %d, retry %d of %d' % (metaSendPduHandle, sendPduHandle, origTimeout, origRetries, origRetryCount))
+            debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendRequestHandle %s, sendPduHandle %s, timeout %d, retry %d of %d' % (sendRequestHandle, sendPduHandle, origTimeout, origRetries, origRetryCount))
         
             # 3.3.6b
             self.__pendingReqs[sendPduHandle] = (
@@ -131,19 +131,19 @@ class NotificationOriginator:
                 origRetryCount,
                 origRetries + 1
             )
-            self.__metaSendPduHandles[sendPduHandle] = metaSendPduHandle
+            self.__sendRequestHandles[sendPduHandle] = sendRequestHandle
             
             return
 
         # 3.3.6c
-        if not self.__pendingNotifications[metaSendPduHandle]:
-            del self.__pendingNotifications[metaSendPduHandle]
+        if not self.__pendingNotifications[sendRequestHandle]:
+            del self.__pendingNotifications[sendRequestHandle]
 
             # User-side API assumes SMIv2
             if messageProcessingModel == 0:
                 PDU = rfc2576.v1ToV2(PDU, origPdu)
 
-            cbFun(snmpEngine, metaSendPduHandle, None, PDU, cbCtx)
+            cbFun(snmpEngine, sendRequestHandle, None, PDU, cbCtx)
 
     def sendPdu(self,
                 snmpEngine,
@@ -238,13 +238,13 @@ class NotificationOriginator:
 
     def processResponseVarBinds(self,
                                 snmpEngine,
-                                metaSendPduHandle,
+                                sendRequestHandle,
                                 errorIndication,
                                 pdu,
                                 cbCtx):
             cbFun, cbCtx = cbCtx
             cbFun(snmpEngine,
-                  metaSendPduHandle,
+                  sendRequestHandle,
                   errorIndication,
                   pdu and v2c.apiPDU.getErrorStatus(pdu) or 0,
                   pdu and v2c.apiPDU.getErrorIndex(pdu, muteErrors=True) or 0,
@@ -273,9 +273,9 @@ class NotificationOriginator:
                 snmpEngine, notificationTarget
             )
 
-        metaSendPduHandle = getNextHandle()
+        sendRequestHandle = getNextHandle()
 
-        debug.logger & debug.flagApp and debug.logger('sendVarBinds: metaSendPduHandle %s, notifyTag %s, notifyType %s' % (metaSendPduHandle, notifyTag, notifyType))
+        debug.logger & debug.flagApp and debug.logger('sendVarBinds: sendRequestHandle %s, notifyTag %s, notifyType %s' % (sendRequestHandle, notifyTag, notifyType))
 
         contextMibInstrumCtl = snmpContext.getMibInstrum(contextName)
        
@@ -292,7 +292,7 @@ class NotificationOriginator:
               securityName,
               securityLevel ) = config.getTargetParams(snmpEngine, params)
 
-            debug.logger & debug.flagApp and debug.logger('sendVarBinds: metaSendPduHandle %s, notifyTag %s yields: transportDomain %s, transportAddress %r, securityModel %s, securityName %s, securityLevel %s' % (metaSendPduHandle, notifyTag, transportDomain, transportAddress, securityModel, securityName, securityLevel))
+            debug.logger & debug.flagApp and debug.logger('sendVarBinds: sendRequestHandle %s, notifyTag %s yields: transportDomain %s, transportAddress %r, securityModel %s, securityName %s, securityLevel %s' % (sendRequestHandle, notifyTag, transportDomain, transportAddress, securityModel, securityName, securityLevel))
 
             # 3.3.1 XXX
 # XXX filtering's yet to be implemented
@@ -376,31 +376,31 @@ class NotificationOriginator:
                 
             except error.StatusInformation:
                 statusInformation = sys.exc_info()[1]
-                debug.logger & debug.flagApp and debug.logger('sendVarBinds: metaSendPduHandle %s: sendVarBindsPdu() failed with %r' % (metaSendPduHandle, statusInformation))
-                if metaSendPduHandle not in self.__pendingNotifications or \
-                       not self.__pendingNotifications[metaSendPduHandle]:
-                    if metaSendPduHandle in self.__pendingNotifications:
-                        del self.__pendingNotifications[metaSendPduHandle]
+                debug.logger & debug.flagApp and debug.logger('sendVarBinds: sendRequestHandle %s: sendVarBindsPdu() failed with %r' % (sendRequestHandle, statusInformation))
+                if sendRequestHandle not in self.__pendingNotifications or \
+                       not self.__pendingNotifications[sendRequestHandle]:
+                    if sendRequestHandle in self.__pendingNotifications:
+                        del self.__pendingNotifications[sendRequestHandle]
                     self._handleResponse(
-                        metaSendPduHandle,
+                        sendRequestHandle,
                         statusInformation['errorIndication'],
                         0, 0, (),
                         cbFun,
                         cbCtx
                     )
-                return metaSendPduHandle
+                return sendRequestHandle
 
-            debug.logger & debug.flagApp and debug.logger('sendVarBinds: metaSendPduHandle %s, timeout %d' % (metaSendPduHandle, timeout))
+            debug.logger & debug.flagApp and debug.logger('sendVarBinds: sendRequestHandle %s, timeout %d' % (sendRequestHandle, timeout))
 
             if notifyType == 2:
-                if metaSendPduHandle not in self.__pendingNotifications:
-                    self.__pendingNotifications[metaSendPduHandle] = 0
-                self.__pendingNotifications[metaSendPduHandle] += 1
-                self.__metaSendPduHandles[sendPduHandle] = metaSendPduHandle
-                
-        debug.logger & debug.flagApp and debug.logger('sendVarBinds: metaSendPduHandle %s, notification(s) sent' % metaSendPduHandle)
+                if sendRequestHandle not in self.__pendingNotifications:
+                    self.__pendingNotifications[sendRequestHandle] = 0
+                self.__pendingNotifications[sendRequestHandle] += 1
+                self.__sendRequestHandles[sendPduHandle] = sendRequestHandle
 
-        return metaSendPduHandle
+        debug.logger & debug.flagApp and debug.logger('sendVarBinds: sendRequestHandle %s, notification(s) sent' % sendRequestHandle)
+
+        return sendRequestHandle
 
 #
 # Obsolete, compatibility interfaces.
