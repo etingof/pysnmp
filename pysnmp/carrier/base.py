@@ -60,7 +60,7 @@ class AbstractTransportDispatcher:
 
     def registerRoutingCbFun(self, routingCbFun):
         if self.__routingCbFun:
-             raise error.CarrierError(
+            raise error.CarrierError(
                 'Data routing callback already registered'
             )
         self.__routingCbFun = routingCbFun
@@ -71,7 +71,7 @@ class AbstractTransportDispatcher:
 
     def registerRecvCbFun(self, recvCb, recvId=None):
         if recvId in self.__recvCallables:
-             raise error.CarrierError(
+            raise error.CarrierError(
                 'Receive callback %r already registered' % (recvId is None and '<default>' or recvId,)
             )
         self.__recvCallables[recvId] = recvCb
@@ -189,7 +189,7 @@ class AbstractTransport:
     def registerCbFun(self, cbFun):
         if self._cbFun:
             raise error.CarrierError(
-                'Callback function %s already registered at %s' % (self.__cbFun, self)
+                'Callback function %s already registered at %s' % (self._cbFun, self)
                 )
         self._cbFun = cbFun
 

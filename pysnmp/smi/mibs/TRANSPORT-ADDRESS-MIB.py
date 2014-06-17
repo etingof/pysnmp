@@ -54,7 +54,7 @@ else:
                     raise socket.error(
                         'Invalid IPv6 address: "%s"' % (ip_string,)
                     )
-                return '\x00' * 16;
+                return '\x00' * 16
             elif spaces > 3:
                 raise socket.error(
                           'Invalid IPv6 address: "%s"' % (ip_string,)

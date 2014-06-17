@@ -242,14 +242,14 @@ class NotificationOriginator:
                                 errorIndication,
                                 pdu,
                                 cbCtx):
-            cbFun, cbCtx = cbCtx
-            cbFun(snmpEngine,
-                  sendRequestHandle,
-                  errorIndication,
-                  pdu and v2c.apiPDU.getErrorStatus(pdu) or 0,
-                  pdu and v2c.apiPDU.getErrorIndex(pdu, muteErrors=True) or 0,
-                  pdu and v2c.apiPDU.getVarBinds(pdu) or (),
-                  cbCtx)
+        cbFun, cbCtx = cbCtx
+        cbFun(snmpEngine,
+              sendRequestHandle,
+              errorIndication,
+              pdu and v2c.apiPDU.getErrorStatus(pdu) or 0,
+              pdu and v2c.apiPDU.getErrorIndex(pdu, muteErrors=True) or 0,
+              pdu and v2c.apiPDU.getVarBinds(pdu) or (),
+              cbCtx)
     
     def sendVarBinds(self,
                      snmpEngine,
@@ -381,13 +381,11 @@ class NotificationOriginator:
                        not self.__pendingNotifications[sendRequestHandle]:
                     if sendRequestHandle in self.__pendingNotifications:
                         del self.__pendingNotifications[sendRequestHandle]
-                    self._handleResponse(
-                        sendRequestHandle,
-                        statusInformation['errorIndication'],
-                        0, 0, (),
-                        cbFun,
-                        cbCtx
-                    )
+                    cbFun(snmpEngine,
+                          sendRequestHandle,
+                          statusInformation['errorIndication'],
+                          None,
+                          cbCtx)
                 return sendRequestHandle
 
             debug.logger & debug.flagApp and debug.logger('sendVarBinds: sendRequestHandle %s, timeout %d' % (sendRequestHandle, timeout))

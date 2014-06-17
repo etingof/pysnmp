@@ -36,7 +36,7 @@ class UnixSocketTransport(DgramSocketTransport):
         DgramSocketTransport.closeTransport(self)
         try:
             os.remove(self.__iface)
-        except:
+        except OSError:
             pass
 
 UnixTransport = UnixSocketTransport

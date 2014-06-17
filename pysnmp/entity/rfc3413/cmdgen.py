@@ -254,7 +254,7 @@ class CommandGenerator:
             0
         )
  
-        debug.logger & debug.flagApp and debug.logger('sendPdu: sendPduHandle %s, timeout %d*10 ms/%d ticks, retry %d of %d' % (sendPduHandle, timeout, timeoutInTicks, retries, retryCount))
+        debug.logger & debug.flagApp and debug.logger('sendPdu: sendPduHandle %s, timeout %d*10 ms/%d ticks, retry 0 of %d' % (sendPduHandle, timeout, timeoutInTicks, retryCount))
 
         return sendRequestHandle
 

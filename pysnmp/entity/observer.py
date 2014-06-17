@@ -13,6 +13,7 @@
 # to exist to functions that are at the same or deeper level of invocation
 # relative to execution point specified.
 #
+from pysnmp import error
 
 class MetaObserver:
     def __init__(self):
@@ -52,7 +53,7 @@ class MetaObserver:
             for execpoint in execpoints:
                 del self.__execpoints[execpoint]
         else:
-            self._execpoints.clear()
+            self.__execpoints.clear()
 
     def getExecutionContext(self, execpoint):
         return self.__execpoints[execpoint]

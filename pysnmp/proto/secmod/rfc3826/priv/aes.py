@@ -3,7 +3,6 @@ from pyasn1.type import univ
 from pysnmp.proto.secmod.rfc3414.priv import base
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
 from pysnmp.proto.secmod.rfc3414 import localkey
-from pyasn1.type import univ
 from pysnmp.proto import errind, error
 
 try:

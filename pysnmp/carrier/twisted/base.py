@@ -12,6 +12,5 @@ from pysnmp.carrier.base import AbstractTransport
 
 class AbstractTwistedTransport(AbstractTransport):
     protoTransportDispatcher = TwistedDispatcher
-    """Base Twisted Transport, to be used with TwistedDispatcher"""
     def __init__(self):
         self._writeQ = []

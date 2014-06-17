@@ -1,7 +1,7 @@
 # Implements asyncore-based UDP6 transport domain
 try:
     from socket import AF_INET6
-except:
+except ImportError:
     AF_INET6 = None
 from pysnmp.carrier.asynsock.dgram.base import DgramSocketTransport
 
