@@ -52,8 +52,8 @@ targets = (
 )
 
 # Wait for responses or errors
-def cbFun(sendRequestHandle, errorIndication, errorStatus, errorIndex,
-          varBinds, cbCtx):
+def cbFun(snmpEngine, sendRequestHandle, errorIndication,
+          errorStatus, errorIndex, varBinds, cbCtx):
     (snmpEngine, authData, transportTarget) = cbCtx
     print('snmpEngine %s: %s via %s' % 
         (snmpEngine.snmpEngineID.prettyPrint(), authData, transportTarget)

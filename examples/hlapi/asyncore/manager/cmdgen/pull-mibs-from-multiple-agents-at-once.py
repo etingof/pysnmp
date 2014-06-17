@@ -39,8 +39,8 @@ targets = (
 )
 
 # Wait for responses or errors, submit GETNEXT requests for further OIDs
-def cbFun(sendRequestHandle, errorIndication, errorStatus, errorIndex,
-          varBindTable, cbCtx):
+def cbFun(snmpEngine, sendRequestHandle, errorIndication, 
+          errorStatus, errorIndex, varBindTable, cbCtx):
     (varBindHead, authData, transportTarget) = cbCtx
     print('%s via %s' % (authData, transportTarget))
     if errorIndication:
