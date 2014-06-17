@@ -51,9 +51,8 @@ config.addTargetAddr(
 )
 
 # Error/response receiver
-def cbFun(sendRequestHandle,
-          errorIndication, errorStatus, errorIndex,
-          varBinds, cbCtx):
+def cbFun(snmpEngine, sendRequestHandle, errorIndication,
+          errorStatus, errorIndex, varBinds, cbCtx):
     if errorIndication:
         print(errorIndication)
     elif errorStatus:
@@ -67,13 +66,15 @@ def cbFun(sendRequestHandle,
             print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
 
 # Prepare and send a request message, pass custom ContextEngineId & ContextName
-cmdgen.GetCommandGenerator().sendReq(
+cmdgen.GetCommandGenerator().sendVarBinds(
     snmpEngine,
     'my-router',
-    ( ((1,3,6,1,2,1,1,1,0), None), ),
-    cbFun,
-    contextEngineId=rfc1902.OctetString(hexValue='80004fb805636c6f75644dab22cc'),
-    contextName=rfc1902.OctetString('da761cfc8c94d3aceef4f60f049105ba')
+    # contextEngineId
+    rfc1902.OctetString(hexValue='80004fb805636c6f75644dab22cc'),
+    # contextName
+    rfc1902.OctetString('da761cfc8c94d3aceef4f60f049105ba'),
+    [ ((1,3,6,1,2,1,1,1,0), None) ],
+    cbFun
 )
 
 # Run I/O dispatcher which would send pending queries and process responses

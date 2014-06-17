@@ -259,11 +259,12 @@ class AsyncCommandGenerator:
 
     def getCmd(self, snmpEngine, authData, transportTarget, contextData, 
                varNames, cbInfo, lookupNames=False, lookupValues=False):
-        def __cbFun(sendRequestHandle,
+        def __cbFun(snmpEngine, sendRequestHandle,
                     errorIndication, errorStatus, errorIndex,
                     varBinds, cbCtx):
             lookupNames, lookupValues, cbFun, cbCtx = cbCtx
             return cbFun(
+                snmpEngine,
                 sendRequestHandle,
                 errorIndication,
                 errorStatus,
@@ -279,22 +280,24 @@ class AsyncCommandGenerator:
             snmpEngine, authData, transportTarget
         )
 
-        return cmdgen.GetCommandGenerator().sendReq(
+        return cmdgen.GetCommandGenerator().sendVarBinds(
             snmpEngine,
             addrName,
+            contextData.contextEngineId,
+            contextData.contextName,
             self.makeVarBinds(snmpEngine, [(x, self._null) for x in varNames]),
             __cbFun,
-            (lookupNames, lookupValues, cbFun, cbCtx),
-            contextData.contextEngineId, contextData.contextName
+            (lookupNames, lookupValues, cbFun, cbCtx)
         )
     
     def setCmd(self, snmpEngine, authData, transportTarget, contextData,
                varBinds, cbInfo, lookupNames=False, lookupValues=False):
-        def __cbFun(sendRequestHandle,
+        def __cbFun(snmpEngine, sendRequestHandle,
                     errorIndication, errorStatus, errorIndex,
                     varBinds, cbCtx):
             lookupNames, lookupValues, cbFun, cbCtx = cbCtx
             return cbFun(
+                snmpEngine,
                 sendRequestHandle,
                 errorIndication,
                 errorStatus,
@@ -310,22 +313,24 @@ class AsyncCommandGenerator:
             snmpEngine, authData, transportTarget
         )
 
-        return cmdgen.SetCommandGenerator().sendReq(
+        return cmdgen.SetCommandGenerator().sendVarBinds(
             snmpEngine,
             addrName,
+            contextData.contextEngineId,
+            contextData.contextName,
             self.makeVarBinds(snmpEngine, varBinds),
             __cbFun,
-            (lookupNames, lookupValues, cbFun, cbCtx),
-            contextData.contextEngineId, contextData.contextName
+            (lookupNames, lookupValues, cbFun, cbCtx)
         )
     
     def nextCmd(self, snmpEngine, authData, transportTarget, contextData,
                 varNames, cbInfo, lookupNames=False, lookupValues=False):
-        def __cbFun(sendRequestHandle,
+        def __cbFun(snmpEngine, sendRequestHandle,
                     errorIndication, errorStatus, errorIndex,
                     varBindTable, cbCtx):
             lookupNames, lookupValues, cbFun, cbCtx = cbCtx
             return cbFun(
+                snmpEngine,
                 sendRequestHandle,
                 errorIndication,
                 errorStatus,
@@ -338,23 +343,24 @@ class AsyncCommandGenerator:
         addrName, paramsName = self.cfgCmdGen(
             snmpEngine, authData, transportTarget
         )
-        return cmdgen.NextCommandGenerator().sendReq(
+        return cmdgen.NextCommandGenerator().sendVarBinds(
             snmpEngine,
             addrName,
+            contextData.contextEngineId, contextData.contextName,
             self.makeVarBinds(snmpEngine, [(x, self._null) for x in varNames]),
             __cbFun,
-            (lookupNames, lookupValues, cbFun, cbCtx),
-            contextData.contextEngineId, contextData.contextName
+            (lookupNames, lookupValues, cbFun, cbCtx)
         )
 
     def bulkCmd(self, snmpEngine, authData, transportTarget, contextData,
                 nonRepeaters, maxRepetitions, varNames, cbInfo,
                 lookupNames=False, lookupValues=False):
-        def __cbFun(sendRequestHandle,
+        def __cbFun(snmpEngine, sendRequestHandle,
                     errorIndication, errorStatus, errorIndex,
                     varBindTable, cbCtx):
             lookupNames, lookupValues, cbFun, cbCtx = cbCtx
             return cbFun(
+                snmpEngine,
                 sendRequestHandle,
                 errorIndication,
                 errorStatus,
@@ -367,14 +373,15 @@ class AsyncCommandGenerator:
         addrName, paramsName = self.cfgCmdGen(
             snmpEngine, authData, transportTarget
         )
-        return cmdgen.BulkCommandGenerator().sendReq(
+        return cmdgen.BulkCommandGenerator().sendVarBinds(
             snmpEngine,
             addrName,
+            contextData.contextEngineId,
+            contextData.contextName,
             nonRepeaters, maxRepetitions,
             self.makeVarBinds(snmpEngine, [(x, self._null) for x in varNames]),
             __cbFun,
-            (lookupNames, lookupValues, cbFun, cbCtx),
-            contextData.contextEngineId, contextData.contextName
+            (lookupNames, lookupValues, cbFun, cbCtx)
         )
 
 # compatibility implementation, never use this class for new applications
@@ -424,9 +431,19 @@ class AsynCommandGenerator:
                lookupNames=False, lookupValues=False,
                contextEngineId=None, contextName=null):
 
+        def __cbFun(snmpEngine, sendRequestHandle,
+                    errorIndication, errorStatus, errorIndex,
+                    varBindTable, cbCtx):
+            cbFun, cbCtx = cbCtx
+            cbFun(sendRequestHandle,
+                  errorIndication, errorStatus, errorIndex,
+                  varBindTable, cbCtx)
+
         # for backward compatibility
         if contextName is null and authData.contextName:
             contextName = authData.contextName
+
+        cbInfo = __cbFun, cbInfo
 
         return self.__asyncCmdGen.getCmd(
             self.snmpEngine, 
@@ -441,10 +458,20 @@ class AsynCommandGenerator:
                lookupNames=False, lookupValues=False,
                contextEngineId=None, contextName=null):
 
+        def __cbFun(snmpEngine, sendRequestHandle,
+                    errorIndication, errorStatus, errorIndex,
+                    varBindTable, cbCtx):
+            cbFun, cbCtx = cbCtx
+            cbFun(sendRequestHandle,
+                  errorIndication, errorStatus, errorIndex,
+                  varBindTable, cbCtx)
+
         # for backward compatibility
         if contextName is null and authData.contextName:
             contextName = authData.contextName
 
+        cbInfo = __cbFun, cbInfo
+        
         return self.__asyncCmdGen.setCmd(
             self.snmpEngine,
             authData, transportTarget,
@@ -458,9 +485,19 @@ class AsynCommandGenerator:
                 lookupNames=False, lookupValues=False,
                 contextEngineId=None, contextName=null):
 
+        def __cbFun(snmpEngine, sendRequestHandle,
+                    errorIndication, errorStatus, errorIndex,
+                    varBindTable, cbCtx):
+            cbFun, cbCtx = cbCtx
+            return cbFun(sendRequestHandle,
+                         errorIndication, errorStatus, errorIndex,
+                         varBindTable, cbCtx)
+
         # for backward compatibility
         if contextName is null and authData.contextName:
             contextName = authData.contextName
+
+        cbInfo = __cbFun, cbInfo
 
         return self.__asyncCmdGen.nextCmd(
             self.snmpEngine,
@@ -476,9 +513,19 @@ class AsynCommandGenerator:
                 lookupNames=False, lookupValues=False,
                 contextEngineId=None, contextName=null):
 
+        def __cbFun(snmpEngine, sendRequestHandle,
+                    errorIndication, errorStatus, errorIndex,
+                    varBindTable, cbCtx):
+            cbFun, cbCtx = cbCtx
+            return cbFun(sendRequestHandle,
+                         errorIndication, errorStatus, errorIndex,
+                         varBindTable, cbCtx)
+
         # for backward compatibility
         if contextName is null and authData.contextName:
             contextName = authData.contextName
+
+        cbInfo = __cbFun, cbInfo
 
         return self.__asyncCmdGen.bulkCmd(
             self.snmpEngine, 

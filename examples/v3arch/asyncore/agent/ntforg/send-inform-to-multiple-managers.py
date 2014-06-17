@@ -71,22 +71,28 @@ config.addVacmUser(snmpEngine, 2, 'my-area', 'noAuthNoPriv', (), (), (1,3,6))
 
 # *** SNMP engine configuration is complete by this line ***
 
+# Create Notification Originator App instance. 
+ntfOrg = ntforg.NotificationOriginator()
+
 # Create default SNMP context where contextEngineId == SnmpEngineId
 snmpContext = context.SnmpContext(snmpEngine)
 
-# Create Notification Originator App instance. 
-ntfOrg = ntforg.NotificationOriginator(snmpContext)
- 
 # Build and submit notification message to dispatcher
-ntfOrg.sendNotification(
+ntfOrg.sendVarBinds(
     snmpEngine,
     # Notification targets
     'my-notification',
-    # Trap OID (SNMPv2-MIB::coldStart)
+    # SNMP Context
+    snmpContext,
+    # contextName
+    '',
+    # notification name (SNMPv2-MIB::coldStart)
     (1,3,6,1,6,3,1,1,5,1),
-    # ( (oid, value), ... )
-    ( ((1,3,6,1,2,1,1,1,0), v2c.OctetString('Example Notificator')),
-      ((1,3,6,1,2,1,1,5,0), v2c.OctetString('Notificator Example')) )
+    # instance Index
+    None,
+    # additional var-binds: ( (oid, value), ... )
+    [ ((1,3,6,1,2,1,1,1,0), v2c.OctetString('Example Notificator')),
+      ((1,3,6,1,2,1,1,5,0), v2c.OctetString('Notificator Example')) ]
 )
 
 print('Notifications are scheduled to be sent')

@@ -48,9 +48,8 @@ config.addTargetAddr(
 )
 
 # Error/response receiver
-def cbFun(sendRequestHandle,
-          errorIndication, errorStatus, errorIndex,
-          varBinds, cbCtx):
+def cbFun(snmpEngine, sendRequestHandle, errorIndication,
+          errorStatus, errorIndex, varBinds, cbCtx):
     if errorIndication:
         print(errorIndication)
     elif errorStatus:
@@ -64,10 +63,11 @@ def cbFun(sendRequestHandle,
             print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
 
 # Prepare and send a request message
-cmdgen.GetCommandGenerator().sendReq(
+cmdgen.GetCommandGenerator().sendVarBinds(
     snmpEngine,
     'my-router',
-    ( ((1,3,6,1,2,1,1,1,0), None), ),
+    None, '',  # contextEngineId, contextName
+    [ ((1,3,6,1,2,1,1,1,0), None) ],
     cbFun
 )
 

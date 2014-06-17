@@ -61,21 +61,28 @@ snmpContext = context.SnmpContext(snmpEngine)
 ntfOrg = ntforg.NotificationOriginator(snmpContext)
  
 # Error/confirmation receiver
-def cbFun(sendRequestHandle, errorIndication, cbCtx):
+def cbFun(snmpEngine, sendRequestHandle, errorIndication,
+          errorStatus, errorIndex, varBinds, cbCtx):
     print('Notification %s, status - %s' % (
         sendRequestHandle, errorIndication and errorIndication or 'delivered'
       )
     )
 
 # Build and submit notification message to dispatcher
-sendRequestHandle = ntfOrg.sendNotification(
+sendRequestHandle = ntfOrg.sendVarBinds(
     snmpEngine,
     # Notification targets
     'my-notification',
-    # Trap OID (SNMPv2-MIB::coldStart)
+    # SNMP Context
+    snmpContext,
+    # contextName
+    '',
+    # notification name (SNMPv2-MIB::coldStart)      
     (1,3,6,1,6,3,1,1,5,1),
-    # ( (oid, value), ... )
-    ( ((1,3,6,1,2,1,1,5,0), v2c.OctetString('system name')), ),
+    # instance Index
+    None,
+    # additional var-binds: ( (oid, value), ... )
+    [ ((1,3,6,1,2,1,1,5,0), v2c.OctetString('system name')) ],
     cbFun
 )
 

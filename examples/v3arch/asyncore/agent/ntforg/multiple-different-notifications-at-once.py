@@ -77,32 +77,39 @@ config.addVacmUser(snmpEngine, 3, 'usr-md5-none', 'authNoPriv', (), (), (1,3,6))
 
 # *** SNMP engine configuration is complete by this line ***
 
+# Create Notification Originator App instance. 
+ntfOrg = ntforg.NotificationOriginator()
+
 # Create default SNMP context where contextEngineId == SnmpEngineId
 snmpContext = context.SnmpContext(snmpEngine)
 
-# Create Notification Originator App instance. 
-ntfOrg = ntforg.NotificationOriginator(snmpContext)
-
-# Error/confirmation receiver 
-def cbFun(sendRequestHandle, errorIndication, cbCtx):
+# Error/confirmation receiver
+def cbFun(snmpEngine, sendRequestHandle, errorIndication,
+          errorStatus, errorIndex, varBinds, cbCtx):
     print('Notification %s, status - %s' % (
         sendRequestHandle, errorIndication and errorIndication or 'delivered'
       )
     )
-
+        
 # Build and submit notification message to dispatcher
-ntfOrg.sendNotification(
+sendRequestHandle = ntfOrg.sendVarBinds(
     snmpEngine,
     # Notification targets
     'my-notification',
-    # Trap OID (SNMPv2-MIB::coldStart)
+    # SNMP Context
+    snmpContext,
+    # contextName
+    '',
+    # notification name (SNMPv2-MIB::coldStart)
     (1,3,6,1,6,3,1,1,5,1),
-    # ( (oid, value), ... )
-    ( ((1,3,6,1,2,1,1,1,0), v2c.OctetString('Example Notificator')), ),
+    # instance Index
+    None,
+    # additional var-binds: ( (oid, value), ... )      
+    [ ((1,3,6,1,2,1,1,1,0), v2c.OctetString('Example Notificator')) ],
     cbFun
 )
 
-print('Notifications are scheduled to be sent')
+print('Notifications %s are scheduled to be sent' % sendRequestHandle)
 
 # Run I/O dispatcher which would send pending message and process response
 snmpEngine.transportDispatcher.runDispatcher()

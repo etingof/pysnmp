@@ -51,9 +51,8 @@ config.addTargetAddr(
 )
 
 # Error/response receiver
-def cbFun(sendRequestHandle,
-          errorIndication, errorStatus, errorIndex,
-          varBindTable, cbCtx):
+def cbFun(snmpEngine, sendRequestHandle, errorIndication,
+          errorStatus, errorIndex, varBindTable, cbCtx):
     if errorIndication:
         print(errorIndication)
         return
@@ -73,10 +72,11 @@ def cbFun(sendRequestHandle,
     return True # signal dispatcher to continue
 
 # Prepare initial request to be sent
-cmdgen.NextCommandGenerator().sendReq(
+cmdgen.NextCommandGenerator().sendVarBinds(
     snmpEngine,
     'my-router',
-    ( (initialOID, None), ),
+    None, '',  # contextEngineId, contextName
+    [ (initialOID, None) ],
     cbFun
 )
 
