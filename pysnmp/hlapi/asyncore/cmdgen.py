@@ -29,7 +29,7 @@ nextID = nextid.Integer(0xffffffff)
 class AsyncCommandGenerator:
     _null = univ.Null('')
 
-    def _getCmdCache(self, snmpEngine):
+    def _getCache(self, snmpEngine):
         if 'cmdgen' not in snmpEngine.cache:
             snmpEngine.cache['cmdgen'] = { 
                 'auth': {},
@@ -37,13 +37,17 @@ class AsyncCommandGenerator:
                 'tran': {},
                 'addr': {},
            }
-        if 'mibViewController' not in snmpEngine.cache['cmdgen']:
-            snmpEngine.cache['cmdgen']['mibViewController'] = view.MibViewController(snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder)
-
         return snmpEngine.cache['cmdgen']
 
+    def getMibViewController(self, snmpEngine):
+        if 'mibViewController' not in snmpEngine.cache:
+            snmpEngine.cache['mibViewController'] = view.MibViewController(
+                snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
+            )
+        return snmpEngine.cache['mibViewController']
+        
     def cfgCmdGen(self, snmpEngine, authData, transportTarget):
-        cache = self._getCmdCache(snmpEngine)
+        cache = self._getCache(snmpEngine)
         if isinstance(authData, CommunityData):
             if authData.communityIndex not in cache['auth']:
                 config.addV1System(
@@ -124,7 +128,7 @@ class AsyncCommandGenerator:
         return addrName, paramsName
 
     def uncfgCmdGen(self, snmpEngine, authData=None):
-        cache = self._getCmdCache(snmpEngine)
+        cache = self._getCache(snmpEngine)
         if authData:
             if isinstance(authData, CommunityData):
                 authDataKey = authData.communityIndex
@@ -200,8 +204,7 @@ class AsyncCommandGenerator:
         return addrNames, paramsNames
 
     def makeVarBinds(self, snmpEngine, varBinds, oidOnly=False):
-        cache = self._getCmdCache(snmpEngine)
-        mibViewController = cache['mibViewController']
+        mibViewController = self.getMibViewController(snmpEngine)
         __varBinds = []
         for varName, varVal in varBinds:
             if isinstance(varName, MibVariable):
@@ -228,8 +231,7 @@ class AsyncCommandGenerator:
 
     def unmakeVarBinds(self, snmpEngine, varBinds, lookupNames, lookupValues):
         if lookupNames or lookupValues:
-            cache = self._getCmdCache(snmpEngine)
-            mibViewController = cache['mibViewController']            
+            mibViewController = self.getMibViewController(snmpEngine)
             _varBinds = []
             for name, value in varBinds:
                 varName = MibVariable(name).resolveWithMib(mibViewController)
@@ -253,7 +255,6 @@ class AsyncCommandGenerator:
                 [ (x, univ.Null('')) for x in varNames ], oidOnly=True
             )
         ]
-
 
     # Async SNMP apps
 
@@ -393,10 +394,7 @@ class AsynCommandGenerator:
             self.snmpEngine = snmpEngine
 
         self.__asyncCmdGen = AsyncCommandGenerator()
-
-        # grab/create MibViewController from/for the real AsyncCommandGen
-        cache = self.__asyncCmdGen._getCmdCache(snmpEngine)
-        self.mibViewController = cache['mibViewController']
+        self.mibViewController = self.__asyncCmdGen.getMibViewController(self.snmpEngine)
 
     def __del__(self):
         self.__asyncCmdGen.uncfgCmdGen(self.snmpEngine)
