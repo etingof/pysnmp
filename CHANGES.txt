@@ -53,6 +53,8 @@ Revision 4.2.6rc0
 - Handle the case of null writer at Debug printer.
 - Do not cache snmpEngineId & snmpAdminString at CommandGenerator to let it
   be reused with many different snmpEngines.
+- TRAP PDU agent address evaluation at proto.api made lazy to improve
+  startup time.
 - Multiple fixes to verify pyasn1 decoder.decode() return to withstand
   broken SNMP messages or its components.
 - Fix to authoritative engine side snmpEngineID discovery procedure: 

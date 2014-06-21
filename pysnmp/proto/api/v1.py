@@ -122,17 +122,19 @@ class PDUAPI:
 apiPDU = PDUAPI()
 
 class TrapPDUAPI:
-    try:
-        import socket
-        agentAddress = IpAddress(socket.gethostbyname(socket.gethostname()))
-    except:
-        agentAddress = IpAddress('0.0.0.0')
-    _networkAddress = NetworkAddress().setComponentByPosition(0, agentAddress)
+    _networkAddress = None
     _entOid = ObjectIdentifier((1,3,6,1,4,1,20408))
     _genericTrap = rfc1157._genericTrap.clone('coldStart')
     _zeroInt = univ.Integer(0)
     _zeroTime = TimeTicks(0)
     def setDefaults(self, pdu):
+        if self._networkAddress is None:
+            try:
+                import socket
+                agentAddress = IpAddress(socket.gethostbyname(socket.gethostname()))
+            except:
+                agentAddress = IpAddress('0.0.0.0')
+        self._networkAddress = NetworkAddress().setComponentByPosition(0, agentAddress)
         pdu.setComponentByPosition(0, self._entOid, verifyConstraints=False)
         pdu.setComponentByPosition(1, self._networkAddress, verifyConstraints=False)
         pdu.setComponentByPosition(2, self._genericTrap,verifyConstraints=False)
