@@ -89,6 +89,8 @@ Revision 4.2.6rc0
   change has been explicitly permitted by the original modules authors.
 - Fix to asyncore-based transport not to use asyncore's cheap inheritance
   from socket object what caused warnings.
+- Fix at NotificationOriginator to make is using MibInstrumentationController
+  when expanding Notification OBJECTS into Managed Objects Instances.
 - Missing wrongLength and wrongEncoding SMI errors added.
 
 Revision 4.2.5

@@ -326,7 +326,11 @@ class NotificationOriginator:
                         mibNode = mibNode.getNode(mibNode.name + instanceIndex)
                     else:
                         mibNode = mibNode.getNextNode(mibNode.name)
-                    varBinds.append((mibNode.name, mibNode.syntax))
+                    varBinds.extend(
+                        contextMibInstrumCtl.readVars(
+                            [ (mibNode.name, None) ]  # XXX AC is missing
+                        )
+                    )
                     debug.logger & debug.flagApp and debug.logger('sendVarBinds: processed notification object %s, instance index %s, var-bind %s' % (notificationObject, instanceIndex is None and "<first>" or instanceIndex, mibNode))
             elif notificationName:  # numeric OID
                 varBinds.append(
