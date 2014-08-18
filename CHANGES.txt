@@ -152,6 +152,8 @@ Revision 4.2.5
   to facilitate authentication data management in user applications.
 - Oneliner transport target classes now support the getTransportInfo()
   method that returns network addresses used on protocol level.
+- Oneliner CommandGenerator.getNext() & .getBulk() methods now support the
+  maxCalls kwarg to limit the maximum number of iterations to perform.
 - The config.addSocketTransport() helper renamed into config.addTransport()
   and improved by automatically instantiating compatible TransportDispatcher
   making it dispatcher-agnostic. As an additional bonus, application may not

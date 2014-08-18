@@ -8,7 +8,8 @@
 # * to an Agent at demo.snmplabs.com:161
 # * for all OIDs past TCP-MIB::tcpConnTable
 # * TCP-MIB will be searched by a user-specified path
-# * run till end-of-mib condition is reported by Agent OR maxRows == 20
+# * run till end-of-mib condition is reported by Agent OR maxRows == 100 OR
+#   maxCalls == 10 request-response interactions occur
 # * ignoring non-increasing OIDs whenever reported by Agent
 #
 # make sure IF-MIB.py is search path
@@ -22,7 +23,7 @@ errorIndication, errorStatus, errorIndex, varBindTable = cmdGen.bulkCmd(
     cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
     0, 50,
     cmdgen.MibVariable('TCP-MIB', 'tcpConnTable').addMibSource('/tmp/mymibs'),
-    lexicographicMode=True, maxRows=100, ignoreNonIncreasingOid=True
+    lexicographicMode=True, maxRows=100, maxCalls=10,ignoreNonIncreasingOid=True
 )
 
 if errorIndication:

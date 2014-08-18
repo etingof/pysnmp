@@ -626,18 +626,6 @@ class CommandGenerator:
                 appReturn['varBindTable'] = varBindTotalTable
                 return
             else:
-                if maxRows and len(varBindTotalTable) >= maxRows or \
-                        hasattr(self, 'maxRows') and self.maxRows and \
-                        len(varBindTotalTable) >= self.maxRows:
-                    appReturn['errorIndication'] = errorIndication
-                    appReturn['errorStatus'] = errorStatus
-                    appReturn['errorIndex'] = errorIndex
-                    if hasattr(self, 'maxRows'):
-                        appReturn['varBindTable'] = varBindTotalTable[:self.maxRows]
-                    else:
-                        appReturn['varBindTable'] = varBindTotalTable[:maxRows]
-                    return
-                
                 varBindTableRow = varBindTable and varBindTable[-1] or varBindTable
                 for idx in range(len(varBindTableRow)):
                     name, val = varBindTableRow[idx]
@@ -660,6 +648,27 @@ class CommandGenerator:
                 
                 varBindTotalTable.extend(varBindTable)
 
+                if maxRows and len(varBindTotalTable) >= maxRows or \
+                        hasattr(self, 'maxRows') and self.maxRows and \
+                        len(varBindTotalTable) >= self.maxRows:
+                    appReturn['errorIndication'] = errorIndication
+                    appReturn['errorStatus'] = errorStatus
+                    appReturn['errorIndex'] = errorIndex
+                    if hasattr(self, 'maxRows'):
+                        appReturn['varBindTable'] = varBindTotalTable[:self.maxRows]
+                    else:
+                        appReturn['varBindTable'] = varBindTotalTable[:maxRows]
+                    return
+ 
+                if maxCalls[0] > 0:
+                    maxCalls[0] -= 1
+                    if maxCalls[0] == 0:
+                      appReturn['errorIndication'] = errorIndication
+                      appReturn['errorStatus'] = errorStatus
+                      appReturn['errorIndex'] = errorIndex
+                      appReturn['varBindTable'] = varBindTotalTable
+                      return
+
                 return 1 # continue table retrieval
 
         lookupNames = kwargs.get('lookupNames', False)        
@@ -668,6 +677,7 @@ class CommandGenerator:
         contextName = kwargs.get('contextName', null)
         lexicographicMode = kwargs.get('lexicographicMode', False)
         maxRows = kwargs.get('maxRows', 0)
+        maxCalls = [ kwargs.get('maxCalls', 0) ]
         ignoreNonIncreasingOid = kwargs.get('ignoreNonIncreasingOid', False)
 
         varBindHead = [ univ.ObjectIdentifier(x[0]) for x in self.__asynCmdGen.makeReadVarBinds(varNames) ]
@@ -714,22 +724,8 @@ class CommandGenerator:
                     else:
                         break
 
-                varBindTotalTable.extend(varBindTable) # XXX out of table 
-                                                       # rows possible
-
-                if maxRows and len(varBindTotalTable) >= maxRows or \
-                        hasattr(self, 'maxRows') and self.maxRows and \
-                        len(varBindTotalTable) >= self.maxRows:  # obsolete
-                    appReturn['errorIndication'] = errorIndication
-                    appReturn['errorStatus'] = errorStatus
-                    appReturn['errorIndex'] = errorIndex
-                    if hasattr(self, 'maxRows'):
-                        appReturn['varBindTable'] = varBindTotalTable[:self.maxRows]
-                    else:
-                        appReturn['varBindTable'] = varBindTotalTable[:maxRows]
-                    return
-
                 varBindTableRow = varBindTable and varBindTable[-1] or varBindTable
+
                 for idx in range(len(varBindTableRow)):
                     name, val = varBindTableRow[idx]
                     if not isinstance(val, univ.Null):
@@ -748,6 +744,30 @@ class CommandGenerator:
                     appReturn['varBindTable'] = varBindTotalTable
                     return
 
+                varBindTotalTable.extend(varBindTable) # XXX out of table 
+                                                       # rows possible
+
+                if maxCalls[0] > 0:
+                    maxCalls[0] -= 1
+                    if maxCalls[0] == 0:
+                      appReturn['errorIndication'] = errorIndication
+                      appReturn['errorStatus'] = errorStatus
+                      appReturn['errorIndex'] = errorIndex
+                      appReturn['varBindTable'] = varBindTotalTable
+                      return
+ 
+                if maxRows and len(varBindTotalTable) >= maxRows or \
+                        hasattr(self, 'maxRows') and self.maxRows and \
+                        len(varBindTotalTable) >= self.maxRows:  # obsolete
+                    appReturn['errorIndication'] = errorIndication
+                    appReturn['errorStatus'] = errorStatus
+                    appReturn['errorIndex'] = errorIndex
+                    if hasattr(self, 'maxRows'):
+                        appReturn['varBindTable'] = varBindTotalTable[:self.maxRows]
+                    else:
+                        appReturn['varBindTable'] = varBindTotalTable[:maxRows]
+                    return
+
                 return 1 # continue table retrieval
 
         lookupNames = kwargs.get('lookupNames', False)        
@@ -756,6 +776,7 @@ class CommandGenerator:
         contextName = kwargs.get('contextName', null)
         lexicographicMode = kwargs.get('lexicographicMode', False)
         maxRows = kwargs.get('maxRows', 0)
+        maxCalls = [ kwargs.get('maxCalls', 0) ]
         ignoreNonIncreasingOid = kwargs.get('ignoreNonIncreasingOid', False)
 
         varBindHead = [ univ.ObjectIdentifier(x[0]) for x in self.__asynCmdGen.makeReadVarBinds(varNames) ]
