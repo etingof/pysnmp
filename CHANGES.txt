@@ -92,6 +92,7 @@ Revision 4.2.6rc0
 - Fix at NotificationOriginator to make is using MibInstrumentationController
   when expanding Notification OBJECTS into Managed Objects Instances.
 - Missing wrongLength and wrongEncoding SMI errors added.
+- Fix to file descriptor leak at MibBuilder.
 
 Revision 4.2.5
 --------------
