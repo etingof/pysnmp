@@ -30,6 +30,7 @@ Revision 4.2.6rc0
   rebuilt on top of these new optimized versions keeping all the legacy
   for compatibility reasons. These classes no more keep references to 
   SnmpEngine what makes them reusable with many SnmpEngine class instances.
+- Built-in debugging is now based on Python logging module.
 - Example on a single Transport Dispatcher use with multiple SnmpEngine's
   in oneliner AsyncCommandGenerator & AsyncNotificationOriginator based
   applicatons added.

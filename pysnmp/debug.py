@@ -1,5 +1,5 @@
-import sys
 import time
+import logging
 from pyasn1.compat.octets import octs2ints
 from pysnmp import error
 from pysnmp import __version__
@@ -31,13 +31,33 @@ flagMap = {
     'all': flagAll
     }
 
+class Printer:
+    def __init__(self, logger=None, handler=None, formatter=None):
+        if logger is None:
+            logger = logging.getLogger('pysnmp')
+        logger.setLevel(logging.DEBUG)
+        if handler is None:
+            handler = logging.StreamHandler()
+        if formatter is None:
+            formatter = logging.Formatter('%(name)s: %(message)s')
+        handler.setFormatter(formatter)
+        handler.setLevel(logging.DEBUG)
+        logger.addHandler(handler)
+        self.__logger = logger
+
+    def __call__(self, msg): self.__logger.debug(msg)
+    def __str__(self): return '<python built-in logging>'
+
 class Debug:
-    defaultPrinter = sys.stderr and sys.stderr.write or None
-    def __init__(self, *flags):
+    defaultPrinter = None
+    def __init__(self, *flags, **options):
         self._flags = flagNone
-        if not self.defaultPrinter:
-            raise error.PySnmpError('Null debug writer specified')
-        self._printer = self.defaultPrinter
+        if options.get('printer') is not None:
+            self._printer = options.get('printer')
+        elif self.defaultPrinter is not None:
+            self._printer = self.defaultPrinter
+        else:
+            self._printer = Printer()
         self('running pysnmp version %s' % __version__)
         for f in flags:
             inverse = f and f[0] in ('!', '~')
@@ -57,7 +77,7 @@ class Debug:
         return 'logger %s, flags %x' % (self._printer, self._flags)
     
     def __call__(self, msg):
-        self._printer('DBG: [%s]: %s\n' % (self.timestamp(), msg))
+        self._printer('[%s]: %s' % (self.timestamp(), msg))
 
     def __and__(self, flag):
         return self._flags & flag
