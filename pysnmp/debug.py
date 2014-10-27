@@ -39,7 +39,7 @@ class Printer:
         if handler is None:
             handler = logging.StreamHandler()
         if formatter is None:
-            formatter = logging.Formatter('%(name)s: %(message)s')
+            formatter = logging.Formatter('%(asctime)s %(name)s: %(message)s')
         handler.setFormatter(formatter)
         handler.setLevel(logging.DEBUG)
         logger.addHandler(handler)
@@ -57,7 +57,14 @@ class Debug:
         elif self.defaultPrinter is not None:
             self._printer = self.defaultPrinter
         else:
-            self._printer = Printer()
+            if 'loggerName' in options:
+                # route our logs to parent logger
+                self._printer = Printer(
+                    logger=logging.getLogger(options['loggerName']),
+                    handler=logging.NullHandler()
+                )
+            else:
+                self._printer = Printer()
         self('running pysnmp version %s' % __version__)
         for f in flags:
             inverse = f and f[0] in ('!', '~')
@@ -77,17 +84,13 @@ class Debug:
         return 'logger %s, flags %x' % (self._printer, self._flags)
     
     def __call__(self, msg):
-        self._printer('[%s]: %s' % (self.timestamp(), msg))
+        self._printer(msg)
 
     def __and__(self, flag):
         return self._flags & flag
 
     def __rand__(self, flag):
         return flag & self._flags
-
-    def timestamp(self):
-        return time.strftime('%H:%M:%S', time.localtime()) + \
-               '.%.3d' % int((time.time() % 1) * 1000)
 
 # This will yield false from bitwise and with a flag, and save
 # on unnecessary calls
