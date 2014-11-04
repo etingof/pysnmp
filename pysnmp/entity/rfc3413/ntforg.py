@@ -198,7 +198,7 @@ class NotificationOriginator:
                                                             cbFun,
                                                             cbCtx)
 
-            debug.logger & debug.flagApp and debug.logger('sendVarBinds: sendPduHandle %s, timeout %d' % (sendPduHandle, timeout))
+            debug.logger & debug.flagApp and debug.logger('sendPdu: sendPduHandle %s, timeout %d' % (sendPduHandle, timeout))
 
             # 3.3.6b
             self.__pendingReqs[sendPduHandle] = (
@@ -232,7 +232,7 @@ class NotificationOriginator:
 
             sendPduHandle = None
 
-            debug.logger & debug.flagApp and debug.logger('sendVarBinds: message sent')
+            debug.logger & debug.flagApp and debug.logger('sendPdu: message sent')
 
         return sendPduHandle
 
