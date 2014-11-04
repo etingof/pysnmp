@@ -20,6 +20,7 @@ Revision 4.2.6rc0
   of pysnmp engine. Previously introduced non-standard APIs (like
   getting peer's transport endpoint which is not suggested in RFCs)
   will be gradually migrated to this new framework.
+- Initial support for the asyncio network transport added.
 - Internal oneliner apps configuration cache moved from respective
   apps objects to [a singular] snmpEngine object. That would allow
   for better cache reuse and allow for a single app working with
