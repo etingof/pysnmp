@@ -26,10 +26,10 @@
 # THE POSSIBILITY OF SUCH DAMAGE.
 #
 from pysnmp.carrier.base import AbstractTransportDispatcher
+from pysnmp.error import PySnmpError
 try:
     import asyncio
 except ImportError:
-    from pysnmp.error import PySnmpError
     raise PySnmpError('The asyncio transport is not available')
 
 loop = asyncio.get_event_loop()
