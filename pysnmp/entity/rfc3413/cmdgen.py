@@ -21,7 +21,7 @@ def getNextVarBinds(origVarBinds, varBinds):
                                        rfc1905.NoSuchInstance.tagSet,
                                        rfc1905.EndOfMibView.tagSet):
             nonNulls = nonNulls - 1
-        elif origVarBinds[idx][0].asTuple() >= varBinds[idx][0].asTuple():
+        elif v2c.ObjectIdentifier(origVarBinds[idx][0]).asTuple() >= varBinds[idx][0].asTuple():
             errorIndication = errind.oidNotIncreasing
             
         rspVarBinds.insert(0, (varBinds[idx][0], __null))
