@@ -36,9 +36,9 @@ class MetaObserver:
             self.__observers.clear()
             self.__contexts.clear()
         else:
-            for execpoint in self.__observers:
+            for execpoint in dict(self.__observers):
                 if cbFun in self.__observers[execpoint]:
-                    del self.__observers[execpoint][cbFun]
+                    self.__observers[execpoint].remove(cbFun)
                 if not self.__observers[execpoint]:
                     del self.__observers[execpoint]
 
