@@ -25,13 +25,14 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
 # THE POSSIBILITY OF SUCH DAMAGE.
 #
+import sys
+import traceback
 from pysnmp.carrier.asyncio.dgram.base import DgramAsyncioProtocol
 from pysnmp.carrier import error
 try:
     import asyncio
 except ImportError:
-    from pysnmp.error import PySnmpError
-    raise PySnmpError('The asyncio transport is not available')
+    import trollius as asyncio
 
 loop = asyncio.get_event_loop()
 
@@ -44,16 +45,16 @@ class UdpAsyncioTransport(DgramAsyncioProtocol):
         try:
             c = loop.create_datagram_endpoint(lambda: self, local_addr=iface)
             self._lport = asyncio.async(c)
-        except Exception as err:
-            raise error.CarrierError() from err
+        except Exception:
+            raise error.CarrierError(';'.join(traceback.format_exception(*sys.exc_info())))
         return self
 
     def openServerMode(self, iface=('0.0.0.0', 161)):
         try:
             c = loop.create_datagram_endpoint(lambda: self, local_addr=iface)
             self._lport = asyncio.async(c)
-        except Exception as err:
-            raise error.CarrierError() from err
+        except Exception:
+            raise error.CarrierError(';'.join(traceback.format_exception(*sys.exc_info())))
         return self
 
     def closeTransport(self):

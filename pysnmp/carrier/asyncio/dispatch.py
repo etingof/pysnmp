@@ -25,12 +25,14 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
 # THE POSSIBILITY OF SUCH DAMAGE.
 #
+import sys
+import traceback
 from pysnmp.carrier.base import AbstractTransportDispatcher
 from pysnmp.error import PySnmpError
 try:
     import asyncio
 except ImportError:
-    raise PySnmpError('The asyncio transport is not available')
+    import trollius as asyncio
 
 loop = asyncio.get_event_loop()
 
@@ -46,7 +48,7 @@ class AsyncioDispatcher(AbstractTransportDispatcher):
     @asyncio.coroutine
     def handle_timeout(self):
         while True:
-            yield from asyncio.sleep(self.getTimerResolution())
+            yield asyncio.From(asyncio.sleep(self.getTimerResolution()))
             self.handleTimerTick(loop.time())
 
     def runDispatcher(self, timeout=0.0):
@@ -55,8 +57,8 @@ class AsyncioDispatcher(AbstractTransportDispatcher):
                 loop.run_forever()
             except KeyboardInterrupt:
                 raise
-            except Exception as err:
-                raise PySnmpError('event loop error') from err
+            except Exception:
+                raise error.PySnmpError(';'.join(traceback.format_exception(*sys.exc_info())))
 
     def registerTransport(self, tDomain, transport):
         if self.loopingcall is None and self.getTimerResolution() > 0:
@@ -76,3 +78,17 @@ class AsyncioDispatcher(AbstractTransportDispatcher):
         if self.__transportCount == 0 and not self.loopingcall.done():
             self.loopingcall.cancel()
             self.loopingcall = None
+
+# Trollius or Tulip?
+if not hasattr(asyncio, "From"):
+    exec(
+"""\
+@asyncio.coroutine
+def handle_timeout(self):
+    while True:
+        yield from asyncio.sleep(self.getTimerResolution())
+        self.handleTimerTick(loop.time())
+AsyncioDispatcher.handle_timeout = handle_timeout\
+"""
+    )
+

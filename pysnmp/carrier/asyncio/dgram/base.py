@@ -25,20 +25,24 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
 # THE POSSIBILITY OF SUCH DAMAGE.
 #
+import sys
+import traceback
 from pysnmp.carrier.asyncio.base import AbstractAsyncioTransport
 from pysnmp.carrier import error
 from pysnmp import debug
 try:
     import asyncio
 except ImportError:
-    from pysnmp.error import PySnmpError
-    raise PySnmpError('The asyncio transport is not available')
+    import trollius as asyncio
 
 loop = asyncio.get_event_loop()
 
 class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
     """Base Asyncio datagram Transport, to be used with AsyncioDispatcher"""
     transport = None
+
+    def __init__(self, *args, **kwargs):
+        self._writeQ = []
 
     def datagram_received(self, datagram, transportAddress):
         if self._cbFun is None:
@@ -55,8 +59,8 @@ class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
                                                          (transportAddress, debug.hexdump(outgoingMessage)))
             try:
                 self.transport.sendto(outgoingMessage, transportAddress)
-            except Exception as err:
-                raise error.CarrierError() from err
+            except Exception:
+                raise error.CarrierError(';'.join(traceback.format_exception(*sys.exc_info())))
 
     def connection_lost(self, exc):
         debug.logger & debug.flagIO and debug.logger('connection_lost: invoked')
@@ -71,5 +75,5 @@ class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
         else:
             try:
                 self.transport.sendto(outgoingMessage, transportAddress)
-            except Exception as err:
-                raise error.CarrierError() from err
+            except Exception:
+                raise error.CarrierError(';'.join(traceback.format_exception(*sys.exc_info())))
