@@ -258,6 +258,9 @@ class CommandGenerator:
 
         return sendRequestHandle
 
+# backward compatibility stub
+CommandGeneratorBase = CommandGenerator
+
 class GetCommandGenerator(CommandGenerator):
     def processResponseVarBinds(self,
                                 snmpEngine,
