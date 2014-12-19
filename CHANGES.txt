@@ -96,6 +96,8 @@ Revision 4.2.6rc0
   when expanding Notification OBJECTS into Managed Objects Instances.
 - Missing wrongLength and wrongEncoding SMI errors added.
 - Fix to file descriptor leak at MibBuilder.
+- Fix to rfc2576.v2ToV1() to ignore impossible errorStatus.
+- Fix to rfc2576.v1ToV2() to reset ErrorStatus==noSuchName on proxying.
 
 Revision 4.2.5
 --------------

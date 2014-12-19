@@ -152,10 +152,12 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
                 v2VarBinds = [
                     (o, rfc1905.noSuchObject) for o, v in v2VarBinds
                 ]
-
-        # one-to-one mapping
-        v2c.apiPDU.setErrorStatus(v2Pdu, errorStatus)
-        v2c.apiPDU.setErrorIndex(v2Pdu, errorIndex)
+            v2c.apiPDU.setErrorStatus(v2Pdu, 0)
+            v2c.apiPDU.setErrorIndex(v2Pdu, 0)
+        else:
+            # partial one-to-one mapping - 4.2.1
+            v2c.apiPDU.setErrorStatus(v2Pdu, errorStatus)
+            v2c.apiPDU.setErrorIndex(v2Pdu, errorIndex)
 
         # 4.1.2.1 --> no-op
 
@@ -274,7 +276,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         v2ErrorStatus = v2c.apiPDU.getErrorStatus(v2Pdu)
         if v2ErrorStatus:
             v1.apiPDU.setErrorStatus(
-                v1Pdu, __v2ToV1ErrorMap[v2ErrorStatus]
+                v1Pdu, __v2ToV1ErrorMap.get(v2ErrorStatus, 5)
                 )
             v1.apiPDU.setErrorIndex(v1Pdu, v2c.apiPDU.getErrorIndex(v2Pdu, muteErrors=True))
 
