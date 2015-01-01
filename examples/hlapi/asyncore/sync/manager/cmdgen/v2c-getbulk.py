@@ -18,8 +18,8 @@ errorIndication, errorStatus, errorIndex, varBindTable = cmdGen.bulkCmd(
     cmdgen.CommunityData('public'),
     cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
     0, 25,
-    '1.3.6.1.2.1.2.2.1.2',
-    '1.3.6.1.2.1.2.2.1.3',
+    '1.3.6.1.2.1.2.2',
+    '1.3.6.1.2.1.2.3',
 )
 
 if errorIndication:

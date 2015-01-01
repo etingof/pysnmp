@@ -32,6 +32,8 @@ Revision 4.2.6rc0
   rebuilt on top of these new optimized versions keeping all the legacy
   for compatibility reasons. These classes no more keep references to 
   SnmpEngine what makes them reusable with many SnmpEngine class instances.
+- Oneliner GETBULK Command Generator now strips possible excessive OIDs
+  off the bottom of returned var-binds table.
 - Built-in debugging is now based on Python logging module.
 - Example on a single Transport Dispatcher use with multiple SnmpEngine's
   in oneliner AsyncCommandGenerator & AsyncNotificationOriginator based

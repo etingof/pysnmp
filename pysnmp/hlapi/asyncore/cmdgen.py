@@ -703,10 +703,10 @@ class CommandGenerator:
                 nonRepeaters, maxRepetitions, *varNames, **kwargs):
         def __cbFun(sendRequestHandle, errorIndication,
                     errorStatus, errorIndex, varBindTable, cbCtx):
-            (self, varBindHead, varBindTotalTable, appReturn) = cbCtx
+            (self, varBindHead, nullVarBinds, varBindTotalTable, appReturn) = cbCtx
             if (ignoreNonIncreasingOid or \
-                        hasattr(self, 'ignoreNonIncreasingOid') and \
-                        self.ignoreNonIncreasingOid ) and \
+                    hasattr(self, 'ignoreNonIncreasingOid') and \
+                    self.ignoreNonIncreasingOid ) and \
                     errorIndication and \
                     isinstance(errorIndication, errind.OidNotIncreasing):
                 errorIndication = None
@@ -717,69 +717,65 @@ class CommandGenerator:
                 appReturn['varBindTable'] = varBindTable
                 return
             else:
-                while varBindTable:
-                    if len(varBindTable[-1]) != len(varBindHead):
-                        # Fix possibly non-rectangular table
-                        del varBindTable[-1]
-                    else:
-                        break
+                stopFlag = False
+                if not lexicographicMode:  # cut possible extra OIDs
+                    stopFlag = True
+                    for i in xrange(len(varBindTable)):
+                        stopFlag = True
+                        if len(varBindTable[i]) != len(varBindHead):
+                            varBindTable = i and varBindTable[:i-1] or []
+                            break
+                        for j in xrange(len(varBindTable[i])): # dichotomy?
+                            name, val = varBindTable[i][j]
+                            if nullVarBinds[j]:
+                                varBindTable[i][j] = name, rfc1905.endOfMibView
+                                continue
+                            stopFlag = False
+                            if not isinstance(val, univ.Null):
+                                if not varBindHead[j].isPrefixOf(name):
+                                    varBindTable[i][j] = name, rfc1905.endOfMibView
+                                    nullVarBinds[j] = True
+                        if stopFlag:
+                            varBindTable = i and varBindTable[:i-1] or []
+                            break
 
-                varBindTableRow = varBindTable and varBindTable[-1] or varBindTable
+                varBindTotalTable.extend(varBindTable)
 
-                for idx in range(len(varBindTableRow)):
-                    name, val = varBindTableRow[idx]
-                    if not isinstance(val, univ.Null):
-                        if lexicographicMode or \
-                               hasattr(self, 'lexicographicMode') and \
-                               self.lexicographicMode:  # obsolete
-                            if varBindHead[idx] <= name:
-                                break
-                        else:
-                            if varBindHead[idx].isPrefixOf(name):
-                                break
-                else:
-                    appReturn['errorIndication'] = errorIndication
-                    appReturn['errorStatus'] = errorStatus
-                    appReturn['errorIndex'] = errorIndex
-                    appReturn['varBindTable'] = varBindTotalTable
-                    return
-
-                varBindTotalTable.extend(varBindTable) # XXX out of table 
-                                                       # rows possible
+                appReturn['errorIndication'] = errorIndication
+                appReturn['errorStatus'] = errorStatus
+                appReturn['errorIndex'] = errorIndex
+                appReturn['varBindTable'] = varBindTotalTable
 
                 if maxCalls[0] > 0:
                     maxCalls[0] -= 1
                     if maxCalls[0] == 0:
-                      appReturn['errorIndication'] = errorIndication
-                      appReturn['errorStatus'] = errorStatus
-                      appReturn['errorIndex'] = errorIndex
-                      appReturn['varBindTable'] = varBindTotalTable
                       return
  
                 if maxRows and len(varBindTotalTable) >= maxRows or \
                         hasattr(self, 'maxRows') and self.maxRows and \
                         len(varBindTotalTable) >= self.maxRows:  # obsolete
-                    appReturn['errorIndication'] = errorIndication
-                    appReturn['errorStatus'] = errorStatus
-                    appReturn['errorIndex'] = errorIndex
                     if hasattr(self, 'maxRows'):
                         appReturn['varBindTable'] = varBindTotalTable[:self.maxRows]
                     else:
                         appReturn['varBindTable'] = varBindTotalTable[:maxRows]
                     return
 
-                return 1 # continue table retrieval
+                return not stopFlag    # continue table retrieval
 
         lookupNames = kwargs.get('lookupNames', False)        
         lookupValues = kwargs.get('lookupValues', False)
         contextEngineId = kwargs.get('contextEngineId')
         contextName = kwargs.get('contextName', null)
         lexicographicMode = kwargs.get('lexicographicMode', False)
+        if not lexicographicMode: # obsolete
+            if hasattr(self, 'lexicographicMode') and self.lexicographicMode:
+                lexicographicMode = True
         maxRows = kwargs.get('maxRows', 0)
         maxCalls = [ kwargs.get('maxCalls', 0) ]
         ignoreNonIncreasingOid = kwargs.get('ignoreNonIncreasingOid', False)
 
         varBindHead = [ univ.ObjectIdentifier(x[0]) for x in self.__asynCmdGen.makeReadVarBinds(varNames) ]
+        nullVarBinds = [ False ] * len(varBindHead)
 
         appReturn = {}
         
@@ -788,7 +784,7 @@ class CommandGenerator:
             transportTarget,
             nonRepeaters, maxRepetitions,
             varNames,
-            (__cbFun, (self, varBindHead, [], appReturn)),
+            (__cbFun, (self, varBindHead, nullVarBinds, [], appReturn)),
             lookupNames, lookupValues,
             contextEngineId, contextName
         )
