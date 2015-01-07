@@ -48,6 +48,14 @@ class Printer:
     def __call__(self, msg): self.__logger.debug(msg)
     def __str__(self): return '<python built-in logging>'
 
+if hasattr(logging, 'NullHandler'):
+    NullHandler = logging.NullHandler
+else:
+    # Python 2.6 and older
+    class NullHandler(logging.Handler):
+        def emit(self, record):
+            pass
+
 class Debug:
     defaultPrinter = None
     def __init__(self, *flags, **options):
@@ -61,7 +69,7 @@ class Debug:
                 # route our logs to parent logger
                 self._printer = Printer(
                     logger=logging.getLogger(options['loggerName']),
-                    handler=logging.NullHandler()
+                    handler=NullHandler()
                 )
             else:
                 self._printer = Printer()
