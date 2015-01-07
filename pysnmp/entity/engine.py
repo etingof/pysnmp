@@ -1,4 +1,6 @@
 # SNMP engine
+import os
+import tempfile
 from pysnmp.proto.rfc3412 import MsgAndPduDispatcher
 from pysnmp.proto.mpmod.rfc2576 import SnmpV1MessageProcessingModel, \
      SnmpV2cMessageProcessingModel
@@ -8,6 +10,7 @@ from pysnmp.proto.secmod.rfc2576 import SnmpV1SecurityModel, \
 from pysnmp.proto.secmod.rfc3414 import SnmpUSMSecurityModel
 from pysnmp.proto.acmod import rfc3415, void
 from pysnmp.entity import observer
+from pysnmp import debug
 from pysnmp import error
 
 class SnmpEngine:
@@ -50,9 +53,40 @@ class SnmpEngine:
         snmpEngineBoots, = self.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineBoots')
         snmpEngineBoots.syntax = snmpEngineBoots.syntax + 1        
         origSnmpEngineID, = self.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+
         if snmpEngineID is not None:
             origSnmpEngineID.syntax = origSnmpEngineID.syntax.clone(snmpEngineID)
-        self.snmpEngineID = origSnmpEngineID.syntax
+            self.snmpEngineID = origSnmpEngineID.syntax
+
+            debug.logger & debug.flagApp and debug.logger('SnmpEngine: using custom SNMP Engine ID: %s' % self.snmpEngineID.prettyPrint())
+
+            # Attempt to make some of snmp Engine settings persistent.
+            # This should probably be generalized as a non-volatile MIB store.
+
+            persistentPath = os.path.join(tempfile.gettempdir(), '__pysnmp', self.snmpEngineID.prettyPrint())
+
+            debug.logger & debug.flagApp and debug.logger('SnmpEngine: using persistent directory: %s' % persistentPath)
+
+            if not os.path.exists(persistentPath):
+                try:
+                    os.makedirs(persistentPath)
+                except OSError:
+                    return
+
+            f = os.path.join(persistentPath, 'boots')
+            try:
+                snmpEngineBoots.syntax = snmpEngineBoots.syntax.clone(open(f).read())
+            except:
+                pass
+
+            snmpEngineBoots.syntax = snmpEngineBoots.syntax + 1
+
+            try:
+                open(f, 'w').write(snmpEngineBoots.syntax.prettyPrint())
+            except:
+                pass
+
+            debug.logger & debug.flagApp and debug.logger('SnmpEngine: stored SNMP Engine Boots: %s' % snmpEngineBoots.syntax.prettyPrint())
 
     # Transport dispatcher bindings
     

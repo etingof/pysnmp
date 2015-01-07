@@ -62,6 +62,8 @@ Revision 4.2.6rc0
   startup time.
 - Multiple fixes to verify pyasn1 decoder.decode() return to withstand
   broken SNMP messages or its components.
+- First attempt made to make some of SNMP Engine settings persistent
+  across reboots.
 - Fix to authoritative engine side snmpEngineID discovery procedure: 
   respond with notInTimeWindows rather then with unsupportedSecurityLevel
   at time synchronization phase.
