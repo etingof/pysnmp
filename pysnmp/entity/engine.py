@@ -79,7 +79,10 @@ class SnmpEngine:
             except:
                 pass
 
-            snmpEngineBoots.syntax = snmpEngineBoots.syntax + 1
+            try:
+                snmpEngineBoots.syntax = snmpEngineBoots.syntax + 1
+            except:
+                snmpEngineBoots.syntax = snmpEngineBoots.syntax.clone(1)
 
             try:
                 open(f, 'w').write(snmpEngineBoots.syntax.prettyPrint())
