@@ -525,8 +525,7 @@ class BulkCommandGenerator(BulkCommandGeneratorSingleRun):
             )
             nonRepeaters = v2c.apiBulkPDU.getNonRepeaters(reqPDU) 
             if nonRepeaters:
-                varBinds = v2c.apiBulkPDU.getVarBinds(reqPDU)[:nonRepeaters]+\
-                    varBinds[nonRepeaters:]
+                varBinds = v2c.apiBulkPDU.getVarBinds(reqPDU)[:int(nonRepeaters)] + varBinds[int(nonRepeaters):]
 
         if not cbFun(snmpEngine,
                      sendRequestHandle,
