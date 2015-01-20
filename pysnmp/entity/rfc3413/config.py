@@ -32,6 +32,11 @@ def getTargetAddr(snmpEngine, snmpTargetAddrName):
                                       'snmpTargetAddrRetryCount',
                                       'snmpTargetAddrParams'
                                    )
+        ( snmpSourceAddrTAddress, ) = mibBuilder.importSymbols(
+                                      'PYSNMP-SOURCE-MIB', 
+                                      'snmpSourceAddrTAddress'
+                                   )
+
         tblIdx = snmpTargetAddrEntry.getInstIdFromIndices(snmpTargetAddrName)
 
         try:
@@ -50,21 +55,28 @@ def getTargetAddr(snmpEngine, snmpTargetAddrName):
             snmpTargetAddrParams = snmpTargetAddrParams.getNode(
                 snmpTargetAddrParams.name + tblIdx
             ).syntax
+            snmpSourceAddrTAddress = snmpSourceAddrTAddress.getNode(
+                snmpSourceAddrTAddress.name + tblIdx
+            ).syntax
         except NoSuchInstanceError:
             raise SmiError('Target %s not configured to LCD' % snmpTargetAddrName)
 
+        transport = snmpEngine.transportDispatcher.getTransport(snmpTargetAddrTDomain)
+
         if snmpTargetAddrTDomain[:len(config.snmpUDPDomain)] == config.snmpUDPDomain:
             SnmpUDPAddress, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-TM', 'SnmpUDPAddress')
-            snmpTargetAddrTAddress = tuple(
+            snmpTargetAddrTAddress = transport.addressType(
                 SnmpUDPAddress(snmpTargetAddrTAddress)
-            )
+            ).setLocalAddress(SnmpUDPAddress(snmpSourceAddrTAddress))
         elif snmpTargetAddrTDomain[:len(config.snmpUDP6Domain)] == config.snmpUDP6Domain:
             TransportAddressIPv6, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('TRANSPORT-ADDRESS-MIB', 'TransportAddressIPv6')
-            snmpTargetAddrTAddress = tuple(
+            snmpTargetAddrTAddress = transport.addressType(
                 TransportAddressIPv6(snmpTargetAddrTAddress)
-            )
+            ).setLocalAddress(TransportAddressIPv6(snmpSourceAddrTAddress))
         elif snmpTargetAddrTDomain[:len(config.snmpLocalDomain)] == config.snmpLocalDomain:
-            snmpTargetAddrTAddress = str(snmpTargetAddrTAddress)
+            snmpTargetAddrTAddress = transport.addressType(
+                snmpTargetAddrTAddress
+            )
 
         nameToTargetMap[snmpTargetAddrName] = (
             snmpTargetAddrTDomain,

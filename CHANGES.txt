@@ -22,6 +22,16 @@ Revision 4.2.6rc0
   will be gradually migrated to this new framework.
 - Initial support for the asyncio & Trollius frameworks and
   coroutines-based SNMP Applications interfaces added.
+- The asyncore-based transport subsystem extended to support POSIX
+  sendmsg()/recvmsg() based socket communication what could be used,
+  among other things, in the context of a transparent SNMP proxy 
+  application. Technically, the following features were brought
+  into pysnmp with this update:
+  * Sending SNMP packets from a non-local IP address
+  * Receiving IP packets for non-local IP addresses
+  * Responding to SNMP requests from exactly the same IP address
+    the query was sent to. This proves to be useful when listening
+    on both primary and secondary IP interfaces.
 - Internal oneliner apps configuration cache moved from respective
   apps objects to [a singular] snmpEngine object. That would allow
   for better cache reuse and allow for a single app working with

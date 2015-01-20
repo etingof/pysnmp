@@ -1,0 +1,84 @@
+PYSNMP-SOURCE-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY,
+    OBJECT-TYPE
+        FROM SNMPv2-SMI
+    TAddress
+        FROM SNMPv2-TC
+    snmpTargetAddrEntry
+        FROM SNMP-TARGET-MIB
+    pysnmpModuleIDs
+        FROM PYSNMP-MIB;
+
+pysnmpSourceMIB MODULE-IDENTITY
+    LAST-UPDATED "201501160000Z"          -- 16 January 2015, midnight
+    ORGANIZATION "SNMP Laboratories"
+    CONTACT-INFO "E-mail:     info@snmplabs.com
+                  Subscribe:  pysnmp-users-request@lists.sourceforge.net"
+        DESCRIPTION
+            "This MIB module defines implementation specific objects
+	     that provide variable source transport endpoints feature to
+             SNMP Engine and Applications."
+        REVISION "201501160000Z"          -- 16 January 2015, midnight
+        DESCRIPTION "The Initial Revision"
+    ::= { pysnmpModuleIDs 8 }
+
+-- Administrative assignments ****************************************
+
+pysnmpSourceMIBObjects     OBJECT IDENTIFIER ::= { pysnmpSourceMIB 1 }
+pysnmpSourceMIBConformance OBJECT IDENTIFIER ::= { pysnmpSourceMIB 2 }
+
+--
+--
+-- The snmpSourceObjects group
+--
+--
+
+-- Augments SNMP-TRANSPORT-ADDRESS::snmpSourceAddressTable
+
+snmpSourceAddrTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SnmpSourceAddrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A table of transport addresses to be used as a source in the
+         generation of SNMP messages. This table contains additional
+         objects for the SNMP-TRANSPORT-ADDRESS::snmpSourceAddressTable."
+    ::= { pysnmpSourceMIBObjects 1 }
+
+snmpSourceAddrEntry OBJECT-TYPE
+    SYNTAX      SnmpSourceAddrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A transport address to be used as a source in the generation
+         of SNMP operations.
+
+         An entry containing additional management information
+         applicable to a particular target."
+    AUGMENTS { snmpTargetAddrEntry }
+    ::= { snmpSourceAddrTable 1 }
+
+SnmpSourceAddrEntry ::= SEQUENCE {
+    snmpSourceAddrTAddress     TAddress
+}
+
+snmpSourceAddrTAddress OBJECT-TYPE
+    SYNTAX      TAddress
+    MAX-ACCESS  read-create
+    STATUS      current
+    DESCRIPTION
+        "This object contains a transport address.  The format of
+         this address depends on the value of the
+         snmpSourceAddrTDomain object."
+    ::= { snmpSourceAddrEntry 1 }
+
+-- Conformance Information *******************************************
+
+pysnmpSourceMIBCompliances OBJECT IDENTIFIER
+                            ::= { pysnmpSourceMIBConformance 1 }
+pysnmpSourceMIBGroups      OBJECT IDENTIFIER
+                            ::= { pysnmpSourceMIBConformance 2 }
+
+END

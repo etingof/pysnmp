@@ -179,8 +179,21 @@ class AbstractTransportDispatcher:
         self.unregisterRecvCbFun()
         self.unregisterTimerCbFun()
 
+class AbstractTransportAddress:
+    _localAddress = None
+    def setLocalAddress(self, s):
+        self._localAddress = s
+        return self
+ 
+    def getLocalAddress(self):
+        return self._localAddress
+
+    def clone(self, localAddress=None):
+        return self.__class__(self).setLocalAddress(localAddress is None and self.getLocalAddress() or localAddress)
+
 class AbstractTransport:
     protoTransportDispatcher = None
+    addressType = AbstractTransportAddress
     _cbFun = None
     @classmethod
     def isCompatibleWithDispatcher(cls, transportDispatcher):

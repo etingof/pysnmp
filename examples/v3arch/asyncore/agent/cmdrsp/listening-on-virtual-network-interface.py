@@ -1,23 +1,35 @@
 #
 # Command Responder
 #
-# Listen and respond to SNMP GET/SET/GETNEXT/GETBULK queries with
-# the following options:
+# Listen on all local IPv4 interfaces respond to SNMP GET/SET/GETNEXT/GETBULK
+# queries with the following options:
 #
 # * SNMPv3
-# * with USM user 'usr-md5-des', auth: MD5, priv DES or
+# * with USM user 'usr-md5-des', auth: MD5, priv DES
 # * allow access to SNMPv2-MIB objects (1.3.6.1.2.1)
-# * over IPv4/UDP, listening at 127.0.0.1:161
-# * registers its own execution observer to snmpEngine
+# * over IPv4/UDP, listening at 0.0.0.0:161
+# * preserve local IP address when responding (Python 3.3+ required)
 # 
 # The following Net-SNMP's command will walk this Agent:
 #
 # $ snmpwalk -v3 -u usr-md5-des -l authPriv -A authkey1 -X privkey1 localhost .1.3.6
 #
-# This script will report some details on request processing as seen
-# by rfc3412.receiveMessage() and rfc3412.returnResponsePdu()
-# abstract interfaces.
+# In the situation when UDP responder receives a datagram targeted to
+# a secondary (AKA virtial) IP interface or a non-local IP interface
+# (e.g. routed through policy routing or iptables TPROXY facility),
+# OS stack will by default put primary local IP interface address into
+# the IP source field of the response IP packet. Such datagram may not 
+# reach the sender as either the sender itself or a stateful firewall
+# somewhere in between would not be able to match response to original 
+# request.
 #
+# The following script solves this problem by preserving original request
+# destination IP address and put it back into response IP packet's source
+# address field.
+#
+# To respond from a non-local (e.g. spoofed) IP address, uncomment the
+# .enableTransparent() method call and run this script as root.
+# 
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdrsp, context
 from pysnmp.carrier.asynsock.dgram import udp
@@ -25,34 +37,23 @@ from pysnmp.carrier.asynsock.dgram import udp
 # Create SNMP engine
 snmpEngine = engine.SnmpEngine()
 
-# Execution point observer setup
-
-# Register a callback to be invoked at specified execution point of 
-# SNMP Engine and passed local variables at code point's local scope
-def requestObserver(snmpEngine, execpoint, variables, cbCtx):
-    print('Execution point: %s' % execpoint)
-    print('* transportDomain: %s' % '.'.join([str(x) for x in variables['transportDomain']]))
-    print('* transportAddress: %s (local %s)' % ('@'.join([str(x) for x in variables['transportAddress']]), '@'.join([str(x) for x in variables['transportAddress'].getLocalAddress()])))
-    print('* securityModel: %s' % variables['securityModel'])
-    print('* securityName: %s' % variables['securityName'])
-    print('* securityLevel: %s' % variables['securityLevel'])
-    print('* contextEngineId: %s' % variables['contextEngineId'].prettyPrint())
-    print('* contextName: %s' % variables['contextName'].prettyPrint())
-    print('* PDU: %s' % variables['pdu'].prettyPrint())
-
-snmpEngine.observer.registerObserver(
-    requestObserver,
-    'rfc3412.receiveMessage:request',
-    'rfc3412.returnResponsePdu'
-)
-
 # Transport setup
 
-# UDP over IPv4
+# Initialize asyncore-based UDP/IPv4 transport
+udpSocketTransport = udp.UdpSocketTransport().openServerMode(('0.0.0.0', 161))
+
+# Use sendmsg()/recvmsg() for socket communication (used for preserving
+# original destination IP address when responding)
+udpSocketTransport.enablePktInfo()
+
+# Enable IP source spoofing (requires root privileges)
+# udpSocketTransport.enableTransparent()
+
+# Register this transport at SNMP Engine
 config.addTransport(
     snmpEngine,
     udp.domainName,
-    udp.UdpTransport().openServerMode(('127.0.0.1', 161))
+    udpSocketTransport
 )
 
 # SNMPv3/USM setup

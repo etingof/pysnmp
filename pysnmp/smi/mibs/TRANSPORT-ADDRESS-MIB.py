@@ -4,9 +4,10 @@
 
 from pyasn1.compat.octets import int2oct, oct2int
 from pysnmp import error
+from pysnmp.carrier import sockfix
 import socket
 
-has_ipv6 = socket.has_ipv6 and hasattr(socket, 'AF_INET6')
+has_ipv6 = socket.has_ipv6
 
 if hasattr(socket, 'inet_ntop') and hasattr(socket, 'inet_pton'):
     inet_ntop = socket.inet_ntop

@@ -261,8 +261,9 @@ def delTargetParams(snmpEngine, name):
 
 def __cookTargetAddrInfo(snmpEngine, addrName):
     snmpTargetAddrEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-TARGET-MIB', 'snmpTargetAddrEntry')
+    snmpSourceAddrEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('PYSNMP-SOURCE-MIB', 'snmpSourceAddrEntry')
     tblIdx = snmpTargetAddrEntry.getInstIdFromIndices(addrName)
-    return snmpTargetAddrEntry, tblIdx
+    return snmpTargetAddrEntry, snmpSourceAddrEntry, tblIdx
 
 def addTargetAddr(
     snmpEngine,
@@ -272,18 +273,25 @@ def addTargetAddr(
     params,
     timeout=None,
     retryCount=None,
-    tagList=null
+    tagList=null,
+    sourceAddress=None
     ):
-    snmpTargetAddrEntry, tblIdx = __cookTargetAddrInfo(
+    snmpTargetAddrEntry, snmpSourceAddrEntry, tblIdx = __cookTargetAddrInfo(
         snmpEngine, addrName
         )
     
     if transportDomain[:len(snmpUDPDomain)] == snmpUDPDomain:
         SnmpUDPAddress, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-TM', 'SnmpUDPAddress')
         transportAddress = SnmpUDPAddress(transportAddress)
+        if sourceAddress is None:
+            sourceAddress = ('0.0.0.0', 0)
+        sourceAddress = SnmpUDPAddress(sourceAddress)
     elif transportDomain[:len(snmpUDP6Domain)] == snmpUDP6Domain:
         TransportAddressIPv6, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('TRANSPORT-ADDRESS-MIB', 'TransportAddressIPv6')
         transportAddress = TransportAddressIPv6(transportAddress)
+        if sourceAddress is None:
+            sourceAddress = ('::', 0)
+        sourceAddress = TransportAddressIPv6(sourceAddress)
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpTargetAddrEntry.name + (9,) + tblIdx, 'destroy'),)
@@ -296,11 +304,12 @@ def addTargetAddr(
         (snmpTargetAddrEntry.name + (4,) + tblIdx, timeout),
         (snmpTargetAddrEntry.name + (5,) + tblIdx, retryCount),
         (snmpTargetAddrEntry.name + (6,) + tblIdx, tagList),
-        (snmpTargetAddrEntry.name + (7,) + tblIdx, params),)
+        (snmpTargetAddrEntry.name + (7,) + tblIdx, params),
+        (snmpSourceAddrEntry.name + (1,) + tblIdx, sourceAddress),)
         )
 
 def delTargetAddr(snmpEngine, addrName):
-    snmpTargetAddrEntry, tblIdx = __cookTargetAddrInfo(
+    snmpTargetAddrEntry, snmpSourceAddrEntry, tblIdx = __cookTargetAddrInfo(
         snmpEngine, addrName
         )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(

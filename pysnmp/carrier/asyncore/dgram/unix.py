@@ -5,14 +5,19 @@ try:
     from socket import AF_UNIX
 except ImportError:
     AF_UNIX = None
+from pysnmp.carrier.base import AbstractTransportAddress
 from pysnmp.carrier.asynsock.dgram.base import DgramSocketTransport
 
 domainName = snmpLocalDomain = (1, 3, 6, 1, 2, 1, 100, 1, 13)
 
 random.seed()
 
+class UnixTransportAddress(str, AbstractTransportAddress): pass
+
 class UnixSocketTransport(DgramSocketTransport):
     sockFamily = AF_UNIX
+    addressType = UnixTransportAddress
+
     def openClientMode(self, iface=None):
         if iface is None:
             # UNIX domain sockets must be explicitly bound

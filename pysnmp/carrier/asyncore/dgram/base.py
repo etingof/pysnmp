@@ -1,7 +1,7 @@
 # Implements asyncore-based generic DGRAM transport
 import socket, errno, sys
 from pysnmp.carrier.asynsock.base import AbstractSocketTransport
-from pysnmp.carrier import error
+from pysnmp.carrier import sockfix, sockmsg, error
 from pysnmp import debug
 
 sockErrors = { # Ignore these socket errors
@@ -21,6 +21,11 @@ class DgramSocketTransport(AbstractSocketTransport):
     retryCount = 3; retryInterval = 1
     def __init__(self, sock=None, sockMap=None):
         self.__outQueue = []
+        self._sendto = lambda s,b,a: s.sendto(b, a)
+        def __recvfrom(s, sz): 
+            d, a = s.recvfrom(sz)
+            return d, self.addressType(a)
+        self._recvfrom = __recvfrom
         AbstractSocketTransport.__init__(self, sock, sockMap)
         
     def openClientMode(self, iface=None):
@@ -38,22 +43,65 @@ class DgramSocketTransport(AbstractSocketTransport):
             raise error.CarrierError('bind() for %s failed: %s' % (iface, sys.exc_info()[1],))
         return self
 
-    def enableBroadcast(self, flag=True):
+    def enableBroadcast(self, flag=1):
         try:
             self.socket.setsockopt(
                 socket.SOL_SOCKET, socket.SO_BROADCAST, flag
             )
         except socket.error:
             raise error.CarrierError('setsockopt() for SO_BROADCAST failed: %s' % (sys.exc_info()[1],))
+        debug.logger & debug.flagIO and debug.logger('enableBroadcast: %s option SO_BROADCAST on socket %s' % (turnOn and "enabled" or "disabled", self.socket.fileno()))
+        return self
+
+    def enablePktInfo(self, flag=1):
+        if not hasattr(self.socket, 'sendmsg') or \
+           not hasattr(self.socket, 'recvmsg'):
+            raise error.CarrierError('sendmsg()/recvmsg() interface is not supported by this OS and/or Python version')
+
+        try:
+            if self.socket.family in (socket.AF_INET,socket.AF_INET6):
+                self.socket.setsockopt(socket.SOL_IP, socket.IP_PKTINFO, flag)
+            if self.socket.family == socket.AF_INET6:
+                self.socket.setsockopt(socket.SOL_IPV6, socket.IPV6_RECVPKTINFO, flag)
+        except socket.error:
+            raise error.CarrierError('setsockopt() for %s failed: %s' % (self.socket.family == socket.AF_INET6 and "IPV6_RECVPKTINFO" or "IP_PKTINFO", sys.exc_info()[1]))
+
+        self._sendto = sockmsg.getSendTo(self.addressType)
+        self._recvfrom = sockmsg.getRecvFrom(self.addressType)
+
+        debug.logger & debug.flagIO and debug.logger('enablePktInfo: %s option %s on socket %s' % (self.socket.family == socket.AF_INET6 and "IPV6_RECVPKTINFO" or "IP_PKTINFO", flag and "enabled" or "disabled", self.socket.fileno()))
+        return self
+
+    def enableTransparent(self, flag=1):
+        try:
+            if self.socket.family == socket.AF_INET:
+                self.socket.setsockopt(
+                    socket.SOL_IP, socket.IP_TRANSPARENT, flag
+                )
+            if self.socket.family == socket.AF_INET6:
+                self.socket.setsockopt(
+                    socket.SOL_IPV6, socket.IP_TRANSPARENT, flag
+                )
+        except socket.error:
+            raise error.CarrierError('setsockopt() for IP_TRANSPARENT failed: %s' % sys.exc_info()[1])
+        except PermissionError:
+            raise error.CarrierError('IP_TRANSPARENT socket option requires superusre previleges')
+
+        debug.logger & debug.flagIO and debug.logger('enableTransparent: %s option IP_TRANSPARENT on socket %s' % (flag and "enabled" or "disabled", self.socket.fileno()))
         return self
 
     def sendMessage(self, outgoingMessage, transportAddress):
         self.__outQueue.append(
-            (outgoingMessage, transportAddress)
+            (outgoingMessage, self.normalizeAddress(transportAddress))
             )
         debug.logger & debug.flagIO and debug.logger('sendMessage: outgoingMessage queued (%d octets) %s' % (len(outgoingMessage), debug.hexdump(outgoingMessage)))
 
-    def normalizeAddress(self, transportAddress): return transportAddress
+    def normalizeAddress(self, transportAddress):
+        if not isinstance(transportAddress, self.addressType):
+            transportAddress = self.addressType(transportAddress)
+        if not transportAddress.getLocalAddress():
+            transportAddress.setLocalAddress(self.getLocalAddress())
+        return transportAddress
 
     def getLocalAddress(self):
         # one evil OS does not seem to support getsockname() for DGRAM sockets
@@ -67,12 +115,14 @@ class DgramSocketTransport(AbstractSocketTransport):
     def writable(self): return self.__outQueue
     def handle_write(self):
         outgoingMessage, transportAddress = self.__outQueue.pop(0)
-        debug.logger & debug.flagIO and debug.logger('handle_write: transportAddress %r -> %r outgoingMessage (%d octets) %s' % (self.getLocalAddress(), transportAddress, len(outgoingMessage), debug.hexdump(outgoingMessage)))
+        debug.logger & debug.flagIO and debug.logger('handle_write: transportAddress %r -> %r outgoingMessage (%d octets) %s' % (transportAddress.getLocalAddress(), transportAddress, len(outgoingMessage), debug.hexdump(outgoingMessage)))
         if not transportAddress:
             debug.logger & debug.flagIO and debug.logger('handle_write: missing dst address, loosing outgoing msg')
             return
         try:
-            self.socket.sendto(outgoingMessage, transportAddress)
+            self._sendto(
+                self.socket, outgoingMessage, transportAddress
+            )
         except socket.error:
             if sys.exc_info()[1].args[0] in sockErrors:
                 debug.logger & debug.flagIO and debug.logger('handle_write: ignoring socket error %s' % (sys.exc_info()[1],))
@@ -82,9 +132,11 @@ class DgramSocketTransport(AbstractSocketTransport):
     def readable(self): return 1
     def handle_read(self):
         try:
-            incomingMessage, transportAddress = self.socket.recvfrom(65535)
+            incomingMessage, transportAddress = self._recvfrom(
+                self.socket, 65535
+            )
             transportAddress = self.normalizeAddress(transportAddress)
-            debug.logger & debug.flagIO and debug.logger('handle_read: transportAddress %r -> %r incomingMessage (%d octets) %s' % (transportAddress, self.getLocalAddress(), len(incomingMessage), debug.hexdump(incomingMessage)))
+            debug.logger & debug.flagIO and debug.logger('handle_read: transportAddress %r -> %r incomingMessage (%d octets) %s' % (transportAddress, transportAddress.getLocalAddress(), len(incomingMessage), debug.hexdump(incomingMessage)))
             if not incomingMessage:
                 self.handle_close()
                 return
