@@ -54,7 +54,9 @@ class SnmpEngine:
         snmpEngineBoots.syntax = snmpEngineBoots.syntax + 1        
         origSnmpEngineID, = self.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
-        if snmpEngineID is not None:
+        if snmpEngineID is None:
+            self.snmpEngineID = origSnmpEngineID.syntax
+        else:
             origSnmpEngineID.syntax = origSnmpEngineID.syntax.clone(snmpEngineID)
             self.snmpEngineID = origSnmpEngineID.syntax
 
