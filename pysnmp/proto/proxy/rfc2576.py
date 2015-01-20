@@ -215,7 +215,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
                 v1.apiTrapPDU.setAgentAddr(v1Pdu, val)
                 break
         else:
-            v1.apiTrapPDU.setAgentAddr(v1Pdu, v1.apiTrapPDU.agentAddress)
+            v1.apiTrapPDU.setAgentAddr(v1Pdu, v1.IpAddress('0.0.0.0'))
 
         # 3.2.3
         if snmpTrapOIDParam in __v2ToV1TrapMap:
