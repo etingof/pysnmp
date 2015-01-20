@@ -720,12 +720,12 @@ class CommandGenerator:
                 stopFlag = False
                 if not lexicographicMode:  # cut possible extra OIDs
                     stopFlag = True
-                    for i in xrange(len(varBindTable)):
+                    for i in range(len(varBindTable)):
                         stopFlag = True
                         if len(varBindTable[i]) != len(varBindHead):
                             varBindTable = i and varBindTable[:i-1] or []
                             break
-                        for j in xrange(len(varBindTable[i])): # dichotomy?
+                        for j in range(len(varBindTable[i])): # dichotomy?
                             name, val = varBindTable[i][j]
                             if nullVarBinds[j]:
                                 varBindTable[i][j] = name, rfc1905.endOfMibView
