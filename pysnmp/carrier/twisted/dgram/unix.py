@@ -1,12 +1,17 @@
 # Implements twisted-based UNIX domain socket transport
 import sys
 from twisted.internet import reactor
+from pysnmp.carrier.base import AbstractTransportAddress
 from pysnmp.carrier.twisted.dgram.base import DgramTwistedTransport
 from pysnmp.carrier import error
 
 domainName = snmpLocalDomain = (1, 3, 6, 1, 2, 1, 100, 1, 13)
 
+class UnixTransportAddress(str, AbstractTransportAddress): pass
+
 class UnixTwistedTransport(DgramTwistedTransport):
+    addressType = UnixTransportAddress
+
     # AbstractTwistedTransport API
     
     def openClientMode(self, iface=''):

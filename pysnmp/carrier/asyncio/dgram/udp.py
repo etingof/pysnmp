@@ -27,6 +27,7 @@
 #
 import sys
 import traceback
+from pysnmp.carrier.base import AbstractTransportAddress
 from pysnmp.carrier.asyncio.dgram.base import DgramAsyncioProtocol
 from pysnmp.carrier import error
 try:
@@ -38,7 +39,11 @@ loop = asyncio.get_event_loop()
 
 domainName = snmpUDPDomain = (1, 3, 6, 1, 6, 1, 1)
 
+class UdpTransportAddress(tuple, AbstractTransportAddress): pass
+
 class UdpAsyncioTransport(DgramAsyncioProtocol):
+    addressType = UdpTransportAddress
+
     # AbstractAsyncioTransport API
 
     def openClientMode(self, iface=('0.0.0.0', 0)):

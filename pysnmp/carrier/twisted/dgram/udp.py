@@ -1,12 +1,17 @@
 # Implements twisted-based UDP transport
 import sys
 from twisted.internet import reactor
+from pysnmp.carrier.base import AbstractTransportAddress
 from pysnmp.carrier.twisted.dgram.base import DgramTwistedTransport
 from pysnmp.carrier import error
 
 domainName = snmpUDPDomain = (1, 3, 6, 1, 6, 1, 1)
 
+class UdpTransportAddress(tuple, AbstractTransportAddress): pass
+
 class UdpTwistedTransport(DgramTwistedTransport):
+    addressType = UdpTransportAddress
+
     # AbstractTwistedTransport API
     
     def openClientMode(self, iface=('', 0)):
