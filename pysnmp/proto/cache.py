@@ -27,5 +27,6 @@ class Cache:
         for index, cachedParams in list(self.__cacheRepository.items()):
             if cbFun:
                 if cbFun(index, cachedParams, cbCtx):
-                    del self.__cacheRepository[index]                    
+                    if index in self.__cacheRepository:
+                        del self.__cacheRepository[index]                    
 
