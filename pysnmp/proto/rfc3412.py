@@ -543,6 +543,7 @@ class MsgAndPduDispatcher:
         if k in snmpEngine.messageProcessingSubsystems:
             mpHandler = snmpEngine.messageProcessingSubsystems[k]
             mpHandler.releaseStateInformation(sendPduHandle)
+        self.__cache.pop(sendPduHandle)
         
     # Cache expiration stuff
 
