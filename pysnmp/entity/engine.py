@@ -1,5 +1,6 @@
 # SNMP engine
 import os
+import sys
 import tempfile
 from pysnmp.proto.rfc3412 import MsgAndPduDispatcher
 from pysnmp.proto.mpmod.rfc2576 import SnmpV1MessageProcessingModel, \
@@ -87,11 +88,14 @@ class SnmpEngine:
                 snmpEngineBoots.syntax = snmpEngineBoots.syntax.clone(1)
 
             try:
-                open(f, 'w').write(snmpEngineBoots.syntax.prettyPrint())
+                fd, fn = tempfile.mkstemp(dir=persistentPath)
+                os.write(fd, snmpEngineBoots.syntax.prettyPrint())
+                os.close(fd)
+                os.rename(fn, f)
             except:
-                pass
-
-            debug.logger & debug.flagApp and debug.logger('SnmpEngine: stored SNMP Engine Boots: %s' % snmpEngineBoots.syntax.prettyPrint())
+                debug.logger & debug.flagApp and debug.logger('SnmpEngine: could not stored SNMP Engine Boots: %s' % sys.exc_info()[1])
+            else:
+                debug.logger & debug.flagApp and debug.logger('SnmpEngine: stored SNMP Engine Boots: %s' % snmpEngineBoots.syntax.prettyPrint())
 
     # Transport dispatcher bindings
     
