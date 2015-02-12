@@ -1,4 +1,4 @@
-Revision 4.2.6rc3
+Revision 4.2.6rc2
 -----------------
 
 - Critical error fixed in key localization procedure for AES192/AES256/3DES
