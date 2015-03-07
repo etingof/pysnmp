@@ -77,3 +77,9 @@ class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
                 self.transport.sendto(outgoingMessage, transportAddress)
             except Exception:
                 raise error.CarrierError(';'.join(traceback.format_exception(*sys.exc_info())))
+
+    def closeTransport(self):
+        if self.transport is not None:
+            self.transport.close()
+        AbstractAsyncioTransport.closeTransport(self)
+
