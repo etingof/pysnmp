@@ -1,5 +1,9 @@
 # MIB modules loader
 import os, sys, imp, struct, marshal, time, traceback
+try:
+    from errno import ENOENT
+except ImportError:
+    ENOENT = -1
 from pysnmp.smi import error
 from pysnmp import debug
 
@@ -55,7 +59,11 @@ class __AbstractMibSource:
             try:
                 pycData = self._getData(f + pycSfx, pycMode)
             except IOError:
-                pycTime = -1
+                why = sys.exc_info()[1]
+                if why.errno == ENOENT or ENOENT == -1:
+                    pycTime = -1
+                else:
+                    raise error.SmiError('MIB file %s access error: %s' % (f+pycSfx, why))
             else:
                 if self.__magic == pycData[:4]:
                     pycData = pycData[4:]
@@ -76,7 +84,11 @@ class __AbstractMibSource:
             try:
                 pyTime = self._getTimestamp(f+pySfx)
             except (IOError, OSError):
-                pyTime = -1
+                why = sys.exc_info()[1]
+                if why.errno == ENOENT or ENOENT == -1:
+                    pyTime = -1
+                else:
+                    raise error.SmiError('MIB file %s access error: %s' % (f+pySfx, why))
             else:
                 break
 
@@ -166,9 +178,12 @@ class DirMibSource(__AbstractMibSource):
                 data = fp.read()
                 fp.close()
                 return data
-        except OSError:
-            pass
-        raise IOError  # pretend there's no such file
+        except (IOError, OSError):
+            why = sys.exc_info()[1]
+            if why.errno != ENOENT and ENOENT != -1:
+                raise error.SmiError('MIB file %s access error: %s' % (os.path.join(self._srcName, f), why))
+
+        raise IOError(ENOENT, 'No such file or directory')
 
 class MibBuilder:
     loadTexts = 0
