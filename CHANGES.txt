@@ -74,6 +74,8 @@ Revision 4.2.6rc2
   broken SNMP messages or its components.
 - First attempt made to make some of SNMP Engine settings persistent
   across reboots.
+- Make config.delTransport() returning detached transport object. Asyncio
+  examples now use this facility to explicitly shutdown transport object.
 - Fix to authoritative engine side snmpEngineID discovery procedure: 
   respond with notInTimeWindows rather then with unsupportedSecurityLevel
   at time synchronization phase.

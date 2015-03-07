@@ -73,3 +73,8 @@ cmdgen.GetCommandGenerator().sendVarBinds(
 
 # Run I/O dispatcher which would send pending queries and process responses
 snmpEngine.transportDispatcher.runDispatcher()
+
+config.delTransport(
+    snmpEngine,
+    udp.domainName
+).closeTransport()
