@@ -19,6 +19,7 @@ if hasattr(errno, 'EBADFD'):
 class DgramSocketTransport(AbstractSocketTransport):
     sockType = socket.SOCK_DGRAM
     retryCount = 3; retryInterval = 1
+    addressType = lambda x: x
     def __init__(self, sock=None, sockMap=None):
         self.__outQueue = []
         self._sendto = lambda s,b,a: s.sendto(b, a)
