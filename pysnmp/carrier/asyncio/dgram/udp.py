@@ -25,8 +25,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
 # THE POSSIBILITY OF SUCH DAMAGE.
 #
-import sys
-import traceback
+import socket
 from pysnmp.carrier.base import AbstractTransportAddress
 from pysnmp.carrier.asyncio.dgram.base import DgramAsyncioProtocol
 from pysnmp.carrier import error
@@ -42,28 +41,7 @@ domainName = snmpUDPDomain = (1, 3, 6, 1, 6, 1, 1)
 class UdpTransportAddress(tuple, AbstractTransportAddress): pass
 
 class UdpAsyncioTransport(DgramAsyncioProtocol):
+    sockFamily = socket.AF_INET
     addressType = UdpTransportAddress
-
-    # AbstractAsyncioTransport API
-
-    def openClientMode(self, iface=('0.0.0.0', 0)):
-        try:
-            c = loop.create_datagram_endpoint(lambda: self, local_addr=iface)
-            self._lport = asyncio.async(c)
-        except Exception:
-            raise error.CarrierError(';'.join(traceback.format_exception(*sys.exc_info())))
-        return self
-
-    def openServerMode(self, iface=('0.0.0.0', 161)):
-        try:
-            c = loop.create_datagram_endpoint(lambda: self, local_addr=iface)
-            self._lport = asyncio.async(c)
-        except Exception:
-            raise error.CarrierError(';'.join(traceback.format_exception(*sys.exc_info())))
-        return self
-
-    def closeTransport(self):
-        self._lport.cancel()
-        DgramAsyncioProtocol.closeTransport(self)
 
 UdpTransport = UdpAsyncioTransport

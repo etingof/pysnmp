@@ -21,7 +21,8 @@ Revision 4.2.6rc2
   getting peer's transport endpoint which is not suggested in RFCs)
   will be gradually migrated to this new framework.
 - Initial support for the asyncio & Trollius frameworks and
-  coroutines-based SNMP Applications interfaces added.
+  coroutines-based SNMP Applications interfaces added. Both IPv4 and IPv6
+  datagram transports are currently supported.
 - The asyncore-based transport subsystem extended to support POSIX
   sendmsg()/recvmsg() based socket communication what could be used,
   among other things, in the context of a transparent SNMP proxy 
