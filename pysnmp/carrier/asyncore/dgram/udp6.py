@@ -13,7 +13,6 @@ class Udp6SocketTransport(DgramSocketTransport):
     addressType = Udp6TransportAddress
 
     def normalizeAddress(self, transportAddress):
-
         if '%' in transportAddress[0]:  # strip zone ID
             ta = self.addressType(
                      (transportAddress[0].split('%')[0],
