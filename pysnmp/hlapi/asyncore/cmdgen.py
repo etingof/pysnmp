@@ -223,7 +223,10 @@ class AsyncCommandGenerator:
                     varName = MibVariable(varName).resolveWithMib(mibViewController, oidOnly=True)
                 else:
                     varName = MibVariable(varName).resolveWithMib(mibViewController)
-                    varVal = varName.getMibNode().getSyntax().clone(varVal)
+                    try:
+                        varVal = varName.getMibNode().getSyntax().clone(varVal)
+                    except:
+                        raise error.PySnmpError('Unresolved SNMP value type for OID %s (MIB not loaded?)' % (varName,))
 
             __varBinds.append((varName, varVal))
 
