@@ -83,7 +83,7 @@ class __AbstractMibSource:
         for pySfx, pySfxLen, pyMode in self.__sfx[imp.PY_SOURCE]:
             try:
                 pyTime = self._getTimestamp(f+pySfx)
-            except (IOError, OSError):
+            except IOError:
                 why = sys.exc_info()[1]
                 if why.errno == ENOENT or ENOENT == -1:
                     pyTime = -1
@@ -101,7 +101,7 @@ class __AbstractMibSource:
         if pyTime != -1:
             return self._getData(f+pySfx, pyMode), pySfx
 
-        raise IOError('No suitable module found')
+        raise IOError(ENOENT, 'No suitable module found', f)
 
     # Interfaces for subclasses
     def _init(self): raise NotImplementedError()
@@ -152,10 +152,14 @@ class ZipMibSource(__AbstractMibSource):
                 self.__loader._files[p][5]
                 )
         else:
-            raise IOError('No file in ZIP: %s' % p)
+            raise IOError(ENOENT, 'No such file in ZIP archive', p)
         
     def _getData(self, f, mode=None):
-        return self.__loader.get_data(os.path.join(self._srcName, f))
+        p = os.path.join(self._srcName, f)
+        try:
+            return self.__loader.get_data(p)
+        except:  # ZIP code seems to return all kinds of errors
+            raise IOError(ENOENT, 'No such file in ZIP archive: %s' % sys.exc_info()[1], p)
 
 class DirMibSource(__AbstractMibSource):
     def _init(self):
@@ -166,24 +170,30 @@ class DirMibSource(__AbstractMibSource):
         try:
             return self._uniqNames(os.listdir(self._srcName))
         except OSError:
+            debug.logger & debug.flagBld and debug.logger('listdir() failed for %s: %s' % (self._srcName, sys.exc_info()[1]))
             return ()
 
     def _getTimestamp(self, f):
-        return os.stat(os.path.join(self._srcName, f))[8]
+        p = os.path.join(self._srcName, f)
+        try:
+            return os.stat(p)[8]
+        except OSError:
+            raise IOError(ENOENT, 'No such file: %s' % sys.exc_info()[1], p)
             
     def _getData(self, f, mode):
+        p = os.path.join(self._srcName, f)
         try:
             if f in os.listdir(self._srcName): # make FS case-sensitive
-                fp = open(os.path.join(self._srcName, f), mode)
+                fp = open(p, mode)
                 data = fp.read()
                 fp.close()
                 return data
         except (IOError, OSError):
             why = sys.exc_info()[1]
             if why.errno != ENOENT and ENOENT != -1:
-                raise error.SmiError('MIB file %s access error: %s' % (os.path.join(self._srcName, f), why))
+                raise error.SmiError('MIB file %s access error: %s' % (p, why))
 
-        raise IOError(ENOENT, 'No such file or directory')
+        raise IOError(ENOENT, 'No such file: %s' % sys.exc_info()[1], p)
 
 class MibBuilder:
     loadTexts = 0
@@ -285,7 +295,7 @@ class MibBuilder:
 
             if modName not in self.__modSeen:
                 raise error.SmiError(
-                    'MIB file \"%s\" not found in search path' % (modName and modName + ".py[co]")
+                    'MIB file \"%s\" not found in search path (%s)' % (modName and modName + ".py[co]", ', '.join([str(x) for x in self.__mibSources]))
                     )
 
         return self

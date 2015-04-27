@@ -116,7 +116,8 @@ Revision 4.2.6rc2
 - Fix to rfc2576.v2ToV1() to ignore impossible errorStatus.
 - Fix to rfc2576.v1ToV2() to reset ErrorStatus==noSuchName on proxying.
 - Fix to smi.builder to explicitly fail on any MIB file access error
-  but ENOENT.
+  (but ENOENT) and raise IOError uniformly on any directory/egg access
+  failure.
 
 Revision 4.2.5
 --------------
