@@ -80,6 +80,8 @@ Revision 4.2.6rc2
 - Parts of SMIv1 remnant MIBs (RFC1213-MIB, RFC1158-MIB) added to provide 
   complete compatibility with SMIv1. Symbols defined in these MIBs only
   present in SMIv1 so they can't be substituted with their SMIv2 analogues.
+- Optional configuration/MIB directory added to MIB search path
+  (~/,pysnmp/mibs) at MibBuilder.
 - Fix to authoritative engine side snmpEngineID discovery procedure: 
   respond with notInTimeWindows rather then with unsupportedSecurityLevel
   at time synchronization phase.

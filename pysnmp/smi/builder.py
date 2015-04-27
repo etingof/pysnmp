@@ -200,7 +200,17 @@ class MibBuilder:
     defaultCoreMibs = os.pathsep.join(
         ('pysnmp.smi.mibs.instances', 'pysnmp.smi.mibs')
     )
-    defaultMiscMibs = 'pysnmp_mibs'
+    if sys.platform[:3] == 'win':
+        defaultMiscMibs = os.pathsep.join(
+            ( os.path.join(os.path.expanduser("~"),
+                           'PySNMP Configuration', 'mibs'),
+              'pysnmp_mibs' )
+        )
+    else:
+        defaultMiscMibs = os.pathsep.join(
+            ( os.path.join(os.path.expanduser("~"), '.pysnmp', 'mibs'),
+              'pysnmp_mibs' )
+        )
     moduleID = 'PYSNMP_MODULE_ID'
     def __init__(self):
         self.lastBuildId = self._autoName = 0
