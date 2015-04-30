@@ -25,5 +25,7 @@ Mark M Evans
 Filippo Giunchedi at Truelite Srl
 Matt Hooks
 Zachary Lorusso
+Floris Bruynooghe
+Laurelin of Middle Earth
 Thanks to Python Software Foundation for granting financial support 
 for the project.
