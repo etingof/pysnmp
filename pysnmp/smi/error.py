@@ -2,6 +2,9 @@ from pyasn1.error import PyAsn1Error
 from pysnmp.error import PySnmpError
 
 class SmiError(PySnmpError, PyAsn1Error): pass
+class MibLoadError(SmiError): pass
+class MibNotFoundError(MibLoadError): pass
+
 class MibOperationError(SmiError):
     def __init__(self, **kwargs): self.__outArgs = kwargs
     def __str__(self): return '%s(%s)' % (

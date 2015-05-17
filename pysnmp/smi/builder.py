@@ -200,17 +200,7 @@ class MibBuilder:
     defaultCoreMibs = os.pathsep.join(
         ('pysnmp.smi.mibs.instances', 'pysnmp.smi.mibs')
     )
-    if sys.platform[:3] == 'win':
-        defaultMiscMibs = os.pathsep.join(
-            ( os.path.join(os.path.expanduser("~"),
-                           'PySNMP Configuration', 'mibs'),
-              'pysnmp_mibs' )
-        )
-    else:
-        defaultMiscMibs = os.pathsep.join(
-            ( os.path.join(os.path.expanduser("~"), '.pysnmp', 'mibs'),
-              'pysnmp_mibs' )
-        )
+    defaultMiscMibs = 'pysnmp_mibs'
     moduleID = 'PYSNMP_MODULE_ID'
     def __init__(self):
         self.lastBuildId = self._autoName = 0
@@ -229,13 +219,29 @@ class MibBuilder:
         self.mibSymbols = {}
         self.__modSeen = {}
         self.__modPathsSeen = {}
+        self.__mibCompiler = None
         self.setMibSources(*sources)
-        
+
+    # MIB compiler management
+
+    def getMibCompiler(self):
+        return self.__mibCompiler
+       
+    def setMibCompiler(self, mibCompiler, destDir):
+        self.addMibSources(DirMibSource(destDir))
+        self.__mibCompiler = mibCompiler
+        return self
+       
     # MIB modules management
+
+    def addMibSources(self, *mibSources):
+        self.__mibSources.extend([ s.init() for s in mibSources ])
+        debug.logger & debug.flagBld and debug.logger('addMibSources: new MIB sources %s' % (self.__mibSources,))
+
 
     def setMibSources(self, *mibSources):
         self.__mibSources = [ s.init() for s in mibSources ]
-        debug.logger & debug.flagBld and debug.logger('setMibPath: new MIB sources %s' % (self.__mibSources,))
+        debug.logger & debug.flagBld and debug.logger('setMibSources: new MIB sources %s' % (self.__mibSources,))
 
     def getMibSources(self): return tuple(self.__mibSources)
 
@@ -254,6 +260,49 @@ class MibBuilder:
                     )
         return paths
         
+    def loadModule(self, modName, **userCtx):
+        for mibSource in self.__mibSources:
+            debug.logger & debug.flagBld and debug.logger('loadModule: trying %s at %s' % (modName, mibSource))
+            try:
+                modData, sfx = mibSource.read(modName)
+            except IOError:
+                debug.logger & debug.flagBld and debug.logger('loadModule: read %s from %s failed: %s' % (modName, mibSource, sys.exc_info()[1]))
+                continue
+
+            modPath = mibSource.fullPath(modName, sfx)
+            
+            if modPath in self.__modPathsSeen:
+                debug.logger & debug.flagBld and debug.logger('loadModule: seen %s' % modPath)
+                break
+            else:
+                self.__modPathsSeen[modPath] = 1
+
+            debug.logger & debug.flagBld and debug.logger('loadModule: evaluating %s' % modPath)
+
+            g = { 'mibBuilder': self,
+                  'userCtx': userCtx }
+
+            try:
+                exec(modData, g)
+            except Exception:
+                del self.__modPathsSeen[modPath]
+                raise error.MibLoadError(
+                    'MIB module \"%s\" load error: %s' % (modPath, traceback.format_exception(*sys.exc_info()))
+                    )
+
+            self.__modSeen[modName] = modPath
+
+            debug.logger & debug.flagBld and debug.logger('loadModule: loaded %s' % modPath)
+
+            break
+
+        if modName not in self.__modSeen:
+            raise error.MibNotFoundError(
+                'MIB file \"%s\" not found in search path (%s)' % (modName and modName + ".py[co]", ', '.join([str(x) for x in self.__mibSources]))
+            )
+
+        return self
+
     def loadModules(self, *modNames, **userCtx):
         # Build a list of available modules
         if not modNames:
@@ -263,50 +312,19 @@ class MibBuilder:
                     modNames[modName] = None
             modNames = list(modNames.keys())
         if not modNames:
-            raise error.SmiError(
+            raise error.MibNotFoundError(
                 'No MIB module to load at %s' % (self,)
-                )
+            )
         
         for modName in modNames:
-            for mibSource in self.__mibSources:
-                debug.logger & debug.flagBld and debug.logger('loadModules: trying %s at %s' % (modName, mibSource))
-                try:
-                    modData, sfx = mibSource.read(modName)
-                except IOError:
-                    debug.logger & debug.flagBld and debug.logger('loadModules: read %s from %s failed: %s' % (modName, mibSource, sys.exc_info()[1]))
-                    continue
-
-                modPath = mibSource.fullPath(modName, sfx)
-                
-                if modPath in self.__modPathsSeen:
-                    debug.logger & debug.flagBld and debug.logger('loadModules: seen %s' % modPath)
-                    break
-                else:
-                    self.__modPathsSeen[modPath] = 1
-
-                debug.logger & debug.flagBld and debug.logger('loadModules: evaluating %s' % modPath)
-
-                g = { 'mibBuilder': self,
-                      'userCtx': userCtx }
-
-                try:
-                    exec(modData, g)
-                except Exception:
-                    del self.__modPathsSeen[modPath]
-                    raise error.SmiError(
-                        'MIB module \"%s\" load error: %s' % (modPath, traceback.format_exception(*sys.exc_info()))
-                        )
-
-                self.__modSeen[modName] = modPath
-
-                debug.logger & debug.flagBld and debug.logger('loadModules: loaded %s' % modPath)
-
-                break
-
-            if modName not in self.__modSeen:
-                raise error.SmiError(
-                    'MIB file \"%s\" not found in search path (%s)' % (modName and modName + ".py[co]", ', '.join([str(x) for x in self.__mibSources]))
-                    )
+            try:
+                self.loadModule(modName, **userCtx)
+            except error.MibNotFoundError:
+                if self.__mibCompiler:
+                    debug.logger & debug.flagBld and debug.logger('loadModules: calling MIB compiler for %s' % modName)
+                    self.__mibCompiler.compile(modName)
+                    # in case this missing MIB becomes available
+                    self.loadModule(modName, **userCtx)
 
         return self
                 

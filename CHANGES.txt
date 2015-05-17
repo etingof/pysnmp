@@ -3,6 +3,8 @@ Revision 4.2.6rc2
 
 - Critical error fixed in key localization procedure for AES192/AES256/3DES
   cyphers. Previous versions might never worked properly in this respect.
+- Initial PySMI integration. Original ASN.1 MIBs could now be parsed, stored
+  at a local pysnmp MIBs repository and loaded into SNMP Engine.
 - Major rewrite of native SNMPv3 CommandGenerator and NotificationOriginator
   applications towards the following goals:
   * avoid bonding with particular SNMP engine instance to promote single
@@ -80,8 +82,10 @@ Revision 4.2.6rc2
 - Parts of SMIv1 remnant MIBs (RFC1213-MIB, RFC1158-MIB) added to provide 
   complete compatibility with SMIv1. Symbols defined in these MIBs only
   present in SMIv1 so they can't be substituted with their SMIv2 analogues.
-- Optional configuration/MIB directory added to MIB search path
-  (~/,pysnmp/mibs) at MibBuilder.
+- MibBuilder.addMibSources() convenience method added.
+- The smi.MibBuilder() will now raise more specific exceptions (MibLoadError,
+  MibNotFoundError) on MIB loading problems rather than more generic
+  SmiError.
 - Fix to authoritative engine side snmpEngineID discovery procedure: 
   respond with notInTimeWindows rather then with unsupportedSecurityLevel
   at time synchronization phase.

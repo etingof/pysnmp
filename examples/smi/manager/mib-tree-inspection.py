@@ -1,21 +1,23 @@
 # SNMP manager-side MIB management
-from pysnmp.smi import builder, view, error
+from pysnmp.smi import builder, view, compiler, error
 
 # Create MIB loader/builder
 mibBuilder = builder.MibBuilder()
 
-# Optionally set an alternative path to compiled MIBs
-#print('Setting MIB sources...')
-#mibSources = mibBuilder.getMibSources() + (
-#    builder.DirMibSource('/opt/pysnmp_mibs'),
-#    )
-#mibBuilder.setMibSources(*mibSources)
-#print(mibBuilder.getMibSources())
+# Optionally attach PySMI MIB compiler (if installed)
+#print('Attaching MIB compiler...'),
+#compiler.addMibCompiler(mibBuilder, sources=['/usr/share/snmp/mibs'])
 #print('done')
+
+# Optionally set an alternative path to compiled MIBs
+print('Setting MIB sources...')
+mibBuilder.addMibSources(builder.DirMibSource('/opt/pysnmp_mibs'))
+print(mibBuilder.getMibSources())
+print('done')
 
 print('Loading MIB modules...'),
 mibBuilder.loadModules(
-    'SNMPv2-MIB', 'SNMP-FRAMEWORK-MIB', 'SNMP-COMMUNITY-MIB'
+    'SNMPv2-MIB', 'SNMP-FRAMEWORK-MIB', 'SNMP-COMMUNITY-MIB', 'IP-MIB'
     )
 print('done')
 
