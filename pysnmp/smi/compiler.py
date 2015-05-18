@@ -19,9 +19,9 @@ except ImportError:
     from pysnmp.smi import error
 
     def addMibCompiler(mibBuilder,
-                       sources=defaultSources,
-                       destination=defaultDest,
-                       borrowers=defaultBorrowers):
+                       sources=[],
+                       destination='',
+                       borrowers=[]):
         raise error.SmiError('MIB compiler not available (pysmi not installed)')
 
 else:
