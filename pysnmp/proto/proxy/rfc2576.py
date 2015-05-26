@@ -190,10 +190,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
     # 3.2
     if pduType in rfc3411.notificationClassPDUs:
         # 3.2.1
-        (snmpTrapOID, snmpTrapOIDParam) = v2VarBinds[1]
-        if snmpTrapOID != v2c.apiTrapPDU.snmpTrapOID:
-            raise error.ProtocolError('Second OID not snmpTrapOID')
-
+        snmpTrapOID, snmpTrapOIDParam = v2VarBinds[1]
         if snmpTrapOIDParam in __v2ToV1TrapMap:
             for oid, val in v2VarBinds:
                 if oid == v2c.apiTrapPDU.snmpTrapEnterprise:
