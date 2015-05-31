@@ -63,7 +63,7 @@ class __AbstractMibSource:
                 if why.errno == ENOENT or ENOENT == -1:
                     pycTime = -1
                 else:
-                    raise error.SmiError('MIB file %s access error: %s' % (f+pycSfx, why))
+                    raise error.MibLoadError('MIB file %s access error: %s' % (f+pycSfx, why))
             else:
                 if self.__magic == pycData[:4]:
                     pycData = pycData[4:]
@@ -88,7 +88,7 @@ class __AbstractMibSource:
                 if why.errno == ENOENT or ENOENT == -1:
                     pyTime = -1
                 else:
-                    raise error.SmiError('MIB file %s access error: %s' % (f+pySfx, why))
+                    raise error.MibLoadError('MIB file %s access error: %s' % (f+pySfx, why))
             else:
                 break
 
@@ -191,7 +191,7 @@ class DirMibSource(__AbstractMibSource):
         except (IOError, OSError):
             why = sys.exc_info()[1]
             if why.errno != ENOENT and ENOENT != -1:
-                raise error.SmiError('MIB file %s access error: %s' % (p, why))
+                raise error.MibLoadError('MIB file %s access error: %s' % (p, why))
 
         raise IOError(ENOENT, 'No such file: %s' % sys.exc_info()[1], p)
 
@@ -205,17 +205,15 @@ class MibBuilder:
     def __init__(self):
         self.lastBuildId = self._autoName = 0
         sources = []
-        for m in os.environ.get('PYSNMP_MIB_PKGS', self.defaultCoreMibs).split(os.pathsep):
-            sources.append(ZipMibSource(m))
-        # Compatibility variable
-        if 'PYSNMP_MIB_DIR' in os.environ:
-            os.environ['PYSNMP_MIB_DIRS'] = os.environ['PYSNMP_MIB_DIR']
-        if 'PYSNMP_MIB_DIRS' in os.environ:
-            for m in os.environ['PYSNMP_MIB_DIRS'].split(os.pathsep):
-                sources.append(DirMibSource(m))
-        if self.defaultMiscMibs:
+        for ev in 'PYSNMP_MIB_PKGS', 'PYSNMP_MIB_DIRS', 'PYSNMP_MIB_DIR':
+            if ev in os.environ:
+                for m in os.environ[ev].split(os.pathsep):
+                    sources.append(ZipMibSource(m))
+        if not sources and self.defaultMiscMibs:
             for m in self.defaultMiscMibs.split(os.pathsep):
                 sources.append(ZipMibSource(m))
+        for m in self.defaultCoreMibs.split(os.pathsep):
+            sources.insert(0, ZipMibSource(m))
         self.mibSymbols = {}
         self.__modSeen = {}
         self.__modPathsSeen = {}
@@ -255,7 +253,7 @@ class MibBuilder:
             if isinstance(mibSource, DirMibSource):
                 paths += ( mibSource.fullPath(), )
             else:
-                raise error.SmiError(
+                raise error.MibLoadError(
                     'MIB source is not a plain directory: %s' % (mibSource,)
                     )
         return paths
@@ -333,7 +331,7 @@ class MibBuilder:
             modNames = list(self.mibSymbols.keys())
         for modName in modNames:
             if modName not in self.mibSymbols:
-                raise error.SmiError(
+                raise error.MibNotFoundError(
                     'No module %s at %s' % (modName, self)
                     )
             self.unexportSymbols(modName)
@@ -354,7 +352,7 @@ class MibBuilder:
             if modName not in self.mibSymbols:
                 self.loadModules(modName, **userCtx)
             if modName not in self.mibSymbols:
-                raise error.SmiError(
+                raise error.MibNotFoundError(
                     'No module %s loaded at %s' % (modName, self)
                     )
             if symName not in self.mibSymbols[modName]:
