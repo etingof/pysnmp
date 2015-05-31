@@ -48,8 +48,8 @@ class MibViewController:
                 r = m.getRevisions()
                 if r:
                     return r[0]
-            else:
-                return "1970-01-01 00:00"
+
+            return "1970-01-01 00:00"
 
         modNames = list(self.mibBuilder.mibSymbols.keys())
         modNames.sort(key=__sortFun)
