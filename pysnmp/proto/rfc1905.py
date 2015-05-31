@@ -6,6 +6,9 @@ max_bindings = rfc1902.Integer(2147483647)
 
 # Take SNMP exception values out of BindValue structure for convenience
 
+UnSpecified = univ.Null
+unSpecified = UnSpecified()
+
 class NoSuchObject(univ.Null):
     tagSet = univ.Null.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassContext, tag.tagFormatSimple, 0x00)
@@ -34,7 +37,7 @@ endOfMibView = EndOfMibView()
 class _BindValue(univ.Choice):
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('value', rfc1902.ObjectSyntax()),
-        namedtype.NamedType('unSpecified', univ.Null()),
+        namedtype.NamedType('unSpecified', unSpecified),
         namedtype.NamedType('noSuchObject', noSuchObject),
         namedtype.NamedType('noSuchInstance', noSuchInstance),
         namedtype.NamedType('endOfMibView', endOfMibView)
