@@ -43,6 +43,8 @@ class OctetString(univ.OctetString):
             self, value, implicitTag, explicitTag, subtypeSpec
         ).setFixedLength(self.getFixedLength())
 
+ObjectIdentifier = univ.ObjectIdentifier
+
 class IpAddress(OctetString):
     tagSet = OctetString.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x00)
