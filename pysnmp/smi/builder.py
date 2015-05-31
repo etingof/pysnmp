@@ -320,8 +320,11 @@ class MibBuilder:
             except error.MibNotFoundError:
                 if self.__mibCompiler:
                     debug.logger & debug.flagBld and debug.logger('loadModules: calling MIB compiler for %s' % modName)
-                    self.__mibCompiler.compile(modName)
-                    # in case this missing MIB becomes available
+                    status = self.__mibCompiler.compile(modName)
+                    errs = '; '.join([str(x.error) for x in status.values() if x in ('failed', 'missing')])
+                    if errs:
+                        raise error.MibNotFoundError('%s compilation error(s): %s' % (modName, errs))
+                    # compilation suceeded, MIB might load now
                     self.loadModule(modName, **userCtx)
 
         return self
