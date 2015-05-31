@@ -19,7 +19,10 @@ cmdGen = cmdgen.CommandGenerator()
 errorIndication, errorStatus, errorIndex, varBinds = cmdGen.setCmd(
     cmdgen.UsmUserData('usr-md5-none', 'authkey1'),
     cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-    (cmdgen.MibVariable('SNMPv2-MIB', 'sysORDescr', 1), 'new system name'),
+    cmdgen.ObjectType(
+        cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysORDescr', 1),
+        'new system name'
+    ),
     contextEngineId=rfc1902.OctetString(hexValue='80004fb805636c6f75644dab22cc'),
     contextName='da761cfc8c94d3aceef4f60f049105ba'
 )

@@ -56,7 +56,7 @@ else:
         )
 
         compiler.addBorrowers(
-            *[ PyFileBorrower(x) for x in getReadersFromUrls(*borrowers, originalMatching=False, lowcaseMatching=False) ]
+            *[ PyFileBorrower(x) for x in getReadersFromUrls(*borrowers, **dict(originalMatching=False, lowcaseMatching=False)) ]
         )
 
         mibBuilder.setMibCompiler(compiler, destination)

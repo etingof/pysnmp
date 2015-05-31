@@ -22,7 +22,7 @@ errorIndication, errorStatus, errorIndex, varBindTable = cmdGen.bulkCmd(
     cmdgen.UsmUserData('usr-none-none'),
     cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
     0, 50,
-    cmdgen.MibVariable('TCP-MIB', 'tcpConnTable').addMibSource('/tmp/mymibs'),
+    cmdgen.ObjectIdentity('TCP-MIB', 'tcpConnTable').addMibSource('/tmp/mibs'),
     lexicographicMode=True, maxRows=100, maxCalls=10,ignoreNonIncreasingOid=True
 )
 

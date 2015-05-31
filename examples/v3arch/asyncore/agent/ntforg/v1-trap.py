@@ -17,7 +17,7 @@
 #
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asynsock.dgram import udp
-from pysnmp.entity.rfc3413 import ntforg, context
+from pysnmp.entity.rfc3413 import ntforg
 from pysnmp.proto.api import v2c
 #from pysnmp import debug
 
@@ -64,28 +64,21 @@ config.addVacmUser(snmpEngine, 1, 'my-area', 'noAuthNoPriv', (), (), (1,3,6))
 # Create Notification Originator App instance. 
 ntfOrg = ntforg.NotificationOriginator()
 
- # Create default SNMP context where contextEngineId == SnmpEngineId
-snmpContext = context.SnmpContext(snmpEngine)
-
 # Build and submit notification message to dispatcher
 ntfOrg.sendVarBinds(
     snmpEngine,
     # Notification targets
-    'my-notification',
-    # SNMP Context
-    snmpContext,
-    # contextName
-    '',
-    # notification name: Generic Trap #6 (enterpriseSpecific)
-    #                    and Specific Trap 432
-    '1.3.6.1.4.1.20408.4.1.1.2.0.432',
-    # instance Index
-    None,
-    # additional var-binds
-    [
+    'my-notification',  # notification targets
+    None, '',           # contextEngineId, contextName
+    # var-binds
+    [ 
         # Uptime value with 12345
         (v2c.ObjectIdentifier('1.3.6.1.2.1.1.3.0'),
          v2c.TimeTicks(12345)),
+        # trap OID: Generic Trap #6 (enterpriseSpecific)
+        #           and Specific Trap 432
+        (v2c.ObjectIdentifier('1.3.6.1.6.3.1.1.5.1'),
+         v2c.ObjectIdentifier('1.3.6.1.4.1.20408.4.1.1.2.0.432')),
         # Agent Address with '127.0.0.1'
         (v2c.ObjectIdentifier('1.3.6.1.6.3.18.1.3.0'),
          v2c.IpAddress('127.0.0.1')),

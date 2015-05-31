@@ -12,7 +12,6 @@
 # * include managed object information specified as var-bind objects pair
 #
 from pysnmp.entity.rfc3413.oneliner import ntforg
-from pysnmp.entity.rfc3413 import context
 from pysnmp.entity import engine
 from pysnmp.proto import rfc1902
 
@@ -21,27 +20,31 @@ from pysnmp.proto import rfc1902
 targets = (
     # 1-st target (SNMPv1 over IPv4/UDP)
     ( ntforg.CommunityData('public', mpModel=0),
-      ntforg.UdpTransportTarget(('localhost', 162)) ),
+      ntforg.UdpTransportTarget(('localhost', 162)),
+      ntforg.ContextData() ),
     # 2-nd target (SNMPv2c over IPv4/UDP)
     ( ntforg.CommunityData('public'),
-      ntforg.UdpTransportTarget(('localhost', 162)) )
+      ntforg.UdpTransportTarget(('localhost', 162)),
+      ntforg.ContextData() ),
 )
 
 snmpEngine = engine.SnmpEngine()
 
 ntfOrg = ntforg.AsyncNotificationOriginator()
 
-for authData, transportTarget in targets:
+for authData, transportTarget, contextData in targets:
     ntfOrg.sendNotification(
         snmpEngine,
         authData,
         transportTarget,
-        context.SnmpContext(snmpEngine),
-        ntforg.null,
-        'trap',
-        ntforg.MibVariable('SNMPv2-MIB', 'coldStart'),
-        ( ( rfc1902.ObjectName('1.3.6.1.2.1.1.1.0'),
-            rfc1902.OctetString('my name') ), )
+        contextData,
+        'trap',         # NotifyType
+        ntforg.NotificationType(
+            ntforg.ObjectIdentity('SNMPv2-MIB', 'coldStart')
+        ).addVarBinds(
+            ( rfc1902.ObjectName('1.3.6.1.2.1.1.1.0'),
+              rfc1902.OctetString('my name') )
+        )
     )
 
 snmpEngine.transportDispatcher.runDispatcher()

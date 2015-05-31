@@ -6,7 +6,7 @@
 # * with SNMPv3 with user 'usr-md5-des', MD5 auth and DES privacy protocols
 # * over IPv6/UDP
 # * to an Agent at [::1]:161
-# * for three OIDs: one passed as a MibVariable object while others are
+# * for three OIDs: one passed as a ObjectIdentity object while others are
 # * in string form
 #
 from pysnmp.entity.rfc3413.oneliner import cmdgen
@@ -16,7 +16,7 @@ cmdGen = cmdgen.CommandGenerator()
 errorIndication, errorStatus, errorIndex, varBinds = cmdGen.getCmd(
     cmdgen.UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
     cmdgen.Udp6TransportTarget(('::1', 161)),
-    cmdgen.MibVariable('1.3.6.1.2.1.1.1.0'),
+    cmdgen.ObjectIdentity('1.3.6.1.2.1.1.1.0'),
     '1.3.6.1.2.1.1.2.0',
     '1.3.6.1.2.1.1.3.0'
 )

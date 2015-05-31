@@ -16,7 +16,7 @@ cmdGen = cmdgen.CommandGenerator()
 errorIndication, errorStatus, errorIndex, varBinds = cmdGen.getCmd(
     cmdgen.UsmUserData('usr-none-none'),
     cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-    cmdgen.MibVariable('IF-MIB', 'ifInOctets', '1'),
+    cmdgen.ObjectIdentity('IF-MIB', 'ifInOctets', 1),
     lookupNames=True, lookupValues=True
 )
 

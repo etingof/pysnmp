@@ -29,11 +29,11 @@ targets = (
     # 3-nd target (SNMPv3 over IPv4/UDP)
     ( cmdgen.UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
       cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-      ( cmdgen.MibVariable('SNMPv2-MIB', 'system'), ) ),
+      ( cmdgen.ObjectIdentity('SNMPv2-MIB', 'system'), ) ),
     # 4-th target (SNMPv3 over IPv6/UDP)
     ( cmdgen.UsmUserData('usr-md5-none', 'authkey1'),
       cmdgen.Udp6TransportTarget(('::1', 161)),
-      ( cmdgen.MibVariable('IF-MIB', 'ifTable'), ) )
+      ( cmdgen.ObjectIdentity('IF-MIB', 'ifTable'), ) )
     # N-th target
     # ...
 )

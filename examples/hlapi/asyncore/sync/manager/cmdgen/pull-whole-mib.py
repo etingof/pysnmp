@@ -19,7 +19,7 @@ cmdGen = cmdgen.CommandGenerator()
 errorIndication, errorStatus, errorIndex, varBindTable = cmdGen.nextCmd(
     cmdgen.UsmUserData('usr-md5-none', 'authkey1'),
     cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-    cmdgen.MibVariable('IF-MIB', ''),
+    cmdgen.ObjectIdentity('IF-MIB', ''),
     lookupValues=True
 )
 

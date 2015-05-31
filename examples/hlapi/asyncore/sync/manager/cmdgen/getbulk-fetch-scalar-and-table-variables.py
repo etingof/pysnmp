@@ -22,8 +22,8 @@ errorIndication, errorStatus, errorIndex, varBindTable = cmdGen.bulkCmd(
     cmdgen.UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
     cmdgen.Udp6TransportTarget(('::1', 161)),
     1, 25,
-    cmdgen.MibVariable('IP-MIB', 'ipAdEntAddr'),
-    cmdgen.MibVariable('IF-MIB', 'ifEntry'),
+    cmdgen.ObjectIdentity('IP-MIB', 'ipAdEntAddr'),
+    cmdgen.ObjectIdentity('IF-MIB', 'ifEntry'),
     lookupNames=True, lookupValues=True, maxRows=20
 )
 

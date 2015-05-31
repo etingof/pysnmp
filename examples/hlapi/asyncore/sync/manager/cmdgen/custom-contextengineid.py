@@ -23,7 +23,10 @@ errorIndication, errorStatus, errorIndex, varBinds = cmdGen.setCmd(
         )
     ),
     cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-    (cmdgen.MibVariable('SNMPv2-MIB', 'sysORDescr', 1), 'new system name'),
+    cmdgen.ObjectType(
+        cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysORDescr', 1),
+        'new system name'
+    )
 )
 
 # Check for errors and print out results

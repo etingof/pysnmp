@@ -1,6 +1,6 @@
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdgen
-from pysnmp.entity.rfc3413.oneliner.mibvar import MibVariable
+from pysnmp.smi.rfc1902 import ObjectIdentity, ObjectType
 from pysnmp.entity.rfc3413.oneliner.auth import CommunityData, UsmUserData
 from pysnmp.entity.rfc3413.oneliner.target import UdpTransportTarget, \
     Udp6TransportTarget, UnixTransportTarget
@@ -10,6 +10,8 @@ from pysnmp.smi import view
 from pysnmp import nextid, error
 from pyasn1.type import univ, base
 from pyasn1.compat.octets import null
+# obsolete, compatibility symbols
+from pysnmp.entity.rfc3413.oneliner.mibvar import MibVariable
 
 # Auth protocol
 usmHMACMD5AuthProtocol = config.usmHMACMD5AuthProtocol
@@ -30,21 +32,22 @@ class AsyncCommandGenerator:
     _null = univ.Null('')
 
     def _getCache(self, snmpEngine):
-        if 'cmdgen' not in snmpEngine.cache:
-            snmpEngine.cache['cmdgen'] = { 
-                'auth': {},
-                'parm': {},
-                'tran': {},
-                'addr': {},
-           }
-        return snmpEngine.cache['cmdgen']
+        cache = snmpEngine.getUserContext('cmdgen_cache')
+        if cache is None:
+            cache = {
+                'auth': {}, 'parm': {}, 'tran': {}, 'addr': {}
+            }
+            snmpEngine.setUserContext(cmdgen_cache=cache)
+        return cache
 
     def getMibViewController(self, snmpEngine):
-        if 'mibViewController' not in snmpEngine.cache:
-            snmpEngine.cache['mibViewController'] = view.MibViewController(
-                snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
+        mibViewController = snmpEngine.getUserContext('mibViewController')
+        if not mibViewController:
+            mibViewController = view.MibViewController(
+                snmpEngine.getMibBuilder()
             )
-        return snmpEngine.cache['mibViewController']
+            snmpEngine.setUserContext(mibViewController=mibViewController)
+        return mibViewController
         
     def cfgCmdGen(self, snmpEngine, authData, transportTarget):
         cache = self._getCache(snmpEngine)
@@ -203,59 +206,35 @@ class AsyncCommandGenerator:
 
         return addrNames, paramsNames
 
-    def makeVarBinds(self, snmpEngine, varBinds, oidOnly=False):
+    def makeVarBinds(self, snmpEngine, varBinds):
         mibViewController = self.getMibViewController(snmpEngine)
         __varBinds = []
-        for varName, varVal in varBinds:
-            if isinstance(varName, MibVariable):
-                if oidOnly or isinstance(varVal, base.AbstractSimpleAsn1Item):
-                    varName.resolveWithMib(mibViewController, oidOnly=True)
-                else:
-                    varName.resolveWithMib(mibViewController)
-                    varVal = varName.getMibNode().getSyntax().clone(varVal)
-            elif isinstance(varName[0], tuple):  # legacy
-                varName = MibVariable(varName[0][0], varName[0][1], *varName[1:]).resolveWithMib(mibViewController)
-                if not oidOnly and \
-                        not isinstance(varVal, base.AbstractSimpleAsn1Item):
-                    varVal = varName.getMibNode().getSyntax().clone(varVal)
+        for varBind in varBinds:
+            if isinstance(varBind, ObjectType):
+                pass
+            elif isinstance(varBind[0], ObjectIdentity):
+                varBind = ObjectType(*varBind)
+            elif isinstance(varBind[0][0], tuple):  # legacy
+                varBind = ObjectType(ObjectIdentity(varBind[0][0][0], varBind[0][0][1], *varBind[0][1:]), varBind[1])
             else:
-                if oidOnly or isinstance(varVal, base.AbstractSimpleAsn1Item):
-                    varName = MibVariable(varName).resolveWithMib(mibViewController, oidOnly=True)
-                else:
-                    varName = MibVariable(varName).resolveWithMib(mibViewController)
-                    try:
-                        varVal = varName.getMibNode().getSyntax().clone(varVal)
-                    except:
-                        raise error.PySnmpError('Unresolved SNMP value type for OID %s (MIB not loaded?)' % (varName,))
+                varBind = ObjectType(ObjectIdentity(varBind[0]), varBind[1])
 
-            __varBinds.append((varName, varVal))
+            __varBinds.append(varBind.resolveWithMib(mibViewController))
 
         return __varBinds
 
     def unmakeVarBinds(self, snmpEngine, varBinds, lookupNames, lookupValues):
         if lookupNames or lookupValues:
             mibViewController = self.getMibViewController(snmpEngine)
-            _varBinds = []
-            for name, value in varBinds:
-                varName = MibVariable(name).resolveWithMib(mibViewController)
-                if lookupNames:
-                    name = varName
-                if lookupValues:
-                    if value.tagSet not in (rfc1905.NoSuchObject.tagSet,
-                                            rfc1905.NoSuchInstance.tagSet,
-                                            rfc1905.EndOfMibView.tagSet):
-                        if varName.isFullyResolved():
-                            value = varName.getMibNode().getSyntax().clone(value)
-                _varBinds.append((name, value))
-            return _varBinds
-        else:
-            return varBinds
+            varBinds = [ ObjectType(ObjectIdentity(x[0]), x[1]).resolveWithMib(mibViewController) for x in varBinds ]
+
+        return varBinds
 
     def makeVarBindsHead(self, snmpEngine, varNames):
         return [ 
             x[0] for x in self.makeVarBinds(
                 snmpEngine,
-                [ (x, univ.Null('')) for x in varNames ], oidOnly=True
+                [ (x, univ.Null('')) for x in varNames ]
             )
         ]
 
@@ -415,12 +394,12 @@ class AsynCommandGenerator:
     # compatibility stub
     def makeReadVarBinds(self, varNames):
         return self.makeVarBinds(
-            [ (x, univ.Null('')) for x in varNames ], oidOnly=True
+            [ (x, univ.Null('')) for x in varNames ]
         )
 
-    def makeVarBinds(self, varBinds, oidOnly=False):
+    def makeVarBinds(self, varBinds):
         return self.__asyncCmdGen.makeVarBinds(
-            self.snmpEngine, varBinds, oidOnly
+            self.snmpEngine, varBinds
         )
 
     def unmakeVarBinds(self, varBinds, lookupNames, lookupValues):

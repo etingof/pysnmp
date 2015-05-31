@@ -5,6 +5,7 @@ from pysnmp.proto.proxy import rfc2576
 from pysnmp.proto import rfc3411
 from pysnmp.proto.api import v2c
 from pysnmp.proto import error
+from pysnmp.smi import view, rfc1902
 from pysnmp import nextid
 from pysnmp import debug
 
@@ -254,14 +255,12 @@ class NotificationOriginator:
     def sendVarBinds(self,
                      snmpEngine,
                      notificationTarget,
-                     snmpContext,
+                     contextEngineId,
                      contextName,
-                     notificationName,
-                     instanceIndex,
-                     additionalVarBinds=(),
+                     varBinds=(),
                      cbFun=None,
                      cbCtx=None):
-        debug.logger & debug.flagApp and debug.logger('sendVarBinds: notificationTarget %s, notificationName %s, additionalVarBinds %s, contextName "%s", instanceIndex %s' % (notificationTarget, notificationName, additionalVarBinds, contextName, instanceIndex))
+        debug.logger & debug.flagApp and debug.logger('sendVarBinds: notificationTarget %s, contextEngineId %s, contextName "%s", varBinds %s' % (notificationTarget, contextEngineId or '<default>', contextName, varBinds))
 
         if contextName:
             __SnmpAdminString, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'SnmpAdminString')
@@ -277,10 +276,32 @@ class NotificationOriginator:
 
         debug.logger & debug.flagApp and debug.logger('sendVarBinds: sendRequestHandle %s, notifyTag %s, notifyType %s' % (sendRequestHandle, notifyTag, notifyType))
 
-        contextMibInstrumCtl = snmpContext.getMibInstrum(contextName)
-       
-        additionalVarBinds = [  (v2c.ObjectIdentifier(x),y) for x,y in additionalVarBinds ]
+        varBinds = [  (v2c.ObjectIdentifier(x),y) for x,y in varBinds ]
 
+        # 3.3.2 & 3.3.3
+        snmpTrapOID, sysUpTime = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpTrapOID', 'sysUpTime')
+
+        for idx in range(len(varBinds)):
+            if idx and varBinds[idx][0] == sysUpTime.getName():
+                if varBinds[0][0] == sysUpTime.getName():
+                    varBinds[0] = varBinds[idx]
+                else:
+                    varBinds.insert(0, varBinds[idx])
+                    del varBinds[idx]
+
+            if varBinds[0][0] != sysUpTime.getName():
+                varBinds.insert(0, (v2c.ObjectIdentifier(sysUpTime.getName()),
+                                    sysUpTime.getSyntax().clone()))
+
+        if len(varBinds) < 2 or varBinds[1][0] != snmpTrapOID.getName():
+            varBinds.insert(1, (v2c.ObjectIdentifier(snmpTrapOID.getName()),
+                                snmpTrapOID.getSyntax()))
+
+        debug.logger & debug.flagApp and debug.logger('sendVarBinds: final varBinds %s' % (varBinds,))
+
+        cbCtx = cbFun, cbCtx
+        cbFun = self.processResponseVarBinds
+            
         for targetAddrName in config.getTargetNames(snmpEngine, notifyTag):
             ( transportDomain,
               transportAddress,
@@ -292,8 +313,6 @@ class NotificationOriginator:
               securityName,
               securityLevel ) = config.getTargetParams(snmpEngine, params)
 
-            debug.logger & debug.flagApp and debug.logger('sendVarBinds: sendRequestHandle %s, notifyTag %s yields: transportDomain %s, transportAddress %r, securityModel %s, securityName %s, securityLevel %s' % (sendRequestHandle, notifyTag, transportDomain, transportAddress, securityModel, securityName, securityLevel))
-
             # 3.3.1 XXX
 # XXX filtering's yet to be implemented
 #             filterProfileName = config.getNotifyFilterProfile(params)
@@ -302,57 +321,22 @@ class NotificationOriginator:
 #               filterMask,
 #               filterType ) = config.getNotifyFilter(filterProfileName)
 
-            varBinds = []
-            
-            # 3.3.2 & 3.3.3
-            sysUpTime, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'sysUpTime')
+            debug.logger & debug.flagApp and debug.logger('sendVarBinds: sendRequestHandle %s, notifyTag %s yields: transportDomain %s, transportAddress %r, securityModel %s, securityName %s, securityLevel %s' % (sendRequestHandle, notifyTag, transportDomain, transportAddress, securityModel, securityName, securityLevel))
 
-            for varName, varVal in additionalVarBinds:
-                if varName == sysUpTime.name:
-                    varBinds.append((varName, varVal))
-                    break
-            if not varBinds:
-                varBinds.append((sysUpTime.name,
-                                 sysUpTime.syntax.clone())) # for actual value
-
-            snmpTrapOid, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpTrapOID')
-            if len(notificationName) == 2:  # ('MIB', 'symbol')
-                notificationTypeObject, = contextMibInstrumCtl.mibBuilder.importSymbols(*notificationName)
-                varBinds.append((snmpTrapOid.name, v2c.ObjectIdentifier(notificationTypeObject.name)))
-                debug.logger & debug.flagApp and debug.logger('sendVarBinds: notification type object is %s' % notificationTypeObject)
-                for notificationObject in notificationTypeObject.getObjects():
-                    mibNode, = contextMibInstrumCtl.mibBuilder.importSymbols(*notificationObject)
-                    if instanceIndex:
-                        mibNode = mibNode.getNode(mibNode.name + instanceIndex)
-                    else:
-                        mibNode = mibNode.getNextNode(mibNode.name)
-                    varBinds.extend(
-                        contextMibInstrumCtl.readVars(
-                            [ (mibNode.name, None) ]  # XXX AC is missing
-                        )
-                    )
-                    debug.logger & debug.flagApp and debug.logger('sendVarBinds: processed notification object %s, instance index %s, var-bind %s' % (notificationObject, instanceIndex is None and "<first>" or instanceIndex, mibNode))
-            elif notificationName:  # numeric OID
-                varBinds.append(
-                    (snmpTrapOid.name,
-                     snmpTrapOid.syntax.clone(notificationName))
-                )
-            else:
-                varBinds.append((snmpTrapOid.name, snmpTrapOid.syntax))
-
-            for varName, varVal in additionalVarBinds:
-                if varName in (sysUpTime.name, snmpTrapOid.name):
+            for varName, varVal in varBinds:
+                if varName in (sysUpTime.name, snmpTrapOID.name):
                     continue
                 try:
                     snmpEngine.accessControlModel[self.acmID].isAccessAllowed(
                         snmpEngine, securityModel, securityName,
                         securityLevel, 'notify', contextName, varName
                         )
+
+                    debug.logger & debug.flagApp and debug.logger('sendVarBinds: ACL succeeded for OID %s securityName %s' % (varName, securityName))
+
                 except error.StatusInformation:
-                    debug.logger & debug.flagApp and debug.logger('sendVarBinds: OID %s not allowed for %s, droppping notification' % (varName, securityName))
+                    debug.logger & debug.flagApp and debug.logger('sendVarBinds: ACL denied access for OID %s securityName %s, droppping notification' % (varName, securityName))
                     return
-                else:
-                    varBinds.append((varName, varVal))
 
             # 3.3.4
             if notifyType == 1:
@@ -365,14 +349,11 @@ class NotificationOriginator:
             v2c.apiPDU.setDefaults(pdu)
             v2c.apiPDU.setVarBinds(pdu, varBinds)
 
-            cbCtx = cbFun, cbCtx
-            cbFun = self.processResponseVarBinds
-            
             # 3.3.5
             try:
                 sendPduHandle = self.sendPdu(snmpEngine,
                                              targetAddrName,
-                                             snmpContext.contextEngineId,
+                                             contextEngineId,
                                              contextName,
                                              pdu,
                                              cbFun,
@@ -380,7 +361,7 @@ class NotificationOriginator:
                 
             except error.StatusInformation:
                 statusInformation = sys.exc_info()[1]
-                debug.logger & debug.flagApp and debug.logger('sendVarBinds: sendRequestHandle %s: sendVarBindsPdu() failed with %r' % (sendRequestHandle, statusInformation))
+                debug.logger & debug.flagApp and debug.logger('sendVarBinds: sendRequestHandle %s: sendPdu() failed with %r' % (sendRequestHandle, statusInformation))
                 if sendRequestHandle not in self.__pendingNotifications or \
                        not self.__pendingNotifications[sendRequestHandle]:
                     if sendRequestHandle in self.__pendingNotifications:
@@ -440,13 +421,39 @@ def _sendNotification(self,
     cbCtx = cbFun, cbCtx
     cbFun = _sendNotificationCbFun
 
+    #
+    # Here we first expand trap OID into associated OBJECTS
+    # and then look them up at context-specific MIB
+    #
+
+    mibViewController = snmpEngine.getUserContext('mibViewController')
+    if not mibViewController:
+        mibViewController = view.MibViewController(snmpEngine.getMibBuilder())
+        snmpEngine.setUserContext(mibViewController=mibViewController)
+
+    # Support the following syntax:
+    #   '1.2.3.4'
+    #   (1,2,3,4)
+    #   ('MIB', 'symbol')
+    if isinstance(notificationName, (tuple, list)) and \
+            notificationName and isinstance(notificationName[0], str):
+        notificationName = rfc1902.ObjectIdentity(*notificationName)
+    else:
+        notificationName = rfc1902.ObjectIdentity(notificationName)
+
+    varBinds = rfc1902.NotificationType(
+        notificationName, instanceIndex=instanceIndex
+    ).resolveWithMib(mibViewController)
+
+    mibInstrumController = self.snmpContext.getMibInstrum(contextName)
+
+    varBinds = varBinds[:1] + mibInstrumController.readVars(varBinds[1:])
+
     return self.sendVarBinds(snmpEngine,
                              notificationTarget,
-                             self.snmpContext,
+                             self.snmpContext.contextEngineId,
                              contextName,
-                             notificationName,
-                             instanceIndex,
-                             additionalVarBinds,
+                             varBinds + list(additionalVarBinds),
                              cbFun,
                              cbCtx)
 

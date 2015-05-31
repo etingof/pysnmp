@@ -8,28 +8,24 @@
 # * over IPv4/UDP
 # * send TRAP notification
 # * to a Manager at 127.0.0.1:162
-# * with TRAP ID ACCOUNTING-CONTROL-MIB::acctngFileFull as MIB symbol
+# * with TRAP ID IF-MIB::ifLink as MIB symbol
 #
-# The ACCOUNTING-CONTROL-MIB::acctngFileFull NOTIFICATION-TYPE implies
-# including three other var-binds into the TRAP describing the incident
-# occurred. These var-binds are: 
-# ACCOUNTING-CONTROL-MIB::acctngFileMaximumSize.0
-# ACCOUNTING-CONTROL-MIB::acctngFileNameSuffix.0
-# ACCOUNTING-CONTROL-MIB::acctngFileName.0
+# The IF-MIB::ifLink NOTIFICATION-TYPE implies including four other
+# var-binds into the notification message describing the incident
+# occurred. These var-binds are:
+# IF-MIB::ifIndex."x"
+# IF-MIB::ifAdminStatus."x"
+# IF-MIB::ifOperStatus."x"
+# IF-MIB::ifDescr."x"
 #
-# To run this example make sure to have ACCOUNTING-CONTROL-MIB.py in
-# search path.
+# Where "x" is MIB table index (instance index).
+#
+# To run this example make sure to have IF-MIB.py in search path.
 #
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asynsock.dgram import udp
-from pysnmp.entity.rfc3413 import ntforg, context
-from pysnmp.proto.api import v2c
-
-# Create SNMP engine instance
-snmpEngine = engine.SnmpEngine()
-
-# Create default SNMP context where contextEngineId == SnmpEngineId
-snmpContext = context.SnmpContext(snmpEngine)
+from pysnmp.entity.rfc3413 import ntforg
+from pysnmp.smi import rfc1902, view
 
 #
 # Here we fill in some values for Managed Objects Instances (invoked
@@ -37,33 +33,19 @@ snmpContext = context.SnmpContext(snmpEngine)
 # In real Agent app, these values should already be initialized during
 # Agent runtime.
 #
+instanceIndex = (1,)
+objects = {
+    ('IF-MIB', 'ifIndex'): instanceIndex[0],
+    ('IF-MIB', 'ifAdminStatus'): 'up',
+    ('IF-MIB', 'ifOperStatus'): 'down',
+    ('IF-MIB', 'ifDescr'): 'eth0'
+}
 
-mibInstrumCtl = snmpContext.getMibInstrum('')
-( MibScalarInstance, ) = mibInstrumCtl.mibBuilder.importSymbols(
-                             'SNMPv2-SMI',
-                             'MibScalarInstance'
-                         )
-( acctngFileFull,
-  acctngFileMaximumSize,
-  acctngFileNameSuffix,
-  acctngFileName ) = mibInstrumCtl.mibBuilder.importSymbols(
-                         'ACCOUNTING-CONTROL-MIB',
-                         'acctngFileFull',
-                         'acctngFileMaximumSize',
-                         'acctngFileNameSuffix',
-                         'acctngFileName'
-                     )
+# Create SNMP engine instance
+snmpEngine = engine.SnmpEngine()
 
-mibInstrumCtl.mibBuilder.exportSymbols(
-  '__ACCOUNTING-CONTROL-MIB',
-  MibScalarInstance(acctngFileMaximumSize.name, (0,), acctngFileMaximumSize.syntax.clone(123)),
-  MibScalarInstance(acctngFileNameSuffix.name, (0,), acctngFileNameSuffix.syntax.clone('.log')),
-  MibScalarInstance(acctngFileName.name, (0,), acctngFileName.syntax.clone('mylogfile')),
-)
-
-#
-# End of Agent's Managed Object Instances initialization
-#
+# MIB view controller is used for MIB lookup purposes
+mibViewController = view.MibViewController(snmpEngine.getMibBuilder())
 
 # SecurityName <-> CommunityName mapping
 config.addV1System(snmpEngine, 'my-area', 'public', transportTag='all-my-managers')
@@ -107,16 +89,13 @@ ntfOrg = ntforg.NotificationOriginator()
 # Build and submit notification message to dispatcher
 ntfOrg.sendVarBinds(
     snmpEngine,
-    # Notification targets
-    'my-notification',
-    # SNMP Context
-    snmpContext,
-    # contextName
-    '',
-    # notification name
-    ('ACCOUNTING-CONTROL-MIB', 'acctngFileFull'),
-    # MIB scalar/table instances of NOTIFICATION-TYPE objects
-    (0,)
+    'my-notification',  # notification targets
+    None, '',           # contextEngineId, contextName
+    rfc1902.NotificationType(
+        rfc1902.ObjectIdentity('IF-MIB', 'linkUp'),
+        instanceIndex=instanceIndex,
+        objects=objects
+    ).resolveWithMib(mibViewController)
 )
 
 print('Notification is scheduled to be sent')

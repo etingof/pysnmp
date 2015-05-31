@@ -325,12 +325,17 @@ def addTransport(snmpEngine, transportDomain, transport):
             transport.protoTransportDispatcher()
         )
         # here we note that we have created transportDispatcher automatically
-        snmpEngine.cache['automaticTransportDispatcher'] = 0
+        snmpEngine.setUserContext(automaticTransportDispatcher=0)
     snmpEngine.transportDispatcher.registerTransport(
         transportDomain, transport
     )
-    if 'automaticTransportDispatcher' in snmpEngine.cache:
-        snmpEngine.cache['automaticTransportDispatcher'] += 1
+    automaticTransportDispatcher = snmpEngine.getUserContext(
+        'automaticTransportDispatcher'
+    )
+    if automaticTransportDispatcher is not None:
+        snmpEngine.setUserContext(
+            automaticTransportDispatcher=automaticTransportDispatcher+1
+        )
 
 def getTransport(snmpEngine, transportDomain):
     if not snmpEngine.transportDispatcher:
@@ -346,12 +351,18 @@ def delTransport(snmpEngine, transportDomain):
     transport = getTransport(snmpEngine, transportDomain)
     snmpEngine.transportDispatcher.unregisterTransport(transportDomain)
     # automatically shutdown automatically created transportDispatcher
-    if 'automaticTransportDispatcher' in snmpEngine.cache:
-        snmpEngine.cache['automaticTransportDispatcher'] -= 1
-        if not snmpEngine.cache['automaticTransportDispatcher']:
+    automaticTransportDispatcher = snmpEngine.getUserContext(
+        'automaticTransportDispatcher'
+    )
+    if automaticTransportDispatcher is not None:
+        automaticTransportDispatcher -= 1
+        snmpEngine.setUserContext(
+            automaticTransportDispatcher=automaticTransportDispatcher
+        )
+        if not automaticTransportDispatcher:
             snmpEngine.transportDispatcher.closeDispatcher()
             snmpEngine.unregisterTransportDispatcher()
-            del snmpEngine.cache['automaticTransportDispatcher']
+            snmpEngine.delUserContext(automaticTransportDispatcher)
     return transport
 
 addSocketTransport = addTransport

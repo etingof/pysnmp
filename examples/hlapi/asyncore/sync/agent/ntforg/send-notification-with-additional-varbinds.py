@@ -19,8 +19,11 @@ errorIndication, errorStatus, errorIndex, varBinds = ntfOrg.sendNotification(
     ntforg.CommunityData('public'),
     ntforg.UdpTransportTarget(('localhost', 162)),
     'inform',
-    ntforg.MibVariable('SNMPv2-MIB', 'coldStart'),
-    ( ntforg.MibVariable('SNMPv2-MIB', 'sysName', 0), 'my system' ),
+    ntforg.NotificationType(
+        ntforg.ObjectIdentity('SNMPv2-MIB', 'coldStart')
+    ).addVarBinds(
+        ( ntforg.ObjectIdentity('SNMPv2-MIB', 'sysName', 0), 'my system' )
+    ),
     lookupNames=True, lookupValues=True
 )
 

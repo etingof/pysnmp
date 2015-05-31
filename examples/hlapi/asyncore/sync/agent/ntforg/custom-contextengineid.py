@@ -20,17 +20,15 @@ from pysnmp.entity.rfc3413.oneliner import ntforg
 from pysnmp.proto import rfc1902
 
 snmpEngine = engine.SnmpEngine()
-snmpContext = context.SnmpContext(
-    snmpEngine,contextEngineId=rfc1902.OctetString(hexValue='8000000004030201')
-)
 
-ntfOrg = ntforg.NotificationOriginator(snmpEngine, snmpContext)
+ntfOrg = ntforg.NotificationOriginator(snmpEngine)
 
 errorIndication, errorStatus, errorIndex, varBinds = ntfOrg.sendNotification(
     ntforg.UsmUserData('usr-md5-none', 'authkey1'),
     ntforg.UdpTransportTarget(('localhost', 162)),
     'inform',
-    '1.3.6.1.6.3.1.1.5.2'
+    ntforg.NotificationType(ntforg.ObjectIdentity('1.3.6.1.6.3.1.1.5.2')),
+    contextEngineId=rfc1902.OctetString(hexValue='8000000004030201')
 )
 
 if errorIndication:

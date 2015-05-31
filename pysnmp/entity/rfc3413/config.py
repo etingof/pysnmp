@@ -9,10 +9,10 @@ def getTargetAddr(snmpEngine, snmpTargetAddrName):
         'SNMP-TARGET-MIB', 'snmpTargetAddrEntry'
     )
 
-    if 'getTargetAddr' not in snmpEngine.cache:
-        snmpEngine.cache['getTargetAddr'] = { 'id': -1 }
-
-    cache = snmpEngine.cache['getTargetAddr']
+    cache = snmpEngine.getUserContext('getTargetAddr')
+    if cache is None:
+        cache = { 'id': -1 }
+        snmpEngine.setUserContext(getTargetAddr=cache)
 
     if cache['id'] != snmpTargetAddrEntry.branchVersionId:
         cache['nameToTargetMap'] = {}
@@ -98,10 +98,10 @@ def getTargetParams(snmpEngine, paramsName):
         'SNMP-TARGET-MIB', 'snmpTargetParamsEntry'
     )
 
-    if 'getTargetParams' not in snmpEngine.cache:
-        snmpEngine.cache['getTargetParams'] = { 'id': -1 }
-
-    cache = snmpEngine.cache['getTargetParams']
+    cache = snmpEngine.getUserContext('getTargetParams')
+    if cache is None:
+        cache = { 'id': -1 }
+        snmpEngine.setUserContext(getTargetParams=cache)
 
     if cache['id'] != snmpTargetParamsEntry.branchVersionId:
         cache['nameToParamsMap'] = {}
@@ -178,10 +178,10 @@ def getNotificationInfo(snmpEngine, notificationTarget):
         'SNMP-NOTIFICATION-MIB', 'snmpNotifyEntry'
     )
 
-    if 'getNotificationInfo' not in snmpEngine.cache:
-        snmpEngine.cache['getNotificationInfo'] = { 'id': -1 }
-
-    cache = snmpEngine.cache['getNotificationInfo']
+    cache = snmpEngine.getUserContext('getNotificationInfo')
+    if cache is None:
+        cache = { 'id': -1 }
+        snmpEngine.setUserContext(getNotificationInfo=cache)
 
     if cache['id'] != snmpNotifyEntry.branchVersionId:
         cache['targetToNotifyMap'] = {}
@@ -225,10 +225,10 @@ def getTargetNames(snmpEngine, tag):
         'SNMP-TARGET-MIB', 'snmpTargetAddrEntry'
     )
 
-    if 'getTargetNames' not in snmpEngine.cache:
-        snmpEngine.cache['getTargetNames'] = { 'id': -1 }
-
-    cache = snmpEngine.cache['getTargetNames']
+    cache = snmpEngine.getUserContext('getTargetNames')
+    if cache is None:
+        cache = { 'id': -1 }
+        snmpEngine.setUserContext(getTargetNames=cache)
 
     if cache['id'] == snmpTargetAddrEntry.branchVersionId:
         tagToTargetsMap = cache['tagToTargetsMap']

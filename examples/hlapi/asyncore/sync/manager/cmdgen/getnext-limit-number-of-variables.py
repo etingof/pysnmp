@@ -21,7 +21,7 @@ errorIndication, errorStatus, errorIndex, varBindTable = cmdGen.nextCmd(
                        authProtocol=cmdgen.usmHMACSHAAuthProtocol,
                        privProtocol=cmdgen.usmAesCfb128Protocol),
     cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-    cmdgen.MibVariable('IF-MIB', '').loadMibs(),
+    cmdgen.ObjectIdentity('IF-MIB', '').loadMibs(),
     lexicographicMode=True, maxRows=100,
     ignoreNonIncreasingOid=True
 )

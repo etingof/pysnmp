@@ -30,7 +30,9 @@ errorIndication = ntfOrg.sendNotification(
                        privProtocol=ntforg.usmAesCfb128Protocol),
     ntforg.UdpTransportTarget(('127.0.0.1', 162)),
     'trap',
-    ntforg.MibVariable('SNMPv2-MIB', 'authenticationFailure')
+    ntforg.NotificationType(
+        ntforg.ObjectIdentity('SNMPv2-MIB', 'authenticationFailure')
+    )
 )
 
 if errorIndication:

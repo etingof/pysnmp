@@ -17,7 +17,7 @@ errorIndication, errorStatus, errorIndex, varBinds = cmdGen.getCmd(
                        authProtocol=cmdgen.usmHMACSHAAuthProtocol,
                        privProtocol=cmdgen.usmAesCfb128Protocol ),
     cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-    cmdgen.MibVariable('TCP-MIB', 'tcpConnLocalAddress', '0.0.0.0', 22, '0.0.0.0', 0)
+    cmdgen.ObjectIdentity('TCP-MIB', 'tcpConnLocalAddress', '0.0.0.0', 22, '0.0.0.0', 0)
 )
 
 # Check for errors and print out results

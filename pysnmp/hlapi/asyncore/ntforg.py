@@ -1,12 +1,14 @@
 from pyasn1.compat.octets import null
 from pysnmp import nextid, error
 from pysnmp.entity import engine, config
+from pysnmp.smi.rfc1902 import ObjectIdentity, ObjectType, NotificationType
 from pysnmp.entity.rfc3413 import ntforg, context
-from pysnmp.entity.rfc3413.oneliner.mibvar import MibVariable
 from pysnmp.entity.rfc3413.oneliner.auth import CommunityData, UsmUserData
 from pysnmp.entity.rfc3413.oneliner.target import UdpTransportTarget, \
     Udp6TransportTarget, UnixTransportTarget 
 from pysnmp.entity.rfc3413.oneliner import cmdgen
+# obsolete, compatibility symbols
+from pysnmp.entity.rfc3413.oneliner.mibvar import MibVariable
 
 # Auth protocol
 usmHMACMD5AuthProtocol = config.usmHMACMD5AuthProtocol
@@ -21,6 +23,8 @@ usmAesCfb192Protocol = config.usmAesCfb192Protocol
 usmAesCfb256Protocol = config.usmAesCfb256Protocol
 usmNoPrivProtocol = config.usmNoPrivProtocol
 
+ContextData = cmdgen.ContextData
+
 nextID = nextid.Integer(0xffffffff)
 
 class AsyncNotificationOriginator:
@@ -28,21 +32,18 @@ class AsyncNotificationOriginator:
         self.__asyncCmdGen = cmdgen.AsyncCommandGenerator()
 
     def _getCache(self, snmpEngine):
-        if 'ntforg' not in snmpEngine.cache:
-            snmpEngine.cache['ntforg'] = { 
-                'auth': {},
-                'name': {}
-           }
-        return snmpEngine.cache['ntforg']
+        cache = snmpEngine.getUserContext('ntforg')
+        if cache is None:
+            cache = { 'auth': {}, 'name': {} }
+            snmpEngine.setUserContext(ntforg=cache)
+        return cache
 
     def getMibViewController(self, snmpEngine):
         return self.__asyncCmdGen.getMibViewController(snmpEngine)
     
     def cfgNtfOrg(self, snmpEngine, authData, transportTarget, notifyType):
         cache = self._getCache(snmpEngine)
-        addrName, paramsName = self.__asyncCmdGen.cfgCmdGen(
-            snmpEngine, authData, transportTarget
-        )
+        addrName, paramsName = self.__asyncCmdGen.cfgCmdGen( snmpEngine, authData, transportTarget )
         tagList = transportTarget.tagList.split()
         if not tagList:
             tagList = ['']
@@ -118,18 +119,30 @@ class AsyncNotificationOriginator:
                 )
                 del cache['auth'][authDataKey]
 
-    def makeVarBinds(self, snmpEngine, varBinds, oidOnly=False):
-        return self.__asyncCmdGen.makeVarBinds(snmpEngine, varBinds, oidOnly)
+    def makeVarBinds(self, snmpEngine, varBinds):
+        mibViewController = self.getMibViewController(snmpEngine)
+        if isinstance(varBinds, NotificationType):
+            varBinds.resolveWithMib(mibViewController)
+        __varBinds = []
+        for varBind in varBinds:
+            if isinstance(varBind, ObjectType):
+                pass
+            elif isinstance(varBind[0], ObjectIdentity):
+                varBind = ObjectType(*varBind)
+            else:
+                varBind = ObjectType(ObjectIdentity(varBind[0]), varBind[1])
+            __varBinds.append(varBind.resolveWithMib(mibViewController))
+        return __varBinds
 
     def unmakeVarBinds(self, snmpEngine, varBinds, lookupNames, lookupValues):
-        return self.__asyncCmdGen.unmakeVarBinds(snmpEngine, varBinds,
-                                                 lookupNames, lookupValues)
-    
+        if lookupNames or lookupValues:
+            mibViewController = self.getMibViewController(snmpEngine)
+            varBinds = [ ObjectType(ObjectIdentity(x[0]), x[1]).resolveWithMib(mibViewController) for x in varBinds ]
+        return varBinds
+
     def sendNotification(self, snmpEngine,
-                         authData, transportTarget,
-                         snmpContext, contextName,
+                         authData, transportTarget, contextData,
                          notifyType,
-                         notificationType, instanceIndex,
                          varBinds=(),
                          cbInfo=(None, None), 
                          lookupNames=False, lookupValues=False):
@@ -148,7 +161,7 @@ class AsyncNotificationOriginator:
                 cbCtx
             )
 
-        (cbFun, cbCtx) = cbInfo
+        cbFun, cbCtx = cbInfo
 
         # Create matching transport tags if not given by user
         if not transportTarget.tagList:
@@ -161,12 +174,8 @@ class AsyncNotificationOriginator:
         notifyName = self.cfgNtfOrg(
             snmpEngine, authData, transportTarget, notifyType
         )
-        if isinstance(notificationType, MibVariable):
-            notificationType = notificationType.resolveWithMib(
-                self.getMibViewController(snmpEngine), oidOnly=True
-            )
 
-        return ntforg.NotificationOriginator().sendVarBinds(snmpEngine, notifyName, snmpContext, contextName, notificationType, instanceIndex, self.makeVarBinds(snmpEngine, varBinds), __cbFun, (lookupNames, lookupValues, cbFun, cbCtx))
+        return ntforg.NotificationOriginator().sendVarBinds(snmpEngine, notifyName, contextData.contextEngineId, contextData.contextName, self.makeVarBinds(snmpEngine, varBinds), __cbFun, (lookupNames, lookupValues, cbFun, cbCtx))
 
 # substitute sendNotification return object for backward compatibility
 class ErrorIndicationReturn:
@@ -176,7 +185,9 @@ class ErrorIndicationReturn:
     def __bool__(self): return bool(self.__vars[0])
     def __str__(self): return str(self.__vars[0])
 
-# compatibility implementation, never use this class for new applications
+#
+# Compatibility implementation, never use this class for new applications
+#
 class AsynNotificationOriginator:
     def __init__(self, snmpEngine=None, snmpContext=None):
         if snmpEngine is None:
@@ -208,9 +219,10 @@ class AsynNotificationOriginator:
         
     def sendNotification(self, authData, transportTarget, 
                          notifyType, notificationType,
-                         varBinds=(),
+                         varBinds=(),  # legacy, use NotificationType instead
                          cbInfo=(None, None),
                          lookupNames=False, lookupValues=False,
+                         contextEngineId=None,  # XXX ordering incompatibility
                          contextName=null):
 
         def __cbFun(snmpEngine, sendRequestHandle, errorIndication,
@@ -237,16 +249,23 @@ class AsynNotificationOriginator:
         if contextName is null and authData.contextName:
             contextName = authData.contextName
 
-        # legacy
-        if not isinstance(notificationType, MibVariable) and \
-                isinstance(notificationType[0], tuple):
-            notificationType = MibVariable(notificationType[0][0], notificationType[0][1], *notificationType[1:]).resolveWithMib(self.mibViewController)
+        if not isinstance(notificationType,
+                          (ObjectIdentity, ObjectType, NotificationType)):
+            if isinstance(notificationType[0], tuple):
+                # legacy
+                notificationType = ObjectIdentity(notificationType[0][0], notificationType[0][1], *notificationType[1:])
+            else:
+                notificationType = ObjectIdentity(notificationType)
+
+        if not isinstance(notificationType, NotificationType):
+            notificationType = NotificationType(notificationType)
 
         return self.__asyncNtfOrg.sendNotification(
             self.snmpEngine,
             authData, transportTarget, 
-            self.snmpContext, contextName,
-            notifyType, notificationType, None, varBinds, 
+            ContextData(contextEngineId or self.snmpContext.contextEngineId,
+                        contextName),
+            notifyType, notificationType.addVarBinds(*varBinds),
             (__cbFun, cbInfo),
             lookupNames, lookupValues
         )
@@ -262,6 +281,8 @@ class NotificationOriginator:
         else:
             self.__asynNtfOrg = asynNtfOrg
 
+    # the varBinds parameter is legacy, use NotificationType instead
+
     def sendNotification(self, authData, transportTarget, notifyType,
                          notificationType, *varBinds, **kwargs):
         def __cbFun(sendRequestHandle, errorIndication, 
@@ -276,6 +297,7 @@ class NotificationOriginator:
             varBinds, (__cbFun, appReturn),
             kwargs.get('lookupNames', False),
             kwargs.get('lookupValues', False),
+            kwargs.get('contextEngineId'),
             kwargs.get('contextName', null)
         )
         self.__asynNtfOrg.snmpEngine.transportDispatcher.runDispatcher()

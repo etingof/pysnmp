@@ -140,3 +140,22 @@ class SnmpEngine:
         self.transportDispatcher.unregisterRecvCbFun(recvId)
         self.transportDispatcher.unregisterTimerCbFun()
         self.transportDispatcher = None
+
+    def getMibBuilder(self):
+        return self.msgAndPduDsp.mibInstrumController.mibBuilder
+
+    # User app may attach opaque objects to SNMP Engine
+    def setUserContext(self, **kwargs):
+        self.cache.update(
+            dict([('__%s' % k, kwargs[k]) for k in kwargs])
+        )
+
+    def getUserContext(self, arg):
+        return self.cache.get('__%s' % arg)
+
+    def delUserContext(self, arg):
+        try:
+            del self.cache['__%s' % arg]
+        except KeyError:
+            pass
+

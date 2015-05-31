@@ -19,7 +19,7 @@ cmdGen = cmdgen.CommandGenerator()
 errorIndication, errorStatus, errorIndex, varBindTable = cmdGen.nextCmd(
     cmdgen.UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
     cmdgen.Udp6TransportTarget(('::1', 161)),
-    cmdgen.MibVariable('IF-MIB', 'ifEntry'),
+    cmdgen.ObjectIdentity('IF-MIB', 'ifEntry'),
     lookupNames=True, lookupValues=True
 )
 

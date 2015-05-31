@@ -4,17 +4,21 @@ Revision 4.2.6rc2
 - Critical error fixed in key localization procedure for AES192/AES256/3DES
   cyphers. Previous versions might never worked properly in this respect.
 - Initial PySMI integration. Original ASN.1 MIBs could now be parsed, stored
-  at a local pysnmp MIBs repository and loaded into SNMP Engine.
+  at a local pysnmp MIBs repository and loaded into SNMP Engine. Relevant
+  example scripts added.
 - Major rewrite of native SNMPv3 CommandGenerator and NotificationOriginator
   applications towards the following goals:
-  * avoid bonding with particular SNMP engine instance to promote single
-    app instance using many SNMP engine instances
+  * avoid binding to specific SNMP engine instance to promote single
+    SNMP app instance using many SNMP engine instances
   * support two APIs for working with request data: one operates on the
     whole PDU object while the other on PDU contents
   * keep callback context data in stack rather than in stateful application
     cache
   * newly introduced sendVarBinds() method offers a more functional and
     logical signatures.
+  * Promote the use of dedicated classes for dealing with OID-value pairs.
+    Instances of those classes resemble OBJECT-IDENTITY, OBJECT-TYPE and
+    NOTIFICATION-TYPE MIB structures.
   * keep backward compatibility for all existing major/documented interfaces
 - Execution Observer facility implemented to give app an inside view
   of SNMP engine inner workings. This is thought to be a generic
@@ -36,9 +40,9 @@ Revision 4.2.6rc2
     the query was sent to. This proves to be useful when listening
     on both primary and secondary IP interfaces.
 - Internal oneliner apps configuration cache moved from respective
-  apps objects to [a singular] snmpEngine object. That would allow
-  for better cache reuse and allow for a single app working with
-  many snmpEngine instances.
+  apps objects to [a singular] snmpEngine "user context" object. 
+  That would allow for better cache reuse and allow for a single app 
+  working with many snmpEngine instances.
 - Legacy interfaces and APIs dropped in new oneliner AsyncCommandGenerator
   and AsyncNotificationOriginator classes (notice 'c' in Async). Original
   AsynCommandGenerator and AsynNotificationOriginator implementations
@@ -86,6 +90,15 @@ Revision 4.2.6rc2
 - The smi.MibBuilder() will now raise more specific exceptions (MibLoadError,
   MibNotFoundError) on MIB loading problems rather than more generic
   SmiError.
+- The oneliner's MibVariable MIB lookup subsystem redesigned for more
+  generality to mimic OBJECT-TYPE macro capabilities related to SNMP
+  PDU handling. The two new classed are ObjectIdentity and ObjectType.
+  This new subsystem is moved from a scope of oneliner to more common
+  pysnmp.smi.rfc1903 scope to more naturally invoke it from whatever
+  part of pysnmp requires MIB services.
+- MibBuilder now prepends the contents of environment variables it 
+  recognizes (PYSNMP_MIB_DIR, PYSNMP_MIB_DIRS, PYSNMP_MIB_PKGS) rather
+  than using them instead of its default core MIBs.
 - Fix to authoritative engine side snmpEngineID discovery procedure: 
   respond with notInTimeWindows rather then with unsupportedSecurityLevel
   at time synchronization phase.

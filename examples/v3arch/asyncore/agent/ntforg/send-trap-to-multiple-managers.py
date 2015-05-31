@@ -16,7 +16,7 @@
 #
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asynsock.dgram import udp
-from pysnmp.entity.rfc3413 import ntforg, context
+from pysnmp.entity.rfc3413 import ntforg
 from pysnmp.proto.api import v2c
 
 # Create SNMP engine instance
@@ -70,22 +70,23 @@ config.addVacmUser(snmpEngine, 2, 'my-area', 'noAuthNoPriv', (), (), (1,3,6))
 
 # *** SNMP engine configuration is complete by this line ***
 
-# Create default SNMP context where contextEngineId == SnmpEngineId
-snmpContext = context.SnmpContext(snmpEngine)
-
 # Create Notification Originator App instance. 
-ntfOrg = ntforg.NotificationOriginator(snmpContext)
+ntfOrg = ntforg.NotificationOriginator()
  
 # Build and submit notification message to dispatcher
-ntfOrg.sendNotification(
+ntfOrg.sendVarBinds(
     snmpEngine,
     # Notification targets
-    'my-notification',
-    # Trap OID (SNMPv2-MIB::coldStart)
-    (1,3,6,1,6,3,1,1,5,1),
-    # ( (oid, value), ... )
-    ( ((1,3,6,1,2,1,1,1,0), v2c.OctetString('Example Notificator')),
-      ((1,3,6,1,2,1,1,5,0), v2c.OctetString('Notificator Example')) )
+    'my-notification',  # notification targets
+    None, '',           # contextEngineId, contextName
+    # var-binds
+    [
+        # SNMPv2-SMI::snmpTrapOID.0 = SNMPv2-MIB::coldStart
+        ((1,3,6,1,6,3,1,1,4,1,0), v2c.ObjectIdentifier((1,3,6,1,6,3,1,1,5,1))),
+        # additional var-binds: ( (oid, value), ... )
+        ((1,3,6,1,2,1,1,1,0), v2c.OctetString('Example Notificator')),
+        ((1,3,6,1,2,1,1,5,0), v2c.OctetString('Notificator Example'))
+    ]
 )
 
 print('Notifications are scheduled to be sent')

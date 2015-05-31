@@ -18,8 +18,7 @@ errorIndication = ntfOrg.sendNotification(
     ntforg.CommunityData('public'),
     ntforg.UdpTransportTarget(('localhost', 162)),
     'trap',
-    ntforg.MibVariable('SNMPv2-MIB', 'coldStart'),
-    ( ntforg.MibVariable('SNMPv2-MIB', 'sysName', 0), 'new name' )
+    ntforg.NotificationType(ntforg.ObjectIdentity('SNMPv2-MIB', 'coldStart'))
 )
 
 if errorIndication:

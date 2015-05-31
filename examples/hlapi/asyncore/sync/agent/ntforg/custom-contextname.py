@@ -15,22 +15,17 @@
 # the ContextName being used.
 #
 from pysnmp.entity import engine
-from pysnmp.entity.rfc3413 import context
 from pysnmp.entity.rfc3413.oneliner import ntforg
 
 snmpEngine = engine.SnmpEngine()
-snmpContext = context.SnmpContext(snmpEngine)
 
-# register default collection of Managed Objects under new contextName
-snmpContext.registerContextName('my-context', snmpContext.getMibInstrum())
-
-ntfOrg = ntforg.NotificationOriginator(snmpEngine, snmpContext)
+ntfOrg = ntforg.NotificationOriginator(snmpEngine)
 
 errorIndication, errorStatus, errorIndex, varBinds = ntfOrg.sendNotification(
     ntforg.UsmUserData('usr-md5-none', 'authkey1'),
     ntforg.UdpTransportTarget(('localhost', 162)),
     'inform',
-    '1.3.6.1.6.3.1.1.5.2',
+    ntforg.NotificationType(ntforg.ObjectIdentity('1.3.6.1.6.3.1.1.5.2')),
     contextName='my-context'
 )
 

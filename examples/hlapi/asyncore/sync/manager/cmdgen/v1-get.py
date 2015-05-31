@@ -16,8 +16,8 @@ cmdGen = cmdgen.CommandGenerator()
 errorIndication, errorStatus, errorIndex, varBinds = cmdGen.getCmd(
     cmdgen.CommunityData('public', mpModel=0),
     cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-    cmdgen.MibVariable('iso.org.dod.internet.mgmt.mib-2.system.sysDescr.0'),
-    cmdgen.MibVariable('SNMPv2-MIB', 'sysDescr', 0)
+    cmdgen.ObjectIdentity('iso.org.dod.internet.mgmt.mib-2.system.sysDescr.0'),
+    cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)
 )
 
 # Check for errors and print out results

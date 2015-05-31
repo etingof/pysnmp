@@ -35,18 +35,18 @@ targets = (
     # 1-st target (SNMPv1 over IPv4/UDP)
     ( cmdgen.CommunityData('public', mpModel=0),
       cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-      ( cmdgen.MibVariable('SNMPv2-MIB', 'sysDescr', 0),
-        cmdgen.MibVariable('SNMPv2-MIB', 'sysLocation', 0) ) ),
+      ( cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0),
+        cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) ) ),
     # 2-nd target (SNMPv2c over IPv4/UDP)
     ( cmdgen.CommunityData('public'),
       cmdgen.UdpTransportTarget(('demo.snmplabs.com', 1161)),
-      ( cmdgen.MibVariable('SNMPv2-MIB', 'sysDescr', 0),
-        cmdgen.MibVariable('SNMPv2-MIB', 'sysLocation', 0) ) ),
+      ( cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0),
+        cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) ) ),
     # 3-nd target (SNMPv3 over IPv4/UDP)
     ( cmdgen.UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
       cmdgen.UdpTransportTarget(('demo.snmplabs.com', 2161)),
-      ( cmdgen.MibVariable('SNMPv2-MIB', 'sysDescr', 0),
-        cmdgen.MibVariable('SNMPv2-MIB', 'sysLocation', 0) ) )
+      ( cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0),
+        cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) ) )
     # N-th target
     # ...
 )

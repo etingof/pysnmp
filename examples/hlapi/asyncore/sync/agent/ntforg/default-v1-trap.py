@@ -22,9 +22,12 @@ errorIndication = ntfOrg.sendNotification(
     ntforg.CommunityData('public', mpModel=0),
     ntforg.UdpTransportTarget(('localhost', 162)),
     'trap',
-    '1.3.6.1.6.3.1.1.5.2',
-    ('1.3.6.1.6.3.1.1.4.3.0', '1.3.6.1.4.1.20408.4.1.1.2'),
-    ('1.3.6.1.2.1.1.1.0', rfc1902.OctetString('my system'))
+    ntforg.NotificationType(
+        ntforg.ObjectIdentity('1.3.6.1.6.3.1.1.5.2')
+    ).addVarBinds(
+        ('1.3.6.1.6.3.1.1.4.3.0', '1.3.6.1.4.1.20408.4.1.1.2'),
+        ('1.3.6.1.2.1.1.1.0', rfc1902.OctetString('my system'))
+    )
 )
 
 if errorIndication:

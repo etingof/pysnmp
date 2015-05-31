@@ -18,11 +18,11 @@ cmdGen = cmdgen.CommandGenerator()
 errorIndication, errorStatus, errorIndex, varBindTable = cmdGen.nextCmd(
     cmdgen.CommunityData('public', mpModel=0),
     cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-    cmdgen.MibVariable('IF-MIB', 'ifDescr'),
-    cmdgen.MibVariable('IF-MIB', 'ifType'),
-    cmdgen.MibVariable('IF-MIB', 'ifMtu'),
-    cmdgen.MibVariable('IF-MIB', 'ifSpeed'),
-    cmdgen.MibVariable('IF-MIB', 'ifPhysAddress')
+    cmdgen.ObjectIdentity('IF-MIB', 'ifDescr'),
+    cmdgen.ObjectIdentity('IF-MIB', 'ifType'),
+    cmdgen.ObjectIdentity('IF-MIB', 'ifMtu'),
+    cmdgen.ObjectIdentity('IF-MIB', 'ifSpeed'),
+    cmdgen.ObjectIdentity('IF-MIB', 'ifPhysAddress')
 )
 
 if errorIndication:
