@@ -69,7 +69,7 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
     )
 
 # Build and submit notification message to dispatcher
-sendRequestHandle = ntfOrg.sendPdu(
+ntfOrg.sendPdu(
     snmpEngine,
     # Notification targets
     'my-nms',           # target address
@@ -78,7 +78,7 @@ sendRequestHandle = ntfOrg.sendPdu(
     cbFun
 )
 
-print('Notification %s is scheduled to be sent' % sendRequestHandle)
+print('Notification is scheduled to be sent')
 
 # Run I/O dispatcher which would send pending message and process response
 snmpEngine.transportDispatcher.runDispatcher()
