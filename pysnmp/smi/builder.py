@@ -321,7 +321,7 @@ class MibBuilder:
                 if self.__mibCompiler:
                     debug.logger & debug.flagBld and debug.logger('loadModules: calling MIB compiler for %s' % modName)
                     status = self.__mibCompiler.compile(modName)
-                    errs = '; '.join([str(x.error) for x in status.values() if x in ('failed', 'missing')])
+                    errs = '; '.join([hasattr(x, 'error') and str(x.error) or x for x in status.values() if x in ('failed', 'missing')])
                     if errs:
                         raise error.MibNotFoundError('%s compilation error(s): %s' % (modName, errs))
                     # compilation suceeded, MIB might load now
