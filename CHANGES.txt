@@ -1,11 +1,11 @@
-Revision 4.2.6rc2
------------------
+Revision 4.2.6
+--------------
 
 - Critical error fixed in key localization procedure for AES192/AES256/3DES
   cyphers. Previous versions might never worked properly in this respect.
 - Initial PySMI integration. Original ASN.1 MIBs could now be parsed, stored
   at a local pysnmp MIBs repository and loaded into SNMP Engine. Relevant
-  example scripts added.
+  example scripts added. Obsolete libsmi-based scripts removed.
 - Major rewrite of native SNMPv3 CommandGenerator and NotificationOriginator
   applications towards the following goals:
   * avoid binding to specific SNMP engine instance to promote single
