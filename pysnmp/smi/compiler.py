@@ -4,6 +4,7 @@
 #
 import os
 import sys
+
 try:
     from pysmi.reader.url import getReadersFromUrls
     from pysmi.searcher.pypackage import PyPackageSearcher
@@ -56,7 +57,7 @@ else:
         )
 
         compiler.addBorrowers(
-            *[ PyFileBorrower(x) for x in getReadersFromUrls(*borrowers, **dict(originalMatching=False, lowcaseMatching=False)) ]
+            *[ PyFileBorrower(x, genTexts=mibBuilder.loadTexts) for x in getReadersFromUrls(*borrowers, **dict(originalMatching=False, lowcaseMatching=False)) ]
         )
 
         mibBuilder.setMibCompiler(compiler, destination)
