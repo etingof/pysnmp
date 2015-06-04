@@ -14,7 +14,7 @@ mibVar = rfc1902.ObjectIdentity('IF-MIB', 'ifInOctets', 1)
 # create pysnmp MIBs on demand from ASN.1 sources downloaded from
 # a web site.
 try:
-    mibVar.addMibCompiler('http://mibs.snmplabs.com/asn1/<mib>')
+    mibVar.addMibCompiler('http://mibs.snmplabs.com/asn1/@mib@')
 except error.SmiError:
     print('WARNING: not using MIB compiler (PySMI not installed)')
 
