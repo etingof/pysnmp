@@ -5,7 +5,7 @@ PYTHON SNMP FRAMEWORK
 This is a pure-Python, open source and free implementation of v1/v2c/v3
 SNMP engine.
 
-The PySNMP project has been sponsored by a PSF grant [10]. Thanks!
+The PySNMP project has been sponsored by a PSF grant [11]. Thanks!
 
 FEATURES
 --------
@@ -18,9 +18,10 @@ FEATURES
 * Extensible network transports framework (UDP/IPv4, UDP/IPv6 and UNIX domain
   sockets already implemented)
 * Asynchronous socket-based IO API support
-* Twisted (http://twistedmatrix.com) integration
+* Twisted, Asyncio and Trollius integration
+* PySMI integration for dynamic MIB compilation
 * Python eggs and py2exe friendly
-* 100% Python, works with Python 2.4 though 3.4 (alpha 3)
+* 100% Python, works with Python 2.4 though 3.4
 * MT-safe (only if run locally to a thread)
 
 Features, specific to SNMPv3 model include:
@@ -37,14 +38,14 @@ MISFEATURES
 -----------
 
 * Much slower than C implementations. Some optimization still possible.
-* No pure-Python MIB compiler. The libsmi's smidump tool used for one-time MIB compilation.
 
 INSTALLATION
 ------------
 
 The PySNMP package uses setuptools for package management. The PyASN1 [8]
 package is required. For secure SNMPv3 communication, PyCrypto [9]
-should also be installed.
+should also be installed. For MIB-related operations PySMI [10] package is
+needed.
 
 OPERATION
 ---------
@@ -69,7 +70,7 @@ cmdGen = cmdgen.CommandGenerator()
 errorIndication, errorStatus, errorIndex, varBinds = cmdGen.getCmd(
     cmdgen.CommunityData('public'),
     cmdgen.UdpTransportTarget(('localhost', 161)),
-    cmdgen.MibVariable('SNMPv2-MIB', 'sysDescr', 0),
+    cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0),
     lookupNames=True, lookupValues=True
 )
 
@@ -98,14 +99,9 @@ implemented in Python, loaded into SNMP entity and used for verification and
 visualisation purposes (SNMP manager side) and/or become management targets
 (SNMP agent side).
 
-While MIB parser/codegenerator has not yet been implemented in PySNMP, the
-smidump tool of libsmi library [6] could be used for automatic, one-time 
-convertion of MIB text files into specific Python programs designed to be
-dynamically loaded and used by PySNMP engine.
-
-To simplify smidump tool invocation followed by libsmi2pysnmp script, PySNMP
-distribution includes a build-pysnmp-mib shell script. You should use it for
-one-time MIB text modules convertion into PySNMP format.
+The PySMI package [10] could be used for automatic, one-time convertion of 
+ASN.1 MIB text files into Python code snippets designed to be dynamically 
+loaded and used by PySNMP engine.
 
 A large set of pre-compiled MIB files is shipped along the pysnmp-mibs
 package.[2]
@@ -113,8 +109,8 @@ package.[2]
 AVAILABILITY
 ------------
 
-The PySNMP software is freely available for download from project
-homepage.[1]
+The PySNMP software is freely available for download from PyPI and
+project homepage [1]
 
 GETTING HELP
 ------------
@@ -162,7 +158,11 @@ REFERENCES
 [9] PyCrypto package:
     http://pycrypto.org
 
-[10] Python Software Foundation
+[10] PySMI package:
+    http://sf.net/projects/pysmi
+
+
+[11] Python Software Foundation
     http://www.python.org/psf/
 
 =-=-=
