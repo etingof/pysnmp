@@ -117,9 +117,7 @@ params.update( {
                   'pysnmp.proto.secmod.eso.priv',
                   'pysnmp.proto.acmod',
                   'pysnmp.proto.proxy',
-                  'pysnmp.proto.api' ],
-    'scripts': [ os.path.join('tools','libsmi2pysnmp'), 
-                 os.path.join('tools', 'build-pysnmp-mib') ]
+                  'pysnmp.proto.api' ]
     } )
 
 setup(**params)
