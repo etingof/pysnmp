@@ -185,6 +185,9 @@ class ObjectType(MibNode):
             )    
     def getSyntax(self):
         return self.syntax
+    def setSyntax(self, v):
+        self.syntax = v
+        return self
     def getUnits(self):
         return getattr(self, 'units', '')
     def setUnits(self, v):
