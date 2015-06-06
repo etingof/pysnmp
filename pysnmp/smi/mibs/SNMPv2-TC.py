@@ -292,7 +292,6 @@ class RowStatus(Integer, TextualConvention):
         None, stNotExists
         )
         }
-    defaultValue = stNotExists
     
     def setValue(self, value):
         value = self.clone(value)
@@ -300,16 +299,16 @@ class RowStatus(Integer, TextualConvention):
         # Run through states transition matrix, 
         # resolve new instance value
         excValue, newState = self.stateMatrix.get(
-            (value, self),
+            (value, self.hasValue() and self or self.stNotExists),
             (error.MibOperationError, None)
         )
         newState = self.clone(newState)
 
-        debug.logger & debug.flagIns and debug.logger('RowStatus state change from %r to %s produced new state %r, error indication %r' % (self, value, newState, excValue))
+        debug.logger & debug.flagIns and debug.logger('RowStatus state change from %r to %r produced new state %r, error indication %r' % (self, value, newState, excValue))
 
         if excValue is not None:
             excValue = excValue(
-                msg='Exception at row state transition from %s to %s yields state %s and exception' % (self, value, newState), syntax=newState
+                msg='Exception at row state transition from %r to %r yields state %r and exception' % (self, value, newState), syntax=newState
             )
             raise excValue
 

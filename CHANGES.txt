@@ -99,6 +99,8 @@ Revision 4.2.6
 - MibBuilder now prepends the contents of environment variables it 
   recognizes (PYSNMP_MIB_DIR, PYSNMP_MIB_DIRS, PYSNMP_MIB_PKGS) rather
   than using them instead of its default core MIBs.
+- Removed RowStatus default value as it may collide with possible subclass
+  constraints.
 - Fix to authoritative engine side snmpEngineID discovery procedure: 
   respond with notInTimeWindows rather then with unsupportedSecurityLevel
   at time synchronization phase.
