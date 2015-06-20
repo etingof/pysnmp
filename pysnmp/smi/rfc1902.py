@@ -21,8 +21,9 @@ from pysnmp import debug
 class ObjectIdentity:
     stDirty, stClean = 1, 2
         
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
         self.__args = args
+        self.__kwargs = kwargs
         self.__mibSourcesToAdd = self.__modNamesToLoad = None
         self.__asn1SourcesToAdd = None
         self.__state  = self.stDirty
@@ -179,7 +180,10 @@ class ObjectIdentity:
                 self.__symName = self.__args[1]
             else:
                 mibViewController.mibBuilder.loadModules(self.__modName)
-                oid, _, _ = mibViewController.getFirstNodeName(self.__modName)
+                if self.__kwargs.get('last'):
+                    oid,_,_ = mibViewController.getLastNodeName(self.__modName)
+                else:
+                    oid,_,_ = mibViewController.getFirstNodeName(self.__modName)
                 _, self.__symName, _ = mibViewController.getNodeLocation(oid)
 
             mibNode, = mibViewController.mibBuilder.importSymbols(

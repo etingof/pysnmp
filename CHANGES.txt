@@ -101,6 +101,9 @@ Revision 4.2.6
   than using them instead of its default core MIBs.
 - Removed RowStatus default value as it may collide with possible subclass
   constraints.
+- A few additional MIB tree management methods added to MibViewController
+  to better address ordered nature of MIB tree nodes (namely, getFirst*,
+  getLast* family of methods).
 - Fix to authoritative engine side snmpEngineID discovery procedure: 
   respond with notInTimeWindows rather then with unsupportedSecurityLevel
   at time synchronization phase.

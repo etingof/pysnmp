@@ -142,12 +142,18 @@ class MibViewController:
 
     # Module management
     
-    def getFirstModuleName(self):
+    def getOrderedModuleName(self, index):
         self.indexMib()
         modNames = self.__mibSymbolsIdx.keys()
         if modNames:
-            return modNames[0]
+            return modNames[index]
         raise error.SmiError('No modules loaded at %s' % self)
+
+    def getFirstModuleName(self):
+        return self.getOrderedModuleName(0)
+
+    def getLastModuleName(self):
+        return self.getOrderedModuleName(-1)
 
     def getNextModuleName(self, modName):
         self.indexMib()
@@ -234,7 +240,7 @@ class MibViewController:
                     oid + suffix + nodeName[1:], modName
                     )
         
-    def getFirstNodeName(self, modName=''):
+    def getOrderedNodeName(self, index, modName=''):
         self.indexMib()
         if modName in self.__mibSymbolsIdx:
             mibMod = self.__mibSymbolsIdx[modName]
@@ -245,10 +251,21 @@ class MibViewController:
         if not mibMod['oidToLabelIdx']:
             raise error.NoSuchObjectError(
                 str='No variables at MIB module %s at %s' % (modName, self)
-                )
-        oid, label = mibMod['oidToLabelIdx'].items()[0]
+            )
+        try:
+            oid, label = mibMod['oidToLabelIdx'].items()[index]
+        except KeyError:
+            raise error.NoSuchObjectError(
+                str='No symbol at position %s in MIB module %s at %s' % (index, modName, self)
+            )
         return oid, label, ()
+
+    def getFirstNodeName(self, modName=''):
+        return self.getOrderedNodeName(0, modName)
         
+    def getLastNodeName(self, modName=''):
+        return self.getOrderedNodeName(-1, modName)
+
     def getNextNodeName(self, nodeName, modName=''):
         oid, label, suffix = self.getNodeName(nodeName, modName)
         try:
@@ -291,7 +308,7 @@ class MibViewController:
                 )
         return m, typeName
         
-    def getFirstTypeName(self, modName=''):
+    def getOrderedTypeName(self, index, modName=''):
         self.indexMib()
         if modName in self.__mibSymbolsIdx:
             mibMod = self.__mibSymbolsIdx[modName]
@@ -303,8 +320,14 @@ class MibViewController:
             raise error.NoSuchObjectError(
                 str='No types at MIB module %s at %s' % (modName, self)
                 )
-        t = mibMod['typeToModIdx'].keys()[0]
+        t = mibMod['typeToModIdx'].keys()[index]
         return mibMod['typeToModIdx'][t], t
+        
+    def getFirstTypeName(self, modName=''):
+        return self.getOrderedTypeName(0, modName)
+
+    def getLastTypeName(self, modName=''):
+        return self.getOrderedTypeName(-1, modName)
         
     def getNextType(self, typeName, modName=''):
         m, t = self.getTypeName(typeName, modName)
