@@ -93,7 +93,11 @@ Revision 4.2.6
 - The oneliner's MibVariable MIB lookup subsystem redesigned for more
   generality to mimic OBJECT-TYPE macro capabilities related to SNMP
   PDU handling. The two new classed are ObjectIdentity and ObjectType.
-  This new subsystem is moved from a scope of oneliner to more common
+  The ObjectIdentity class additionally supports just a MIB module name
+  initializer in which case if resolves into either first or last symbol
+  in given MIB. Another option is just a MIB symbol initializer without 
+  specifying MIB module.
+  This new subsystem is moved from the scope of oneliner to more common
   pysnmp.smi.rfc1903 scope to more naturally invoke it from whatever
   part of pysnmp requires MIB services.
 - MibBuilder now prepends the contents of environment variables it 

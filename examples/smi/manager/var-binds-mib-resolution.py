@@ -32,6 +32,36 @@ mibVar = rfc1902.ObjectIdentity(str(mibVar)).resolveWithMib(mibView)
 
 print(mibVar.prettyPrint(), tuple(mibVar), str(mibVar))
 
+# Obtain MIB object information by a mix of OID/label parts
+mibVar = rfc1902.ObjectIdentity((1,3,6,1,2,'mib-2',1,'sysDescr')).resolveWithMib(mibView)
+
+print(mibVar.prettyPrint(), tuple(mibVar), str(mibVar))
+
+# Obtain MIB object information by a label
+mibVar = rfc1902.ObjectIdentity('iso.org.dod.internet.mgmt.mib-2.system.sysDescr').resolveWithMib(mibView)
+
+print(mibVar.prettyPrint(), tuple(mibVar), str(mibVar))
+
+# Obtain the first MIB object in given MIB module
+mibVar = rfc1902.ObjectIdentity('SNMPv2-MIB').resolveWithMib(mibView)
+
+print(mibVar.prettyPrint(), tuple(mibVar), str(mibVar))
+
+# Obtain the last MIB object in given MIB module
+mibVar = rfc1902.ObjectIdentity('SNMPv2-MIB', last=True).resolveWithMib(mibView)
+
+print(mibVar.prettyPrint(), tuple(mibVar), str(mibVar))
+
+# Another way to obtain the first (or last) symbol in MIB module
+mibVar = rfc1902.ObjectIdentity('SNMPv2-MIB', '').resolveWithMib(mibView)
+
+print(mibVar.prettyPrint(), tuple(mibVar), str(mibVar))
+
+# Obtain MIB symbol from whatever MIB it is defined at (MIB should be loaded)
+mibVar = rfc1902.ObjectIdentity('', 'sysDescr', 0).resolveWithMib(mibView)
+
+print(mibVar.prettyPrint(), tuple(mibVar), str(mibVar))
+
 # Create an OID-value pair (called variable-binding in SNMP)
 varBind = rfc1902.ObjectType(
     rfc1902.ObjectIdentity('SNMPv2-MIB', 'sysObjectID', 0), '1.3.6.1'

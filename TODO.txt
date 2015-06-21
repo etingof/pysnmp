@@ -49,3 +49,6 @@ Sparse notes on major existing problems/plans
 * Implement TCP transport support
 
 * Rework UNIX sockets transport to make it STREAM-type.
+
+* The get-first/get-last operations of pysnmp.smi.rfc1902.ObjectIdentity()
+  may need a means to deal only with specific node types.

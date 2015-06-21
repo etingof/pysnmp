@@ -113,19 +113,31 @@ class ObjectIdentity:
 
         self.__indices = ()
 
-        if len(self.__args) == 1:  # OID or label
+        if len(self.__args) == 1:  # OID or label or MIB module
             debug.logger & debug.flagMIB and debug.logger('resolving %s as OID or label' % self.__args)
             try:
-                self.__oid = rfc1902.ObjectName(self.__args[0])
+                # pyasn1 ObjectIdentifier or sequence of ints or string OID
+                self.__oid = rfc1902.ObjectName(self.__args[0])  # OID
             except PyAsn1Error:
-                try:
-                    label = tuple(self.__args[0].split('.'))
-                except ValueError:
-                    raise SmiError('Bad OID format %r' % (self.__args[0],))
-                prefix, label, suffix = mibViewController.getNodeNameByOid(
-                    label
-                )
-             
+                # sequence of sub-OIDs and labels
+                if isinstance(self.__args[0], (list, tuple)):
+                    prefix, label, suffix = mibViewController.getNodeName(
+                        self.__args[0]
+                    )
+                # string label
+                elif '.' in self.__args[0]:
+                    prefix, label, suffix = mibViewController.getNodeNameByOid(
+                        tuple(self.__args[0].split('.'))
+                    )
+                # MIB module name
+                else:
+                    modName = self.__args[0]
+                    mibViewController.mibBuilder.loadModules(modName)
+                    if self.__kwargs.get('last'):
+                        prefix, label, suffix = mibViewController.getLastNodeName(modName)
+                    else:
+                        prefix, label, suffix = mibViewController.getFirstNodeName(modName)
+
                 if suffix:
                     try:
                         suffix = tuple([ int(x) for x in suffix ])
@@ -175,16 +187,22 @@ class ObjectIdentity:
 
             return self
         elif len(self.__args) > 1:  # MIB, symbol[, index, index ...]
-            self.__modName = self.__args[0]
-            if self.__args[1]:
+            # MIB, symbol, index, index
+            if self.__args[0] and self.__args[1]:
+                self.__modName = self.__args[0]
                 self.__symName = self.__args[1]
-            else:
-                mibViewController.mibBuilder.loadModules(self.__modName)
+            # MIB, ''
+            elif self.__args[0]:
+                mibViewController.mibBuilder.loadModules(self.__args[0])
                 if self.__kwargs.get('last'):
-                    oid,_,_ = mibViewController.getLastNodeName(self.__modName)
+                    prefix, label, suffix = mibViewController.getLastNodeName(self.__args[0])
                 else:
-                    oid,_,_ = mibViewController.getFirstNodeName(self.__modName)
-                _, self.__symName, _ = mibViewController.getNodeLocation(oid)
+                    prefix, label, suffix = mibViewController.getFirstNodeName(self.__args[0])
+                self.__modName, self.__symName, _ = mibViewController.getNodeLocation(prefix)
+            # '', symbol, index, index
+            else:
+                prefix, label, suffix = mibViewController.getNodeName(self.__args[1:])
+                self.__modName, self.__symName, _ = mibViewController.getNodeLocation(prefix)
 
             mibNode, = mibViewController.mibBuilder.importSymbols(
                 self.__modName, self.__symName
