@@ -47,7 +47,7 @@ if sys.version_info[:2] < (2, 4):
 try:
     from setuptools import setup
     params = {
-        'install_requires': [ 'pyasn1>=0.1.8' ],
+        'install_requires': [ 'pyasn1>=0.1.8', 'pysmi' ],
         'zip_safe': True
         }
     if sys.platform.lower()[:3] != 'win':
@@ -61,7 +61,7 @@ except ImportError:
     from distutils.core import setup
     params = {}
     if sys.version_info[:2] > (2, 4):
-        params['requires'] = [ 'pyasn1(>=0.1.8)' ]
+        params['requires'] = [ 'pyasn1(>=0.1.8)', 'pysmi' ]
         if sys.platform.lower()[:3] != 'win':
             params['requires'].append('pycrypto(>=2.4.1)')
 
