@@ -5,6 +5,16 @@
 import os
 import sys
 
+defaultSources = [ 'file:///usr/share/snmp/mibs' ]
+
+if sys.platform[:3] == 'win':
+    defaultDest = os.path.join(os.path.expanduser("~"),
+                                   'PySNMP Configuration', 'mibs')
+else:
+    defaultDest = os.path.join(os.path.expanduser("~"), '.pysnmp', 'mibs')
+
+defaultBorrowers = []
+
 try:
     from pysmi.reader.url import getReadersFromUrls
     from pysmi.searcher.pypackage import PyPackageSearcher
@@ -26,15 +36,6 @@ except ImportError:
         raise error.SmiError('MIB compiler not available (pysmi not installed)')
 
 else:
-    defaultSources = [ 'file:///usr/share/snmp/mibs' ]
-
-    if sys.platform[:3] == 'win':
-        defaultDest = os.path.join(os.path.expanduser("~"),
-                                   'PySNMP Configuration', 'mibs')
-    else:
-        defaultDest = os.path.join(os.path.expanduser("~"), '.pysnmp', 'mibs')
-
-    defaultBorrowers = []
 
     def addMibCompiler(mibBuilder,
                        sources=defaultSources,
