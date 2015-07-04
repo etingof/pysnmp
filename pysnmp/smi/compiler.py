@@ -5,11 +5,12 @@
 import os
 import sys
 
-defaultSources = [ 'file:///usr/share/snmp/mibs' ]
+defaultSources = [ 'file:///usr/share/snmp/mibs',
+                   'file:///usr/share/mibs' ]
 
 if sys.platform[:3] == 'win':
     defaultDest = os.path.join(os.path.expanduser("~"),
-                                   'PySNMP Configuration', 'mibs')
+                               'PySNMP Configuration', 'mibs')
 else:
     defaultDest = os.path.join(os.path.expanduser("~"), '.pysnmp', 'mibs')
 
@@ -29,26 +30,23 @@ try:
 except ImportError:
     from pysnmp.smi import error
 
-    def addMibCompiler(mibBuilder,
-                       sources=[],
-                       destination='',
-                       borrowers=[]):
-        raise error.SmiError('MIB compiler not available (pysmi not installed)')
+    def addMibCompiler(mibBuilder, **kwargs):
+        if not kwargs.get('ifAvailable'):
+            raise error.SmiError('MIB compiler not available (pysmi not installed)')
 
 else:
 
-    def addMibCompiler(mibBuilder,
-                       sources=defaultSources,
-                       destination=defaultDest,
-                       borrowers=defaultBorrowers):
+    def addMibCompiler(mibBuilder, **kwargs):
+        if kwargs.get('ifNotAdded') and mibBuilder.getMibCompiler():
+            return
 
         compiler = MibCompiler(
             parserFactory(**smiV1Relaxed)(),
             PySnmpCodeGen(),
-            PyFileWriter(destination)
+            PyFileWriter(kwargs.get('destination') or defaultDest)
         )
 
-        compiler.addSources(*getReadersFromUrls(*sources))
+        compiler.addSources(*getReadersFromUrls(*kwargs.get('sources') or defaultSources))
 
         compiler.addSearchers(
             StubSearcher(*baseMibs) # XXX
@@ -56,9 +54,11 @@ else:
         compiler.addSearchers(
             *[ PyPackageSearcher(x.fullPath()) for x in mibBuilder.getMibSources() ]
         )
-
         compiler.addBorrowers(
-            *[ PyFileBorrower(x, genTexts=mibBuilder.loadTexts) for x in getReadersFromUrls(*borrowers, **dict(originalMatching=False, lowcaseMatching=False)) ]
+            *[ PyFileBorrower(x, genTexts=mibBuilder.loadTexts) for x in getReadersFromUrls(*kwargs.get('borrowers') or defaultBorrowers, **dict(originalMatching=False, lowcaseMatching=False)) ]
         )
 
-        mibBuilder.setMibCompiler(compiler, destination)
+        mibBuilder.setMibCompiler(
+            compiler, kwargs.get('destination') or defaultDest
+        )
+

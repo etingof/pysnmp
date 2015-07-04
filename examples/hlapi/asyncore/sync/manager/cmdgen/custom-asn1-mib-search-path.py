@@ -7,6 +7,7 @@
 # * over IPv4/UDP
 # * to an Agent at demo.snmplabs.com:161
 # * for IF-MIB::ifInOctets.1 MIB object
+# * Pass attached MIB compiler non-default ASN.1 MIB source
 #
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 
@@ -15,7 +16,7 @@ cmdGen = cmdgen.CommandGenerator()
 errorIndication, errorStatus, errorIndex, varBinds = cmdGen.getCmd(
     cmdgen.CommunityData('public'),
     cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-    cmdgen.ObjectIdentity('IF-MIB', 'ifInOctets', 1).addMibCompiler('file:///usr/share/snmp', 'http://mibs.snmplabs.com/asn1/@mib@'),
+    cmdgen.ObjectIdentity('IF-MIB', 'ifInOctets', 1).addAsn1MibSource('file:///usr/share/snmp', 'http://mibs.snmplabs.com/asn1/@mib@'),
     lookupNames=True, lookupValues=True
 )
 

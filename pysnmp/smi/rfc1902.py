@@ -2,7 +2,7 @@ import sys
 from pysnmp.proto import rfc1902, rfc1905
 from pysnmp.proto.api import v2c
 from pysnmp.smi.builder import ZipMibSource
-from pysnmp.smi.compiler import addMibCompiler, defaultDest
+from pysnmp.smi.compiler import addMibCompiler
 from pysnmp.smi.error import SmiError
 from pyasn1.type.base import AbstractSimpleAsn1Item
 from pyasn1.error import PyAsn1Error
@@ -25,7 +25,7 @@ class ObjectIdentity:
         self.__args = args
         self.__kwargs = kwargs
         self.__mibSourcesToAdd = self.__modNamesToLoad = None
-        self.__asn1SourcesToAdd = None
+        self.__asn1SourcesToAdd = self.__asn1SourcesOptions = None
         self.__state  = self.stDirty
 
     #
@@ -59,12 +59,15 @@ class ObjectIdentity:
     # A gateway to MIBs manipulation routines
     #
 
-    def addMibCompiler(self, *asn1Sources, **kwargs):
+    def addAsn1MibSource(self, *asn1Sources, **kwargs):
         if self.__asn1SourcesToAdd is None:
             self.__asn1SourcesToAdd = asn1Sources
         else:
             self.__asn1SourcesToAdd += asn1Sources
-        self.__mibDir = kwargs.get('destDir', defaultDest)
+        if self.__asn1SourcesOptions:
+            self.__asn1SourcesOptions.update(kwargs)
+        else:
+            self.__asn1SourcesOptions = kwargs
         return self
 
     def addMibSource(self, *mibSources):
@@ -92,14 +95,21 @@ class ObjectIdentity:
             )
             self.__mibSourcesToAdd = None
 
-        if self.__asn1SourcesToAdd is not None:
+        if self.__asn1SourcesToAdd is None:
+            addMibCompiler(mibViewController.mibBuilder,
+                           ifAvailable=True, ifNotAdded=True)
+        else:
             debug.logger & debug.flagMIB and debug.logger('adding MIB compiler with source paths %s' % ', '.join(self.__asn1SourcesToAdd))
             addMibCompiler(
                 mibViewController.mibBuilder,
                 sources=self.__asn1SourcesToAdd,
-                destination=self.__mibDir
+                searchers=self.__asn1SourcesOptions.get('searchers'),
+                borrowers=self.__asn1SourcesOptions.get('borrowers'),
+                destination=self.__asn1SourcesOptions.get('destination'),
+                ifAvailable=self.__asn1SourcesOptions.get('ifAvailable'),
+                ifNotAdded=self.__asn1SourcesOptions.get('ifNotAdded')
             )
-            self.__asn1SourcesToAdd = self.__mibDir = None
+            self.__asn1SourcesToAdd = self.__asn1SourcesOptions = None
 
         if self.__modNamesToLoad is not None:
             debug.logger & debug.flagMIB and debug.logger('loading MIB modules %s' % ', '.join(self.__modNamesToLoad))

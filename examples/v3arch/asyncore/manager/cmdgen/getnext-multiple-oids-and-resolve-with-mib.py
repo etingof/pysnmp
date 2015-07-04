@@ -21,7 +21,10 @@ from pysnmp.smi import compiler, view, rfc1902
 snmpEngine = engine.SnmpEngine()
 
 # Attach MIB compiler to SNMP Engine (MIB Builder)
+# This call will fail if PySMI is not present on the system
 compiler.addMibCompiler(snmpEngine.getMibBuilder())
+# ... alternatively, this call will not complain on missing PySMI
+#compiler.addMibCompiler(snmpEngine.getMibBuilder(), ifAvailable=True)
 
 # Used for MIB objects resolution
 mibViewController = view.MibViewController(snmpEngine.getMibBuilder())
