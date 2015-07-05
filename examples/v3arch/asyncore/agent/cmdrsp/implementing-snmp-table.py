@@ -81,7 +81,7 @@ mibBuilder.exportSymbols(
   # table column: integer value with default
   exampleTableColumn3=MibTableColumn((1,3,6,6,1,5,3), v2c.Integer32(123)).setMaxAccess('readcreate'),
   # table column: row status
-  exampleTableStatus=MibTableColumn((1,3,6,6,1,5,4), RowStatus()).setMaxAccess('readcreate')
+  exampleTableStatus=MibTableColumn((1,3,6,6,1,5,4), RowStatus(0)).setMaxAccess('readcreate')
 )
 
 # --- end of custom SNMP table definition, empty table now exists ---
