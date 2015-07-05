@@ -1,6 +1,6 @@
 # Notification Originator Application (TRAP)
-from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
-from pysnmp.carrier.asynsock.dgram import udp, udp6, unix
+from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
+from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
 from pyasn1.codec.ber import encoder
 from pysnmp.proto import api
 
@@ -23,7 +23,7 @@ pMod.apiMessage.setDefaults(trapMsg)
 pMod.apiMessage.setCommunity(trapMsg, 'public')
 pMod.apiMessage.setPDU(trapMsg, trapPDU)
 
-transportDispatcher = AsynsockDispatcher()
+transportDispatcher = AsyncoreDispatcher()
 
 # UDP/IPv4
 transportDispatcher.registerTransport(

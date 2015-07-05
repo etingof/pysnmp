@@ -23,7 +23,7 @@
 # To run this example make sure to have IF-MIB.py in search path.
 #
 from pysnmp.entity import engine, config
-from pysnmp.carrier.asynsock.dgram import udp
+from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import ntforg
 from pysnmp.smi import rfc1902, view
 

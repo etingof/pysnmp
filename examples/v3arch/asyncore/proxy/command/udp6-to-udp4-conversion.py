@@ -21,7 +21,7 @@
 # initial request PDUs from different Managers, into unique values to
 # avoid sending duplicate request-IDs to Agents.
 #
-from pysnmp.carrier.asynsock.dgram import udp, udp6
+from pysnmp.carrier.asyncore.dgram import udp, udp6
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdrsp, cmdgen, context
 from pysnmp.proto.api import v2c

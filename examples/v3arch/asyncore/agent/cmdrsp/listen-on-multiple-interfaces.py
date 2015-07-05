@@ -16,7 +16,7 @@
 #
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdrsp, context
-from pysnmp.carrier.asynsock.dgram import udp
+from pysnmp.carrier.asyncore.dgram import udp
 
 # Create SNMP engine with autogenernated engineID and pre-bound
 # to socket transport dispatcher

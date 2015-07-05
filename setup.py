@@ -96,6 +96,8 @@ params.update( {
                   'pysnmp.carrier',
                   'pysnmp.carrier.asynsock',
                   'pysnmp.carrier.asynsock.dgram',
+                  'pysnmp.carrier.asyncore',
+                  'pysnmp.carrier.asyncore.dgram',
                   'pysnmp.carrier.twisted',
                   'pysnmp.carrier.twisted.dgram',                   
                   'pysnmp.carrier.asyncio',

@@ -12,7 +12,7 @@
 # $ snmpset -v3 -l authNoPriv -u usr-sha-none -a SHA -A authkey1 -ObentU 195.218.195.228:161 1.3.6.1.2.1.1.9.1.3.1 s 'my new value'
 #
 from pysnmp.entity import engine, config
-from pysnmp.carrier.asynsock.dgram import udp
+from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import cmdgen
 from pysnmp.proto import rfc1902
 

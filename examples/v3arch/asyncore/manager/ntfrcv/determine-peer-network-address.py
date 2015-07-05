@@ -15,7 +15,7 @@
 # $ snmptrap -v2c -c public 127.0.0.1:162 123 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.5.0 s test
 #
 from pysnmp.entity import engine, config
-from pysnmp.carrier.asynsock.dgram import udp
+from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import ntfrcv
 
 # Create SNMP engine with autogenernated engineID and pre-bound

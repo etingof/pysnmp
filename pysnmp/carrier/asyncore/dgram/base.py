@@ -1,6 +1,6 @@
 # Implements asyncore-based generic DGRAM transport
 import socket, errno, sys
-from pysnmp.carrier.asynsock.base import AbstractSocketTransport
+from pysnmp.carrier.asyncore.base import AbstractSocketTransport
 from pysnmp.carrier import sockfix, sockmsg, error
 from pysnmp import debug
 

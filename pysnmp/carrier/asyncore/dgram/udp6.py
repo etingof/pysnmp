@@ -1,7 +1,7 @@
 # Implements asyncore-based UDP6 transport domain
 from pysnmp.carrier import sockfix
 from pysnmp.carrier.base import AbstractTransportAddress
-from pysnmp.carrier.asynsock.dgram.base import DgramSocketTransport
+from pysnmp.carrier.asyncore.dgram.base import DgramSocketTransport
 import socket
 
 domainName = snmpUDP6Domain = (1, 3, 6, 1, 2, 1, 100, 1, 2)

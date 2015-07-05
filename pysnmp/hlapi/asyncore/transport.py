@@ -1,5 +1,5 @@
 import socket, sys
-from pysnmp.carrier.asynsock.dgram import udp, udp6, unix
+from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
 from pysnmp import error
 from pyasn1.compat.octets import null
 

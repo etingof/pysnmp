@@ -3,11 +3,11 @@ import socket, sys
 import asyncore
 from pysnmp.carrier import error
 from pysnmp.carrier.base import AbstractTransport
-from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
+from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
 from pysnmp import debug
 
 class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
-    protoTransportDispatcher = AsynsockDispatcher
+    protoTransportDispatcher = AsyncoreDispatcher
     sockFamily = sockType = None
     retryCount = 0; retryInterval = 0
     bufferSize = 131070
@@ -36,10 +36,10 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
             except Exception:
                 debug.logger & debug.flagIO and debug.logger('%s: socket buffer size option mangling failure for buffer %d: %s' % (self.__class__.__name__, b, sys.exc_info()[1]))
 
-        # The socket map is managed by the AsynsockDispatcher on
+        # The socket map is managed by the AsyncoreDispatcher on
         # which this transport is registered. Here we just prepare
         # socket and postpone transport registration at dispatcher
-        # till AsynsockDispatcher invokes registerSocket()
+        # till AsyncoreDispatcher invokes registerSocket()
 
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.setblocking(0)

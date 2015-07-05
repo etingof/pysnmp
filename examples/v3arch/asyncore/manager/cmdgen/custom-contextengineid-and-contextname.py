@@ -15,7 +15,7 @@
 # $ snmpget -v3 -l authNoPriv -u usr-md5-none -A authkey1 -E 80004fb805636c6f75644dab22cc -n da761cfc8c94d3aceef4f60f049105ba -ObentU 195.218.195.228:161  1.3.6.1.2.1.1.1.0
 #
 from pysnmp.entity import engine, config
-from pysnmp.carrier.asynsock.dgram import udp
+from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import cmdgen
 from pysnmp.proto import rfc1902
 

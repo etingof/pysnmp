@@ -26,8 +26,8 @@
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdrsp, context
 from pysnmp.proto import rfc1902
-from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
-from pysnmp.carrier.asynsock.dgram import udp
+from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
+from pysnmp.carrier.asyncore.dgram import udp
 
 # Configuration parameters for each of SNMP Engines
 snmpEngineInfo = (
@@ -36,7 +36,7 @@ snmpEngineInfo = (
 )
 
 # Instantiate the single transport dispatcher object
-transportDispatcher = AsynsockDispatcher()
+transportDispatcher = AsyncoreDispatcher()
 
 # Setup a custom data routing function to select snmpEngine by transportDomain
 transportDispatcher.registerRoutingCbFun(lambda td,t,d: td)

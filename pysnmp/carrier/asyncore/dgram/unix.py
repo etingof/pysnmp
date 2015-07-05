@@ -6,7 +6,7 @@ try:
 except ImportError:
     AF_UNIX = None
 from pysnmp.carrier.base import AbstractTransportAddress
-from pysnmp.carrier.asynsock.dgram.base import DgramSocketTransport
+from pysnmp.carrier.asyncore.dgram.base import DgramSocketTransport
 
 domainName = snmpLocalDomain = (1, 3, 6, 1, 2, 1, 100, 1, 13)
 

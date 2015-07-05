@@ -1,5 +1,5 @@
-from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
-from pysnmp.carrier.asynsock.dgram import udp
+from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
+from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.proto import api
 from pyasn1.codec.ber import encoder, decoder
 from time import time
@@ -53,7 +53,7 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
             transportDispatcher.jobFinished(1)
     return wholeMsg
 
-transportDispatcher = AsynsockDispatcher()
+transportDispatcher = AsyncoreDispatcher()
 
 transportDispatcher.registerRecvCbFun(cbRecvFun)
 transportDispatcher.registerTimerCbFun(cbTimerFun)

@@ -1,6 +1,6 @@
 # GETBULK Command Generator (SNMPv2c only)
-from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
-from pysnmp.carrier.asynsock.dgram import udp
+from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
+from pysnmp.carrier.asyncore.dgram import udp
 from pyasn1.codec.ber import encoder, decoder
 from pysnmp.proto.api import v2c
 from time import time
@@ -77,7 +77,7 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
             startedAt = time()
     return wholeMsg
 
-transportDispatcher = AsynsockDispatcher()
+transportDispatcher = AsyncoreDispatcher()
 
 transportDispatcher.registerRecvCbFun(cbRecvFun)
 transportDispatcher.registerTimerCbFun(cbTimerFun)

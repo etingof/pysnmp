@@ -13,7 +13,7 @@
 #   1.3.6.1.6.3.1.1.4.1.0 = 1.3.6.1.6.3.1.1.5.1
 #
 from pysnmp.entity import engine, config
-from pysnmp.carrier.asynsock.dgram import udp
+from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import ntforg
 from pysnmp.proto.api import v2c
 

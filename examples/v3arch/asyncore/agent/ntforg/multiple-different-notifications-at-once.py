@@ -17,7 +17,7 @@
 #   1.3.6.1.2.1.1.1.0 = 'Example Notificator'
 #
 from pysnmp.entity import engine, config
-from pysnmp.carrier.asynsock.dgram import udp
+from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import ntforg
 from pysnmp.proto.api import v2c
 

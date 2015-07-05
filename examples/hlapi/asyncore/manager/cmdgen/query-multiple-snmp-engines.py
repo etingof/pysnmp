@@ -27,7 +27,7 @@
 #
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 from pysnmp.entity import engine
-from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
+from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
 
 # List of targets in the followin format:
 # ( ( authData, transportTarget, varNames ), ... )
@@ -77,7 +77,7 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
 
 
 # Instantiate the single transport dispatcher object
-transportDispatcher = AsynsockDispatcher()
+transportDispatcher = AsyncoreDispatcher()
 
 # Setup a custom data routing function to select snmpEngine by transportDomain
 transportDispatcher.registerRoutingCbFun(

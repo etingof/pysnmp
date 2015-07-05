@@ -1,6 +1,6 @@
 # Command Responder Application (GET/GETNEXT)
-from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
-from pysnmp.carrier.asynsock.dgram import udp, udp6, unix
+from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
+from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
 from pyasn1.codec.ber import encoder, decoder
 from pysnmp.proto import api
 import time, bisect
@@ -97,7 +97,7 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
             )
     return wholeMsg
 
-transportDispatcher = AsynsockDispatcher()
+transportDispatcher = AsyncoreDispatcher()
 transportDispatcher.registerRecvCbFun(cbFun)
 
 # UDP/IPv4

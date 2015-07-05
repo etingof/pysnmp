@@ -1,6 +1,6 @@
 # Notification Receiver (TRAP PDU)
-from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
-from pysnmp.carrier.asynsock.dgram import udp, udp6, unix
+from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
+from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
 from pyasn1.codec.ber import decoder
 from pysnmp.proto import api
 
@@ -50,7 +50,7 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
                 print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
     return wholeMsg
 
-transportDispatcher = AsynsockDispatcher()
+transportDispatcher = AsyncoreDispatcher()
 
 transportDispatcher.registerRecvCbFun(cbFun)
 

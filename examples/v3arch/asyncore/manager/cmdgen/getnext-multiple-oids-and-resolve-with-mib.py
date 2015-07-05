@@ -13,7 +13,7 @@
 # $ snmpwalk -v1 -c public -ObentU 195.218.195.228 1.3.6.1.2.1.1 1.3.6.1.4.1.1
 #
 from pysnmp.entity import engine, config
-from pysnmp.carrier.asynsock.dgram import udp
+from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import cmdgen
 from pysnmp.smi import compiler, view, rfc1902
 

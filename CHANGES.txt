@@ -29,6 +29,10 @@ Revision 4.3.0
 - Initial support for the asyncio & Trollius frameworks and
   coroutines-based SNMP Applications interfaces added. Both IPv4 and IPv6
   datagram transports are currently supported.
+- Original asynsock transport and AsyncsockDispatcher renamed into 
+  asyncore and AsyncoreDispatcher respectively to provide better hint
+  to fellow devs on the underlying transport being used. Backward
+  compatibility preserved.
 - The asyncore-based transport subsystem extended to support POSIX
   sendmsg()/recvmsg() based socket communication what could be used,
   among other things, in the context of a transparent SNMP proxy 
