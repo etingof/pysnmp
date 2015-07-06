@@ -11,32 +11,30 @@
 # * stop when response OIDs leave the scopes of the table OR maxRows == 20
 # * perform response OIDs and values resolution at MIB
 #
-from pysnmp.entity.rfc3413.oneliner import cmdgen
+from pysnmp.entity.rfc3413.oneliner.cmdgen import *
 
-cmdGen = cmdgen.CommandGenerator()
-
-# Send a series of SNMP GETBULK requests
-# make sure IF-MIB.py and IP-MIB.py are in search path
-
-errorIndication, errorStatus, errorIndex, varBindTable = cmdGen.bulkCmd(
-    cmdgen.UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
-    cmdgen.Udp6TransportTarget(('::1', 161)),
-    1, 25,
-    cmdgen.ObjectIdentity('IP-MIB', 'ipAdEntAddr'),
-    cmdgen.ObjectIdentity('IF-MIB', 'ifEntry'),
-    lookupNames=True, lookupValues=True, maxRows=20
-)
-
-if errorIndication:
-    print(errorIndication)
-else:
-    if errorStatus:
-        print('%s at %s' % (
-            errorStatus.prettyPrint(),
-            errorIndex and varBindTable[-1][int(errorIndex)-1][0] or '?'
-            )
-        )
+for errorIndication, \
+    errorStatus, errorIndex, \
+    varBinds in bulkCmd(SnmpEngine(),
+                        UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
+                        Udp6TransportTarget(('::1', 161)),
+                        ContextData(),
+                        1, 25,
+                        ObjectType(ObjectIdentity('IP-MIB', 'ipAdEntAddr')),
+                        ObjectType(ObjectIdentity('IP-MIB', 'ipAddrEntry')),
+                        lookupNames=True, lookupValues=True, maxRows=20):
+    # Check for errors and print out results
+    if errorIndication:
+        print(errorIndication)
+        break
     else:
-        for varBindTableRow in varBindTable:
-            for name, val in varBindTableRow:
-                print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
+        if errorStatus:
+            print('%s at %s' % (
+                    errorStatus.prettyPrint(),
+                    errorIndex and varBinds[int(errorIndex)-1][0] or '?'
+                )
+            )
+            break
+        else:
+            for varBind in varBinds:
+                print(' = '.join([ x.prettyPrint() for x in varBind ]))

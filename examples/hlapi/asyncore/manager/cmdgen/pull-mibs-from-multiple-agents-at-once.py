@@ -21,19 +21,20 @@ targets = (
     # 1-st target (SNMPv1 over IPv4/UDP)
     ( cmdgen.CommunityData('public', mpModel=0),
       cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-      ( '1.3.6.1.2.1', '1.3.6.1.3.1') ),
+      ( cmdgen.ObjectType(cmdgen.ObjectIdentity('1.3.6.1.2.1')),
+        cmdgen.ObjectType(cmdgen.ObjectIdentity('1.3.6.1.3.1')) ) ),
     # 2-nd target (SNMPv2c over IPv4/UDP)
     ( cmdgen.CommunityData('public'),
       cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-      ( '1.3.6.1.4.1', ) ),
+      ( cmdgen.ObjectType(cmdgen.ObjectIdentity('1.3.6.1.4.1')), ) ),
     # 3-nd target (SNMPv3 over IPv4/UDP)
     ( cmdgen.UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
       cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-      ( cmdgen.ObjectIdentity('SNMPv2-MIB', 'system'), ) ),
+      ( cmdgen.ObjectType(cmdgen.ObjectIdentity('SNMPv2-MIB', 'system')), ) ),
     # 4-th target (SNMPv3 over IPv6/UDP)
     ( cmdgen.UsmUserData('usr-md5-none', 'authkey1'),
       cmdgen.Udp6TransportTarget(('::1', 161)),
-      ( cmdgen.ObjectIdentity('IF-MIB', 'ifTable'), ) )
+      ( cmdgen.ObjectType(cmdgen.ObjectIdentity('IF-MIB', 'ifTable')), ) )
     # N-th target
     # ...
 )
@@ -77,10 +78,10 @@ snmpEngine = engine.SnmpEngine()
 cmdGen  = cmdgen.AsyncCommandGenerator()
 
 # Submit initial GETNEXT requests and wait for responses
-for authData, transportTarget, varNames in targets:
-    varBindHead = cmdGen.makeVarBindsHead(snmpEngine, varNames)
+for authData, transportTarget, varBinds in targets:
+    varBindHead = [ x[0] for x in cmdGen.makeVarBinds(snmpEngine, varBinds ) ]
     cmdGen.nextCmd(
-        snmpEngine, authData, transportTarget, cmdgen.ContextData(), varNames,
+        snmpEngine, authData, transportTarget, cmdgen.ContextData(), varBinds,
         # User-space callback function and its context
         (cbFun, (varBindHead, authData, transportTarget)),
         lookupNames=True, lookupValues=True

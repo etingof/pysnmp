@@ -23,6 +23,7 @@ usmAesCfb192Protocol = config.usmAesCfb192Protocol
 usmAesCfb256Protocol = config.usmAesCfb256Protocol
 usmNoPrivProtocol = config.usmNoPrivProtocol
 
+SnmpEngine = engine.SnmpEngine
 ContextData = cmdgen.ContextData
 
 nextID = nextid.Integer(0xffffffff)
@@ -177,6 +178,47 @@ class AsyncNotificationOriginator:
 
         return ntforg.NotificationOriginator().sendVarBinds(snmpEngine, notifyName, contextData.contextEngineId, contextData.contextName, self.makeVarBinds(snmpEngine, varBinds), __cbFun, (lookupNames, lookupValues, cbFun, cbCtx))
 
+#
+# Synchronous one-liner Notification Originator application
+#
+
+def sendNotification(snmpEngine, authData, transportTarget, contextData,
+                     notifyType, notificationType, **kwargs):
+
+    def cbFun(snmpEngine, sendRequestHandle,
+              errorIndication, errorStatus, errorIndex,
+              varBinds, cbCtx):
+        cbCtx['errorIndication'] = errorIndication
+        cbCtx['errorStatus'] = errorStatus
+        cbCtx['errorIndex'] = errorIndex
+        cbCtx['varBinds'] = varBinds
+
+    cbCtx = {}
+
+    AsyncNotificationOriginator().sendNotification(
+        snmpEngine,
+        authData,
+        transportTarget,
+        contextData,
+        notifyType,
+        notificationType,
+        (cbFun, cbCtx),
+        kwargs.get('lookupNames'),
+        kwargs.get('lookupValues')
+    )
+
+    snmpEngine.transportDispatcher.runDispatcher()
+
+    if cbCtx:
+        yield cbCtx['errorIndication'],  \
+              cbCtx['errorStatus'], cbCtx['errorIndex'], \
+              cbCtx['varBinds']
+
+#
+# The rest of code in this file belongs to obsolete, compatibility wrappers.
+# Never use interfaces below for new applications!
+#
+
 # substitute sendNotification return object for backward compatibility
 class ErrorIndicationReturn:
     def __init__(self, *vars): self.__vars = vars
@@ -185,9 +227,6 @@ class ErrorIndicationReturn:
     def __bool__(self): return bool(self.__vars[0])
     def __str__(self): return str(self.__vars[0])
 
-#
-# Compatibility implementation, never use this class for new applications
-#
 class AsynNotificationOriginator:
     def __init__(self, snmpEngine=None, snmpContext=None):
         if snmpEngine is None:
@@ -274,31 +313,18 @@ class AsynNotificationOriginator:
 
 class NotificationOriginator:
     def __init__(self, snmpEngine=None, snmpContext=None, asynNtfOrg=None):
-        if asynNtfOrg is None:
-            self.__asynNtfOrg = AsynNotificationOriginator(
-                snmpEngine, snmpContext
-            )
-        else:
-            self.__asynNtfOrg = asynNtfOrg
+        # compatibility attributes
+        self.snmpEngine = snmpEngine or SnmpEngine()
+        self.mibViewController = AsyncNotificationOriginator().getMibViewController(self.snmpEngine)
 
     # the varBinds parameter is legacy, use NotificationType instead
 
     def sendNotification(self, authData, transportTarget, notifyType,
                          notificationType, *varBinds, **kwargs):
-        def __cbFun(sendRequestHandle, errorIndication, 
-                    errorStatus, errorIndex, varBinds, appReturn):
-            appReturn[0] = ErrorIndicationReturn(
-                errorIndication, errorStatus, errorIndex, varBinds
-            )
-
-        appReturn = { 0: ErrorIndicationReturn(None, 0, 0, ()) }
-        self.__asynNtfOrg.sendNotification(
-            authData, transportTarget, notifyType, notificationType, 
-            varBinds, (__cbFun, appReturn),
-            kwargs.get('lookupNames', False),
-            kwargs.get('lookupValues', False),
-            kwargs.get('contextEngineId'),
-            kwargs.get('contextName', null)
-        )
-        self.__asynNtfOrg.snmpEngine.transportDispatcher.runDispatcher()
-        return appReturn[0]
+        for x in sendNotification(self.snmpEngine, authData, transportTarget,
+                                  ContextData(kwargs.get('contextEngineId'),
+                                              kwargs.get('contextName', null)),
+                                  notifyType,
+                                  notificationType.addVarBinds(*varBinds),
+                                  **kwargs):
+            return x

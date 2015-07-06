@@ -11,29 +11,32 @@
 # * include managed object information specified as a MIB symbol
 # * perform response OIDs and values resolution at MIB
 #
-from pysnmp.entity.rfc3413.oneliner import ntforg
+from pysnmp.entity.rfc3413.oneliner.ntforg import *
 
-ntfOrg = ntforg.NotificationOriginator()
-
-errorIndication, errorStatus, errorIndex, varBinds = ntfOrg.sendNotification(
-    ntforg.CommunityData('public'),
-    ntforg.UdpTransportTarget(('localhost', 162)),
-    'inform',
-    ntforg.NotificationType(
-        ntforg.ObjectIdentity('SNMPv2-MIB', 'coldStart')
-    ).addVarBinds(
-        ( ntforg.ObjectIdentity('SNMPv2-MIB', 'sysName', 0), 'my system' )
-    ),
-    lookupNames=True, lookupValues=True
-)
-
-if errorIndication:
-    print('Notification not sent: %s' % errorIndication)
-elif errorStatus:
-    print('Notification Receiver returned error: %s @%s' % 
-          (errorStatus, errorIndex))
-else:
-    for name, val in varBinds:
-        print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
-
-
+for errorIndication, \
+    errorStatus, errorIndex, \
+    varBinds in \
+        sendNotification(SnmpEngine(),
+                         CommunityData('public'),
+                         UdpTransportTarget(('localhost', 162)),
+                         ContextData(),
+                         'inform',
+                         NotificationType(
+                             ObjectIdentity('SNMPv2-MIB', 'coldStart')
+                         ).addVarBinds(
+                             ( ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysName', 0), 'my system') )
+                         ),
+                         lookupNames=True, lookupValues=True):
+    # Check for errors and print out results
+    if errorIndication:
+        print(errorIndication)
+    else:
+        if errorStatus:
+            print('%s at %s' % (
+                    errorStatus.prettyPrint(),
+                    errorIndex and varBinds[int(errorIndex)-1][0] or '?'
+                )
+            )
+        else:
+            for varBind in varBinds:
+                print(' = '.join([ x.prettyPrint() for x in varBind ]))

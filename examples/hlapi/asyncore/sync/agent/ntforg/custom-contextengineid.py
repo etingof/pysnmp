@@ -14,28 +14,33 @@
 # requires having a collection of Managed Objects registered under
 # the ContextEngineId being used.
 #
-from pysnmp.entity import engine
-from pysnmp.entity.rfc3413 import context
-from pysnmp.entity.rfc3413.oneliner import ntforg
+from pysnmp.entity.rfc3413.oneliner.ntforg import *
 from pysnmp.proto import rfc1902
 
-snmpEngine = engine.SnmpEngine()
-
-ntfOrg = ntforg.NotificationOriginator(snmpEngine)
-
-errorIndication, errorStatus, errorIndex, varBinds = ntfOrg.sendNotification(
-    ntforg.UsmUserData('usr-md5-none', 'authkey1'),
-    ntforg.UdpTransportTarget(('localhost', 162)),
-    'inform',
-    ntforg.NotificationType(ntforg.ObjectIdentity('1.3.6.1.6.3.1.1.5.2')),
-    contextEngineId=rfc1902.OctetString(hexValue='8000000004030201')
-)
-
-if errorIndication:
-    print('Notification not sent: %s' % errorIndication)
-elif errorStatus:
-    print('Notification Receiver returned error: %s @%s' %
-          (errorStatus, errorIndex))
-else:
-    for name, val in varBinds:
-        print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
+for errorIndication, \
+    errorStatus, errorIndex, \
+    varBinds in \
+        sendNotification(SnmpEngine(),
+                         UsmUserData('usr-md5-none', 'authkey1'),
+                         UdpTransportTarget(('localhost', 162)),
+                         ContextData(
+                             rfc1902.OctetString(hexValue='8000000004030201')
+                         ),
+                         'inform',
+                         NotificationType(
+                             ObjectIdentity('1.3.6.1.6.3.1.1.5.2')
+                         ),
+                         lookupNames=True, lookupValues=True):
+    # Check for errors and print out results
+    if errorIndication:
+        print(errorIndication)
+    else:
+        if errorStatus:
+            print('%s at %s' % (
+                    errorStatus.prettyPrint(),
+                    errorIndex and varBinds[int(errorIndex)-1][0] or '?'
+                )
+            )
+        else:
+            for varBind in varBinds:
+                print(' = '.join([ x.prettyPrint() for x in varBind ]))

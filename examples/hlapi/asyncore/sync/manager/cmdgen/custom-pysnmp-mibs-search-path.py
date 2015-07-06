@@ -12,30 +12,31 @@
 #   maxCalls == 10 request-response interactions occur
 # * ignoring non-increasing OIDs whenever reported by Agent
 #
-# make sure IF-MIB.py is search path
-#
-from pysnmp.entity.rfc3413.oneliner import cmdgen
+from pysnmp.entity.rfc3413.oneliner.cmdgen import *
 
-cmdGen = cmdgen.CommandGenerator()
-
-errorIndication, errorStatus, errorIndex, varBindTable = cmdGen.bulkCmd(
-    cmdgen.UsmUserData('usr-none-none'),
-    cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-    0, 50,
-    cmdgen.ObjectIdentity('TCP-MIB', 'tcpConnTable').addMibSource('/tmp/mibs'),
-    lexicographicMode=True, maxRows=100, maxCalls=10,ignoreNonIncreasingOid=True
-)
-
-if errorIndication:
-    print(errorIndication)
-else:
-    if errorStatus:
-        print('%s at %s' % (
-            errorStatus.prettyPrint(),
-            errorIndex and varBindTable[-1][int(errorIndex)-1][0] or '?'
-            )
-        )
+for errorIndication, \
+    errorStatus, errorIndex, \
+    varBinds in bulkCmd(SnmpEngine(),
+                        UsmUserData('usr-none-none'),
+                        UdpTransportTarget(('demo.snmplabs.com', 161)),
+                        ContextData(),
+                        0, 50,
+                        ObjectType(ObjectIdentity('TCP-MIB', 'tcpConnTable').addMibSource('/tmp/mibs')),
+                        maxRows=100, maxCalls=10,
+                        lexicographicMode=True, 
+                        ignoreNonIncreasingOid=True):
+    # Check for errors and print out results
+    if errorIndication:
+        print(errorIndication)
+        break
     else:
-        for varBindTableRow in varBindTable:
-            for name, val in varBindTableRow:
-                print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
+        if errorStatus:
+            print('%s at %s' % (
+                    errorStatus.prettyPrint(),
+                    errorIndex and varBinds[int(errorIndex)-1][0] or '?'
+                )
+            )
+            break
+        else:
+            for varBind in varBinds:
+                print(' = '.join([ x.prettyPrint() for x in varBind ]))

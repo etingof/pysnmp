@@ -10,16 +10,18 @@
 # * with TRAP ID 'coldStart' specified as a MIB symbol
 # * include managed object information specified as a MIB symbol
 #
-from pysnmp.entity.rfc3413.oneliner import ntforg
+from pysnmp.entity.rfc3413.oneliner.ntforg import *
 
-ntfOrg = ntforg.NotificationOriginator()
-
-errorIndication = ntfOrg.sendNotification(
-    ntforg.CommunityData('public'),
-    ntforg.UdpTransportTarget(('localhost', 162)),
-    'trap',
-    ntforg.NotificationType(ntforg.ObjectIdentity('SNMPv2-MIB', 'coldStart'))
-)
-
-if errorIndication:
-    print('Notification not sent: %s' % errorIndication)
+for errorIndication, \
+    errorStatus, errorIndex, \
+    varBinds in \
+        sendNotification(SnmpEngine(),
+                         CommunityData('public'),
+                         UdpTransportTarget(('localhost', 162)),
+                         ContextData(),
+                         'trap',
+                         NotificationType(
+                             ObjectIdentity('SNMPv2-MIB', 'coldStart')
+                         )):
+    if errorIndication:
+        print(errorIndication)

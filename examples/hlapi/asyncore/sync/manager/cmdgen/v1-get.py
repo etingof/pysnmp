@@ -9,28 +9,27 @@
 # * for two instances of SNMPv2-MIB::sysDescr.0 MIB object,
 # * one in label and another in MIB symbol form
 #
-from pysnmp.entity.rfc3413.oneliner import cmdgen
+from pysnmp.entity.rfc3413.oneliner.cmdgen import *
 
-cmdGen = cmdgen.CommandGenerator()
-
-errorIndication, errorStatus, errorIndex, varBinds = cmdGen.getCmd(
-    cmdgen.CommunityData('public', mpModel=0),
-    cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-    cmdgen.ObjectIdentity('iso.org.dod.internet.mgmt.mib-2.system.sysDescr.0'),
-    cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)
-)
-
-# Check for errors and print out results
-if errorIndication:
-    print(errorIndication)
-else:
-    if errorStatus:
-        print('%s at %s' % (
-            errorStatus.prettyPrint(),
-            errorIndex and varBinds[int(errorIndex)-1][0] or '?'
-            )
-        )
+for errorIndication, \
+    errorStatus, errorIndex, \
+    varBinds in getCmd(SnmpEngine(),
+                       CommunityData('public', mpModel=0),
+                       UdpTransportTarget(('demo.snmplabs.com', 161)),
+                       ContextData(),
+                       ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
+                       lookupNames=True, lookupValues=True):
+    # Check for errors and print out results
+    if errorIndication:
+        print(errorIndication)
     else:
-        for name, val in varBinds:
-            print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
-
+        if errorStatus:
+            print('%s at %s' % (
+                    errorStatus.prettyPrint(),
+                    errorIndex and varBinds[int(errorIndex)-1][0] or '?'
+                )
+            )
+        else:
+            for varBind in varBinds:
+                print(' = '.join([ x.prettyPrint() for x in varBind ]))
+    break

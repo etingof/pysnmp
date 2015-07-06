@@ -26,6 +26,9 @@ usmAesCfb192Protocol = config.usmAesCfb192Protocol
 usmAesCfb256Protocol = config.usmAesCfb256Protocol
 usmNoPrivProtocol = config.usmNoPrivProtocol
 
+# SNMP engine
+SnmpEngine = engine.SnmpEngine
+
 nextID = nextid.Integer(0xffffffff)
 
 class AsyncCommandGenerator:
@@ -241,7 +244,7 @@ class AsyncCommandGenerator:
     # Async SNMP apps
 
     def getCmd(self, snmpEngine, authData, transportTarget, contextData, 
-               varNames, cbInfo, lookupNames=False, lookupValues=False):
+               varBinds, cbInfo, lookupNames=False, lookupValues=False):
         def __cbFun(snmpEngine, sendRequestHandle,
                     errorIndication, errorStatus, errorIndex,
                     varBinds, cbCtx):
@@ -268,7 +271,7 @@ class AsyncCommandGenerator:
             addrName,
             contextData.contextEngineId,
             contextData.contextName,
-            self.makeVarBinds(snmpEngine, [(x, self._null) for x in varNames]),
+            self.makeVarBinds(snmpEngine, varBinds),
             __cbFun,
             (lookupNames, lookupValues, cbFun, cbCtx)
         )
@@ -307,7 +310,7 @@ class AsyncCommandGenerator:
         )
     
     def nextCmd(self, snmpEngine, authData, transportTarget, contextData,
-                varNames, cbInfo, lookupNames=False, lookupValues=False):
+                varBinds, cbInfo, lookupNames=False, lookupValues=False):
         def __cbFun(snmpEngine, sendRequestHandle,
                     errorIndication, errorStatus, errorIndex,
                     varBindTable, cbCtx):
@@ -330,13 +333,13 @@ class AsyncCommandGenerator:
             snmpEngine,
             addrName,
             contextData.contextEngineId, contextData.contextName,
-            self.makeVarBinds(snmpEngine, [(x, self._null) for x in varNames]),
+            self.makeVarBinds(snmpEngine, varBinds),
             __cbFun,
             (lookupNames, lookupValues, cbFun, cbCtx)
         )
 
     def bulkCmd(self, snmpEngine, authData, transportTarget, contextData,
-                nonRepeaters, maxRepetitions, varNames, cbInfo,
+                nonRepeaters, maxRepetitions, varBinds, cbInfo,
                 lookupNames=False, lookupValues=False):
         def __cbFun(snmpEngine, sendRequestHandle,
                     errorIndication, errorStatus, errorIndex,
@@ -362,12 +365,246 @@ class AsyncCommandGenerator:
             contextData.contextEngineId,
             contextData.contextName,
             nonRepeaters, maxRepetitions,
-            self.makeVarBinds(snmpEngine, [(x, self._null) for x in varNames]),
+            self.makeVarBinds(snmpEngine, varBinds),
             __cbFun,
             (lookupNames, lookupValues, cbFun, cbCtx)
         )
 
-# compatibility implementation, never use this class for new applications
+# Synchronous one-liner SNMP apps
+
+def getCmd(snmpEngine, authData, transportTarget, contextData, 
+           *varBinds, **kwargs):
+
+    def cbFun(snmpEngine, sendRequestHandle,
+              errorIndication, errorStatus, errorIndex,
+              varBinds, cbCtx):
+        cbCtx['errorIndication'] = errorIndication
+        cbCtx['errorStatus'] = errorStatus
+        cbCtx['errorIndex'] = errorIndex
+        cbCtx['varBinds'] = varBinds
+
+    cbCtx = {}
+
+    AsyncCommandGenerator().getCmd(
+        snmpEngine,
+        authData,
+        transportTarget,
+        contextData,
+        varBinds,
+        (cbFun, cbCtx),
+        kwargs.get('lookupNames'),
+        kwargs.get('lookupValues')
+    )
+
+    snmpEngine.transportDispatcher.runDispatcher()
+
+    yield cbCtx['errorIndication'],  \
+          cbCtx['errorStatus'], cbCtx['errorIndex'], \
+          cbCtx['varBinds']
+
+def setCmd(snmpEngine, authData, transportTarget, contextData, 
+           *varBinds, **kwargs):
+
+    def cbFun(snmpEngine, sendRequestHandle,
+              errorIndication, errorStatus, errorIndex,
+              varBinds, cbCtx):
+        cbCtx['errorIndication'] = errorIndication
+        cbCtx['errorStatus'] = errorStatus
+        cbCtx['errorIndex'] = errorIndex
+        cbCtx['varBinds'] = varBinds
+
+    cbCtx = {}
+
+    AsyncCommandGenerator().setCmd(
+        snmpEngine,
+        authData,
+        transportTarget,
+        contextData,
+        varBinds,
+        (cbFun, cbCtx),
+        kwargs.get('lookupNames'),
+        kwargs.get('lookupValues')
+    )
+
+    snmpEngine.transportDispatcher.runDispatcher()
+
+    yield cbCtx['errorIndication'],  \
+          cbCtx['errorStatus'], cbCtx['errorIndex'], \
+          cbCtx['varBinds']
+
+def nextCmd(snmpEngine, authData, transportTarget, contextData, 
+            *varBinds, **kwargs):
+
+    def cbFun(snmpEngine, sendRequestHandle,
+              errorIndication, errorStatus, errorIndex,
+              varBindTable, cbCtx):
+        cbCtx['errorIndication'] = errorIndication
+        cbCtx['errorStatus'] = errorStatus
+        cbCtx['errorIndex'] = errorIndex
+        cbCtx['varBindTable'] = varBindTable
+
+    lookupNames = kwargs.get('lookupNames', False)        
+    lookupValues = kwargs.get('lookupValues', False)
+    lexicographicMode = kwargs.get('lexicographicMode', False)
+    ignoreNonIncreasingOid = kwargs.get('ignoreNonIncreasingOid', False)
+    maxRows = kwargs.get('maxRows', 0)
+    maxCalls = kwargs.get('maxCalls', 0)
+
+    cbCtx = {}
+
+    cmdGen = AsyncCommandGenerator()
+   
+    initialVars = [ x[0] for x in cmdGen.makeVarBinds(snmpEngine, varBinds) ]
+
+    totalRows = totalCalls = 0
+
+    while True: 
+        cmdGen.nextCmd(snmpEngine,
+                       authData,
+                       transportTarget,
+                       contextData,
+                       [ (x[0], univ.Null()) for x in varBinds ],
+                       (cbFun, cbCtx),
+                       kwargs.get('lookupNames'),
+                       kwargs.get('lookupValues'))
+
+        snmpEngine.transportDispatcher.runDispatcher()
+
+        errorIndication = cbCtx['errorIndication']
+        errorStatus = cbCtx['errorStatus']
+        errorIndex = cbCtx['errorIndex']
+
+        if ignoreNonIncreasingOid and errorIndication and \
+                isinstance(errorIndication, errind.OidNotIncreasing):
+            errorIndication = None
+        if errorStatus or errorIndication:
+            if errorStatus == 2:
+                # Hide SNMPv1 noSuchName error which leaks in here
+                # from SNMPv1 Agent through internal pysnmp proxy.
+                errorStatus = errorStatus.clone(0)
+                errorIndex = errorIndex.clone(0)
+            yield errorIndication, errorStatus, errorIndex, varBinds
+            continue
+        else:
+            varBinds = cbCtx['varBindTable'] and cbCtx['varBindTable'][0]
+            for idx, varBind in enumerate(varBinds):
+                name, val = varBind
+                if not isinstance(val, univ.Null):
+                    if lexicographicMode or initialVars[idx].isPrefixOf(name):
+                        break
+            else:
+                return
+
+        totalRows += 1
+        totalCalls += 1
+
+        yield errorIndication, errorStatus, errorIndex, varBinds
+
+        if maxRows and totalRows >= maxRows or \
+                 maxCalls and totalCalls >= maxCalls:
+            return
+
+def bulkCmd(snmpEngine, authData, transportTarget, contextData, 
+            nonRepeaters, maxRepetitions, *varBinds, **kwargs):
+
+    def cbFun(snmpEngine, sendRequestHandle,
+              errorIndication, errorStatus, errorIndex,
+              varBindTable, cbCtx):
+        cbCtx['errorIndication'] = errorIndication
+        cbCtx['errorStatus'] = errorStatus
+        cbCtx['errorIndex'] = errorIndex
+        cbCtx['varBindTable'] = varBindTable
+
+    lookupNames = kwargs.get('lookupNames', False)        
+    lookupValues = kwargs.get('lookupValues', False)
+    lexicographicMode = kwargs.get('lexicographicMode', False)
+    ignoreNonIncreasingOid = kwargs.get('ignoreNonIncreasingOid', False)
+    maxRows = kwargs.get('maxRows', 0)
+    maxCalls = kwargs.get('maxCalls', 0)
+
+    cbCtx = {}
+
+    cmdGen = AsyncCommandGenerator()
+   
+    initialVars = [ x[0] for x in cmdGen.makeVarBinds(snmpEngine, varBinds) ]
+    nullVarBinds = [ False ] * len(initialVars)
+
+    totalRows = totalCalls = 0
+    stopFlag = False
+
+    while not stopFlag: 
+        if maxRows and totalRows < maxRows:
+            maxRepetitions = min(maxRepetitions, maxRows-totalRows)
+
+        cmdGen.bulkCmd(snmpEngine,
+                       authData,
+                       transportTarget,
+                       contextData,
+                       nonRepeaters, maxRepetitions,
+                       [ (x[0], univ.Null()) for x in varBinds ],
+                       (cbFun, cbCtx),
+                       kwargs.get('lookupNames'),
+                       kwargs.get('lookupValues'))
+
+        snmpEngine.transportDispatcher.runDispatcher()
+
+        errorIndication = cbCtx['errorIndication']
+        errorStatus = cbCtx['errorStatus']
+        errorIndex = cbCtx['errorIndex']
+        varBindTable = cbCtx['varBindTable']
+
+        if ignoreNonIncreasingOid and errorIndication and \
+                isinstance(errorIndication, errind.OidNotIncreasing):
+            errorIndication = None
+        if errorStatus or errorIndication:
+            if errorStatus == 2:
+                # Hide SNMPv1 noSuchName error which leaks in here
+                # from SNMPv1 Agent through internal pysnmp proxy.
+                errorStatus = errorStatus.clone(0)
+                errorIndex = errorIndex.clone(0)
+            yield errorIndication, errorStatus, errorIndex, varBindTable and varBindTable[0] or []
+            continue
+        else:
+            for i in range(len(varBindTable)):
+                stopFlag = True
+                if len(varBindTable[i]) != len(initialVars):
+                    varBindTable = i and varBindTable[:i-1] or []
+                    break
+                for j in range(len(varBindTable[i])):
+                    name, val = varBindTable[i][j]
+                    if nullVarBinds[j]:
+                        varBindTable[i][j] = name, rfc1905.endOfMibView
+                        continue
+                    stopFlag = False
+                    if isinstance(val, univ.Null):
+                        nullVarBinds[j] = True
+                    elif not lexicographicMode and \
+                                not initialVars[j].isPrefixOf(name):
+                        varBindTable[i][j] = name, rfc1905.endOfMibView
+                        nullVarBinds[j] = True
+                if stopFlag:
+                    varBindTable = i and varBindTable[:i-1] or []
+                    break
+
+        totalRows += len(varBindTable)
+        totalCalls += 1
+
+        if maxRows and totalRows >= maxRows:
+            if totalRows > maxRows:
+                varBindTable = varBindTable[:-(totalRows-maxRows)]
+            stopFlag = True
+
+        if maxCalls and totalCalls >= maxCalls:
+            stopFlag = True
+
+        for varBinds in varBindTable:
+            yield errorIndication, errorStatus, errorIndex, varBinds
+
+#
+# The rest of code in this file belongs to obsolete, compatibility wrappers.
+# Never use interfaces below for new applications!
+#
+
 class AsynCommandGenerator:
     def __init__(self, snmpEngine=None):
         if snmpEngine is None:
@@ -428,7 +665,9 @@ class AsynCommandGenerator:
         return self.__asyncCmdGen.getCmd(
             self.snmpEngine, 
             authData, transportTarget,
-            ContextData(contextEngineId, contextName), varNames, cbInfo,
+            ContextData(contextEngineId, contextName),
+            [(x, self._null) for x in varNames],
+            cbInfo,
             lookupNames, lookupValues
         )
 
@@ -482,7 +721,9 @@ class AsynCommandGenerator:
         return self.__asyncCmdGen.nextCmd(
             self.snmpEngine,
             authData, transportTarget,
-            ContextData(contextEngineId, contextName), varNames, cbInfo,
+            ContextData(contextEngineId, contextName),
+            [(x, self._null) for x in varNames],
+            cbInfo,
             lookupNames, lookupValues
         )
 
@@ -512,7 +753,8 @@ class AsynCommandGenerator:
             authData, transportTarget,
             ContextData(contextEngineId, contextName),
             nonRepeaters, maxRepetitions,
-            varNames, cbInfo,
+            [(x, self._null) for x in varNames],
+            cbInfo,
             lookupNames, lookupValues
         )
 
@@ -520,262 +762,57 @@ class AsynCommandGenerator:
 
 class CommandGenerator:
     def __init__(self, snmpEngine=None, asynCmdGen=None):
-        if asynCmdGen is None:
-            self.__asynCmdGen = AsynCommandGenerator(snmpEngine)
-        else:
-            self.__asynCmdGen = asynCmdGen
-
         # compatibility attributes
-        self.snmpEngine = self.__asynCmdGen.snmpEngine
-        self.mibViewController = self.__asynCmdGen.mibViewController
+        self.snmpEngine = snmpEngine or SnmpEngine()
+        self.mibViewController = AsyncCommandGenerator().getMibViewController(self.snmpEngine)
 
     def getCmd(self, authData, transportTarget, *varNames, **kwargs):
-        def __cbFun(sendRequestHandle,
-                    errorIndication, errorStatus, errorIndex,
-                    varBinds, appReturn):
-            appReturn['errorIndication'] = errorIndication
-            appReturn['errorStatus'] = errorStatus
-            appReturn['errorIndex'] = errorIndex
-            appReturn['varBinds'] = varBinds
-
-        appReturn = {}
-        self.__asynCmdGen.getCmd(
-            authData,
-            transportTarget,
-            varNames,
-            (__cbFun, appReturn),
-            kwargs.get('lookupNames', False),
-            kwargs.get('lookupValues', False),
-            kwargs.get('contextEngineId'),
-            kwargs.get('contextName', null)
-        )
-        self.snmpEngine.transportDispatcher.runDispatcher()
-        return (
-            appReturn['errorIndication'],
-            appReturn['errorStatus'],
-            appReturn['errorIndex'],
-            appReturn['varBinds']
-        )
+        for x in getCmd(self.snmpEngine, authData, transportTarget,
+                        ContextData(kwargs.get('contextEngineId'),
+                                    kwargs.get('contextName', null)),
+                        *[ (x, univ.Null()) for x in varNames ],
+                        **kwargs):
+            return x
 
     def setCmd(self, authData, transportTarget, *varBinds, **kwargs):
-        def __cbFun(sendRequestHandle,
-                    errorIndication, errorStatus, errorIndex,
-                    varBinds, appReturn):
-            appReturn['errorIndication'] = errorIndication
-            appReturn['errorStatus'] = errorStatus
-            appReturn['errorIndex'] = errorIndex
-            appReturn['varBinds'] = varBinds
-
-        appReturn = {}
-        self.__asynCmdGen.setCmd(
-            authData,
-            transportTarget,
-            varBinds,
-            (__cbFun, appReturn),
-            kwargs.get('lookupNames', False),
-            kwargs.get('lookupValues', False),
-            kwargs.get('contextEngineId'),
-            kwargs.get('contextName', null)
-        )
-        self.snmpEngine.transportDispatcher.runDispatcher()
-        return (
-            appReturn['errorIndication'],
-            appReturn['errorStatus'],
-            appReturn['errorIndex'],
-            appReturn['varBinds']
-        )
+        for x in setCmd(self.snmpEngine, authData, transportTarget,
+                        ContextData(kwargs.get('contextEngineId'),
+                                    kwargs.get('contextName', null)),
+                        *varBinds,
+                        **kwargs):
+            return x
 
     def nextCmd(self, authData, transportTarget, *varNames, **kwargs):
-        def __cbFun(sendRequestHandle, errorIndication,
-                    errorStatus, errorIndex, varBindTable, cbCtx):
-            (self, varBindHead, varBindTotalTable, appReturn) = cbCtx
-            if (ignoreNonIncreasingOid or \
-                        hasattr(self, 'ignoreNonIncreasingOid') and \
-                        self.ignoreNonIncreasingOid ) and \
-                    errorIndication and \
-                    isinstance(errorIndication, errind.OidNotIncreasing):
-                errorIndication = None
-            if errorStatus or errorIndication:
-                appReturn['errorIndication'] = errorIndication
-                if errorStatus == 2:
-                    # Hide SNMPv1 noSuchName error which leaks in here
-                    # from SNMPv1 Agent through internal pysnmp proxy.
-                    appReturn['errorStatus'] = errorStatus.clone(0)
-                    appReturn['errorIndex'] = errorIndex.clone(0)
-                else:
-                    appReturn['errorStatus'] = errorStatus
-                    appReturn['errorIndex'] = errorIndex
-                appReturn['varBindTable'] = varBindTotalTable
-                return
-            else:
-                varBindTableRow = varBindTable and varBindTable[-1] or varBindTable
-                for idx in range(len(varBindTableRow)):
-                    name, val = varBindTableRow[idx]
-                    # XXX extra rows
-                    if not isinstance(val, univ.Null):
-                        if lexicographicMode or \
-                               hasattr(self, 'lexicographicMode') and \
-                               self.lexicographicMode:  # obsolete
-                            if varBindHead[idx] <= name:
-                                break
-                        else:
-                            if varBindHead[idx].isPrefixOf(name):
-                                break
-                else:
-                    appReturn['errorIndication'] = errorIndication
-                    appReturn['errorStatus'] = errorStatus
-                    appReturn['errorIndex'] = errorIndex
-                    appReturn['varBindTable'] = varBindTotalTable
-                    return
-                
-                varBindTotalTable.extend(varBindTable)
+        varBindTable = []
+        for errorIndication, \
+            errorStatus, errorIndex, \
+            varBinds in nextCmd(self.snmpEngine, authData, transportTarget,
+                                ContextData(kwargs.get('contextEngineId'),
+                                            kwargs.get('contextName', null)),
+                                *[ (x, univ.Null()) for x in varNames ],
+                                **kwargs):
+            if errorIndication or errorStatus:
+                return errorIndication, errorStatus, errorIndex, varBinds
 
-                if maxRows and len(varBindTotalTable) >= maxRows or \
-                        hasattr(self, 'maxRows') and self.maxRows and \
-                        len(varBindTotalTable) >= self.maxRows:
-                    appReturn['errorIndication'] = errorIndication
-                    appReturn['errorStatus'] = errorStatus
-                    appReturn['errorIndex'] = errorIndex
-                    if hasattr(self, 'maxRows'):
-                        appReturn['varBindTable'] = varBindTotalTable[:self.maxRows]
-                    else:
-                        appReturn['varBindTable'] = varBindTotalTable[:maxRows]
-                    return
- 
-                if maxCalls[0] > 0:
-                    maxCalls[0] -= 1
-                    if maxCalls[0] == 0:
-                      appReturn['errorIndication'] = errorIndication
-                      appReturn['errorStatus'] = errorStatus
-                      appReturn['errorIndex'] = errorIndex
-                      appReturn['varBindTable'] = varBindTotalTable
-                      return
+            varBindTable.append(varBinds)
 
-                return 1 # continue table retrieval
-
-        lookupNames = kwargs.get('lookupNames', False)        
-        lookupValues = kwargs.get('lookupValues', False)
-        contextEngineId = kwargs.get('contextEngineId')
-        contextName = kwargs.get('contextName', null)
-        lexicographicMode = kwargs.get('lexicographicMode', False)
-        maxRows = kwargs.get('maxRows', 0)
-        maxCalls = [ kwargs.get('maxCalls', 0) ]
-        ignoreNonIncreasingOid = kwargs.get('ignoreNonIncreasingOid', False)
-
-        varBindHead = [ univ.ObjectIdentifier(x[0]) for x in self.__asynCmdGen.makeReadVarBinds(varNames) ]
-
-        appReturn = {}
-        self.__asynCmdGen.nextCmd(
-            authData,
-            transportTarget,
-            varNames,
-            (__cbFun, (self, varBindHead, [], appReturn)),
-            lookupNames, lookupValues,
-            contextEngineId, contextName
-        )
-        self.snmpEngine.transportDispatcher.runDispatcher()
-        return (
-            appReturn['errorIndication'],
-            appReturn['errorStatus'],
-            appReturn['errorIndex'],
-            appReturn['varBindTable']
-        )
+        return errorIndication, errorStatus, errorIndex, varBindTable
 
     def bulkCmd(self, authData, transportTarget,
                 nonRepeaters, maxRepetitions, *varNames, **kwargs):
-        def __cbFun(sendRequestHandle, errorIndication,
-                    errorStatus, errorIndex, varBindTable, cbCtx):
-            (self, varBindHead, nullVarBinds, varBindTotalTable, appReturn) = cbCtx
-            if (ignoreNonIncreasingOid or \
-                    hasattr(self, 'ignoreNonIncreasingOid') and \
-                    self.ignoreNonIncreasingOid ) and \
-                    errorIndication and \
-                    isinstance(errorIndication, errind.OidNotIncreasing):
-                errorIndication = None
-            if errorStatus or errorIndication:
-                appReturn['errorIndication'] = errorIndication
-                appReturn['errorStatus'] = errorStatus
-                appReturn['errorIndex'] = errorIndex
-                appReturn['varBindTable'] = varBindTable
-                return
-            else:
-                stopFlag = False
-                if not lexicographicMode:  # cut possible extra OIDs
-                    stopFlag = True
-                    for i in range(len(varBindTable)):
-                        stopFlag = True
-                        if len(varBindTable[i]) != len(varBindHead):
-                            varBindTable = i and varBindTable[:i-1] or []
-                            break
-                        for j in range(len(varBindTable[i])): # dichotomy?
-                            name, val = varBindTable[i][j]
-                            if nullVarBinds[j]:
-                                varBindTable[i][j] = name, rfc1905.endOfMibView
-                                continue
-                            stopFlag = False
-                            if not isinstance(val, univ.Null):
-                                if not varBindHead[j].isPrefixOf(name):
-                                    varBindTable[i][j] = name, rfc1905.endOfMibView
-                                    nullVarBinds[j] = True
-                        if stopFlag:
-                            varBindTable = i and varBindTable[:i-1] or []
-                            break
+        varBindTable = []
+        for errorIndication, \
+            errorStatus, errorIndex, \
+            varBinds in bulkCmd(self.snmpEngine, authData, transportTarget,
+                                ContextData(kwargs.get('contextEngineId'),
+                                            kwargs.get('contextName', null)),
+                                nonRepeaters, maxRepetitions,
+                                *[ (x, univ.Null()) for x in varNames ],
+                                **kwargs):
+            if errorIndication or errorStatus:
+                return errorIndication, errorStatus, errorIndex, varBinds
 
-                varBindTotalTable.extend(varBindTable)
+            varBindTable.append(varBinds)
 
-                appReturn['errorIndication'] = errorIndication
-                appReturn['errorStatus'] = errorStatus
-                appReturn['errorIndex'] = errorIndex
-                appReturn['varBindTable'] = varBindTotalTable
+        return errorIndication, errorStatus, errorIndex, varBindTable
 
-                if maxCalls[0] > 0:
-                    maxCalls[0] -= 1
-                    if maxCalls[0] == 0:
-                      return
- 
-                if maxRows and len(varBindTotalTable) >= maxRows or \
-                        hasattr(self, 'maxRows') and self.maxRows and \
-                        len(varBindTotalTable) >= self.maxRows:  # obsolete
-                    if hasattr(self, 'maxRows'):
-                        appReturn['varBindTable'] = varBindTotalTable[:self.maxRows]
-                    else:
-                        appReturn['varBindTable'] = varBindTotalTable[:maxRows]
-                    return
-
-                return not stopFlag    # continue table retrieval
-
-        lookupNames = kwargs.get('lookupNames', False)        
-        lookupValues = kwargs.get('lookupValues', False)
-        contextEngineId = kwargs.get('contextEngineId')
-        contextName = kwargs.get('contextName', null)
-        lexicographicMode = kwargs.get('lexicographicMode', False)
-        if not lexicographicMode: # obsolete
-            if hasattr(self, 'lexicographicMode') and self.lexicographicMode:
-                lexicographicMode = True
-        maxRows = kwargs.get('maxRows', 0)
-        maxCalls = [ kwargs.get('maxCalls', 0) ]
-        ignoreNonIncreasingOid = kwargs.get('ignoreNonIncreasingOid', False)
-
-        varBindHead = [ univ.ObjectIdentifier(x[0]) for x in self.__asynCmdGen.makeReadVarBinds(varNames) ]
-        nullVarBinds = [ False ] * len(varBindHead)
-
-        appReturn = {}
-        
-        self.__asynCmdGen.bulkCmd(
-            authData,
-            transportTarget,
-            nonRepeaters, maxRepetitions,
-            varNames,
-            (__cbFun, (self, varBindHead, nullVarBinds, [], appReturn)),
-            lookupNames, lookupValues,
-            contextEngineId, contextName
-        )
-
-        self.snmpEngine.transportDispatcher.runDispatcher()
-
-        return (
-            appReturn['errorIndication'],
-            appReturn['errorStatus'],
-            appReturn['errorIndex'],
-            appReturn['varBindTable']
-        )

@@ -19,6 +19,8 @@ Revision 4.3.0
   * Promote the use of dedicated classes for dealing with OID-value pairs.
     Instances of those classes resemble OBJECT-IDENTITY, OBJECT-TYPE and
     NOTIFICATION-TYPE MIB structures.
+  * Synchronous oneliner apps redesigned to offer Python generator-based
+    API along with a more comprehensive set of accepted parameters.
   * keep backward compatibility for all existing major/documented interfaces
 - Execution Observer facility implemented to give app an inside view
   of SNMP engine inner workings. This is thought to be a generic

@@ -22,29 +22,29 @@ targets = (
     # 1-st target (SNMPv1 over IPv4/UDP)
     ( cmdgen.CommunityData('public', mpModel=0),
       cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-      ( cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0),
-        cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) ) ),
+      ( cmdgen.ObjectType(cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
+        cmdgen.ObjectType(cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) )) ),
     # 2-nd target (SNMPv2c over IPv4/UDP)
     ( cmdgen.CommunityData('public'),
       cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-      ( cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0),
-        cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) ) ),
+      ( cmdgen.ObjectType(cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
+        cmdgen.ObjectType(cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) )) ),
     # 3-nd target (SNMPv2c over IPv4/UDP) - same community and 
     # different transport address.
     ( cmdgen.CommunityData('public'),
       cmdgen.UdpTransportTarget(('localhost', 161)),
-      ( cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysContact', 0),
-        cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysName', 0) ) ),
+      ( cmdgen.ObjectType(cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysContact', 0)),
+        cmdgen.ObjectType(cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysName', 0))) ),
     # 4-nd target (SNMPv3 over IPv4/UDP)
     ( cmdgen.UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
       cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-      ( cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0),
-        cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) ) ),
+      ( cmdgen.ObjectType(cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
+        cmdgen.ObjectType(cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) )) ),
     # 5-th target (SNMPv3 over IPv6/UDP)
     ( cmdgen.UsmUserData('usr-md5-none', 'authkey1'),
       cmdgen.Udp6TransportTarget(('::1', 161)),
-      ( cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0),
-        cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) ) ),
+      ( cmdgen.ObjectType(cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
+        cmdgen.ObjectType(cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) )) ),
     # N-th target
     # ...
 )

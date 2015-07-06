@@ -13,14 +13,11 @@
 # ** to the same SNMP Engine ID
 # ** for an OID in text form
 #
-from pysnmp.entity import engine
-from pysnmp.entity.rfc3413.oneliner import cmdgen
+from pysnmp.entity.rfc3413.oneliner.cmdgen import *
 
-snmpEngine = engine.SnmpEngine()
+snmpEngine = SnmpEngine()
 
-cmdGen = cmdgen.CommandGenerator(snmpEngine)
-
-transportTarget = cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161))
+transportTarget = UdpTransportTarget(('demo.snmplabs.com', 161))
 
 #
 # To discover remote SNMP EngineID we will tap on SNMP engine inner workings
@@ -39,11 +36,12 @@ snmpEngine.observer.registerObserver(
 
 # Send probe SNMP request with invalid credentials
 
-authData = cmdgen.UsmUserData('non-existing-user')
+authData = UsmUserData('non-existing-user')
 
-errorIndication, errorStatus, errorIndex, varBinds = cmdGen.getCmd(
-    authData, transportTarget
-)
+for errorIndication, errorStatus, errorIndex, \
+        varBinds in getCmd(snmpEngine, authData,
+                           transportTarget, ContextData()):
+    break
 
 # See if our SNMP engine received REPORT PDU containing securityEngineId
 
@@ -59,12 +57,14 @@ print('Remote securityEngineId = %s' % securityEngineId.prettyPrint())
 # Query remote SNMP Engine using usmUserTable entry configured for it
 #
 
-authData = cmdgen.UsmUserData('usr-md5-none', 'authkey1', 
-                               securityEngineId=securityEngineId)
+authData = UsmUserData('usr-md5-none', 'authkey1', 
+                       securityEngineId=securityEngineId)
 
-errorIndication, errorStatus, errorIndex, varBinds = cmdGen.getCmd(
-    authData, transportTarget, '1.3.6.1.2.1.1.1.0'
-)
+for errorIndication, errorStatus, errorIndex, \
+        varBinds in getCmd(snmpEngine, authData, \
+                           transportTarget, ContextData(), \
+                           ObjectType(ObjectIdentity('1.3.6.1.2.1.1.1.0'))):
+    break
 
 # Check for errors and print out results
 if errorIndication:

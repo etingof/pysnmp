@@ -10,29 +10,28 @@
 # * stop when response OIDs leave the scopes of the table
 # * perform response values resolution at MIB
 #
-# make sure IF-MIB.py is in search path
-#
-from pysnmp.entity.rfc3413.oneliner import cmdgen
+from pysnmp.entity.rfc3413.oneliner.cmdgen import *
 
-cmdGen = cmdgen.CommandGenerator()
-
-errorIndication, errorStatus, errorIndex, varBindTable = cmdGen.nextCmd(
-    cmdgen.UsmUserData('usr-md5-none', 'authkey1'),
-    cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-    cmdgen.ObjectIdentity('IF-MIB', ''),
-    lookupValues=True
-)
-
-if errorIndication:
-    print(errorIndication)
-else:
-    if errorStatus:
-        print('%s at %s' % (
-            errorStatus.prettyPrint(),
-            errorIndex and varBindTable[-1][int(errorIndex)-1][0] or '?'
-            )
-        )
+for errorIndication, \
+    errorStatus, errorIndex, \
+    varBinds in nextCmd(SnmpEngine(),
+                        UsmUserData('usr-md5-none', 'authkey1'),
+                        UdpTransportTarget(('demo.snmplabs.com', 161)),
+                        ContextData(),
+                        ObjectType(ObjectIdentity('IF-MIB', '')),
+                        lookupValues=True):
+    # Check for errors and print out results
+    if errorIndication:
+        print(errorIndication)
+        break
     else:
-        for varBindTableRow in varBindTable:
-            for name, val in varBindTableRow:
-                print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
+        if errorStatus:
+            print('%s at %s' % (
+                    errorStatus.prettyPrint(),
+                    errorIndex and varBinds[int(errorIndex)-1][0] or '?'
+                )
+            )
+            break
+        else:
+            for varBind in varBinds:
+                print(' = '.join([ x.prettyPrint() for x in varBind ]))

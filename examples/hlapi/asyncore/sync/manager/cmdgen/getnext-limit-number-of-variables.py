@@ -12,30 +12,31 @@
 #
 # make sure IF-MIB.py is search path
 #
-from pysnmp.entity.rfc3413.oneliner import cmdgen
+from pysnmp.entity.rfc3413.oneliner.cmdgen import *
 
-cmdGen = cmdgen.CommandGenerator()
-
-errorIndication, errorStatus, errorIndex, varBindTable = cmdGen.nextCmd(
-    cmdgen.UsmUserData('usr-sha-aes128', 'authkey1', 'privkey1',
-                       authProtocol=cmdgen.usmHMACSHAAuthProtocol,
-                       privProtocol=cmdgen.usmAesCfb128Protocol),
-    cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-    cmdgen.ObjectIdentity('IF-MIB', '').loadMibs(),
-    lexicographicMode=True, maxRows=100,
-    ignoreNonIncreasingOid=True
-)
-
-if errorIndication:
-    print(errorIndication)
-else:
-    if errorStatus:
-        print('%s at %s' % (
-            errorStatus.prettyPrint(),
-            errorIndex and varBindTable[-1][int(errorIndex)-1][0] or '?'
-            )
-        )
+for errorIndication, \
+    errorStatus, errorIndex, \
+    varBinds in nextCmd(SnmpEngine(),
+                        UsmUserData('usr-sha-aes128', 'authkey1', 'privkey1',
+                                    authProtocol=usmHMACSHAAuthProtocol,
+                                    privProtocol=usmAesCfb128Protocol),
+                        UdpTransportTarget(('demo.snmplabs.com', 161)),
+                        ContextData(),
+                        ObjectType(ObjectIdentity('IF-MIB', '').loadMibs()),
+                        lexicographicMode=True, maxRows=100,
+                        ignoreNonIncreasingOid=True):
+    # Check for errors and print out results
+    if errorIndication:
+        print(errorIndication)
+        break
     else:
-        for varBindTableRow in varBindTable:
-            for name, val in varBindTableRow:
-                print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
+        if errorStatus:
+            print('%s at %s' % (
+                    errorStatus.prettyPrint(),
+                    errorIndex and varBinds[int(errorIndex)-1][0] or '?'
+                )
+            )
+            break
+        else:
+            for varBind in varBinds:
+                print(' = '.join([ x.prettyPrint() for x in varBind ]))

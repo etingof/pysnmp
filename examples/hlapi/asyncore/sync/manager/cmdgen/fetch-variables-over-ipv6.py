@@ -9,28 +9,28 @@
 # * for three OIDs: one passed as a ObjectIdentity object while others are
 # * in string form
 #
-from pysnmp.entity.rfc3413.oneliner import cmdgen
+from pysnmp.entity.rfc3413.oneliner.cmdgen import *
 
-cmdGen = cmdgen.CommandGenerator()
-
-errorIndication, errorStatus, errorIndex, varBinds = cmdGen.getCmd(
-    cmdgen.UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
-    cmdgen.Udp6TransportTarget(('::1', 161)),
-    cmdgen.ObjectIdentity('1.3.6.1.2.1.1.1.0'),
-    '1.3.6.1.2.1.1.2.0',
-    '1.3.6.1.2.1.1.3.0'
-)
-
-# Check for errors and print out results
-if errorIndication:
-    print(errorIndication)
-else:
-    if errorStatus:
-        print('%s at %s' % (
-            errorStatus.prettyPrint(),
-            errorIndex and varBinds[int(errorIndex)-1][0] or '?'
-            )
-        )
+for errorIndication, \
+    errorStatus, errorIndex, \
+    varBinds in getCmd(SnmpEngine(),
+                       UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
+                       Udp6TransportTarget(('::1', 161)),
+                       ContextData(),
+                       ObjectType(ObjectIdentity('1.3.6.1.2.1.1.1.0')),
+                       ObjectType(ObjectIdentity('1.3.6.1.2.1.1.2.0')),
+                       ObjectType(ObjectIdentity('1.3.6.1.2.1.1.3.0'))):
+    # Check for errors and print out results
+    if errorIndication:
+        print(errorIndication)
     else:
-        for name, val in varBinds:
-            print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
+        if errorStatus:
+            print('%s at %s' % (
+                    errorStatus.prettyPrint(),
+                    errorIndex and varBinds[int(errorIndex)-1][0] or '?'
+                )
+            )
+        else:
+            for varBind in varBinds:
+                print(' = '.join([ x.prettyPrint() for x in varBind ]))
+    break
