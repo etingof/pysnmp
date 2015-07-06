@@ -123,6 +123,9 @@ class ObjectIdentity:
 
         self.__indices = ()
 
+        if isinstance(self.__args[0], ObjectIdentity):
+            self.__args[0].resolveWithMib(mibViewController)
+
         if len(self.__args) == 1:  # OID or label or MIB module
             debug.logger & debug.flagMIB and debug.logger('resolving %s as OID or label' % self.__args)
             try:
@@ -481,7 +484,7 @@ class NotificationType:
         if self.__additionalVarBinds:
             self.__varBinds.extend(self.__additionalVarBinds)
             self.__additionalVarBinds = []
-        
+       
         self.__state |= self.stClean
 
         debug.logger & debug.flagMIB and debug.logger('resolved %r into %r' % (self.__objectIdentity, self.__varBinds))
