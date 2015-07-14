@@ -54,7 +54,10 @@ class ObjectIdentity:
             return self.__mibNode
         else:
             raise SmiError('%s object not fully initialized' % self.__class__.__name__)
-   
+
+    def isFullyResolved(self):
+        return self.__state & self.stClean 
+
     #
     # A gateway to MIBs manipulation routines
     #
@@ -387,6 +390,9 @@ class ObjectType:
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__, ', '.join([ repr(x) for x in self.__args]))
 
+    def isFullyResolved(self):
+        return self.__state & self.stClean
+
     def resolveWithMib(self, mibViewController):
         if self.__state & self.stClean:
             return self
@@ -456,6 +462,9 @@ class NotificationType:
         else:
             self.__additionalVarBinds.extend(varBinds)
         return self
+
+    def isFullyResolved(self):
+        return self.__state & self.stClean
 
     def resolveWithMib(self, mibViewController):
         if self.__state & self.stClean:
