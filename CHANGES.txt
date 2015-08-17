@@ -1,3 +1,4 @@
+
 Revision 4.3.0
 --------------
 
@@ -114,6 +115,7 @@ Revision 4.3.0
 - A few additional MIB tree management methods added to MibViewController
   to better address ordered nature of MIB tree nodes (namely, getFirst*,
   getLast* family of methods).
+- Wheel distribution format now supported.
 - Fix to authoritative engine side snmpEngineID discovery procedure: 
   respond with notInTimeWindows rather then with unsupportedSecurityLevel
   at time synchronization phase.
