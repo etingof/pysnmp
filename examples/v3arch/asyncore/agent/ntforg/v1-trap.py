@@ -1,28 +1,30 @@
-#
-# Notification Originator
-#
-# Send SNMP notification using the following options:
-#
-# * SNMPv1
-# * with community name 'public'
-# * over IPv4/UDP
-# * to a Manager at 127.0.0.1:162
-# * send TRAP notification
-# * with TRAP ID 'coldStart' specified as an OID
-# * include managed objects information:
-# * overriding Uptime value with 12345
-# * overriding Agent Address with '127.0.0.1'
-# * overriding Enterprise OID with 1.3.6.1.4.1.20408.4.1.1.2
-# * include managed object information '1.3.6.1.2.1.1.1.0' = 'my system'
-#
+"""
+SNMPv1 TRAP
++++++++++++
+
+Send SNMP notification using the following options:
+
+* SNMPv1
+* with community name 'public'
+* over IPv4/UDP
+* to a Manager at 127.0.0.1:162
+* send TRAP notification
+* with TRAP ID 'coldStart' specified as an OID
+* include managed objects information:
+* overriding Uptime value with 12345
+* overriding Agent Address with '127.0.0.1'
+* overriding Enterprise OID with 1.3.6.1.4.1.20408.4.1.1.2
+* include managed object information '1.3.6.1.2.1.1.1.0' = 'my system'
+
+Functionally similar to:
+
+| $ snmptrap -v1 -c public 127.0.0.1 1.3.6.1.4.1.20408.4.1.1.2 127.0.0.1 6 432 12345 1.3.6.1.2.1.1.1.0 s 'my system'
+
+"""#
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import ntforg
 from pysnmp.proto.api import v2c
-#from pysnmp import debug
-
-# Optional debugging ('all' enables full debugging)
-#debug.setLogger(debug.Debug('acl', 'io', 'dsp', 'msgproc', 'secmod', 'app'))
 
 # Create SNMP engine instance
 snmpEngine = engine.SnmpEngine()

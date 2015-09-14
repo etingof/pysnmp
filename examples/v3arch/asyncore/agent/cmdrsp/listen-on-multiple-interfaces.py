@@ -1,19 +1,21 @@
-#
-# Command Responder
-#
-# Listen and respond to SNMP GET/SET/GETNEXT/GETBULK queries with
-# the following options:
-#
-# * SNMPv2c
-# * with SNMP community "public"
-# * allow access to SNMPv2-MIB objects (1.3.6.1.2.1)
-# * over IPv4/UDP, listening at 127.0.0.1:161 and 127.0.0.2:161 interfaces
-# 
-# Either of the following Net-SNMP's commands will walk this Agent:
-#
-# $ snmpwalk -v2c -c public 127.0.0.1 .1.3.6
-# $ snmpwalk -v2c -c public 127.0.0.2 .1.3.6
-#
+"""
+Listen on multiple network interfaces
++++++++++++++++++++++++++++++++++++++
+
+Listen and respond to SNMP GET/SET/GETNEXT/GETBULK queries with
+the following options:
+
+* SNMPv2c
+* with SNMP community "public"
+* allow access to SNMPv2-MIB objects (1.3.6.1.2.1)
+* over IPv4/UDP, listening at 127.0.0.1:161 and 127.0.0.2:161 interfaces
+
+Either of the following Net-SNMP commands will walk this Agent:
+
+| $ snmpwalk -v2c -c public 127.0.0.1 .1.3.6
+| $ snmpwalk -v2c -c public 127.0.0.2 .1.3.6
+
+"""#
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdrsp, context
 from pysnmp.carrier.asyncore.dgram import udp

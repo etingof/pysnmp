@@ -1,28 +1,30 @@
-#
-# Notification Receiver
-#
-# Receive SNMP TRAP/INFORM messages with the following options:
-#
-# * SNMPv1/SNMPv2c
-# * with any SNMP community matching regexp '.*love.*'
-# * over IPv4/UDP, listening at 127.0.0.1:162
-# * print received data on stdout
-# 
-# Either of the following Net-SNMP's commands will send notifications to this
-# receiver:
-#
-# $ snmptrap -v1 -c rollover 127.0.0.1 1.3.6.1.4.1.20408.4.1.1.2 127.0.0.1 1 1 123 1.3.6.1.2.1.1.1.0 s test
-# $ snmpinform -v2c -c glove 127.0.0.1 123 1.3.6.1.6.3.1.1.5.1
-#
-# The Notification Receiver below taps on v1/v2c SNMP security module
-# to deliver certains values, normally internal to SNMP Engine, up to
-# the context of user application.
-#
-# This script examines the value of CommunityName, as it came from peer SNMP
-# Engine, and may modify it to match the only locally configured CommunityName
-# 'public'. This effectively makes NotificationReceiver accepting messages with
-# CommunityName's, not explicitly configured to local SNMP Engine.
-#
+"""
+Serve SNMP Community names defined by regexp
+++++++++++++++++++++++++++++++++++++++++++++
+
+Receive SNMP TRAP/INFORM messages with the following options:
+
+* SNMPv1/SNMPv2c
+* with any SNMP community matching regexp '.*love.*'
+* over IPv4/UDP, listening at 127.0.0.1:162
+* print received data on stdout
+
+Either of the following Net-SNMP commands will send notifications to this
+receiver:
+
+| $ snmptrap -v1 -c rollover 127.0.0.1 1.3.6.1.4.1.20408.4.1.1.2 127.0.0.1 1 1 123 1.3.6.1.2.1.1.1.0 s test
+| $ snmpinform -v2c -c glove 127.0.0.1 123 1.3.6.1.6.3.1.1.5.1
+
+The Notification Receiver below taps on v1/v2c SNMP security module
+to deliver certains values, normally internal to SNMP Engine, up to
+the context of user application.
+
+This script examines the value of CommunityName, as it came from peer SNMP
+Engine, and may modify it to match the only locally configured CommunityName
+'public'. This effectively makes NotificationReceiver accepting messages with
+CommunityName's, not explicitly configured to local SNMP Engine.
+
+"""#
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import ntfrcv

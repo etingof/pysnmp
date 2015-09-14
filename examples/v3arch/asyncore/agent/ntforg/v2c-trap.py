@@ -1,18 +1,24 @@
-#
-# Notification Originator
-#
-# Send SNMP TRAP notification using the following options:
-#
-# * SNMPv2c
-# * with community name 'public'
-# * over IPv4/UDP
-# * send TRAP notification
-# * to a Manager at 127.0.0.1:162
-# * with TRAP ID 'coldStart' specified as an OID
-# * include managed objects information:
-#   1.3.6.1.2.1.1.1.0 = 'Example Notificator'
-#   1.3.6.1.2.1.1.5.0 = 'Notificator Example'
-#
+"""
+SNMPv2c TRAP
+++++++++++++
+
+Send SNMP TRAP notification using the following options:
+
+* SNMPv2c
+* with community name 'public'
+* over IPv4/UDP
+* send TRAP notification
+* to a Manager at 127.0.0.1:162
+* with TRAP ID 'coldStart' specified as an OID
+* include managed objects information:
+  1.3.6.1.2.1.1.1.0 = 'Example Notificator'
+  1.3.6.1.2.1.1.5.0 = 'Notificator Example'
+
+Functionally similar to:
+
+| $ snmptrap -v2c -c public 127.0.0.1 12345 1.3.6.1.4.1.20408.4.1.1.2
+
+"""#
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import ntforg

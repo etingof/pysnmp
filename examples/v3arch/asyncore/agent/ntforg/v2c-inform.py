@@ -1,18 +1,24 @@
-#
-# Notification Originator
-#
-# Send SNMP INFORM notification using the following options:
-#
-# * SNMPv2c
-# * with community name 'public'
-# * over IPv4/UDP
-# * send INFORM notification
-# * to a Manager at 127.0.0.1:162
-# * with TRAP ID 'coldStart' specified as an OID
-# * include managed objects information:
-#   1.3.6.1.2.1.1.1.0 = 'Example Notificator'
-#   1.3.6.1.2.1.1.5.0 = 'Notificator Example'
-#
+"""
+INFORM notification
++++++++++++++++++++
+
+Send SNMP INFORM notification using the following options:
+
+* SNMPv2c
+* with community name 'public'
+* over IPv4/UDP
+* send INFORM notification
+* to a Manager at 127.0.0.1:162
+* with TRAP ID 'coldStart' specified as an OID
+* include managed objects information:
+  1.3.6.1.2.1.1.1.0 = 'Example Notificator'
+  1.3.6.1.2.1.1.5.0 = 'Notificator Example'
+
+Functionally similar to:
+
+| $ snmpinform -v2c -c public demo.snmplabs.com 12345 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.1.0 s 'Example Notificator' 1.3.6.1.2.1.1.5.0 s 'Notificator Example'
+
+"""#
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import ntforg
@@ -37,7 +43,7 @@ config.addTransport(
 )
 config.addTargetAddr(
     snmpEngine, 'my-nms',
-    udp.domainName, ('127.0.0.1', 162),
+    udp.domainName, ('195.218.195.228', 162),
     'my-creds',
     tagList='all-my-managers'
 )

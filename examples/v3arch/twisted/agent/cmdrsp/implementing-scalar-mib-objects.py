@@ -1,20 +1,22 @@
-#
-# Command Responder
-#
-# Listen and respond to SNMP GET/SET/GETNEXT/GETBULK queries with
-# the following options:
-#
-# * SNMPv2c
-# * with SNMP community "public"
-# * serving custom Managed Object Instance defined within this script
-# * allow read access only to the subtree where the custom MIB object resides
-# * over IPv4/UDP, listening at 127.0.0.1:161
-# * using Twisted fraework for network transport
-# 
-# Either of the following Net-SNMP's commands will walk this Agent:
-#
-# $ snmpwalk -v2c -c public 127.0.0.1 .1.3.6
-#
+"""
+Implementing scalar MIB objects
++++++++++++++++++++++++++++++++
+
+Listen and respond to SNMP GET/SET/GETNEXT/GETBULK queries with
+the following options:
+
+* SNMPv2c
+* with SNMP community "public"
+* serving custom Managed Object Instance defined within this script
+* allow read access only to the subtree where the custom MIB object resides
+* over IPv4/UDP, listening at 127.0.0.1:161
+* using Twisted fraework for network transport
+
+Either of the following Net-SNMP commands will walk this Agent:
+
+| $ snmpwalk -v2c -c public 127.0.0.1 .1.3.6
+
+"""#
 import sys
 from twisted.internet import reactor
 from pysnmp.entity import engine, config

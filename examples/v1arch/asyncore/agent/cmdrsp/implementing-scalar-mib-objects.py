@@ -1,4 +1,24 @@
-# Command Responder Application (GET/GETNEXT)
+"""
+Implementing scalar MIB objects
++++++++++++++++++++++++++++++++
+
+Listen and respond to SNMP GET/GETNEXT queries with the following options:
+
+* SNMPv1 or SNMPv2c
+* with SNMP community "public"
+* over IPv4/UDP, listening at 127.0.0.1:161
+* over IPv6/UDP, listening at [::1]:161
+* serving two Managed Objects Instances (sysDescr.0 and sysUptime.0)
+
+Either of the following Net-SNMP commands will walk this Agent:
+
+| $ snmpwalk -v2c -c public 127.0.0.1 .1.3.6
+| $ snmpwalk -v2c -c public udp6:[::1] .1.3.6
+
+The Command Receiver below uses two distinct transports for communication 
+with Command Generators - UDP over IPv4 and UDP over IPv6.
+
+"""#
 from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
 from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
 from pyasn1.codec.ber import encoder, decoder

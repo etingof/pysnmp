@@ -3,6 +3,49 @@ from pysnmp import error
 from pyasn1.compat.octets import null
 
 class CommunityData:
+    """Creates SNMP v1/v2c configuration entry.
+
+    This object can be used by 
+    :py:class:`~pysnmp.entity.rfc3413.oneliner.cmdgen.AsyncCommandGenerator` or
+    :py:class:`~pysnmp.entity.rfc3413.oneliner.ntforg.AsyncNotificationOriginator`
+    and their derivatives for adding new entries to Local Configuration
+    Datastore (LCD) managed by :py:class:`~pysnmp.entity.engine.SnmpEngine`
+    class instance.
+
+    See :RFC:`2576#section-5.3` for more information on the 
+    *SNMP-COMMUNITY-MIB::snmpCommunityTable*.
+
+    Parameters
+    ----------
+    communityIndex : str
+        Unique index value of a row in snmpCommunityTable. If it is the
+        only positional parameter, it is taken as *communityName*.
+    communityName : str
+        SNMP v1/v2c community string.
+    mpModel : int
+        SNMP version - 0 for SNMPv1 and 1 for SNMPv2c.
+    contextEngineId : str
+        Indicates the location of the context in which management
+        information is accessed when using the community string
+        specified by the above communityName.
+    contextName : str
+        The context in which management information is accessed when
+        using the above communityName.
+    tag : str 
+        Arbitrary string that specifies a set of transport endpoints
+        to which a notification may be sent using communityName above
+        (see also :RFC:`3413#section-4.1.4`).
+
+    Examples
+    --------
+    >>> from pysnmp.entity.rfc3413.oneliner.auth import CommunityData
+    >>> CommunityData('public')
+    CommunityData(communityIndex='s1410706889', communityName=<COMMUNITY>, mpModel=1, contextEngineId=None, contextName='', tag='')
+    >>> CommunityData('public', 'public')
+    CommunityData(communityIndex='public', communityName=<COMMUNITY>, mpModel=1, contextEngineId=None, contextName='', tag='')
+    >>>
+
+    """
     mpModel = 1 # Default is SMIv2
     securityModel = mpModel + 1
     securityLevel = 'noAuthNoPriv'
@@ -65,8 +108,89 @@ class CommunityData:
             tag is None and self.tag or tag,
             securityName is None and self.securityName or securityName
         )
- 
+
+#: No Authentication Protocol.
+usmNoAuthProtocol = config.usmNoAuthProtocol
+#: The HMAC-MD5-96 Digest Authentication Protocol (:RFC:`3414#section-6`)
+usmHMACMD5AuthProtocol = config.usmHMACMD5AuthProtocol
+#: The HMAC-SHA-96 Digest Authentication Protocol (:RFC:`3414#section-7`) 
+usmHMACSHAAuthProtocol = config.usmHMACSHAAuthProtocol
+
+#: No Privacy Protocol.
+usmNoPrivProtocol = config.usmNoPrivProtocol
+#: The CBC-DES Symmetric Encryption Protocol (:RFC:`3414#section-8`)
+usmDESPrivProtocol = config.usmDESPrivProtocol
+#: The 3DES-EDE Symmetric Encryption Protocol (`draft-reeder-snmpv3-usm-3desede-00 <https://tools.ietf.org/html/draft-reeder-snmpv3-usm-3desede-00#section-5>`_)
+usm3DESEDEPrivProtocol = config.usm3DESEDEPrivProtocol
+#: The CFB128-AES-128 Symmetric Encryption Protocol (:RFC:`3826#section-3`)
+usmAesCfb128Protocol = config.usmAesCfb128Protocol
+#: The CFB128-AES-192 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)
+usmAesCfb192Protocol = config.usmAesCfb192Protocol
+#: The CFB128-AES-256 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)
+usmAesCfb256Protocol = config.usmAesCfb256Protocol
+
 class UsmUserData:
+    """Creates SNMP v3 User Security Model (USM) configuration entry.
+
+    This object can be used by 
+    :py:class:`~pysnmp.entity.rfc3413.oneliner.cmdgen.AsyncCommandGenerator` or
+    :py:class:`~pysnmp.entity.rfc3413.oneliner.ntforg.AsyncNotificationOriginator`
+    and their derivatives for adding new entries to Local Configuration
+    Datastore (LCD) managed by :py:class:`~pysnmp.entity.engine.SnmpEngine`
+    class instance.
+
+    See :RFC:`3414#section-5` for more information on the 
+    *SNMP-USER-BASED-SM-MIB::usmUserTable*.
+
+    Parameters
+    ----------
+    userName : str
+        A human readable string representing the name of the SNMP USM user.
+    authKey : str
+        Initial value of the secret authentication key.  If not set,
+        :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmNoAuthProtocol`
+        is implied.  If set and no *authProtocol* is specified,
+        :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmHMACMD5AuthProtocol`
+        takes effect.
+    privKey : str
+        Initial value of the secret encryption key.  If not set,
+        :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmNoPrivProtocol`
+        is implied.  If set and no *privProtocol* is specified,
+        :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmDESPrivProtocol`
+        takes effect.
+    authProtocol : tuple
+        An indication of whether messages sent on behalf of this USM user
+        can be authenticated, and if so, the type of authentication protocol
+        which is used.
+
+        Supported authentication protocol identifiers are:
+
+        * :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmNoAuthProtocol` (default is *authKey* not given)
+        * :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmHMACMD5AuthProtocol` (default if *authKey* is given)
+        * :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmHMACSHAAuthProtocol`
+    privProtocol : tuple
+        An indication of whether messages sent on behalf of this USM user 
+        be encrypted, and if so, the type of encryption protocol which is used.
+
+        Supported encryption protocol identifiers are:
+
+        * :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmNoPrivProtocol` (default is *authKey* not given)
+        * :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmDESPrivProtocol` (default if *authKey* is given)
+        * :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usm3DESEDEPrivProtocol`
+        * :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmAesCfb128Protocol`
+        * :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmAesCfb192Protocol`
+        * :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmAesCfb256Protocol`
+
+    Examples
+    --------
+    >>> from pysnmp.entity.rfc3413.oneliner.auth import UsmUserData
+    >>> UsmUserData('testuser', authKey='authenticationkey')
+    UsmUserData(userName='testuser', authKey=<AUTHKEY>, privKey=<PRIVKEY>, authProtocol=(1,3,6,1,6,3,10,1,1,2), privProtocol=(1,3,6,1,6,3,10,1,2,1))
+    >>> UsmUserData('testuser', authKey='authenticationkey', privKey='encryptionkey')
+    UsmUserData(userName='testuser', authKey=<AUTHKEY>, privKey=<PRIVKEY>, authProtocol=(1,3,6,1,6,3,10,1,1,2), privProtocol=(1,3,6,1,6,3,10,1,2,2))
+    >>>
+
+    """
     authKey = privKey = None
     authProtocol = config.usmNoAuthProtocol
     privProtocol = config.usmNoPrivProtocol

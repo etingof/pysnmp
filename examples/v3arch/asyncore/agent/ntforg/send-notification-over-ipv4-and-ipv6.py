@@ -1,18 +1,29 @@
-#
-# Notification Originator
-#
-# Send SNMP TRAP notification using the following options:
-#
-# * SNMPv2c
-# * with community name 'public'
-# * over IPv4/UDP and UDP/IPv6
-# * send TRAP notification
-# * to two Managers through different network transports
-# * with TRAP ID 'coldStart' specified as an OID
-# * include managed objects information:
-#   1.3.6.1.2.1.1.1.0 = 'Example Notificator'
-#   1.3.6.1.2.1.1.5.0 = 'Notificator Example'
-#
+"""
+Notification over multiple network protocols
+++++++++++++++++++++++++++++++++++++++++++++
+
+Send SNMP INFORM notifications to multiple Managers over different
+network protocols:
+
+* SNMPv2c
+* with community name 'public'
+* over IPv4/UDP and UDP/IPv6
+* send TRAP notification
+* to two Managers through different network transports
+* with TRAP ID 'coldStart' specified as an OID
+* include managed objects information:
+  1.3.6.1.2.1.1.1.0 = 'Example Notificator'
+  1.3.6.1.2.1.1.5.0 = 'Notificator Example'
+
+Functionally similar to:
+
+| $ snmptrap -v2c -c public udp:127.0.0.1 0 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.1.0 s 'Example notification' 1.3.6.1.2.1.1.5.0 s 'Notificator Example'
+
+and
+
+| $ snmptrap -v2c -c public udp6:[::1] 0 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.1.0 s 'Example notification' 1.3.6.1.2.1.1.5.0 s 'Notificator Example'
+
+"""#
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asyncore.dgram import udp, udp6
 from pysnmp.entity.rfc3413 import ntforg

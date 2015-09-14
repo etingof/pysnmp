@@ -1,17 +1,23 @@
-#
-# Command Generator
-#
-# Send SNMP GETBULK request using the following options:
-#
-# * with SNMPv3, user 'usr-none-none', no authentication, no privacy
-# * over IPv4/UDP
-# * to an Agent at demo.snmplabs.com:161
-# * for all OIDs past TCP-MIB::tcpConnTable
-# * TCP-MIB will be searched by a user-specified path
-# * run till end-of-mib condition is reported by Agent OR maxRows == 100 OR
-#   maxCalls == 10 request-response interactions occur
-# * ignoring non-increasing OIDs whenever reported by Agent
-#
+"""
+Custom PySNMP MIBs location
++++++++++++++++++++++++++++
+
+Send a series of SNMP GETBULK requests using the following options:
+
+* with SNMPv3, user 'usr-none-none', no authentication, no privacy
+* over IPv4/UDP
+* to an Agent at demo.snmplabs.com:161
+* for all OIDs within TCP-MIB::tcpConnTable column
+* TCP-MIB Python module will be searched by a user-specified filesystem
+  path (/opt/mib/pysnmp) and in Python package (python_packaged_mibs)
+  which should be in sys.path
+
+Functionally similar to:
+
+| $ snmpbulkwalk -v3 -lnoAuthNoPriv -u usr-none-none -Cn0 -Cr50 \
+|                demo.snmplabs.com  TCP-MIB::tcpConnTable
+
+"""#
 from pysnmp.entity.rfc3413.oneliner.cmdgen import *
 
 for errorIndication, \
@@ -21,22 +27,19 @@ for errorIndication, \
                         UdpTransportTarget(('demo.snmplabs.com', 161)),
                         ContextData(),
                         0, 50,
-                        ObjectType(ObjectIdentity('TCP-MIB', 'tcpConnTable').addMibSource('/tmp/mibs')),
-                        maxRows=100, maxCalls=10,
-                        lexicographicMode=True, 
-                        ignoreNonIncreasingOid=True):
-    # Check for errors and print out results
+                        ObjectType(ObjectIdentity('TCP-MIB', 'tcpConnTable').addMibSource('/opt/mibs/pysnmp').addMibSource('python_packaged_mibs')),
+                        lexicographicMode=False):
+
     if errorIndication:
         print(errorIndication)
         break
-    else:
-        if errorStatus:
-            print('%s at %s' % (
-                    errorStatus.prettyPrint(),
-                    errorIndex and varBinds[int(errorIndex)-1][0] or '?'
-                )
+    elif errorStatus:
+        print('%s at %s' % (
+                errorStatus.prettyPrint(),
+                errorIndex and varBinds[int(errorIndex)-1][0] or '?'
             )
-            break
-        else:
-            for varBind in varBinds:
-                print(' = '.join([ x.prettyPrint() for x in varBind ]))
+        )
+        break
+    else:
+        for varBind in varBinds:
+            print(' = '.join([ x.prettyPrint() for x in varBind ]))

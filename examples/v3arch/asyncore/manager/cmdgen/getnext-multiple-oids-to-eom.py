@@ -1,17 +1,20 @@
-#
-# GETNEXT Command Generator
-#
-# Send a series of SNMP GETNEXT requests
-#     with SNMPv1, community 'public'
-#     over IPv4/UDP
-#     to an Agent at 195.218.195.228:161
-#     for two OIDs in tuple form
-#     stop on end-of-mib condition for both OIDs
-#
-# This script performs similar to the following Net-SNMP command:
-#
-# $ snmpwalk -v1 -c public -ObentU 195.218.195.228 1.3.6.1.2.1.1 1.3.6.1.4.1.1
-#
+"""
+Fetch two subtrees in parallel
+++++++++++++++++++++++++++++++
+
+Send a series of SNMP GETNEXT requests with the following options:
+
+* with SNMPv1, community 'public'
+* over IPv4/UDP
+* to an Agent at 195.218.195.228:161
+* for two OIDs in tuple form
+* stop on end-of-mib condition for both OIDs
+
+This script performs similar to the following Net-SNMP command:
+
+| $ snmpwalk -v1 -c public -ObentU 195.218.195.228 1.3.6.1.2.1.1 1.3.6.1.4.1.1
+
+"""#
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import cmdgen

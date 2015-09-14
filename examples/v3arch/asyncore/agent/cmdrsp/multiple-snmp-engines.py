@@ -1,28 +1,30 @@
-#
-# Multiple Command Responders
-#
-# Run multiple SNMP Engines each with a complete Command Responder.
-# Bind each SNMP Engine to a dedicated network transport endpoint:
-#
-# * IPv4/UDP, listening at 127.0.0.1:161
-# * IPv4/UDP, listening at 127.0.0.2:161
-#
-# Each Command Responder will respond to SNMP GET/SET/GETNEXT/GETBULK
-# queries with the following options:
-#
-# * SNMPv3
-# * with USM user 'usr-md5-des', auth: MD5, priv DES
-# * allow read access to SNMPv2-MIB objects (1.3.6)
-# * allow write access to SNMPv2-MIB objects (1.3.6.1.2.1)
-# 
-# The following Net-SNMP commands will walk the first and the second
-# Agent respectively:
-#
-# $ snmpwalk -Ob -v3 -u usr-md5-des -l authPriv -A authkey1 -X privkey1 127.0.0.1 usmUserEntry
-# $ snmpwalk -Ob -v3 -u usr-md5-des -l authPriv -A authkey1 -X privkey1 127.0.0.2 usmUserEntry
-#
-# Notice differently configured snmpEngineId's in usmUserEntry columns.
-#
+"""
+Multiple SNMP Engines
++++++++++++++++++++++
+
+Run multiple SNMP Engines each with a complete Command Responder.
+Bind each SNMP Engine to a dedicated network transport endpoint:
+
+* IPv4/UDP, listening at 127.0.0.1:161
+* IPv4/UDP, listening at 127.0.0.2:161
+
+Each Command Responder will respond to SNMP GET/SET/GETNEXT/GETBULK
+queries with the following options:
+
+* SNMPv3
+* with USM user 'usr-md5-des', auth: MD5, priv DES
+* allow read access to SNMPv2-MIB objects (1.3.6)
+* allow write access to SNMPv2-MIB objects (1.3.6.1.2.1)
+
+The following Net-SNMP commands will walk the first and the second
+Agent respectively:
+
+| $ snmpwalk -Ob -v3 -u usr-md5-des -l authPriv -A authkey1 -X privkey1 127.0.0.1 usmUserEntry
+| $ snmpwalk -Ob -v3 -u usr-md5-des -l authPriv -A authkey1 -X privkey1 127.0.0.2 usmUserEntry
+
+Notice differently configured snmpEngineId's in usmUserEntry columns.
+
+"""#
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdrsp, context
 from pysnmp.proto import rfc1902

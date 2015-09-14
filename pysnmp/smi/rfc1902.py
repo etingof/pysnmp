@@ -8,17 +8,83 @@ from pyasn1.type.base import AbstractSimpleAsn1Item
 from pyasn1.error import PyAsn1Error
 from pysnmp import debug
 
-#
-# An OID-like object that embeds MIB resolution.
-#
-# Valid initializers include:
-# ObjectIdentity('1.3.6.1.2.1.1.1.0')
-# ObjectIdentity('iso.org.dod.internet.mgmt.mib-2.system.sysDescr.0')
-# ObjectIdentity('SNMPv2-MIB', 'system')
-# ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)
-# ObjectIdentity('IP-MIB', 'ipAdEntAddr', '127.0.0.1', 123)
-# 
+# expose SNMP types in this namespace for convenience
+Integer = rfc1902.Integer
+Integer32 = rfc1902.Integer32
+OctetString = rfc1902.OctetString
+ObjectIdentifier = rfc1902.ObjectIdentifier
+IpAddress = rfc1902.IpAddress
+Counter32 = rfc1902.Counter32
+Gauge32 = rfc1902.Gauge32
+Unsigned32 = rfc1902.Unsigned32
+TimeTicks = rfc1902.TimeTicks
+Opaque = rfc1902.Opaque
+Counter64 = rfc1902.Counter64
+Bits = rfc1902.Bits
+ObjectName = rfc1902.ObjectName
+
 class ObjectIdentity:
+    """Create an object representing MIB variable ID.
+
+    At the protocol level, MIB variable is only identified by an OID.
+    However, when interacting with humans, MIB variable can also be referred
+    to by its MIB name. The *ObjectIdentity* class supports various forms
+    of MIB variable identification, providing automatic conversion from
+    one to others. At the same time *ObjectIdentity* objects behave like
+    :py:obj:`tuples` of py:obj:`int` sub-OIDs. 
+
+    See :RFC:`1902#section-2` for more information on OBJECT-IDENTITY
+    SMI definitions.
+
+    Parameters
+    ----------
+    args
+        initial MIB variable identity. Recognized variants:
+
+        * single :py:obj:`tuple` or integers representing OID
+        * single :py:obj:`str` representing OID in dot-separated
+          integers form
+        * single :py:obj:`str` representing MIB variable in
+          dot-separated labels form
+        * single :py:obj:`str` representing MIB name. First variable
+          defined in MIB is assumed.
+        * pair of :py:obj:`str` representing MIB name and variable name
+        * pair of :py:obj:`str` representing MIB name and variable name
+          followed by an arbitrary number of :py:obj:`str` and/or
+          :py:obj:`int` values representing MIB variable instance
+          identification.
+
+    Other parameters
+    ----------------
+    kwargs
+        MIB resolution options:
+                 
+        * whenever only MIB name is given, resolve into last variable defined
+          in MIB if last=True.  Otherwise resolves to first variable (default).
+
+    Notes
+    -----
+        Actual conversion between MIB variable representation formats occurs
+        upon :py:meth:`~pysnmp.smi.rfc1902.ObjectIdentity.resolveWithMib`
+        invocation.
+
+    Examples
+    --------
+    >>> from pysnmp.smi.rfc1902 import ObjectIdentity
+    >>> ObjectIdentity((1, 3, 6, 1, 2, 1, 1, 1, 0))
+    ObjectIdentity((1, 3, 6, 1, 2, 1, 1, 1, 0))
+    >>> ObjectIdentity('1.3.6.1.2.1.1.1.0')
+    ObjectIdentity('1.3.6.1.2.1.1.1.0')
+    >>> ObjectIdentity('iso.org.dod.internet.mgmt.mib-2.system.sysDescr.0')
+    ObjectIdentity('iso.org.dod.internet.mgmt.mib-2.system.sysDescr.0')
+    >>> ObjectIdentity('SNMPv2-MIB', 'system')
+    ObjectIdentity('SNMPv2-MIB', 'system')
+    >>> ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)
+    ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)
+    >>> ObjectIdentity('IP-MIB', 'ipAdEntAddr', '127.0.0.1', 123)
+    ObjectIdentity('IP-MIB', 'ipAdEntAddr', '127.0.0.1', 123)
+
+    """
     stDirty, stClean = 1, 2
         
     def __init__(self, *args, **kwargs):
@@ -28,22 +94,95 @@ class ObjectIdentity:
         self.__asn1SourcesToAdd = self.__asn1SourcesOptions = None
         self.__state  = self.stDirty
 
-    #
-    # public API
-    #
     def getMibSymbol(self):
+        """Returns MIB variable symbolic identification.
+
+        Returns
+        -------
+        str
+             MIB module name
+        str
+             MIB variable symbolic name
+        : :py:class:`~pysnmp.proto.rfc1902.ObjectName`
+             class instance representing MIB variable instance index.
+
+        Raises
+        ------
+        SmiError
+            If MIB variable conversion has not been performed.
+
+        Examples
+        --------
+        >>> objectIdentity = ObjectIdentity('1.3.6.1.2.1.1.1.0')
+        >>> objectIdentity.resolveWithMib(mibViewController)
+        >>> objectIdentity.getMibSymbol()
+        ('SNMPv2-MIB', 'sysDescr', (0,))
+        >>> 
+
+        """
         if self.__state & self.stClean:
             return self.__modName, self.__symName, self.__indices
         else:
             raise SmiError('%s object not fully initialized' % self.__class__.__name__)
 
     def getOid(self):
+        """Returns OID identifying MIB variable.
+
+        Returns
+        -------
+        : :py:class:`~pysnmp.proto.rfc1902.ObjectName`
+            full OID identifying MIB variable including possible index part.
+
+        Raises
+        ------
+        SmiError
+           If MIB variable conversion has not been performed.
+
+        Examples
+        --------
+        >>> objectIdentity = ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)
+        >>> objectIdentity.resolveWithMib(mibViewController)
+        >>> objectIdentity.getOid()
+        ObjectName('1.3.6.1.2.1.1.1.0')
+        >>> 
+
+        """
         if self.__state & self.stClean:
             return self.__oid
         else:
             raise SmiError('%s object not fully initialized' % self.__class__.__name__)
 
     def getLabel(self):
+        """Returns symbolic path to this MIB variable.
+
+        Meaning a sequence of symbolic identifications for each of parent
+        MIB objects in MIB tree.
+
+        Returns
+        -------
+        tuple
+            sequence of names of nodes in a MIB tree from the top of the tree
+            towards this MIB variable.
+
+        Raises
+        ------
+        SmiError
+           If MIB variable conversion has not been performed.
+
+        Notes
+        -----
+        Returned sequence may not contain full path to this MIB variable
+        if some symbols are now known at the moment of MIB look up.
+
+        Examples
+        --------
+        >>> objectIdentity = ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)
+        >>> objectIdentity.resolveWithMib(mibViewController)
+        >>> objectIdentity.getOid()
+        ('iso', 'org', 'dod', 'internet', 'mgmt', 'mib-2', 'system', 'sysDescr')
+        >>> 
+
+        """
         if self.__state & self.stClean:
             return self.__label
         else:
@@ -63,6 +202,35 @@ class ObjectIdentity:
     #
 
     def addAsn1MibSource(self, *asn1Sources, **kwargs):
+        """Adds path to a repository to search ASN.1 MIB files.
+
+        Parameters
+        ----------
+        *asn1Sources :
+            one or more URL in form of :py:obj:`str` identifying local or
+            remote ASN.1 MIB repositories. Path must include the *@mib@*
+            component which will be replaced with MIB module name at the
+            time of search.
+
+        Returns
+        -------
+        : :py:class:`~pysnmp.smi.rfc1902.ObjectIdentity`
+            reference to itself
+
+        Notes
+        -----
+        Please refer to :py:class:`~pysmi.reader.localfile.FileReader`,
+        :py:class:`~pysmi.reader.httpclient.HttpReader` and
+        :py:class:`~pysmi.reader.ftpclient.FtpReader` classes for
+        in-depth information on ASN.1 MIB lookup.
+
+        Examples
+        --------
+        >>> ObjectIdentity('SNMPv2-MIB', 'sysDescr').addAsn1Source('http://mibs.snmplabs.com/asn1/@mib@')
+        ObjectIdentity('SNMPv2-MIB', 'sysDescr')
+        >>> 
+
+        """
         if self.__asn1SourcesToAdd is None:
             self.__asn1SourcesToAdd = asn1Sources
         else:
@@ -91,6 +259,47 @@ class ObjectIdentity:
     # this would eventually be called by an entity which posses a
     # reference to MibViewController
     def resolveWithMib(self, mibViewController):
+        """Perform MIB variable ID conversion.
+
+        Parameters
+        ----------
+        mibViewController : :py:class:`~pysnmp.smi.view.MibViewController`
+            class instance representing MIB browsing functionality.
+
+        Returns
+        -------
+        : :py:class:`~pysnmp.smi.rfc1902.ObjectIdentity`
+            reference to itself
+
+        Raises
+        ------
+        SmiError
+           In case of fatal MIB hanling errora
+
+        Notes
+        -----
+        Calling this method might cause the following sequence of
+        events (exact details depends on many factors):
+
+        * ASN.1 MIB file downloaded and handed over to
+          :py:class:`~pysmi.compiler.MibCompiler` for conversion into
+          Python MIB module (based on pysnmp classes)
+        * Python MIB module is imported by SNMP engine, internal indices
+          created
+        * :py:class:`~pysnmp.smi.view.MibViewController` looks up the
+          rest of MIB identification information based on whatever information
+          is already available, :py:class:`~pysnmp.smi.rfc1902.ObjectIdentity`
+          class instance
+          gets updated and ready for further use.
+
+        Examples
+        --------
+        >>> objectIdentity = ObjectIdentity('SNMPv2-MIB', 'sysDescr')
+        >>> objectIdentity.resolveWithMib(mibViewController)
+        ObjectIdentity('SNMPv2-MIB', 'sysDescr')
+        >>> 
+
+        """
         if self.__mibSourcesToAdd is not None:
             debug.logger & debug.flagMIB and debug.logger('adding MIB sources %s' % ', '.join(self.__mibSourcesToAdd))
             mibViewController.mibBuilder.addMibSources(
@@ -374,6 +583,63 @@ class ObjectIdentity:
 
 # A two-element sequence of ObjectIdentity and SNMP data type object
 class ObjectType:
+    """Create an object representing MIB variable.
+
+    Instances of :py:class:`~pysnmp.smi.rfc1902.ObjectType` class are
+    containters incorporating :py:class:`~pysnmp.smi.rfc1902.ObjectIdentity`
+    class instance (identifying MIB variable) and optional value belonging
+    to one of SNMP types (:RFC:`1902`).
+
+    Typical MIB variable is defined like this (from *SNMPv2-MIB.txt*):
+
+    .. code-block:: bash
+
+       sysDescr OBJECT-TYPE
+           SYNTAX      DisplayString (SIZE (0..255))
+           MAX-ACCESS  read-only
+           STATUS      current
+           DESCRIPTION
+                   "A textual description of the entity.  This value should..."
+           ::= { system 1 }
+
+    Corresponding ObjectType instantiation would look like this:
+
+    .. code-block:: python
+
+        ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr'), 'Linux i386 box')
+
+    In order to behave like SNMP variable-binding (:RFC:`1157#section-4.1.1`),
+    :py:class:`~pysnmp.smi.rfc1902.ObjectType` objects also support
+    sequence protocol addressing `objectIdentity` as its 0-th element
+    and `objectSyntax` as 1-st.
+
+    See :RFC:`1902#section-2` for more information on OBJECT-TYPE SMI
+    definitions.
+
+    Parameters
+    ----------
+    objectIdentity : :py:class:`~pysnmp.smi.rfc1902.ObjectIdentity`
+        Class instance representing MIB variable identification.
+    objectSyntax :
+        Represents a value associated with this MIB variable. Values of
+        built-in Python types will be automatically converted into SNMP
+        object as specified in OBJECT-TYPE->SYNTAX field.
+
+    Notes
+    -----
+        Actual conversion between MIB variable representation formats occurs
+        upon :py:meth:`~pysnmp.smi.rfc1902.ObjectType.resolveWithMib`
+        invocation.
+
+    Examples
+    --------
+    >>> from pysnmp.smi.rfc1902 import *
+    >>> ObjectType(ObjectIdentity('1.3.6.1.2.1.1.1.0'))
+    ObjectType(ObjectIdentity('1.3.6.1.2.1.1.1.0'), Null())
+    >>> ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0), 'Linux i386')
+    ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0), 'Linux i386')
+
+    """
     stDirty, stClean = 1, 2
     def __init__(self, objectIdentity, objectSyntax=rfc1905.unSpecified):
         if not isinstance(objectIdentity, ObjectIdentity):
@@ -387,6 +653,9 @@ class ObjectType:
         else:
             raise SmiError('%s object not fully initialized' % self.__class__.__name__)
 
+    def __str__(self):
+        return self.prettyPrint()
+
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__, ', '.join([ repr(x) for x in self.__args]))
 
@@ -394,6 +663,39 @@ class ObjectType:
         return self.__state & self.stClean
 
     def resolveWithMib(self, mibViewController):
+        """Perform MIB variable ID and associated value conversion.
+
+        Parameters
+        ----------
+        mibViewController : :py:class:`~pysnmp.smi.view.MibViewController`
+            class instance representing MIB browsing functionality.
+
+        Returns
+        -------
+        : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
+            reference to itself
+
+        Raises
+        ------
+        SmiError
+           In case of fatal MIB hanling errora
+
+        Notes
+        -----
+        Calling this method involves 
+        :py:meth:`~pysnmp.smi.rfc1902.ObjectIdentity.resolveWithMib`
+        method invocation.
+
+        Examples
+        --------
+        >>> objectType = ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr'), 'Linux i386')
+        >>> objectType.resolveWithMib(mibViewController)
+        ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr'), DisplayString('Linux i386'))
+        >>> str(objectType)
+        'SNMPv2-MIB::sysDescr."0" = Linux i386'
+        >>>
+
+        """
         if self.__state & self.stClean:
             return self
 
@@ -433,8 +735,71 @@ class ObjectType:
         else:
             raise SmiError('%s object not fully initialized' % self.__class__.__name__)
 
-# A sequence of ObjectType's
 class NotificationType:
+    """Create an object representing SNMP Notification.
+
+    Instances of :py:class:`~pysnmp.smi.rfc1902.NotificationType` class are
+    containters incorporating :py:class:`~pysnmp.smi.rfc1902.ObjectIdentity`
+    class instance (identifying particular notification) and a collection
+    of MIB variables IDs that
+    :py:class:`~pysnmp.entity.rfc3413.oneliner.cmdgen.NotificationOriginator`
+    should gather and put into notification message.
+
+    Typical notification is defined like this (from *IF-MIB.txt*):
+
+    .. code-block:: bash
+
+       linkDown NOTIFICATION-TYPE
+           OBJECTS { ifIndex, ifAdminStatus, ifOperStatus }
+           STATUS  current
+           DESCRIPTION
+                  "A linkDown trap signifies that the SNMP entity..."
+           ::= { snmpTraps 3 }
+
+    Corresponding NotificationType instantiation would look like this:
+
+    .. code-block:: python
+
+        NotificationType(ObjectIdentity('IF-MIB', 'linkDown'))
+
+    To retain similarity with SNMP variable-bindings,
+    :py:class:`~pysnmp.smi.rfc1902.NotificationType` objects behave like
+    a sequence of :py:class:`~pysnmp.smi.rfc1902.ObjectType` class
+    instances.
+
+    See :RFC:`1902#section-2` for more information on NOTIFICATION-TYPE SMI
+    definitions.
+
+    Parameters
+    ----------
+    objectIdentity : :py:class:`~pysnmp.smi.rfc1902.ObjectIdentity`
+        Class instance representing MIB notification type identification.
+    instanceIndex : :py:class:`~pysnmp.proto.rfc1902.ObjectName`
+        Trailing part of MIB variables OID identification that represents
+        concrete instance of a MIB variable. When notification is prepared,
+        `instanceIndex` is appended to each MIB variable identification
+        listed in NOTIFICATION-TYPE->OBJECTS clause.
+    objects : dict   
+        Dictionary-like object that may return values by OID key. The
+        `objects` dictionary is consulted when notification is being
+        prepared. OIDs are taken from MIB variables listed in
+        NOTIFICATION-TYPE->OBJECTS with `instanceIndex` part appended.
+
+    Notes
+    -----
+        Actual notification type and MIB variables look up occurs
+        upon :py:meth:`~pysnmp.smi.rfc1902.NotificationType.resolveWithMib`
+        invocation.
+
+    Examples
+    --------
+    >>> from pysnmp.smi.rfc1902 import *
+    >>> NotificationType(ObjectIdentity('1.3.6.1.6.3.1.1.5.3'))
+    NotificationType(ObjectIdentity('1.3.6.1.6.3.1.1.5.3'), (), {})
+    >>> NotificationType(ObjectIdentity('IP-MIB', 'linkDown'), ObjectName('3.5))
+    NotificationType(ObjectIdentity('1.3.6.1.6.3.1.1.5.3'), ObjectName('3.5'), {})
+
+    """
     stDirty, stClean = 1, 2
     def __init__(self, objectIdentity, instanceIndex=(), objects={}):
         if not isinstance(objectIdentity, ObjectIdentity):
@@ -456,6 +821,33 @@ class NotificationType:
         return '%s(%r, %r, %r)' % (self.__class__.__name__, self.__objectIdentity, self.__instanceIndex, self.__objects)
 
     def addVarBinds(self, *varBinds):
+        """Appends variable-binding to notification.
+
+        Parameters
+        ----------
+        *varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
+            One or more :py:class:`~pysnmp.smi.rfc1902.ObjectType` class
+            instances.
+
+        Returns
+        -------
+        : :py:class:`~pysnmp.smi.rfc1902.NotificationType`
+            reference to itself
+
+        Notes
+        -----
+        This method can be used to add custom variable-bindings to
+        notification message in addition to MIB variables specified
+        in NOTIFICATION-TYPE->OBJECTS clause.
+
+        Examples
+        --------
+        >>> nt = NotificationType(ObjectIdentity('IP-MIB', 'linkDown'))
+        >>> nt.addVarBinds(ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)))
+        NotificationType(ObjectIdentity('IP-MIB', 'linkDown'), (), {})
+        >>> 
+
+        """
         debug.logger & debug.flagMIB and debug.logger('additional var-binds: %r' % (varBinds,))
         if self.__state & self.stClean:
             self.__varBinds.extend(varBinds)
@@ -467,6 +859,43 @@ class NotificationType:
         return self.__state & self.stClean
 
     def resolveWithMib(self, mibViewController):
+        """Perform MIB variable ID conversion and notification objects expansion.
+
+        Parameters
+        ----------
+        mibViewController : :py:class:`~pysnmp.smi.view.MibViewController`
+            class instance representing MIB browsing functionality.
+
+        Returns
+        -------
+        : :py:class:`~pysnmp.smi.rfc1902.NotificationType`
+            reference to itself
+
+        Raises
+        ------
+        SmiError
+           In case of fatal MIB hanling errora
+
+        Notes
+        -----
+        Calling this method might cause the following sequence of
+        events (exact details depends on many factors):
+
+        * :py:meth:`pysnmp.smi.rfc1902.ObjectIdentity.resolveWithMib` is called
+        * MIB variables names are read from NOTIFICATION-TYPE->OBJECTS clause,
+          :py:class:`~pysnmp.smi.rfc1902.ObjectType` instances are created
+          from MIB variable OID and `indexInstance` suffix.
+        * `objects` dictionary is queried for each MIB variable OID,
+          acquired values are added to corresponding MIB variable
+
+        Examples
+        --------
+        >>> notificationType = NotificationType(ObjectIdentity('IF-MIB', 'linkDown'))
+        >>> notificationType.resolveWithMib(mibViewController)
+        NotificationType(ObjectIdentity('IF-MIB', 'linkDown'), (), {})
+        >>>
+
+        """
         if self.__state & self.stClean:
             return self
 

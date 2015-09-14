@@ -1,30 +1,16 @@
 from pyasn1.compat.octets import null
 from pysnmp import nextid, error
 from pysnmp.entity import engine, config
-from pysnmp.smi.rfc1902 import ObjectIdentity, ObjectType, NotificationType
+from pysnmp.smi.rfc1902 import *
 from pysnmp.entity.rfc3413 import ntforg, context
-from pysnmp.entity.rfc3413.oneliner.auth import CommunityData, UsmUserData
-from pysnmp.entity.rfc3413.oneliner.target import UdpTransportTarget, \
-    Udp6TransportTarget, UnixTransportTarget 
+from pysnmp.entity.rfc3413.oneliner.auth import *
+from pysnmp.entity.rfc3413.oneliner.target import *
+from pysnmp.entity.rfc3413.oneliner.ctx import *
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 # obsolete, compatibility symbols
 from pysnmp.entity.rfc3413.oneliner.mibvar import MibVariable
 
-# Auth protocol
-usmHMACMD5AuthProtocol = config.usmHMACMD5AuthProtocol
-usmHMACSHAAuthProtocol = config.usmHMACSHAAuthProtocol
-usmNoAuthProtocol = config.usmNoAuthProtocol
-
-# Privacy protocol
-usmDESPrivProtocol = config.usmDESPrivProtocol
-usm3DESEDEPrivProtocol = config.usm3DESEDEPrivProtocol
-usmAesCfb128Protocol = config.usmAesCfb128Protocol
-usmAesCfb192Protocol = config.usmAesCfb192Protocol
-usmAesCfb256Protocol = config.usmAesCfb256Protocol
-usmNoPrivProtocol = config.usmNoPrivProtocol
-
 SnmpEngine = engine.SnmpEngine
-ContextData = cmdgen.ContextData
 
 nextID = nextid.Integer(0xffffffff)
 
@@ -135,8 +121,8 @@ class AsyncNotificationOriginator:
             __varBinds.append(varBind.resolveWithMib(mibViewController))
         return __varBinds
 
-    def unmakeVarBinds(self, snmpEngine, varBinds, lookupNames, lookupValues):
-        if lookupNames or lookupValues:
+    def unmakeVarBinds(self, snmpEngine, varBinds, lookupMib=False):
+        if lookupMib:
             mibViewController = self.getMibViewController(snmpEngine)
             varBinds = [ ObjectType(ObjectIdentity(x[0]), x[1]).resolveWithMib(mibViewController) for x in varBinds ]
         return varBinds
@@ -144,20 +130,20 @@ class AsyncNotificationOriginator:
     def sendNotification(self, snmpEngine,
                          authData, transportTarget, contextData,
                          notifyType,
-                         varBinds=(),
+                         varBinds,
                          cbInfo=(None, None), 
-                         lookupNames=False, lookupValues=False):
+                         lookupMib=False):
 
         def __cbFun(snmpEngine, sendRequestHandle, errorIndication,
                     errorStatus, errorIndex, varBinds, cbCtx):
-            lookupNames, lookupValues, cbFun, cbCtx = cbCtx
+            lookupMib, cbFun, cbCtx = cbCtx
             return cbFun and cbFun(
                 snmpEngine,
                 sendRequestHandle,
                 errorIndication,
                 errorStatus, errorIndex,
                 self.unmakeVarBinds(
-                    snmpEngine, varBinds, lookupNames, lookupValues
+                    snmpEngine, varBinds, lookupMib
                 ),
                 cbCtx
             )
@@ -176,43 +162,7 @@ class AsyncNotificationOriginator:
             snmpEngine, authData, transportTarget, notifyType
         )
 
-        return ntforg.NotificationOriginator().sendVarBinds(snmpEngine, notifyName, contextData.contextEngineId, contextData.contextName, self.makeVarBinds(snmpEngine, varBinds), __cbFun, (lookupNames, lookupValues, cbFun, cbCtx))
-
-#
-# Synchronous one-liner Notification Originator application
-#
-
-def sendNotification(snmpEngine, authData, transportTarget, contextData,
-                     notifyType, notificationType, **kwargs):
-
-    def cbFun(snmpEngine, sendRequestHandle,
-              errorIndication, errorStatus, errorIndex,
-              varBinds, cbCtx):
-        cbCtx['errorIndication'] = errorIndication
-        cbCtx['errorStatus'] = errorStatus
-        cbCtx['errorIndex'] = errorIndex
-        cbCtx['varBinds'] = varBinds
-
-    cbCtx = {}
-
-    AsyncNotificationOriginator().sendNotification(
-        snmpEngine,
-        authData,
-        transportTarget,
-        contextData,
-        notifyType,
-        notificationType,
-        (cbFun, cbCtx),
-        kwargs.get('lookupNames'),
-        kwargs.get('lookupValues')
-    )
-
-    snmpEngine.transportDispatcher.runDispatcher()
-
-    if cbCtx:
-        yield cbCtx['errorIndication'],  \
-              cbCtx['errorStatus'], cbCtx['errorIndex'], \
-              cbCtx['varBinds']
+        return ntforg.NotificationOriginator().sendVarBinds(snmpEngine, notifyName, contextData.contextEngineId, contextData.contextName, self.makeVarBinds(snmpEngine, varBinds), __cbFun, (lookupMib, cbFun, cbCtx))
 
 #
 # The rest of code in this file belongs to obsolete, compatibility wrappers.
@@ -256,6 +206,16 @@ class AsynNotificationOriginator:
     def uncfgNtfOrg(self, authData=None):
         return self.__asyncNtfOrg.uncfgNtfOrg(self.snmpEngine, authData)
         
+    def makeVarBinds(self, varBinds):
+        return self.__asyncNtfOrg.makeVarBinds(
+            self.snmpEngine, varBinds
+        )
+
+    def unmakeVarBinds(self, varBinds, lookupNames, lookupValues):
+        return self.__asyncNtfOrg.unmakeVarBinds(
+            self.snmpEngine, varBinds, lookupNames or lookupValues
+        )
+
     def sendNotification(self, authData, transportTarget, 
                          notifyType, notificationType,
                          varBinds=(),  # legacy, use NotificationType instead
@@ -306,7 +266,7 @@ class AsynNotificationOriginator:
                         contextName),
             notifyType, notificationType.addVarBinds(*varBinds),
             (__cbFun, cbInfo),
-            lookupNames, lookupValues
+            lookupNames or lookupValues
         )
 
     asyncSendNotification = sendNotification
@@ -328,3 +288,10 @@ class NotificationOriginator:
                                   notificationType.addVarBinds(*varBinds),
                                   **kwargs):
             return x
+
+# circular module import dependency 
+from sys import version_info
+if version_info[:2] < (2, 6):
+    from pysnmp.entity.rfc3413.oneliner.sync.compat.ntforg import *
+else:
+    from pysnmp.entity.rfc3413.oneliner.sync.ntforg import *

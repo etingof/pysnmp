@@ -1,16 +1,19 @@
-#
-# SET Command Generator
-#
-# Send a SNMP SET request
-#     with SNMPv3 with user 'usr-sha-none', SHA auth and no privacy protocols
-#     over IPv4/UDP
-#     to an Agent at 195.218.195.228:161
-#     for an OID in tuple form and a string-typed value
-#
-# This script performs similar to the following Net-SNMP command:
-#
-# $ snmpset -v3 -l authNoPriv -u usr-sha-none -a SHA -A authkey1 -ObentU 195.218.195.228:161 1.3.6.1.2.1.1.9.1.3.1 s 'my new value'
-#
+"""
+Set string value
+++++++++++++++++
+
+Send a SNMP SET request with the following options:
+
+* with SNMPv3 with user 'usr-sha-none', SHA auth and no privacy protocols
+* over IPv4/UDP
+* to an Agent at 195.218.195.228:161
+* for an OID in tuple form and a string-typed value
+
+This script performs similar to the following Net-SNMP command:
+
+| $ snmpset -v3 -l authNoPriv -u usr-sha-none -a SHA -A authkey1 -ObentU 195.218.195.228:161 1.3.6.1.2.1.1.9.1.3.1 s 'my new value'
+
+"""#
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import cmdgen

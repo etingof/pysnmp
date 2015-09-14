@@ -1,16 +1,22 @@
-#
-# Notification Originator
-#
-# Send SNMP INFORM notification using the following options:
-#
-# * SNMPv3
-# * with user 'usr-md5-none', auth: MD5, priv NONE
-# * over IPv4/UDP
-# * to a Manager at 127.0.0.1:162
-# * send INFORM notification
-# * with TRAP ID 'warmStart' specified as an OID
-# * include managed object information 1.3.6.1.2.1.1.5.0 = 'system name'
-#
+"""
+SNMPv3 INFORM, auth: MD5, privacy: none
++++++++++++++++++++++++++++++++++++++++
+
+Send SNMP INFORM notification using the following options:
+
+* SNMPv3
+* with user 'usr-md5-none', auth: MD5, priv NONE
+* over IPv4/UDP
+* to a Manager at 127.0.0.1:162
+* send INFORM notification
+* with TRAP ID 'warmStart' specified as an OID
+* include managed object information 1.3.6.1.2.1.1.5.0 = 'system name'
+
+Functionally similar to:
+
+| $ snmpinform -v3 -l authNoPriv -u usr-md5-none -A authkey1 demo.snmplabs.com  0 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.5.0 = 'system name'
+
+"""#
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import ntforg

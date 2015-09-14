@@ -1,26 +1,28 @@
-#
-# SNMP Command Proxy example
-#
-# Act as a local SNMPv3 Agent, relay messages to distant SNMPv1/v2c Agent:
-#     over IPv4/UDP
-#     with local SNMPv3 user usr-md5-des, MD5 auth and DES privacy protocols
-#     local Agent listening at 127.0.0.1:161
-#     remote SNMPv1, community public
-#     remote Agent listening at 195.218.195.228:161
-#
-# This script can be queried with the following Net-SNMP command:
-#
-# $ snmpget -v3 -l authPriv -u usr-md5-des -A authkey1 -X privkey1 -ObentU 127.0.0.1:161 1.3.6.1.2.1.1.1.0
-#
-# due to proxy, it is equivalent to
-#
-# $ snmpget -v2c -c public 195.218.195.228:161 1.3.6.1.2.1.1.1.0
-#
-# Warning: for production operation you would need to modify this script
-# so that it will re-map possible duplicate request-ID values, coming in
-# initial request PDUs from different Managers, into unique values to
-# avoid sending duplicate request-IDs to Agents.
-#
+"""
+SNMPv3-to-SNMPv2c conversion
+++++++++++++++++++++++++++++
+
+Act as a local SNMPv3 Agent, relay messages to distant SNMPv1/v2c Agent:
+* over IPv4/UDP
+* with local SNMPv3 user usr-md5-des, MD5 auth and DES privacy protocols
+* local Agent listening at 127.0.0.1:161
+* remote SNMPv1, community public
+* remote Agent listening at 195.218.195.228:161
+
+This script can be queried with the following Net-SNMP command:
+
+| $ snmpget -v3 -l authPriv -u usr-md5-des -A authkey1 -X privkey1 -ObentU 127.0.0.1:161 1.3.6.1.2.1.1.1.0
+
+due to proxy, it is equivalent to
+
+| $ snmpget -v2c -c public 195.218.195.228:161 1.3.6.1.2.1.1.1.0
+
+Warning: for production operation you would need to modify this script
+so that it will re-map possible duplicate request-ID values, coming in
+initial request PDUs from different Managers, into unique values to
+avoid sending duplicate request-IDs to Agents.
+
+"""#
 from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdrsp, cmdgen, context

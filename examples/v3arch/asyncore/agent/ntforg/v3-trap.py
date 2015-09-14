@@ -1,16 +1,23 @@
-#
-# Notification Originator
-#
-# Send SNMP TRAP notification using the following options:
-#
-# * SNMPv3
-# * with user 'usr-md5-des', auth: MD5, priv DES
-# * over IPv4/UDP
-# * send TRAP notification
-# * to a Manager at 127.0.0.1:162
-# * with TRAP ID 'warmStart' specified as an OID
-# * include managed object information 1.3.6.1.2.1.1.5.0 = 'system name'
-#
+"""
+SNMPv3 TRAP, auth: MD5, privacy: DES
+++++++++++++++++++++++++++++++++++++
+
+Send SNMP TRAP notification using the following options:
+
+* SNMPv3
+* with user 'usr-md5-des', auth: MD5, priv DES
+* over IPv4/UDP
+* send TRAP notification
+* to a Manager at 127.0.0.1:162
+* with TRAP ID 'warmStart' specified as an OID
+* include managed object information 1.3.6.1.2.1.1.5.0 = 'system name'
+
+Functionally similar to:
+
+| $ snmptrap -v3 -l authPriv -u usr-md5-des -A authkey1 -X privkey1 -e 800000000
+1020304 0 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.5.0 s 'my system'
+
+"""#
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import ntforg

@@ -1,18 +1,21 @@
-#
-# GETNEXT Command Generator
-#
-# Send a series of SNMP GETNEXT requests
-#     with SNMPv2c, community 'public'
-#     over IPv4/UDP
-#     to an Agent at 195.218.195.228:161
-#     sending packets from primary local interface 0.0.0.0, local port 61024
-#     for two OIDs in tuple form
-#     stop on end-of-mib condition for both OIDs
-#
-# This script performs similar to the following Net-SNMP command:
-#
-# $ snmpwalk -v2c -c public -ObentU 195.218.195.228 1.3.6.1.2.1.1 1.3.6.1.4.1.1
-#
+"""
+Send packets from specific local interface
+++++++++++++++++++++++++++++++++++++++++++
+
+Send a series of SNMP GETNEXT requests with the following options:
+
+* with SNMPv2c, community 'public'
+* over IPv4/UDP
+* to an Agent at 195.218.195.228:161
+* sending packets from primary local interface 0.0.0.0, local port 61024
+* for two OIDs in tuple form
+* stop on end-of-mib condition for both OIDs
+
+This script performs similar to the following Net-SNMP command:
+
+| $ snmpwalk -v2c -c public -ObentU 195.218.195.228 1.3.6.1.2.1.1 1.3.6.1.4.1.1
+
+"""#
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import cmdgen

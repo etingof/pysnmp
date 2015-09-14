@@ -1,17 +1,20 @@
-#
-# GETNEXT Command Generator
-#
-# Send a series of SNMP GETNEXT requests
-#     with SNMPv3 with user 'usr-md5-none', MD5 auth and no privacy protocols
-#     over IPv6/UDP
-#     to an Agent at [::1]:161
-#     for two OIDs in tuple form
-#     stop on end-of-mib condition for both OIDs
-#
-# This script performs similar to the following Net-SNMP command:
-#
-# $ snmpwalk -v3 -l authNoPriv -u usr-md5-none -A authkey1 -ObentU udp6:[::1]:161 1.3.6.1.2.1.1 1.3.6.1.4.1.1
-#
+"""
+Walk Agent over IPv6
+++++++++++++++++++++
+
+Send a series of SNMP GETNEXT requests with the following options:
+
+* with SNMPv3 with user 'usr-md5-none', MD5 auth and no privacy protocols
+* over IPv6/UDP
+* to an Agent at [::1]:161
+* for two OIDs in tuple form
+* stop on end-of-mib condition for both OIDs
+
+This script performs similar to the following Net-SNMP command:
+
+| $ snmpwalk -v3 -l authNoPriv -u usr-md5-none -A authkey1 -ObentU udp6:[::1]:161 1.3.6.1.2.1.1 1.3.6.1.4.1.1
+
+"""#
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asyncore.dgram import udp6
 from pysnmp.entity.rfc3413 import cmdgen

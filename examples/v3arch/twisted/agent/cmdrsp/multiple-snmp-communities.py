@@ -1,20 +1,22 @@
-#
-# Command Responder
-#
-# Listen and respond to SNMP GET/SET/GETNEXT queries with
-# the following options:
-#
-# * SNMPv1
-# * with SNMP community "public" (read access) or "private" (write access)
-# * allow access to SNMPv2-MIB objects (1.3.6.1.2.1)
-# * over IPv4/UDP, listening at 127.0.0.1:161
-# * using Twisted fraework for network transport
-# 
-# The following Net-SNMP's commands will GET/SET a value at this Agent:
-#
-# $ snmpget -v1 -c public 127.0.0.1 SNMPv2-MIB::sysLocation.0
-# $ snmpset -v1 -c private 127.0.0.1 SNMPv2-MIB::sysLocation.0 s "far away"
-#
+"""
+Multiple SNMP communities
++++++++++++++++++++++++++
+
+Listen and respond to SNMP GET/SET/GETNEXT queries with
+the following options:
+
+* SNMPv1
+* with SNMP community "public" (read access) or "private" (write access)
+* allow access to SNMPv2-MIB objects (1.3.6.1.2.1)
+* over IPv4/UDP, listening at 127.0.0.1:161
+* using Twisted fraework for network transport
+
+The following Net-SNMP commands will GET/SET a value at this Agent:
+
+| $ snmpget -v1 -c public 127.0.0.1 SNMPv2-MIB::sysLocation.0
+| $ snmpset -v1 -c private 127.0.0.1 SNMPv2-MIB::sysLocation.0 s "far away"
+
+"""#
 from twisted.internet import reactor
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdrsp, context

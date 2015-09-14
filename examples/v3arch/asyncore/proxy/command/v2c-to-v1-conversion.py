@@ -1,26 +1,29 @@
-#
-# SNMP Command Proxy example
-#
-# Act as a local SNMPv2c Agent, relay messages to distant SNMPv1 Agent:
-#     over IPv4/UDP
-#     with local SNMPv2c community public
-#     local Agent listening at 127.0.0.1:161
-#     remote SNMPv1, community public
-#     remote Agent listening at 195.218.195.228:161
-#
-# This script can be queried with the following Net-SNMP command:
-#
-# $ snmpbulkwalk -v2c -c public -ObentU 127.0.0.1:161 system
-#
-# due to proxy, it is equivalent to
-#
-# $ snmpwalk -v1 -c public 195.218.195.228:161 system
-#
-# Warning: for production operation you would need to modify this script
-# so that it will re-map possible duplicate request-ID values, coming in
-# initial request PDUs from different Managers, into unique values to
-# avoid sending duplicate request-IDs to Agents.
-#
+"""
+SNMPv2c-to-SNMPv1 conversion
+++++++++++++++++++++++++++++
+
+Act as a local SNMPv2c Agent, relay messages to distant SNMPv1 Agent:
+
+* over IPv4/UDP
+* with local SNMPv2c community public
+* local Agent listening at 127.0.0.1:161
+* remote SNMPv1, community public
+* remote Agent listening at 195.218.195.228:161
+
+This script can be queried with the following Net-SNMP command:
+
+| $ snmpbulkwalk -v2c -c public -ObentU 127.0.0.1:161 system
+
+due to proxy, it is equivalent to
+
+| $ snmpwalk -v1 -c public 195.218.195.228:161 system
+
+Warning: for production operation you would need to modify this script
+so that it will re-map possible duplicate request-ID values, coming in
+initial request PDUs from different Managers, into unique values to
+avoid sending duplicate request-IDs to Agents.
+
+"""#
 from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdrsp, cmdgen, context

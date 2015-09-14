@@ -1,17 +1,20 @@
-#
-# GET Command Generator
-#
-# Send a SNMP GET request
-#     with SNMPv2c, community 'public'
-#     over IPv4/UDP
-#     to an Agent at 195.218.195.228:161
-#     wait 3 seconds for response, retry 5 times (plus one initial attempt)
-#     for an OID in tuple form
-#
-# This script performs similar to the following Net-SNMP command:
-#
-# $ snmpget -v2c -c public -ObentU -r 5 -t 1 195.218.195.228 1.3.6.1.2.1.1.1.0
-#
+"""
+SNMPv2c, custom timeout
++++++++++++++++++++++++
+
+Send a SNMP GET request:
+
+* with SNMPv2c, community 'public'
+* over IPv4/UDP
+* to an Agent at 195.218.195.228:161
+* wait 3 seconds for response, retry 5 times (plus one initial attempt)
+* for an OID in tuple form
+
+This script performs similar to the following Net-SNMP command:
+
+| $ snmpget -v2c -c public -ObentU -r 5 -t 1 195.218.195.228 1.3.6.1.2.1.1.1.0
+
+"""#
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import cmdgen

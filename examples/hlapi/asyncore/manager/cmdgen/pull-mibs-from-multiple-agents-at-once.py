@@ -1,40 +1,42 @@
-##
-# Asynchronous Command Generator
-#
-# Send a bunch of SNMP GETNEXT requests all at once using the following options:
-#
-# * with SNMPv1, community 'public' and 
-#   with SNMPv2c, community 'public' and
-#   with SNMPv3, user 'usr-md5-des', MD5 auth and DES privacy
-# * over IPv4/UDP and 
-#   over IPv6/UDP
-# * to an Agent at demo.snmplabs.com:161 and
-#   to an Agent at [::1]:161
-# * for multiple MIB subtrees and tables
-#
-from pysnmp.entity import engine
-from pysnmp.entity.rfc3413.oneliner import cmdgen
+"""
+Walk multiple Agents at once
+++++++++++++++++++++++++++++
+
+Iterate over MIBs of multiple SNMP Agents asynchronously using the
+following options:
+
+* with SNMPv1, community 'public' and 
+  with SNMPv2c, community 'public' and
+  with SNMPv3, user 'usr-md5-des', MD5 auth and DES privacy
+* over IPv4/UDP and 
+  over IPv6/UDP
+* to an Agent at demo.snmplabs.com:161 and
+  to an Agent at [::1]:161
+* for multiple MIB subtrees and tables
+
+"""#
+from pysnmp.entity.rfc3413.oneliner.cmdgen import *
 
 # List of targets in the followin format:
 # ( ( authData, transportTarget, varNames ), ... )
 targets = (
     # 1-st target (SNMPv1 over IPv4/UDP)
-    ( cmdgen.CommunityData('public', mpModel=0),
-      cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-      ( cmdgen.ObjectType(cmdgen.ObjectIdentity('1.3.6.1.2.1')),
-        cmdgen.ObjectType(cmdgen.ObjectIdentity('1.3.6.1.3.1')) ) ),
+    ( CommunityData('public', mpModel=0),
+      UdpTransportTarget(('demo.snmplabs.com', 161)),
+      ( ObjectType(ObjectIdentity('1.3.6.1.2.1')),
+        ObjectType(ObjectIdentity('1.3.6.1.3.1')) ) ),
     # 2-nd target (SNMPv2c over IPv4/UDP)
-    ( cmdgen.CommunityData('public'),
-      cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-      ( cmdgen.ObjectType(cmdgen.ObjectIdentity('1.3.6.1.4.1')), ) ),
+    ( CommunityData('public'),
+      UdpTransportTarget(('demo.snmplabs.com', 161)),
+      ( ObjectType(ObjectIdentity('1.3.6.1.4.1')), ) ),
     # 3-nd target (SNMPv3 over IPv4/UDP)
-    ( cmdgen.UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
-      cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-      ( cmdgen.ObjectType(cmdgen.ObjectIdentity('SNMPv2-MIB', 'system')), ) ),
+    ( UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
+      UdpTransportTarget(('demo.snmplabs.com', 161)),
+      ( ObjectType(ObjectIdentity('SNMPv2-MIB', 'system')), ) ),
     # 4-th target (SNMPv3 over IPv6/UDP)
-    ( cmdgen.UsmUserData('usr-md5-none', 'authkey1'),
-      cmdgen.Udp6TransportTarget(('::1', 161)),
-      ( cmdgen.ObjectType(cmdgen.ObjectIdentity('IF-MIB', 'ifTable')), ) )
+    ( UsmUserData('usr-md5-none', 'authkey1'),
+      Udp6TransportTarget(('::1', 161)),
+      ( ObjectType(ObjectIdentity('IF-MIB', 'ifTable')), ) )
     # N-th target
     # ...
 )
@@ -47,44 +49,38 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
     if errorIndication:
         print(errorIndication)
         return
-    if errorStatus:
+    elif errorStatus:
         print('%s at %s' % (
             errorStatus.prettyPrint(),
             errorIndex and varBindTable[-1][int(errorIndex)-1][0] or '?'
             )
         )
         return
-    varBindTableRow = varBindTable[-1]
-    for idx in range(len(varBindTableRow)):
-        name, val = varBindTableRow[idx]
-        if val is not None and varBindHead[idx] <= name:
-            # still in table
-            break
     else:
-        print('went out of table at %s' % (name, ))
-        return
+        for idx, varBind in enumerate(varBindTable[-1]):
+            if varBind[1] is not None and varBindHead[idx] <= varBind[0]:
+                break   # still in table
+        else:
+            print('went out of table at %s' % (name, ))
+            return
 
-    for varBindRow in varBindTable:
-        for oid, val in varBindRow:
-            if val is None:
-                print(oid.prettyPrint())
-            else:
-                print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
+        for varBindRow in varBindTable:
+            for varBind in varBindRow:
+                print(' = '.join([ x.prettyPrint() for x in varBind ]))
 
-    return True # continue table retrieval
+        return True # continue table retrieval
 
-snmpEngine = engine.SnmpEngine()
+snmpEngine = SnmpEngine()
 
-cmdGen  = cmdgen.AsyncCommandGenerator()
+cmdGen  = AsyncCommandGenerator()
 
 # Submit initial GETNEXT requests and wait for responses
 for authData, transportTarget, varBinds in targets:
     varBindHead = [ x[0] for x in cmdGen.makeVarBinds(snmpEngine, varBinds ) ]
     cmdGen.nextCmd(
-        snmpEngine, authData, transportTarget, cmdgen.ContextData(), varBinds,
+        snmpEngine, authData, transportTarget, ContextData(), varBinds,
         # User-space callback function and its context
-        (cbFun, (varBindHead, authData, transportTarget)),
-        lookupNames=True, lookupValues=True
+        (cbFun, (varBindHead, authData, transportTarget))
     )
 
 snmpEngine.transportDispatcher.runDispatcher()

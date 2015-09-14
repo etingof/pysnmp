@@ -1,26 +1,29 @@
-#
-# SNMP Command Proxy example
-#
-# Act as a local SNMPv1/v2c Agent listening on a UDP/IPv6 transport, relay
-# messages to distant SNMPv1/2c Agent over UDP/IPv4 transport:
-#     with local SNMPv2c community 'public'
-#     local Agent listening at [::1]:161
-#     remote SNMPv2c community 'public'
-#     remote Agent listening at 195.218.195.228:161
-#
-# This script can be queried with the following Net-SNMP command:
-#
-# $ snmpget -v2c -c public udp6:[::1]:161 sysDescr.0
-#
-# due to proxy, it is equivalent to
-#
-# $ snmpget -v2c -c public 195.218.195.228:161 sysDescr.0
-#
-# Warning: for production operation you would need to modify this script
-# so that it will re-map possible duplicate request-ID values, coming in
-# initial request PDUs from different Managers, into unique values to
-# avoid sending duplicate request-IDs to Agents.
-#
+"""
+IPv6-to-IPv4 conversion
++++++++++++++++++++++++
+
+Act as a local SNMPv1/v2c Agent listening on a UDP/IPv6 transport, relay
+messages to distant SNMPv1/2c Agent over UDP/IPv4 transport:
+
+* with local SNMPv2c community 'public'
+* local Agent listening at [::1]:161
+* remote SNMPv2c community 'public'
+* remote Agent listening at 195.218.195.228:161
+
+This script can be queried with the following Net-SNMP command:
+
+| $ snmpget -v2c -c public udp6:[::1]:161 sysDescr.0
+
+due to proxy, it is equivalent to
+
+| $ snmpget -v2c -c public 195.218.195.228:161 sysDescr.0
+
+Warning: for production operation you would need to modify this script
+so that it will re-map possible duplicate request-ID values, coming in
+initial request PDUs from different Managers, into unique values to
+avoid sending duplicate request-IDs to Agents.
+
+"""#
 from pysnmp.carrier.asyncore.dgram import udp, udp6
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdrsp, cmdgen, context

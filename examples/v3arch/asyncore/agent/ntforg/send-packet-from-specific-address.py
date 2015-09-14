@@ -1,16 +1,22 @@
-#
-# Notification Originator
-#
-# Send SNMP notification using the following options:
-#
-# * SNMPv1
-# * with community name 'public'
-# * over IPv4/UDP
-# * to a Manager at 127.0.0.1 UDP port 162
-# * from local address 127.0.0.1, UDP port 61024
-# * send TRAP notification
-# * with TRAP ID 'coldStart' specified as an OID
-#
+"""
+Send packet from specific network interface/port
+++++++++++++++++++++++++++++++++++++++++++++++++
+
+Send SNMP notification using the following options:
+
+* SNMPv1
+* with community name 'public'
+* over IPv4/UDP
+* to a Manager at 127.0.0.1 UDP port 162
+* from local address 127.0.0.1, UDP port 61024
+* send TRAP notification
+* with TRAP ID 'coldStart' specified as an OID
+
+Functionally similar to:
+
+| $ snmptrap -v1 -c public 127.0.0.1 1.3.6.1.6.3.1.1.5.1 0.0.0.0 1 0 0
+
+"""#
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import ntforg
@@ -20,7 +26,8 @@ from pysnmp.proto.api import v2c
 snmpEngine = engine.SnmpEngine()
 
 # SecurityName <-> CommunityName mapping
-config.addV1System(snmpEngine, 'my-area', 'public', transportTag='all-my-managers')
+config.addV1System(snmpEngine, 'my-area', 'public',
+                   transportTag='all-my-managers')
 
 # Specify security settings per SecurityName (SNMPv1 -> 0)
 config.addTargetParams(snmpEngine, 'my-creds', 'my-area', 'noAuthNoPriv', 0)

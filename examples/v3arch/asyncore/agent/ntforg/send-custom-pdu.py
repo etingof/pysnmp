@@ -1,17 +1,23 @@
-#
-# Notification Originator
-#
-# Send SNMP TRAP notification using the following options:
-#
-# * SNMPv2c
-# * with community name 'public'
-# * over IPv4/UDP
-# * send TRAP notification
-# * to a Manager at 127.0.0.1:162
-# * initialize TRAP PDU with the following var-binds:
-#   1.3.6.1.2.1.1.3.0 = 123
-#   1.3.6.1.6.3.1.1.4.1.0 = 1.3.6.1.6.3.1.1.5.1
-#
+"""
+Send crafted TRAP PDU
++++++++++++++++++++++
+
+Initialize TRAP PDU and pass it over to unified SNMPv3 message processing
+framework for further treatment.
+
+* SNMPv2c
+* with community name 'public'
+* over IPv4/UDP
+* send TRAP notification
+* initialize TRAP PDU with the following var-binds:
+  1.3.6.1.2.1.1.3.0 = 123
+  1.3.6.1.6.3.1.1.4.1.0 = 1.3.6.1.6.3.1.1.5.1
+
+Functionally similar to:
+
+| $ snmptrap -v1 -c public 127.0.0.1 1.3.6.1.6.3.1.1.5.1 0.0.0.0 1 0 123
+
+"""#
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import ntforg

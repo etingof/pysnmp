@@ -1,4 +1,25 @@
-# Notification Receiver (TRAP PDU)
+"""
+Listen for notifications at IPv4 & IPv6 interfaces
+++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Receive SNMP TRAP messages with the following options:
+
+* SNMPv1/SNMPv2c
+* with SNMP community "public"
+* over IPv4/UDP, listening at 127.0.0.1:162
+* over IPv6/UDP, listening at [::1]:162
+* print received data on stdout
+
+Either of the following Net-SNMP commands will send notifications to this 
+receiver:
+
+| $ snmptrap -v1 -c public 127.0.0.1 1.3.6.1.4.1.20408.4.1.1.2 127.0.0.1 1 1 123 1.3.6.1.2.1.1.1.0 s test
+| $ snmptrap -v2c -c public udp6:[::1] 123 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.5.0 s test
+
+Notification Receiver below uses two different transports for communication 
+with Notification Originators - UDP over IPv4 and UDP over IPv6.
+
+"""#
 from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
 from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
 from pyasn1.codec.ber import decoder

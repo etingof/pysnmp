@@ -1,28 +1,29 @@
-#
-# Command Responder
-#
-# Listen and respond to SNMP GET/SET/GETNEXT/GETBULK queries with
-# the following options:
-#
-# * SNMPv2c
-# * with SNMP community "public"
-# * define a simple SNMP Table within a newly created EXAMPLE-MIB
-# * pre-populate SNMP Table with a single row of values
-# * allow read access only to the subtree where example SNMP Table resides
-# * over IPv4/UDP, listening at 127.0.0.1:161
-# 
-# 
-# The following Net-SNMP's commands will populate and walk a table:
-#
-# $ snmpset -v2c -c public 127.0.0.1 1.3.6.6.1.5.2.97.98.99 s 'my value'
-# $ snmpset -v2c -c public 127.0.0.1 1.3.6.6.1.5.4.97.98.99 i 4
-# $ snmpwalk -v2c -c public 127.0.0.1 1.3.6
-#
-# ...while the following command will destroy the same row
-# 
-# $ snmpset -v2c -c public 127.0.0.1 1.3.6.6.1.5.4.97.98.99 i 6
-# $ snmpwalk -v2c -c public 127.0.0.1 1.3.6
-#
+"""
+Implementing conceptual table
++++++++++++++++++++++++++++++
+
+Listen and respond to SNMP GET/SET/GETNEXT/GETBULK queries with
+the following options:
+
+* SNMPv2c
+* with SNMP community "public"
+* define a simple SNMP Table within a newly created EXAMPLE-MIB
+* pre-populate SNMP Table with a single row of values
+* allow read access only to the subtree where example SNMP Table resides
+* over IPv4/UDP, listening at 127.0.0.1:161
+ 
+The following Net-SNMP commands will populate and walk a table:
+
+| $ snmpset -v2c -c public 127.0.0.1 1.3.6.6.1.5.2.97.98.99 s 'my value'
+| $ snmpset -v2c -c public 127.0.0.1 1.3.6.6.1.5.4.97.98.99 i 4
+| $ snmpwalk -v2c -c public 127.0.0.1 1.3.6
+
+...while the following command will destroy the same row
+
+| $ snmpset -v2c -c public 127.0.0.1 1.3.6.6.1.5.4.97.98.99 i 6
+| $ snmpwalk -v2c -c public 127.0.0.1 1.3.6
+
+"""#
 from pysnmp.entity import engine, config
 from pysnmp.entity.rfc3413 import cmdrsp, context
 from pysnmp.carrier.asyncore.dgram import udp

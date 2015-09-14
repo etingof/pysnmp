@@ -105,6 +105,8 @@ params.update( {
                   'pysnmp.entity',
                   'pysnmp.entity.rfc3413',
                   'pysnmp.entity.rfc3413.oneliner',
+                  'pysnmp.entity.rfc3413.oneliner.sync',
+                  'pysnmp.entity.rfc3413.oneliner.sync.compat',
                   'pysnmp.entity.rfc3413.twisted',
                   'pysnmp.entity.rfc3413.asyncio',
                   'pysnmp.proto',

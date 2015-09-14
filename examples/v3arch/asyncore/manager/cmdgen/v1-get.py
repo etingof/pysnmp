@@ -1,16 +1,17 @@
-#
-# GET Command Generator
-#
-# Send a SNMP GET request
-#     with SNMPv1, community 'public'
-#     over IPv4/UDP
-#     to an Agent at 195.218.195.228:161
-#     for an OID in tuple form
-#
-# This script performs similar to the following Net-SNMP command:
-#
-# $ snmpget -v1 -c public -ObentU 195.218.195.228 1.3.6.1.2.1.1.1.0
-#
+"""
+SNMPv1
+++++++
+
+* with SNMPv1, community 'public'
+* over IPv4/UDP
+* to an Agent at 195.218.195.228:161
+* for an OID in tuple form
+
+This script performs similar to the following Net-SNMP command:
+
+| $ snmpget -v1 -c public -ObentU 195.218.195.228 1.3.6.1.2.1.1.1.0
+
+"""#
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import cmdgen

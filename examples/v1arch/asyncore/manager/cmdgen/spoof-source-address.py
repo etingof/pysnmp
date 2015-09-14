@@ -1,3 +1,33 @@
+"""
+Spoof IPv4 source address
++++++++++++++++++++++++++
+
+Send SNMP GET request from a non-local IP address:
+
+* with SNMPv2c, community 'public'
+* over IPv4/UDP
+* to an Agent at 195.218.195.228:161
+* from a non-local, spoofed IP 1.2.3.4 (root and Python 3.3+ required)
+* for OIDs in string form
+
+This script performs similar to the following Net-SNMP command:
+
+| $ snmpget -v2c -c public -ObentU 195.218.195.228 1.3.6.1.2.1.1.1.0 1.3.6.1.2.1.1.3.0
+
+But unlike the above command, this script issues SNMP request from a 
+non-default, non-local IP address.
+
+It is indeed possible to originate SNMP traffic from any valid local IP 
+addresses. It could be a secondary IP interface, for instance. Superuser 
+privileges are only required to send spoofed packets. Alternatively, 
+sending from local interface could also be achieved by binding to 
+it (via openClientMode() parameter).
+
+Agent would respond to the IP address you used as a source. So this script 
+could only get a response if that source address is somehow routed to the 
+host this script is running on. Otherwise it just times out.
+
+"""#
 from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
 from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.proto import api

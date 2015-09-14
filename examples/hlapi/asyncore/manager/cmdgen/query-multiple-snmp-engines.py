@@ -1,52 +1,54 @@
-#
-# Asynchronous Command Generator
-#
-# Send SNMP GET requests using multiple independend SNMP engines 
-# with the following options:
-#
-# * with SNMPv1, community 'public' and 
-#   with SNMPv2c, community 'public' and
-#   with SNMPv3, user 'usr-md5-des', MD5 auth and DES privacy
-# * over IPv4/UDP and 
-#   over IPv6/UDP
-# * to an Agent at demo.snmplabs.com:161 and
-#   to an Agent at [::1]:161
-# * for instances of SNMPv2-MIB::sysDescr.0 and
-#   SNMPv2-MIB::sysLocation.0 MIB objects
-#
-# Within this script we have a single asynchronous TransportDispatcher
-# and a single UDP-based transport serving two independent SNMP engines.
-# We use a single instance of AsyncCommandGenerator with each of 
-# SNMP Engines to comunicate GET command request to remote systems.
-#
-# When we receive a [response] message from remote system we use
-# a custom message router to choose what of the two SNMP engines
-# data packet should be handed over. The selection criteria we
-# employ here is based on peer's UDP port number. Other selection
-# criterias are also possible.
-#
-from pysnmp.entity.rfc3413.oneliner import cmdgen
-from pysnmp.entity import engine
+"""
+Multiple SNMP engines
++++++++++++++++++++++
+
+Send multiple SNMP GET requests to multiple peers using multiple 
+independend SNMP engines. Deal with peers asynchronously. SNMP options
+are:
+
+* with SNMPv1, community 'public' and 
+  with SNMPv2c, community 'public' and
+  with SNMPv3, user 'usr-md5-des', MD5 auth and DES privacy
+* over IPv4/UDP and 
+  over IPv6/UDP
+* to an Agent at demo.snmplabs.com:161 and
+  to an Agent at [::1]:161
+* for instances of SNMPv2-MIB::sysDescr.0 and
+  SNMPv2-MIB::sysLocation.0 MIB objects
+
+Within this script we have a single asynchronous TransportDispatcher
+and a single UDP-based transport serving two independent SNMP engines.
+We use a single instance of AsyncCommandGenerator with each of 
+SNMP Engines to comunicate GET command request to remote systems.
+
+When we receive a [response] message from remote system we use
+a custom message router to choose what of the two SNMP engines
+data packet should be handed over. The selection criteria we
+employ here is based on peer's UDP port number. Other selection
+criterias are also possible.
+
+"""#
+from pysnmp.entity.rfc3413.oneliner.cmdgen import *
 from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
 
-# List of targets in the followin format:
+# List of targets in the following format:
 # ( ( authData, transportTarget, varNames ), ... )
 targets = (
     # 1-st target (SNMPv1 over IPv4/UDP)
-    ( cmdgen.CommunityData('public', mpModel=0),
-      cmdgen.UdpTransportTarget(('demo.snmplabs.com', 161)),
-      ( cmdgen.ObjectType(cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
-        cmdgen.ObjectType(cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) )) ),
+    ( CommunityData('public', mpModel=0),
+      UdpTransportTarget(('demo.snmplabs.com', 161)),
+      ( ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
+        ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) )) ),
     # 2-nd target (SNMPv2c over IPv4/UDP)
-    ( cmdgen.CommunityData('public'),
-      cmdgen.UdpTransportTarget(('demo.snmplabs.com', 1161)),
-      ( cmdgen.ObjectType(cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
-        cmdgen.ObjectType(cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) )) ),
+    ( CommunityData('public'),
+      UdpTransportTarget(('demo.snmplabs.com', 1161)),
+      ( ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
+        ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) )) ),
     # 3-nd target (SNMPv3 over IPv4/UDP)
-    ( cmdgen.UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
-      cmdgen.UdpTransportTarget(('demo.snmplabs.com', 2161)),
-      ( cmdgen.ObjectType(cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
-        cmdgen.ObjectType(cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) )) )
+    ( UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
+      UdpTransportTarget(('demo.snmplabs.com', 2161)),
+      ( ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
+        ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) )) )
     # N-th target
     # ...
 )
@@ -61,20 +63,16 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
     if errorIndication:
         print(errorIndication)
         return 1
-    if errorStatus:
+    elif errorStatus:
         print('%s at %s' % (
             errorStatus.prettyPrint(),
             errorIndex and varBinds[int(errorIndex)-1][0] or '?'
             )
         )
         return 1
-    
-    for oid, val in varBinds:
-        if val is None:
-            print(oid.prettyPrint())
-        else:
-            print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
-
+    else:
+        for varBind in varBinds:
+            print(' = '.join([ x.prettyPrint() for x in varBind ]))
 
 # Instantiate the single transport dispatcher object
 transportDispatcher = AsyncoreDispatcher()
@@ -84,19 +82,19 @@ transportDispatcher.registerRoutingCbFun(
     lambda td,ta,d: ta[1] % 3 and 'A' or 'B'
 )
 
-snmpEngineA = engine.SnmpEngine()
+snmpEngineA = SnmpEngine()
 snmpEngineA.registerTransportDispatcher(transportDispatcher, 'A')
 
-snmpEngineB = engine.SnmpEngine()
+snmpEngineB = SnmpEngine()
 snmpEngineB.registerTransportDispatcher(transportDispatcher, 'B')
 
-cmdGen = cmdgen.AsyncCommandGenerator()
+cmdGen = AsyncCommandGenerator()
 
 for authData, transportTarget, varBinds in targets:
     snmpEngine = transportTarget.getTransportInfo()[1][1] % 3 and \
             snmpEngineA or snmpEngineB
     cmdGen.getCmd(
-        snmpEngine, authData, transportTarget, cmdgen.ContextData(), varBinds,
+        snmpEngine, authData, transportTarget, ContextData(), varBinds,
         (cbFun, (snmpEngine, authData, transportTarget))
     )
 

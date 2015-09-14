@@ -1,21 +1,31 @@
-#
-# Notification Originator
-#
-# Send SNMP INFORM notifications to multiple Managers using the
-# following options:
-#
-# * SNMPv2c
-# * with community name 'public'
-# * AND
-# * SNMPv3
-# * with user 'usr-md5-none', auth: MD5, priv NONE
-# * over IPv4/UDP
-# * send INFORM notification
-# * to multiple Managers at 127.0.0.1:162, 127.0.0.2:162
-# * with TRAP ID 'coldStart' specified as an OID
-# * include managed objects information:
-#   1.3.6.1.2.1.1.1.0 = 'Example Notificator'
-#
+"""
+Notification over multiple SNMP versions
+++++++++++++++++++++++++++++++++++++++++
+
+Send SNMP INFORM notifications to multiple Managers using different
+security settings:
+
+* SNMPv2c
+* with community name 'public'
+* AND
+* SNMPv3
+* with user 'usr-md5-none', auth: MD5, priv NONE
+* over IPv4/UDP
+* send INFORM notification
+* to multiple Managers at 127.0.0.1:162, 127.0.0.2:162
+* with TRAP ID 'coldStart' specified as an OID
+* include managed objects information:
+  1.3.6.1.2.1.1.1.0 = 'Example Notificator'
+
+Functionally similar to:
+
+| $ snmpinform -v3 -l authPriv -u usr-md5-none -A authkey1 127.0.0.1 0 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.1.0 s 'Example notification'
+
+and
+
+| $ snmpinform -v2c -c public 127.0.0.2 0 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.1.0 s 'Example notification'
+
+"""#
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity.rfc3413 import ntforg

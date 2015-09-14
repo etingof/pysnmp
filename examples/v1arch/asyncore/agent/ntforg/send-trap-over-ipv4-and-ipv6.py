@@ -1,4 +1,27 @@
-# Notification Originator Application (TRAP)
+"""
+TRAP over multiple transports
++++++++++++++++++++++++++++++
+
+The following script sends two SNMP TRAP notification using the 
+following options:
+
+* with SNMPv1
+* with community name 'public'
+* over IPv4/UDP and IPv6/UDP
+* send TRAP notification
+* to a Manager at 127.0.0.1:162 and [::1]
+* with TRAP ID 'coldStart' specified as an OID
+* include managed objects information:
+* with default Uptime value
+* with default Agent Address with '127.0.0.1'
+* overriding Enterprise OID with 1.3.6.1.4.1.20408.4.1.1.2
+
+The following Net-SNMP commands will produce similar SNMP notification:
+
+| $ snmptrap -v1 -c public udp:127.0.0.1 1.3.6.1.4.1.20408.4.1.1.2 127.0.0.1 1 0 12345
+| $ snmptrap -v1 -c public udp6:[::1] 1.3.6.1.4.1.20408.4.1.1.2 127.0.0.1 1 0 12345
+
+"""#
 from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
 from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
 from pyasn1.codec.ber import encoder

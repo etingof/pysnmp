@@ -1,36 +1,37 @@
-#
-# Notification Originator
-#
-# Send multiple SNMP notifications using the following options:
-#
-# * SNMPv1 and SNMPv2c
-# * with community name 'public'
-# * over IPv4/UDP
-# * send TRAP notification
-# * to multiple Managers
-# * with TRAP ID 'coldStart' specified as a MIB symbol
-# * include managed object information specified as var-bind objects pair
-#
-from pysnmp.entity.rfc3413.oneliner import ntforg
-from pysnmp.entity import engine
-from pysnmp.proto import rfc1902
+"""
+Multiple concurrent queries
++++++++++++++++++++++++++++
+
+Send a bunch of different SNMP Notifications to different peers all at once,
+wait for responses asynchronously:
+
+* SNMPv1 and SNMPv2c
+* with community name 'public'
+* over IPv4/UDP
+* send TRAP notification
+* to multiple Managers
+* with TRAP ID 'coldStart' specified as a MIB symbol
+* include managed object information specified as var-bind objects pair
+
+"""#
+from pysnmp.entity.rfc3413.oneliner.ntforg import *
 
 # List of targets in the followin format:
 # ( ( authData, transportTarget ), ... )
 targets = (
     # 1-st target (SNMPv1 over IPv4/UDP)
-    ( ntforg.CommunityData('public', mpModel=0),
-      ntforg.UdpTransportTarget(('localhost', 162)),
-      ntforg.ContextData() ),
+    ( CommunityData('public', mpModel=0),
+      UdpTransportTarget(('localhost', 162)),
+      ContextData() ),
     # 2-nd target (SNMPv2c over IPv4/UDP)
-    ( ntforg.CommunityData('public'),
-      ntforg.UdpTransportTarget(('localhost', 162)),
-      ntforg.ContextData() ),
+    ( CommunityData('public'),
+      UdpTransportTarget(('localhost', 162)),
+      ContextData() ),
 )
 
-snmpEngine = engine.SnmpEngine()
+snmpEngine = SnmpEngine()
 
-ntfOrg = ntforg.AsyncNotificationOriginator()
+ntfOrg = AsyncNotificationOriginator()
 
 for authData, transportTarget, contextData in targets:
     ntfOrg.sendNotification(
@@ -39,11 +40,11 @@ for authData, transportTarget, contextData in targets:
         transportTarget,
         contextData,
         'trap',         # NotifyType
-        ntforg.NotificationType(
-            ntforg.ObjectIdentity('SNMPv2-MIB', 'coldStart')
+        NotificationType(
+            ObjectIdentity('SNMPv2-MIB', 'coldStart')
         ).addVarBinds(
-            ( rfc1902.ObjectName('1.3.6.1.2.1.1.1.0'),
-              rfc1902.OctetString('my name') )
+            ( ObjectName('1.3.6.1.2.1.1.1.0'),
+              OctetString('my name') )
         )
     )
 
