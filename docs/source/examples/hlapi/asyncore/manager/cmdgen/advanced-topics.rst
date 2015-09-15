@@ -4,72 +4,81 @@
 Advanced topics
 ---------------
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/get-v3-multiple-calls.py
+.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getbulk-limit-number-of-packets.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/get-v3-multiple-calls.py
+.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getbulk-limit-number-of-packets.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/get-v3-multiple-calls.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getbulk-limit-number-of-packets.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/get-v3-with-specific-engine-id.py
+.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/multiple-get-calls.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/get-v3-with-specific-engine-id.py
+.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/multiple-get-calls.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/get-v3-with-specific-engine-id.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/multiple-get-calls.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/get-v3-with-custom-security-name.py
+.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/custom-contextengineid.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/get-v3-with-custom-security-name.py
+.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/custom-contextengineid.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/get-v3-with-custom-security-name.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/custom-contextengineid.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/set-v3-with-custom-contextengineid.py
+.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/custom-contextengineid-and-contextname.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/set-v3-with-custom-contextengineid.py
+.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/custom-contextengineid-and-contextname.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/set-v3-with-custom-contextengineid.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/custom-contextengineid-and-contextname.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/set-v3-with-custom-contextengineid-and-contextname.py
+.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/custom-v3-security-name.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/set-v3-with-custom-contextengineid-and-contextname.py
+.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/custom-v3-security-name.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/set-v3-with-custom-contextengineid-and-contextname.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/custom-v3-security-name.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/get-threaded-multiple-transports-and-protocols.py
+.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/specific-v3-engine-id.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/get-threaded-multiple-transports-and-protocols.py
+.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/specific-v3-engine-id.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/get-threaded-multiple-transports-and-protocols.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/specific-v3-engine-id.py>` script.
 
 
+.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/query-agents-from-multuple-threads.py
+   :start-after: """
+   :end-before: """#
+
+.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/query-agents-from-multuple-threads.py
+   :start-after: """#
+   :language: python
+
+:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/query-agents-from-multuple-threads.py>` script.
 
 
-
+See also: :doc:`library reference </docs/contents>`.

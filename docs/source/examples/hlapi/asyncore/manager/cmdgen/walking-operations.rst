@@ -4,58 +4,48 @@
 Walking operations
 ------------------
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-v3-pull-whole-mib-with-mib-lookup.py
+.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-multiple-oids-to-eom.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-v3-pull-whole-mib-with-mib-lookup.py
+.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-multiple-oids-to-eom.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-v3-pull-whole-mib-with-mib-lookup.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-multiple-oids-to-eom.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getbulk-v2c.py
+.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/pull-whole-mib.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getbulk-v2c.py
+.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/pull-whole-mib.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getbulk-v2c.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/pull-whole-mib.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-v3-pull-whole-mib-with-options.py
+.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getbulk-limit-number-of-variables.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-v3-pull-whole-mib-with-options.py
+.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getbulk-limit-number-of-variables.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-v3-pull-whole-mib-with-options.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getbulk-limit-number-of-variables.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getbulk-v3-limiting-number-of-packets.py
+.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-limit-number-of-variables.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getbulk-v3-limiting-number-of-packets.py
+.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-limit-number-of-variables.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getbulk-v3-limiting-number-of-packets.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-limit-number-of-variables.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-v2c.py
-   :start-after: """
-   :end-before: """#
-
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-v2c.py
-   :start-after: """#
-   :language: python
-
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-v2c.py>` script.
-
-
+See also: :doc:`library reference </docs/contents>`.
