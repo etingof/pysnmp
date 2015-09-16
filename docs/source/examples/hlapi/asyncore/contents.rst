@@ -1,6 +1,6 @@
 
-PySNMP Oneliner Examples
-========================
+High-level SNMP
+===============
 
 This chapter illustrates various uses of the high-level programming 
 interfaces to some of Standard SNMP Applicaitons, as defined in 
@@ -22,11 +22,11 @@ Command Generator Applications
 
 Here's a quick example on a simple SNMP GET by oneliner API:
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/get-v1.py
+.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/v1-get.py
    :start-after: options:
    :end-before: Functionally
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/get-v1.py
+.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/v1-get.py
    :start-after: """#
    :language: python
 
@@ -34,11 +34,11 @@ To make use of SNMPv3 and USM, the following code performs a series of
 SNMP GETNEXT operations effectively fetching a table of SNMP variables
 from SNMP Agent:
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-v3-pull-whole-mib-with-mib-lookup.py
+.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/pull-whole-mib.py
    :start-after: options:
    :end-before: Functionally
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-v3-pull-whole-mib-with-mib-lookup.py
+.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/pull-whole-mib.py
    :start-after: """#
    :language: python
 
@@ -61,11 +61,11 @@ Notification Originator Application
 Sending SNMP TRAP's and INFORM's is as easy with PySNMP's oneliner 
 library. The following code sends SNMP TRAP:
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/agent/ntforg/trap-v1-with-custom-values.py
+.. include:: /../../examples/v3arch/asyncore/oneliner/agent/ntforg/default-v1-trap.py
    :start-after: options:
    :end-before: Functionally
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/agent/ntforg/trap-v1-with-custom-values.py
+.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/agent/ntforg/default-v1-trap.py
    :start-after: """#
    :language: python
 

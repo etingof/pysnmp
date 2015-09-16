@@ -4,26 +4,26 @@
 MIB walking operations
 ----------------------
 
-.. include:: /../../examples/v1arch/asyncore/manager/cmdgen/getnext-v1.py
+.. include:: /../../examples/v1arch/asyncore/manager/cmdgen/getnext-pull-whole-mib.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v1arch/asyncore/manager/cmdgen/getnext-v1.py
+.. literalinclude:: /../../examples/v1arch/asyncore/manager/cmdgen/getnext-pull-whole-mib.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v1arch/asyncore/manager/cmdgen/getnext-v1.py>` script.
+:download:`Download</../../examples/v1arch/asyncore/manager/cmdgen/getnext-pull-whole-mib.py>` script.
 
 
-.. include:: /../../examples/v1arch/asyncore/manager/cmdgen/getbulk-v2c.py
+.. include:: /../../examples/v1arch/asyncore/manager/cmdgen/getbulk-pull-whole-mib.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v1arch/asyncore/manager/cmdgen/getbulk-v2c.py
+.. literalinclude:: /../../examples/v1arch/asyncore/manager/cmdgen/getbulk-pull-whole-mib.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v1arch/asyncore/manager/cmdgen/getbulk-v2c.py>` script.
+:download:`Download</../../examples/v1arch/asyncore/manager/cmdgen/getbulk-pull-whole-mib.py>` script.
 
 
-See also: :doc:`library-reference </docs/contents>`.
+See also: :doc:`library reference </docs/contents>`.

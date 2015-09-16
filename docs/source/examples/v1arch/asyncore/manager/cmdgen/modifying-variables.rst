@@ -4,15 +4,15 @@
 Modifying variables
 -------------------
 
-.. include:: /../../examples/v1arch/asyncore/manager/cmdgen/set-v2c.py
+.. include:: /../../examples/v1arch/asyncore/manager/cmdgen/v2c-set.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v1arch/asyncore/manager/cmdgen/set-v2c.py
+.. literalinclude:: /../../examples/v1arch/asyncore/manager/cmdgen/v2c-set.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v1arch/asyncore/manager/cmdgen/set-v2c.py>` script.
+:download:`Download</../../examples/v1arch/asyncore/manager/cmdgen/v2c-set.py>` script.
 
 
-See also: :doc:`library-reference </docs/contents>`.
+See also: :doc:`library reference </docs/contents>`.

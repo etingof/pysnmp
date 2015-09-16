@@ -4,15 +4,15 @@
 Fetching variables
 ------------------
 
-.. include:: /../../examples/v1arch/asyncore/manager/cmdgen/get-v1.py
+.. include:: /../../examples/v1arch/asyncore/manager/cmdgen/fetch-scalar-value.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v1arch/asyncore/manager/cmdgen/get-v1.py
+.. literalinclude:: /../../examples/v1arch/asyncore/manager/cmdgen/fetch-scalar-value.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v1arch/asyncore/manager/cmdgen/get-v1.py>` script.
+:download:`Download</../../examples/v1arch/asyncore/manager/cmdgen/fetch-scalar-value.py>` script.
 
 
-See also: :doc:`library-reference </docs/contents>`.
+See also: :doc:`library reference </docs/contents>`.

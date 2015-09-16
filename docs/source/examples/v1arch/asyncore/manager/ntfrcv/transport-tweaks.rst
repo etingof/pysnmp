@@ -4,15 +4,15 @@
 Transport tweaks
 ----------------
 
-.. include:: /../../examples/v1arch/asyncore/manager/ntfrcv/v1-multiple-transports.py
+.. include:: /../../examples/v1arch/asyncore/manager/ntfrcv/listen-on-ipv4-and-ipv6-interfaces.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v1arch/asyncore/manager/ntfrcv/v1-multiple-transports.py
+.. literalinclude:: /../../examples/v1arch/asyncore/manager/ntfrcv/listen-on-ipv4-and-ipv6-interfaces.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v1arch/asyncore/manager/ntfrcv/v1-multiple-transports.py>` script.
+:download:`Download</../../examples/v1arch/asyncore/manager/ntfrcv/listen-on-ipv4-and-ipv6-interfaces.py>` script.
 
 
-See also: :doc:`library-reference </docs/contents>`.
+See also: :doc:`library reference </docs/contents>`.

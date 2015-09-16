@@ -18,7 +18,6 @@ Command Generator Applications
 .. toctree::
 
    /examples/v3arch/twisted/manager/cmdgen/snmp-versions
-   /examples/v3arch/twisted/manager/cmdgen/modifying-variables
    /examples/v3arch/twisted/manager/cmdgen/walking-operations
    /examples/v3arch/twisted/manager/cmdgen/table-operations
    /examples/v3arch/twisted/manager/cmdgen/transport-tweaks

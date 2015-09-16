@@ -4,15 +4,15 @@
 Agent-side MIB implementations
 ------------------------------
 
-.. include:: /../../examples/v1arch/asyncore/agent/cmdrsp/v2c-custom-scalar-mib-objects.py
+.. include:: /../../examples/v1arch/asyncore/agent/cmdrsp/implementing-scalar-mib-objects.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v1arch/asyncore/agent/cmdrsp/v2c-custom-scalar-mib-objects.py
+.. literalinclude:: /../../examples/v1arch/asyncore/agent/cmdrsp/implementing-scalar-mib-objects.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v1arch/asyncore/agent/cmdrsp/v2c-custom-scalar-mib-objects.py>` script.
+:download:`Download</../../examples/v1arch/asyncore/agent/cmdrsp/implementing-scalar-mib-objects.py>` script.
 
 
-See also: :doc:`library-reference </docs/contents>`.
+See also: :doc:`library reference </docs/contents>`.
