@@ -4,36 +4,37 @@
 Transport tweaks
 ----------------
 
-.. include:: /../../examples/v3arch/asyncore/manager/ntfrcv/v2c-multiple-interfaces.py
+.. include:: /../../examples/v3arch/asyncore/manager/ntfrcv/multiple-network-interfaces.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/ntfrcv/v2c-multiple-interfaces.py
+.. literalinclude:: /../../examples/v3arch/asyncore/manager/ntfrcv/multiple-network-interfaces.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/manager/ntfrcv/v2c-multiple-interfaces.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/manager/ntfrcv/multiple-network-interfaces.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/manager/ntfrcv/v2c-multiple-transports.py
+.. include:: /../../examples/v3arch/asyncore/manager/ntfrcv/multiple-network-transports.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/ntfrcv/v2c-multiple-transports.py
+.. literalinclude:: /../../examples/v3arch/asyncore/manager/ntfrcv/multiple-network-transports.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/manager/ntfrcv/v2c-multiple-transports.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/manager/ntfrcv/multiple-network-transports.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/manager/ntfrcv/v2c-with-request-details.py
+.. include:: /../../examples/v3arch/asyncore/manager/ntfrcv/determine-peer-network-address.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/ntfrcv/v2c-with-request-details.py
+.. literalinclude:: /../../examples/v3arch/asyncore/manager/ntfrcv/determine-peer-network-address.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/manager/ntfrcv/v2c-with-request-details.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/manager/ntfrcv/determine-peer-network-address.py>` script.
 
 
+See also: :doc:`library reference </docs/contents>`.

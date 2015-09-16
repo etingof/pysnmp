@@ -30,8 +30,6 @@ Command Generator Applications
    /examples/v3arch/asyncore/manager/cmdgen/mib-tweaks
    /examples/v3arch/asyncore/manager/cmdgen/transport-tweaks
    /examples/v3arch/asyncore/manager/cmdgen/advanced-topics
-.. XXX /examples/v3arch/asyncore/manager/cmdgen/asynchronous-operations
-
 
 Command Responder Applications
 ------------------------------
@@ -54,8 +52,6 @@ Notification Originator Applications
    /examples/v3arch/asyncore/agent/ntforg/multiple-managers-operations
    /examples/v3arch/asyncore/agent/ntforg/transport-tweaks
    /examples/v3arch/asyncore/agent/ntforg/advanced-topics
-.. XXX /examples/v3arch/asyncore/agent/ntforg/snmp-v1-trap-variants
-
 
 Notification Receiver Applications
 ----------------------------------

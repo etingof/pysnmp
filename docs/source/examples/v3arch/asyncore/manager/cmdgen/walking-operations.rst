@@ -4,58 +4,26 @@
 Walking operations
 ------------------
 
-.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/getbulk-v2c.py
+.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/getbulk-multiple-oids-to-eom.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/getbulk-v2c.py
+.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/getbulk-multiple-oids-to-eom.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/getbulk-v2c.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/getbulk-multiple-oids-to-eom.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/getbulk-v3.py
+.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/getnext-multiple-oids-to-eom.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/getbulk-v3.py
+.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/getnext-multiple-oids-to-eom.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/getbulk-v3.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/getnext-multiple-oids-to-eom.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/getnext-v1.py
-   :start-after: """
-   :end-before: """#
-
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/getnext-v1.py
-   :start-after: """#
-   :language: python
-
-:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/getnext-v1.py>` script.
-
-
-.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/getnext-v3-pull-subtree.py
-   :start-after: """
-   :end-before: """#
-
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/getnext-v3-pull-subtree.py
-   :start-after: """#
-   :language: python
-
-:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/getnext-v3-pull-subtree.py>` script.
-
-
-.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/getnext-v2c.py
-   :start-after: """
-   :end-before: """#
-
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/getnext-v2c.py
-   :start-after: """#
-   :language: python
-
-:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/getnext-v2c.py>` script.
-
-
+See also: :doc:`library reference </docs/contents>`.

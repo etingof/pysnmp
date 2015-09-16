@@ -4,46 +4,48 @@
 Agent-side MIB implementations
 ------------------------------
 
-.. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/v2c-custom-scalar-mib-objects.py
+.. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/implementing-scalar-mib-objects.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/agent/cmdrsp/v2c-custom-scalar-mib-objects.py
+.. literalinclude:: /../../examples/v3arch/asyncore/agent/cmdrsp/implementing-scalar-mib-objects.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/v2c-custom-scalar-mib-objects.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/implementing-scalar-mib-objects.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/v2c-custom-tabular-mib-objects.py
+.. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/implementing-snmp-table.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/agent/cmdrsp/v2c-custom-tabular-mib-objects.py
+.. literalinclude:: /../../examples/v3arch/asyncore/agent/cmdrsp/implementing-snmp-table.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/v2c-custom-tabular-mib-objects.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/implementing-snmp-table.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/v3-alternative-mib.py
+.. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/alternative-mib-tree.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/agent/cmdrsp/v3-alternative-mib.py
+.. literalinclude:: /../../examples/v3arch/asyncore/agent/cmdrsp/alternative-mib-tree.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/v3-alternative-mib.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/alternative-mib-tree.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/v3-alternative-mib-controller.py
+.. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/custom-mib-controller.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/agent/cmdrsp/v3-alternative-mib-controller.py
+.. literalinclude:: /../../examples/v3arch/asyncore/agent/cmdrsp/custom-mib-controller.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/v3-alternative-mib-controller.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/custom-mib-controller.py>` script.
 
+
+See also: :doc:`library reference </docs/contents>`.

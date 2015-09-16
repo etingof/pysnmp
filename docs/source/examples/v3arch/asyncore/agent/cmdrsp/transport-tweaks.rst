@@ -4,35 +4,37 @@
 Transport tweaks
 ----------------
 
-.. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/v2c-multiple-interfaces.py
+.. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/listen-on-ipv4-and-ipv6-interfaces.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/agent/cmdrsp/v2c-multiple-interfaces.py
+.. literalinclude:: /../../examples/v3arch/asyncore/agent/cmdrsp/listen-on-ipv4-and-ipv6-interfaces.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/v2c-multiple-interfaces.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/listen-on-ipv4-and-ipv6-interfaces.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/v2c-multiple-transports.py
+.. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/listen-on-multiple-interfaces.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/agent/cmdrsp/v2c-multiple-transports.py
+.. literalinclude:: /../../examples/v3arch/asyncore/agent/cmdrsp/listen-on-multiple-interfaces.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/v2c-multiple-transports.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/listen-on-multiple-interfaces.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/v3-preserve-original-destination-address.py
+.. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/listening-on-virtual-network-interface.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/agent/cmdrsp/v3-preserve-original-destination-address.py
+.. literalinclude:: /../../examples/v3arch/asyncore/agent/cmdrsp/listening-on-virtual-network-interface.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/v3-preserve-original-destination-address.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/listening-on-virtual-network-interface.py>` script.
 
+
+See also: :doc:`library reference </docs/contents>`.

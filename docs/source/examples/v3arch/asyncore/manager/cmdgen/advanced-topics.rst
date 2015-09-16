@@ -4,25 +4,26 @@
 Advanced topics
 ---------------
 
-.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v3-custom-context.py
+.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/custom-contextengineid-and-contextname.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v3-custom-context.py
+.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/custom-contextengineid-and-contextname.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/get-v3-custom-context.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/custom-contextengineid-and-contextname.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v3-observe-request-processing.py
+.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/observe-request-processing.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v3-observe-request-processing.py
+.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/observe-request-processing.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/get-v3-observe-request-processing.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/observe-request-processing.py>` script.
 
 
+See also: :doc:`library reference </docs/contents>`.

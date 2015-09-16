@@ -4,24 +4,26 @@
 Various SNMP versions
 ----------------------
 
-.. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/v1-read-and-write-communities.py
+.. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/multiple-usm-users.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/agent/cmdrsp/v1-read-and-write-communities.py
+.. literalinclude:: /../../examples/v3arch/asyncore/agent/cmdrsp/multiple-usm-users.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/v1-read-and-write-communities.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/multiple-usm-users.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/v3-multiple-users.py
+.. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/multiple-snmp-communities.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/agent/cmdrsp/v3-multiple-users.py
+.. literalinclude:: /../../examples/v3arch/asyncore/agent/cmdrsp/multiple-snmp-communities.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/v3-multiple-users.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/multiple-snmp-communities.py>` script.
 
+
+See also: :doc:`library reference </docs/contents>`.

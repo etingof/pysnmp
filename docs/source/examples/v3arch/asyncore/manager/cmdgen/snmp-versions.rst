@@ -4,69 +4,48 @@
 Various SNMP versions
 ----------------------
 
-.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v1.py
+.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/v1-get.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v1.py
+.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/v1-get.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/get-v1.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/v1-get.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v2c-custom-timeout.py
+.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/v2c-set.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v2c-custom-timeout.py
+.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/v2c-set.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/get-v2c-custom-timeout.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/v2c-set.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v3.py
+.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/usm-sha-aes128.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v3.py
+.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/usm-sha-aes128.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/get-v3.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/usm-sha-aes128.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v3-with-mib-lookup.py
+.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/usm-sha-none.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v3-with-mib-lookup.py
+.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/usm-sha-none.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/get-v3-with-mib-lookup.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/usm-sha-none.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v3-auth-priv.py
-   :start-after: """
-   :end-before: """#
-
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v3-auth-priv.py
-   :start-after: """#
-   :language: python
-
-:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/get-v3-auth-priv.py>` script.
-
-
-.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v3-auth-priv-sha-aes128.py
-   :start-after: """
-   :end-before: """#
-
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v3-auth-priv-sha-aes128.py
-   :start-after: """#
-   :language: python
-
-:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/get-v3-auth-priv-sha-aes128.py>` script.
-
-
+See also: :doc:`library reference </docs/contents>`.

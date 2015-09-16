@@ -10,33 +10,35 @@ different network addresses over different SNMP versions/credentials.
 
 The following few examples use this facility.
 
-.. include:: /../../examples/v3arch/asyncore/agent/ntforg/inform-multiple-protocols.py
+.. include:: /../../examples/v3arch/asyncore/agent/ntforg/send-inform-to-multiple-managers.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/agent/ntforg/inform-multiple-protocols.py
+.. literalinclude:: /../../examples/v3arch/asyncore/agent/ntforg/send-inform-to-multiple-managers.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/agent/ntforg/inform-multiple-protocols.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/agent/ntforg/send-inform-to-multiple-managers.py>` script.
 
-.. include:: /../../examples/v3arch/asyncore/agent/ntforg/trap-v2c-multiple-addresses.py
+.. include:: /../../examples/v3arch/asyncore/agent/ntforg/send-trap-to-multiple-managers.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/agent/ntforg/trap-v2c-multiple-addresses.py
+.. literalinclude:: /../../examples/v3arch/asyncore/agent/ntforg/send-trap-to-multiple-managers.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/agent/ntforg/trap-v2c-multiple-addresses.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/agent/ntforg/send-trap-to-multiple-managers.py>` script.
 
-.. include:: /../../examples/v3arch/asyncore/agent/ntforg/trap-v2c-multiple-transports.py
+.. include:: /../../examples/v3arch/asyncore/agent/ntforg/multiple-different-notifications-at-once.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/agent/ntforg/trap-v2c-multiple-transports.py
+.. literalinclude:: /../../examples/v3arch/asyncore/agent/ntforg/multiple-different-notifications-at-once.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/agent/ntforg/trap-v2c-multiple-transports.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/agent/ntforg/multiple-different-notifications-at-once.py>` script.
 
+
+See also: :doc:`library reference </docs/contents>`.

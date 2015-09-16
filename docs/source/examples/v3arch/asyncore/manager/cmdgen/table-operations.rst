@@ -4,56 +4,25 @@
 Table operations
 ----------------
 
-.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/getnext-v1.py
+.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/getbulk-fetch-scalar-and-table-variables.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/getnext-v1.py
+.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/getbulk-fetch-scalar-and-table-variables.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/getnext-v1.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/getbulk-fetch-scalar-and-table-variables.py>` script.
 
-.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v3-table-object-by-index.py
+.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/pull-subtree.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v3-table-object-by-index.py
+.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/pull-subtree.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/get-v3-table-object-by-index.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/pull-subtree.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v3-table-object-by-multiple-indices.py
-   :start-after: """
-   :end-before: """#
-
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/get-v3-table-object-by-multiple-indices.py
-   :start-after: """#
-   :language: python
-
-:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/get-v3-table-object-by-multiple-indices.py>` script.
-
-
-.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/getbulk-v3-over-ipv6-with-mib-lookup.py
-   :start-after: """
-   :end-before: """#
-
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/getbulk-v3-over-ipv6-with-mib-lookup.py
-   :start-after: """#
-   :language: python
-
-:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/getbulk-v3-over-ipv6-with-mib-lookup.py>` script.
-
-
-.. include:: /../../examples/v3arch/asyncore/manager/cmdgen/getbulk-v2c-limiting-number-of-rows.py 
-   :start-after: """
-   :end-before: """#
-
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/cmdgen/getbulk-v2c-limiting-number-of-rows.py 
-   :start-after: """#
-   :language: python
-
-:download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/getbulk-v2c-limiting-number-of-rows.py>` script.
-
+See also: :doc:`library reference </docs/contents>`.

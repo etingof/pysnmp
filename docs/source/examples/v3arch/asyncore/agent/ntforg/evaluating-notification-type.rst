@@ -13,14 +13,15 @@ Consequently, sending specific NOTIFICATION-TYPE implies including certain
 set of OIDs into PDU. PySNMP offers this facility through NotificationType
 class.
 
-.. include:: /../../examples/v3arch/asyncore/agent/ntforg/trap-v2c-with-objects.py
+.. include:: /../../examples/v3arch/asyncore/agent/ntforg/v2c-trap-via-notification-type.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/agent/ntforg/trap-v2c-with-objects.py
+.. literalinclude:: /../../examples/v3arch/asyncore/agent/ntforg/v2c-trap-via-notification-type.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/agent/ntforg/trap-v2c-with-objects.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/agent/ntforg/v2c-trap-via-notification-type.py>` script.
 
 
+See also: :doc:`library reference </docs/contents>`.

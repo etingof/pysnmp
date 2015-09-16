@@ -4,24 +4,25 @@
 Common notifications
 --------------------
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/agent/ntforg/trap-v2c-with-mib-lookup.py
+.. include:: /../../examples/v3arch/asyncore/oneliner/agent/ntforg/v2c-trap-via-notification-type.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/agent/ntforg/trap-v2c-with-mib-lookup.py
+.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/agent/ntforg/v2c-trap-via-notification-type.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/agent/ntforg/trap-v2c-with-mib-lookup.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/oneliner/agent/ntforg/v2c-trap-via-notification-type.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/agent/ntforg/inform-v3.py
+.. include:: /../../examples/v3arch/asyncore/oneliner/agent/ntforg/v3-inform.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/agent/ntforg/inform-v3.py
+.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/agent/ntforg/v3-inform.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/agent/ntforg/inform-v3.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/oneliner/agent/ntforg/v3-inform.py>` script.
 
+See also: :doc:`library reference </docs/contents>`.
