@@ -49,7 +49,7 @@ APIs are:
 
          /examples/v3arch/twisted/contents
 
-#. Packet-level API that lets you build SNMP messages from Python 
+#. Low-level API that lets you build SNMP messages from Python 
    objects and exchange them through asyncore transport (or you could 
    write your own). These interfaces are very low-level and aimed at 
    a rather specific programming tasks.
@@ -58,6 +58,15 @@ APIs are:
       :maxdepth: 2
 
       /examples/v1arch/asyncore/contents
+
+.. comment #. SMI subsystem is separated from SNMP protocol implementation, and
+   consists of MIB files processing, MIB browsing and MIB variables
+   management subsystems.
+
+   .. toctree::
+      :maxdepth: 2
+
+      /examples/v1arch/smi/contents
 
 Before doing cut&paste of the code below into your Python interpreter, 
 make sure to install pysnmp and its dependencies by running pip or 

@@ -14,3 +14,5 @@ Modifying variables
 
 :download:`Download</../../examples/v1arch/asyncore/manager/cmdgen/set-v2c.py>` script.
 
+
+See also: :doc:`library-reference </docs/contents>`.

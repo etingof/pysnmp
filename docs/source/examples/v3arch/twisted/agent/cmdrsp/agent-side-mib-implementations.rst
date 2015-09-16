@@ -4,13 +4,15 @@
 Agent-side MIB implementations
 ------------------------------
 
-.. include:: /../../examples/v3arch/twisted/agent/cmdrsp/v2c-custom-scalar-mib-objects.py
+.. include:: /../../examples/v3arch/twisted/agent/cmdrsp/implementing-scalar-mib-objects.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/twisted/agent/cmdrsp/v2c-custom-scalar-mib-objects.py
+.. literalinclude:: /../../examples/v3arch/twisted/agent/cmdrsp/implementing-scalar-mib-objects.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/twisted/agent/cmdrsp/v2c-custom-scalar-mib-objects.py>` script.
+:download:`Download</../../examples/v3arch/twisted/agent/cmdrsp/implementing-scalar-mib-objects.py>` script.
 
+
+See also: :doc:`library reference </docs/contents>`.

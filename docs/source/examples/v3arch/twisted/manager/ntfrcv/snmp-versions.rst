@@ -4,13 +4,15 @@
 Various SNMP versions
 ---------------------
 
-.. include:: /../../examples/v3arch/twisted/manager/ntfrcv/v3-multiple-users.py
+.. include:: /../../examples/v3arch/twisted/manager/ntfrcv/multiple-usm-users.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/twisted/manager/ntfrcv/v3-multiple-users.py
+.. literalinclude:: /../../examples/v3arch/twisted/manager/ntfrcv/multiple-usm-users.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/twisted/manager/ntfrcv/v3-multiple-users.py>` script.
+:download:`Download</../../examples/v3arch/twisted/manager/ntfrcv/multiple-usm-users.py>` script.
 
+
+See also: :doc:`library reference </docs/contents>`.

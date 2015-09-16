@@ -14,3 +14,5 @@ Fetching variables
 
 :download:`Download</../../examples/v1arch/asyncore/manager/cmdgen/get-v1.py>` script.
 
+
+See also: :doc:`library-reference </docs/contents>`.

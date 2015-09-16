@@ -4,13 +4,15 @@
 Transport tweaks
 ----------------
 
-.. include:: /../../examples/v3arch/twisted/agent/cmdrsp/v2c-multiple-interfaces.py
+.. include:: /../../examples/v3arch/twisted/agent/cmdrsp/multiple-interfaces.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/twisted/agent/cmdrsp/v2c-multiple-interfaces.py
+.. literalinclude:: /../../examples/v3arch/twisted/agent/cmdrsp/multiple-interfaces.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/twisted/agent/cmdrsp/v2c-multiple-interfaces.py>` script.
+:download:`Download</../../examples/v3arch/twisted/agent/cmdrsp/multiple-interfaces.py>` script.
 
+
+See also: :doc:`library reference </docs/contents>`.
