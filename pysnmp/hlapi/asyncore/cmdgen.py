@@ -28,10 +28,11 @@ class AsyncCommandGenerator:
     Datastore (:RFC:`2271#section-3.4.2`) management. Typically,
     users instantiate `AsyncCommandGenerator` and call its 
     commmand-specific methods passing them canned Security,
-    Transport and SNMP Context parameters along with MIB variables
-    to deal with. `AsyncCommandGenerator` will manage LCD by
-    applying user-supplied configuratoin parameters and running
-    requested operation.
+    Transport and SNMP Context parameters along with
+    :py:class:`~pysnmp.smi.rfc1902.ObjectType` object carrying
+    MIB variables to include with SNMP request. `AsyncCommandGenerator`
+    will manage LCD by applying user-supplied configuratoin parameters
+    and running requested operation.
 
     See :RFC:`3413#section-3.1` for more information on SNMP
     Command Generator purpose, design and supported operations.
