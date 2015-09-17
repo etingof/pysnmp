@@ -5,13 +5,12 @@ Library reference
 .. toctree::
    :maxdepth: 2
 
-As dealing with 
-many features may overwhelm developers who aim at a quick and trivial task, 
-PySNMP employs a layered architecture approach where the topmost programming 
-API tries to be as simple as possible to allow immediate solutions for most 
-common use cases. For instance it will let you perform SNMP GET/SET/WALK 
-operations by pasting code snippets from this web-site right into your 
-Python interactive session.
+As dealing with many features may overwhelm developers who aim at a 
+quick and trivial task, PySNMP employs a layered architecture approach
+where the topmost programming API tries to be as simple as possible 
+to allow immediate solutions for most common use cases. For instance
+it will let you perform SNMP GET/SET/WALK operations by pasting code
+snippets from this web-site right into your Python interactive session.
 
 .. toctree::
    /docs/v3arch/asyncore/oneliner/contents
@@ -29,6 +28,12 @@ PySNMP offers native bindings to some of these framework.
 ..   /docs/v3arch/asyncio/contents
 ..   /docs/v3arch/trollius/contents
 ..   /docs/v3arch/twisted/contents
+
+All programming interfaces mentioned above revolve around the notion
+of SNMP Engine:
+
+.. toctree::
+   /docs/v3arch/snmp-engine
 
 At the other end of the complexity spectrum, PySNMP offers packet-level 
 ASN.1 data structures that let you build, parse and analyze SNMP messages 
