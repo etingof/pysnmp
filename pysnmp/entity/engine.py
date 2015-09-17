@@ -22,7 +22,9 @@ class SnmpEngine:
     See :RFC:`3412#section-2.1` (where it is termed *The Dispatcher*).
 
     With PySNMP design, `SnmpEngine` is the only stateful object, all SNMP
-    v3 operations require an instance of SNMP engine.
+    v3 operations require an instance of SNMP engine. Users do not normally
+    request services directly from `SnmpEngine`, but pass it around to
+    other PySNMP interfaces.
     
     It is possible to run multiple instances of `SnmpEngine` in the
     application. In a multithreaded environment, each thread that

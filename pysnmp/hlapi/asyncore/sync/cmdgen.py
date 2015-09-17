@@ -25,13 +25,13 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     contextData : :py:class:`~pysnmp.entity.rfc3413.oneliner.ctx.ContextData`
         Class instance representing SNMP ContextEngineId and ContextName values.
 
-    *varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
+    \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
         One or more class instances representing MIB variables to place
         into SNMP request.
     
     Other Parameters
     ----------------
-    **options :
+    \*\*options :
         Request options:
 
             * `lookupMib` - load MIB and resolve response MIB variables at
@@ -134,13 +134,13 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     contextData : :py:class:`~pysnmp.entity.rfc3413.oneliner.ctx.ContextData`
         Class instance representing SNMP ContextEngineId and ContextName values.
 
-    *varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
+    \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
         One or more class instances representing MIB variables to place
         into SNMP request.
     
     Other Parameters
     ----------------
-    **options :
+    \*\*options :
         Request options:
 
             * `lookupMib` - load MIB and resolve response MIB variables at
@@ -245,13 +245,13 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     contextData : :py:class:`~pysnmp.entity.rfc3413.oneliner.ctx.ContextData`
         Class instance representing SNMP ContextEngineId and ContextName values.
 
-    *varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
+    \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
         One or more class instances representing MIB variables to place
         into SNMP request.
     
     Other Parameters
     ----------------
-    **options :
+    \*\*options :
         Request options:
 
             * `lookupMib` - load MIB and resolve response MIB variables at
@@ -428,13 +428,13 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
          `nonRepeaters`). Remote SNMP engine may choose lesser value than
          requested.
 
-    *varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
+    \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
         One or more class instances representing MIB variables to place
         into SNMP request.
     
     Other Parameters
     ----------------
-    **options :
+    \*\*options :
         Request options:
 
             * `lookupMib` - load MIB and resolve response MIB variables at
