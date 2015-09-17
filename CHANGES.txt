@@ -25,6 +25,8 @@ Revision 4.3.0, work in progress
     API along with a more comprehensive set of accepted parameters.
   * keep backward compatibility for all existing major/documented interfaces
 
+- Sphinx documentation added to source code and example scripts. Library
+  documentation converted from .html into RsT markup.
 - Execution Observer facility implemented to give app an inside view
   of SNMP engine inner workings. This is thought to be a generic
   framework for viewing (and modifying) various internal states
