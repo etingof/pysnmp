@@ -300,6 +300,8 @@ intersphinx_mapping = { 'python': ('https://docs.python.org/', None),
 
 # this merges constructor docstring with class docstring
 autoclass_content = 'both'
+# Sort members by type
+autodoc_member_order = 'bysource'
 
 # Napoleon settings
 napoleon_google_docstring = False
