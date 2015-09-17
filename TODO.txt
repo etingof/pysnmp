@@ -54,3 +54,12 @@ Sparse notes on major existing problems/plans
   may need a means to deal only with specific node types.
 
 * redesign proto.errind.ErrorIndication
+
+* move LCD and var-bind management routines from Async* classes
+
+* make oneliner helper routines more general, not bound to asyncore-based
+  implementation
+
+* improve oneliner modules layout to make it possible to create more
+  transport-specific oneliner interfaces
+ 

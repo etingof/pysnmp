@@ -51,9 +51,9 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
     errorIndication : str
         True value indicates SNMP engine error.
     errorStatus : str
-        Non-zero value indicates SNMP PDU error.
+        True value indicates SNMP PDU error.
     errorIndex : int
-        Non-zero value refers to \*varBinds[errorIndex-1]
+        Non-zero value refers to `varBinds[errorIndex-1]`
     varBinds : tuple
         A sequence of :py:class:`~pysnmp.smi.rfc1902.ObjectType` class
         instances representing MIB variables returned in SNMP response.
