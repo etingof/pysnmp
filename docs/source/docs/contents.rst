@@ -35,6 +35,12 @@ of SNMP Engine:
 .. toctree::
    /docs/v3arch/snmp-engine
 
+SNMP represents the information is manages in form of values belonging to
+a set of types. 
+
+.. toctree::
+   /docs/snmp-data-types
+
 At the other end of the complexity spectrum, PySNMP offers packet-level 
 ASN.1 data structures that let you build, parse and analyze SNMP messages 
 travelling over network. This extremely low-level programming interface is 

@@ -2,11 +2,77 @@ from pyasn1.type import univ, tag, constraint, namedtype, namedval
 from pysnmp.proto import rfc1155, error
 
 class Integer(univ.Integer):
+    """Creates an instance of SNMP INTEGER class.
+
+    The :py:class:`~pysnmp.proto.rfc1902.Integer` type used to represent
+    integer-valued information as named-number enumerations 
+    (:RFC:`1902#section-7.1.1`). This type is indistinguishable from the
+    :py:class:`~pysnmp.proto.rfc1902.Integer32` type.
+    The :py:class:`~pysnmp.proto.rfc1902.Integer` type may be sub-typed
+    to be more constrained than the base
+    :py:class:`~pysnmp.proto.rfc1902.Integer` type.
+
+    Parameters
+    ----------
+    initializer : int
+        Python integer in range between -2147483648 to 2147483647 inclusive.
+        In case of named-numbered enumerations, initialization is also
+        possible by enumerated literal.
+
+    Raises
+    ------
+        PyAsn1Error :
+            On bad initilizer.
+
+    Examples
+    --------
+        >>> from pysnmp.proto.rfc1902 import *
+        >>> Integer(1234)
+        Integer(1234)
+        >>> Integer(1) > 2
+        True
+        >>> Integer(1) + 1
+        Integer(2)
+        >>>
+
+    """
     subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
         -2147483648, 2147483647
         )
 
 class Integer32(univ.Integer):
+    """Creates an instance of SNMP Integer32 class.
+
+    :py:class:`~pysnmp.proto.rfc1902.Integer32` type represents
+    integer-valued information between -2147483648 to 2147483647
+    inclusive (:RFC:`1902#section-7.1.1`). This type is indistinguishable
+    from the :py:class:`~pysnmp.proto.rfc1902.Integer` type.
+    The :py:class:`~pysnmp.proto.rfc1902.Integer32` type may be sub-typed
+    to be more constrained than the base
+    :py:class:`~pysnmp.proto.rfc1902.Integer32` type.
+
+    Parameters
+    ----------
+    initializer : int
+        Python integer in range between -2147483648 to 2147483647 inclusive.
+
+    Raises
+    ------
+        PyAsn1Error :
+            On bad initilizer.
+
+    Examples
+    --------
+        >>> from pysnmp.proto.rfc1902 import *
+        >>> Integer32(1234)
+        Integer32(1234)
+        >>> Integer32(1) > 2
+        True
+        >>> Integer32(1) + 1
+        Integer32(2)
+        >>>
+
+    """
     subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
         -2147483648, 2147483647
         )
