@@ -1,3 +1,6 @@
+#
+# WARNING: some of the classes below are manually implemented
+#
 import sys
 from pysnmp.smi import error
 from pysnmp import debug

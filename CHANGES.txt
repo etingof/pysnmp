@@ -86,6 +86,7 @@ Revision 4.3.0, work in progress
 - Passing request details to access control callback at CommandResponder
   reworked towards more robust and simple design with the execution observer
   facility.
+- All MIBs rebuilt with pysmi.
 - MIB instrumentation example improved to cover table index building facility.
 - Handle the case of null writer at Debug printer.
 - Do not cache snmpEngineId & snmpAdminString at CommandGenerator to let it

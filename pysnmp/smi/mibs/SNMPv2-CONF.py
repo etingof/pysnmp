@@ -1,4 +1,6 @@
-
+#
+# WARNING: some of the classes below are manually implemented
+#
 MibNode, = mibBuilder.importSymbols('SNMPv2-SMI', 'MibNode')
 
 class ObjectGroup(MibNode):

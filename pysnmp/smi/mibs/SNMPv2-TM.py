@@ -1,3 +1,6 @@
+#
+# WARNING: some of the classes below are manually implemented
+#
 try:
     from socket import inet_ntop, inet_pton, AF_INET
 except ImportError:

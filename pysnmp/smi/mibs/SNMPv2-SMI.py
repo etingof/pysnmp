@@ -1,3 +1,6 @@
+#
+# WARNING: some of the classes below are manually implemented
+#
 import sys
 import traceback
 from pysnmp.smi.indices import OidOrderedDict
