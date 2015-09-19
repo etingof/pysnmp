@@ -64,6 +64,8 @@ Revision 4.3.0, work in progress
   SnmpEngine what makes them reusable with many SnmpEngine class instances.
 - Oneliner GETBULK Command Generator now strips possible excessive OIDs
   off the bottom of returned var-binds table.
+- Constraints assignment shortcut added to some base rfc1902 types (Integer,
+  Integer32, OctetString, Bits). That formally constitutes ASN.1 sub-typing.
 - Built-in debugging is now based on Python logging module.
 - Example on a single Transport Dispatcher use with multiple SnmpEngine's
   in oneliner AsyncCommandGenerator & AsyncNotificationOriginator based

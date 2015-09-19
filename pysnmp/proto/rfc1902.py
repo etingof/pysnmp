@@ -1,45 +1,6 @@
 from pyasn1.type import univ, tag, constraint, namedtype, namedval
 from pysnmp.proto import rfc1155, error
 
-class Integer(univ.Integer):
-    """Creates an instance of SNMP INTEGER class.
-
-    The :py:class:`~pysnmp.proto.rfc1902.Integer` type used to represent
-    integer-valued information as named-number enumerations 
-    (:RFC:`1902#section-7.1.1`). This type is indistinguishable from the
-    :py:class:`~pysnmp.proto.rfc1902.Integer32` type.
-    The :py:class:`~pysnmp.proto.rfc1902.Integer` type may be sub-typed
-    to be more constrained than the base
-    :py:class:`~pysnmp.proto.rfc1902.Integer` type.
-
-    Parameters
-    ----------
-    initializer : int
-        Python integer in range between -2147483648 to 2147483647 inclusive.
-        In case of named-numbered enumerations, initialization is also
-        possible by enumerated literal.
-
-    Raises
-    ------
-        PyAsn1Error :
-            On bad initilizer.
-
-    Examples
-    --------
-        >>> from pysnmp.proto.rfc1902 import *
-        >>> Integer(1234)
-        Integer(1234)
-        >>> Integer(1) > 2
-        True
-        >>> Integer(1) + 1
-        Integer(2)
-        >>>
-
-    """
-    subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
-        -2147483648, 2147483647
-        )
-
 class Integer32(univ.Integer):
     """Creates an instance of SNMP Integer32 class.
 
@@ -54,12 +15,13 @@ class Integer32(univ.Integer):
     Parameters
     ----------
     initializer : int
-        Python integer in range between -2147483648 to 2147483647 inclusive.
+        Python integer in range between -2147483648 to 2147483647 inclusive
+        or :py:class:`~pysnmp.proto.rfc1902.Integer32`.
 
     Raises
     ------
         PyAsn1Error :
-            On bad initilizer.
+            On constraint violation or bad initializer.
 
     Examples
     --------
@@ -70,17 +32,135 @@ class Integer32(univ.Integer):
         True
         >>> Integer32(1) + 1
         Integer32(2)
+        >>> int(Integer32(321))
+        321
+        >>> SmallInteger = Integer32.withRange(1,3)
+        >>> SmallInteger(1)
+        Integer32(1)
+        >>> DiscreetInteger = Integer32.withValues(4, 8, 1)
+        >>> DiscreetInteger(4)
+        Integer32(4)
         >>>
 
     """
     subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
         -2147483648, 2147483647
         )
-    
+
+    @classmethod
+    def withValues(cls, *values):
+        """Creates a subclass with discreet values constraint.
+        """
+        class X(cls):
+            subtypeSpec = cls.subtypeSpec + constraint.SingleValueConstraint(*values)
+        X.__name__ = cls.__name__
+        return X
+
+    @classmethod
+    def withRange(cls, minimum, maximum):
+        """Creates a subclass with value range constraint.
+        """
+        class X(cls):
+            subtypeSpec = cls.subtypeSpec + constraint.ValueRangeConstraint(minimum, maximum)
+        X.__name__ = cls.__name__
+        return X
+ 
+class Integer(Integer32):
+    """Creates an instance of SNMP INTEGER class.
+
+    The :py:class:`~pysnmp.proto.rfc1902.Integer` type represents
+    integer-valued information as named-number enumerations 
+    (:RFC:`1902#section-7.1.1`). This type inherits and is indistinguishable
+    from :py:class:`~pysnmp.proto.rfc1902.Integer32` class.
+    The :py:class:`~pysnmp.proto.rfc1902.Integer` type may be sub-typed
+    to be more constrained than the base
+    :py:class:`~pysnmp.proto.rfc1902.Integer` type.
+
+    Parameters
+    ----------
+    initializer : int
+        Python integer in range between -2147483648 to 2147483647 inclusive
+        or :py:class:`~pysnmp.proto.rfc1902.Integer`  class instance.
+        In case of named-numbered enumerations, initialization is also
+        possible by enumerated literal.
+
+    Raises
+    ------
+        PyAsn1Error :
+            On constraint violation or bad initializer.
+
+    Examples
+    --------
+        >>> from pysnmp.proto.rfc1902 import *
+        >>> Integer(1234)
+        Integer(1234)
+        >>> Integer(1) > 2
+        True
+        >>> Integer(1) + 1
+        Integer(2)
+        >>> int(Integer(321))
+        321
+        >>> SomeState = Integer.withNamedValues(enable=1, disable=0)
+        >>> SomeState(1)
+        Integer('enable')
+        >>> int(SomeState('disable'))
+        0
+        >>>
+
+    """
+    @classmethod
+    def withNamedValues(cls, **values):
+        """Creates a subclass with discreet named values constraint.
+        """
+        class X(cls):
+            namedValues = cls.namedValues + namedval.NamedValues(*values.items())
+            subtypeSpec = cls.subtypeSpec + constraint.SingleValueConstraint(*values.values())
+        X.__name__ = cls.__name__
+        return X
+
 class OctetString(univ.OctetString):
-    subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueSizeConstraint(
+    """Creates an instance of SNMP OCTET STRING class.
+
+    The :py:class:`~pysnmp.proto.rfc1902.OctetString` type represents
+    arbitrary binary or text data (:RFC:`1902#section-7.1.2`). 
+    It may be sub-typed to be constrained in size.
+
+    Parameters
+    ----------
+    strValue : str
+        Python string or :py:class:`~pysnmp.proto.rfc1902.OctetString`
+        class instance.
+
+    Other parameters
+    ----------------
+    hexValue : str
+        Python string representing octets in a hexadecimal notation
+        (e.g. DEADBEEF).
+
+    Raises
+    ------
+        PyAsn1Error :
+            On constraint violation or bad initializer.
+
+    Examples
+    --------
+        >>> from pysnmp.proto.rfc1902 import *
+        >>> OctetString('some apples')
+        OctetString('some apples')
+        >>> OctetString('some apples') + ' and oranges'
+        OctetString('some apples and oranges')
+        >>> str(OctetString('some apples'))
+        'some apples'
+        >>> SomeString = OctetString.withSize(3, 12)
+        >>> str(SomeString(hexValue='deadbeef'))
+        '\xde\xad\xbe\xef'
+        >>>
+
+    """
+    subtypeSpec = univ.OctetString.subtypeSpec+constraint.ValueSizeConstraint(
         0, 65535
         )
+
     # rfc1902 uses a notion of "fixed length string" what might mean
     # having zero-range size constraint applied. The following is
     # supposed to be used for setting and querying this property.
@@ -109,9 +189,79 @@ class OctetString(univ.OctetString):
             self, value, implicitTag, explicitTag, subtypeSpec
         ).setFixedLength(self.getFixedLength())
 
-ObjectIdentifier = univ.ObjectIdentifier
+    @classmethod
+    def withSize(cls, minimum, maximum):
+        """Creates a subclass with value size constraint.
+        """
+        class X(cls):
+            subtypeSpec = cls.subtypeSpec + constraint.ValueSizeConstraint(minimum, maximum)
+        X.__name__ = cls.__name__
+        return X
+ 
+class ObjectIdentifier(univ.ObjectIdentifier):
+    """Creates an instance of SNMP OBJECT IDENTIFIER class.
+    
+    The :py:class:`~pysnmp.proto.rfc1902.ObjectIdentifier` type represents
+    administratively assigned names (:RFC:`1902#section-7.1.3`). 
+    Supports sequence protocol where elements are integer sub-identifiers.
+
+    Parameters
+    ----------
+    initializer: tuple, str
+        Python tuple of up to 128 integers in range between 0 to 4294967295
+        inclusive or Python string containing OID in "dotted" form or
+        :py:class:`~pysnmp.proto.rfc1902.ObjectIdentifier`.
+
+    Raises
+    ------
+        PyAsn1Error :
+            On constraint violation or bad initializer.
+
+    Examples
+    --------
+        >>> from pysnmp.proto.rfc1902 import *
+        >>> ObjectIdentifier((1, 3, 6))
+        ObjectIdentifier('1.3.6')
+        >>> ObjectIdentifier('1.3.6')
+        ObjectIdentifier('1.3.6')
+        >>> tuple(ObjectIdentifier('1.3.6'))
+        (1, 3, 6)
+        >>> str(ObjectIdentifier('1.3.6'))
+        '1.3.6'
+        >>> 
+
+    """
 
 class IpAddress(OctetString):
+    """Creates an instance of SNMP IpAddress class.
+
+    The :py:class:`~pysnmp.proto.rfc1902.IpAddress` class represents
+    a 32-bit internet address as an OCTET STRING of length 4, in network
+    byte-order (:RFC:`1902#section-7.1.5`). 
+
+    Parameters
+    ----------
+    strValue : str
+        The same as :py:class:`~pysnmp.proto.rfc1902.OctetString`,
+        additionally IPv4 address in dotted notation ('127.0.0.1').
+
+    Raises
+    ------
+        PyAsn1Error :
+            On constraint violation or bad initializer.
+
+    Examples
+    --------
+        >>> from pysnmp.proto.rfc1902 import *
+        >>> IpAddress('127.0.0.1')
+        IpAddress(hexValue='7f000001')
+        >>> str(IpAddress(hexValue='7f000001'))
+        '\x7f\x00\x00\x01'
+        >>> IpAddress('\x7f\x00\x00\x01')
+        IpAddress(hexValue='7f000001')
+        >>>
+
+    """
     tagSet = OctetString.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x00)
         )
@@ -140,6 +290,36 @@ class IpAddress(OctetString):
             return ''
 
 class Counter32(univ.Integer):
+    """Creates an instance of SNMP Counter32 class.
+
+    :py:class:`~pysnmp.proto.rfc1902.Counter32` type represents
+    a non-negative integer which monotonically increases until it
+    reaches a maximum value of 4294967295, when it wraps around and
+    starts increasing again from zero (:RFC:`1902#section-7.1.6`).
+
+    Parameters
+    ----------
+    initializer : int
+        Python integer in range between 0 to 4294967295 inclusive
+        or any :py:class:`~pysnmp.proto.rfc1902.Integer`-based class.
+
+    Raises
+    ------
+        PyAsn1Error :
+            On constraint violation or bad initializer.
+
+    Examples
+    --------
+        >>> from pysnmp.proto.rfc1902 import *
+        >>> Counter32(1234)
+        Counter32(1234)
+        >>> Counter32(1) + 1
+        Counter32(2)
+        >>> int(Counter32(321))
+        321
+        >>>
+
+    """
     tagSet = univ.Integer.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x01)
         )
@@ -148,6 +328,36 @@ class Counter32(univ.Integer):
         )
 
 class Gauge32(univ.Integer):
+    """Creates an instance of SNMP Gauge32 class.
+
+    :py:class:`~pysnmp.proto.rfc1902.Gauge32` type represents
+    a non-negative integer, which may increase or decrease, but shall
+    never exceed a maximum value. The maximum value can not be greater
+    than 4294967295 (:RFC:`1902#section-7.1.7`).
+
+    Parameters
+    ----------
+    initializer : int
+        Python integer in range between 0 to 4294967295 inclusive
+        or any :py:class:`~pysnmp.proto.rfc1902.Integer`-based class.
+
+    Raises
+    ------
+        PyAsn1Error :
+            On constraint violation or bad initializer.
+
+    Examples
+    --------
+        >>> from pysnmp.proto.rfc1902 import *
+        >>> Gauge32(1234)
+        Gauge32(1234)
+        >>> Gauge32(1) + 1
+        Gauge32(2)
+        >>> int(Gauge32(321))
+        321
+        >>>
+
+    """
     tagSet = univ.Integer.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x02)
         )
@@ -156,6 +366,35 @@ class Gauge32(univ.Integer):
         )
 
 class Unsigned32(univ.Integer):
+    """Creates an instance of SNMP Unsigned32 class.
+
+    :py:class:`~pysnmp.proto.rfc1902.Unsigned32` type represents
+    integer-valued information between 0 and 4294967295
+    (:RFC:`1902#section-7.1.11`).
+
+    Parameters
+    ----------
+    initializer : int
+        Python integer in range between 0 to 4294967295 inclusive
+        or any :py:class:`~pysnmp.proto.rfc1902.Integer`-based class.
+
+    Raises
+    ------
+        PyAsn1Error :
+            On constraint violation or bad initializer.
+
+    Examples
+    --------
+        >>> from pysnmp.proto.rfc1902 import *
+        >>> Unsigned32(1234)
+        Unsigned32(1234)
+        >>> Unsigned32(1) + 1
+        Unsigned32(2)
+        >>> int(Unsigned32(321))
+        321
+        >>>
+
+    """
     tagSet = univ.Integer.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x02)
         )
@@ -164,6 +403,35 @@ class Unsigned32(univ.Integer):
         )
 
 class TimeTicks(univ.Integer):
+    """Creates an instance of SNMP TimeTicks class.
+
+    :py:class:`~pysnmp.proto.rfc1902.TimeTicks` type represents
+    a non-negative integer which represents the time, modulo 4294967296,
+    in hundredths of a second between two epochs (:RFC:`1902#section-7.1.8`).
+
+    Parameters
+    ----------
+    initializer : int
+        Python integer in range between 0 to 4294967295 inclusive
+        or any :py:class:`~pysnmp.proto.rfc1902.Integer`-based class.
+
+    Raises
+    ------
+        PyAsn1Error :
+            On constraint violation or bad initializer.
+
+    Examples
+    --------
+        >>> from pysnmp.proto.rfc1902 import *
+        >>> TimeTicks(1234)
+        TimeTicks(1234)
+        >>> TimeTicks(1) + 1
+        TimeTicks(2)
+        >>> int(TimeTicks(321))
+        321
+        >>>
+
+    """
     tagSet = univ.Integer.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x03)
         )
@@ -172,11 +440,80 @@ class TimeTicks(univ.Integer):
         )
 
 class Opaque(univ.OctetString):
+    """Creates an instance of SNMP Opaque class.
+
+    The :py:class:`~pysnmp.proto.rfc1902.Opaque` type supports the
+    capability to pass arbitrary ASN.1 syntax.  A value is encoded
+    using the ASN.1 BER into a string of octets.  This, in turn, is
+    encoded as an OCTET STRING, in effect "double-wrapping" the original
+    ASN.1 value (:RFC:`1902#section-7.1.9`). 
+
+    Parameters
+    ----------
+    strValue : str
+        Python string or :py:class:`~pysnmp.proto.rfc1902.OctetString`-based
+        class instance.
+
+    Other parameters
+    ----------------
+    hexValue : str
+        Python string representing octets in a hexadecimal notation
+        (e.g. DEADBEEF).
+
+    Raises
+    ------
+        PyAsn1Error :
+            On constraint violation or bad initializer.
+
+    Examples
+    --------
+        >>> from pysnmp.proto.rfc1902 import *
+        >>> Opaque('some apples')
+        Opaque('some apples')
+        >>> Opaque('some apples') + ' and oranges'
+        Opaque('some apples and oranges')
+        >>> str(Opaque('some apples'))
+        'some apples'
+        >>> str(Opaque(hexValue='deadbeef'))
+        '\xde\xad\xbe\xef'
+        >>>
+
+    """
     tagSet = univ.OctetString.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x04)
         )
 
 class Counter64(univ.Integer):
+    """Creates an instance of SNMP Counter64 class.
+
+    :py:class:`~pysnmp.proto.rfc1902.Counter64` type represents
+    a non-negative integer which monotonically increases until it reaches
+    a maximum value of 18446744073709551615, when it wraps around and starts
+    increasing again from zero (:RFC:`1902#section-7.1.10`).
+
+    Parameters
+    ----------
+    initializer : int
+        Python integer in range between 0 to 4294967295 inclusive
+        or any :py:class:`~pysnmp.proto.rfc1902.Integer`-based class.
+
+    Raises
+    ------
+        PyAsn1Error :
+            On constraint violation or bad initializer.
+
+    Examples
+    --------
+        >>> from pysnmp.proto.rfc1902 import *
+        >>> Counter64(1234)
+        Counter64(1234)
+        >>> Counter64(1) + 1
+        Counter64(2)
+        >>> int(Counter64(321))
+        321
+        >>>
+
+    """
     tagSet = univ.Integer.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x06)
         )
@@ -185,6 +522,54 @@ class Counter64(univ.Integer):
         )
 
 class Bits(OctetString):
+    """Creates an instance of SNMP BITS class.
+
+    The :py:class:`~pysnmp.proto.rfc1902.Bits` type represents
+    an enumeration of named bits. This collection is assigned non-negative,
+    contiguous values, starting at zero. Only those named-bits so enumerated
+    may be present in a value (:RFC:`1902#section-7.1.4`). 
+
+    The bits are named and identified by their position in the octet string.
+    Position zero is the high order (or left-most) bit in the first octet of
+    the string. Position 7 is the low order (or right-most) bit of the first
+    octet of the string. Position 8 is the high order bit in the second octet
+    of the string, and so on
+    (`BITS Pseudotype <https://tools.ietf.org/html/draft-perkins-bits-00>`_).
+
+    Parameters
+    ----------
+    strValue : str, tuple
+        Sequence of bit names or a Python string (as a raw data) or
+        :py:class:`~pysnmp.proto.rfc1902.OctetString` class instance.
+
+    Other parameters
+    ----------------
+    hexValue : str
+        Python string representing octets in a hexadecimal notation
+        (e.g. DEADBEEF).
+
+    Raises
+    ------
+        PyAsn1Error :
+            On constraint violation or bad initializer.
+
+    Examples
+    --------
+        >>> from pysnmp.proto.rfc1902 import *
+        >>> SomeBits = Bits.withNamedBits(apple=0, orange=1, peach=2)
+        >>> SomeBits(('apple', 'orange')).prettyPrint()
+        'apple, orange'
+        >>> SomeBits(('apple', 'orange'))
+        Bits(hexValue='c0')
+        >>> SomeBits('\x80')
+        Bits(hexValue='80')
+        >>> SomeBits(hexValue='80')
+        Bits(hexValue='80')
+        >>> SomeBits(hexValue='80').prettyPrint()
+        'apple'
+        >>> 
+
+    """
     namedValues = namedval.NamedValues()
     def __init__(self, value=None, tagSet=None, subtypeSpec=None,
                  encoding=None, binValue=None, hexValue=None,
@@ -267,6 +652,16 @@ class Bits(OctetString):
             namedValues = namedValues + self.__namedValues
         return self.__class__(value, tagSet, subtypeSpec,
                               namedValues=namedValues)
+
+    @classmethod
+    def withNamedBits(cls, **values):
+        """Creates a subclass with discreet named bits constraint.
+        """
+        class X(cls):
+            namedValues = cls.namedValues + namedval.NamedValues(*values.items())
+        X.__name__ = cls.__name__
+        return X
+
 
 class ObjectName(univ.ObjectIdentifier): pass
 
