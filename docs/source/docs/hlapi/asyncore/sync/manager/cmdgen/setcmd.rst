@@ -1,6 +1,6 @@
 
-SET Command Generator
-=====================
+SET command
+===========
 
 .. toctree::
    :maxdepth: 2

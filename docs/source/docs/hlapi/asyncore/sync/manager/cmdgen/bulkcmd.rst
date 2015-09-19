@@ -1,6 +1,6 @@
 
-GETBULK Command Generator
-=========================
+GETBULK command
+===============
 
 .. toctree::
    :maxdepth: 2

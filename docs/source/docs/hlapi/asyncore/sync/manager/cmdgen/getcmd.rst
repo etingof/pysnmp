@@ -1,6 +1,6 @@
 
-GET Command Generator
-=====================
+GET command
+===========
 
 .. toctree::
    :maxdepth: 2

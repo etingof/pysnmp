@@ -419,8 +419,8 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
         Class instance representing SNMP ContextEngineId and ContextName values.
 
     nonRepeaters : int
-         One MIB variable is requested in response for the first 
-         `nonRepeaters` MIB variables in request.
+        One MIB variable is requested in response for the first 
+        `nonRepeaters` MIB variables in request.
 
     maxRepetitions : int
         `maxRepetitions` MIB variables are requested in response for each

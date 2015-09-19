@@ -19,7 +19,7 @@ Various SNMP versions
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/v2-cget.py
+.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/v2c-get.py
    :start-after: """#
    :language: python
 

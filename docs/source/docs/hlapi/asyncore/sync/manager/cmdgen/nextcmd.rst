@@ -1,6 +1,6 @@
 
-GETNEXT Command Generator
-=========================
+GETNEXT command
+===============
 
 .. toctree::
    :maxdepth: 2

@@ -1,6 +1,6 @@
 
-Notification Originator
-=======================
+TRAP/INFORM notification
+========================
 
 .. toctree::
    :maxdepth: 2
