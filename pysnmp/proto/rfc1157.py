@@ -1,6 +1,9 @@
 from pyasn1.type import univ, tag, namedtype, namedval
 from pysnmp.proto import rfc1155
 
+__all__ = ['GetNextRequestPDU', 'GetResponsePDU', 'SetRequestPDU',
+           'TrapPDU', 'GetRequestPDU']
+
 class VarBind(univ.Sequence):
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('name', rfc1155.ObjectName()),

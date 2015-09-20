@@ -2,6 +2,13 @@ from pysnmp.entity import config
 from pysnmp import error
 from pyasn1.compat.octets import null
 
+__all__ = ['CommunityData', 'UsmUserData',
+           'usm3DESEDEPrivProtocol', 'usmAesCfb128Protocol',
+           'usmAesCfb192Protocol', 'usmAesCfb256Protocol',
+           'usmDESPrivProtocol', 'usmHMACMD5AuthProtocol',
+           'usmHMACSHAAuthProtocol', 'usmNoAuthProtocol',
+           'usmNoPrivProtocol']
+
 class CommunityData:
     """Creates SNMP v1/v2c configuration entry.
 

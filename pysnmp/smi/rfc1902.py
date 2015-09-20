@@ -8,21 +8,6 @@ from pyasn1.type.base import AbstractSimpleAsn1Item
 from pyasn1.error import PyAsn1Error
 from pysnmp import debug
 
-# expose SNMP types in this namespace for convenience
-Integer = rfc1902.Integer
-Integer32 = rfc1902.Integer32
-OctetString = rfc1902.OctetString
-ObjectIdentifier = rfc1902.ObjectIdentifier
-IpAddress = rfc1902.IpAddress
-Counter32 = rfc1902.Counter32
-Gauge32 = rfc1902.Gauge32
-Unsigned32 = rfc1902.Unsigned32
-TimeTicks = rfc1902.TimeTicks
-Opaque = rfc1902.Opaque
-Counter64 = rfc1902.Counter64
-Bits = rfc1902.Bits
-ObjectName = rfc1902.ObjectName
-
 class ObjectIdentity:
     """Create an object representing MIB variable ID.
 

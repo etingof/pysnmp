@@ -3,6 +3,8 @@ from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
 from pysnmp import error
 from pyasn1.compat.octets import null
 
+__all__ = ['UnixTransportTarget', 'Udp6TransportTarget', 'UdpTransportTarget']
+
 class _AbstractTransportTarget:
     transportDomain = None
     protoTransport = NotImplementedError

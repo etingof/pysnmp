@@ -1,10 +1,16 @@
-from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+#
+# This is a Python 2.6- version of the same file at level up
+#
+from pysnmp.hlapi.asyncore.cmdgen import *
+from pysnmp.hlapi.varbinds import *
+from pysnmp.proto.rfc1905 import endOfMibView
+from pysnmp.proto.errind import *
+from pyasn1.type.univ import Null
 
-# Synchronous one-liner SNMP Command Generator apps
+__all__ = ['getCmd', 'nextCmd', 'setCmd', 'bulkCmd', 'next']
 
-if version_info[:2] < (2, 6):
-    def next(iter):
-        return iter.next()
+def next(iter):
+    return iter.next()
 
 def getCmd(snmpEngine, authData, transportTarget, contextData, 
            *varBinds, **options):
@@ -98,9 +104,11 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
 
     cbCtx = {}
 
+    vbProcessor = CommandGeneratorVarBinds()
+
     cmdGen = AsyncCommandGenerator()
    
-    initialVars = [ x[0] for x in cmdGen.makeVarBinds(snmpEngine, varBinds) ]
+    initialVars = [ x[0] for x in vbProcessor.makeVarBinds(snmpEngine, varBinds) ]
 
     totalRows = totalCalls = 0
 
@@ -109,7 +117,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
                        authData,
                        transportTarget,
                        contextData,
-                       [ (x[0], univ.Null()) for x in varBinds ],
+                       [ (x[0], Null()) for x in varBinds ],
                        (cbFun, cbCtx),
                        lookupMib)
 
@@ -139,7 +147,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
             varBinds = cbCtx['varBindTable'] and cbCtx['varBindTable'][0]
             for idx, varBind in enumerate(varBinds):
                 name, val = varBind
-                if not isinstance(val, univ.Null):
+                if not isinstance(val, Null):
                     if lexicographicMode or initialVars[idx].isPrefixOf(name):
                         break
             else:
@@ -173,9 +181,11 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
 
     cbCtx = {}
 
+    vbProcessor = CommandGeneratorVarBinds()
+
     cmdGen = AsyncCommandGenerator()
    
-    initialVars = [ x[0] for x in cmdGen.makeVarBinds(snmpEngine, varBinds) ]
+    initialVars = [ x[0] for x in vbProcessor.makeVarBinds(snmpEngine, varBinds) ]
     nullVarBinds = [ False ] * len(initialVars)
 
     totalRows = totalCalls = 0
@@ -190,7 +200,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
                        transportTarget,
                        contextData,
                        nonRepeaters, maxRepetitions,
-                       [ (x[0], univ.Null()) for x in varBinds ],
+                       [ (x[0], Null()) for x in varBinds ],
                        (cbFun, cbCtx),
                        lookupMib)
 
@@ -228,14 +238,14 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
                 for j in range(len(varBindTable[i])):
                     name, val = varBindTable[i][j]
                     if nullVarBinds[j]:
-                        varBindTable[i][j] = name, rfc1905.endOfMibView
+                        varBindTable[i][j] = name, endOfMibView
                         continue
                     stopFlag = False
-                    if isinstance(val, univ.Null):
+                    if isinstance(val, Null):
                         nullVarBinds[j] = True
                     elif not lexicographicMode and \
                                 not initialVars[j].isPrefixOf(name):
-                        varBindTable[i][j] = name, rfc1905.endOfMibView
+                        varBindTable[i][j] = name, endOfMibView
                         nullVarBinds[j] = True
                 if stopFlag:
                     varBindTable = i and varBindTable[:i-1] or []

@@ -1,8 +1,6 @@
-from pysnmp.entity.rfc3413.oneliner.ntforg import *
+from pysnmp.hlapi.asyncore.ntforg import *
 
-if version_info[:2] < (2, 6):
-    def next(iter):
-        return iter.next()
+__all__ = ['sendNotification']
 
 def sendNotification(snmpEngine, authData, transportTarget, contextData,
                      notifyType, varBinds, **options):

@@ -1,5 +1,7 @@
 from pyasn1.compat.octets import null
 
+__all__ = ['ContextData']
+
 class ContextData:
     """Creates UDP/IPv6 configuration entry and initialize socket API if needed.
 

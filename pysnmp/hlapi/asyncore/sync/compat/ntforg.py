@@ -1,8 +1,12 @@
-from pysnmp.entity.rfc3413.oneliner.ntforg import *
+#
+# This is a Python 2.6- version of the same file at level up
+#
+from pysnmp.hlapi.asyncore.ntforg import *
 
-if version_info[:2] < (2, 6):
-    def next(iter):
-        return iter.next()
+__all__ = ['sendNotification', 'next']
+
+def next(iter):
+    return iter.next()
 
 #
 # Synchronous one-liner SNMP Notification Originator application

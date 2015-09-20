@@ -2,6 +2,9 @@ from pyasn1.type import univ, tag, constraint, namedtype
 from pyasn1.error import PyAsn1Error
 from pysnmp.proto import error
 
+__all__ = ['Opaque', 'NetworkAddress', 'ObjectName', 'TimeTicks',
+           'Counter', 'Gauge', 'IpAddress']
+
 class IpAddress(univ.OctetString):
     tagSet = univ.OctetString.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x00)

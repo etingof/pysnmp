@@ -1,6 +1,10 @@
 from pyasn1.type import univ, tag, constraint, namedtype, namedval
 from pysnmp.proto import rfc1155, error
 
+__all__ = ['Opaque', 'TimeTicks', 'Bits', 'Integer', 'OctetString',
+           'IpAddress', 'Counter64', 'Unsigned32', 'Gauge32', 'Integer32',
+           'ObjectIdentifier', 'Counter32']
+
 class Integer32(univ.Integer):
     """Creates an instance of SNMP Integer32 class.
 
