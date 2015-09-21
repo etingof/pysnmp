@@ -21,7 +21,7 @@ Functionally similar to:
 |                    1.3.6.1.2.1.1.9.1.3.1 s "new system name"
 
 """#
-from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+from pysnmp.hlapi.asyncore import *
 
 errorIndication, errorStatus, errorIndex, varBinds = next(
     setCmd(SnmpEngine(),

@@ -15,7 +15,7 @@ allows you to address a USM Table row just as userName does. However
 securityName can be made human-readable, also it is not an index in
 usmUserTable, thus duplicate securityName parameters are possible.
 """#
-from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+from pysnmp.hlapi.asyncore import *
 
 errorIndication, errorStatus, errorIndex, varBinds = next(
     getCmd(SnmpEngine(),

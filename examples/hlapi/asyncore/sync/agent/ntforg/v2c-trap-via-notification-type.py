@@ -19,7 +19,7 @@ Functionally similar to:
 |   1.3.6.1.4.1.20408.4.1.1.2 \
 
 """#
-from pysnmp.entity.rfc3413.oneliner.ntforg import *
+from pysnmp.hlapi.asyncore import *
 
 errorIndication, errorStatus, errorIndex, varBinds = next(
     sendNotification(SnmpEngine(),

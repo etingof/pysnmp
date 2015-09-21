@@ -20,7 +20,7 @@ Functionally similar to:
 |       SNMPv2-MIB::sysORDescr.1 = "new system name"
 
 """#
-from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+from pysnmp.hlapi.asyncore import *
 
 errorIndication, errorStatus, errorIndex, varBinds = next(
     setCmd(SnmpEngine(),

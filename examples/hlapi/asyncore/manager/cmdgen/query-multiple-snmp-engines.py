@@ -28,7 +28,7 @@ employ here is based on peer's UDP port number. Other selection
 criterias are also possible.
 
 """#
-from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+from pysnmp.hlapi.asyncore import *
 from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
 
 # List of targets in the following format:

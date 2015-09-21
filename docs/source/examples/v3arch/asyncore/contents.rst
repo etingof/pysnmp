@@ -3,7 +3,7 @@ SNMP with Asyncore
 ==================
 
 If you find yourself unable to use particular SNMP feature with the 
-high-level, "oneliner" API, your next step would be to use SNMPv3 
+high-level (hlapi) API, your next step would be to use SNMPv3 
 engine services through one of the Standard SNMP Applications 
 (`RFC3413 <https://tools.ietf.org/html/rfc3413>`_).
 

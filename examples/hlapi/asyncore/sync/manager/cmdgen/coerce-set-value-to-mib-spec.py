@@ -15,7 +15,7 @@ Functionally similar to:
 |         = "new system name"
 
 """#
-from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+from pysnmp.hlapi.asyncore import *
 
 errorIndication, errorStatus, errorIndex, varBinds = next(
     setCmd(SnmpEngine(),

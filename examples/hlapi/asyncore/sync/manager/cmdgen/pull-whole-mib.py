@@ -16,7 +16,7 @@ Functionally similar to:
 |            demo.snmplabs.com  IF-MIB::
 
 """#
-from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+from pysnmp.hlapi.asyncore import *
 
 for errorIndication, \
     errorStatus, errorIndex, \

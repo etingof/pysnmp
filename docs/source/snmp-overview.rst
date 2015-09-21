@@ -306,7 +306,7 @@ linked objects at runtime. So here are the main components:
   kept in LCD. LCD Configurator is a wrapper aimed at simplifying LCD
   operations.
 
-In most cases user is expected to only deal with the high-level, oneliner
+In most cases user is expected to only deal with the high-level
 API to all these PySNMP components. However implementing SNMP Agents,
 Proxies and some other fine features of Managers require using the Standard
 Applications API. In those cases general understanding of SNMP operations

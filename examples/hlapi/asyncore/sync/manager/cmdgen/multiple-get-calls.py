@@ -20,7 +20,7 @@ Functionally similar to:
 |        IF-MIB::ifInOctets.1
 
 """#
-from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+from pysnmp.hlapi.asyncore import *
 
 queue = [ [ ObjectType(ObjectIdentity('IF-MIB', 'ifInOctets', 1)) ],
           [ ObjectType(ObjectIdentity('IF-MIB', 'ifOutOctets', 1)) ] ]

@@ -428,9 +428,9 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
 
     maxRepetitions : int
         `maxRepetitions` MIB variables are requested in response for each
-         of the remaining MIB variables in the request (e.g. excluding
-         `nonRepeaters`). Remote SNMP engine may choose lesser value than
-         requested.
+        of the remaining MIB variables in the request (e.g. excluding
+        `nonRepeaters`). Remote SNMP engine may choose lesser value than
+        requested.
 
     \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
         One or more class instances representing MIB variables to place
@@ -462,7 +462,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     errorStatus : str
         True value indicates SNMP PDU error.
     errorIndex : int
-        Non-zero value refers to *varBinds[errorIndex-1]
+        Non-zero value refers to \*varBinds[errorIndex-1]
     varBinds : tuple
         A sequence of :py:class:`~pysnmp.smi.rfc1902.ObjectType` class
         instances representing MIB variables returned in SNMP response.

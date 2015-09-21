@@ -4,69 +4,69 @@
 Various SNMP versions
 ----------------------
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/v1-get.py
+.. include:: /../../examples/hlapi/asyncore/manager/cmdgen/v1-get.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/v1-get.py
+.. literalinclude:: /../../examples/hlapi/asyncore/manager/cmdgen/v1-get.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/v1-get.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/v1-get.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/v2c-get.py
+.. include:: /../../examples/hlapi/asyncore/manager/cmdgen/v2c-get.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/v2c-get.py
+.. literalinclude:: /../../examples/hlapi/asyncore/manager/cmdgen/v2c-get.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/v2c-get.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/v2c-get.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/usm-md5-des.py
+.. include:: /../../examples/hlapi/asyncore/manager/cmdgen/usm-md5-des.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/usm-md5-des.py
+.. literalinclude:: /../../examples/hlapi/asyncore/manager/cmdgen/usm-md5-des.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/usm-md5-des.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/usm-md5-des.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/usm-md5-none.py
+.. include:: /../../examples/hlapi/asyncore/manager/cmdgen/usm-md5-none.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/usm-md5-none.py
+.. literalinclude:: /../../examples/hlapi/asyncore/manager/cmdgen/usm-md5-none.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/usm-md5-none.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/usm-md5-none.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/usm-none-none.py
+.. include:: /../../examples/hlapi/asyncore/manager/cmdgen/usm-none-none.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/usm-none-none.py
+.. literalinclude:: /../../examples/hlapi/asyncore/manager/cmdgen/usm-none-none.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/usm-none-none.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/usm-none-none.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/usm-sha-aes128.py
+.. include:: /../../examples/hlapi/asyncore/manager/cmdgen/usm-sha-aes128.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/usm-sha-aes128.py
+.. literalinclude:: /../../examples/hlapi/asyncore/manager/cmdgen/usm-sha-aes128.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/usm-sha-aes128.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/usm-sha-aes128.py>` script.
 
 See also: :doc:`library reference </docs/contents>`.

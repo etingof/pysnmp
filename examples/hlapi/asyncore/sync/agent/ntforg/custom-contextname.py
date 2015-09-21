@@ -24,7 +24,7 @@ Functionally similar to:
 |              1.3.6.1.6.3.1.1.5.2
 
 """#
-from pysnmp.entity.rfc3413.oneliner.ntforg import *
+from pysnmp.hlapi.asyncore import *
 
 errorIndication, errorStatus, errorIndex, varBinds = next(
     sendNotification(SnmpEngine(),

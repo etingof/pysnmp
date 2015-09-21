@@ -19,7 +19,7 @@ Functionally similar to:
 |        1.3.6.1.2.1.2.2 1.3.6.1.2.1.2.3
 
 """#
-from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+from pysnmp.hlapi.asyncore import *
 
 for errorIndication, \
     errorStatus, errorIndex, \

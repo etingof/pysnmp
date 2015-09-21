@@ -15,7 +15,7 @@ following options:
 * for multiple MIB subtrees and tables
 
 """#
-from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+from pysnmp.hlapi.asyncore import *
 
 # List of targets in the followin format:
 # ( ( authData, transportTarget, varNames ), ... )

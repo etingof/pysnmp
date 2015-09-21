@@ -13,7 +13,7 @@ it will let you perform SNMP GET/SET/WALK operations by pasting code
 snippets from this web-site right into your Python interactive session.
 
 .. toctree::
-   /docs/v3arch/asyncore/oneliner/contents
+   /docs/hlapi/contents
 
 At the basic level, PySNMP offers a complete set of Standard SNMP 
 Applications to give you maximum flexibility with integration of SNMP 
@@ -28,18 +28,6 @@ PySNMP offers native bindings to some of these framework.
 ..   /docs/v3arch/asyncio/contents
 ..   /docs/v3arch/trollius/contents
 ..   /docs/v3arch/twisted/contents
-
-All programming interfaces mentioned above revolve around the notion
-of SNMP Engine:
-
-.. toctree::
-   /docs/v3arch/snmp-engine
-
-SNMP represents the information is manages in form of values belonging to
-a set of types. 
-
-.. toctree::
-   /docs/snmp-data-types
 
 At the other end of the complexity spectrum, PySNMP offers packet-level 
 ASN.1 data structures that let you build, parse and analyze SNMP messages 

@@ -17,7 +17,7 @@ Functionally similar to:
 |                   IF-MIB::ifInOctets.1 IF-MIB::ifOutOctets.1
 
 """#
-from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+from pysnmp.hlapi.asyncore import *
 
 errorIndication, errorStatus, errorIndex, varBinds = next(
     getCmd(SnmpEngine(),

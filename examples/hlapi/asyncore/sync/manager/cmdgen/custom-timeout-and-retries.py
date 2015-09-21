@@ -28,7 +28,7 @@ Functionally similar to:
 | $ snmpget -v1 -c public demo.snmplabs.com 1.3.6.1.2.1.1.1.0
 
 """#
-from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+from pysnmp.hlapi.asyncore import *
 
 errorIndication, errorStatus, errorIndex, varBinds = next(
     getCmd(SnmpEngine(),

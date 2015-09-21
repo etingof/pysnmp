@@ -17,7 +17,7 @@ Functionally similar to:
 |           TCP-MIB::tcpConnLocalAddress."0.0.0.0".22."0.0.0.0".0 
 
 """#
-from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+from pysnmp.hlapi.asyncore import *
 
 errorIndication, errorStatus, errorIndex, varBinds = next(
     getCmd(SnmpEngine(),

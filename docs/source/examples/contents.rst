@@ -18,7 +18,7 @@ APIs are:
    .. toctree::
       :maxdepth: 2
 
-      /examples/v3arch/asyncore/oneliner/contents
+      /examples/hlapi/asyncore/contents
 
 #. Complete implementation of all official Standard SNMP Applications. It 
    should let you implement any SNMP operation defined in the standard. 

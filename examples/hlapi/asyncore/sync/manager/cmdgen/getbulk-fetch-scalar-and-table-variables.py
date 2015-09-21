@@ -13,14 +13,14 @@ Send a series of SNMP GETBULK requests using the following options:
 
 Functionally similar to:
 
-| $ snmpbulkwalk -v3 -lauthPriv -u usr-md5-none -A authkey1 -X privkey1 \
+| $ snmpbulkwalk -v3 -lauthPriv -u usr-md5-des -A authkey1 -X privkey1 \
 |                -Cn1, -Cr25 \
 |                demo.snmplabs.com \
 |                IP-MIB::ipAdEntAddr \
 |                IP-MIB::ipAddrEntry
 
 """#
-from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+from pysnmp.hlapi.asyncore import *
 
 for errorIndication, \
     errorStatus, errorIndex, \

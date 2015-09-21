@@ -18,7 +18,7 @@ Send SNMP GET request using the following scenario and options:
 * for an OID in text form
 
 """#
-from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+from pysnmp.hlapi.asyncore import *
 
 snmpEngine = SnmpEngine()
 

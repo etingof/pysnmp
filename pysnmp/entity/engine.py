@@ -14,6 +14,8 @@ from pysnmp.entity import observer
 from pysnmp import debug
 from pysnmp import error
 
+__all__ = ['SnmpEngine']
+
 class SnmpEngine:
     """Creates SNMP engine object.
    
@@ -39,7 +41,6 @@ class SnmpEngine:
 
     Examples
     --------
-    >>> from pysnmp.entity.engine import SnmpEngine
     >>> SnmpEngine()
     SnmpEngine(snmpEngineID=OctetString(hexValue='0x80004fb80567726f6d6d69742'))
     >>>

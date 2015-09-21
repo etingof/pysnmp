@@ -4,48 +4,48 @@
 Walking operations
 ------------------
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-multiple-oids-to-eom.py
+.. include:: /../../examples/hlapi/asyncore/manager/cmdgen/getnext-multiple-oids-to-eom.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-multiple-oids-to-eom.py
+.. literalinclude:: /../../examples/hlapi/asyncore/manager/cmdgen/getnext-multiple-oids-to-eom.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-multiple-oids-to-eom.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/getnext-multiple-oids-to-eom.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/pull-whole-mib.py
+.. include:: /../../examples/hlapi/asyncore/manager/cmdgen/pull-whole-mib.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/pull-whole-mib.py
+.. literalinclude:: /../../examples/hlapi/asyncore/manager/cmdgen/pull-whole-mib.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/pull-whole-mib.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/pull-whole-mib.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getbulk-limit-number-of-variables.py
+.. include:: /../../examples/hlapi/asyncore/manager/cmdgen/getbulk-limit-number-of-variables.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getbulk-limit-number-of-variables.py
+.. literalinclude:: /../../examples/hlapi/asyncore/manager/cmdgen/getbulk-limit-number-of-variables.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getbulk-limit-number-of-variables.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/getbulk-limit-number-of-variables.py>` script.
 
 
-.. include:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-limit-number-of-variables.py
+.. include:: /../../examples/hlapi/asyncore/manager/cmdgen/getnext-limit-number-of-variables.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-limit-number-of-variables.py
+.. literalinclude:: /../../examples/hlapi/asyncore/manager/cmdgen/getnext-limit-number-of-variables.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/oneliner/manager/cmdgen/getnext-limit-number-of-variables.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/getnext-limit-number-of-variables.py>` script.
 
 
 See also: :doc:`library reference </docs/contents>`.

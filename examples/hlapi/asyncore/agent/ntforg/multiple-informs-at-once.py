@@ -13,7 +13,7 @@ Send multiple SNMP notifications at once using the following options:
 * include managed object information specified as var-bind objects pair
 
 """#
-from pysnmp.entity.rfc3413.oneliner.ntforg import *
+from pysnmp.hlapi.asyncore import *
 
 # List of targets in the followin format:
 # ( ( authData, transportTarget ), ... )

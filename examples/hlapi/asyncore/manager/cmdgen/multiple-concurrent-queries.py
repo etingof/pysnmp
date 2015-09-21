@@ -16,7 +16,7 @@ wait for responses asynchronously:
   SNMPv2-MIB::sysLocation.0 MIB objects
 
 """#
-from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+from pysnmp.hlapi.asyncore import *
 
 # List of targets in the followin format:
 # ( ( authData, transportTarget, varNames ), ... )

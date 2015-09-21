@@ -1,4 +1,3 @@
-# This file is necessary to make this directory a package.
 from pysnmp.proto.rfc1902 import *
 from pysnmp.smi.rfc1902 import *
 from pysnmp.hlapi.auth import *

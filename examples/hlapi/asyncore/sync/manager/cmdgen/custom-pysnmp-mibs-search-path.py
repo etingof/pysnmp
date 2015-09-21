@@ -18,7 +18,7 @@ Functionally similar to:
 |                demo.snmplabs.com  TCP-MIB::tcpConnTable
 
 """#
-from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+from pysnmp.hlapi.asyncore import *
 
 for errorIndication, \
     errorStatus, errorIndex, \

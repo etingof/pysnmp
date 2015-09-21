@@ -5,4 +5,4 @@ GETNEXT command
 .. toctree::
    :maxdepth: 2
 
-.. autofunction:: pysnmp.entity.rfc3413.oneliner.cmdgen.nextCmd
+.. autofunction:: pysnmp.hlapi.asyncore.nextCmd
