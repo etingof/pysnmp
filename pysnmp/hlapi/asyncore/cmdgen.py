@@ -17,7 +17,7 @@ class AsyncCommandGenerator:
 
     This is a high-level wrapper around pure Command Generator
     impementation that aims at simplyfing 
-    :py:class:`pysnmp.entity.engine.SnmpEngine`'s Local Configuration
+    :py:class:`pysnmp.hlapi.SnmpEngine`'s Local Configuration
     Datastore (:RFC:`2271#section-3.4.2`) management. Typically,
     users instantiate `AsyncCommandGenerator` and call its 
     commmand-specific methods passing them canned Security,
@@ -44,17 +44,17 @@ class AsyncCommandGenerator:
 
         Parameters
         ----------
-        snmpEngine : :py:class:`~pysnmp.entity.engine.SnmpEngine`
+        snmpEngine : :py:class:`~pysnmp.hlapi.SnmpEngine`
             Class instance representing SNMP engine.
 
-        authData : :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.CommunityData` or :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.UsmUserData`
+        authData : :py:class:`~pysnmp.hlapi.CommunityData` or :py:class:`~pysnmp.hlapi.UsmUserData`
             Class instance representing SNMP credentials.
 
-        transportTarget : :py:class:`~pysnmp.entity.rfc3413.oneliner.target.UdpTransportTarget` or :py:class:`~pysnmp.entity.rfc3413.oneliner.target.Udp6TransportTarget`
+        transportTarget : :py:class:`~pysnmp.hlapi.asyncore.UdpTransportTarget` or :py:class:`~pysnmp.hlapi.asyncore.Udp6TransportTarget`
             Class instance representing transport type along with SNMP peer
             address.
 
-        contextData : :py:class:`~pysnmp.entity.rfc3413.oneliner.ctx.ContextData`
+        contextData : :py:class:`~pysnmp.hlapi.ContextData`
             Class instance representing SNMP ContextEngineId and ContextName
             values.
 
@@ -80,7 +80,7 @@ class AsyncCommandGenerator:
         User-supplied `cbFun` callable must have the following call
         signature:
 
-        * snmpEngine (:py:class:`~pysnmp.entity.engine.SnmpEngine`): 
+        * snmpEngine (:py:class:`~pysnmp.hlapi.SnmpEngine`): 
           Class instance representing SNMP engine.
         * sendRequestHandle (int): Unique request identifier. Can be used 
           for matching multiple ongoing requests with received responses.
@@ -107,7 +107,7 @@ class AsyncCommandGenerator:
 
         Examples
         --------
-        >>> from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+        >>> from pysnmp.hlapi.asyncore import *
         >>> def cbFun(snmpEngine, sendRequestHandle, errorIndication, errorStatus, errorIndex, varBinds, cbCtx):
         ...     print(errorIndication, errorStatus, errorIndex, varBinds)
         >>>
@@ -165,17 +165,17 @@ class AsyncCommandGenerator:
 
         Parameters
         ----------
-        snmpEngine : :py:class:`~pysnmp.entity.engine.SnmpEngine`
+        snmpEngine : :py:class:`~pysnmp.hlapi.SnmpEngine`
             Class instance representing SNMP engine.
 
-        authData : :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.CommunityData` or :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.UsmUserData`
+        authData : :py:class:`~pysnmp.hlapi.CommunityData` or :py:class:`~pysnmp.hlapi.UsmUserData`
             Class instance representing SNMP credentials.
 
-        transportTarget : :py:class:`~pysnmp.entity.rfc3413.oneliner.target.UdpTransportTarget` or :py:class:`~pysnmp.entity.rfc3413.oneliner.target.Udp6TransportTarget`
+        transportTarget : :py:class:`~pysnmp.hlapi.asyncore.UdpTransportTarget` or :py:class:`~pysnmp.hlapi.asyncore.Udp6TransportTarget`
             Class instance representing transport type along with SNMP peer
             address.
 
-        contextData : :py:class:`~pysnmp.entity.rfc3413.oneliner.ctx.ContextData`
+        contextData : :py:class:`~pysnmp.hlapi.ContextData`
             Class instance representing SNMP ContextEngineId and ContextName
             values.
 
@@ -201,7 +201,7 @@ class AsyncCommandGenerator:
         User-supplied `cbFun` callable must have the following call
         signature:
 
-        * snmpEngine (:py:class:`~pysnmp.entity.engine.SnmpEngine`): 
+        * snmpEngine (:py:class:`~pysnmp.hlapi.SnmpEngine`): 
           Class instance representing SNMP engine.
         * sendRequestHandle (int): Unique request identifier. Can be used 
           for matching multiple ongoing requests with received responses.
@@ -228,7 +228,7 @@ class AsyncCommandGenerator:
 
         Examples
         --------
-        >>> from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+        >>> from pysnmp.hlapi.asyncore import *
         >>> def cbFun(snmpEngine, sendRequestHandle, errorIndication, errorStatus, errorIndex, varBinds, cbCtx):
         ...     print(errorIndication, errorStatus, errorIndex, varBinds)
         >>>
@@ -286,17 +286,17 @@ class AsyncCommandGenerator:
 
         Parameters
         ----------
-        snmpEngine : :py:class:`~pysnmp.entity.engine.SnmpEngine`
+        snmpEngine : :py:class:`~pysnmp.hlapi.SnmpEngine`
             Class instance representing SNMP engine.
 
-        authData : :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.CommunityData` or :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.UsmUserData`
+        authData : :py:class:`~pysnmp.hlapi.CommunityData` or :py:class:`~pysnmp.hlapi.UsmUserData`
             Class instance representing SNMP credentials.
 
-        transportTarget : :py:class:`~pysnmp.entity.rfc3413.oneliner.target.UdpTransportTarget` or :py:class:`~pysnmp.entity.rfc3413.oneliner.target.Udp6TransportTarget`
+        transportTarget : :py:class:`~pysnmp.hlapi.asyncore.UdpTransportTarget` or :py:class:`~pysnmp.hlapi.asyncore.Udp6TransportTarget`
             Class instance representing transport type along with SNMP peer
             address.
 
-        contextData : :py:class:`~pysnmp.entity.rfc3413.oneliner.ctx.ContextData`
+        contextData : :py:class:`~pysnmp.hlapi.ContextData`
             Class instance representing SNMP ContextEngineId and ContextName
             values.
 
@@ -322,7 +322,7 @@ class AsyncCommandGenerator:
         User-supplied `cbFun` callable must have the following call
         signature:
 
-        * snmpEngine (:py:class:`~pysnmp.entity.engine.SnmpEngine`): 
+        * snmpEngine (:py:class:`~pysnmp.hlapi.SnmpEngine`): 
           Class instance representing SNMP engine.
         * sendRequestHandle (int): Unique request identifier. Can be used 
           for matching multiple ongoing requests with received responses.
@@ -351,7 +351,7 @@ class AsyncCommandGenerator:
 
         Examples
         --------
-        >>> from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+        >>> from pysnmp.hlapi.asyncore import *
         >>> def cbFun(snmpEngine, sendRequestHandle, errorIndication, errorStatus, errorIndex, varBinds, cbCtx):
         ...     print(errorIndication, errorStatus, errorIndex, varBinds)
         >>>
@@ -406,17 +406,17 @@ class AsyncCommandGenerator:
 
         Parameters
         ----------
-        snmpEngine : :py:class:`~pysnmp.entity.engine.SnmpEngine`
+        snmpEngine : :py:class:`~pysnmp.hlapi.SnmpEngine`
             Class instance representing SNMP engine.
 
-        authData : :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.CommunityData` or :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.UsmUserData`
+        authData : :py:class:`~pysnmp.hlapi.CommunityData` or :py:class:`~pysnmp.hlapi.UsmUserData`
             Class instance representing SNMP credentials.
 
-        transportTarget : :py:class:`~pysnmp.entity.rfc3413.oneliner.target.UdpTransportTarget` or :py:class:`~pysnmp.entity.rfc3413.oneliner.target.Udp6TransportTarget`
+        transportTarget : :py:class:`~pysnmp.hlapi.asyncore.UdpTransportTarget` or :py:class:`~pysnmp.hlapi.asyncore.Udp6TransportTarget`
             Class instance representing transport type along with SNMP peer
             address.
 
-        contextData : :py:class:`~pysnmp.entity.rfc3413.oneliner.ctx.ContextData`
+        contextData : :py:class:`~pysnmp.hlapi.ContextData`
             Class instance representing SNMP ContextEngineId and ContextName
             values.
 
@@ -452,7 +452,7 @@ class AsyncCommandGenerator:
         User-supplied `cbFun` callable must have the following call
         signature:
 
-        * snmpEngine (:py:class:`~pysnmp.entity.engine.SnmpEngine`): 
+        * snmpEngine (:py:class:`~pysnmp.hlapi.SnmpEngine`): 
           Class instance representing SNMP engine.
         * sendRequestHandle (int): Unique request identifier. Can be used 
           for matching multiple ongoing requests with received responses.
@@ -481,7 +481,7 @@ class AsyncCommandGenerator:
 
         Examples
         --------
-        >>> from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+        >>> from pysnmp.hlapi.asyncore import *
         >>> def cbFun(snmpEngine, sendRequestHandle, errorIndication, errorStatus, errorIndex, varBinds, cbCtx):
         ...     print(errorIndication, errorStatus, errorIndex, varBinds)
         >>>

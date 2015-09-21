@@ -8,6 +8,8 @@ from pyasn1.type.base import AbstractSimpleAsn1Item
 from pyasn1.error import PyAsn1Error
 from pysnmp import debug
 
+__all__ = ['ObjectIdentity', 'ObjectType', 'NotificationType']
+
 class ObjectIdentity:
     """Create an object representing MIB variable ID.
 

@@ -62,10 +62,10 @@ transportDispatcher.registerRoutingCbFun(
     lambda td,ta,d: ta[1] % 3 and 'A' or 'B'
 )
 
-snmpEngineA = engine.SnmpEngine()
+snmpEngineA = SnmpEngine()
 snmpEngineA.registerTransportDispatcher(transportDispatcher, 'A')
 
-snmpEngineB = engine.SnmpEngine()
+snmpEngineB = SnmpEngine()
 snmpEngineB.registerTransportDispatcher(transportDispatcher, 'B')
 
 ntfOrg = AsyncNotificationOriginator()

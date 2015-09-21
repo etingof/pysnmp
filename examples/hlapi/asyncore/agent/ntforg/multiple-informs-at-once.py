@@ -40,7 +40,7 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
         for name, val in varBinds:
             print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
 
-snmpEngine = engine.SnmpEngine()
+snmpEngine = SnmpEngine()
 
 ntfOrg = AsyncNotificationOriginator()
 

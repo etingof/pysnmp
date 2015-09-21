@@ -15,16 +15,16 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
 
     Parameters
     ----------
-    snmpEngine : :py:class:`~pysnmp.entity.engine.SnmpEngine`
+    snmpEngine : :py:class:`~pysnmp.hlapi.SnmpEngine`
         Class instance representing SNMP engine.
 
-    authData : :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.CommunityData` or :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.UsmUserData`
+    authData : :py:class:`~pysnmp.hlapi.CommunityData` or :py:class:`~pysnmp.hlapi.UsmUserData`
         Class instance representing SNMP credentials.
 
-    transportTarget : :py:class:`~pysnmp.entity.rfc3413.oneliner.target.UdpTransportTarget` or :py:class:`~pysnmp.entity.rfc3413.oneliner.target.Udp6TransportTarget`
+    transportTarget : :py:class:`~pysnmp.hlapi.asyncore.UdpTransportTarget` or :py:class:`~pysnmp.hlapi.asyncore.Udp6TransportTarget`
         Class instance representing transport type along with SNMP peer address.
 
-    contextData : :py:class:`~pysnmp.entity.rfc3413.oneliner.ctx.ContextData`
+    contextData : :py:class:`~pysnmp.hlapi.ContextData`
         Class instance representing SNMP ContextEngineId and ContextName values.
 
     \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
@@ -65,7 +65,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
 
     Examples
     --------
-    >>> from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+    >>> from pysnmp.hlapi.asyncore import *
     >>> g = getCmd(SnmpEngine(),
     ...            CommunityData('public'),
     ...            UdpTransportTarget(('demo.snmplabs.com', 161)),
@@ -124,16 +124,16 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
 
     Parameters
     ----------
-    snmpEngine : :py:class:`~pysnmp.entity.engine.SnmpEngine`
+    snmpEngine : :py:class:`~pysnmp.hlapi.SnmpEngine`
         Class instance representing SNMP engine.
 
-    authData : :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.CommunityData` or :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.UsmUserData`
+    authData : :py:class:`~pysnmp.hlapi.CommunityData` or :py:class:`~pysnmp.hlapi.UsmUserData`
         Class instance representing SNMP credentials.
 
-    transportTarget : :py:class:`~pysnmp.entity.rfc3413.oneliner.target.UdpTransportTarget` or :py:class:`~pysnmp.entity.rfc3413.oneliner.target.Udp6TransportTarget`
+    transportTarget : :py:class:`~pysnmp.hlapi.asyncore.UdpTransportTarget` or :py:class:`~pysnmp.hlapi.asyncore.Udp6TransportTarget`
         Class instance representing transport type along with SNMP peer address.
 
-    contextData : :py:class:`~pysnmp.entity.rfc3413.oneliner.ctx.ContextData`
+    contextData : :py:class:`~pysnmp.hlapi.ContextData`
         Class instance representing SNMP ContextEngineId and ContextName values.
 
     \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
@@ -175,7 +175,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
 
     Examples
     --------
-    >>> from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+    >>> from pysnmp.hlapi.asyncore import *
     >>> g = setCmd(SnmpEngine(),
     ...            CommunityData('public'),
     ...            UdpTransportTarget(('demo.snmplabs.com', 161)),
@@ -235,16 +235,16 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
 
     Parameters
     ----------
-    snmpEngine : :py:class:`~pysnmp.entity.engine.SnmpEngine`
+    snmpEngine : :py:class:`~pysnmp.hlapi.SnmpEngine`
         Class instance representing SNMP engine.
 
-    authData : :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.CommunityData` or :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.UsmUserData`
+    authData : :py:class:`~pysnmp.hlapi.CommunityData` or :py:class:`~pysnmp.hlapi.UsmUserData`
         Class instance representing SNMP credentials.
 
-    transportTarget : :py:class:`~pysnmp.entity.rfc3413.oneliner.target.UdpTransportTarget` or :py:class:`~pysnmp.entity.rfc3413.oneliner.target.Udp6TransportTarget`
+    transportTarget : :py:class:`~pysnmp.hlapi.asyncore.UdpTransportTarget` or :py:class:`~pysnmp.hlapi.asyncore.Udp6TransportTarget`
         Class instance representing transport type along with SNMP peer address.
 
-    contextData : :py:class:`~pysnmp.entity.rfc3413.oneliner.ctx.ContextData`
+    contextData : :py:class:`~pysnmp.hlapi.ContextData`
         Class instance representing SNMP ContextEngineId and ContextName values.
 
     \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
@@ -306,7 +306,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
 
     Examples
     --------
-    >>> from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+    >>> from pysnmp.hlapi.asyncore import *
     >>> g = nextCmd(SnmpEngine(),
     ...             CommunityData('public'),
     ...             UdpTransportTarget(('demo.snmplabs.com', 161)),
@@ -410,16 +410,16 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
 
     Parameters
     ----------
-    snmpEngine : :py:class:`~pysnmp.entity.engine.SnmpEngine`
+    snmpEngine : :py:class:`~pysnmp.hlapi.SnmpEngine`
         Class instance representing SNMP engine.
 
-    authData : :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.CommunityData` or :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.UsmUserData`
+    authData : :py:class:`~pysnmp.hlapi.CommunityData` or :py:class:`~pysnmp.hlapi.UsmUserData`
         Class instance representing SNMP credentials.
 
-    transportTarget : :py:class:`~pysnmp.entity.rfc3413.oneliner.target.UdpTransportTarget` or :py:class:`~pysnmp.entity.rfc3413.oneliner.target.Udp6TransportTarget`
+    transportTarget : :py:class:`~pysnmp.hlapi.asyncore.UdpTransportTarget` or :py:class:`~pysnmp.hlapi.asyncore.Udp6TransportTarget`
         Class instance representing transport type along with SNMP peer address.
 
-    contextData : :py:class:`~pysnmp.entity.rfc3413.oneliner.ctx.ContextData`
+    contextData : :py:class:`~pysnmp.hlapi.ContextData`
         Class instance representing SNMP ContextEngineId and ContextName values.
 
     nonRepeaters : int
@@ -495,7 +495,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
 
     Examples
     --------
-    >>> from pysnmp.entity.rfc3413.oneliner.cmdgen import *
+    >>> from pysnmp.hlapi.asyncore import *
     >>> g = bulkCmd(SnmpEngine(),
     ...             CommunityData('public'),
     ...             UdpTransportTarget(('demo.snmplabs.com', 161)),

@@ -13,10 +13,10 @@ class CommunityData:
     """Creates SNMP v1/v2c configuration entry.
 
     This object can be used by 
-    :py:class:`~pysnmp.entity.rfc3413.oneliner.cmdgen.AsyncCommandGenerator` or
-    :py:class:`~pysnmp.entity.rfc3413.oneliner.ntforg.AsyncNotificationOriginator`
+    :py:class:`~pysnmp.hlapi.asyncore.AsyncCommandGenerator` or
+    :py:class:`~pysnmp.hlapi.asyncore.AsyncNotificationOriginator`
     and their derivatives for adding new entries to Local Configuration
-    Datastore (LCD) managed by :py:class:`~pysnmp.entity.engine.SnmpEngine`
+    Datastore (LCD) managed by :py:class:`~pysnmp.hlapi.SnmpEngine`
     class instance.
 
     See :RFC:`2576#section-5.3` for more information on the 
@@ -45,7 +45,7 @@ class CommunityData:
 
     Examples
     --------
-    >>> from pysnmp.entity.rfc3413.oneliner.auth import CommunityData
+    >>> from pysnmp.hlapi import CommunityData
     >>> CommunityData('public')
     CommunityData(communityIndex='s1410706889', communityName=<COMMUNITY>, mpModel=1, contextEngineId=None, contextName='', tag='')
     >>> CommunityData('public', 'public')
@@ -140,10 +140,10 @@ class UsmUserData:
     """Creates SNMP v3 User Security Model (USM) configuration entry.
 
     This object can be used by 
-    :py:class:`~pysnmp.entity.rfc3413.oneliner.cmdgen.AsyncCommandGenerator` or
-    :py:class:`~pysnmp.entity.rfc3413.oneliner.ntforg.AsyncNotificationOriginator`
+    :py:class:`~pysnmp.hlapi.asyncore.AsyncCommandGenerator` or
+    :py:class:`~pysnmp.hlapi.asyncore.AsyncNotificationOriginator`
     and their derivatives for adding new entries to Local Configuration
-    Datastore (LCD) managed by :py:class:`~pysnmp.entity.engine.SnmpEngine`
+    Datastore (LCD) managed by :py:class:`~pysnmp.hlapi.SnmpEngine`
     class instance.
 
     See :RFC:`3414#section-5` for more information on the 
@@ -155,15 +155,15 @@ class UsmUserData:
         A human readable string representing the name of the SNMP USM user.
     authKey : str
         Initial value of the secret authentication key.  If not set,
-        :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmNoAuthProtocol`
+        :py:class:`~pysnmp.hlapi.usmNoAuthProtocol`
         is implied.  If set and no *authProtocol* is specified,
-        :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmHMACMD5AuthProtocol`
+        :py:class:`~pysnmp.hlapi.usmHMACMD5AuthProtocol`
         takes effect.
     privKey : str
         Initial value of the secret encryption key.  If not set,
-        :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmNoPrivProtocol`
+        :py:class:`~pysnmp.hlapi.usmNoPrivProtocol`
         is implied.  If set and no *privProtocol* is specified,
-        :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmDESPrivProtocol`
+        :py:class:`~pysnmp.hlapi.usmDESPrivProtocol`
         takes effect.
     authProtocol : tuple
         An indication of whether messages sent on behalf of this USM user
@@ -172,25 +172,25 @@ class UsmUserData:
 
         Supported authentication protocol identifiers are:
 
-        * :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmNoAuthProtocol` (default is *authKey* not given)
-        * :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmHMACMD5AuthProtocol` (default if *authKey* is given)
-        * :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmHMACSHAAuthProtocol`
+        * :py:class:`~pysnmp.hlapi.usmNoAuthProtocol` (default is *authKey* not given)
+        * :py:class:`~pysnmp.hlapi.usmHMACMD5AuthProtocol` (default if *authKey* is given)
+        * :py:class:`~pysnmp.hlapi.usmHMACSHAAuthProtocol`
     privProtocol : tuple
         An indication of whether messages sent on behalf of this USM user 
         be encrypted, and if so, the type of encryption protocol which is used.
 
         Supported encryption protocol identifiers are:
 
-        * :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmNoPrivProtocol` (default is *authKey* not given)
-        * :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmDESPrivProtocol` (default if *authKey* is given)
-        * :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usm3DESEDEPrivProtocol`
-        * :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmAesCfb128Protocol`
-        * :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmAesCfb192Protocol`
-        * :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.usmAesCfb256Protocol`
+        * :py:class:`~pysnmp.hlapi.usmNoPrivProtocol` (default is *authKey* not given)
+        * :py:class:`~pysnmp.hlapi.usmDESPrivProtocol` (default if *authKey* is given)
+        * :py:class:`~pysnmp.hlapi.usm3DESEDEPrivProtocol`
+        * :py:class:`~pysnmp.hlapi.usmAesCfb128Protocol`
+        * :py:class:`~pysnmp.hlapi.usmAesCfb192Protocol`
+        * :py:class:`~pysnmp.hlapi.usmAesCfb256Protocol`
 
     Examples
     --------
-    >>> from pysnmp.entity.rfc3413.oneliner.auth import UsmUserData
+    >>> from pysnmp.hlapi import UsmUserData
     >>> UsmUserData('testuser', authKey='authenticationkey')
     UsmUserData(userName='testuser', authKey=<AUTHKEY>, privKey=<PRIVKEY>, authProtocol=(1,3,6,1,6,3,10,1,1,2), privProtocol=(1,3,6,1,6,3,10,1,2,1))
     >>> UsmUserData('testuser', authKey='authenticationkey', privKey='encryptionkey')

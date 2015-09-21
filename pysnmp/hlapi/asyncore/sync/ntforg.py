@@ -12,16 +12,16 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
 
     Parameters
     ----------
-    snmpEngine : :py:class:`~pysnmp.entity.engine.SnmpEngine`
+    snmpEngine : :py:class:`~pysnmp.hlapi.SnmpEngine`
         Class instance representing SNMP engine.
 
-    authData : :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.CommunityData` or :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.UsmUserData`
+    authData : :py:class:`~pysnmp.hlapi.CommunityData` or :py:class:`~pysnmp.hlapi.UsmUserData`
         Class instance representing SNMP credentials.
 
-    transportTarget : :py:class:`~pysnmp.entity.rfc3413.oneliner.target.UdpTransportTarget` or :py:class:`~pysnmp.entity.rfc3413.oneliner.target.Udp6TransportTarget`
+    transportTarget : :py:class:`~pysnmp.hlapi.asyncore.UdpTransportTarget` or :py:class:`~pysnmp.hlapi.asyncore.Udp6TransportTarget`
         Class instance representing transport type along with SNMP peer address.
 
-    contextData : :py:class:`~pysnmp.entity.rfc3413.oneliner.ctx.ContextData`
+    contextData : :py:class:`~pysnmp.hlapi.ContextData`
         Class instance representing SNMP ContextEngineId and ContextName values.
 
     notifyType : str
@@ -71,7 +71,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
 
     Examples
     --------
-    >>> from pysnmp.entity.rfc3413.oneliner.ntforg import *
+    >>> from pysnmp.hlapi.asyncore import *
     >>> g = sendNotification(SnmpEngine(),
     ...                      CommunityData('public'),
     ...                      UdpTransportTarget(('demo.snmplabs.com', 162)),

@@ -7,20 +7,20 @@ __all__ = ['CommandGeneratorLcdConfigurator',
 
 class AbstractLcdConfigurator:
     nextID = nextid.Integer(0xffffffff)
-
+    cacheKeys = []
     def _getCache(self, snmpEngine):
-        cache = snmpEngine.getUserContext(self.__class__.__name__)
+        cacheId = self.__class__.__name__
+        cache = snmpEngine.getUserContext(cacheId)
         if cache is None:
-            cache = {
-                'auth': {}, 'parm': {}, 'tran': {}, 'addr': {}
-            }
-            snmpEngine.setUserContext(cmdgen_cache=cache)
+            cache = dict([(x,{}) for x in self.cacheKeys])
+            snmpEngine.setUserContext(**{cacheId: cache})
         return cache
 
     def configure(self, snmpEngine, authData, transportTarget): pass
     def unconfigure(self, snmpEngine, authData=None): pass
 
 class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
+    cacheKeys = ['auth', 'parm', 'tran', 'addr']
     def configure(self, snmpEngine, authData, transportTarget):
         cache = self._getCache(snmpEngine)
         if isinstance(authData, CommunityData):
@@ -103,7 +103,7 @@ class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
         return addrName, paramsName
 
     def unconfigure(self, snmpEngine, authData=None):
-        cache = _getCache(snmpEngine)
+        cache = self._getCache(snmpEngine)
         if authData:
             if isinstance(authData, CommunityData):
                 authDataKey = authData.communityIndex
@@ -178,10 +178,12 @@ class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
 
         return addrNames, paramsNames
 
-class NotificationOriginatorLcdConfigurator(CommandGeneratorLcdConfigurator):
+class NotificationOriginatorLcdConfigurator(AbstractLcdConfigurator):
+    cacheKeys = ['auth', 'name']
+    _cmdGenLcdCfg = CommandGeneratorLcdConfigurator()
     def configure(self, snmpEngine, authData, transportTarget, notifyType):
         cache = self._getCache(snmpEngine)
-        addrName, paramsName = CommandGeneratorLcdConfigurator.configure(self, snmpEngine, authData, transportTarget)
+        addrName, paramsName = self._cmdGenLcdCfg.configure(snmpEngine, authData, transportTarget)
         tagList = transportTarget.tagList.split()
         if not tagList:
             tagList = ['']
@@ -218,7 +220,7 @@ class NotificationOriginatorLcdConfigurator(CommandGeneratorLcdConfigurator):
         return notifyName
 
     def unconfigure(self, snmpEngine, authData=None):
-        cache = _getCache(snmpEngine)
+        cache = self._getCache(snmpEngine)
         if authData:
             authDataKey = authData.securityName, authData.securityModel
             if authDataKey in cache['auth']:
@@ -228,7 +230,7 @@ class NotificationOriginatorLcdConfigurator(CommandGeneratorLcdConfigurator):
         else:
             authDataKeys = tuple(cache['auth'].keys())
 
-        addrNames, paramsNames = CommandGeneratorLcdConfigurator.unconfigure(self, snmpEngine, authData)
+        addrNames, paramsNames = self._cmdGenLcdCfg.unconfigure(snmpEngine, authData)
 
         notifyAndParamsNames = [ (cache['name'][x], x) for x in cache['name'].keys() if x[0] in paramsNames ]
 

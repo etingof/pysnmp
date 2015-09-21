@@ -42,10 +42,10 @@ class UdpTransportTarget(_AbstractTransportTarget):
     """Creates UDP/IPv4 configuration entry and initialize socket API if needed.
 
     This object can be used by 
-    :py:class:`~pysnmp.entity.rfc3413.oneliner.cmdgen.AsyncCommandGenerator` or
-    :py:class:`~pysnmp.entity.rfc3413.oneliner.ntforg.AsyncNotificationOriginator`
+    :py:class:`~pysnmp.hlapi.asyncore.AsyncCommandGenerator` or
+    :py:class:`~pysnmp.hlapi.asyncore.AsyncNotificationOriginator`
     and their derevatives for adding new entries to Local Configuration
-    Datastore (LCD) managed by :py:class:`~pysnmp.entity.engine.SnmpEngine`
+    Datastore (LCD) managed by :py:class:`~pysnmp.hlapi.SnmpEngine`
     class instance.
 
     See :RFC:`1906#section-3` for more information on the UDP transport mapping.
@@ -69,7 +69,7 @@ class UdpTransportTarget(_AbstractTransportTarget):
 
     Examples
     --------
-    >>> from pysnmp.entity.rfc3413.oneliner.target import UdpTransportTarget
+    >>> from pysnmp.hlapi.asyncore import UdpTransportTarget
     >>> UdpTransportTarget(('demo.snmplabs.com', 161))
     UdpTransportTarget(('195.218.195.228', 161), timeout=1, retries=5, tagList='')
     >>> 
@@ -91,10 +91,10 @@ class Udp6TransportTarget(_AbstractTransportTarget):
     """Creates UDP/IPv6 configuration entry and initialize socket API if needed.
 
     This object can be used by 
-    :py:class:`~pysnmp.entity.rfc3413.oneliner.cmdgen.AsyncCommandGenerator` or
-    :py:class:`~pysnmp.entity.rfc3413.oneliner.ntforg.AsyncNotificationOriginator`
+    :py:class:`~pysnmp.hlapi.asyncore.AsyncCommandGenerator` or
+    :py:class:`~pysnmp.hlapi.asyncore.AsyncNotificationOriginator`
     and their derevatives for adding new entries to Local Configuration
-    Datastore (LCD) managed by :py:class:`~pysnmp.entity.engine.SnmpEngine`
+    Datastore (LCD) managed by :py:class:`~pysnmp.hlapi.SnmpEngine`
     class instance.
 
     See :RFC:`1906#section-3`, :RFC:`2851#section-4` for more information
@@ -119,7 +119,7 @@ class Udp6TransportTarget(_AbstractTransportTarget):
 
     Examples
     --------
-    >>> from pysnmp.entity.rfc3413.oneliner.target import Udp6TransportTarget
+    >>> from pysnmp.hlapi.asyncore import Udp6TransportTarget
     >>> Udp6TransportTarget(('google.com', 161))
     Udp6TransportTarget(('2a00:1450:4014:80a::100e', 161), timeout=1, retries=5, tagList='')
     >>> Udp6TransportTarget(('FEDC:BA98:7654:3210:FEDC:BA98:7654:3210', 161))

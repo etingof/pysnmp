@@ -5,7 +5,7 @@ from pysnmp.hlapi.context import *
 from pysnmp.hlapi.asyncore.transport import *
 from pysnmp.hlapi.asyncore.cmdgen import *
 from pysnmp.hlapi.asyncore.ntforg import *
-from pysnmp.entity.engine import SnmpEngine
+from pysnmp.entity.engine import *
 
 try:
     from pysnmp.hlapi.asyncore._sync.cmdgen import *

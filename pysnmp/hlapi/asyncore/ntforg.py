@@ -16,7 +16,7 @@ class AsyncNotificationOriginator:
 
     This is a high-level wrapper around pure Notification Originator
     impementation that aims at simplyfing 
-    :py:class:`pysnmp.entity.engine.SnmpEngine`'s Local Configuration
+    :py:class:`pysnmp.hlapi.SnmpEngine`'s Local Configuration
     Datastore (:RFC:`2271#section-3.4.2`) management. Typically,
     users instantiate `AsyncNotificationOriginator` and call its 
     commmand-specific methods passing them canned Security,
@@ -47,17 +47,17 @@ class AsyncNotificationOriginator:
 
         Parameters
         ----------
-        snmpEngine : :py:class:`~pysnmp.entity.engine.SnmpEngine`
+        snmpEngine : :py:class:`~pysnmp.hlapi.SnmpEngine`
             Class instance representing SNMP engine.
 
-        authData : :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.CommunityData` or :py:class:`~pysnmp.entity.rfc3413.oneliner.auth.UsmUserData`
+        authData : :py:class:`~pysnmp.hlapi.CommunityData` or :py:class:`~pysnmp.hlapi.UsmUserData`
             Class instance representing SNMP credentials.
 
-        transportTarget : :py:class:`~pysnmp.entity.rfc3413.oneliner.target.UdpTransportTarget` or :py:class:`~pysnmp.entity.rfc3413.oneliner.target.Udp6TransportTarget`
+        transportTarget : :py:class:`~pysnmp.hlapi.asyncore.UdpTransportTarget` or :py:class:`~pysnmp.hlapi.asyncore.Udp6TransportTarget`
             Class instance representing transport type along with SNMP peer
             address.
 
-        contextData : :py:class:`~pysnmp.entity.rfc3413.oneliner.ctx.ContextData`
+        contextData : :py:class:`~pysnmp.hlapi.ContextData`
             Class instance representing SNMP ContextEngineId and ContextName
             values.
 
@@ -93,7 +93,7 @@ class AsyncNotificationOriginator:
         User-supplied `cbFun` callable must have the following call
         signature:
 
-        * snmpEngine (:py:class:`~pysnmp.entity.engine.SnmpEngine`): 
+        * snmpEngine (:py:class:`~pysnmp.hlapi.SnmpEngine`): 
           Class instance representing SNMP engine.
         * sendRequestHandle (int): Unique request identifier. Can be used 
           for matching multiple ongoing *INFORM* notifications with received
@@ -122,7 +122,7 @@ class AsyncNotificationOriginator:
 
         Examples
         --------
-        >>> from pysnmp.entity.rfc3413.oneliner.ntforg import *
+        >>> from pysnmp.hlapi.asyncore import *
         >>>
         >>> snmpEngine = SnmpEngine()
         >>> n = AsyncNotificationOriginator()

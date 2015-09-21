@@ -6,8 +6,8 @@ class ContextData:
     """Creates UDP/IPv6 configuration entry and initialize socket API if needed.
 
     This object can be used by 
-    :py:class:`~pysnmp.entity.rfc3413.oneliner.cmdgen.AsyncCommandGenerator` or
-    :py:class:`~pysnmp.entity.rfc3413.oneliner.ntforg.AsyncNotificationOriginator`
+    :py:class:`~pysnmp.hlapi.asyncore.AsyncCommandGenerator` or
+    :py:class:`~pysnmp.hlapi.asyncore.AsyncNotificationOriginator`
     and their derevatives for forming SNMP PDU and also adding new entries to
     Local Configuration Datastore (LCD) in order to support SNMPv1/v2c with
     SNMPv3 interoperability.
@@ -29,7 +29,7 @@ class ContextData:
 
     Examples
     --------
-    >>> from pysnmp.entity.rfc3413.oneliner.ctx import ContextData
+    >>> from pysnmp.hlapi import ContextData
     >>> ContextData()
     ContextData(contextEngineId=None, contextName='')
     >>> ContextData(OctetString(hexValue='01020ABBA0'))
