@@ -25,16 +25,16 @@ means one initial request plus one retry.
 
 Functionally similar to:
 
-| $ snmpget -v1 -c public demo.snmplabs.com 1.3.6.1.2.1.1.1.0
+| $ snmpget -v1 -c public -t 2 -r 0 demo.snmplabs.com 1.3.6.1.2.1.1.1.0
 
 """#
-from pysnmp.hlapi.asyncore import *
+from pysnmp.hlapi import *
 
 errorIndication, errorStatus, errorIndex, varBinds = next(
     getCmd(SnmpEngine(),
            CommunityData('public'),
            UdpTransportTarget(
-               ('demo.snmplabs.com', 161), timeout=1.5, retries=0
+               ('demo.snmplabs.com', 161), timeout=2.0, retries=0
            ),
            ContextData(),
            ObjectType(ObjectIdentity('1.3.6.1.2.1.1.1.0')))

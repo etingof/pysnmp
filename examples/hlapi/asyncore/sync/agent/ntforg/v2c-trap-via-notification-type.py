@@ -16,10 +16,10 @@ Functionally similar to:
 
 | $ snmptrap -v2c -c public demo.snmplabs.com \
 |   12345
-|   1.3.6.1.4.1.20408.4.1.1.2 \
+|   1.3.6.1.4.1.20408.4.1.1.2
 
 """#
-from pysnmp.hlapi.asyncore import *
+from pysnmp.hlapi import *
 
 errorIndication, errorStatus, errorIndex, varBinds = next(
     sendNotification(SnmpEngine(),

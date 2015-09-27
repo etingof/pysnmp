@@ -31,10 +31,8 @@ targets = (
 
 snmpEngine = SnmpEngine()
 
-ntfOrg = AsyncNotificationOriginator()
-
 for authData, transportTarget, contextData in targets:
-    ntfOrg.sendNotification(
+    sendNotification(
         snmpEngine,
         authData,
         transportTarget,
@@ -43,7 +41,7 @@ for authData, transportTarget, contextData in targets:
         NotificationType(
             ObjectIdentity('SNMPv2-MIB', 'coldStart')
         ).addVarBinds(
-            ( ObjectName('1.3.6.1.2.1.1.1.0'),
+            ( ObjectIdentifier('1.3.6.1.2.1.1.1.0'),
               OctetString('my name') )
         )
     )

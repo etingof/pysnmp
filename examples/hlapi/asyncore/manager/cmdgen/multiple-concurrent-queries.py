@@ -72,14 +72,9 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
 
 snmpEngine = SnmpEngine()
 
-cmdGen  = AsyncCommandGenerator()
-
 # Submit GET requests
 for authData, transportTarget, varNames in targets:
-    cmdGen.getCmd(
-        snmpEngine, authData, transportTarget, ContextData(), varNames,
-        # User-space callback function and its context
-        (cbFun, (authData, transportTarget))
-    )
+    getCmd(snmpEngine, authData, transportTarget, ContextData(), varNames,
+           cbFun=cbFun, cbCtx=(authData, transportTarget))
 
 snmpEngine.transportDispatcher.runDispatcher()

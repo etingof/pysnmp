@@ -15,7 +15,7 @@ Functionally similar to:
 |         = "new system name"
 
 """#
-from pysnmp.hlapi.asyncore import *
+from pysnmp.hlapi import *
 
 errorIndication, errorStatus, errorIndex, varBinds = next(
     setCmd(SnmpEngine(),

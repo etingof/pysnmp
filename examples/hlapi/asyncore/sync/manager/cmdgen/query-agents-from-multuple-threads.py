@@ -22,7 +22,7 @@ if version_info[0] == 2:
 else:
     from queue import Queue
 from threading import Thread
-from pysnmp.hlapi.asyncore import *
+from pysnmp.hlapi import *
 
 # List of targets in the followin format:
 # ( ( authData, transportTarget, varNames ), ... )

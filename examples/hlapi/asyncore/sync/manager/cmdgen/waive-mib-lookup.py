@@ -19,7 +19,7 @@ Functionally similar to:
 | $ snmpwalk -v2c -c public -ObentU demo.snmplabs.com 1.3.6.1.2.1
 
 """#
-from pysnmp.hlapi.asyncore import *
+from pysnmp.hlapi import *
 
 for errorIndication, \
     errorStatus, errorIndex, \

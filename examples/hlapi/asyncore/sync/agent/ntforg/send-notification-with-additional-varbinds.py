@@ -20,7 +20,7 @@ Functionally similar to:
 |              1.3.6.1.2.1.1.1.0 s 'my system'
 
 """#
-from pysnmp.hlapi.asyncore import *
+from pysnmp.hlapi import *
 
 errorIndication, errorStatus, errorIndex, varBinds = next(
     sendNotification(SnmpEngine(),

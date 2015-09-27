@@ -63,28 +63,26 @@ privacy enabled:
 
 8X---------------- cut here --------------------
 
-from pysnmp.entity.rfc3413.oneliner import cmdgen
+from pysnmp.hlapi import *
 
-cmdGen = cmdgen.CommandGenerator()
-
-errorIndication, errorStatus, errorIndex, varBinds = cmdGen.getCmd(
-    cmdgen.CommunityData('public'),
-    cmdgen.UdpTransportTarget(('localhost', 161)),
-    cmdgen.ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0),
-    lookupNames=True, lookupValues=True
+iterator = getCmd(
+    SnmpEngine(),
+    CommunityData('public'),
+    UdpTransportTarget(('demo.snmplabs.com', 161)),
+    ContextData(),
+    ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0))
 )
+errorIndication, errorStatus, errorIndex, varBinds = next(iterator)
 
 if errorIndication: # SNMP engine errors
     print errorIndication
 else:
     if errorStatus: # SNMP agent errors
-        print '%s at %s\n' % (
-              errorStatus.prettyPrint(),
-              errorIndex and varBinds[int(errorIndex)-1] or '?')
-            )
+        print(%s at %s' % (errorStatus.prettyPrint(),
+                           errorIndex and varBinds[int(errorIndex)-1] or '?'))
     else:
-        for oid, val in varBinds: # SNMP agent values
-            print '%s = %s' % (oid.prettyPrint(), val.prettyPrint())
+        for varBind in varBinds:
+            print('='.join([x.prettyPrint() for x in varBind]))
 
 8X---------------- cut here --------------------
 

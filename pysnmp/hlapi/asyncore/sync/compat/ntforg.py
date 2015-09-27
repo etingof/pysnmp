@@ -1,7 +1,7 @@
 #
 # This is a Python 2.6- version of the same file at level up
 #
-from pysnmp.hlapi.asyncore.ntforg import *
+from pysnmp.hlapi.asyncore import ntforg
 
 __all__ = ['sendNotification', 'next']
 
@@ -25,17 +25,15 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
 
     cbCtx = {}
 
-    ntfOrg = AsyncNotificationOriginator()
-
     if varBinds:
-        ntfOrg.sendNotification(
+        ntforg.sendNotification(
             snmpEngine,
             authData,
             transportTarget,
             contextData,
             notifyType,
             varBinds,
-            (cbFun, cbCtx),
+            cbFun, cbCtx,
             options.get('lookupMib', True)
         )
 

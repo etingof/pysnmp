@@ -12,7 +12,7 @@ following options:
   over IPv6/UDP
 * to an Agent at demo.snmplabs.com:161 and
   to an Agent at [::1]:161
-* for multiple MIB subtrees and tables
+* pull variables till EOM
 
 """#
 from pysnmp.hlapi.asyncore import *
@@ -44,7 +44,7 @@ targets = (
 # Wait for responses or errors, submit GETNEXT requests for further OIDs
 def cbFun(snmpEngine, sendRequestHandle, errorIndication, 
           errorStatus, errorIndex, varBindTable, cbCtx):
-    (varBindHead, authData, transportTarget) = cbCtx
+    (authData, transportTarget) = cbCtx
     print('%s via %s' % (authData, transportTarget))
     if errorIndication:
         print(errorIndication)
@@ -57,13 +57,6 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
         )
         return
     else:
-        for idx, varBind in enumerate(varBindTable[-1]):
-            if varBind[1] is not None and varBindHead[idx] <= varBind[0]:
-                break   # still in table
-        else:
-            print('went out of table at %s' % (name, ))
-            return
-
         for varBindRow in varBindTable:
             for varBind in varBindRow:
                 print(' = '.join([ x.prettyPrint() for x in varBind ]))
@@ -72,15 +65,9 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
 
 snmpEngine = SnmpEngine()
 
-cmdGen  = AsyncCommandGenerator()
-
 # Submit initial GETNEXT requests and wait for responses
 for authData, transportTarget, varBinds in targets:
-    varBindHead = [ x[0] for x in cmdGen.makeVarBinds(snmpEngine, varBinds ) ]
-    cmdGen.nextCmd(
-        snmpEngine, authData, transportTarget, ContextData(), varBinds,
-        # User-space callback function and its context
-        (cbFun, (varBindHead, authData, transportTarget))
-    )
+    nextCmd(snmpEngine, authData, transportTarget, ContextData(), varBinds,
+            cbFun=cbFun, cbCtx=(authData, transportTarget))
 
 snmpEngine.transportDispatcher.runDispatcher()

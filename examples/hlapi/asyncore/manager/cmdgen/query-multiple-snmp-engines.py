@@ -88,14 +88,10 @@ snmpEngineA.registerTransportDispatcher(transportDispatcher, 'A')
 snmpEngineB = SnmpEngine()
 snmpEngineB.registerTransportDispatcher(transportDispatcher, 'B')
 
-cmdGen = AsyncCommandGenerator()
-
 for authData, transportTarget, varBinds in targets:
     snmpEngine = transportTarget.getTransportInfo()[1][1] % 3 and \
             snmpEngineA or snmpEngineB
-    cmdGen.getCmd(
-        snmpEngine, authData, transportTarget, ContextData(), varBinds,
-        (cbFun, (snmpEngine, authData, transportTarget))
-    )
+    getCmd(snmpEngine, authData, transportTarget, ContextData(), varBinds,
+           cbFun=cbFun, cbCtx=(snmpEngine, authData, transportTarget))
 
 transportDispatcher.runDispatcher()

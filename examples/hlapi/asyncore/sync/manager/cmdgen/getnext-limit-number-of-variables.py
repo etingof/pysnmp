@@ -18,7 +18,7 @@ Functionally similar to:
 |            SNMPv2-MIB::system
 
 """#
-from pysnmp.hlapi.asyncore import *
+from pysnmp.hlapi import *
 
 for errorIndication, \
     errorStatus, errorIndex, \

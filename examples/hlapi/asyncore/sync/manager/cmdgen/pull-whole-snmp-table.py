@@ -21,7 +21,7 @@ Functionally similar to:
 |        IF-MIB::ifType \
 
 """#
-from pysnmp.hlapi.asyncore import *
+from pysnmp.hlapi import *
 
 for errorIndication, \
     errorStatus, \

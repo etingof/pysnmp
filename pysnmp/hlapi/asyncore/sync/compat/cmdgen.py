@@ -1,10 +1,10 @@
 #
 # This is a Python 2.6- version of the same file at level up
 #
-from pysnmp.hlapi.asyncore.cmdgen import *
+from pysnmp.hlapi.asyncore import cmdgen
 from pysnmp.hlapi.varbinds import *
 from pysnmp.proto.rfc1905 import endOfMibView
-from pysnmp.proto.errind import *
+from pysnmp.proto import errind
 from pyasn1.type.univ import Null
 
 __all__ = ['getCmd', 'nextCmd', 'setCmd', 'bulkCmd', 'next']
@@ -25,16 +25,14 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
 
     cbCtx = {}
 
-    cmdGen = AsyncCommandGenerator()
-   
     if varBinds:
-        cmdGen.getCmd(
+        cmdgen.getCmd(
             snmpEngine,
             authData,
             transportTarget,
             contextData,
             varBinds,
-            (cbFun, cbCtx),
+            cbFun, cbCtx,
             options.get('lookupMib', True)
         )
 
@@ -63,16 +61,14 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
 
     cbCtx = {}
 
-    cmdGen = AsyncCommandGenerator()
-   
     while True: 
-        cmdGen.setCmd(
+        cmdgen.setCmd(
             snmpEngine,
             authData,
             transportTarget,
             contextData,
             varBinds,
-            (cbFun, cbCtx),
+            cbFun, cbCtx,
             options.get('lookupMib', True)
         )
 
@@ -106,19 +102,17 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
 
     vbProcessor = CommandGeneratorVarBinds()
 
-    cmdGen = AsyncCommandGenerator()
-   
     initialVars = [ x[0] for x in vbProcessor.makeVarBinds(snmpEngine, varBinds) ]
 
     totalRows = totalCalls = 0
 
     while True: 
-        cmdGen.nextCmd(snmpEngine,
+        cmdgen.nextCmd(snmpEngine,
                        authData,
                        transportTarget,
                        contextData,
                        [ (x[0], Null()) for x in varBinds ],
-                       (cbFun, cbCtx),
+                       cbFun, cbCtx,
                        lookupMib)
 
         snmpEngine.transportDispatcher.runDispatcher()
@@ -183,8 +177,6 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
 
     vbProcessor = CommandGeneratorVarBinds()
 
-    cmdGen = AsyncCommandGenerator()
-   
     initialVars = [ x[0] for x in vbProcessor.makeVarBinds(snmpEngine, varBinds) ]
     nullVarBinds = [ False ] * len(initialVars)
 
@@ -195,13 +187,13 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
         if maxRows and totalRows < maxRows:
             maxRepetitions = min(maxRepetitions, maxRows-totalRows)
 
-        cmdGen.bulkCmd(snmpEngine,
+        cmdgen.bulkCmd(snmpEngine,
                        authData,
                        transportTarget,
                        contextData,
                        nonRepeaters, maxRepetitions,
                        [ (x[0], Null()) for x in varBinds ],
-                       (cbFun, cbCtx),
+                       cbFun, cbCtx,
                        lookupMib)
 
         snmpEngine.transportDispatcher.runDispatcher()

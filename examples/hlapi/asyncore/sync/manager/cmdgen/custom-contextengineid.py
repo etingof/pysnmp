@@ -18,7 +18,7 @@ Functionally similar to:
 |       SNMPv2-MIB::sysORDescr.1 = "new system name"
 
 """#
-from pysnmp.hlapi.asyncore import *
+from pysnmp.hlapi import *
 
 errorIndication, errorStatus, errorIndex, varBinds = next(
     setCmd(SnmpEngine(),

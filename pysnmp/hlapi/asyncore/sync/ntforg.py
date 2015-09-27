@@ -1,4 +1,4 @@
-from pysnmp.hlapi.asyncore.ntforg import *
+from pysnmp.hlapi.asyncore import ntforg
 
 __all__ = ['sendNotification']
 
@@ -93,18 +93,16 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
 
     cbCtx = {}
 
-    ntfOrg = AsyncNotificationOriginator()
-
     while True: 
         if varBinds:
-            ntfOrg.sendNotification(
+            ntforg.sendNotification(
                 snmpEngine,
                 authData,
                 transportTarget,
                 contextData,
                 notifyType,
                 varBinds,
-                cbInfo=(cbFun, cbCtx),
+                cbFun, cbCtx,
                 lookupMib=options.get('lookupMib', True)
             )
 

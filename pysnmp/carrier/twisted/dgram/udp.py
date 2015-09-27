@@ -14,14 +14,16 @@ class UdpTwistedTransport(DgramTwistedTransport):
 
     # AbstractTwistedTransport API
     
-    def openClientMode(self, iface=('', 0)):
+    def openClientMode(self, iface=None):
+        if iface is None:
+            iface = ('', 0)
         try:
             self._lport = reactor.listenUDP(iface[1], self, iface[0])
         except Exception:
             raise error.CarrierError(sys.exc_info()[1])
         return self
 
-    def openServerMode(self, iface=('', 161)):
+    def openServerMode(self, iface):
         try:
             self._lport = reactor.listenUDP(iface[1], self, iface[0])
         except Exception:

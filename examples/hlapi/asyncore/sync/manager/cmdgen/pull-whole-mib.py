@@ -8,7 +8,6 @@ Send a series of SNMP GETNEXT requests using the following options:
 * over IPv4/UDP
 * to an Agent at demo.snmplabs.com:161
 * for all OIDs in IF-MIB
-* stop when response OIDs leave the scopes of the table
 
 Functionally similar to:
 
@@ -16,7 +15,7 @@ Functionally similar to:
 |            demo.snmplabs.com  IF-MIB::
 
 """#
-from pysnmp.hlapi.asyncore import *
+from pysnmp.hlapi import *
 
 for errorIndication, \
     errorStatus, errorIndex, \
@@ -24,8 +23,7 @@ for errorIndication, \
                         UsmUserData('usr-md5-none', 'authkey1'),
                         UdpTransportTarget(('demo.snmplabs.com', 161)),
                         ContextData(),
-                        ObjectType(ObjectIdentity('IF-MIB')),
-                        lexicographicMode=False):
+                        ObjectType(ObjectIdentity('IF-MIB'))):
 
     if errorIndication:
         print(errorIndication)

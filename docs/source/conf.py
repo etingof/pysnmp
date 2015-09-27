@@ -295,8 +295,9 @@ texinfo_documents = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = { 'python': ('https://docs.python.org/', None),
-                        'pysmi': ('http://pysmi.sf.net/', None) }
+intersphinx_mapping = { 'python': ('https://docs.python.org/3.4/', None),
+                        'pysmi': ('http://pysmi.sf.net/', None),
+                        'twisted': ('https://twistedmatrix.com/documents/15.4.0/api/', None) }
 
 # this merges constructor docstring with class docstring
 autoclass_content = 'both'

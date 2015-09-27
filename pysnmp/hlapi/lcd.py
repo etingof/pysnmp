@@ -183,6 +183,15 @@ class NotificationOriginatorLcdConfigurator(AbstractLcdConfigurator):
     _cmdGenLcdCfg = CommandGeneratorLcdConfigurator()
     def configure(self, snmpEngine, authData, transportTarget, notifyType):
         cache = self._getCache(snmpEngine)
+
+        # Create matching transport tags if not given by user. Not good!
+        if not transportTarget.tagList:
+            transportTarget.tagList = str(
+                hash((authData.securityName, transportTarget.transportAddr))
+            )
+        if isinstance(authData, CommunityData) and not authData.tag:
+            authData.tag = transportTarget.tagList.split()[0]
+
         addrName, paramsName = self._cmdGenLcdCfg.configure(snmpEngine, authData, transportTarget)
         tagList = transportTarget.tagList.split()
         if not tagList:

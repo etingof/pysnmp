@@ -1,50 +1,13 @@
 import socket, sys
 from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
-from pysnmp import error
-from pyasn1.compat.octets import null
+from pysnmp.hlapi.transport import AbstractTransportTarget
 
 __all__ = ['UnixTransportTarget', 'Udp6TransportTarget', 'UdpTransportTarget']
 
-class _AbstractTransportTarget:
-    transportDomain = None
-    protoTransport = NotImplementedError
-    def __init__(self, transportAddr, timeout=1, retries=5, tagList=null):
-        self.transportAddr = self._resolveAddr(transportAddr)
-        self.timeout = timeout
-        self.retries = retries
-        self.tagList = tagList
-        self.iface = None
-
-    def __repr__(self): 
-        return '%s(%r, timeout=%r, retries=%r, tagList=%r)' % (
-            self.__class__.__name__, self.transportAddr,
-            self.timeout, self.retries, self.tagList
-        )
-
-    def getTransportInfo(self):
-        return self.transportDomain, self.transportAddr
-
-    def setLocalAddress(self, iface):
-        self.iface = iface
-        return self
-
-    def openClientMode(self):
-        self.transport = self.protoTransport().openClientMode(self.iface)
-        return self.transport
-
-    def verifyDispatcherCompatibility(self, snmpEngine):
-        if not self.protoTransport.isCompatibleWithDispatcher(snmpEngine.transportDispatcher):
-            raise error.PySnmpError('Transport %r is not compatible with dispatcher %r' % (self.protoTransport, snmpEngine.transportDispatcher))
-
-    def _resolveAddr(self, transportAddr): raise NotImplementedError()
-
-class UdpTransportTarget(_AbstractTransportTarget):
+class UdpTransportTarget(AbstractTransportTarget):
     """Creates UDP/IPv4 configuration entry and initialize socket API if needed.
 
-    This object can be used by 
-    :py:class:`~pysnmp.hlapi.asyncore.AsyncCommandGenerator` or
-    :py:class:`~pysnmp.hlapi.asyncore.AsyncNotificationOriginator`
-    and their derevatives for adding new entries to Local Configuration
+    This object can be used for adding new entries to Local Configuration
     Datastore (LCD) managed by :py:class:`~pysnmp.hlapi.SnmpEngine`
     class instance.
 
@@ -87,13 +50,10 @@ class UdpTransportTarget(_AbstractTransportTarget):
         except socket.gaierror:
             raise error.PySnmpError('Bad IPv4/UDP transport address %s: %s' % ('@'.join([ str(x) for x in transportAddr ]), sys.exc_info()[1]))
 
-class Udp6TransportTarget(_AbstractTransportTarget):
+class Udp6TransportTarget(AbstractTransportTarget):
     """Creates UDP/IPv6 configuration entry and initialize socket API if needed.
 
-    This object can be used by 
-    :py:class:`~pysnmp.hlapi.asyncore.AsyncCommandGenerator` or
-    :py:class:`~pysnmp.hlapi.asyncore.AsyncNotificationOriginator`
-    and their derevatives for adding new entries to Local Configuration
+    This object can be used for adding new entries to Local Configuration
     Datastore (LCD) managed by :py:class:`~pysnmp.hlapi.SnmpEngine`
     class instance.
 
@@ -145,6 +105,6 @@ class Udp6TransportTarget(_AbstractTransportTarget):
         except socket.gaierror:
             raise error.PySnmpError('Bad IPv6/UDP transport address %s: %s' % ('@'.join([ str(x) for x in transportAddr ]), sys.exc_info()[1]))
 
-class UnixTransportTarget(_AbstractTransportTarget):
+class UnixTransportTarget(AbstractTransportTarget):
     transportDomain = unix.domainName
     protoTransport = unix.UnixSocketTransport

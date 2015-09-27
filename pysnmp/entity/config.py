@@ -326,6 +326,7 @@ def addTransport(snmpEngine, transportDomain, transport):
         )
         # here we note that we have created transportDispatcher automatically
         snmpEngine.setUserContext(automaticTransportDispatcher=0)
+
     snmpEngine.transportDispatcher.registerTransport(
         transportDomain, transport
     )

@@ -14,7 +14,7 @@ Functionally similar to:
 | $ snmpget -v1 -c public demo.snmplabs.com SNMPv2-MIB::sysDescr.0
 
 """#
-from pysnmp.hlapi.asyncore import *
+from pysnmp.hlapi import *
 
 errorIndication, errorStatus, errorIndex, varBinds = next(
     getCmd(SnmpEngine(),

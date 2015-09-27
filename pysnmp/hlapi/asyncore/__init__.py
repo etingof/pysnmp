@@ -6,10 +6,3 @@ from pysnmp.hlapi.asyncore.transport import *
 from pysnmp.hlapi.asyncore.cmdgen import *
 from pysnmp.hlapi.asyncore.ntforg import *
 from pysnmp.entity.engine import *
-
-try:
-    from pysnmp.hlapi.asyncore._sync.cmdgen import *
-    from pysnmp.hlapi.asyncore._sync.ntforg import *
-except SyntaxError:
-    from pysnmp.hlapi.asyncore._sync.compat.cmdgen import *
-    from pysnmp.hlapi.asyncore._sync.compat.ntforg import *

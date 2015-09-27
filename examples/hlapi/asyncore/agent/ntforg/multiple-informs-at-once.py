@@ -42,10 +42,8 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
 
 snmpEngine = SnmpEngine()
 
-ntfOrg = AsyncNotificationOriginator()
-
 for authData, transportTarget, contextData in targets:
-    sendPduHandle = ntfOrg.sendNotification(
+    sendPduHandle = sendNotification(
         snmpEngine,
         authData,
         transportTarget,
@@ -54,7 +52,7 @@ for authData, transportTarget, contextData in targets:
         NotificationType(
             ObjectIdentity('SNMPv2-MIB', 'coldStart')
         ).addVarBinds( ( '1.3.6.1.2.1.1.1.0', 'my name' ) ),
-        cbInfo=(cbFun, None)
+        cbFun=cbFun
     )
 
 snmpEngine.transportDispatcher.runDispatcher()

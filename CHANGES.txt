@@ -29,7 +29,11 @@ Revision 4.3.0, work in progress
     at its original location.
   * Synchronous oneliner apps redesigned to offer Python generator-based
     API along with a more comprehensive set of accepted parameters.
-  * keep backward compatibility for all existing major/documented interfaces
+  * Asyncore-based asynchronous apps reworked to become functions.
+  * Twisted API moved entirely into high-level domain to be aligned with
+    other high-level APIs. This WILL BREAK backward compatibility for
+    those apps that use Twisted API.
+  * Keep backward compatibility for all existing major/documented interfaces
 
 - Sphinx documentation added to source code and example scripts. Library
   documentation converted from .html into RsT markup.
@@ -62,23 +66,15 @@ Revision 4.3.0, work in progress
   apps objects to [a singular] snmpEngine "user context" object. 
   That would allow for better cache reuse and allow for a single app 
   working with many snmpEngine instances.
-- Legacy interfaces and APIs dropped in new oneliner AsyncCommandGenerator
-  and AsyncNotificationOriginator classes (notice 'c' in Async). Original
-  AsynCommandGenerator and AsynNotificationOriginator implementations
-  rebuilt on top of these new optimized versions keeping all the legacy
-  for compatibility reasons. These classes no more keep references to 
-  SnmpEngine what makes them reusable with many SnmpEngine class instances.
 - Oneliner GETBULK Command Generator now strips possible excessive OIDs
   off the bottom of returned var-binds table.
 - Constraints assignment shortcut added to some base rfc1902 types (Integer,
   Integer32, OctetString, Bits). That formally constitutes ASN.1 sub-typing.
 - Built-in debugging is now based on Python logging module.
-- Example on a single Transport Dispatcher use with multiple SnmpEngine's
-  in oneliner AsyncCommandGenerator & AsyncNotificationOriginator based
-  applicatons added.
+- Examples on a single Transport Dispatcher use with multiple SnmpEngine
+  instances applicatons added.
 - Example script on transport timeout & retries manipulation added.
 - Example script explaining incoming message's communityName re-mapping added.
-- Some more examples on MIB lookup and use at oneliner CommandGenerator added.
 - Broadcast socket option can now be enabled with the .enableBroadcast()
   call for any datagram-based transport (namely, UDP and UDP6).
 - AbstractTransportDispatcher's jobStarted() and jobFinished() methods
