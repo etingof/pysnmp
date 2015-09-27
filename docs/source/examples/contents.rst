@@ -11,62 +11,80 @@ perform typical SNMP operations in a quick and intuitive way.
 
 PySNMP offers three groups of programming interfaces to deal with 
 SNMP protocol. In the order from most consice to most detailed those 
-APIs are:
+APIs follow.
 
-#. High-level API
+High-level SNMP
+---------------
 
-   .. toctree::
-      :maxdepth: 2
+The so called high-level API (hlapi) is designed to be simple, concise and
+suitable for the most frequent operations. For that matter only
+Command Generator and Notification Originator Applications are currently
+wrapped into a nearly one-line Python expression.
 
-      /examples/hlapi/asyncore/contents
+It comes in several flavours: one synchronous and a bunch of bindings to
+popular asynchronous I/O frameworks. Those varieties of APIs bring
+subtile differences, mostly to better match particular I/O framework
+customs. Unless you have a vary specific task, one of high-level APIs might
+solve your SNMP needs.
 
-#. Complete implementation of all official Standard SNMP Applications. It 
-   should let you implement any SNMP operation defined in the standard. 
+.. toctree::
+   :maxdepth: 2
 
-   This API comes in several transport varieties.
+   /examples/hlapi/asyncore/sync/contents
 
-   #. Most mature and stable transport implementation is based on Python's
-      bult-in asyncore module. So this API is called Native or Asyncore API.
+.. toctree::
+   :maxdepth: 2
 
-      .. toctree::
-         :maxdepth: 2
+   /examples/hlapi/asyncore/contents
 
-         /examples/v3arch/asyncore/contents
+.. toctree::
+   :maxdepth: 2
 
-   #. Modern, co-routines based API takes shape of asyncio bindings 
-      (Python 3.3+) or Trollius bindings (Python 2.6-3.4)
+   /examples/hlapi/asyncio/contents
 
-      .. toctree::
-         :maxdepth: 2
+.. toctree::
+   :maxdepth: 2
 
-         /examples/v3arch/asyncio/contents
-         /examples/v3arch/trollius/contents
+   /examples/hlapi/trolleus/contents
 
-   #. Slightly aged, Twisted-based based API.
+.. toctree::
+   :maxdepth: 2
 
-      .. toctree::
-         :maxdepth: 2
+   /examples/hlapi/twisted/contents
 
-         /examples/v3arch/twisted/contents
+Native SNMP API
+---------------
 
-#. Low-level API that lets you build SNMP messages from Python 
-   objects and exchange them through asyncore transport (or you could 
-   write your own). These interfaces are very low-level and aimed at 
-   a rather specific programming tasks.
+Complete implementation of all official Standard SNMP Applications. It 
+should let you implement any SNMP operation defined in the standard
+at the cost of working at a somewhat low level.
 
-   .. toctree::
-      :maxdepth: 2
+This API also comes in several transport varieties depending on I/O
+framework being used.
 
-      /examples/v1arch/asyncore/contents
+.. toctree::
+   :maxdepth: 2
 
-.. comment #. SMI subsystem is separated from SNMP protocol implementation, and
-   consists of MIB files processing, MIB browsing and MIB variables
-   management subsystems.
+   /examples/v3arch/asyncore/contents
+   /examples/v3arch/asyncio/contents
+   /examples/v3arch/trollius/contents
+   /examples/v3arch/twisted/contents
 
-   .. toctree::
-      :maxdepth: 2
+Packet-level SNMP
+-----------------
 
-      /examples/v1arch/smi/contents
+Low-level API that lets you build SNMP messages from Python 
+objects and exchange them through asyncore transport (or you could 
+write your own). These interfaces are very low-level and aimed at 
+a rather specific programming tasks.
+
+.. toctree::
+   :maxdepth: 2
+
+   /examples/v1arch/asyncore/contents
+
+Using these examples
+--------------------
 
 Before doing cut&paste of the code below into your Python interpreter, 
 make sure to install pysnmp and its dependencies by running pip or 
@@ -107,4 +125,4 @@ specific flags are:
 * app
 
 For more details on PySNMP programming model and interfaces, please 
-refer to the documentation.
+refer to :doc:`library documentation</docs/contents>`.

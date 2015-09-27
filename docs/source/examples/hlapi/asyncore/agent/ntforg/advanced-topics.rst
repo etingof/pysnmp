@@ -1,28 +1,40 @@
 .. toctree::
    :maxdepth: 2
 
-Advanced topic
---------------
+Advanced Notification Originator
+--------------------------------
 
-.. include:: /../../examples/hlapi/asyncore/agent/ntforg/custom-contextname.py
+.. include:: /../../examples/hlapi/asyncore/agent/ntforg/async-multiple-traps-at-once.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/hlapi/asyncore/agent/ntforg/custom-contextname.py
+.. literalinclude:: /../../examples/hlapi/asyncore/agent/ntforg/async-multiple-traps-at-once.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/hlapi/asyncore/agent/ntforg/custom-contextname.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/agent/ntforg/async-multiple-traps-at-once.py>` script.
 
 
-.. include:: /../../examples/hlapi/asyncore/agent/ntforg/custom-contextengineid.py
+.. include:: /../../examples/hlapi/asyncore/agent/ntforg/async-multiple-informs-at-once.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/hlapi/asyncore/agent/ntforg/custom-contextengineid.py
+.. literalinclude:: /../../examples/hlapi/asyncore/agent/ntforg/async-multiple-informs-at-once.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/hlapi/asyncore/agent/ntforg/custom-contextengineid.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/agent/ntforg/async-multiple-informs-at-once.py>` script.
+
+
+.. include:: /../../examples/hlapi/asyncore/agent/ntforg/async-running-multiple-snmp-engines-at-once.py
+   :start-after: """
+   :end-before: """#
+
+.. literalinclude:: /../../examples/hlapi/asyncore/agent/ntforg/async-running-multiple-snmp-engines-at-once.py
+   :start-after: """#
+   :language: python
+
+:download:`Download</../../examples/hlapi/asyncore/agent/ntforg/async-running-multiple-snmp-engines-at-once.py>` script.
+
 
 See also: :doc:`library reference </docs/contents>`.
