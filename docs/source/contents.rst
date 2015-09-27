@@ -2,6 +2,10 @@
 SNMP library for Python
 =======================
 
+.. image:: /.static/pysnmplogo.jpg
+   :alt: PySNMP
+   :align: right
+
 .. toctree::
    :maxdepth: 2
 
