@@ -165,26 +165,25 @@ class NotificationOriginator:
 
             sendRequestHandle = getNextHandle()
 
-            cbCtx = sendRequestHandle, cbFun, cbCtx
-            cbFun = self.processResponsePdu
-            
             # 3.3.6a
-            sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(snmpEngine,
-                                                            transportDomain,
-                                                            transportAddress,
-                                                            messageProcessingModel,
-                                                            securityModel,
-                                                            securityName,
-                                                            securityLevel,
-                                                            contextEngineId,
-                                                            contextName,
-                                                            pduVersion,
-                                                            reqPDU,
-                                                            # expectResponse
-                                                            1,
-                                                            timeoutInTicks,
-                                                            cbFun,
-                                                            cbCtx)
+            sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(
+                snmpEngine,
+                transportDomain,
+                transportAddress,
+                messageProcessingModel,
+                securityModel,
+                securityName,
+                securityLevel,
+                contextEngineId,
+                contextName,
+                pduVersion,
+                reqPDU,
+                # expectResponse
+                1,
+                timeoutInTicks,
+                self.processResponsePdu,
+                (sendRequestHandle, cbFun, cbCtx)
+            )
 
             debug.logger & debug.flagApp and debug.logger('sendPdu: sendPduHandle %s, timeout %d' % (sendPduHandle, timeout))
 
@@ -298,9 +297,6 @@ class NotificationOriginator:
 
         debug.logger & debug.flagApp and debug.logger('sendVarBinds: final varBinds %s' % (varBinds,))
 
-        cbCtx = notificationHandle, cbFun, cbCtx
-        cbFun = self.processResponseVarBinds
-            
         for targetAddrName in config.getTargetNames(snmpEngine, notifyTag):
             ( transportDomain,
               transportAddress,
@@ -355,8 +351,9 @@ class NotificationOriginator:
                                                  contextEngineId,
                                                  contextName,
                                                  pdu,
-                                                 cbFun,
-                                                 cbCtx)
+                                                 self.processResponseVarBinds,
+                                                 (notificationHandle, 
+                                                  cbFun, cbCtx))
                 
             except error.StatusInformation:
                 statusInformation = sys.exc_info()[1]
@@ -368,8 +365,7 @@ class NotificationOriginator:
                     cbFun(snmpEngine,
                           notificationHandle,
                           statusInformation['errorIndication'],
-                          None,
-                          cbCtx)
+                          0, 0, (), cbCtx)
                 return notificationHandle
 
             debug.logger & debug.flagApp and debug.logger('sendVarBinds: notificationHandle %s, sendRequestHandle %s, timeout %d' % (notificationHandle, sendRequestHandle, timeout))
@@ -416,9 +412,6 @@ def _sendNotification(self,
     if self.snmpContext is None:
         raise error.ProtocolError('SNMP context not specified')
         
-    cbCtx = cbFun, cbCtx
-    cbFun = _sendNotificationCbFun
-
     #
     # Here we first expand trap OID into associated OBJECTS
     # and then look them up at context-specific MIB
@@ -452,8 +445,8 @@ def _sendNotification(self,
                              self.snmpContext.contextEngineId,
                              contextName,
                              varBinds + list(additionalVarBinds),
-                             cbFun,
-                             cbCtx)
+                             _sendNotificationCbFun,
+                             (cbFun, cbCtx))
 
 # install compatibility wrapper
 NotificationOriginator.sendNotification = _sendNotification
