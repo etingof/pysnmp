@@ -1,0 +1,3 @@
+pyasn1>=0.1.8
+pysmi
+pycrypto>=2.4.1

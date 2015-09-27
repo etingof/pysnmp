@@ -110,7 +110,6 @@ params.update( {
                   'pysnmp.hlapi.asyncore',
                   'pysnmp.hlapi.asyncore.sync',
                   'pysnmp.hlapi.asyncore.sync.compat',
-                  'pysnmp.hlapi.trollius',
                   'pysnmp.hlapi.twisted',
                   'pysnmp.proto',
                   'pysnmp.proto.mpmod',
