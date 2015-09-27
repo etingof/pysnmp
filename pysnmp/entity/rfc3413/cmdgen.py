@@ -358,7 +358,7 @@ class NextCommandGeneratorSingleRun(CommandGenerator):
                      cbCtx=None):
         reqPDU = v2c.GetNextRequestPDU()
         v2c.apiPDU.setDefaults(reqPDU)
-        
+
         v2c.apiPDU.setVarBinds(reqPDU, varBinds)
 
         return self.sendPdu(snmpEngine,
