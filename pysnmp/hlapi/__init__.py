@@ -5,4 +5,4 @@ from pysnmp.hlapi.context import *
 from pysnmp.entity.engine import *
 
 # default is synchronous asyncore-based API
-from pysnmp.hlapi.asyncore._sync import *
+from pysnmp.hlapi.asyncore.sync import *

@@ -6,8 +6,8 @@ from pysnmp.hlapi.asyncore.transport import *
 from pysnmp.entity.engine import *
 
 try:
-    from pysnmp.hlapi.asyncore._sync.cmdgen import *
-    from pysnmp.hlapi.asyncore._sync.ntforg import *
+    from pysnmp.hlapi.asyncore.sync.cmdgen import *
+    from pysnmp.hlapi.asyncore.sync.ntforg import *
 except SyntaxError:
-    from pysnmp.hlapi.asyncore._sync.compat.cmdgen import *
-    from pysnmp.hlapi.asyncore._sync.compat.ntforg import *
+    from pysnmp.hlapi.asyncore.sync.compat.cmdgen import *
+    from pysnmp.hlapi.asyncore.sync.compat.ntforg import *
