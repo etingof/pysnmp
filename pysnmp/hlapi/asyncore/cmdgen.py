@@ -18,7 +18,7 @@ lcd = CommandGeneratorLcdConfigurator()
 isEndOfMib = lambda x: not cmdgen.getNextVarBinds(x)[1]
 
 def getCmd(snmpEngine, authData, transportTarget, contextData, 
-           varBinds, cbFun=None, cbCtx=None, lookupMib=True):
+           *varBinds, **options):
     """Performs SNMP GET query.
 
     Based on passed parameters, prepares SNMP GET packet 
@@ -41,21 +41,22 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
         Class instance representing SNMP ContextEngineId and ContextName
         values.
 
-    varBinds : tuple
-        A sequence of :py:class:`~pysnmp.smi.rfc1902.ObjectType` class
-        instances representing MIB variables to place into SNMP request.
+    \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
+        One or more class instances representing MIB variables to place
+        into SNMP request.
 
     Other Parameters
     ----------------
-    cbFun : callable
-        user-supplied callable that is invoked to pass SNMP response
-        data or error to user at a later point of time.
-    cbCtx : object
-        user-supplied object passing additional parameters to/from
-        `cbFun`.
-    lookupMib : bool
-        `lookupMib` - load MIB and resolve response MIB variables at
-        the cost of slightly reduced performance.
+    \*\*options :
+        Request options:
+
+            * `lookupMib` - load MIB and resolve response MIB variables at
+              the cost of slightly reduced performance. Default is `True`.
+            * `cbFun` (callable) - user-supplied callable that is invoked
+               to pass SNMP response data or error to user at a later point
+               of time. Default is `None`.
+            * `cbCtx` (object) - user-supplied object passing additional
+               parameters to/from `cbFun`. Default is `None`.
 
     Notes
     -----
@@ -98,7 +99,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     ...        CommunityData('public'),
     ...        UdpTransportTarget(('demo.snmplabs.com', 161)),
     ...        ContextData(),
-    ...        [ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0))],
+    ...        ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
     ...        cbFun=cbFun)
     >>> snmpEngine.transportDispatcher.runDispatcher()
     (None, 0, 0, [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'))])
@@ -109,17 +110,18 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
                 errorIndication, errorStatus, errorIndex,
                 varBinds, cbCtx):
         lookupMib, cbFun, cbCtx = cbCtx
-        return cbFun(
-            snmpEngine,
-            sendRequestHandle,
-            errorIndication,
-            errorStatus,
-            errorIndex,
-            vbProcessor.unmakeVarBinds(
-                snmpEngine, varBinds, lookupMib
-            ),
-            cbCtx
-        )
+        if cbFun:
+            return cbFun(
+                snmpEngine,
+                sendRequestHandle,
+                errorIndication,
+                errorStatus,
+                errorIndex,
+                vbProcessor.unmakeVarBinds(
+                    snmpEngine, varBinds, lookupMib
+                ),
+                cbCtx
+            )
 
     addrName, paramsName = lcd.configure(
         snmpEngine, authData, transportTarget
@@ -132,11 +134,12 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
         contextData.contextName,
         vbProcessor.makeVarBinds(snmpEngine, varBinds),
         __cbFun,
-        (lookupMib, cbFun, cbCtx)
+        (options.get('lookupMib', True),
+         options.get('cbFun'), options.get('cbCtx'))
     )
 
 def setCmd(snmpEngine, authData, transportTarget, contextData,
-           varBinds, cbFun=None, cbCtx=None, lookupMib=True):
+           *varBinds, **options):
     """Performs SNMP SET query.
 
     Based on passed parameters, prepares SNMP SET packet 
@@ -159,21 +162,22 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
         Class instance representing SNMP ContextEngineId and ContextName
         values.
 
-    varBinds : tuple
-        A sequence of :py:class:`~pysnmp.smi.rfc1902.ObjectType` class
-        instances representing MIB variables to place into SNMP request.
+    \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
+        One or more class instances representing MIB variables to place
+        into SNMP request.
 
     Other Parameters
     ----------------
-    cbFun : callable
-        user-supplied callable that is invoked to pass SNMP response
-        data or error to user at a later point of time.
-    cbCtx : object
-        user-supplied object passing additional parameters to/from
-        `cbFun`.
-    lookupMib : bool
-        `lookupMib` - load MIB and resolve response MIB variables at
-        the cost of slightly reduced performance.
+    \*\*options :
+        Request options:
+
+            * `lookupMib` - load MIB and resolve response MIB variables at
+              the cost of slightly reduced performance. Default is `True`.
+            * `cbFun` (callable) - user-supplied callable that is invoked
+               to pass SNMP response data or error to user at a later point
+               of time. Default is `None`.
+            * `cbCtx` (object) - user-supplied object passing additional
+               parameters to/from `cbFun`. Default is `None`.
 
     Notes
     -----
@@ -216,7 +220,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     ...        CommunityData('public'),
     ...        UdpTransportTarget(('demo.snmplabs.com', 161)),
     ...        ContextData(),
-    ...        [ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysContact', 0), 'info@snmplabs.com')],
+    ...        ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysContact', 0), 'info@snmplabs.com'),
     ...        cbFun=cbFun)
     >>> snmpEngine.transportDispatcher.runDispatcher()
     (None, 0, 0, [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.4.0')), DisplayString('info@snmplabs.com'))])
@@ -250,11 +254,12 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
         contextData.contextName,
         vbProcessor.makeVarBinds(snmpEngine, varBinds),
         __cbFun,
-        (lookupMib, cbFun, cbCtx)
+        (options.get('lookupMib', True),
+         options.get('cbFun'), options.get('cbCtx'))
     )
 
 def nextCmd(snmpEngine, authData, transportTarget, contextData,
-            varBinds, cbFun=None, cbCtx=None, lookupMib=True):
+            *varBinds, **options):
     """Performs SNMP GETNEXT query.
 
     Based on passed parameters, prepares SNMP GETNEXT packet 
@@ -277,21 +282,22 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
         Class instance representing SNMP ContextEngineId and ContextName
         values.
 
-    varBinds : tuple
-        A sequence of :py:class:`~pysnmp.smi.rfc1902.ObjectType` class
-        instances representing MIB variables to place into SNMP request.
+    \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
+        One or more class instances representing MIB variables to place
+        into SNMP request.
 
     Other Parameters
     ----------------
-    cbFun : callable
-        user-supplied callable that is invoked to pass SNMP response
-        data or error to user at a later point of time.
-    cbCtx : object
-        user-supplied object passing additional parameters to/from
-        `cbFun`.
-    lookupMib : bool
-        `lookupMib` - load MIB and resolve response MIB variables at
-        the cost of slightly reduced performance.
+    \*\*options :
+        Request options:
+
+            * `lookupMib` - load MIB and resolve response MIB variables at
+              the cost of slightly reduced performance. Default is `True`.
+            * `cbFun` (callable) - user-supplied callable that is invoked
+               to pass SNMP response data or error to user at a later point
+               of time. Default is `None`.
+            * `cbCtx` (object) - user-supplied object passing additional
+               parameters to/from `cbFun`. Default is `None`.
 
     Notes
     -----
@@ -336,7 +342,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     ...         CommunityData('public'),
     ...         UdpTransportTarget(('demo.snmplabs.com', 161)),
     ...         ContextData(),
-    ...         [ObjectType(ObjectIdentity('SNMPv2-MIB', 'system'))],
+    ...         ObjectType(ObjectIdentity('SNMPv2-MIB', 'system')),
     ...         cbFun=cbFun)
     >>> snmpEngine.transportDispatcher.runDispatcher()
     (None, 0, 0, [ [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'))] ])
@@ -366,12 +372,12 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
         contextData.contextEngineId, contextData.contextName,
         vbProcessor.makeVarBinds(snmpEngine, varBinds),
         __cbFun,
-        (lookupMib, cbFun, cbCtx)
+        (options.get('lookupMib', True),
+         options.get('cbFun'), options.get('cbCtx'))
     )
 
 def bulkCmd(snmpEngine, authData, transportTarget, contextData,
-            nonRepeaters, maxRepetitions, varBinds,
-            cbFun=None, cbCtx=None, lookupMib=True):
+            nonRepeaters, maxRepetitions, *varBinds, **options):
     """Performs SNMP GETBULK query.
 
     Based on passed parameters, prepares SNMP GETBULK packet 
@@ -404,21 +410,22 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
         `nonRepeaters`). Remote SNMP engine may choose lesser value than
         requested.
 
-    varBinds : tuple
-        A sequence of :py:class:`~pysnmp.smi.rfc1902.ObjectType` class
-        instances representing MIB variables to place into SNMP request.
+    \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
+        One or more class instances representing MIB variables to place
+        into SNMP request.
 
     Other Parameters
     ----------------
-    cbFun : callable
-        user-supplied callable that is invoked to pass SNMP response
-        data or error to user at a later point of time.
-    cbCtx : object
-        user-supplied object passing additional parameters to/from
-        `cbFun`.
-    lookupMib : bool
-        `lookupMib` - load MIB and resolve response MIB variables at
-        the cost of slightly reduced performance.
+    \*\*options :
+        Request options:
+
+            * `lookupMib` - load MIB and resolve response MIB variables at
+              the cost of slightly reduced performance. Default is `True`.
+            * `cbFun` (callable) - user-supplied callable that is invoked
+               to pass SNMP response data or error to user at a later point
+               of time. Default is `None`.
+            * `cbCtx` (object) - user-supplied object passing additional
+               parameters to/from `cbFun`. Default is `None`.
 
     Notes
     -----
@@ -464,7 +471,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     ...         UdpTransportTarget(('demo.snmplabs.com', 161)),
     ...         ContextData(),
     ...         0, 2,
-    ...         [ObjectType(ObjectIdentity('SNMPv2-MIB', 'system'))],
+    ...         ObjectType(ObjectIdentity('SNMPv2-MIB', 'system')),
     ...         cbFun=cbFun)
     >>> snmpEngine.transportDispatcher.runDispatcher()
     (None, 0, 0, [ [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m')), ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.2.0')), ObjectIdentifier('1.3.6.1.4.1.424242.1.1')] ])
@@ -496,5 +503,6 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
         nonRepeaters, maxRepetitions,
         vbProcessor.makeVarBinds(snmpEngine, varBinds),
         __cbFun,
-        (lookupMib, cbFun, cbCtx)
+        (options.get('lookupMib', True),
+         options.get('cbFun'), options.get('cbCtx'))
     )

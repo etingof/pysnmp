@@ -74,7 +74,7 @@ snmpEngine = SnmpEngine()
 
 # Submit GET requests
 for authData, transportTarget, varNames in targets:
-    getCmd(snmpEngine, authData, transportTarget, ContextData(), varNames,
-           cbFun=cbFun, cbCtx=(authData, transportTarget))
+    getCmd(snmpEngine, authData, transportTarget, ContextData(), *varNames,
+           **dict(cbFun=cbFun, cbCtx=(authData, transportTarget)))
 
 snmpEngine.transportDispatcher.runDispatcher()

@@ -31,9 +31,9 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
             authData,
             transportTarget,
             contextData,
-            varBinds,
-            cbFun, cbCtx,
-            options.get('lookupMib', True)
+            *varBinds,
+            **dict(cbFun=cbFun, cbCtx=cbCtx,
+                   lookupMib=options.get('lookupMib', True))
         )
 
         snmpEngine.transportDispatcher.runDispatcher()
@@ -67,9 +67,9 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
             authData,
             transportTarget,
             contextData,
-            varBinds,
-            cbFun, cbCtx,
-            options.get('lookupMib', True)
+            *varBinds,
+            **dict(cbFun=cbFun, cbCtx=cbCtx,
+                   lookupMib=options.get('lookupMib', True))
         )
 
         snmpEngine.transportDispatcher.runDispatcher()
@@ -92,7 +92,6 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
         cbCtx['errorIndex'] = errorIndex
         cbCtx['varBindTable'] = varBindTable
 
-    lookupMib = options.get('lookupMib', True)
     lexicographicMode = options.get('lexicographicMode', True)
     ignoreNonIncreasingOid = options.get('ignoreNonIncreasingOid', False)
     maxRows = options.get('maxRows', 0)
@@ -111,9 +110,9 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
                        authData,
                        transportTarget,
                        contextData,
-                       [ (x[0], Null()) for x in varBinds ],
-                       cbFun, cbCtx,
-                       lookupMib)
+                       *[ (x[0], Null()) for x in varBinds ],
+                       **dict(cbFun=cbFun, cbCtx=cbCtx,
+                              lookupMib=options.get('lookupMib', True)))
 
         snmpEngine.transportDispatcher.runDispatcher()
 
@@ -167,7 +166,6 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
         cbCtx['errorIndex'] = errorIndex
         cbCtx['varBindTable'] = varBindTable
 
-    lookupMib = options.get('lookupMib', True)        
     lexicographicMode = options.get('lexicographicMode', True)
     ignoreNonIncreasingOid = options.get('ignoreNonIncreasingOid', False)
     maxRows = options.get('maxRows', 0)
@@ -192,9 +190,9 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
                        transportTarget,
                        contextData,
                        nonRepeaters, maxRepetitions,
-                       [ (x[0], Null()) for x in varBinds ],
-                       cbFun, cbCtx,
-                       lookupMib)
+                       *[ (x[0], Null()) for x in varBinds ],
+                       **dict(cbFun=cbFun, cbCtx=cbCtx,
+                              lookupMib=options.get('lookupMib', True)))
 
         snmpEngine.transportDispatcher.runDispatcher()
 
