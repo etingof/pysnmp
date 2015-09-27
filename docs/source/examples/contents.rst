@@ -45,7 +45,7 @@ solve your SNMP needs.
 .. toctree::
    :maxdepth: 2
 
-   /examples/hlapi/trolleus/contents
+   /examples/hlapi/trollius/contents
 
 .. toctree::
    :maxdepth: 2
