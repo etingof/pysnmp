@@ -5,4 +5,4 @@ GETBULK command
 .. toctree::
    :maxdepth: 2
 
-.. autofunction:: pysnmp.hlapi.bulkCmd
+.. autofunction:: pysnmp.hlapi.asyncore.bulkCmd

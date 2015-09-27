@@ -13,12 +13,55 @@ It will let you perform SNMP GET/SET/WALK and TRAP/INFORM operations by
 pasting code snippets from PySNMP documentation and example scripts
 right into your Python interactive session.
 
+Most of SNMP operations involve packet exchange over network. PySNMP
+is shipped with a set of bindings to popular asynchronous Python I/O
+frameworks that let you run PySNMP in parallel with other tasks your
+application may perform.
+
 Synchronous SNMP
 ----------------
 
 Most simple and strightforward way to use PySNMP is by employing its
 Synchronous, blocking API. It's also the default API offered by
 users on *pysnmp.hlapi* sub-package import.
+
+Command Generator
+
+.. toctree::
+   :maxdepth: 2
+
+   /docs/hlapi/asyncore/sync/manager/cmdgen/getcmd
+   /docs/hlapi/asyncore/sync/manager/cmdgen/setcmd
+   /docs/hlapi/asyncore/sync/manager/cmdgen/nextcmd
+   /docs/hlapi/asyncore/sync/manager/cmdgen/bulkcmd
+
+Notification Originator
+
+.. toctree::
+   :maxdepth: 2
+
+   /docs/hlapi/asyncore/sync/agent/ntforg/notification 
+
+Transport configuration
++++++++++++++++++++++++
+
+The following shortcut classes convey configuration information to
+SNMP engine's Local Configuration Datastore (:RFC:`2271#section-3.4.2`)
+as well as to underlying socket API. Once committed to LCD, SNMP engine
+saves its configuration for the lifetime of SNMP engine object.
+
+.. toctree::
+   :maxdepth: 2
+
+.. autoclass:: pysnmp.hlapi.UdpTransportTarget
+.. autoclass:: pysnmp.hlapi.Udp6TransportTarget
+
+Asynchronous: asyncore
+----------------------
+
+The :mod:`asyncore` module is in Python standard library since ancient
+times. Main loop is built around :mod:`select` dispatcher, user
+code is invoked through callback callables.
 
 Command Generator
 
@@ -38,29 +81,13 @@ Notification Originator
    /docs/hlapi/asyncore/agent/ntforg/notification 
 
 Transport configuration
++++++++++++++++++++++++
 
 .. toctree::
    :maxdepth: 2
 
-   /docs/hlapi/asyncore/transport-configuration
-
-Most of SNMP operations involve packet exchange over network. PySNMP
-is shipped with a set of bindings to popular asynchronous Python I/O
-frameworks that let you run PySNMP in parallel with other tasks your
-application may perform.
-
-Asynchronous: asyncore
-----------------------
-
-The :mod:`asyncore` module is in Python standard library since ancient
-times. Main loop is built around :mod:`select` dispatcher, user
-code is invoked through callback callables.
-
-.. toctree::
-   :maxdepth: 2
-
-   /docs/hlapi/asyncore/manager/cmdgen/async-command-generator
-   /docs/hlapi/asyncore/agent/ntforg/async-notification-originator
+.. autoclass:: pysnmp.hlapi.asyncore.UdpTransportTarget
+.. autoclass:: pysnmp.hlapi.asyncore.Udp6TransportTarget
 
 .. _asyncio:
 
@@ -90,11 +117,13 @@ Notification Originator
    /docs/hlapi/asyncio/agent/ntforg/notification 
 
 Transport configuration
++++++++++++++++++++++++
 
 .. toctree::
    :maxdepth: 2
 
-   /docs/hlapi/asyncio/transport-configuration
+.. autoclass:: pysnmp.hlapi.asyncio.UdpTransportTarget
+.. autoclass:: pysnmp.hlapi.asyncio.Udp6TransportTarget
 
 .. _trollius:
 
@@ -137,12 +166,12 @@ Notification Originator
    /docs/hlapi/twisted/agent/ntforg/notification 
 
 Transport configuration
++++++++++++++++++++++++
 
 .. toctree::
    :maxdepth: 2
 
-   /docs/hlapi/twisted/transport-configuration
-
+.. autoclass:: pysnmp.hlapi.twisted.UdpTransportTarget
 
 SNMP Engine
 -----------

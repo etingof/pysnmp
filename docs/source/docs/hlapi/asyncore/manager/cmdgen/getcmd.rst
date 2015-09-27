@@ -1,6 +1,6 @@
 
-Asynchronous Command Generator
-==============================
+GET command
+===========
 
 .. toctree::
    :maxdepth: 2
