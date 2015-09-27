@@ -1,5 +1,5 @@
 """
-Concurrent queries
+Sequential queries
 ++++++++++++++++++
 
 Send multiple SNMP GET requests one by one using the following options:
