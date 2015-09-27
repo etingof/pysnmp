@@ -1,6 +1,6 @@
 
-SNMP with Asyncore
-==================
+Asynchronous: asyncore
+======================
 
 If you find yourself unable to use particular SNMP feature with the 
 high-level (hlapi) API, your next step would be to use SNMPv3 

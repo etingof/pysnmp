@@ -1,6 +1,6 @@
 
-SNMP with Asynio
-================
+Asynchronous: asyncio
+=====================
 
 Python 3.4 introduced a new module - `asyncio <https://docs.python.org/3/library/asyncio.html>`_ (former Tulip,
 PEP 3156) featuring infrastructure for writing single-threaded concurrent
@@ -24,16 +24,9 @@ All SNMP-related functionality of Native PySNMP API to Standard SNMP
 Applications (`RFC3413 <https://tools.ietf.org/html/rfc3413>`_)
 remains available to asyncio-backed applications.
 
-Command Generator Applications
-------------------------------
-
-.. toctree::
-
-   /examples/v3arch/asyncio/manager/cmdgen/snmp-versions
-   /examples/v3arch/asyncio/manager/cmdgen/modifying-variables
-   /examples/v3arch/asyncio/manager/cmdgen/walking-operations
-   /examples/v3arch/asyncio/manager/cmdgen/transport-tweaks
-
+We do not provide Command Generator and Notification Originator examples,
+as it is much easier to use
+:doc:`high-level interfaces </examples/hlapi/asyncio/contents>` instead.
 
 Command Responder Applications
 ------------------------------
@@ -41,14 +34,6 @@ Command Responder Applications
 .. toctree::
 
    /examples/v3arch/asyncio/agent/cmdrsp/snmp-versions
-
-Notification Originator Applications
-------------------------------------
-
-.. toctree::
-
-   /examples/v3arch/asyncio/agent/ntforg/common-notifications
-
 
 Notification Receiver Applications
 ----------------------------------
@@ -59,5 +44,3 @@ Notification Receiver Applications
 
 For more details on PySNMP programming model and interfaces, please 
 refer to the documentation
-
-
