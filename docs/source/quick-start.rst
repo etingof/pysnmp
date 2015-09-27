@@ -17,11 +17,11 @@ So just cut&paste the following code right into your Python prompt. The
 code will performs SNMP GET operation for a sysDescr.0 object at a 
 publically available SNMP Agent at **demo.snmplabs.com**:
 
-.. literalinclude:: /../../examples/hlapi/asyncore/manager/cmdgen/v1-get.py
+.. literalinclude:: /../../examples/hlapi/asyncore/sync/manager/cmdgen/v1-get.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/v1-get.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/sync/manager/cmdgen/v1-get.py>` script.
 
 If everything works as it should you will get:
 
@@ -39,11 +39,11 @@ Send SNMP TRAP
 To send a trivial TRAP message to your local Notification Receiver
 just cut&paste the following code into your interactive Python session:
 
-.. literalinclude:: /../../examples/hlapi/asyncore/agent/ntforg/default-v1-trap.py
+.. literalinclude:: /../../examples/hlapi/asyncore/sync/agent/ntforg/default-v1-trap.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/hlapi/asyncore/agent/ntforg/default-v1-trap.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/sync/agent/ntforg/default-v1-trap.py>` script.
 
 For more sophisticated examples and use cases please refer to
 :doc:`examples <examples/contents>` and :doc:`library reference <docs/contents>`

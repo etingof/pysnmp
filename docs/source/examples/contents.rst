@@ -73,15 +73,48 @@ framework being used.
 Packet-level SNMP
 -----------------
 
-Low-level API that lets you build SNMP messages from Python 
-objects and exchange them through asyncore transport (or you could 
-write your own). These interfaces are very low-level and aimed at 
-a rather specific programming tasks.
+In cases where performance is your top priority and you only need to 
+work with SNMP v1 and v2c systems and you do not mind writing much 
+more code, then there is a low-level API to SNMP v1/v2c PDU and 
+PySNMP I/O engine. There's practically no SNMP engine or SMI 
+infrastructure involved in the operations of these almost wire-level 
+interfaces. Although MIB services can still be used separately.
+
+A packet-level API-based application typically manages both SNMP 
+message building/parsing and network communication via one or more 
+transports. It's fully up to the application to handle failures on 
+message and transport levels.
+
+Command Generator
++++++++++++++++++
 
 .. toctree::
-   :maxdepth: 2
 
-   /examples/v1arch/asyncore/contents
+   /examples/v1arch/asyncore/manager/cmdgen/fetching-variables
+   /examples/v1arch/asyncore/manager/cmdgen/modifying-variables
+   /examples/v1arch/asyncore/manager/cmdgen/walking-operations
+   /examples/v1arch/asyncore/manager/cmdgen/transport-tweaks
+
+Command Responder
++++++++++++++++++
+
+.. toctree::
+
+   /examples/v1arch/asyncore/agent/cmdrsp/agent-side-mib-implementations
+
+Notification Originator
++++++++++++++++++++++++
+
+.. toctree::
+
+   /examples/v1arch/asyncore/agent/ntforg/transport-tweaks
+
+Notification Receiver
++++++++++++++++++++++
+
+.. toctree::
+
+   /examples/v1arch/asyncore/manager/ntfrcv/transport-tweaks
 
 Using these examples
 --------------------

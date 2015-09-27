@@ -89,8 +89,6 @@ Transport configuration
 .. autoclass:: pysnmp.hlapi.asyncore.UdpTransportTarget
 .. autoclass:: pysnmp.hlapi.asyncore.Udp6TransportTarget
 
-.. _asyncio:
-
 Asynchronous: asyncio
 ---------------------
 
@@ -125,19 +123,15 @@ Transport configuration
 .. autoclass:: pysnmp.hlapi.asyncio.UdpTransportTarget
 .. autoclass:: pysnmp.hlapi.asyncio.Udp6TransportTarget
 
-.. _trollius:
-
 Asynchronous: trollius
 ----------------------
 
-An almost compatible alternative to :ref:`asyncio` for pre-3.3 Python
+An almost compatible alternative to *asyncio* for pre-3.3 Python
 is `Trollius <http://trollius.readthedocs.org>`_ module. PySNMP's
 `asyncio` bindings automatically work with Trolleus.
 
 Please refer to :doc:`Trollius examples </examples/contents>` for
 more information.
-
-.. _twisted:
 
 Asynchronous: Twisted
 ---------------------

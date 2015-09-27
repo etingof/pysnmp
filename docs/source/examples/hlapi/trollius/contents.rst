@@ -38,7 +38,6 @@ More examples on Command Generator API usage follow.
 
    /examples/hlapi/trollius/manager/cmdgen/snmp-versions
    /examples/hlapi/trollius/manager/cmdgen/walking-operations
-   /examples/hlapi/trollius/manager/cmdgen/advanced-topics
 
 Sending SNMP TRAP's and INFORM's is as easy with PySNMP library.
 The following code sends SNMP TRAP:
@@ -56,7 +55,6 @@ More examples on Notification Originator API usage follow.
 .. toctree::
 
    /examples/hlapi/trollius/agent/ntforg/common-notifications
-   /examples/hlapi/trollius/agent/ntforg/advanced-topics
 
 More sophisticated or less popular SNMP operations can still be performed 
 with PySNMP through its Native API to Standard SNMP Applications.

@@ -4,17 +4,6 @@
 Walking operations
 ------------------
 
-.. include:: /../../examples/hlapi/asyncore/manager/cmdgen/getnext-multiple-oids-to-eom.py
-   :start-after: """
-   :end-before: """#
-
-.. literalinclude:: /../../examples/hlapi/asyncore/manager/cmdgen/getnext-multiple-oids-to-eom.py
-   :start-after: """#
-   :language: python
-
-:download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/getnext-multiple-oids-to-eom.py>` script.
-
-
 .. include:: /../../examples/hlapi/asyncore/manager/cmdgen/pull-whole-mib.py
    :start-after: """
    :end-before: """#
