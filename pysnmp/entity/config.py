@@ -6,6 +6,7 @@ from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha, noauth
 from pysnmp.proto.secmod.rfc3414.priv import des, nopriv
 from pysnmp.proto.secmod.rfc3826.priv import aes
 from pysnmp.proto.secmod.eso.priv import des3, aes192, aes256
+from pysnmp.proto import rfc1905
 from pysnmp import error
 
 # A shortcut to popular constants
@@ -207,9 +208,12 @@ def delV3User(snmpEngine,
         (usmUserEntry.name + (4,), None)   # usmUserCloneFrom
     )
     while varBinds:
+        print varBinds
         varBinds = snmpEngine.msgAndPduDsp.mibInstrumController.readNextVars(
             varBinds
         )
+        if varBinds[0][1].isSameTypeWith(rfc1905.endOfMibView):
+            break
         if varBinds[0][0][:len(initialVarBinds[0][0])]!=initialVarBinds[0][0]:
             break
         elif varBinds[2][1] == tblIdx1:  # cloned from this entry

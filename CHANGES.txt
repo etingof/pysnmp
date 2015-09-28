@@ -168,6 +168,7 @@ Revision 4.3.0, work in progress
 - Fix to smi.builder to explicitly fail on any MIB file access error
   (but ENOENT) and raise IOError uniformly on any directory/egg access
   failure.
+- Fix to infinite loop at config.delV3User().
 
 Revision 4.2.5, released 2013-10-02
 -----------------------------------
