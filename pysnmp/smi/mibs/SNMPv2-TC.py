@@ -302,7 +302,8 @@ class RowStatus(Integer, TextualConvention):
         # Run through states transition matrix, 
         # resolve new instance value
         excValue, newState = self.stateMatrix.get(
-            (value, self.hasValue() and self or self.stNotExists),
+            (value.hasValue() and value or self.stNotExists,
+             self.hasValue() and self or self.stNotExists),
             (error.MibOperationError, None)
         )
         newState = self.clone(newState)
