@@ -1,6 +1,6 @@
 
-Revision 4.3.0, work in progress
---------------------------------
+Revision 4.3.0, released 28-09-2015
+-----------------------------------
 
 - Critical error fixed in key localization procedure for AES192/AES256/3DES
   cyphers. Previous versions might never worked properly in this respect.
