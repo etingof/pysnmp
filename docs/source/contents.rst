@@ -47,8 +47,6 @@ this implementation? Try out quick start page!
 Documentation
 -------------
 
-This is so boring to read... Now imagine how boring it was to write this! ;-)
-
 .. toctree::
    :maxdepth: 2
 
@@ -80,6 +78,14 @@ following page.
 
       /download
 
+License
+-------
+
+   .. toctree::
+      :maxdepth: 2
+
+      /license
+
 FAQ
 ---
 
@@ -88,8 +94,8 @@ FAQ
 
       /faq
 
-Development
------------
+Further development
+-------------------
 
 We fanatically document all fixes, changes and new features in changelog.
 There you could also download the latest unreleased pysnmp tarball
@@ -108,7 +114,10 @@ are collected in the following section.
 
       /development
     
-License
--------
+Old site archive
+----------------
 
-.. include:: ../../LICENSE.txt
+   .. toctree::
+      :maxdepth: 2
+
+      /oldsite
