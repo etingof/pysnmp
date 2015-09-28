@@ -4,37 +4,37 @@
 Advanced Command Generator
 --------------------------
 
-.. include:: /../../examples/hlapi/asyncore/manager/cmdgen/async-pull-mibs-from-multiple-agents-at-once.py
+.. include:: /../../examples/hlapi/asyncore/manager/cmdgen/pull-mibs-from-multiple-agents-at-once.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/hlapi/asyncore/manager/cmdgen/async-pull-mibs-from-multiple-agents-at-once.py
+.. literalinclude:: /../../examples/hlapi/asyncore/manager/cmdgen/pull-mibs-from-multiple-agents-at-once.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/async-pull-mibs-from-multiple-agents-at-once.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/pull-mibs-from-multiple-agents-at-once.py>` script.
 
 
-.. include:: /../../examples/hlapi/asyncore/manager/cmdgen/async-query-multiple-snmp-engines.py
+.. include:: /../../examples/hlapi/asyncore/manager/cmdgen/query-multiple-snmp-engines.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/hlapi/asyncore/manager/cmdgen/async-query-multiple-snmp-engines.py
+.. literalinclude:: /../../examples/hlapi/asyncore/manager/cmdgen/query-multiple-snmp-engines.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/async-query-multiple-snmp-engines.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/query-multiple-snmp-engines.py>` script.
 
 
-.. include:: /../../examples/hlapi/asyncore/manager/cmdgen/multiple-concurrent-async-queries.py
+.. include:: /../../examples/hlapi/asyncore/manager/cmdgen/multiple-concurrent-queries.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/hlapi/asyncore/manager/cmdgen/multiple-concurrent-async-queries.py
+.. literalinclude:: /../../examples/hlapi/asyncore/manager/cmdgen/multiple-concurrent-queries.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/multiple-concurrent-async-queries.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/multiple-concurrent-queries.py>` script.
 
 
 See also: :doc:`library reference </docs/contents>`.
