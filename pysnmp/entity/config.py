@@ -208,7 +208,6 @@ def delV3User(snmpEngine,
         (usmUserEntry.name + (4,), None)   # usmUserCloneFrom
     )
     while varBinds:
-        print varBinds
         varBinds = snmpEngine.msgAndPduDsp.mibInstrumController.readNextVars(
             varBinds
         )
