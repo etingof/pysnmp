@@ -649,6 +649,18 @@ class ObjectType:
     def isFullyResolved(self):
         return self.__state & self.stClean
 
+    def addAsn1MibSource(self, *asn1Sources, **kwargs):
+        self.__args[0].addAsn1MibSource(*asn1Sources, **kwargs)
+        return self
+
+    def addMibSource(self, *mibSources):
+        self.__args[0].addMibSource(*mibSources)
+        return self
+
+    def loadMibs(self, *modNames):
+        self.__args[0].loadMibs(*modNames)
+        return self
+
     def resolveWithMib(self, mibViewController):
         """Perform MIB variable ID and associated value conversion.
 
@@ -709,6 +721,9 @@ class ObjectType:
         except PyAsn1Error:
             raise SmiError('Value %r to type %r convertion failure: %s' % (self.__args[1], self.__args[0].getMibNode().getSyntax().__class__.__name__, sys.exc_info()[1]))
 
+        if self.__args[1].isSuperTypeOf(rfc1902.ObjectIdentifier()):
+            self.__args[1] = ObjectIdentity(self.__args[1]).resolveWithMib(mibViewController)
+ 
         self.__state |= self.stClean
 
         debug.logger & debug.flagMIB and debug.logger('resolved %r syntax is %r' % (self.__args[0], self.__args[1]))
@@ -840,6 +855,18 @@ class NotificationType:
             self.__varBinds.extend(varBinds)
         else:
             self.__additionalVarBinds.extend(varBinds)
+        return self
+
+    def addAsn1MibSource(self, *asn1Sources, **kwargs):
+        self.__objectIdentity.addAsn1MibSource(*asn1Sources, **kwargs)
+        return self
+
+    def addMibSource(self, *mibSources):
+        self.__objectIdentity.addMibSource(*mibSources)
+        return self
+
+    def loadMibs(self, *modNames):
+        self.__objectIdentity.loadMibs(*modNames)
         return self
 
     def isFullyResolved(self):

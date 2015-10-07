@@ -1,4 +1,13 @@
 
+Revision 4.3.1, work in progress
+--------------------------------
+
+- Added recursive resolution of ObjectIdentifier values at ObjectType
+  by converting it to ObjectIdentity.
+- A bunch of convenience shortcuts to rfc1902.ObjectIdentity added
+  from rfc1902.ObjectType and rfc1902.NotificationType
+  (.addAsn1MibSource(), .addMibSource(), .loadMibs())
+
 Revision 4.3.0, released 28-09-2015
 -----------------------------------
 
