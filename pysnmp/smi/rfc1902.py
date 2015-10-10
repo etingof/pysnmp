@@ -462,10 +462,12 @@ class ObjectIdentity:
 
     def prettyPrint(self):
         if self.__state & self.stClean:
+            s = rfc1902.OctetString()
             return '%s::%s%s%s' % (
                 self.__modName, self.__symName,
                 self.__indices and  '.' or '', 
-                '.'.join(['"%s"' % x.prettyPrint() for x in self.__indices ])
+                '.'.join([x.isSuperTypeOf(s) and '"%s"' % x.prettyPrint()
+                          or x.prettyPrint() for x in self.__indices ])
             )
         else:
             raise SmiError('%s object not fully initialized' % self.__class__.__name__)
