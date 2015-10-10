@@ -75,9 +75,9 @@ You may wish to grab them from http://www.voidspace.org.uk/python/modules.shtml
 and install into your system.
 """)
 
-doclines = [ x.strip() for x in __doc__.split('\n') if x ]
+doclines = [x.strip() for x in (__doc__ or '').split('\n') if x]
  
-params.update( {
+params.update({
     'name': 'pysnmp',
     'version': open(os.path.join('pysnmp','__init__.py')).read().split('\'')[1],
     'description': doclines[0],
@@ -124,6 +124,6 @@ params.update( {
                   'pysnmp.proto.acmod',
                   'pysnmp.proto.proxy',
                   'pysnmp.proto.api' ]
-    } )
+    })
 
 setup(**params)
