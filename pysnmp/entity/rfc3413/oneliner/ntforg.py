@@ -142,14 +142,20 @@ class NotificationOriginator:
 
         if not isinstance(notificationType, NotificationType):
             notificationType = NotificationType(notificationType)
-        for x in sync.sendNotification(self.snmpEngine, authData,
-                                       transportTarget,
-                                       ContextData(kwargs.get('contextEngineId'),
-                                                   kwargs.get('contextName', null)),
-                                       notifyType,
-                                       notificationType.addVarBinds(*varBinds),
-                                       **kwargs):
+        errorIndication, errorStatus, errorIndex, rspVarBinds = None, 0, 0, []
+        for errorIndication, \
+            errorStatus, errorIndex, \
+            rspVarBinds \
+            in sync.sendNotification(self.snmpEngine, authData,
+                                     transportTarget,
+                                     ContextData(
+                                         kwargs.get('contextEngineId'),
+                                         kwargs.get('contextName', null)
+                                     ),
+                                     notifyType,
+                                     notificationType.addVarBinds(*varBinds),
+                                     **kwargs):
             if notifyType == 'inform':
-                 return x
+                return errorIndication, errorStatus, errorIndex, rspVarBinds
             else:
-                 return
+                break

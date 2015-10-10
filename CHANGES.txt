@@ -9,6 +9,7 @@ Revision 4.3.1, work in progress
   (.addAsn1MibSource(), .addMibSource(), .loadMibs())
 - Fix to __doc__ use in setup.py to make -O0 installation mode working.
 - Fix to ObjectIdentity->ObjectIdentifier attributes handover
+- Fixed crash at oneliner compatibility code on EOM response.
 
 Revision 4.3.0, released 28-09-2015
 -----------------------------------

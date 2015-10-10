@@ -179,24 +179,35 @@ class CommandGenerator:
             kwargs['lookupNames'] = False
         if 'lookupValues' not in kwargs:
             kwargs['lookupValues'] = False
-        for x in sync.getCmd(self.snmpEngine, authData, transportTarget,
-                             ContextData(kwargs.get('contextEngineId'),
-                                         kwargs.get('contextName', null)),
-                             *[ (x, self._null) for x in varNames ],
-                             **kwargs):
-            return x
+        errorIndication, errorStatus, errorIndex, varBinds = None, 0, 0, []
+        for errorIndication, \
+                errorStatus, errorIndex, \
+                varBinds \
+                in sync.getCmd(self.snmpEngine, authData, transportTarget,
+                               ContextData(kwargs.get('contextEngineId'),
+                                           kwargs.get('contextName', null)),
+                               *[ (x, self._null) for x in varNames ],
+                               **kwargs):
+            break
+        return errorIndication, errorStatus, errorIndex, varBinds
 
     def setCmd(self, authData, transportTarget, *varBinds, **kwargs):
         if 'lookupNames' not in kwargs:
             kwargs['lookupNames'] = False
         if 'lookupValues' not in kwargs:
             kwargs['lookupValues'] = False
-        for x in sync.setCmd(self.snmpEngine, authData, transportTarget,
-                             ContextData(kwargs.get('contextEngineId'),
-                                         kwargs.get('contextName', null)),
-                             *varBinds,
-                             **kwargs):
-            return x
+        errorIndication, errorStatus, errorIndex, rspVarBinds = None, 0, 0, []
+        for errorIndication, \
+                errorStatus, errorIndex, \
+                rspVarBinds \
+                in sync.setCmd(self.snmpEngine, authData, transportTarget,
+                               ContextData(kwargs.get('contextEngineId'),
+                                           kwargs.get('contextName', null)),
+                               *varBinds,
+                               **kwargs):
+            break
+
+        return errorIndication, errorStatus, errorIndex, rspVarBinds
 
     def nextCmd(self, authData, transportTarget, *varNames, **kwargs):
         if 'lookupNames' not in kwargs:
@@ -205,6 +216,7 @@ class CommandGenerator:
             kwargs['lookupValues'] = False
         if 'lexicographicMode' not in kwargs:
             kwargs['lexicographicMode'] = False
+        errorIndication, errorStatus, errorIndex = None, 0, 0
         varBindTable = []
         for errorIndication, \
                 errorStatus, errorIndex, \
@@ -229,6 +241,7 @@ class CommandGenerator:
             kwargs['lookupValues'] = False
         if 'lexicographicMode' not in kwargs:
             kwargs['lexicographicMode'] = False
+        errorIndication, errorStatus, errorIndex = None, 0, 0
         varBindTable = []
         for errorIndication, \
                 errorStatus, errorIndex, \
@@ -246,4 +259,3 @@ class CommandGenerator:
             varBindTable.append(varBinds)
 
         return errorIndication, errorStatus, errorIndex, varBindTable
-
