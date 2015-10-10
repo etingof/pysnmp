@@ -8,6 +8,7 @@ Revision 4.3.1, work in progress
   from rfc1902.ObjectType and rfc1902.NotificationType
   (.addAsn1MibSource(), .addMibSource(), .loadMibs())
 - Fix to __doc__ use in setup.py to make -O0 installation mode working.
+- Fix to ObjectIdentity->ObjectIdentifier attributes handover
 
 Revision 4.3.0, released 28-09-2015
 -----------------------------------

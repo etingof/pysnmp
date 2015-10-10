@@ -561,8 +561,9 @@ class ObjectIdentity:
 
     def __getattr__(self, attr):
         if self.__state & self.stClean:
-            if attr in ( 'asTuple', 'clone', 'subtype', 'isPrefixOf',
-                         'isSameTypeWith', 'isSuperTypeOf'):
+            if attr in ('asTuple', 'clone', 'subtype', 'isPrefixOf',
+                        'isSameTypeWith', 'isSuperTypeOf', 'getTagSet',
+                        'getEffectiveTagSet', 'getTagMap', 'index'):
                 return getattr(self.__oid, attr)
             raise AttributeError
         else:
