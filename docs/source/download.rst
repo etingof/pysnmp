@@ -9,25 +9,23 @@ license, and can be freely downloaded from Source Forge
 `download servers <http://sourceforge.net/projects/pysnmp/files/>`_ or 
 `PyPI <http://pypi.python.org/pypi/pysnmp/>`_. 
 
-Please, note that there are frequently release candidate versions (marked rc)
-also available for download. These are potentially less stable in terms of 
-implementation and public interfaces. However they are first to contain 
-fixes to the issues, discovered in latest stable branch.
+Besides official releases, it's advisable to try the cutting-edge
+development code that could be taken from PySNMP
+`source code repository <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/pysnmp/?view=tar>`_.
+It may be less stable in regards to general operation and changes to
+public interfaces, but it's first to contain fixes to recently discovered bugs.
 
-But the simplest way to obtain PySNMP is to run:
-
-.. code-block:: bash
-
-   $ easy_install pysnmp
-
-or
+The best way to obtain PySNMP and dependencies is to run:
 
 .. code-block:: bash
 
    $ pip install pysnmp
 
-Those Python package managers will download PySNMP along with all its
-dependencies and install them all on your system.
+or
+
+.. code-block:: bash
+
+   $ easy_install pysnmp
 
 In case you do not have the easy_install command on your system but still 
 would like to use the on-line package installation method, please install 

@@ -23,11 +23,12 @@ now obsolete, PySNMP releases. All site documentation and examples are written
 for the 4.3.0 and later versions in mind. Older materials are still 
 available under the obsolete section.
 
-Besides the libraries, a set of pure-Python command-line tools are shipped 
-along with the system. Those tools mimic the interface and behaviour of 
-popular Net-SNMP snmpget/snmpset/snmpwalk utilities. They may be useful 
-in a cross-platform situations as well as a testing and prototyping 
-instrument for pysnmp users.
+Besides the libraries, a set of pure-Python 
+`command-line tools <https://pypi.python.org/pypi/pysnmp-apps/>`_
+are shipped along with the system. Those tools mimic the interface
+and behaviour of popular Net-SNMP snmpget/snmpset/snmpwalk utilities.
+They may be useful in a cross-platform situations as well as a testing
+and prototyping instrument for pysnmp users.
 
 PySNMP software is free and open-source. It's being distributed under a 
 liberal BSD-style license. PySNMP development has been initially sponsored 
@@ -113,7 +114,16 @@ are collected in the following section.
       :maxdepth: 2
 
       /development
-    
+
+Contact
+-------
+
+Please, use our
+`mailing list <https://lists.sourceforge.net/lists/listinfo/pysnmp-users>`_
+or refer to
+`Stack Overflow <http://stackoverflow.com/questions/tagged/pysnmp>`_ 
+should you have any questions or issues in regards to PySNMP.
+
 Old site archive
 ----------------
 

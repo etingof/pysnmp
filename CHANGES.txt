@@ -2,6 +2,8 @@
 Revision 4.3.1, work in progress
 --------------------------------
 
+Repository `tarball download <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/pysnmp/?view=tar>`_
+
 - Added recursive resolution of ObjectIdentifier values at ObjectType
   by converting it to ObjectIdentity.
 - A bunch of convenience shortcuts to rfc1902.ObjectIdentity added
