@@ -1,6 +1,7 @@
 import socket, sys
 from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
 from pysnmp.hlapi.transport import AbstractTransportTarget
+from pysnmp import error
 
 __all__ = ['UnixTransportTarget', 'Udp6TransportTarget', 'UdpTransportTarget']
 

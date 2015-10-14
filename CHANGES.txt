@@ -13,6 +13,7 @@ Repository `tarball download <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/py
 - Fix to __doc__ use in setup.py to make -O0 installation mode working.
 - Fix to ObjectIdentity->ObjectIdentifier attributes handover
 - Fixed crash at oneliner compatibility code on EOM response.
+- Fixed crash in hlapi.transport module.
 
 Revision 4.3.0, released 28-09-2015
 -----------------------------------
