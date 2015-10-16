@@ -51,7 +51,7 @@ class DgramSocketTransport(AbstractSocketTransport):
             )
         except socket.error:
             raise error.CarrierError('setsockopt() for SO_BROADCAST failed: %s' % (sys.exc_info()[1],))
-        debug.logger & debug.flagIO and debug.logger('enableBroadcast: %s option SO_BROADCAST on socket %s' % (turnOn and "enabled" or "disabled", self.socket.fileno()))
+        debug.logger & debug.flagIO and debug.logger('enableBroadcast: %s option SO_BROADCAST on socket %s' % (flag and "enabled" or "disabled", self.socket.fileno()))
         return self
 
     def enablePktInfo(self, flag=1):
@@ -85,7 +85,7 @@ class DgramSocketTransport(AbstractSocketTransport):
                 )
         except socket.error:
             raise error.CarrierError('setsockopt() for IP_TRANSPARENT failed: %s' % sys.exc_info()[1])
-        except PermissionError:
+        except OSError:
             raise error.CarrierError('IP_TRANSPARENT socket option requires superusre previleges')
 
         debug.logger & debug.flagIO and debug.logger('enableTransparent: %s option IP_TRANSPARENT on socket %s' % (flag and "enabled" or "disabled", self.socket.fileno()))
