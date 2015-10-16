@@ -58,7 +58,7 @@ class AsyncioDispatcher(AbstractTransportDispatcher):
             except KeyboardInterrupt:
                 raise
             except Exception:
-                raise error.PySnmpError(';'.join(traceback.format_exception(*sys.exc_info())))
+                raise PySnmpError(';'.join(traceback.format_exception(*sys.exc_info())))
 
     def registerTransport(self, tDomain, transport):
         if self.loopingcall is None and self.getTimerResolution() > 0:
