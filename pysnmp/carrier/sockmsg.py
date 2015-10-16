@@ -10,17 +10,16 @@
 # Parts of the code below is taken from:
 # http://carnivore.it/2012/10/12/python3.3_sendmsg_and_recvmsg
 #
-try:
-    import ctypes
-    import ipaddress
-except ImportError:
+import sys
+if sys.version_info[:2] < (3, 3):
     def getRecvFrom(addressType):
         raise error.CarrierError('sendmsg()/recvmsg() interface is not supported by this OS and/or Python version')
 
     def getSendTo(addressType):
         raise error.CarrierError('sendmsg()/recvmsg() interface is not supported by this OS and/or Python version')
 else:
-    import sys
+    import ctypes
+    import ipaddress
     import socket
     from pysnmp import debug
     from pysnmp.carrier import sockfix, error
