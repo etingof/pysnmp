@@ -211,3 +211,14 @@ class AbstractTransport:
 
     def closeTransport(self):
         self.unregisterCbFun()
+
+    # Public API
+    
+    def openClientMode(self, iface=None):
+        raise error.CarrierError('Method not implemented')
+
+    def openServerMode(self, iface=None):
+        raise error.CarrierError('Method not implemented')
+        
+    def sendMessage(self, outgoingMessage, transportAddress):
+        raise error.CarrierError('Method not implemented')

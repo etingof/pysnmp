@@ -1,11 +1,12 @@
 from pyasn1.compat.octets import null
+from pysnmp.carrier.base import AbstractTransport
 from pysnmp import error
 
 __all__ = []
 
 class AbstractTransportTarget:
     transportDomain = None
-    protoTransport = NotImplementedError
+    protoTransport = AbstractTransport
     def __init__(self, transportAddr, timeout=1, retries=5, tagList=null):
         self.transportAddr = self._resolveAddr(transportAddr)
         self.timeout = timeout

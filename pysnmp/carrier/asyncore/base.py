@@ -66,17 +66,6 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
     def unregisterSocket(self, sockMap=None):
         self.del_channel(sockMap)
         
-    # Public API
-    
-    def openClientMode(self, iface=None):
-        raise error.CarrierError('Method not implemented')
-
-    def openServerMode(self, iface=None):
-        raise error.CarrierError('Method not implemented')
-        
-    def sendMessage(self, outgoingMessage, transportAddress):
-        raise error.CarrierError('Method not implemented')
-
     def closeTransport(self):
         AbstractTransport.closeTransport(self)
         self.close()
