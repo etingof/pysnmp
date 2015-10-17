@@ -23,7 +23,7 @@ class DgramSocketTransport(AbstractSocketTransport):
     addressType = lambda x: x
     def __init__(self, sock=None, sockMap=None):
         self.__outQueue = []
-        self._sendto = lambda s,b,a: s.sendto(b, a)
+        self._sendto = lambda s, b, a: s.sendto(b, a)
         def __recvfrom(s, sz):
             d, a = s.recvfrom(sz)
             return d, self.addressType(a)
@@ -61,7 +61,7 @@ class DgramSocketTransport(AbstractSocketTransport):
             raise error.CarrierError('sendmsg()/recvmsg() interface is not supported by this OS and/or Python version')
 
         try:
-            if self.socket.family in (socket.AF_INET,socket.AF_INET6):
+            if self.socket.family in (socket.AF_INET, socket.AF_INET6):
                 self.socket.setsockopt(socket.SOL_IP, socket.IP_PKTINFO, flag)
             if self.socket.family == socket.AF_INET6:
                 self.socket.setsockopt(socket.SOL_IPV6, socket.IPV6_RECVPKTINFO, flag)

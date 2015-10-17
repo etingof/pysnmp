@@ -54,7 +54,7 @@ class OrderedDict(dict):
         return [(k, self[k]) for k in self.__keys]
 
     def update(self, d):
-        [self.__setitem__(k, v) for k,v in d.items()]
+        [self.__setitem__(k, v) for k, v in d.items()]
 
     def sortingFun(self, keys):
         keys.sort()
@@ -95,7 +95,7 @@ class OidOrderedDict(OrderedDict):
             if isinstance(key, tuple):
                 self.__keysCache[key] = key
             else:
-                self.__keysCache[key] = [ int(x) for x in key.split('.') if x ]
+                self.__keysCache[key] = [int(x) for x in key.split('.') if x]
         OrderedDict.__setitem__(self, key, value)
 
     def __delitem__(self, key):

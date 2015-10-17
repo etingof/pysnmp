@@ -136,31 +136,31 @@ class CommandResponderBase:
 
         # PDU-level SMI errors
         except pysnmp.smi.error.NoAccessError:
-            errorStatus, errorIndex = 'noAccess', sys.exc_info()[1]['idx']+1
+            errorStatus, errorIndex = 'noAccess', sys.exc_info()[1]['idx'] + 1
         except pysnmp.smi.error.WrongTypeError:
-            errorStatus, errorIndex = 'wrongType', sys.exc_info()[1]['idx']+1
+            errorStatus, errorIndex = 'wrongType', sys.exc_info()[1]['idx'] + 1
         except pysnmp.smi.error.WrongLengthError:
-            errorStatus, errorIndex = 'wrongLength', sys.exc_info()[1]['idx']+1
+            errorStatus, errorIndex = 'wrongLength', sys.exc_info()[1]['idx'] + 1
         except pysnmp.smi.error.WrongEncodingError:
-            errorStatus, errorIndex='wrongEncoding', sys.exc_info()[1]['idx']+1
+            errorStatus, errorIndex = 'wrongEncoding', sys.exc_info()[1]['idx'] + 1
         except pysnmp.smi.error.WrongValueError:
-            errorStatus, errorIndex = 'wrongValue', sys.exc_info()[1]['idx']+1
+            errorStatus, errorIndex = 'wrongValue', sys.exc_info()[1]['idx'] + 1
         except pysnmp.smi.error.NoCreationError:
-            errorStatus, errorIndex = 'noCreation', sys.exc_info()[1]['idx']+1
+            errorStatus, errorIndex = 'noCreation', sys.exc_info()[1]['idx'] + 1
         except pysnmp.smi.error.InconsistentValueError:
-            errorStatus, errorIndex = 'inconsistentValue', sys.exc_info()[1]['idx']+1
+            errorStatus, errorIndex = 'inconsistentValue', sys.exc_info()[1]['idx'] + 1
         except pysnmp.smi.error.ResourceUnavailableError:
-            errorStatus, errorIndex = 'resourceUnavailable', sys.exc_info()[1]['idx']+1
+            errorStatus, errorIndex = 'resourceUnavailable', sys.exc_info()[1]['idx'] + 1
         except pysnmp.smi.error.CommitFailedError:
-            errorStatus, errorIndex = 'commitFailed', sys.exc_info()[1]['idx']+1
+            errorStatus, errorIndex = 'commitFailed', sys.exc_info()[1]['idx'] + 1
         except pysnmp.smi.error.UndoFailedError:
-            errorStatus, errorIndex = 'undoFailed', sys.exc_info()[1]['idx']+1
+            errorStatus, errorIndex = 'undoFailed', sys.exc_info()[1]['idx'] + 1
         except pysnmp.smi.error.AuthorizationError:
-            errorStatus, errorIndex = 'authorizationError', sys.exc_info()[1]['idx']+1
+            errorStatus, errorIndex = 'authorizationError', sys.exc_info()[1]['idx'] + 1
         except pysnmp.smi.error.NotWritableError:
-            errorStatus, errorIndex = 'notWritable', sys.exc_info()[1]['idx']+1
+            errorStatus, errorIndex = 'notWritable', sys.exc_info()[1]['idx'] + 1
         except pysnmp.smi.error.InconsistentNameError:
-            errorStatus, errorIndex = 'inconsistentName', sys.exc_info()[1]['idx']+1
+            errorStatus, errorIndex = 'inconsistentName', sys.exc_info()[1]['idx'] + 1
         except pysnmp.smi.error.SmiError:
             errorStatus, errorIndex = 'genErr', len(varBinds) and 1 or 0
         except pysnmp.error.PySnmpError:

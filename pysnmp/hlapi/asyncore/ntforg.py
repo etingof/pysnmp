@@ -123,19 +123,15 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
                 errorStatus, errorIndex, varBinds, cbCtx):
         lookupMib, cbFun, cbCtx = cbCtx
         return cbFun and cbFun(
-            snmpEngine,
-            sendRequestHandle,
-            errorIndication,
+            snmpEngine, sendRequestHandle, errorIndication,
             errorStatus, errorIndex,
             vbProcessor.unmakeVarBinds(
                 snmpEngine, varBinds, lookupMib
-            ),
-            cbCtx
+            ), cbCtx
         )
 
-    notifyName = lcd.configure(
-        snmpEngine, authData, transportTarget, notifyType
-    )
+    notifyName = lcd.configure(snmpEngine, authData, transportTarget,
+                               notifyType)
 
     return ntforg.NotificationOriginator().sendVarBinds(
         snmpEngine, notifyName,

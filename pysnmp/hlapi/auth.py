@@ -76,11 +76,8 @@ class CommunityData:
         # Autogenerate communityIndex if not specified
         if communityIndex is None:
             self.communityIndex = self.securityName = 's%s' % hash(
-                ( self.communityName,
-                  self.mpModel,
-                  self.contextEngineId,
-                  self.contextName,
-                  self.tag )
+                (self.communityName, self.mpModel, self.contextEngineId,
+                  self.contextName, self.tag)
             )
         else:
             self.communityIndex = communityIndex

@@ -79,7 +79,7 @@ class ObjectIdentity:
         self.__kwargs = kwargs
         self.__mibSourcesToAdd = self.__modNamesToLoad = None
         self.__asn1SourcesToAdd = self.__asn1SourcesOptions = None
-        self.__state  = self.stDirty
+        self.__state = self.stDirty
 
     def getMibSymbol(self):
         """Returns MIB variable symbolic identification.
@@ -290,7 +290,7 @@ class ObjectIdentity:
         if self.__mibSourcesToAdd is not None:
             debug.logger & debug.flagMIB and debug.logger('adding MIB sources %s' % ', '.join(self.__mibSourcesToAdd))
             mibViewController.mibBuilder.addMibSources(
-                *[ ZipMibSource(x) for x in self.__mibSourcesToAdd ]
+                *[ZipMibSource(x) for x in self.__mibSourcesToAdd]
             )
             self.__mibSourcesToAdd = None
 
@@ -352,7 +352,7 @@ class ObjectIdentity:
 
                 if suffix:
                     try:
-                        suffix = tuple([ int(x) for x in suffix ])
+                        suffix = tuple([int(x) for x in suffix])
                     except ValueError:
                         raise SmiError('Unknown object name component %r' % (suffix,))
                 self.__oid = rfc1902.ObjectName(prefix + suffix)
@@ -389,10 +389,10 @@ class ObjectIdentity:
                     self.__indices = rowNode.getIndicesFromInstId(suffix)
             elif isinstance(mibNode, MibScalar): # scalar
                 if suffix:
-                    self.__indices = ( rfc1902.ObjectName(suffix), )
+                    self.__indices = (rfc1902.ObjectName(suffix),)
             else:
                 if suffix:
-                    self.__indices = ( rfc1902.ObjectName(suffix), )
+                    self.__indices = (rfc1902.ObjectName(suffix),)
             self.__state |= self.stClean
 
             debug.logger & debug.flagMIB and debug.logger('resolved indices are %r' % (self.__indices,))
@@ -448,10 +448,10 @@ class ObjectIdentity:
             elif self.__args[2:]: # any other kind of MIB node with indices
                 if self.__args[2:]:
                     instId = rfc1902.ObjectName(
-                        '.'.join([ str(x) for x in self.__args[2:] ])
+                        '.'.join([str(x) for x in self.__args[2:]])
                     )
                     self.__oid += instId
-                    self.__indices = ( instId, )
+                    self.__indices = (instId,)
             self.__state |= self.stClean
 
             debug.logger & debug.flagMIB and debug.logger('resolved indices are %r' % (self.__indices,))
@@ -467,13 +467,13 @@ class ObjectIdentity:
                 self.__modName, self.__symName,
                 self.__indices and  '.' or '',
                 '.'.join([x.isSuperTypeOf(s) and '"%s"' % x.prettyPrint()
-                          or x.prettyPrint() for x in self.__indices ])
+                          or x.prettyPrint() for x in self.__indices])
             )
         else:
             raise SmiError('%s object not fully initialized' % self.__class__.__name__)
 
     def __repr__(self):
-        return '%s(%s)' % (self.__class__.__name__, ', '.join([ repr(x) for x in self.__args]))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join([repr(x) for x in self.__args]))
 
     # Redirect some attrs access to the OID object to behave alike
 
@@ -634,7 +634,7 @@ class ObjectType:
     def __init__(self, objectIdentity, objectSyntax=rfc1905.unSpecified):
         if not isinstance(objectIdentity, ObjectIdentity):
             raise SmiError('initializer should be ObjectIdentity instance, not %r' % (objectIdentity,))
-        self.__args = [ objectIdentity, objectSyntax ]
+        self.__args = [objectIdentity, objectSyntax]
         self.__state = self.stDirty
 
     def __getitem__(self, i):
@@ -647,7 +647,7 @@ class ObjectType:
         return self.prettyPrint()
 
     def __repr__(self):
-        return '%s(%s)' % (self.__class__.__name__, ', '.join([ repr(x) for x in self.__args]))
+        return '%s(%s)' % (self.__class__.__name__, ', '.join([repr(x) for x in self.__args]))
 
     def isFullyResolved(self):
         return self.__state & self.stClean
@@ -814,7 +814,7 @@ class NotificationType:
         self.__objects = objects
         self.__varBinds = []
         self.__additionalVarBinds = []
-        self.__state  = self.stDirty
+        self.__state = self.stDirty
 
     def __getitem__(self, i):
         if self.__state & self.stClean:
@@ -948,6 +948,6 @@ class NotificationType:
 
     def prettyPrint(self):
         if self.__state & self.stClean:
-            return ' '.join([ '%s = %s' % (x[0].prettyPrint(), x[1].prettyPrint()) for x in self.__varBinds])
+            return ' '.join(['%s = %s' % (x[0].prettyPrint(), x[1].prettyPrint()) for x in self.__varBinds])
         else:
             raise SmiError('%s object not fully initialized' % self.__class__.__name__)

@@ -180,7 +180,7 @@ class MibViewController:
             nodeName[:-1], oidToLabelIdx, labelToOidIdx
         )
         suffix = suffix + nodeName[-1:]
-        resLabel = label + tuple([ str(x) for x in suffix ])
+        resLabel = label + tuple([str(x) for x in suffix])
         if resLabel in labelToOidIdx:
             return labelToOidIdx[resLabel], resLabel, ()
         resOid = oid + suffix

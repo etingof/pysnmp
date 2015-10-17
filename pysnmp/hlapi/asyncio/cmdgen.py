@@ -127,23 +127,17 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
         if future.cancelled():
             return
         future.set_result(
-            (errorIndication, errorStatus, errorIndex,
-             vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib))
+            (errorIndication, errorStatus, errorIndex, vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib))
         )
 
-    addrName, paramsName = lcd.configure(
-        snmpEngine, authData, transportTarget
-    )
+    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
 
     future = asyncio.Future()
 
     cmdgen.GetCommandGenerator().sendVarBinds(
-        snmpEngine,
-        addrName,
-        contextData.contextEngineId,
+        snmpEngine, addrName, contextData.contextEngineId,
         contextData.contextName,
-        vbProcessor.makeVarBinds(snmpEngine, varBinds),
-        __cbFun,
+        vbProcessor.makeVarBinds(snmpEngine, varBinds), __cbFun,
         (options.get('lookupMib', True), future)
     )
     return future
@@ -230,23 +224,17 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
         if future.cancelled():
             return
         future.set_result(
-            (errorIndication, errorStatus, errorIndex,
-             vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib))
+            (errorIndication, errorStatus, errorIndex, vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib))
         )
 
-    addrName, paramsName = lcd.configure(
-        snmpEngine, authData, transportTarget
-    )
+    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
 
     future = asyncio.Future()
 
     cmdgen.SetCommandGenerator().sendVarBinds(
-        snmpEngine,
-        addrName,
-        contextData.contextEngineId,
+        snmpEngine, addrName, contextData.contextEngineId,
         contextData.contextName,
-        vbProcessor.makeVarBinds(snmpEngine, varBinds),
-        __cbFun,
+        vbProcessor.makeVarBinds(snmpEngine, varBinds), __cbFun,
         (options.get('lookupMib', True), future)
     )
     return future
@@ -337,23 +325,17 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
         if future.cancelled():
             return
         future.set_result(
-            (errorIndication, errorStatus, errorIndex,
-             [ vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable ])
+            (errorIndication, errorStatus, errorIndex, [vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable])
         )
 
-    addrName, paramsName = lcd.configure(
-        snmpEngine, authData, transportTarget
-    )
+    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
 
     future = asyncio.Future()
 
     cmdgen.NextCommandGenerator().sendVarBinds(
-        snmpEngine,
-        addrName,
-        contextData.contextEngineId,
+        snmpEngine, addrName, contextData.contextEngineId,
         contextData.contextName,
-        vbProcessor.makeVarBinds(snmpEngine, varBinds),
-        __cbFun,
+        vbProcessor.makeVarBinds(snmpEngine, varBinds), __cbFun,
         (options.get('lookupMib', True), future)
     )
     return future
@@ -455,25 +437,17 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
         if future.cancelled():
             return
         future.set_result(
-            (errorIndication, errorStatus, errorIndex,
-             [ vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable ])
+            (errorIndication, errorStatus, errorIndex, [vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable])
         )
 
-    addrName, paramsName = lcd.configure(
-        snmpEngine, authData, transportTarget
-    )
+    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
 
     future = asyncio.Future()
 
     cmdgen.BulkCommandGenerator().sendVarBinds(
-        snmpEngine,
-        addrName,
-        contextData.contextEngineId,
-        contextData.contextName,
-        nonRepeaters,
-        maxRepetitions,
-        vbProcessor.makeVarBinds(snmpEngine, varBinds),
-        __cbFun,
+        snmpEngine, addrName, contextData.contextEngineId,
+        contextData.contextName, nonRepeaters, maxRepetitions,
+        vbProcessor.makeVarBinds(snmpEngine, varBinds), __cbFun,
         (options.get('lookupMib', True), future)
     )
     return future

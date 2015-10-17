@@ -5,15 +5,15 @@ try:
     from socket import inet_ntop, inet_pton, AF_INET
 except ImportError:
     from socket import inet_ntoa, inet_aton, AF_INET
-    inet_ntop = lambda x,y: inet_ntoa(y)
-    inet_pton = lambda x,y: inet_aton(y)
+    inet_ntop = lambda x, y: inet_ntoa(y)
+    inet_pton = lambda x, y: inet_aton(y)
 
 from pyasn1.compat.octets import int2oct, oct2int
 
-( OctetString, ) = mibBuilder.importSymbols('ASN1', 'OctetString')
-( ConstraintsIntersection, ConstraintsUnion, SingleValueConstraint, ValueRangeConstraint, ValueSizeConstraint, ) = mibBuilder.importSymbols("ASN1-REFINEMENT", "ConstraintsIntersection", "ConstraintsUnion", "SingleValueConstraint", "ValueRangeConstraint", "ValueSizeConstraint")
-( ModuleIdentity, MibIdentifier, ObjectIdentity, snmpModules, snmpDomains, snmpProxys ) = mibBuilder.importSymbols('SNMPv2-SMI', 'ModuleIdentity', 'MibIdentifier', 'ObjectIdentity', 'snmpModules', 'snmpDomains', 'snmpProxys')
-( TextualConvention, ) = mibBuilder.importSymbols('SNMPv2-TC', 'TextualConvention')
+(OctetString,) = mibBuilder.importSymbols('ASN1', 'OctetString')
+(ConstraintsIntersection, ConstraintsUnion, SingleValueConstraint, ValueRangeConstraint, ValueSizeConstraint) = mibBuilder.importSymbols("ASN1-REFINEMENT", "ConstraintsIntersection", "ConstraintsUnion", "SingleValueConstraint", "ValueRangeConstraint", "ValueSizeConstraint")
+(ModuleIdentity, MibIdentifier, ObjectIdentity, snmpModules, snmpDomains, snmpProxys) = mibBuilder.importSymbols('SNMPv2-SMI', 'ModuleIdentity', 'MibIdentifier', 'ObjectIdentity', 'snmpModules', 'snmpDomains', 'snmpProxys')
+(TextualConvention,) = mibBuilder.importSymbols('SNMPv2-TC', 'TextualConvention')
 
 snmpv2tm = ModuleIdentity(snmpModules.name + (19,)).setRevisions(("2002-10-16 00:00",))
 

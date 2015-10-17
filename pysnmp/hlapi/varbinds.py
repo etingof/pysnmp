@@ -34,7 +34,7 @@ class CommandGeneratorVarBinds(AbstractVarBinds):
     def unmakeVarBinds(self, snmpEngine, varBinds, lookupMib=True):
         if lookupMib:
             mibViewController = self.getMibViewController(snmpEngine)
-            varBinds = [ ObjectType(ObjectIdentity(x[0]), x[1]).resolveWithMib(mibViewController) for x in varBinds ]
+            varBinds = [ObjectType(ObjectIdentity(x[0]), x[1]).resolveWithMib(mibViewController) for x in varBinds]
 
         return varBinds
 
@@ -57,6 +57,6 @@ class NotificationOriginatorVarBinds(AbstractVarBinds):
     def unmakeVarBinds(self, snmpEngine, varBinds, lookupMib=False):
         if lookupMib:
             mibViewController = self.getMibViewController(snmpEngine)
-            varBinds = [ ObjectType(ObjectIdentity(x[0]), x[1]).resolveWithMib(mibViewController) for x in varBinds ]
+            varBinds = [ObjectType(ObjectIdentity(x[0]), x[1]).resolveWithMib(mibViewController) for x in varBinds]
         return varBinds
 

@@ -95,15 +95,9 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
 
     while True:
         if varBinds:
-            ntforg.sendNotification(
-                snmpEngine,
-                authData,
-                transportTarget,
-                contextData,
-                notifyType,
-                varBinds,
-                cbFun, cbCtx,
-                lookupMib=options.get('lookupMib', True)
+            ntforg.sendNotification(snmpEngine, authData, transportTarget,
+                contextData, notifyType, varBinds,
+                cbFun, cbCtx, lookupMib=options.get('lookupMib', True)
             )
 
             snmpEngine.transportDispatcher.runDispatcher()
@@ -116,7 +110,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
             errorIndication = errorStatus = errorIndex = None
             varBinds = []
 
-        varBinds = ( yield errorIndication, errorStatus, errorIndex, varBinds )
+        varBinds = (yield errorIndication, errorStatus, errorIndex, varBinds)
 
         if not varBinds:
             break

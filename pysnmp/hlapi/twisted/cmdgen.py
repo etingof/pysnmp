@@ -114,19 +114,14 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
                  vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib))
             )
 
-    addrName, paramsName = lcd.configure(
-        snmpEngine, authData, transportTarget
-    )
+    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
 
     deferred = Deferred()
 
     cmdgen.GetCommandGenerator().sendVarBinds(
-        snmpEngine,
-        addrName,
-        contextData.contextEngineId,
+        snmpEngine, addrName, contextData.contextEngineId,
         contextData.contextName,
-        vbProcessor.makeVarBinds(snmpEngine, varBinds),
-        __cbFun,
+        vbProcessor.makeVarBinds(snmpEngine, varBinds), __cbFun,
         (options.get('lookupMib', True), deferred)
     )
     return deferred
@@ -230,19 +225,14 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
                  vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib))
             )
 
-    addrName, paramsName = lcd.configure(
-        snmpEngine, authData, transportTarget
-    )
+    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
 
     deferred = Deferred()
 
     cmdgen.SetCommandGenerator().sendVarBinds(
-        snmpEngine,
-        addrName,
-        contextData.contextEngineId,
+        snmpEngine, addrName, contextData.contextEngineId,
         contextData.contextName,
-        vbProcessor.makeVarBinds(snmpEngine, varBinds),
-        __cbFun,
+        vbProcessor.makeVarBinds(snmpEngine, varBinds), __cbFun,
         (options.get('lookupMib', True), deferred)
     )
     return deferred
@@ -347,22 +337,17 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
         else:
             deferred.callback(
                 (errorStatus, errorIndex,
-                 [ vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable ])
+                 [vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable])
             )
 
-    addrName, paramsName = lcd.configure(
-        snmpEngine, authData, transportTarget
-    )
+    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
 
     deferred = Deferred()
 
     cmdgen.NextCommandGenerator().sendVarBinds(
-        snmpEngine,
-        addrName,
-        contextData.contextEngineId,
+        snmpEngine, addrName, contextData.contextEngineId,
         contextData.contextName,
-        vbProcessor.makeVarBinds(snmpEngine, varBinds),
-        __cbFun,
+        vbProcessor.makeVarBinds(snmpEngine, varBinds), __cbFun,
         (options.get('lookupMib', True), deferred)
     )
     return deferred
@@ -478,22 +463,16 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
         else:
             deferred.callback(
                 (errorStatus, errorIndex,
-                 [ vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable ])
+                 [vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable])
             )
 
-    addrName, paramsName = lcd.configure(
-        snmpEngine, authData, transportTarget
-    )
+    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
 
     deferred = Deferred()
 
     cmdgen.BulkCommandGenerator().sendVarBinds(
-        snmpEngine,
-        addrName,
-        contextData.contextEngineId,
-        contextData.contextName,
-        nonRepeaters,
-        maxRepetitions,
+        snmpEngine, addrName, contextData.contextEngineId,
+        contextData.contextName, nonRepeaters, maxRepetitions,
         vbProcessor.makeVarBinds(snmpEngine, varBinds),
         __cbFun,
         (options.get('lookupMib', True), deferred)

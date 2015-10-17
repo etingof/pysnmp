@@ -11,7 +11,7 @@ def getTargetAddr(snmpEngine, snmpTargetAddrName):
 
     cache = snmpEngine.getUserContext('getTargetAddr')
     if cache is None:
-        cache = { 'id': -1 }
+        cache = {'id': -1}
         snmpEngine.setUserContext(getTargetAddr=cache)
 
     if cache['id'] != snmpTargetAddrEntry.branchVersionId:
@@ -94,7 +94,7 @@ def getTargetParams(snmpEngine, paramsName):
 
     cache = snmpEngine.getUserContext('getTargetParams')
     if cache is None:
-        cache = { 'id': -1 }
+        cache = {'id': -1}
         snmpEngine.setUserContext(getTargetParams=cache)
 
     if cache['id'] != snmpTargetParamsEntry.branchVersionId:
@@ -225,7 +225,7 @@ def getTargetNames(snmpEngine, tag):
              'snmpTargetAddrTagList'
          )
         targetNames = []
-        mibNode =  snmpTargetAddrTagList
+        mibNode = snmpTargetAddrTagList
         while True:
             try:
                 mibNode = snmpTargetAddrTagList.getNextNode(mibNode.name)

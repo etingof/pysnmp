@@ -88,15 +88,10 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
 
     while True:
         if varBinds:
-            cmdgen.getCmd(
-                snmpEngine,
-                authData,
-                transportTarget,
-                contextData,
-                *varBinds,
+            cmdgen.getCmd(snmpEngine, authData, transportTarget,
+                contextData, *varBinds,
                 **dict(cbFun=cbFun, cbCtx=cbCtx,
-                       lookupMib=options.get('lookupMib', True))
-            )
+                       lookupMib=options.get('lookupMib', True)))
 
             snmpEngine.transportDispatcher.runDispatcher()
 
@@ -108,7 +103,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
             errorIndication = errorStatus = errorIndex = None
             varBinds = []
 
-        varBinds = ( yield errorIndication, errorStatus, errorIndex, varBinds )
+        varBinds = (yield errorIndication, errorStatus, errorIndex, varBinds)
 
         if not varBinds:
             break
@@ -196,12 +191,8 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
 
     while True:
         if varBinds:
-            cmdgen.setCmd(
-                snmpEngine,
-                authData,
-                transportTarget,
-                contextData,
-                *varBinds,
+            cmdgen.setCmd(snmpEngine, authData, transportTarget,
+                contextData, *varBinds,
                 **dict(cbFun=cbFun, cbCtx=cbCtx,
                        lookupMib=options.get('lookupMib', True))
             )
@@ -216,7 +207,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
             errorIndication = errorStatus = errorIndex = None
             varBinds = []
 
-        varBinds = ( yield errorIndication, errorStatus, errorIndex, varBinds )
+        varBinds = (yield errorIndication, errorStatus, errorIndex, varBinds)
 
         if not varBinds:
             break
@@ -331,17 +322,14 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
 
     vbProcessor = CommandGeneratorVarBinds()
 
-    initialVars = [ x[0] for x in vbProcessor.makeVarBinds(snmpEngine, varBinds) ]
+    initialVars = [x[0] for x in vbProcessor.makeVarBinds(snmpEngine, varBinds)]
 
     totalRows = totalCalls = 0
 
     while True:
         if varBinds:
-            cmdgen.nextCmd(snmpEngine,
-                           authData,
-                           transportTarget,
-                           contextData,
-                           *[ (x[0], Null()) for x in varBinds ],
+            cmdgen.nextCmd(snmpEngine, authData, transportTarget, contextData,
+                           *[(x[0], Null()) for x in varBinds],
                            **dict(cbFun=cbFun, cbCtx=cbCtx,
                                   lookupMib=options.get('lookupMib', True)))
 
@@ -382,13 +370,12 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
             errorIndication = errorStatus = errorIndex = None
             varBinds = []
 
-        initialVarBinds = ( yield errorIndication, errorStatus,\
-                                  errorIndex, varBinds )
+        initialVarBinds = (yield errorIndication, errorStatus,\
+                                 errorIndex, varBinds)
 
         if initialVarBinds:
             varBinds = initialVarBinds
-            initialVars = [ x[0] for x in vbProcessor.makeVarBinds(snmpEngine,
-                                                                   varBinds) ]
+            initialVars = [x[0] for x in vbProcessor.makeVarBinds(snmpEngine, varBinds)]
 
         if maxRows and totalRows >= maxRows or \
                  maxCalls and totalCalls >= maxCalls:
@@ -518,8 +505,8 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
 
     vbProcessor = CommandGeneratorVarBinds()
 
-    initialVars = [ x[0] for x in vbProcessor.makeVarBinds(snmpEngine, varBinds) ]
-    nullVarBinds = [ False ] * len(initialVars)
+    initialVars = [x[0] for x in vbProcessor.makeVarBinds(snmpEngine, varBinds)]
+    nullVarBinds = [False] * len(initialVars)
 
     totalRows = totalCalls = 0
     stopFlag = False
@@ -528,12 +515,9 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
         if maxRows and totalRows < maxRows:
             maxRepetitions = min(maxRepetitions, maxRows-totalRows)
 
-        cmdgen.bulkCmd(snmpEngine,
-                       authData,
-                       transportTarget,
-                       contextData,
+        cmdgen.bulkCmd(snmpEngine, authData, transportTarget, contextData,
                        nonRepeaters, maxRepetitions,
-                       *[ (x[0], Null()) for x in varBinds ],
+                       *[(x[0], Null()) for x in varBinds],
                        **dict(cbFun=cbFun, cbCtx=cbCtx,
                               lookupMib=options.get('lookupMib', True)))
 
@@ -596,9 +580,9 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
                 stopFlag = True
 
             for varBinds in varBindTable:
-                initialVarBinds = ( yield errorIndication, errorStatus,\
-                                          errorIndex, varBinds )
+                initialVarBinds = (yield errorIndication, errorStatus,\
+                                         errorIndex, varBinds)
 
                 if initialVarBinds:
                     varBinds = initialVarBinds
-                    initialVars = [ x[0] for x in vbProcessor.makeVarBinds(snmpEngine, varBinds) ]
+                    initialVars = [x[0] for x in vbProcessor.makeVarBinds(snmpEngine, varBinds)]

@@ -82,11 +82,11 @@ class Des3(base.AbstractEncryptionService):
 
         return des3Key.asOctets(), \
                univ.OctetString(salt).asOctets(), \
-               univ.OctetString(map(lambda x,y:x^y, salt, preIV.asNumbers())).asOctets()
+               univ.OctetString(map(lambda x, y: x^y, salt, preIV.asNumbers())).asOctets()
 
     def __getDecryptionKey(self, privKey, salt):
         return privKey[:24].asOctets(), \
-               univ.OctetString(map(lambda x,y:x^y, salt.asNumbers(), privKey[24:32].asNumbers())).asOctets()
+               univ.OctetString(map(lambda x, y: x^y, salt.asNumbers(), privKey[24:32].asNumbers())).asOctets()
 
     # 5.1.1.2
     def encryptData(self, encryptKey, privParameters, dataToEncrypt):
@@ -105,12 +105,12 @@ class Des3(base.AbstractEncryptionService):
 
         privParameters = univ.OctetString(salt)
 
-        plaintext =  dataToEncrypt + univ.OctetString((0,) * (8 - len(dataToEncrypt) % 8)).asOctets()
+        plaintext = dataToEncrypt + univ.OctetString((0,) * (8 - len(dataToEncrypt) % 8)).asOctets()
         cipherblock = iv
         ciphertext = null
         while plaintext:
             cipherblock = des3Obj.encrypt(
-                univ.OctetString(map(lambda x,y:x^y, univ.OctetString(cipherblock).asNumbers(), univ.OctetString(plaintext[:8]).asNumbers())).asOctets()
+                univ.OctetString(map(lambda x, y: x^y, univ.OctetString(cipherblock).asNumbers(), univ.OctetString(plaintext[:8]).asNumbers())).asOctets()
                 )
             ciphertext = ciphertext + cipherblock
             plaintext = plaintext[8:]
@@ -143,7 +143,7 @@ class Des3(base.AbstractEncryptionService):
         ciphertext = encryptedData.asOctets()
         cipherblock = iv
         while ciphertext:
-            plaintext = plaintext + univ.OctetString(map(lambda x,y: x^y, univ.OctetString(cipherblock).asNumbers(), univ.OctetString(des3Obj.decrypt(ciphertext[:8])).asNumbers())).asOctets()
+            plaintext = plaintext + univ.OctetString(map(lambda x, y: x ^ y, univ.OctetString(cipherblock).asNumbers(), univ.OctetString(des3Obj.decrypt(ciphertext[:8])).asNumbers())).asOctets()
             cipherblock = ciphertext[:8]
             ciphertext = ciphertext[8:]
 

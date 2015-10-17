@@ -63,7 +63,7 @@ class PDUs(univ.Choice):
         namedtype.NamedType('trap', TrapPDU())
     )
 
-_version =  univ.Integer(namedValues = namedval.NamedValues(('version-1', 0)))
+_version = univ.Integer(namedValues=namedval.NamedValues(('version-1', 0)))
 
 class Message(univ.Sequence):
     componentType = namedtype.NamedTypes(

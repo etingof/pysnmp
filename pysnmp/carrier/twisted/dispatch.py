@@ -36,17 +36,17 @@ class TwistedDispatcher(AbstractTransportDispatcher):
 
     def registerTransport(self, tDomain, transport):
         if not self.loopingcall.running and self.getTimerResolution() > 0:
-            self.loopingcall.start(self.getTimerResolution(), now = False)
+            self.loopingcall.start(self.getTimerResolution(), now=False)
         AbstractTransportDispatcher.registerTransport(
             self, tDomain, transport
-            )
-        self.__transportCount = self.__transportCount + 1
+        )
+        self.__transportCount += 1
 
     def unregisterTransport(self, tDomain):
         t = AbstractTransportDispatcher.getTransport(self, tDomain)
         if t is not None:
             AbstractTransportDispatcher.unregisterTransport(self, tDomain)
-            self.__transportCount = self.__transportCount - 1
+            self.__transportCount -= 1
 
         # The last transport has been removed, stop the timeout
         if self.__transportCount == 0 and self.loopingcall.running:

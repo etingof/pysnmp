@@ -184,7 +184,7 @@ class NotificationOriginator:
 
         debug.logger & debug.flagApp and debug.logger('sendVarBinds: notificationHandle %s, notifyTag %s, notifyType %s' % (notificationHandle, notifyTag, notifyType))
 
-        varBinds = [(v2c.ObjectIdentifier(x),y) for x,y in varBinds]
+        varBinds = [(v2c.ObjectIdentifier(x), y) for x, y in varBinds]
 
         # 3.3.2 & 3.3.3
         snmpTrapOID, sysUpTime = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpTrapOID', 'sysUpTime')

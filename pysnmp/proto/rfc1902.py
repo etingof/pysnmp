@@ -617,7 +617,7 @@ class Bits(OctetString):
                     names.append(name)
                 j -= 1
             i += 1
-        return ', '.join([ str(x) for x in names ])
+        return ', '.join([str(x) for x in names])
 
     def clone(self, value=None, tagSet=None, subtypeSpec=None,
               encoding=None, binValue=None, hexValue=None,

@@ -4,7 +4,7 @@ import traceback
 from pysnmp.smi import error
 from pysnmp import debug
 
-__all__ = [ 'AbstractMibInstrumController', 'MibInstrumController' ]
+__all__ = ['AbstractMibInstrumController', 'MibInstrumController']
 
 class AbstractMibInstrumController:
     def readVars(self, vars, acInfo=(None, None)):

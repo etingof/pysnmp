@@ -135,15 +135,15 @@ class ZipMibSource(__AbstractMibSource):
             return DirMibSource(self._srcName).init()
 
     def _parseDosTime(self, dosdate, dostime):
-        t = ( ((dosdate >> 9) & 0x7f) + 1980, # year
-              ((dosdate >> 5) & 0x0f),  # month
-              dosdate & 0x1f, # mday
-              (dostime >> 11) & 0x1f, # hour
-              (dostime >> 5) & 0x3f, # min
-              (dostime & 0x1f) * 2, # sec
-              -1, # wday
-              -1, # yday
-              -1  ) # dst
+        t = (((dosdate >> 9) & 0x7f) + 1980, # year
+             ((dosdate >> 5) & 0x0f),  # month
+             dosdate & 0x1f, # mday
+             (dostime >> 11) & 0x1f, # hour
+             (dostime >> 5) & 0x3f, # min
+             (dostime & 0x1f) * 2, # sec
+             -1, # wday
+             -1, # yday
+             -1) # dst
         return time.mktime(t)
 
     def _listdir(self):
@@ -158,9 +158,8 @@ class ZipMibSource(__AbstractMibSource):
         p = os.path.join(self._srcName, f)
         if p in self.__loader._files:
             return self._parseDosTime(
-                self.__loader._files[p][6],
-                self.__loader._files[p][5]
-                )
+                self.__loader._files[p][6], self.__loader._files[p][5]
+            )
         else:
             raise IOError(ENOENT, 'No such file in ZIP archive', p)
 
@@ -243,12 +242,12 @@ class MibBuilder:
     # MIB modules management
 
     def addMibSources(self, *mibSources):
-        self.__mibSources.extend([ s.init() for s in mibSources ])
+        self.__mibSources.extend([s.init() for s in mibSources])
         debug.logger & debug.flagBld and debug.logger('addMibSources: new MIB sources %s' % (self.__mibSources,))
 
 
     def setMibSources(self, *mibSources):
-        self.__mibSources = [ s.init() for s in mibSources ]
+        self.__mibSources = [s.init() for s in mibSources]
         debug.logger & debug.flagBld and debug.logger('setMibSources: new MIB sources %s' % (self.__mibSources,))
 
     def getMibSources(self):
@@ -256,17 +255,17 @@ class MibBuilder:
 
     # Legacy/compatibility methods (won't work for .eggs)
     def setMibPath(self, *mibPaths):
-        self.setMibSources(*[ DirMibSource(x) for x in mibPaths ])
+        self.setMibSources(*[DirMibSource(x) for x in mibPaths])
 
     def getMibPath(self):
         paths = ()
         for mibSource in self.getMibSources():
             if isinstance(mibSource, DirMibSource):
-                paths += ( mibSource.fullPath(), )
+                paths += (mibSource.fullPath(),)
             else:
                 raise error.MibLoadError(
                     'MIB source is not a plain directory: %s' % (mibSource,)
-                    )
+                )
         return paths
 
     def loadModule(self, modName, **userCtx):
@@ -288,16 +287,16 @@ class MibBuilder:
 
             debug.logger & debug.flagBld and debug.logger('loadModule: evaluating %s' % modPath)
 
-            g = { 'mibBuilder': self,
-                  'userCtx': userCtx }
+            g = {'mibBuilder': self, 'userCtx': userCtx}
 
             try:
                 exec(modData, g)
+
             except Exception:
                 del self.__modPathsSeen[modPath]
                 raise error.MibLoadError(
                     'MIB module \"%s\" load error: %s' % (modPath, traceback.format_exception(*sys.exc_info()))
-                    )
+                )
 
             self.__modSeen[modName] = modPath
 
@@ -347,7 +346,7 @@ class MibBuilder:
             if modName not in self.mibSymbols:
                 raise error.MibNotFoundError(
                     'No module %s at %s' % (modName, self)
-                    )
+                )
             self.unexportSymbols(modName)
             del self.__modPathsSeen[self.__modSeen[modName]]
             del self.__modSeen[modName]
@@ -368,11 +367,11 @@ class MibBuilder:
             if modName not in self.mibSymbols:
                 raise error.MibNotFoundError(
                     'No module %s loaded at %s' % (modName, self)
-                    )
+                )
             if symName not in self.mibSymbols[modName]:
                 raise error.SmiError(
                     'No symbol %s::%s at %s' % (modName, symName, self)
-                    )
+                )
             r = r + (self.mibSymbols[modName][symName],)
         return r
 
@@ -389,7 +388,7 @@ class MibBuilder:
             if symName in mibSymbols:
                 raise error.SmiError(
                     'Symbol %s already exported at %s' % (symName, modName)
-                    )
+                )
 
             if symName != self.moduleID and \
                    not isinstance(symObj, classTypes):
@@ -407,9 +406,7 @@ class MibBuilder:
 
     def unexportSymbols(self, modName, *symNames):
         if modName not in self.mibSymbols:
-            raise error.SmiError(
-                'No module %s at %s' % (modName, self)
-                )
+            raise error.SmiError('No module %s at %s' % (modName, self))
         mibSymbols = self.mibSymbols[modName]
         if not symNames:
             symNames = list(mibSymbols.keys())
@@ -417,7 +414,7 @@ class MibBuilder:
             if symName not in mibSymbols:
                 raise error.SmiError(
                     'No symbol %s::%s at %s' % (modName, symName, self)
-                    )
+                )
             del mibSymbols[symName]
 
             debug.logger & debug.flagBld and debug.logger('unexportSymbols: symbol %s::%s' % (modName, symName))

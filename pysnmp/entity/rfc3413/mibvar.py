@@ -10,7 +10,7 @@ from pysnmp.smi.error import NoSuchObjectError
 
 def mibNameToOid(mibView, name):
     if isinstance(name[0], tuple):
-        f = lambda x='',y='': (x,y)
+        f = lambda x='', y='': (x, y)
         modName, symName = f(*name[0])
         if modName: # load module if needed
             mibView.mibBuilder.loadModules(modName)

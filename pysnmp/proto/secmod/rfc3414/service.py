@@ -35,7 +35,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     aes.Aes.serviceID: aes.Aes(),
                     aes192.Aes192.serviceID: aes192.Aes192(),
                     aes256.Aes256.serviceID: aes256.Aes256(),
-                    nopriv.NoPriv.serviceID: nopriv.NoPriv() }
+                    nopriv.NoPriv.serviceID: nopriv.NoPriv()}
     def __init__(self):
         AbstractSecurityModel.__init__(self)
         self.__securityParametersSpec = UsmSecurityParameters()
@@ -44,7 +44,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         self.__expirationTimer = 0
         self.__paramsBranchId = -1
 
-    def __sec2usr(self, snmpEngine,  securityName, securityEngineID=None):
+    def __sec2usr(self, snmpEngine, securityName, securityEngineID=None):
         usmUserEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmUserEngineID')
         if self.__paramsBranchId != usmUserEngineID.branchVersionId:
             usmUserName, usmUserSecurityName = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-USER-BASED-SM-MIB', 'usmUserName', 'usmUserSecurityName')
@@ -167,7 +167,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                                        securityEngineID)
         else:
             raise error.StatusInformation(
-                errorIndication = errind.unsupportedAuthProtocol
+                errorIndication=errind.unsupportedAuthProtocol
             )
         if localAuthKey is not None:
             pysnmpUsmKeyAuthLocalized.syntax = pysnmpUsmKeyAuthLocalized.syntax.clone(localAuthKey)
@@ -226,7 +226,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             try:
                 (usmUserName, usmUserSecurityName, usmUserAuthProtocol,
                  usmUserAuthKeyLocalized, usmUserPrivProtocol,
-                 usmUserPrivKeyLocalized ) = self.__getUserInfo(
+                 usmUserPrivKeyLocalized) = self.__getUserInfo(
                      snmpEngine.msgAndPduDsp.mibInstrumController,
                      securityEngineID,
                      self.__sec2usr(snmpEngine, securityName, securityEngineID)
@@ -739,7 +739,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 if msgAuthoritativeEngineID in self.__timeline:
                     (snmpEngineBoots, snmpEngineTime,
                      latestReceivedEngineTime,
-                     latestUpdateTimestamp ) = self.__timeline[
+                     latestUpdateTimestamp) = self.__timeline[
                          msgAuthoritativeEngineID
                      ]
                     # time passed since last talk with this SNMP engine

@@ -6,7 +6,7 @@ from pysnmp import debug
 
 class SnmpContext:
     def __init__(self, snmpEngine, contextEngineId=None):
-        snmpEngineId,= snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+        snmpEngineId, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
         if contextEngineId is None:
             # Default to local snmpEngineId
             self.contextEngineId = snmpEngineId.syntax

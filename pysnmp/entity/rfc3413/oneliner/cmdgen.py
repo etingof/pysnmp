@@ -31,25 +31,17 @@ class AsynCommandGenerator:
         self.lcd.unconfigure(self.snmpEngine)
 
     def cfgCmdGen(self, authData, transportTarget):
-        return self.lcd.configure(
-            self.snmpEngine, authData, transportTarget
-        )
+        return self.lcd.configure(self.snmpEngine, authData, transportTarget)
 
     def uncfgCmdGen(self, authData=None):
-        return self.lcd.unconfigure(
-            self.snmpEngine, authData
-        )
+        return self.lcd.unconfigure(self.snmpEngine, authData)
 
     # compatibility stub
     def makeReadVarBinds(self, varNames):
-        return self.makeVarBinds(
-            [ (x, self._null) for x in varNames ]
-        )
+        return self.makeVarBinds([(x, self._null) for x in varNames])
 
     def makeVarBinds(self, varBinds):
-        return self.vbProcessor.makeVarBinds(
-            self.snmpEngine, varBinds
-        )
+        return self.vbProcessor.makeVarBinds(self.snmpEngine, varBinds)
 
     def unmakeVarBinds(self, varBinds, lookupNames, lookupValues):
         return self.vbProcessor.unmakeVarBinds(
@@ -73,8 +65,7 @@ class AsynCommandGenerator:
             contextName = authData.contextName
 
         return getCmd(
-            self.snmpEngine,
-            authData, transportTarget,
+            self.snmpEngine, authData, transportTarget,
             ContextData(contextEngineId, contextName),
             *[(x, self._null) for x in varNames],
             **dict(cbFun=__cbFun, cbCtx=cbInfo,
@@ -101,10 +92,8 @@ class AsynCommandGenerator:
 
 
         return setCmd(
-            self.snmpEngine,
-            authData, transportTarget,
-            ContextData(contextEngineId, contextName),
-            *varBinds,
+            self.snmpEngine, authData, transportTarget,
+            ContextData(contextEngineId, contextName), *varBinds,
             **dict(cbFun=__cbFun, cbCtx=cbInfo,
                    lookupMib=lookupNames or lookupValues)
         )
@@ -128,8 +117,7 @@ class AsynCommandGenerator:
             contextName = authData.contextName
 
         return nextCmd(
-            self.snmpEngine,
-            authData, transportTarget,
+            self.snmpEngine, authData, transportTarget,
             ContextData(contextEngineId, contextName),
             *[(x, self._null) for x in varNames],
             **dict(cbFun=__cbFun, cbCtx=cbInfo,
@@ -156,8 +144,7 @@ class AsynCommandGenerator:
             contextName = authData.contextName
 
         return bulkCmd(
-            self.snmpEngine,
-            authData, transportTarget,
+            self.snmpEngine, authData, transportTarget,
             ContextData(contextEngineId, contextName),
             nonRepeaters, maxRepetitions,
             *[(x, self._null) for x in varNames],
@@ -185,7 +172,7 @@ class CommandGenerator:
                 in sync.getCmd(self.snmpEngine, authData, transportTarget,
                                ContextData(kwargs.get('contextEngineId'),
                                            kwargs.get('contextName', null)),
-                               *[ (x, self._null) for x in varNames ],
+                               *[(x, self._null) for x in varNames],
                                **kwargs):
             break
         return errorIndication, errorStatus, errorIndex, varBinds
@@ -223,7 +210,7 @@ class CommandGenerator:
                 in sync.nextCmd(self.snmpEngine, authData, transportTarget,
                                 ContextData(kwargs.get('contextEngineId'),
                                             kwargs.get('contextName', null)),
-                                *[ (x, self._null) for x in varNames ],
+                                *[(x, self._null) for x in varNames],
                                 **kwargs):
             if errorIndication or errorStatus:
                 return errorIndication, errorStatus, errorIndex, varBinds
@@ -250,7 +237,7 @@ class CommandGenerator:
                                 ContextData(kwargs.get('contextEngineId'),
                                             kwargs.get('contextName', null)),
                                 nonRepeaters, maxRepetitions,
-                                *[ (x, self._null) for x in varNames ],
+                                *[(x, self._null) for x in varNames],
                                 **kwargs):
             if errorIndication or errorStatus:
                 return errorIndication, errorStatus, errorIndex, varBinds

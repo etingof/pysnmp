@@ -95,7 +95,7 @@ class Vacm:
             if vacmViewTreeFamilyMask.syntax:
                 mask = []
                 for c in vacmViewTreeFamilyMask.syntax.asNumbers():
-                    mask = mask + [ b&c for b in __powOfTwoSeq ]
+                    mask = mask + [b&c for b in __powOfTwoSeq]
                 m = len(mask)-1
                 idx = l-1
                 while idx:

@@ -199,7 +199,7 @@ def delV3User(snmpEngine,
         )
         if varBinds[0][1].isSameTypeWith(rfc1905.endOfMibView):
             break
-        if varBinds[0][0][:len(initialVarBinds[0][0])]!=initialVarBinds[0][0]:
+        if varBinds[0][0][:len(initialVarBinds[0][0])] != initialVarBinds[0][0]:
             break
         elif varBinds[2][1] == tblIdx1:  # cloned from this entry
             delV3User(snmpEngine, varBinds[1][1], varBinds[0][1])
@@ -509,11 +509,13 @@ def delRwUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
     delVacmUser(snmpEngine, securityModel, securityName, securityLevel,
                 subTree, subTree)
 
-def addTrapUser(snmpEngine,securityModel,securityName,securityLevel,subTree):
+def addTrapUser(snmpEngine, securityModel, securityName,
+                securityLevel, subTree):
     addVacmUser(snmpEngine, securityModel, securityName, securityLevel,
                 (), (), subTree)
 
-def delTrapUser(snmpEngine,securityModel,securityName,securityLevel,subTree):
+def delTrapUser(snmpEngine, securityModel, securityName,
+                securityLevel, subTree):
     delVacmUser(snmpEngine, securityModel, securityName, securityLevel,
                 (), (), subTree)
 
@@ -619,9 +621,15 @@ def setInitialVacmParameters(snmpEngine):
                   "internet", "internet", "internet")
 
     # rfc3415: A.1.5 (semi-secure)
-    addVacmView(snmpEngine, "internet", "included", (1,3,6,1),"")
-    addVacmView(snmpEngine, "restricted", "included", (1,3,6,1,2,1,1),"")
-    addVacmView(snmpEngine, "restricted", "included", (1,3,6,1,2,1,11),"")
-    addVacmView(snmpEngine, "restricted", "included", (1,3,6,1,6,3,10,2,1),"")
-    addVacmView(snmpEngine, "restricted", "included", (1,3,6,1,6,3,11,2,1),"")
-    addVacmView(snmpEngine, "restricted", "included", (1,3,6,1,6,3,15,1,1),"")
+    addVacmView(snmpEngine, "internet",
+               "included", (1, 3, 6, 1), "")
+    addVacmView(snmpEngine, "restricted",
+                "included", (1, 3, 6, 1, 2, 1, 1), "")
+    addVacmView(snmpEngine, "restricted",
+                "included", (1, 3, 6, 1, 2, 1, 11), "")
+    addVacmView(snmpEngine, "restricted",
+                "included", (1, 3, 6, 1, 6, 3, 10, 2, 1), "")
+    addVacmView(snmpEngine, "restricted",
+                "included", (1, 3, 6, 1, 6, 3, 11, 2, 1), "")
+    addVacmView(snmpEngine, "restricted",
+                "included", (1, 3, 6, 1, 6, 3, 15, 1, 1), "")

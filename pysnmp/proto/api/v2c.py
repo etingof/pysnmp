@@ -92,8 +92,8 @@ class BulkPDUAPI(PDUAPI):
     def getMaxRepetitions(self, pdu):
         return pdu.getComponentByPosition(2)
 
-    def setMaxRepetitions(self,pdu,value):
-        pdu.setComponentByPosition(2,value)
+    def setMaxRepetitions(self, pdu, value):
+        pdu.setComponentByPosition(2, value)
 
     def getVarBindTable(self, reqPDU, rspPDU):
         nonRepeaters = self.getNonRepeaters(reqPDU)
@@ -123,13 +123,13 @@ class BulkPDUAPI(PDUAPI):
 apiBulkPDU = BulkPDUAPI()
 
 class TrapPDUAPI(v1.PDUAPI):
-    sysUpTime = (1,3,6,1,2,1,1,3,0)
-    snmpTrapAddress = (1,3,6,1,6,3,18,1,3,0)
-    snmpTrapCommunity = (1,3,6,1,6,3,18,1,4,0)
-    snmpTrapOID = (1,3,6,1,6,3,1,1,4,1,0)
-    snmpTrapEnterprise = (1,3,6,1,6,3,1,1,4,3,0)
+    sysUpTime = (1, 3, 6, 1, 2, 1, 1, 3, 0)
+    snmpTrapAddress = (1, 3, 6, 1, 6, 3, 18, 1, 3, 0)
+    snmpTrapCommunity = (1, 3, 6, 1, 6, 3, 18, 1, 4, 0)
+    snmpTrapOID = (1, 3, 6, 1, 6, 3, 1, 1, 4, 1, 0)
+    snmpTrapEnterprise = (1, 3, 6, 1, 6, 3, 1, 1, 4, 3, 0)
     _zeroTime = TimeTicks(0)
-    _genTrap = ObjectIdentifier((1,3,6,1,6,3,1,1,5,1))
+    _genTrap = ObjectIdentifier((1, 3, 6, 1, 6, 3, 1, 1, 5, 1))
     def setDefaults(self, pdu):
         v1.PDUAPI.setDefaults(self, pdu)
         varBinds = [(self.sysUpTime, self._zeroTime),

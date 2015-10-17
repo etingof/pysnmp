@@ -44,14 +44,14 @@ class HmacSha(base.AbstractAuthenticationService):
 
         # 7.3.1.2c
         k1 = univ.OctetString(
-            map(lambda x,y: x^y, extendedAuthKey, self.__ipad)
+            map(lambda x, y: x^y, extendedAuthKey, self.__ipad)
         )
 
         # 7.3.1.2d -- noop
 
         # 7.3.1.2e
         k2 = univ.OctetString(
-            map(lambda x,y: x^y, extendedAuthKey, self.__opad)
+            map(lambda x, y: x^y, extendedAuthKey, self.__opad)
         )
 
         # 7.3.1.3
@@ -87,14 +87,14 @@ class HmacSha(base.AbstractAuthenticationService):
 
         # 7.3.2.4c
         k1 = univ.OctetString(
-            map(lambda x,y: x^y, extendedAuthKey, self.__ipad)
+            map(lambda x, y: x^y, extendedAuthKey, self.__ipad)
         )
 
         # 7.3.2.4d --> noop
 
         # 7.3.2.4e
         k2 = univ.OctetString(
-            map(lambda x,y: x^y, extendedAuthKey, self.__opad)
+            map(lambda x, y: x^y, extendedAuthKey, self.__opad)
         )
 
         # 7.3.2.5a

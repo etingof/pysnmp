@@ -61,15 +61,15 @@ class Des(base.AbstractEncryptionService):
         if self._localInt == 0xffffffff:
             self._localInt = 0
         else:
-            self._localInt = self._localInt + 1
+            self._localInt += 1
 
         return (desKey.asOctets(),
                 univ.OctetString(salt).asOctets(),
-                univ.OctetString(map(lambda x,y:x^y,salt,preIV.asNumbers())).asOctets())
+                univ.OctetString(map(lambda x, y: x^y, salt, preIV.asNumbers())).asOctets())
 
     def __getDecryptionKey(self, privKey, salt):
         return (privKey[:8].asOctets(),
-                univ.OctetString(map(lambda x,y:x^y, salt.asNumbers(), privKey[8:16].asNumbers())).asOctets())
+                univ.OctetString(map(lambda x, y: x^y, salt.asNumbers(), privKey[8:16].asNumbers())).asOctets())
 
     # 8.2.4.1
     def encryptData(self, encryptKey, privParameters, dataToEncrypt):
@@ -90,7 +90,7 @@ class Des(base.AbstractEncryptionService):
 
         # 8.1.1.2
         desObj = DES.new(desKey, DES.MODE_CBC, iv)
-        plaintext =  dataToEncrypt + univ.OctetString((0,) * (8 - len(dataToEncrypt) % 8)).asOctets()
+        plaintext = dataToEncrypt + univ.OctetString((0,) * (8 - len(dataToEncrypt) % 8)).asOctets()
         ciphertext = desObj.encrypt(plaintext)
 
         # 8.3.1.3 & 4

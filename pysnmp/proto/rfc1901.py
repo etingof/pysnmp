@@ -1,7 +1,7 @@
 from pyasn1.type import univ, namedtype, namedval
 from pysnmp.proto import rfc1905
 
-_version =  univ.Integer(namedValues = namedval.NamedValues(('version-2c', 1)))
+_version = univ.Integer(namedValues=namedval.NamedValues(('version-2c', 1)))
 
 class Message(univ.Sequence):
     componentType = namedtype.NamedTypes(

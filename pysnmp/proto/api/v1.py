@@ -133,7 +133,7 @@ apiPDU = PDUAPI()
 
 class TrapPDUAPI:
     _networkAddress = None
-    _entOid = ObjectIdentifier((1,3,6,1,4,1,20408))
+    _entOid = ObjectIdentifier((1, 3, 6, 1, 4, 1, 20408))
     _genericTrap = rfc1157._genericTrap.clone('coldStart')
     _zeroInt = univ.Integer(0)
     _zeroTime = TimeTicks(0)
@@ -147,7 +147,7 @@ class TrapPDUAPI:
         self._networkAddress = NetworkAddress().setComponentByPosition(0, agentAddress)
         pdu.setComponentByPosition(0, self._entOid, verifyConstraints=False)
         pdu.setComponentByPosition(1, self._networkAddress, verifyConstraints=False)
-        pdu.setComponentByPosition(2, self._genericTrap,verifyConstraints=False)
+        pdu.setComponentByPosition(2, self._genericTrap, verifyConstraints=False)
         pdu.setComponentByPosition(3, self._zeroInt, verifyConstraints=False)
         pdu.setComponentByPosition(4, self._zeroTime, verifyConstraints=False)
         pdu.setComponentByPosition(5)

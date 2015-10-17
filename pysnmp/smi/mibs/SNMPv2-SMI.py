@@ -33,7 +33,7 @@ Opaque = rfc1902.Opaque
 Counter64 = rfc1902.Counter64
 
 class ExtUTCTime(OctetString):
-    subtypeSpec = OctetString.subtypeSpec+ConstraintsUnion(ValueSizeConstraint(11,11), ValueSizeConstraint(13,13))
+    subtypeSpec = OctetString.subtypeSpec+ConstraintsUnion(ValueSizeConstraint(11, 11), ValueSizeConstraint(13, 13))
 
 # MIB tree foundation class
 
@@ -113,7 +113,7 @@ MODULE-IDENTITY\n\
      self.getOrganization(),
      self.getContactInfo(),
      self.getDescription(),
-     ''.join([ "REVISION \"%s\"\n" % x for x in self.getRevisions() ]))
+     ''.join(["REVISION \"%s\"\n" % x for x in self.getRevisions()]))
 
 class ObjectIdentity(MibNode):
     def getStatus(self):
@@ -185,10 +185,10 @@ NOTIFICATION-TYPE\n\
   STATUS %s\n\
   DESCRIPTION \"%s\"\n\
   %s\
-' % (', '.join([ x for x in self.getObjects() ]),
+' % (', '.join([x for x in self.getObjects()]),
      self.getStatus(),
      self.getDescription(),
-     ''.join([ "REVISION \"%s\"\n" % x for x in self.getRevisions() ]))
+     ''.join(["REVISION \"%s\"\n" % x for x in self.getRevisions()]))
 
 class MibIdentifier(MibNode):
     def asn1Print(self):
@@ -371,7 +371,7 @@ class MibTree(ObjectType):
         if name == self.name:
             if acFun:
                 if self.maxAccess not in ('readonly',
-                                          'readwrite','readcreate') or \
+                                          'readwrite', 'readcreate') or \
                        acFun(name, self.syntax, idx, 'read', acCtx):
                     raise error.NoAccessError(idx=idx, name=name)
         else:
@@ -1108,7 +1108,7 @@ class MibTableRow(MibTree):
         self.branchVersionId += 1
         self.__delegate('Cleanup', name, val, idx, acInfo)
 
-    def writeUndo(self, name, val,  idx, acInfo):
+    def writeUndo(self, name, val, idx, acInfo):
         self.__delegate('Undo', name, val, idx, acInfo)
 
     # Table row management
@@ -1178,7 +1178,7 @@ class MibTable(MibTree):
     def __init__(self, name):
         MibTree.__init__(self, name)
 
-zeroDotZero = ObjectIdentity((0,0))
+zeroDotZero = ObjectIdentity((0, 0))
 
 #dot = MibTree()
 iso = MibTree((1,))
@@ -1202,7 +1202,7 @@ snmpModules = MibIdentifier(snmpV2.name +(3,))
 mibBuilder.exportSymbols(
     'SNMPv2-SMI', MibNode=MibNode,
     Integer32=Integer32, Bits=Bits, IpAddress=IpAddress,
-    Counter32=Counter32,    Gauge32=Gauge32, Unsigned32=Unsigned32,
+    Counter32=Counter32, Gauge32=Gauge32, Unsigned32=Unsigned32,
     TimeTicks=TimeTicks, Opaque=Opaque, Counter64=Counter64,
     ExtUTCTime=ExtUTCTime,
     ModuleIdentity=ModuleIdentity, ObjectIdentity=ObjectIdentity,
