@@ -16,8 +16,11 @@ class AbstractLcdConfigurator:
             snmpEngine.setUserContext(**{cacheId: cache})
         return cache
 
-    def configure(self, snmpEngine, authData, transportTarget): pass
-    def unconfigure(self, snmpEngine, authData=None): pass
+    def configure(self, snmpEngine, authData, transportTarget):
+        pass
+
+    def unconfigure(self, snmpEngine, authData=None):
+        pass
 
 class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
     cacheKeys = ['auth', 'parm', 'tran', 'addr']

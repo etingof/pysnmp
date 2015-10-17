@@ -49,7 +49,8 @@ class NotificationReceiver:
         else:
             origPdu = None
 
-        errorStatus = 'noError'; errorIndex = 0
+        errorStatus = 'noError'
+        errorIndex = 0
         varBinds = v2c.apiPDU.getVarBinds(PDU)
 
         debug.logger & debug.flagApp and debug.logger('processPdu: stateReference %s, varBinds %s' % (stateReference, varBinds))

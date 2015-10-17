@@ -53,7 +53,10 @@ class __AbstractMibSource:
             return self
         else:
             return self.__inited
-    def listdir(self): return self._listdir()
+
+    def listdir(self):
+        return self._listdir()
+
     def read(self, f):
         for pycSfx, pycSfxLen, pycMode in self.__sfx[imp.PY_COMPILED]:
             try:
@@ -104,10 +107,17 @@ class __AbstractMibSource:
         raise IOError(ENOENT, 'No suitable module found', f)
 
     # Interfaces for subclasses
-    def _init(self): raise NotImplementedError()
-    def _listdir(self): raise NotImplementedError()
-    def _getTimestamp(self, f): raise NotImplementedError()
-    def _getData(self, f, mode=None): NotImplementedError()
+    def _init(self):
+        raise NotImplementedError()
+
+    def _listdir(self):
+        raise NotImplementedError()
+
+    def _getTimestamp(self, f):
+        raise NotImplementedError()
+
+    def _getData(self, f, mode=None):
+        NotImplementedError()
 
 class ZipMibSource(__AbstractMibSource):
     def _init(self):
@@ -241,7 +251,8 @@ class MibBuilder:
         self.__mibSources = [ s.init() for s in mibSources ]
         debug.logger & debug.flagBld and debug.logger('setMibSources: new MIB sources %s' % (self.__mibSources,))
 
-    def getMibSources(self): return tuple(self.__mibSources)
+    def getMibSources(self):
+        return tuple(self.__mibSources)
 
     # Legacy/compatibility methods (won't work for .eggs)
     def setMibPath(self, *mibPaths):
@@ -373,7 +384,7 @@ class MibBuilder:
         for symObj in anonymousSyms:
             debug.logger & debug.flagBld and debug.logger('exportSymbols: anonymous symbol %s::__pysnmp_%ld'  % (modName, self._autoName))
             mibSymbols['__pysnmp_%ld' % self._autoName] = symObj
-            self._autoName = self._autoName + 1
+            self._autoName += 1
         for symName, symObj in namedSyms.items():
             if symName in mibSymbols:
                 raise error.SmiError(
@@ -392,7 +403,7 @@ class MibBuilder:
 
             debug.logger & debug.flagBld and debug.logger('exportSymbols: symbol %s::%s' % (modName, symName))
 
-        self.lastBuildId = self.lastBuildId + 1
+        self.lastBuildId += 1
 
     def unexportSymbols(self, modName, *symNames):
         if modName not in self.mibSymbols:
@@ -414,5 +425,4 @@ class MibBuilder:
         if not self.mibSymbols[modName]:
             del self.mibSymbols[modName]
 
-        self.lastBuildId = self.lastBuildId + 1
-
+        self.lastBuildId += 1

@@ -10,17 +10,27 @@ from pyasn1.compat.octets import null
 from pysnmp.entity import config
 from pysnmp.entity.rfc3413 import context
 
-__all__ = ['AsynNotificationOriginator', 'NotificationOriginator',
+__all__ = ['AsynNotificationOriginator',
+           'NotificationOriginator',
            'MibVariable']
 
 MibVariable = ObjectIdentity
 
 class ErrorIndicationReturn:
-    def __init__(self, *vars): self.__vars = vars
-    def __getitem__(self, i): return self.__vars[i]
-    def __nonzero__(self): return self.__vars[0] and 1 or 0
-    def __bool__(self): return bool(self.__vars[0])
-    def __str__(self): return str(self.__vars[0])
+    def __init__(self, *vars):
+        self.__vars = vars
+
+    def __getitem__(self, i):
+        return self.__vars[i]
+
+    def __nonzero__(self):
+        return self.__vars[0] and 1 or 0
+
+    def __bool__(self):
+        return bool(self.__vars[0])
+
+    def __str__(self):
+        return str(self.__vars[0])
 
 class AsynNotificationOriginator:
     vbProcessor = NotificationOriginatorVarBinds()
@@ -41,7 +51,8 @@ class AsynNotificationOriginator:
 
         self.mibViewController = self.vbProcessor.getMibViewController(self.snmpEngine)
 
-    def __del__(self): self.uncfgNtfOrg()
+    def __del__(self):
+        self.uncfgNtfOrg()
 
     def cfgNtfOrg(self, authData, transportTarget, notifyType):
         return self.lcd.configure(

@@ -12,7 +12,8 @@ domainName = snmpLocalDomain = (1, 3, 6, 1, 2, 1, 100, 1, 13)
 
 random.seed()
 
-class UnixTransportAddress(str, AbstractTransportAddress): pass
+class UnixTransportAddress(str, AbstractTransportAddress):
+    pass
 
 class UnixSocketTransport(DgramSocketTransport):
     sockFamily = AF_UNIX

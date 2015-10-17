@@ -75,7 +75,8 @@ class TextualConvention:
             elif t == 'o':
                 return '0%o' % value
             elif t == 'b':
-                v = value; r = ['B']
+                v = values
+                r = ['B']
                 while v:
                     r.insert(0, '%d' % (v&0x01))
                     v = v>>1
@@ -92,9 +93,11 @@ class TextualConvention:
                 # 1
                 if d[0] == '*':
                     repeatIndicator = repeatCount = v[0]
-                    d = d[1:]; v = v[1:]
+                    d = d[1:]
+                    v = v[1:]
                 else:
-                    repeatCount = 1; repeatIndicator = None
+                    repeatCount = 1
+                    repeatIndicator = None
 
                 # 2
                 octetLength = ''
@@ -134,9 +137,10 @@ class TextualConvention:
                     repeatCount = repeatCount - 1
                     # 't' stands for UTF-8, does it need any special support?
                     if displayFormat == 'a' or displayFormat == 't':
-                        r = r + ''.join([ chr(x) for x in v[:octetLength] ])
+                        r = r + ''.join([chr(x) for x in v[:octetLength]])
                     elif displayFormat in ('x', 'd', 'o'):
-                        n = 0; vv = v[:octetLength]
+                        n = 0
+                        vv = v[:octetLength]
                         while vv:
                             n = n << 8
                             try:
@@ -295,7 +299,8 @@ class RowStatus(Integer, TextualConvention):
 
         return newState
 
-class TimeStamp(TimeTicks, TextualConvention): pass
+class TimeStamp(TimeTicks, TextualConvention):
+    pass
 
 class TimeInterval(Integer, TextualConvention):
     subtypeSpec = Integer.subtypeSpec+ValueRangeConstraint(0, 2147483647)
@@ -311,7 +316,8 @@ class StorageType(Integer, TextualConvention):
         ('permanent', 4), ('readOnly', 5)
     )
 
-class TDomain(ObjectIdentifier, TextualConvention): pass
+class TDomain(ObjectIdentifier, TextualConvention):
+    pass
 
 class TAddress(OctetString, TextualConvention):
     subtypeSpec = OctetString.subtypeSpec+ValueSizeConstraint(1, 255)

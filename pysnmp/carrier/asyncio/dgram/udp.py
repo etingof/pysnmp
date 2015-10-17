@@ -37,7 +37,8 @@ loop = asyncio.get_event_loop()
 
 domainName = snmpUDPDomain = (1, 3, 6, 1, 6, 1, 1)
 
-class UdpTransportAddress(tuple, AbstractTransportAddress): pass
+class UdpTransportAddress(tuple, AbstractTransportAddress):
+    pass
 
 class UdpAsyncioTransport(DgramAsyncioProtocol):
     sockFamily = socket.AF_INET

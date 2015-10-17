@@ -330,7 +330,8 @@ class MibTree(ObjectType):
 
     def getNextBranch(self, name, idx=None):
         # Start from the beginning
-        if self._vars: first = list(self._vars.keys())[0]
+        if self._vars:
+            first = list(self._vars.keys())[0]
         if self._vars and name < first:
             return self._vars[first]
         else:
@@ -736,7 +737,8 @@ class MibScalarInstance(MibTree):
     def destroyCleanup(self, name, val, idx, acInfo):
         self.branchVersionId += 1
 
-    def destroyUndo(self, name, val, idx, acInfo): pass
+    def destroyUndo(self, name, val, idx, acInfo):
+        pass
 
 # Conceptual table classes
 
@@ -745,7 +747,8 @@ class MibTableColumn(MibScalar):
     protoInstance = MibScalarInstance
     def __init__(self, name, syntax):
         MibScalar.__init__(self, name, syntax)
-        self.__createdInstances = {}; self.__destroyedInstances = {}
+        self.__createdInstances = {}
+        self.__destroyedInstances = {}
         self.__rowOpWanted = {}
 
     #
@@ -1070,7 +1073,8 @@ class MibTableRow(MibTree):
     def __manageColumns(self, action, excludeName, nameSuffix,
                         val, idx, acInfo):
         # Build a map of index names and values for automatic initialization
-        indexVals = {}; instId = nameSuffix
+        indexVals = {}
+        instId = nameSuffix
         for impliedFlag, modName, symName in self.indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
             syntax, instId = self.setFromName(
@@ -1161,7 +1165,9 @@ class MibTableRow(MibTree):
         """Return column instance identification from indices"""
         if indices in self.__idxToIdCache:
             return self.__idxToIdCache[indices]
-        idx = 0; idxLen = len(indices); instId = ()
+        idx = 0
+        idxLen = len(indices)
+        instId = ()
         for impliedFlag, modName, symName in self.indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
             if idx < idxLen:

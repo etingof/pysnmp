@@ -1,3 +1,4 @@
 from pysnmp import error
 
-class CarrierError(error.PySnmpError): pass
+class CarrierError(error.PySnmpError):
+    pass

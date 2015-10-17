@@ -4,21 +4,22 @@ from pysnmp.carrier.asyncore.base import AbstractSocketTransport
 from pysnmp.carrier import sockfix, sockmsg, error
 from pysnmp import debug
 
-sockErrors = { # Ignore these socket errors
-    errno.ESHUTDOWN: 1,
-    errno.ENOTCONN: 1,
-    errno.ECONNRESET: 0,
-    errno.ECONNREFUSED: 0,
-    errno.EAGAIN: 0,
-    errno.EWOULDBLOCK: 0
-    }
+# Ignore these socket errors
+sockErrors = {errno.ESHUTDOWN: True,
+              errno.ENOTCONN: True,
+              errno.ECONNRESET: False,
+              errno.ECONNREFUSED: False,
+              errno.EAGAIN: False,
+              errno.EWOULDBLOCK: False}
+
 if hasattr(errno, 'EBADFD'):
     # bad FD may happen upon FD closure on n-1 select() event
-    sockErrors[errno.EBADFD] = 1
+    sockErrors[errno.EBADFD] = True
 
 class DgramSocketTransport(AbstractSocketTransport):
     sockType = socket.SOCK_DGRAM
-    retryCount = 3; retryInterval = 1
+    retryCount = 3
+    retryInterval = 1
     addressType = lambda x: x
     def __init__(self, sock=None, sockMap=None):
         self.__outQueue = []
@@ -112,8 +113,12 @@ class DgramSocketTransport(AbstractSocketTransport):
             return ('0.0.0.0', 0)
 
     # asyncore API
-    def handle_connect(self): pass
-    def writable(self): return self.__outQueue
+    def handle_connect(self):
+        pass
+
+    def writable(self):
+        return self.__outQueue
+
     def handle_write(self):
         outgoingMessage, transportAddress = self.__outQueue.pop(0)
         debug.logger & debug.flagIO and debug.logger('handle_write: transportAddress %r -> %r outgoingMessage (%d octets) %s' % (transportAddress.getLocalAddress(), transportAddress, len(outgoingMessage), debug.hexdump(outgoingMessage)))
@@ -130,7 +135,9 @@ class DgramSocketTransport(AbstractSocketTransport):
             else:
                 raise error.CarrierError('sendto() failed for %s: %s' % (transportAddress, sys.exc_info()[1]))
 
-    def readable(self): return 1
+    def readable(self):
+        return 1
+
     def handle_read(self):
         try:
             incomingMessage, transportAddress = self._recvfrom(
@@ -151,4 +158,6 @@ class DgramSocketTransport(AbstractSocketTransport):
                 return
             else:
                 raise error.CarrierError('recvfrom() failed: %s' % (sys.exc_info()[1],))
-    def handle_close(self): pass # no datagram connection
+
+    def handle_close(self):
+        pass # no datagram connection

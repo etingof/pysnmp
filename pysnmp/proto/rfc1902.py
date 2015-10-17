@@ -667,7 +667,8 @@ class Bits(OctetString):
         return X
 
 
-class ObjectName(univ.ObjectIdentifier): pass
+class ObjectName(univ.ObjectIdentifier):
+    pass
 
 class SimpleSyntax(rfc1155.TypeCoercionHackMixIn, univ.Choice):
     componentType = namedtype.NamedTypes(

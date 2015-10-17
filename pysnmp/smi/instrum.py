@@ -55,7 +55,8 @@ class MibInstrumController(AbstractMibInstrumController):
         self.lastBuildId = -1
         self.lastBuildSyms = {}
 
-    def getMibBuilder(self): return self.mibBuilder
+    def getMibBuilder(self):
+        return self.mibBuilder
 
     # MIB indexing
 
@@ -101,7 +102,11 @@ class MibInstrumController(AbstractMibInstrumController):
         # Mind you, only Managed Objects get indexed here, various MIB defs and
         # constants can't be SNMP managed so we drop them.
         #
-        scalars = {}; instances = {}; tables = {}; rows = {}; cols = {}
+        scalars = {}
+        instances = {}
+        tables = {}
+        rows = {}
+        cols = {}
 
         # Sort by module name to give user a chance to slip-in
         # custom MIB modules (that would be sorted out first)

@@ -147,7 +147,8 @@ class AbstractTransportDispatcher:
         self.__timerResolution = timerResolution
         self.__timerDelta = timerResolution * 0.05
 
-    def getTimerTicks(self): return self.__ticks
+    def getTimerTicks(self):
+        return self.__ticks
 
     def handleTimerTick(self, timeNow):
         if self.__nextTime == 0:   # initial initialization

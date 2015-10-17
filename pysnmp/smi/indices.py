@@ -4,42 +4,61 @@ from bisect import bisect
 class OrderedDict(dict):
     def __init__(self, **kwargs):
         self.__keys = []
-        self.__dirty = 1
+        self.__dirty = True
         super(OrderedDict, self).__init__()
         if kwargs:
             self.update(kwargs)
+
     def __setitem__(self, key, value):
         if key not in self:
             self.__keys.append(key)
         super(OrderedDict, self).__setitem__(key, value)
-        self.__dirty = 1
+        self.__dirty = True
+
     def __repr__(self):
-        if self.__dirty: self.__order()
+        if self.__dirty:
+            self.__order()
         return super(OrderedDict, self).__repr__()
+
     def __str__(self):
-        if self.__dirty: self.__order()
+        if self.__dirty:
+            self.__order()
         return super(OrderedDict, self).__str__()
+
     def __delitem__(self, key):
         if super(OrderedDict, self).__contains__(key):
             self.__keys.remove(key)
         super(OrderedDict, self).__delitem__(key)
-        self.__dirty = 1
+        self.__dirty = True
+
     __delattr__ = __delitem__
+
     def clear(self):
         super(OrderedDict, self).clear()
         self.__keys = []
-        self.__dirty = 1
+        self.__dirty = True
+
     def keys(self):
-        if self.__dirty: self.__order()
+        if self.__dirty:
+            self.__order()
         return list(self.__keys)
+
     def values(self):
-        if self.__dirty: self.__order()
-        return [ self[k] for k in self.__keys ]
+        if self.__dirty:
+            self.__order()
+        return [self[k] for k in self.__keys]
+
     def items(self):
-        if self.__dirty: self.__order()
-        return [ (k, self[k]) for k in self.__keys ]
-    def update(self, d): [ self.__setitem__(k, v) for k,v in d.items() ]
-    def sortingFun(self, keys): keys.sort()
+        if self.__dirty:
+            self.__order()
+        return [(k, self[k]) for k in self.__keys]
+
+    def update(self, d):
+        [self.__setitem__(k, v) for k,v in d.items()]
+
+    def sortingFun(self, keys):
+        keys.sort()
+
     def __order(self):
         self.sortingFun(self.__keys)
         d = {}
@@ -48,7 +67,8 @@ class OrderedDict(dict):
         l = list(d.keys())
         l.sort(reverse=True)
         self.__keysLens = tuple(l)
-        self.__dirty = 0
+        self.__dirty = False
+
     def nextKey(self, key):
         keys = list(self.keys())
         if key in self:
@@ -59,8 +79,10 @@ class OrderedDict(dict):
             return keys[nextIdx]
         else:
             raise KeyError(key)
+
     def getKeysLens(self):
-        if self.__dirty: self.__order()
+        if self.__dirty:
+            self.__order()
         return self.__keysLens
 
 class OidOrderedDict(OrderedDict):

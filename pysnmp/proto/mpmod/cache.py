@@ -14,7 +14,8 @@ class Cache:
 
     # Server mode cache handling
 
-    def newStateReference(self): return self.__stateReference()
+    def newStateReference(self):
+        return self.__stateReference()
 
     def pushByStateRef(self, stateReference, **msgInfo):
         if stateReference in self.__stateReferenceIndex:
@@ -47,7 +48,8 @@ class Cache:
 
     # Client mode cache handling
 
-    def newMsgID(self): return self.__msgID()
+    def newMsgID(self):
+        return self.__msgID()
 
     def pushByMsgId(self, msgId, **msgInfo):
         if msgId in self.__msgIdIndex:

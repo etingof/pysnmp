@@ -7,7 +7,8 @@ from pysnmp.carrier import error
 
 domainName = snmpUDPDomain = (1, 3, 6, 1, 6, 1, 1)
 
-class UdpTransportAddress(tuple, AbstractTransportAddress): pass
+class UdpTransportAddress(tuple, AbstractTransportAddress):
+    pass
 
 class UdpTwistedTransport(DgramTwistedTransport):
     addressType = UdpTransportAddress

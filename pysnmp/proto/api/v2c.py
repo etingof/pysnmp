@@ -43,6 +43,7 @@ apiVarBind = v1.apiVarBind
 class PDUAPI(v1.PDUAPI):
     _errorStatus = rfc1905._errorStatus.clone(0)
     _errorIndex = univ.Integer(0).subtype(subtypeSpec=constraint.ValueRangeConstraint(0, rfc1905.max_bindings))
+
     def getResponse(self, reqPDU):
         rspPDU = ResponsePDU()
         self.setDefaults(rspPDU)
@@ -50,19 +51,19 @@ class PDUAPI(v1.PDUAPI):
         return rspPDU
 
     def getVarBindTable(self, reqPDU, rspPDU):
-        return [ apiPDU.getVarBinds(rspPDU) ]
+        return [apiPDU.getVarBinds(rspPDU)]
 
     def setEndOfMibError(self, pdu, errorIndex):
         varBindList = self.getVarBindList(pdu)
         varBindList[errorIndex-1].setComponentByPosition(
             1, rfc1905.endOfMibView, verifyConstraints=False
-            )
+        )
 
     def setNoSuchInstanceError(self, pdu, errorIndex):
         varBindList = self.getVarBindList(pdu)
         varBindList[errorIndex-1].setComponentByPosition(
             1, rfc1905.noSuchInstance, verifyConstraints=False
-            )
+        )
 
 apiPDU = PDUAPI()
 
@@ -82,11 +83,17 @@ class BulkPDUAPI(PDUAPI):
         )
         pdu.setComponentByPosition(3)
 
-    def getNonRepeaters(self, pdu): return pdu.getComponentByPosition(1)
-    def setNonRepeaters(self, pdu, value): pdu.setComponentByPosition(1, value)
+    def getNonRepeaters(self, pdu):
+        return pdu.getComponentByPosition(1)
 
-    def getMaxRepetitions(self, pdu): return pdu.getComponentByPosition(2)
-    def setMaxRepetitions(self,pdu,value): pdu.setComponentByPosition(2,value)
+    def setNonRepeaters(self, pdu, value):
+        pdu.setComponentByPosition(1, value)
+
+    def getMaxRepetitions(self, pdu):
+        return pdu.getComponentByPosition(2)
+
+    def setMaxRepetitions(self,pdu,value):
+        pdu.setComponentByPosition(2,value)
 
     def getVarBindTable(self, reqPDU, rspPDU):
         nonRepeaters = self.getNonRepeaters(reqPDU)
@@ -125,11 +132,9 @@ class TrapPDUAPI(v1.PDUAPI):
     _genTrap = ObjectIdentifier((1,3,6,1,6,3,1,1,5,1))
     def setDefaults(self, pdu):
         v1.PDUAPI.setDefaults(self, pdu)
-        varBinds = [
-            ( self.sysUpTime, self._zeroTime),
-            # generic trap
-            ( self.snmpTrapOID, self._genTrap)
-            ]
+        varBinds = [(self.sysUpTime, self._zeroTime),
+                    # generic trap
+                    (self.snmpTrapOID, self._genTrap)]
         self.setVarBinds(pdu, varBinds)
 
 apiTrapPDU = TrapPDUAPI()

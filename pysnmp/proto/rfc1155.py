@@ -65,7 +65,8 @@ class Opaque(univ.OctetString):
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x04)
         )
 
-class ObjectName(univ.ObjectIdentifier): pass
+class ObjectName(univ.ObjectIdentifier):
+    pass
 
 class TypeCoercionHackMixIn: # XXX
     # Reduce ASN1 type check to simple tag check as SMIv2 objects may

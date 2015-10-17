@@ -103,7 +103,8 @@ class Vacm:
                        vacmViewTreeFamilySubtree.syntax[idx] != variableName[idx]:
                         break
                     idx = idx - 1
-                if idx: continue # no match
+                if idx:
+                    continue # no match
             else: # no mask
                 if vacmViewTreeFamilySubtree.syntax != variableName[:l]:
                     continue # no match

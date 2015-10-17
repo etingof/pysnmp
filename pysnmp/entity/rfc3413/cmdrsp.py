@@ -328,7 +328,8 @@ class BulkCommandResponder(CommandResponderBase):
         M = int(maxRepetitions)
         R = max(len(reqVarBinds)-N, 0)
 
-        if R: M = min(M, self.maxVarBinds/R)
+        if R:
+            M = min(M, self.maxVarBinds/R)
 
         debug.logger & debug.flagApp and debug.logger('handleMgmtOperation: N %d, M %d, R %d' % (N, M, R))
 

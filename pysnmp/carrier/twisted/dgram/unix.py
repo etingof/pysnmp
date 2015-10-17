@@ -7,7 +7,8 @@ from pysnmp.carrier import error
 
 domainName = snmpLocalDomain = (1, 3, 6, 1, 2, 1, 100, 1, 13)
 
-class UnixTransportAddress(str, AbstractTransportAddress): pass
+class UnixTransportAddress(str, AbstractTransportAddress):
+    pass
 
 class UnixTwistedTransport(DgramTwistedTransport):
     addressType = UnixTransportAddress
