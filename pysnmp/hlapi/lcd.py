@@ -121,7 +121,7 @@ class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
         addrNames, paramsNames = set(), set()
 
         for authDataKey in authDataKeys:
-            authDataX = cache['auth'][authDataKey] 
+            authDataX = cache['auth'][authDataKey]
             del cache['auth'][authDataKey]
             if isinstance(authDataX, CommunityData):
                 config.delV1System(
@@ -131,7 +131,7 @@ class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
             elif isinstance(authDataX, UsmUserData):
                 config.delV3User(
                     snmpEngine,
-                    authDataX.userName, 
+                    authDataX.userName,
                     authDataX.securityEngineId
                 )
             else:

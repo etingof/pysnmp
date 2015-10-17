@@ -23,12 +23,12 @@ class OrderedDict(dict):
         if super(OrderedDict, self).__contains__(key):
             self.__keys.remove(key)
         super(OrderedDict, self).__delitem__(key)
-        self.__dirty = 1            
+        self.__dirty = 1
     __delattr__ = __delitem__
     def clear(self):
         super(OrderedDict, self).clear()
         self.__keys = []
-        self.__dirty = 1        
+        self.__dirty = 1
     def keys(self):
         if self.__dirty: self.__order()
         return list(self.__keys)
@@ -52,7 +52,7 @@ class OrderedDict(dict):
     def nextKey(self, key):
         keys = list(self.keys())
         if key in self:
-            nextIdx = keys.index(key) + 1            
+            nextIdx = keys.index(key) + 1
         else:
             nextIdx = bisect(keys, key)
         if nextIdx < len(keys):

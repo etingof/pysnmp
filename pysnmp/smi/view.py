@@ -20,7 +20,7 @@ class MibViewController:
         self.lastBuildId = -1
 
     # Indexing part
-    
+
     def indexMib(self):
         if self.lastBuildId == self.mibBuilder.lastBuildId:
             return
@@ -30,11 +30,11 @@ class MibViewController:
         MibScalarInstance, = self.mibBuilder.importSymbols(
             'SNMPv2-SMI', 'MibScalarInstance'
             )
-        
+
         #
         # Create indices
         #
-        
+
         # Module name -> module-scope indices
         self.__mibSymbolsIdx = OrderedDict()
 
@@ -53,7 +53,7 @@ class MibViewController:
 
         modNames = list(self.mibBuilder.mibSymbols.keys())
         modNames.sort(key=__sortFun)
-            
+
         # Index modules names
         for modName in [ '' ] + modNames:
             # Modules index
@@ -100,7 +100,7 @@ class MibViewController:
                     raise error.SmiError(
                         'Unexpected object %s::%s' % (modName, n)
                         )
-            
+
         # Build oid->long-label index
         oidToLabelIdx = self.__mibSymbolsIdx['']['oidToLabelIdx']
         labelToOidIdx = self.__mibSymbolsIdx['']['labelToOidIdx']
@@ -137,11 +137,11 @@ class MibViewController:
             for oid in mibMod['oidToLabelIdx'].keys():
                 mibMod['oidToLabelIdx'][oid] = oidToLabelIdx[oid]
                 mibMod['labelToOidIdx'][oidToLabelIdx[oid]] = oid
-            
+
         self.lastBuildId = self.mibBuilder.lastBuildId
 
     # Module management
-    
+
     def getOrderedModuleName(self, index):
         self.indexMib()
         modNames = self.__mibSymbolsIdx.keys()
@@ -189,7 +189,7 @@ class MibViewController:
         return oid, label, suffix
 
     def getNodeNameByOid(self, nodeName, modName=''):
-        self.indexMib()        
+        self.indexMib()
         if modName in self.__mibSymbolsIdx:
             mibMod = self.__mibSymbolsIdx[modName]
         else:
@@ -201,7 +201,7 @@ class MibViewController:
             )
         if oid == label:
             raise error.NoSuchObjectError(
-                str='Can\'t resolve node name %s::%s at %s' % 
+                str='Can\'t resolve node name %s::%s at %s' %
                 (modName, nodeName, self)
                 )
         debug.logger & debug.flagMIB and debug.logger('getNodeNameByOid: resolved %s:%s -> %s.%s' % (modName, nodeName, label, suffix))
@@ -239,7 +239,7 @@ class MibViewController:
             return self.getNodeNameByOid(
                     oid + suffix + nodeName[1:], modName
                     )
-        
+
     def getOrderedNodeName(self, index, modName=''):
         self.indexMib()
         if modName in self.__mibSymbolsIdx:
@@ -262,7 +262,7 @@ class MibViewController:
 
     def getFirstNodeName(self, modName=''):
         return self.getOrderedNodeName(0, modName)
-        
+
     def getLastNodeName(self, modName=''):
         return self.getOrderedNodeName(-1, modName)
 
@@ -276,7 +276,7 @@ class MibViewController:
             raise error.NoSuchObjectError(
                 str='No name next to %s::%s at %s' % (modName, nodeName, self)
                 )
-    
+
     def getParentNodeName(self, nodeName, modName=''):
         oid, label, suffix = self.getNodeName(nodeName, modName)
         if len(oid) < 2:
@@ -289,7 +289,7 @@ class MibViewController:
     def getNodeLocation(self, nodeName, modName=''):
         oid, label, suffix = self.getNodeName(nodeName, modName)
         return self.__mibSymbolsIdx['']['oidToModIdx'][oid], label[-1], suffix
-    
+
     # MIB type management
 
     def getTypeName(self, typeName, modName=''):
@@ -307,7 +307,7 @@ class MibViewController:
                 str='No such type %s::%s at %s' % (modName, typeName, self)
                 )
         return m, typeName
-        
+
     def getOrderedTypeName(self, index, modName=''):
         self.indexMib()
         if modName in self.__mibSymbolsIdx:
@@ -322,13 +322,13 @@ class MibViewController:
                 )
         t = mibMod['typeToModIdx'].keys()[index]
         return mibMod['typeToModIdx'][t], t
-        
+
     def getFirstTypeName(self, modName=''):
         return self.getOrderedTypeName(0, modName)
 
     def getLastTypeName(self, modName=''):
         return self.getOrderedTypeName(-1, modName)
-        
+
     def getNextType(self, typeName, modName=''):
         m, t = self.getTypeName(typeName, modName)
         try:

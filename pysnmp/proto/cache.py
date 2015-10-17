@@ -28,5 +28,4 @@ class Cache:
             if cbFun:
                 if cbFun(index, cachedParams, cbCtx):
                     if index in self.__cacheRepository:
-                        del self.__cacheRepository[index]                    
-
+                        del self.__cacheRepository[index]

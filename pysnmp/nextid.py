@@ -19,7 +19,7 @@ class Integer:
             self.__maximum,
             self.__increment
             )
-        
+
     def __call__(self):
         v = self.__bank.pop(0)
         if v % self.__threshold:

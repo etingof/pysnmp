@@ -7,7 +7,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
     """Creates a generator to send one or more SNMP notifications.
 
     On each iteration, new SNMP TRAP or INFORM notification is send
-    (:RFC:`1905#section-4,2,6`). The iterator blocks waiting for 
+    (:RFC:`1905#section-4,2,6`). The iterator blocks waiting for
     INFORM acknowlegement to arrive or error to occur.
 
     Parameters
@@ -35,7 +35,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
         Alternatively, a sequence of :py:class:`~pysnmp.smi.rfc1902.ObjectType`
         objects could be passed instead. In the latter case it is up to
         the user to ensure proper Notification PDU contents.
-    
+
     Other Parameters
     ----------------
     \*\*options :
@@ -80,7 +80,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
     ...                      NotificationType(ObjectIdentity('IF-MIB', 'linkDown')))
     >>> next(g)
     (None, 0, 0, [])
-    >>> 
+    >>>
 
     """
     def cbFun(snmpEngine, sendRequestHandle,
@@ -93,7 +93,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
 
     cbCtx = {}
 
-    while True: 
+    while True:
         if varBinds:
             ntforg.sendNotification(
                 snmpEngine,

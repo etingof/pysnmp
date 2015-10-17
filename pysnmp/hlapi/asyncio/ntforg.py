@@ -4,26 +4,26 @@
 #          Zachary Lorusso <zlorusso@gmail.com>
 # Modified by Ilya Etingof <ilya@snmplabs.com>
 #
-# Redistribution and use in source and binary forms, with or without 
+# Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
 # * Redistributions of source code must retain the above copyright notice,
 #   this list of conditions and the following disclaimer.
 #
 # * Redistributions in binary form must reproduce the above copyright
-#   notice, this list of conditions and the following disclaimer in the 
+#   notice, this list of conditions and the following disclaimer in the
 #   documentation and/or other materials provided with the distribution.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 # ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
-# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+# BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-# IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
 #
 from pysnmp.smi.rfc1902 import *
@@ -32,7 +32,7 @@ from pysnmp.hlapi.context import *
 from pysnmp.hlapi.lcd import *
 from pysnmp.hlapi.varbinds import *
 from pysnmp.hlapi.asyncio.transport import *
-from pysnmp.entity.rfc3413 import ntforg, context
+from pysnmp.entity.rfc3413 import ntforg
 try:
     import asyncio
 except ImportError:
@@ -78,7 +78,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
         Alternatively, a sequence of :py:class:`~pysnmp.smi.rfc1902.ObjectType`
         objects could be passed instead. In the latter case it is up to
         the user to ensure proper Notification PDU contents.
-    
+
     Other Parameters
     ----------------
     \*\*options :
@@ -116,7 +116,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
     --------
     >>> import asyncio
     >>> from pysnmp.hlapi.asyncio import *
-    >>> 
+    >>>
     >>> @asyncio.coroutine
     ... def run():
     ...     errorIndication, errorStatus, errorIndex, varBinds = yield from sendNotification(
@@ -127,10 +127,10 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
     ...         'trap',
     ...         NotificationType(ObjectIdentity('IF-MIB', 'linkDown')))
     ...     print(errorIndication, errorStatus, errorIndex, varBinds)
-    ... 
+    ...
     >>> asyncio.get_event_loop().run_until_complete(run())
     (None, 0, 0, [])
-    >>> 
+    >>>
 
     """
     def __cbFun(snmpEngine, sendRequestHandle,
@@ -143,7 +143,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
             (errorIndication, errorStatus, errorIndex,
              vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib))
         )
-    
+
     notifyName = lcd.configure(
         snmpEngine, authData, transportTarget, notifyType
     )
@@ -165,7 +165,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
             if future.cancelled():
                 return
             future.set_result((None, 0, 0, []))
-            
+
         loop = asyncio.get_event_loop()
         loop.call_soon(__trapFun, future)
 

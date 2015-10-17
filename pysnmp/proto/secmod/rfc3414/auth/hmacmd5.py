@@ -20,10 +20,10 @@ class HmacMd5(base.AbstractAuthenticationService):
 
     def hashPassphrase(self, authKey):
         return localkey.hashPassphraseMD5(authKey)
-            
+
     def localizeKey(self, authKey, snmpEngineID):
         return localkey.localizeKeyMD5(authKey, snmpEngineID)
-    
+
     # 6.3.1
     def authenticateOutgoingMsg(self, authKey, wholeMsg):
         # Here we expect calling secmod to indicate where the digest
@@ -36,7 +36,7 @@ class HmacMd5(base.AbstractAuthenticationService):
         wholeHead = wholeMsg[:l]
         wholeTail = wholeMsg[l+12:]
 
-        # 6.3.1.1 
+        # 6.3.1.1
 
         # 6.3.1.2a
         extendedAuthKey = authKey.asNumbers() + _fortyEightZeros
@@ -54,10 +54,10 @@ class HmacMd5(base.AbstractAuthenticationService):
         k2 = univ.OctetString(
             map(lambda x,y: x^y, extendedAuthKey, self.__opad)
             )
-        
+
         # 6.3.1.3
         d1 = md5(k1.asOctets()+wholeMsg).digest()
-        
+
         # 6.3.1.4
         d2 = md5(k2.asOctets()+d1).digest()
         mac = d2[:12]
@@ -85,7 +85,7 @@ class HmacMd5(base.AbstractAuthenticationService):
         extendedAuthKey = authKey.asNumbers() + _fortyEightZeros
 
         # 6.3.2.4b --> noop
-        
+
         # 6.3.2.4c
         k1 = univ.OctetString(
             map(lambda x,y: x^y, extendedAuthKey, self.__ipad)
@@ -103,10 +103,10 @@ class HmacMd5(base.AbstractAuthenticationService):
 
         # 6.3.2.5b
         d2 = md5(k2.asOctets()+d1).digest()
-        
+
         # 6.3.2.5c
         mac = d2[:12]
-         
+
         # 6.3.2.6
         if mac != authParameters:
             raise error.StatusInformation(

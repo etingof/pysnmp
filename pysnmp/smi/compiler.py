@@ -1,5 +1,5 @@
 #
-# Attach PySMI MIB compiler to PySNMP MIB builder and configure 
+# Attach PySMI MIB compiler to PySNMP MIB builder and configure
 # both accordingly.
 #
 import os

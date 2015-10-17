@@ -8,7 +8,7 @@ from pysnmp import debug
 # 3.4
 class NotificationReceiver:
     pduTypes = (
-        v1.TrapPDU.tagSet,        
+        v1.TrapPDU.tagSet,
         v2c.SNMPv2TrapPDU.tagSet,
         v2c.InformRequestPDU.tagSet
         )
@@ -53,13 +53,13 @@ class NotificationReceiver:
         varBinds = v2c.apiPDU.getVarBinds(PDU)
 
         debug.logger & debug.flagApp and debug.logger('processPdu: stateReference %s, varBinds %s' % (stateReference, varBinds))
-        
+
         # 3.4
         if PDU.tagSet in rfc3411.confirmedClassPDUs:
             # 3.4.1 --> no-op
-            
+
             rspPDU = v2c.apiPDU.getResponse(PDU)
-            
+
             # 3.4.2
             v2c.apiPDU.setErrorStatus(rspPDU, errorStatus)
             v2c.apiPDU.setErrorIndex(rspPDU, errorIndex)

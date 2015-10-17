@@ -12,7 +12,7 @@ class AbstractVarBinds:
             )
             snmpEngine.setUserContext(mibViewController=mibViewController)
         return mibViewController
-    
+
 class CommandGeneratorVarBinds(AbstractVarBinds):
     def makeVarBinds(self, snmpEngine, varBinds):
         mibViewController = self.getMibViewController(snmpEngine)

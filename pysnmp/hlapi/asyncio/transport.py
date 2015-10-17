@@ -28,7 +28,7 @@ class UdpTransportTarget(AbstractTransportTarget):
         request.
     tagList : str
         Arbitrary string that contains a list of tag values which are used
-        to select target addresses for a particular operation 
+        to select target addresses for a particular operation
         (:RFC:`3413#section-4.1.4`).
 
     Examples
@@ -36,7 +36,7 @@ class UdpTransportTarget(AbstractTransportTarget):
     >>> from pysnmp.hlapi.asyncio import UdpTransportTarget
     >>> UdpTransportTarget(('demo.snmplabs.com', 161))
     UdpTransportTarget(('195.218.195.228', 161), timeout=1, retries=5, tagList='')
-    >>> 
+    >>>
 
     """
     transportDomain = udp.domainName
@@ -54,7 +54,7 @@ class UdpTransportTarget(AbstractTransportTarget):
 class Udp6TransportTarget(AbstractTransportTarget):
     """Creates UDP/IPv6 configuration entry and initialize socket API if needed.
 
-    This object can be used by 
+    This object can be used by
     :py:class:`~pysnmp.hlapi.asyncio.AsyncCommandGenerator` or
     :py:class:`~pysnmp.hlapi.asyncio.AsyncNotificationOriginator`
     and their derevatives for adding new entries to Local Configuration
@@ -94,7 +94,7 @@ class Udp6TransportTarget(AbstractTransportTarget):
     Udp6TransportTarget(('::', 161), timeout=1, retries=5, tagList='')
     >>> Udp6TransportTarget(('::', 161))
     Udp6TransportTarget(('::', 161), timeout=1, retries=5, tagList='')
-    >>> 
+    >>>
 
     """
     transportDomain = udp6.domainName

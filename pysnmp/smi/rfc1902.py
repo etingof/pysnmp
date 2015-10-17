@@ -18,7 +18,7 @@ class ObjectIdentity:
     to by its MIB name. The *ObjectIdentity* class supports various forms
     of MIB variable identification, providing automatic conversion from
     one to others. At the same time *ObjectIdentity* objects behave like
-    :py:obj:`tuples` of py:obj:`int` sub-OIDs. 
+    :py:obj:`tuples` of py:obj:`int` sub-OIDs.
 
     See :RFC:`1902#section-2` for more information on OBJECT-IDENTITY
     SMI definitions.
@@ -45,7 +45,7 @@ class ObjectIdentity:
     ----------------
     kwargs
         MIB resolution options:
-                 
+
         * whenever only MIB name is given, resolve into last variable defined
           in MIB if last=True.  Otherwise resolves to first variable (default).
 
@@ -73,7 +73,7 @@ class ObjectIdentity:
 
     """
     stDirty, stClean = 1, 2
-        
+
     def __init__(self, *args, **kwargs):
         self.__args = args
         self.__kwargs = kwargs
@@ -104,7 +104,7 @@ class ObjectIdentity:
         >>> objectIdentity.resolveWithMib(mibViewController)
         >>> objectIdentity.getMibSymbol()
         ('SNMPv2-MIB', 'sysDescr', (0,))
-        >>> 
+        >>>
 
         """
         if self.__state & self.stClean:
@@ -131,7 +131,7 @@ class ObjectIdentity:
         >>> objectIdentity.resolveWithMib(mibViewController)
         >>> objectIdentity.getOid()
         ObjectName('1.3.6.1.2.1.1.1.0')
-        >>> 
+        >>>
 
         """
         if self.__state & self.stClean:
@@ -167,7 +167,7 @@ class ObjectIdentity:
         >>> objectIdentity.resolveWithMib(mibViewController)
         >>> objectIdentity.getOid()
         ('iso', 'org', 'dod', 'internet', 'mgmt', 'mib-2', 'system', 'sysDescr')
-        >>> 
+        >>>
 
         """
         if self.__state & self.stClean:
@@ -182,7 +182,7 @@ class ObjectIdentity:
             raise SmiError('%s object not fully initialized' % self.__class__.__name__)
 
     def isFullyResolved(self):
-        return self.__state & self.stClean 
+        return self.__state & self.stClean
 
     #
     # A gateway to MIBs manipulation routines
@@ -215,7 +215,7 @@ class ObjectIdentity:
         --------
         >>> ObjectIdentity('SNMPv2-MIB', 'sysDescr').addAsn1Source('http://mibs.snmplabs.com/asn1/@mib@')
         ObjectIdentity('SNMPv2-MIB', 'sysDescr')
-        >>> 
+        >>>
 
         """
         if self.__asn1SourcesToAdd is None:
@@ -284,7 +284,7 @@ class ObjectIdentity:
         >>> objectIdentity = ObjectIdentity('SNMPv2-MIB', 'sysDescr')
         >>> objectIdentity.resolveWithMib(mibViewController)
         ObjectIdentity('SNMPv2-MIB', 'sysDescr')
-        >>> 
+        >>>
 
         """
         if self.__mibSourcesToAdd is not None:
@@ -465,13 +465,13 @@ class ObjectIdentity:
             s = rfc1902.OctetString()
             return '%s::%s%s%s' % (
                 self.__modName, self.__symName,
-                self.__indices and  '.' or '', 
+                self.__indices and  '.' or '',
                 '.'.join([x.isSuperTypeOf(s) and '"%s"' % x.prettyPrint()
                           or x.prettyPrint() for x in self.__indices ])
             )
         else:
             raise SmiError('%s object not fully initialized' % self.__class__.__name__)
- 
+
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__, ', '.join([ repr(x) for x in self.__args]))
 
@@ -684,7 +684,7 @@ class ObjectType:
 
         Notes
         -----
-        Calling this method involves 
+        Calling this method involves
         :py:meth:`~pysnmp.smi.rfc1902.ObjectIdentity.resolveWithMib`
         method invocation.
 
@@ -726,7 +726,7 @@ class ObjectType:
 
         if self.__args[1].isSuperTypeOf(rfc1902.ObjectIdentifier()):
             self.__args[1] = ObjectIdentity(self.__args[1]).resolveWithMib(mibViewController)
- 
+
         self.__state |= self.stClean
 
         debug.logger & debug.flagMIB and debug.logger('resolved %r syntax is %r' % (self.__args[0], self.__args[1]))
@@ -784,7 +784,7 @@ class NotificationType:
         concrete instance of a MIB variable. When notification is prepared,
         `instanceIndex` is appended to each MIB variable identification
         listed in NOTIFICATION-TYPE->OBJECTS clause.
-    objects : dict   
+    objects : dict
         Dictionary-like object that may return values by OID key. The
         `objects` dictionary is consulted when notification is being
         prepared. OIDs are taken from MIB variables listed in
@@ -850,7 +850,7 @@ class NotificationType:
         >>> nt = NotificationType(ObjectIdentity('IP-MIB', 'linkDown'))
         >>> nt.addVarBinds(ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)))
         NotificationType(ObjectIdentity('IP-MIB', 'linkDown'), (), {})
-        >>> 
+        >>>
 
         """
         debug.logger & debug.flagMIB and debug.logger('additional var-binds: %r' % (varBinds,))
@@ -939,7 +939,7 @@ class NotificationType:
         if self.__additionalVarBinds:
             self.__varBinds.extend(self.__additionalVarBinds)
             self.__additionalVarBinds = []
-       
+
         self.__state |= self.stClean
 
         debug.logger & debug.flagMIB and debug.logger('resolved %r into %r' % (self.__objectIdentity, self.__varBinds))

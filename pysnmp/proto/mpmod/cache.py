@@ -11,7 +11,7 @@ class Cache:
         # Message expiration mechanics
         self.__expirationQueue = {}
         self.__expirationTimer = 0
-        
+
     # Server mode cache handling
 
     def newStateReference(self): return self.__stateReference()
@@ -31,7 +31,7 @@ class Cache:
         if 'stateReference' not in self.__expirationQueue[expireAt]:
             self.__expirationQueue[expireAt]['stateReference'] = {}
         self.__expirationQueue[expireAt]['stateReference'][stateReference] = 1
-        
+
     def popByStateRef(self, stateReference):
         if stateReference in self.__stateReferenceIndex:
             cacheInfo = self.__stateReferenceIndex[stateReference]
@@ -58,14 +58,14 @@ class Cache:
         self.__msgIdIndex[msgId] = ( msgInfo, expireAt )
 
         self.__sendPduHandleIdx[msgInfo['sendPduHandle']] = msgId
-        
+
         # Schedule to expire
         if expireAt not in self.__expirationQueue:
             self.__expirationQueue[expireAt] = {}
         if 'msgId' not in self.__expirationQueue[expireAt]:
             self.__expirationQueue[expireAt]['msgId'] = {}
         self.__expirationQueue[expireAt]['msgId'][msgId] = 1
-        
+
     def popByMsgId(self, msgId):
         if msgId in self.__msgIdIndex:
             cacheInfo = self.__msgIdIndex[msgId]
@@ -83,7 +83,7 @@ class Cache:
     def popBySendPduHandle(self, sendPduHandle):
         if sendPduHandle in self.__sendPduHandleIdx:
             self.popByMsgId(self.__sendPduHandleIdx[sendPduHandle])
-        
+
     def expireCaches(self):
         # Uses internal clock to expire pending messages
         if self.__expirationTimer in self.__expirationQueue:

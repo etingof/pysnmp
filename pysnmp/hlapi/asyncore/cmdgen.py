@@ -1,5 +1,3 @@
-from sys import version_info
-from pysnmp.entity import config
 from pysnmp.entity.rfc3413 import cmdgen
 from pysnmp.smi.rfc1902 import *
 from pysnmp.hlapi.auth import *
@@ -7,8 +5,6 @@ from pysnmp.hlapi.context import *
 from pysnmp.hlapi.lcd import *
 from pysnmp.hlapi.varbinds import *
 from pysnmp.hlapi.asyncore.transport import *
-from pysnmp.proto import rfc1905, errind
-from pyasn1.type import univ, base
 
 __all__ = ['getCmd', 'nextCmd', 'setCmd', 'bulkCmd', 'isEndOfMib']
 
@@ -17,11 +13,11 @@ lcd = CommandGeneratorLcdConfigurator()
 
 isEndOfMib = lambda x: not cmdgen.getNextVarBinds(x)[1]
 
-def getCmd(snmpEngine, authData, transportTarget, contextData, 
+def getCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
     """Performs SNMP GET query.
 
-    Based on passed parameters, prepares SNMP GET packet 
+    Based on passed parameters, prepares SNMP GET packet
     (:RFC:`1905#section-4.2.1`) and schedules its transmission by
     I/O framework at a later point of time.
 
@@ -63,15 +59,15 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     User-supplied `cbFun` callable must have the following call
     signature:
 
-    * snmpEngine (:py:class:`~pysnmp.hlapi.SnmpEngine`): 
+    * snmpEngine (:py:class:`~pysnmp.hlapi.SnmpEngine`):
       Class instance representing SNMP engine.
-    * sendRequestHandle (int): Unique request identifier. Can be used 
+    * sendRequestHandle (int): Unique request identifier. Can be used
       for matching multiple ongoing requests with received responses.
     * errorIndication (str): True value indicates SNMP engine error.
     * errorStatus (str): True value indicates SNMP PDU error.
     * errorIndex (int): Non-zero value refers to `varBinds[errorIndex-1]`
-    * varBinds (tuple): A sequence of 
-      :py:class:`~pysnmp.smi.rfc1902.ObjectType` class instances 
+    * varBinds (tuple): A sequence of
+      :py:class:`~pysnmp.smi.rfc1902.ObjectType` class instances
       representing MIB variables returned in SNMP response in exactly
       the same order as `varBinds` in request.
     * `cbCtx` : Original user-supplied object.
@@ -142,7 +138,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
     """Performs SNMP SET query.
 
-    Based on passed parameters, prepares SNMP SET packet 
+    Based on passed parameters, prepares SNMP SET packet
     (:RFC:`1905#section-4.2.5`) and schedules its transmission by
     I/O framework at a later point of time.
 
@@ -184,15 +180,15 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     User-supplied `cbFun` callable must have the following call
     signature:
 
-    * snmpEngine (:py:class:`~pysnmp.hlapi.SnmpEngine`): 
+    * snmpEngine (:py:class:`~pysnmp.hlapi.SnmpEngine`):
       Class instance representing SNMP engine.
-    * sendRequestHandle (int): Unique request identifier. Can be used 
+    * sendRequestHandle (int): Unique request identifier. Can be used
       for matching multiple ongoing requests with received responses.
     * errorIndication (str): True value indicates SNMP engine error.
     * errorStatus (str): True value indicates SNMP PDU error.
     * errorIndex (int): Non-zero value refers to `varBinds[errorIndex-1]`
-    * varBinds (tuple): A sequence of 
-      :py:class:`~pysnmp.smi.rfc1902.ObjectType` class instances 
+    * varBinds (tuple): A sequence of
+      :py:class:`~pysnmp.smi.rfc1902.ObjectType` class instances
       representing MIB variables returned in SNMP response in exactly
       the same order as `varBinds` in request.
     * `cbCtx` : Original user-supplied object.
@@ -262,7 +258,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
             *varBinds, **options):
     """Performs SNMP GETNEXT query.
 
-    Based on passed parameters, prepares SNMP GETNEXT packet 
+    Based on passed parameters, prepares SNMP GETNEXT packet
     (:RFC:`1905#section-4.2.2`) and schedules its transmission by
     I/O framework at a later point of time.
 
@@ -304,9 +300,9 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     User-supplied `cbFun` callable must have the following call
     signature:
 
-    * snmpEngine (:py:class:`~pysnmp.hlapi.SnmpEngine`): 
+    * snmpEngine (:py:class:`~pysnmp.hlapi.SnmpEngine`):
       Class instance representing SNMP engine.
-    * sendRequestHandle (int): Unique request identifier. Can be used 
+    * sendRequestHandle (int): Unique request identifier. Can be used
       for matching multiple ongoing requests with received responses.
     * errorIndication (str): True value indicates SNMP engine error.
     * errorStatus (str): True value indicates SNMP PDU error.
@@ -380,7 +376,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
             nonRepeaters, maxRepetitions, *varBinds, **options):
     """Performs SNMP GETBULK query.
 
-    Based on passed parameters, prepares SNMP GETBULK packet 
+    Based on passed parameters, prepares SNMP GETBULK packet
     (:RFC:`1905#section-4.2.3`) and schedules its transmission by
     I/O framework at a later point of time.
 
@@ -401,7 +397,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
         values.
 
     nonRepeaters : int
-        One MIB variable is requested in response for the first 
+        One MIB variable is requested in response for the first
         `nonRepeaters` MIB variables in request.
 
     maxRepetitions : int
@@ -432,9 +428,9 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     User-supplied `cbFun` callable must have the following call
     signature:
 
-    * snmpEngine (:py:class:`~pysnmp.hlapi.SnmpEngine`): 
+    * snmpEngine (:py:class:`~pysnmp.hlapi.SnmpEngine`):
       Class instance representing SNMP engine.
-    * sendRequestHandle (int): Unique request identifier. Can be used 
+    * sendRequestHandle (int): Unique request identifier. Can be used
       for matching multiple ongoing requests with received responses.
     * errorIndication (str): True value indicates SNMP engine error.
     * errorStatus (str): True value indicates SNMP PDU error.

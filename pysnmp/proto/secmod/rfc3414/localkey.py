@@ -37,7 +37,7 @@ def passwordToKeyMD5(passphrase, snmpEngineId):
 
 # RFC3414: A.2.2
 def hashPassphraseSHA(passphrase):
-    passphrase = univ.OctetString(passphrase).asOctets()    
+    passphrase = univ.OctetString(passphrase).asOctets()
     md = sha1()
     ringBuffer = passphrase * (64//len(passphrase)+1)
     ringBufferLen = len(ringBuffer)

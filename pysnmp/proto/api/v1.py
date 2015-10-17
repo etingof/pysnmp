@@ -32,7 +32,7 @@ class VarBindAPI:
         if val is None: val = null
         varBind.setComponentByPosition(1).getComponentByPosition(1).setComponentByType(val.getTagSet(), val, 1, verifyConstraints=False)
         return varBind
-    
+
     def getOIDVal(self, varBind):
         return varBind[0], varBind[1].getComponent(1)
 
@@ -54,7 +54,7 @@ class PDUAPI:
             2, self._errorIndex, verifyConstraints=False
             )
         pdu.setComponentByPosition(3)
-        
+
     def getRequestID(self, pdu): return pdu.getComponentByPosition(0)
     def setRequestID(self, pdu, value): pdu.setComponentByPosition(0, value)
 
@@ -79,7 +79,7 @@ class PDUAPI:
 
     def setNoSuchInstanceError(self, pdu, errorIndex):
         self.setEndOfMibError(pdu, errorIndex)
-    
+
     def getVarBindList(self, pdu):
         return pdu.getComponentByPosition(3)
 
@@ -198,7 +198,7 @@ class MessageAPI:
 
     def getCommunity(self, msg): return msg.getComponentByPosition(1)
     def setCommunity(self, msg, value): msg.setComponentByPosition(1, value)
-        
+
     def getPDU(self, msg): return msg.getComponentByPosition(2).getComponent()
     def setPDU(self, msg, value):
         msg.setComponentByPosition(2).getComponentByPosition(2).setComponentByType(value.getTagSet(), value, 1, verifyConstraints=False)

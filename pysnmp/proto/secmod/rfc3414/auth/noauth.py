@@ -6,10 +6,10 @@ class NoAuth(base.AbstractAuthenticationService):
 
     def hashPassphrase(self, authKey):
         return
-    
+
     def localizeKey(self, authKey, snmpEngineID):
         return
-    
+
     # 7.2.4.2
     def authenticateOutgoingMsg(self, authKey, wholeMsg):
         raise error.StatusInformation(errorIndication=errind.noAuthentication)

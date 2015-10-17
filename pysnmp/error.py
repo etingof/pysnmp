@@ -1,1 +1,2 @@
-class PySnmpError(Exception): pass
+class PySnmpError(Exception):
+    pass

@@ -12,14 +12,14 @@ __all__ = ['CommunityData', 'UsmUserData',
 class CommunityData:
     """Creates SNMP v1/v2c configuration entry.
 
-    This object can be used by 
+    This object can be used by
     :py:class:`~pysnmp.hlapi.asyncore.AsyncCommandGenerator` or
     :py:class:`~pysnmp.hlapi.asyncore.AsyncNotificationOriginator`
     and their derivatives for adding new entries to Local Configuration
     Datastore (LCD) managed by :py:class:`~pysnmp.hlapi.SnmpEngine`
     class instance.
 
-    See :RFC:`2576#section-5.3` for more information on the 
+    See :RFC:`2576#section-5.3` for more information on the
     *SNMP-COMMUNITY-MIB::snmpCommunityTable*.
 
     Parameters
@@ -38,7 +38,7 @@ class CommunityData:
     contextName : str
         The context in which management information is accessed when
         using the above communityName.
-    tag : str 
+    tag : str
         Arbitrary string that specifies a set of transport endpoints
         to which a notification may be sent using communityName above
         (see also :RFC:`3413#section-4.1.4`).
@@ -120,7 +120,7 @@ class CommunityData:
 usmNoAuthProtocol = config.usmNoAuthProtocol
 #: The HMAC-MD5-96 Digest Authentication Protocol (:RFC:`3414#section-6`)
 usmHMACMD5AuthProtocol = config.usmHMACMD5AuthProtocol
-#: The HMAC-SHA-96 Digest Authentication Protocol (:RFC:`3414#section-7`) 
+#: The HMAC-SHA-96 Digest Authentication Protocol (:RFC:`3414#section-7`)
 usmHMACSHAAuthProtocol = config.usmHMACSHAAuthProtocol
 
 #: No Privacy Protocol.
@@ -139,14 +139,14 @@ usmAesCfb256Protocol = config.usmAesCfb256Protocol
 class UsmUserData:
     """Creates SNMP v3 User Security Model (USM) configuration entry.
 
-    This object can be used by 
+    This object can be used by
     :py:class:`~pysnmp.hlapi.asyncore.AsyncCommandGenerator` or
     :py:class:`~pysnmp.hlapi.asyncore.AsyncNotificationOriginator`
     and their derivatives for adding new entries to Local Configuration
     Datastore (LCD) managed by :py:class:`~pysnmp.hlapi.SnmpEngine`
     class instance.
 
-    See :RFC:`3414#section-5` for more information on the 
+    See :RFC:`3414#section-5` for more information on the
     *SNMP-USER-BASED-SM-MIB::usmUserTable*.
 
     Parameters
@@ -176,7 +176,7 @@ class UsmUserData:
         * :py:class:`~pysnmp.hlapi.usmHMACMD5AuthProtocol` (default if *authKey* is given)
         * :py:class:`~pysnmp.hlapi.usmHMACSHAAuthProtocol`
     privProtocol : tuple
-        An indication of whether messages sent on behalf of this USM user 
+        An indication of whether messages sent on behalf of this USM user
         be encrypted, and if so, the type of encryption protocol which is used.
 
         Supported encryption protocol identifiers are:
@@ -221,7 +221,7 @@ class UsmUserData:
             self.securityName = userName
         else:
             self.securityName = securityName
-        
+
         if authKey is not None:
             self.authKey = authKey
             if authProtocol is None:
@@ -249,7 +249,7 @@ class UsmUserData:
         # the contextName parameter should never be used here
         if contextName is not None:
             self.contextName = contextName
-        
+
     def __hash__(self):
         raise TypeError('%s is not hashable' % self.__class__.__name__)
 

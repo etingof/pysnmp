@@ -40,10 +40,10 @@ class __AbstractMibSource:
         return tuple(u.keys())
 
     # MibSource API follows
-    
+
     def fullPath(self, f='', sfx=''):
         return self._srcName + (f and (os.sep + f + sfx) or '')
-    
+
     def init(self):
         if self.__inited is None:
             self.__inited = self._init()
@@ -153,7 +153,7 @@ class ZipMibSource(__AbstractMibSource):
                 )
         else:
             raise IOError(ENOENT, 'No such file in ZIP archive', p)
-        
+
     def _getData(self, f, mode=None):
         p = os.path.join(self._srcName, f)
         try:
@@ -165,7 +165,7 @@ class DirMibSource(__AbstractMibSource):
     def _init(self):
         self._srcName = os.path.normpath(self._srcName)
         return self
-    
+
     def _listdir(self):
         try:
             return self._uniqNames(os.listdir(self._srcName))
@@ -179,7 +179,7 @@ class DirMibSource(__AbstractMibSource):
             return os.stat(p)[8]
         except OSError:
             raise IOError(ENOENT, 'No such file: %s' % sys.exc_info()[1], p)
-            
+
     def _getData(self, f, mode):
         p = os.path.join(self._srcName, f)
         try:
@@ -224,12 +224,12 @@ class MibBuilder:
 
     def getMibCompiler(self):
         return self.__mibCompiler
-       
+
     def setMibCompiler(self, mibCompiler, destDir):
         self.addMibSources(DirMibSource(destDir))
         self.__mibCompiler = mibCompiler
         return self
-       
+
     # MIB modules management
 
     def addMibSources(self, *mibSources):
@@ -257,7 +257,7 @@ class MibBuilder:
                     'MIB source is not a plain directory: %s' % (mibSource,)
                     )
         return paths
-        
+
     def loadModule(self, modName, **userCtx):
         for mibSource in self.__mibSources:
             debug.logger & debug.flagBld and debug.logger('loadModule: trying %s at %s' % (modName, mibSource))
@@ -268,7 +268,7 @@ class MibBuilder:
                 continue
 
             modPath = mibSource.fullPath(modName, sfx)
-            
+
             if modPath in self.__modPathsSeen:
                 debug.logger & debug.flagBld and debug.logger('loadModule: seen %s' % modPath)
                 break
@@ -313,7 +313,7 @@ class MibBuilder:
             raise error.MibNotFoundError(
                 'No MIB module to load at %s' % (self,)
             )
-        
+
         for modName in modNames:
             try:
                 self.loadModule(modName, **userCtx)
@@ -328,7 +328,7 @@ class MibBuilder:
                     self.loadModule(modName, **userCtx)
 
         return self
-                
+
     def unloadModules(self, *modNames):
         if not modNames:
             modNames = list(self.mibSymbols.keys())
@@ -340,9 +340,9 @@ class MibBuilder:
             self.unexportSymbols(modName)
             del self.__modPathsSeen[self.__modSeen[modName]]
             del self.__modSeen[modName]
-            
+
             debug.logger & debug.flagBld and debug.logger('unloadModules: ' % (modName))
-            
+
         return self
 
     def importSymbols(self, modName, *symNames, **userCtx):
@@ -369,7 +369,7 @@ class MibBuilder:
         if modName not in self.mibSymbols:
             self.mibSymbols[modName] = {}
         mibSymbols = self.mibSymbols[modName]
-        
+
         for symObj in anonymousSyms:
             debug.logger & debug.flagBld and debug.logger('exportSymbols: anonymous symbol %s::__pysnmp_%ld'  % (modName, self._autoName))
             mibSymbols['__pysnmp_%ld' % self._autoName] = symObj
@@ -387,11 +387,11 @@ class MibBuilder:
                     symName = label
                 else:
                     symObj.setLabel(symName)
-            
+
             mibSymbols[symName] = symObj
-            
+
             debug.logger & debug.flagBld and debug.logger('exportSymbols: symbol %s::%s' % (modName, symName))
-            
+
         self.lastBuildId = self.lastBuildId + 1
 
     def unexportSymbols(self, modName, *symNames):
@@ -408,11 +408,11 @@ class MibBuilder:
                     'No symbol %s::%s at %s' % (modName, symName, self)
                     )
             del mibSymbols[symName]
-            
+
             debug.logger & debug.flagBld and debug.logger('unexportSymbols: symbol %s::%s' % (modName, symName))
-            
+
         if not self.mibSymbols[modName]:
             del self.mibSymbols[modName]
 
         self.lastBuildId = self.lastBuildId + 1
-            
+

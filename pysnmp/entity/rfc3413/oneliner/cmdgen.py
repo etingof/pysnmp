@@ -7,7 +7,6 @@ from pysnmp.hlapi.asyncore import sync
 from pysnmp.hlapi.varbinds import *
 from pysnmp.hlapi.lcd import *
 from pyasn1.compat.octets import null
-from pysnmp.entity import config
 from pyasn1.type import univ
 
 __all__ = ['AsynCommandGenerator', 'CommandGenerator', 'MibVariable']
@@ -74,7 +73,7 @@ class AsynCommandGenerator:
             contextName = authData.contextName
 
         return getCmd(
-            self.snmpEngine, 
+            self.snmpEngine,
             authData, transportTarget,
             ContextData(contextEngineId, contextName),
             *[(x, self._null) for x in varNames],
@@ -100,12 +99,12 @@ class AsynCommandGenerator:
         if contextName is null and authData.contextName:
             contextName = authData.contextName
 
-        
+
         return setCmd(
             self.snmpEngine,
             authData, transportTarget,
             ContextData(contextEngineId, contextName),
-            *varBinds, 
+            *varBinds,
             **dict(cbFun=__cbFun, cbCtx=cbInfo,
                    lookupMib=lookupNames or lookupValues)
         )
@@ -157,7 +156,7 @@ class AsynCommandGenerator:
             contextName = authData.contextName
 
         return bulkCmd(
-            self.snmpEngine, 
+            self.snmpEngine,
             authData, transportTarget,
             ContextData(contextEngineId, contextName),
             nonRepeaters, maxRepetitions,

@@ -96,7 +96,7 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
     v2Pdu = __v1ToV2PduMap[pduType].clone()
 
     debug.logger & debug.flagPrx and debug.logger('v1ToV2: v1Pdu %s' % v1Pdu.prettyPrint())
-    
+
     v2VarBinds = []
 
     # 3.1
@@ -125,11 +125,11 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
         v2VarBinds.append((v2c.apiTrapPDU.snmpTrapCommunity, v2c.OctetString("")))
         v2VarBinds.append((v2c.apiTrapPDU.snmpTrapEnterprise,
                            v1.apiTrapPDU.getEnterprise(v1Pdu)))
-        
+
         varBinds = v1.apiTrapPDU.getVarBinds(v1Pdu)
     else:
         varBinds = v1.apiPDU.getVarBinds(v1Pdu)
-        
+
     # Translate Var-Binds
     for oid, v1Val in varBinds:
         # 2.1.1.11
@@ -138,7 +138,7 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
         v2VarBinds.append(
             (oid, __v1ToV2ValueMap[v1Val.tagSet].clone(v1Val))
             )
-        
+
     if pduType in rfc3411.responseClassPDUs:
         # 4.1.2.2.1&2
         errorStatus = int(v1.apiPDU.getErrorStatus(v1Pdu))
@@ -171,12 +171,12 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
     v2c.apiPDU.setVarBinds(v2Pdu, v2VarBinds)
 
     debug.logger & debug.flagPrx and debug.logger('v1ToV2: v2Pdu %s' % v2Pdu.prettyPrint())
-        
+
     return v2Pdu
 
 def v2ToV1(v2Pdu, origV1Pdu=None):
     debug.logger & debug.flagPrx and debug.logger('v2ToV1: v2Pdu %s' % v2Pdu.prettyPrint())
-    
+
     pduType = v2Pdu.tagSet
 
     if pduType in __v2ToV1PduMap:
@@ -241,13 +241,13 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
                 continue
             __v2VarBinds.append((oid, val))
         v2VarBinds = __v2VarBinds
-        
+
         # 3.2.6 --> done below
 
     else:
         v1.apiPDU.setErrorStatus(v1Pdu, __zeroInt)
         v1.apiPDU.setErrorIndex(v1Pdu, __zeroInt)
-                              
+
     if pduType in rfc3411.responseClassPDUs:
         idx = len(v2VarBinds)-1
         while idx >= 0:
@@ -269,7 +269,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
                               v2c.EndOfMibView.tagSet):
                 v1.apiPDU.setErrorStatus(v1Pdu, 2)
                 v1.apiPDU.setErrorIndex(v1Pdu, idx+1)
-                
+
             idx = idx - 1
 
         # 4.1.2.3.1
@@ -296,7 +296,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
 
     if pduType in rfc3411.notificationClassPDUs:
         v1.apiTrapPDU.setVarBinds(v1Pdu, v1VarBinds)
-    else:        
+    else:
         v1.apiPDU.setVarBinds(v1Pdu, v1VarBinds)
 
         v1.apiPDU.setRequestID(
@@ -304,5 +304,5 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
             )
 
     debug.logger & debug.flagPrx and debug.logger('v2ToV1: v1Pdu %s' % v1Pdu.prettyPrint())
-        
+
     return v1Pdu

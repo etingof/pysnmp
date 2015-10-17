@@ -14,7 +14,7 @@ try:
     from Crypto.Cipher import DES
 except ImportError:
     DES = None
-    
+
 random.seed()
 
 # 8.2.4
@@ -35,7 +35,7 @@ class Des(base.AbstractEncryptionService):
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
                 )
-        
+
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
         if authProtocol == hmacmd5.HmacMd5.serviceID:
             localPrivKey = localkey.localizeKeyMD5(privKey, snmpEngineID)
@@ -46,7 +46,7 @@ class Des(base.AbstractEncryptionService):
                 'Unknown auth protocol %s' % (authProtocol,)
                 )
         return localPrivKey[:32] # key+IV
-    
+
     # 8.1.1.1
     def __getEncryptionKey(self, privKey, snmpEngineBoots):
         desKey = privKey[:8]
@@ -86,7 +86,7 @@ class Des(base.AbstractEncryptionService):
                 )
 
         snmpEngineBoots, snmpEngineTime, salt = privParameters
-        
+
         # 8.3.1.1
         desKey, salt, iv = self.__getEncryptionKey(
             encryptKey, snmpEngineBoots
@@ -102,7 +102,7 @@ class Des(base.AbstractEncryptionService):
 
         # 8.3.1.3 & 4
         return univ.OctetString(ciphertext), privParameters
-        
+
     # 8.2.4.2
     def decryptData(self, decryptKey, privParameters, encryptedData):
         if DES is None:
@@ -111,13 +111,13 @@ class Des(base.AbstractEncryptionService):
                 )
 
         snmpEngineBoots, snmpEngineTime, salt = privParameters
-        
+
         # 8.3.2.1
         if len(salt) != 8:
             raise error.StatusInformation(
                 errorIndication=errind.decryptionError
                 )
-            
+
         # 8.3.2.2 noop
 
         # 8.3.2.3
@@ -130,6 +130,6 @@ class Des(base.AbstractEncryptionService):
                 )
 
         desObj = DES.new(desKey, DES.MODE_CBC, iv)
-        
+
         # 8.3.2.6
         return desObj.decrypt(encryptedData.asOctets())

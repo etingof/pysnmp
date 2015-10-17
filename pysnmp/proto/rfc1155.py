@@ -30,7 +30,7 @@ class IpAddress(univ.OctetString):
                 )
         else:
             return ''
-    
+
 class Counter(univ.Integer):
     tagSet = univ.Integer.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x01)
@@ -80,7 +80,7 @@ class TypeCoercionHackMixIn: # XXX
             t = componentType[idx].getType()
             if not t.getTagSet().isSuperTagSetOf(value.getTagSet()):
                 raise PyAsn1Error('Component type error %r vs %r' % (t, value))
-    
+
 class SimpleSyntax(TypeCoercionHackMixIn, univ.Choice):
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('number', univ.Integer()),

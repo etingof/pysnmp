@@ -137,7 +137,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                     ).syntax
 
                 targetAddrTDomain = tuple(targetAddrTDomain)
-                
+
                 if targetAddrTDomain[:len(udp.snmpUDPDomain)] == udp.snmpUDPDomain:
                     SnmpUDPAddress, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-TM', 'SnmpUDPAddress')
                     targetAddrTAddress = tuple(
@@ -201,7 +201,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
 
             # invalidate next map as it include this one
             self.__communityBranchId = -1
- 
+
             debug.logger & debug.flagSM and debug.logger('_com2sec: built securityName to securityModel map, version %s: %s' % (self.__paramsBranchId, self.__nameToModelMap))
 
         snmpCommunityName, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-COMMUNITY-MIB', 'snmpCommunityName')
@@ -283,7 +283,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
 
             # 5.2.1 (row selection in snmpCommunityTable)
             # Picks first match but favors entries already in targets table
-            if candidateSecurityNames: 
+            if candidateSecurityNames:
                 candidateSecurityNames.sort(key=lambda x,m=self.__nameToModelMap,v=self.securityModelID: (not int(x[0] in m and v in m[x[0]]), str(x[0])))
                 chosenSecurityName = candidateSecurityNames[0]  # min()
                 debug.logger & debug.flagSM and debug.logger('_com2sec: securityName candidates for communityName \'%s\' are %s; choosing securityName \'%s\'' % (communityName, candidateSecurityNames, chosenSecurityName[0]))
@@ -292,7 +292,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         raise error.StatusInformation(
             errorIndication = errind.unknownCommunityName
         )
- 
+
     def generateRequestMsg(
         self,
         snmpEngine,
@@ -307,7 +307,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         ):
         msg, = globalData
         contextEngineId, contextName, pdu = scopedPDU
-        
+
         # rfc2576: 5.2.3
         communityName = self._sec2com(snmpEngine,
                                       securityName,
@@ -317,7 +317,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         debug.logger & debug.flagSM and debug.logger('generateRequestMsg: using community %r for securityModel %r, securityName %r, contextEngineId %r contextName %r' % (communityName, securityModel, securityName, contextEngineId, contextName))
 
         securityParameters = communityName
-            
+
         msg.setComponentByPosition(1, securityParameters)
         msg.setComponentByPosition(2)
         msg.getComponentByPosition(2).setComponentByType(
@@ -354,7 +354,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         communityName = cachedSecurityData['communityName']
 
         debug.logger & debug.flagSM and debug.logger('generateResponseMsg: recovered community %r by securityStateReference %s' % (communityName, securityStateReference))
-        
+
         msg.setComponentByPosition(1, communityName)
         msg.setComponentByPosition(2)
         msg.getComponentByPosition(2).setComponentByType(
@@ -385,7 +385,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         # rfc2576: 5.2.1
         ( communityName, transportInformation ) = securityParameters
 
-        scope = dict(communityName=communityName, 
+        scope = dict(communityName=communityName,
                      transportInformation=transportInformation)
 
         snmpEngine.observer.storeExecutionContext(
@@ -410,13 +410,13 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
         securityEngineID = snmpEngineID.syntax
-       
+
         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: looked up securityName %r securityModel %r contextEngineId %r contextName %r by communityName %r AND transportInformation %r' % (securityName, self.securityModelID, contextEngineId, contextName, communityName, transportInformation))
 
         stateReference = self._cache.push(
             communityName=communityName
         )
-        
+
         scopedPDU = (
             contextEngineId, contextName,
             msg.getComponentByPosition(2).getComponent()
@@ -425,15 +425,15 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         securityStateReference = stateReference
 
         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: generated maxSizeResponseScopedPDU %s securityStateReference %s' % (maxSizeResponseScopedPDU, securityStateReference))
-        
+
         return ( securityEngineID,
                  securityName,
                  scopedPDU,
                  maxSizeResponseScopedPDU,
                  securityStateReference )
-    
+
 class SnmpV2cSecurityModel(SnmpV1SecurityModel):
     securityModelID = 2
-    
+
 # XXX
 # contextEngineId/contextName goes to globalData

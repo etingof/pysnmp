@@ -14,7 +14,7 @@ random.seed()
 
 # RFC3826
 
-# 
+#
 
 class Aes(base.AbstractEncryptionService):
     serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 4) # usmAesCfb128Protocol
@@ -32,7 +32,7 @@ class Aes(base.AbstractEncryptionService):
             self._localInt>>8&0xff,
             self._localInt&0xff
             ]
-        
+
         if self._localInt == 0xffffffffffffffff:
             self._localInt = 0
         else:
@@ -68,7 +68,7 @@ class Aes(base.AbstractEncryptionService):
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
                 )
-        
+
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
         if authProtocol == hmacmd5.HmacMd5.serviceID:
             localPrivKey = localkey.localizeKeyMD5(privKey, snmpEngineID)
@@ -79,14 +79,14 @@ class Aes(base.AbstractEncryptionService):
                 'Unknown auth protocol %s' % (authProtocol,)
                 )
         return localPrivKey[:16]
-    
+
     # 3.2.4.1
     def encryptData(self, encryptKey, privParameters, dataToEncrypt):
         if AES is None:
             raise error.StatusInformation(
                 errorIndication=errind.encryptionError
                 )
- 
+
         snmpEngineBoots, snmpEngineTime, salt = privParameters
 
         # 3.3.1.1
@@ -104,7 +104,7 @@ class Aes(base.AbstractEncryptionService):
 
         # 3.3.1.4
         return univ.OctetString(ciphertext), univ.OctetString(salt)
-        
+
     # 3.2.4.2
     def decryptData(self, decryptKey, privParameters, encryptedData):
         if AES is None:
@@ -113,7 +113,7 @@ class Aes(base.AbstractEncryptionService):
                 )
 
         snmpEngineBoots, snmpEngineTime, salt = privParameters
-        
+
         # 3.3.2.1
         if len(salt) != 8:
             raise error.StatusInformation(

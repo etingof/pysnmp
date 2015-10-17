@@ -112,7 +112,7 @@ class BulkPDUAPI(PDUAPI):
             varBindTable.append(rspVarBinds[:N])
 
         return varBindTable
-    
+
 apiBulkPDU = BulkPDUAPI()
 
 class TrapPDUAPI(v1.PDUAPI):
@@ -130,7 +130,7 @@ class TrapPDUAPI(v1.PDUAPI):
             # generic trap
             ( self.snmpTrapOID, self._genTrap)
             ]
-        self.setVarBinds(pdu, varBinds)        
+        self.setVarBinds(pdu, varBinds)
 
 apiTrapPDU = TrapPDUAPI()
 

@@ -23,12 +23,12 @@ class DgramSocketTransport(AbstractSocketTransport):
     def __init__(self, sock=None, sockMap=None):
         self.__outQueue = []
         self._sendto = lambda s,b,a: s.sendto(b, a)
-        def __recvfrom(s, sz): 
+        def __recvfrom(s, sz):
             d, a = s.recvfrom(sz)
             return d, self.addressType(a)
         self._recvfrom = __recvfrom
         AbstractSocketTransport.__init__(self, sock, sockMap)
-        
+
     def openClientMode(self, iface=None):
         if iface is not None:
             try:
@@ -129,7 +129,7 @@ class DgramSocketTransport(AbstractSocketTransport):
                 debug.logger & debug.flagIO and debug.logger('handle_write: ignoring socket error %s' % (sys.exc_info()[1],))
             else:
                 raise error.CarrierError('sendto() failed for %s: %s' % (transportAddress, sys.exc_info()[1]))
-            
+
     def readable(self): return 1
     def handle_read(self):
         try:

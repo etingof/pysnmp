@@ -20,10 +20,10 @@ class HmacSha(base.AbstractAuthenticationService):
 
     def hashPassphrase(self, authKey):
         return localkey.hashPassphraseSHA(authKey)
-    
+
     def localizeKey(self, authKey, snmpEngineID):
         return localkey.localizeKeySHA(authKey, snmpEngineID)
-    
+
     # 7.3.1
     def authenticateOutgoingMsg(self, authKey, wholeMsg):
         # 7.3.1.1
@@ -53,10 +53,10 @@ class HmacSha(base.AbstractAuthenticationService):
         k2 = univ.OctetString(
             map(lambda x,y: x^y, extendedAuthKey, self.__opad)
             )
-        
+
         # 7.3.1.3
         d1 = sha1(k1.asOctets()+wholeMsg).digest()
-        
+
         # 7.3.1.4
         d2 = sha1(k2.asOctets()+d1).digest()
         mac = d2[:12]
@@ -65,7 +65,7 @@ class HmacSha(base.AbstractAuthenticationService):
         return wholeHead + mac + wholeTail
 
     # 7.3.2
-    def authenticateIncomingMsg(self, authKey, authParameters, wholeMsg):        
+    def authenticateIncomingMsg(self, authKey, authParameters, wholeMsg):
         # 7.3.2.1 & 2
         if len(authParameters) != 12:
             raise error.StatusInformation(
@@ -84,7 +84,7 @@ class HmacSha(base.AbstractAuthenticationService):
         extendedAuthKey = authKey.asNumbers() + _fortyFourZeros
 
         # 7.3.2.4b --> noop
-        
+
         # 7.3.2.4c
         k1 = univ.OctetString(
             map(lambda x,y: x^y, extendedAuthKey, self.__ipad)
@@ -102,14 +102,14 @@ class HmacSha(base.AbstractAuthenticationService):
 
         # 7.3.2.5b
         d2 = sha1(k2.asOctets()+d1).digest()
-        
+
         # 7.3.2.5c
         mac = d2[:12]
-         
+
         # 7.3.2.6
         if mac != authParameters:
             raise error.StatusInformation(
                 errorIndication=errind.authenticationFailure
                 )
-        
+
         return authenticatedWholeMsg

@@ -1,10 +1,10 @@
 #
 # The following routines act like sendto()/recvfrom() calls but additionally
-# support local address retrieval (what can be useful when listening on 
+# support local address retrieval (what can be useful when listening on
 # 0.0.0.0 or [::]) and source address spoofing (for transparent proxying).
 #
 # These routines are based on POSIX sendmsg()/recvmsg() calls which were made
-# available since Python 3.3. Therefore this module is only Python 3.x 
+# available since Python 3.3. Therefore this module is only Python 3.x
 # compatible.
 #
 # Parts of the code below is taken from:
@@ -21,34 +21,33 @@ else:
     import ctypes
     import ipaddress
     import socket
-    from pysnmp import debug
     from pysnmp.carrier import sockfix, error
 
     uint32_t = ctypes.c_uint32
     in_addr_t = uint32_t
- 
+
     class in_addr(ctypes.Structure):
         _fields_ = [('s_addr', in_addr_t)]
- 
+
     class in6_addr_U(ctypes.Union):
         _fields_ = [
             ('__u6_addr8', ctypes.c_uint8 * 16),
             ('__u6_addr16', ctypes.c_uint16 * 8),
             ('__u6_addr32', ctypes.c_uint32 * 4),
         ]
- 
+
     class in6_addr(ctypes.Structure):
         _fields_ = [
             ('__in6_u', in6_addr_U),
         ]
- 
+
     class in_pktinfo(ctypes.Structure):
         _fields_ = [
             ('ipi_ifindex', ctypes.c_int),
             ('ipi_spec_dst', in_addr),
             ('ipi_addr', in_addr),
         ]
- 
+
     class in6_pktinfo(ctypes.Structure):
         _fields_ = [
             ('ipi6_addr', in6_addr),
@@ -63,14 +62,14 @@ else:
                 if anc[0] == socket.SOL_IP and anc[1] == socket.IP_PKTINFO:
                     addr = in_pktinfo.from_buffer_copy(anc[2])
                     addr = ipaddress.IPv4Address(memoryview(addr.ipi_addr).tobytes())
-                    _to = (str(addr),s.getsockname()[1])
+                    _to = (str(addr), s.getsockname()[1])
                 elif anc[0] == socket.SOL_IPV6 and anc[1] == socket.IPV6_PKTINFO:
                     addr = in6_pktinfo.from_buffer_copy(anc[2])
                     addr = ipaddress.ip_address(memoryview(addr.ipi6_addr).tobytes())
-                    _to = (str(addr),s.getsockname()[1])
+                    _to = (str(addr), s.getsockname()[1])
             return data, addressType(_from).setLocalAddress(_to)
         return recvfrom
- 
+
     def getSendTo(addressType):
         def sendto(s, _data, _to):
             ancdata = []

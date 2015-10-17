@@ -9,7 +9,8 @@ from pysnmp import debug
 class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
     protoTransportDispatcher = AsyncoreDispatcher
     sockFamily = sockType = None
-    retryCount = 0; retryInterval = 0
+    retryCount = 0
+    retryInterval = 0
     bufferSize = 131070
     def __init__(self, sock=None, sockMap=None):
         asyncore.dispatcher.__init__(self)
@@ -45,7 +46,8 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
         sock.setblocking(0)
         self.set_socket(sock)
 
-    def __hash__(self): return hash(self.socket)
+    def __hash__(self):
+        return hash(self.socket)
 
     # The following two methods are part of base class so here we overwrite
     # them to separate socket management from dispatcher registration tasks.
@@ -62,17 +64,17 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
 
     def registerSocket(self, sockMap=None):
         self.add_channel(sockMap)
-        
+
     def unregisterSocket(self, sockMap=None):
         self.del_channel(sockMap)
-        
+
     def closeTransport(self):
         AbstractTransport.closeTransport(self)
         self.close()
-        
-    # asyncore API
-    def handle_close(self): raise error.CarrierError(
-        'Transport unexpectedly closed'
-        )
-    def handle_error(self): raise
 
+    # asyncore API
+    def handle_close(self):
+        raise error.CarrierError('Transport unexpectedly closed')
+
+    def handle_error(self):
+        raise

@@ -13,9 +13,12 @@ class AsyncoreDispatcher(AbstractTransportDispatcher):
         self.timeout = 0.5
         AbstractTransportDispatcher.__init__(self)
 
-    def getSocketMap(self): return self.__sockMap
-    def setSocketMap(self, sockMap=socket_map): self.__sockMap = sockMap
-    
+    def getSocketMap(self):
+        return self.__sockMap
+
+    def setSocketMap(self, sockMap=socket_map):
+        self.__sockMap = sockMap
+
     def registerTransport(self, tDomain, t):
         AbstractTransportDispatcher.registerTransport(self, tDomain, t)
         t.registerSocket(self.__sockMap)
@@ -29,7 +32,7 @@ class AsyncoreDispatcher(AbstractTransportDispatcher):
             if transport.writable():
                 return 1
         return 0
-    
+
     def runDispatcher(self, timeout=0.0):
         while self.jobsArePending() or self.transportsAreWorking():
             try:

@@ -15,7 +15,7 @@ class SnmpContext:
         debug.logger & debug.flagIns and debug.logger('SnmpContext: contextEngineId \"%r\"' % (self.contextEngineId,))
         self.contextNames = {
             null: snmpEngine.msgAndPduDsp.mibInstrumController # Default name
-            } 
+            }
 
     def registerContextName(self, contextName, mibInstrum=None):
         contextName = univ.OctetString(contextName).asOctets()
@@ -28,7 +28,7 @@ class SnmpContext:
             self.contextNames[contextName] = self.contextNames[null]
         else:
             self.contextNames[contextName] = mibInstrum
-            
+
     def unregisterContextName(self, contextName):
         contextName = univ.OctetString(contextName).asOctets()
         if contextName in self.contextNames:

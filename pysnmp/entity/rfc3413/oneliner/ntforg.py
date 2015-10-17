@@ -50,7 +50,7 @@ class AsynNotificationOriginator:
 
     def uncfgNtfOrg(self, authData=None):
         return self.lcd.unconfigure(self.snmpEngine, authData)
-        
+
     def makeVarBinds(self, varBinds):
         return self.vbProcessor.makeVarBinds(
             self.snmpEngine, varBinds
@@ -61,7 +61,7 @@ class AsynNotificationOriginator:
             self.snmpEngine, varBinds, lookupNames or lookupValues
         )
 
-    def sendNotification(self, authData, transportTarget, 
+    def sendNotification(self, authData, transportTarget,
                          notifyType, notificationType,
                          varBinds=(),  # legacy, use NotificationType instead
                          cbInfo=(None, None),
@@ -106,7 +106,7 @@ class AsynNotificationOriginator:
 
         return sendNotification(
             self.snmpEngine,
-            authData, transportTarget, 
+            authData, transportTarget,
             ContextData(contextEngineId or self.snmpContext.contextEngineId,
                         contextName),
             notifyType, notificationType.addVarBinds(*varBinds),

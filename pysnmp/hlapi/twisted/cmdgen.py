@@ -5,7 +5,6 @@ from pysnmp.hlapi.lcd import *
 from pysnmp.hlapi.varbinds import *
 from pysnmp.hlapi.twisted.transport import *
 from pysnmp.entity.rfc3413 import cmdgen
-from pysnmp.error import PySnmpError
 from twisted.internet.defer import Deferred
 from twisted.python.failure import Failure
 
@@ -16,11 +15,11 @@ lcd = CommandGeneratorLcdConfigurator()
 
 isEndOfMib = lambda x: not cmdgen.getNextVarBinds(x)[1]
 
-def getCmd(snmpEngine, authData, transportTarget, contextData, 
+def getCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
     """Performs SNMP GET query.
 
-    Based on passed parameters, prepares SNMP GET packet 
+    Based on passed parameters, prepares SNMP GET packet
     (:RFC:`1905#section-4.2.1`) and schedules its transmission by
     :mod:`twisted` I/O framework at a later point of time.
 
@@ -41,7 +40,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     \*varBinds : :class:`~pysnmp.smi.rfc1902.ObjectType`
         One or more class instances representing MIB variables to place
         into SNMP request.
-    
+
     Other Parameters
     ----------------
     \*\*options :
@@ -82,7 +81,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     --------
     >>> from twisted.internet.task import react
     >>> from pysnmp.hlapi.twisted import *
-    >>> 
+    >>>
     >>> def success((errorStatus, errorIndex, varBinds)):
     ...     print(errorStatus, errorIndex, varBind)
     ...
@@ -97,10 +96,10 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     ...                ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)))
     ...     d.addCallback(success).addErrback(failure)
     ...     return d
-    ... 
+    ...
     >>> react(run)
     (0, 0, [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'))])
-    >>> 
+    >>>
 
     """
     def __cbFun(snmpEngine, sendRequestHandle,
@@ -114,7 +113,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
                 (errorStatus, errorIndex,
                  vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib))
             )
- 
+
     addrName, paramsName = lcd.configure(
         snmpEngine, authData, transportTarget
     )
@@ -132,11 +131,11 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     )
     return deferred
 
-def setCmd(snmpEngine, authData, transportTarget, contextData, 
+def setCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
     """Performs SNMP SET query.
 
-    Based on passed parameters, prepares SNMP SET packet 
+    Based on passed parameters, prepares SNMP SET packet
     (:RFC:`1905#section-4.2.5`) and schedules its transmission by
     :mod:`twisted` I/O framework at a later point of time.
 
@@ -157,7 +156,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     \*varBinds : :class:`~pysnmp.smi.rfc1902.ObjectType`
         One or more class instances representing MIB variables to place
         into SNMP request.
-    
+
     Other Parameters
     ----------------
     \*\*options :
@@ -198,7 +197,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     --------
     >>> from twisted.internet.task import react
     >>> from pysnmp.hlapi.twisted import *
-    >>> 
+    >>>
     >>> def success((errorStatus, errorIndex, varBinds)):
     ...     print(errorStatus, errorIndex, varBind)
     ...
@@ -213,10 +212,10 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     ...                ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0), 'Linux i386')
     ...     d.addCallback(success).addErrback(failure)
     ...     return d
-    ... 
+    ...
     >>> react(run)
     (0, 0, [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('Linux i386'))])
-    >>> 
+    >>>
 
     """
     def __cbFun(snmpEngine, sendRequestHandle,
@@ -230,7 +229,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
                 (errorStatus, errorIndex,
                  vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib))
             )
- 
+
     addrName, paramsName = lcd.configure(
         snmpEngine, authData, transportTarget
     )
@@ -248,11 +247,11 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     )
     return deferred
 
-def nextCmd(snmpEngine, authData, transportTarget, contextData, 
+def nextCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
     """Performs SNMP GETNEXT query.
 
-    Based on passed parameters, prepares SNMP GETNEXT packet 
+    Based on passed parameters, prepares SNMP GETNEXT packet
     (:RFC:`1905#section-4.2.2`) and schedules its transmission by
     :mod:`twisted` I/O framework at a later point of time.
 
@@ -273,7 +272,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     \*varBinds : :class:`~pysnmp.smi.rfc1902.ObjectType`
         One or more class instances representing MIB variables to place
         into SNMP request.
-    
+
     Other Parameters
     ----------------
     \*\*options :
@@ -318,7 +317,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     --------
     >>> from twisted.internet.task import react
     >>> from pysnmp.hlapi.twisted import *
-    >>> 
+    >>>
     >>> def success((errorStatus, errorIndex, varBindTable)):
     ...     print(errorStatus, errorIndex, varBindTable)
     ...
@@ -333,10 +332,10 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     ...                 ObjectType(ObjectIdentity('SNMPv2-MIB', 'system'))
     ...     d.addCallback(success).addErrback(failure)
     ...     return d
-    ... 
+    ...
     >>> react(run)
     (0, 0, [[ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'))]])
-    >>> 
+    >>>
 
     """
     def __cbFun(snmpEngine, sendRequestHandle,
@@ -350,7 +349,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
                 (errorStatus, errorIndex,
                  [ vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable ])
             )
- 
+
     addrName, paramsName = lcd.configure(
         snmpEngine, authData, transportTarget
     )
@@ -372,7 +371,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
             nonRepeaters, maxRepetitions, *varBinds, **options):
     """Performs SNMP GETBULK query.
 
-    Based on passed parameters, prepares SNMP GETNEXT packet 
+    Based on passed parameters, prepares SNMP GETNEXT packet
     (:RFC:`1905#section-4.2.3`) and schedules its transmission by
     :mod:`twisted` I/O framework at a later point of time.
 
@@ -391,7 +390,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
         Class instance representing SNMP ContextEngineId and ContextName values.
 
     nonRepeaters : int
-        One MIB variable is requested in response for the first 
+        One MIB variable is requested in response for the first
         `nonRepeaters` MIB variables in request.
 
     maxRepetitions : int
@@ -403,7 +402,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     \*varBinds : :class:`~pysnmp.smi.rfc1902.ObjectType`
         One or more class instances representing MIB variables to place
         into SNMP request.
-    
+
     Other Parameters
     ----------------
     \*\*options :
@@ -448,7 +447,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     --------
     >>> from twisted.internet.task import react
     >>> from pysnmp.hlapi.twisted import *
-    >>> 
+    >>>
     >>> def success((errorStatus, errorIndex, varBindTable)):
     ...     print(errorStatus, errorIndex, varBindTable)
     ...
@@ -464,10 +463,10 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     ...                 ObjectType(ObjectIdentity('SNMPv2-MIB', 'system'))
     ...     d.addCallback(success).addErrback(failure)
     ...     return d
-    ... 
+    ...
     >>> react(run)
     (0, 0, [[ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m')), ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.2.0')), ObjectIdentifier('1.3.6.1.4.1.424242.1.1')]])
-    >>> 
+    >>>
 
     """
     def __cbFun(snmpEngine, sendRequestHandle,
@@ -481,7 +480,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
                 (errorStatus, errorIndex,
                  [ vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable ])
             )
- 
+
     addrName, paramsName = lcd.configure(
         snmpEngine, authData, transportTarget
     )

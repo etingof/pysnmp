@@ -10,7 +10,7 @@ class Cache:
         stateReference = self.__stateReference()
         self.__cacheEntries[stateReference] = securityData
         return stateReference
-    
+
     def pop(self, stateReference):
         if stateReference in self.__cacheEntries:
             securityData = self.__cacheEntries[stateReference]

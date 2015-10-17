@@ -13,7 +13,7 @@ class UdpTwistedTransport(DgramTwistedTransport):
     addressType = UdpTransportAddress
 
     # AbstractTwistedTransport API
-    
+
     def openClientMode(self, iface=None):
         if iface is None:
             iface = ('', 0)

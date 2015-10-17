@@ -30,29 +30,25 @@ usmAesCfb256Protocol = aes256.Aes256.serviceID
 usmNoPrivProtocol = nopriv.NoPriv.serviceID
 
 # Auth services
-authServices = {
-    hmacmd5.HmacMd5.serviceID: hmacmd5.HmacMd5(),
-    hmacsha.HmacSha.serviceID: hmacsha.HmacSha(),
-    noauth.NoAuth.serviceID: noauth.NoAuth()
-    }
+authServices = {hmacmd5.HmacMd5.serviceID: hmacmd5.HmacMd5(),
+                hmacsha.HmacSha.serviceID: hmacsha.HmacSha(),
+                noauth.NoAuth.serviceID: noauth.NoAuth()}
 
 # Privacy services
-privServices = {
-    des.Des.serviceID: des.Des(),
-    des3.Des3.serviceID: des3.Des3(),        
-    aes.Aes.serviceID: aes.Aes(),
-    aes192.Aes192.serviceID: aes192.Aes192(),
-    aes256.Aes256.serviceID: aes256.Aes256(),
-    nopriv.NoPriv.serviceID: nopriv.NoPriv()
-    }
-    
+privServices = {des.Des.serviceID: des.Des(),
+                des3.Des3.serviceID: des3.Des3(),
+                aes.Aes.serviceID: aes.Aes(),
+                aes192.Aes192.serviceID: aes192.Aes192(),
+                aes256.Aes256.serviceID: aes256.Aes256(),
+                nopriv.NoPriv.serviceID: nopriv.NoPriv()}
+
 def __cookV1SystemInfo(snmpEngine, communityIndex):
     snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
     snmpCommunityEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-COMMUNITY-MIB', 'snmpCommunityEntry')
     tblIdx = snmpCommunityEntry.getInstIdFromIndices(communityIndex)
     return snmpCommunityEntry, tblIdx, snmpEngineID
-    
+
 def addV1System(snmpEngine, communityIndex, communityName,
                 contextEngineId=None, contextName=None,
                 transportTag=None, securityName=None):
@@ -223,7 +219,7 @@ def __cookTargetParamsInfo(snmpEngine, name):
     snmpTargetParamsEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-TARGET-MIB', 'snmpTargetParamsEntry')
     tblIdx = snmpTargetParamsEntry.getInstIdFromIndices(name)
     return snmpTargetParamsEntry, tblIdx
-    
+
 def addTargetParams(
     snmpEngine,
     name,
@@ -241,7 +237,7 @@ def addTargetParams(
         raise error.PySnmpError('Unknown MP model %s' % mpModel)
 
     snmpTargetParamsEntry, tblIdx = __cookTargetParamsInfo(snmpEngine, name)
-    
+
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpTargetParamsEntry.name + (7,) + tblIdx, 'destroy'),)
         )
@@ -271,7 +267,7 @@ def __cookTargetAddrInfo(snmpEngine, addrName):
 def addTargetAddr(
     snmpEngine,
     addrName,
-    transportDomain,    
+    transportDomain,
     transportAddress,
     params,
     timeout=None,
@@ -282,7 +278,7 @@ def addTargetAddr(
     snmpTargetAddrEntry, snmpSourceAddrEntry, tblIdx = __cookTargetAddrInfo(
         snmpEngine, addrName
         )
-    
+
     if transportDomain[:len(snmpUDPDomain)] == snmpUDPDomain:
         SnmpUDPAddress, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-TM', 'SnmpUDPAddress')
         transportAddress = SnmpUDPAddress(transportAddress)
@@ -321,7 +317,7 @@ def delTargetAddr(snmpEngine, addrName):
 
 def addTransport(snmpEngine, transportDomain, transport):
     if snmpEngine.transportDispatcher:
-        if not transport.isCompatibleWithDispatcher(snmpEngine.transportDispatcher): 
+        if not transport.isCompatibleWithDispatcher(snmpEngine.transportDispatcher):
             raise error.PySnmpError('Transport %r is not compatible with dispatcher %r' % (transport, snmpEngine.transportDispatcher))
     else:
         snmpEngine.registerTransportDispatcher(
@@ -348,7 +344,7 @@ def getTransport(snmpEngine, transportDomain):
         return snmpEngine.transportDispatcher.getTransport(transportDomain)
     except error.PySnmpError:
         return
-     
+
 def delTransport(snmpEngine, transportDomain):
     if not snmpEngine.transportDispatcher:
         return
@@ -431,7 +427,7 @@ def addVacmAccess(snmpEngine, groupName, contextName, securityModel,
         )
 
     addContext(snmpEngine, contextName) # this is leaky
-    
+
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmAccessEntry.name + (9,) + tblIdx, 'destroy'),)
         )
@@ -450,7 +446,7 @@ def delVacmAccess(snmpEngine, groupName, contextName, securityModel,
                   securityLevel):
     vacmAccessEntry, tblIdx = __cookVacmAccessInfo(
         snmpEngine, groupName, contextName, securityModel, securityLevel
-        )    
+        )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmAccessEntry.name + (9,) + tblIdx, 'destroy'),)
         )
@@ -599,7 +595,7 @@ def __cookNotificationTargetInfo(snmpEngine, notificationName, paramsName,
         )
 
     profileName = '%s-filter' % hash(notificationName)
-    
+
     if filterSubtree:
         snmpNotifyFilterEntry, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-NOTIFICATION-MIB', 'snmpNotifyFilterEntry')
         tblIdx3 = snmpNotifyFilterEntry.getInstIdFromIndices(
@@ -620,7 +616,7 @@ def addNotificationTarget(snmpEngine, notificationName, paramsName,
       snmpNotifyFilterEntry, tblIdx3 ) = __cookNotificationTargetInfo(
         snmpEngine, notificationName, paramsName, filterSubtree
         )
-    
+
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpNotifyEntry.name + (5,) + tblIdx1, 'destroy'),)
         )
@@ -643,7 +639,7 @@ def addNotificationTarget(snmpEngine, notificationName, paramsName,
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpNotifyFilterEntry.name + (5,) + tblIdx3, 'destroy'),)
-        )    
+        )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpNotifyFilterEntry.name + (5,) + tblIdx3, 'createAndGo'),
          (snmpNotifyFilterEntry.name + (1,) + tblIdx3, filterSubtree),
@@ -672,12 +668,12 @@ def delNotificationTarget(snmpEngine, notificationName, paramsName,
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpNotifyFilterEntry.name + (5,) + tblIdx3, 'destroy'),)
-        )    
-    
+        )
+
 # rfc3415: A.1
 def setInitialVacmParameters(snmpEngine):
     # rfc3415: A.1.1 --> initial-semi-security-configuration
-    
+
     # rfc3415: A.1.2
     addContext(snmpEngine, "")
 

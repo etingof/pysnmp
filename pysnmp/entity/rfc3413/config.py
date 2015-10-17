@@ -25,7 +25,7 @@ def getTargetAddr(snmpEngine, snmpTargetAddrName):
           snmpTargetAddrTimeout,
           snmpTargetAddrRetryCount,
           snmpTargetAddrParams ) = mibBuilder.importSymbols(
-                                      'SNMP-TARGET-MIB', 
+                                      'SNMP-TARGET-MIB',
                                       'snmpTargetAddrTDomain',
                                       'snmpTargetAddrTAddress',
                                       'snmpTargetAddrTimeout',
@@ -33,7 +33,7 @@ def getTargetAddr(snmpEngine, snmpTargetAddrName):
                                       'snmpTargetAddrParams'
                                    )
         ( snmpSourceAddrTAddress, ) = mibBuilder.importSymbols(
-                                      'PYSNMP-SOURCE-MIB', 
+                                      'PYSNMP-SOURCE-MIB',
                                       'snmpSourceAddrTAddress'
                                    )
 
@@ -113,7 +113,7 @@ def getTargetParams(snmpEngine, paramsName):
           snmpTargetParamsSecurityModel,
           snmpTargetParamsSecurityName,
           snmpTargetParamsSecurityLevel ) = mibBuilder.importSymbols(
-                                               'SNMP-TARGET-MIB', 
+                                               'SNMP-TARGET-MIB',
                                                'snmpTargetParamsMPModel',
                                                'snmpTargetParamsSecurityModel',
                                                'snmpTargetParamsSecurityName',
@@ -191,7 +191,7 @@ def getNotificationInfo(snmpEngine, notificationTarget):
     if notificationTarget not in targetToNotifyMap:
         ( snmpNotifyTag,
           snmpNotifyType ) = mibBuilder.importSymbols(
-                                 'SNMP-NOTIFICATION-MIB', 
+                                 'SNMP-NOTIFICATION-MIB',
                                  'snmpNotifyTag',
                                  'snmpNotifyType'
                              )

@@ -11,7 +11,7 @@ except ImportError:
     import md5, sha
     md5 = md5.new
     sha1 = sha.new
-    
+
 class AbstractAes(aes.Aes):
     serviceID = ()
     keySize = 0

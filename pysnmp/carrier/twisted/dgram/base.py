@@ -10,7 +10,7 @@ class DgramTwistedTransport(DatagramProtocol, AbstractTwistedTransport):
     """Base Twisted datagram Transport, to be used with TwistedDispatcher"""
 
     # Twisted Datagram API
-    
+
     def datagramReceived(self, datagram, transportAddress):
         if self._cbFun is None:
             raise error.CarrierError('Unable to call cbFun')

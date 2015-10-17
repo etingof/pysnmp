@@ -56,7 +56,7 @@ class MibInstrumController(AbstractMibInstrumController):
         self.lastBuildSyms = {}
 
     def getMibBuilder(self): return self.mibBuilder
-            
+
     # MIB indexing
 
     def __indexMib(self):
@@ -78,7 +78,7 @@ class MibInstrumController(AbstractMibInstrumController):
             'MibTable',
             'MibTree'
             )
-            
+
         mibTree, = self.mibBuilder.importSymbols('SNMPv2-SMI', 'iso')
 
         #
@@ -107,7 +107,7 @@ class MibInstrumController(AbstractMibInstrumController):
         # custom MIB modules (that would be sorted out first)
         mibSymbols = list(self.mibBuilder.mibSymbols.items())
         mibSymbols.sort(key=lambda x: x[0], reverse=True)
-        
+
         for modName, mibMod in mibSymbols:
             for symObj in mibMod.values():
                 if isinstance(symObj, MibTable):
@@ -131,9 +131,9 @@ class MibInstrumController(AbstractMibInstrumController):
                 rows[parentName].unregisterSubtrees(symName)
             else:
                 mibTree.unregisterSubtrees(symName)
-                
+
         lastBuildSyms = {}
-        
+
         # Attach Managed Objects Instances to Managed Objects
         for inst in instances.values():
             if inst.typeName in scalars:
@@ -156,7 +156,7 @@ class MibInstrumController(AbstractMibInstrumController):
                     'Orphan MIB table column %r at %r' % (col, self)
                     )
             lastBuildSyms[col.name] = rowName
-            
+
         # Attach Table Rows to MIB tree
         for row in rows.values():
             mibTree.registerSubtrees(row)
@@ -166,20 +166,20 @@ class MibInstrumController(AbstractMibInstrumController):
         for table in tables.values():
             mibTree.registerSubtrees(table)
             lastBuildSyms[table.name] = mibTree.name
-            
+
         # Attach Scalars to MIB tree
         for scalar in scalars.values():
             mibTree.registerSubtrees(scalar)
             lastBuildSyms[scalar.name] = mibTree.name
 
         self.lastBuildSyms = lastBuildSyms
-        
+
         self.lastBuildId = self.mibBuilder.lastBuildId
-        
+
         debug.logger & debug.flagIns and debug.logger('__indexMib: rebuilt')
-        
+
     # MIB instrumentation
-    
+
     def flipFlopFsm(self, fsmTable, inputNameVals, acInfo):
         self.__indexMib()
         debug.logger & debug.flagIns and debug.logger('flipFlopFsm: inputNameVals %r' % (inputNameVals,))
@@ -238,7 +238,7 @@ class MibInstrumController(AbstractMibInstrumController):
                     # (seems to be irrelevant on Py3 but just in case)
                     del origTraceback
         return outputNameVals
-    
+
     def readVars(self, vars, acInfo=(None, None)):
         return self.flipFlopFsm(self.fsmReadVar, vars, acInfo)
     def readNextVars(self, vars, acInfo=(None, None)):

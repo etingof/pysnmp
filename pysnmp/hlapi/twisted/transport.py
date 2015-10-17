@@ -28,7 +28,7 @@ class UdpTransportTarget(AbstractTransportTarget):
         request.
     tagList : str
         Arbitrary string that contains a list of tag values which are used
-        to select target addresses for a particular operation 
+        to select target addresses for a particular operation
         (:RFC:`3413#section-4.1.4`).
 
     Examples
@@ -36,7 +36,7 @@ class UdpTransportTarget(AbstractTransportTarget):
     >>> from pysnmp.hlapi.twisted import UdpTransportTarget
     >>> UdpTransportTarget(('demo.snmplabs.com', 161))
     UdpTransportTarget(('195.218.195.228', 161), timeout=1, retries=5, tagList='')
-    >>> 
+    >>>
 
     """
     transportDomain = udp.domainName

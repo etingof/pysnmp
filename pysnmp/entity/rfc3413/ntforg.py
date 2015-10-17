@@ -73,7 +73,7 @@ class NotificationOriginator:
             else:
                 reqPDU = origPdu
                 pduVersion = 1
- 
+
             # 3.3.6a
             try:
                 sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(
@@ -106,7 +106,7 @@ class NotificationOriginator:
             snmpEngine.transportDispatcher.jobStarted(id(self))
 
             debug.logger & debug.flagApp and debug.logger('processResponsePdu: sendRequestHandle %s, sendPduHandle %s, timeout %d, retry %d of %d' % (sendRequestHandle, sendPduHandle, origTimeout, origRetries, origRetryCount))
-        
+
             # 3.3.6b
             self.__pendingReqs[sendPduHandle] = (
                 origTransportDomain,
@@ -144,7 +144,7 @@ class NotificationOriginator:
           timeout,
           retryCount,
           params ) = config.getTargetAddr(snmpEngine, targetName)
-          
+
         ( messageProcessingModel,
           securityModel,
           securityName,
@@ -202,7 +202,7 @@ class NotificationOriginator:
                 retryCount,
                 1
             )
-            snmpEngine.transportDispatcher.jobStarted(id(self))            
+            snmpEngine.transportDispatcher.jobStarted(id(self))
         else:
             snmpEngine.msgAndPduDsp.sendPdu(snmpEngine,
                                             transportDomain,
@@ -249,7 +249,7 @@ class NotificationOriginator:
     #
     # Higher-level API to Notification Originator. Supports multiple
     # targets, automatic var-binding formation and is fully LCD-driven.
-    #    
+    #
     def sendVarBinds(self,
                      snmpEngine,
                      notificationTarget,
@@ -263,7 +263,7 @@ class NotificationOriginator:
         if contextName:
             __SnmpAdminString, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMP-FRAMEWORK-MIB', 'SnmpAdminString')
             contextName = __SnmpAdminString(contextName)
- 
+
         # 3.3
         ( notifyTag,
           notifyType ) = config.getNotificationInfo(
@@ -340,7 +340,7 @@ class NotificationOriginator:
                 pdu = v2c.InformRequestPDU()
             else:
                 raise error.ProtocolError('Unknown notify-type %r', notifyType)
-            
+
             v2c.apiPDU.setDefaults(pdu)
             v2c.apiPDU.setVarBinds(pdu, varBinds)
 
@@ -352,9 +352,9 @@ class NotificationOriginator:
                                                  contextName,
                                                  pdu,
                                                  self.processResponseVarBinds,
-                                                 (notificationHandle, 
+                                                 (notificationHandle,
                                                   cbFun, cbCtx))
-                
+
             except error.StatusInformation:
                 statusInformation = sys.exc_info()[1]
                 debug.logger & debug.flagApp and debug.logger('sendVarBinds: sendRequestHandle %s: sendPdu() failed with %r' % (sendRequestHandle, statusInformation))
@@ -391,10 +391,10 @@ def _sendNotificationCbFun(snmpEngine,
                            varBinds,
                            cbCtx):
     cbFun, cbCtx = cbCtx
-        
+
     try:
         # we need to pass response PDU information to user for INFORMs
-        cbFun(sendRequestHandle, errorIndication, 
+        cbFun(sendRequestHandle, errorIndication,
               errorStatus, errorIndex, varBinds, cbCtx)
     except TypeError:
         # a backward compatible way of calling user function
@@ -411,7 +411,7 @@ def _sendNotification(self,
                       instanceIndex=None):
     if self.snmpContext is None:
         raise error.ProtocolError('SNMP context not specified')
-        
+
     #
     # Here we first expand trap OID into associated OBJECTS
     # and then look them up at context-specific MIB
@@ -450,7 +450,7 @@ def _sendNotification(self,
 
 # install compatibility wrapper
 NotificationOriginator.sendNotification = _sendNotification
-    
+
 # XXX
 # move/group/implement config setting/retrieval at a stand-alone module
 

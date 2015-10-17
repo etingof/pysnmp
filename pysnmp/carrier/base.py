@@ -6,19 +6,30 @@ class TimerCallable:
         self.__cbFun = cbFun
         self.__callInterval = callInterval
         self.__nextCall = 0
-        
+
     def __call__(self, timeNow):
         if self.__nextCall <= timeNow:
             self.__cbFun(timeNow)
             self.__nextCall = timeNow + self.__callInterval
 
-    def __eq__(self, cbFun): return self.__cbFun == cbFun
-    def __ne__(self, cbFun): return self.__cbFun != cbFun
-    def __lt__(self, cbFun): return self.__cbFun < cbFun
-    def __le__(self, cbFun): return self.__cbFun <= cbFun
-    def __gt__(self, cbFun): return self.__cbFun > cbFun
-    def __ge__(self, cbFun): return self.__cbFun >= cbFun
-    
+    def __eq__(self, cbFun):
+        return self.__cbFun == cbFun
+
+    def __ne__(self, cbFun):
+        return self.__cbFun != cbFun
+
+    def __lt__(self, cbFun):
+        return self.__cbFun < cbFun
+
+    def __le__(self, cbFun):
+        return self.__cbFun <= cbFun
+
+    def __gt__(self, cbFun):
+        return self.__cbFun > cbFun
+
+    def __ge__(self, cbFun):
+        return self.__cbFun >= cbFun
+
 class AbstractTransportDispatcher:
     def __init__(self):
         self.__transports = {}
@@ -31,7 +42,7 @@ class AbstractTransportDispatcher:
         self.__timerDelta = self.__timerResolution * 0.05
         self.__nextTime = 0
         self.__routingCbFun = None
-        
+
     def _cbFun(self, incomingTransport, transportAddress, incomingMessage):
         if incomingTransport in self.__transportDomainMap:
             transportDomain = self.__transportDomainMap[incomingTransport]
@@ -115,10 +126,9 @@ class AbstractTransportDispatcher:
         raise error.CarrierError(
             'Transport %s not registered' % (transportDomain,)
             )
-        
-    def sendMessage(
-        self, outgoingMessage, transportDomain, transportAddress
-        ):
+
+    def sendMessage(self, outgoingMessage, transportDomain,
+                    transportAddress):
         if transportDomain in self.__transports:
             self.__transports[transportDomain].sendMessage(
                 outgoingMessage, transportAddress
@@ -130,21 +140,22 @@ class AbstractTransportDispatcher:
 
     def getTimerResolution(self):
         return self.__timerResolution
+
     def setTimerResolution(self, timerResolution):
         if timerResolution < 0.01 or timerResolution > 10:
             raise error.CarrierError('Impossible timer resolution')
         self.__timerResolution = timerResolution
         self.__timerDelta = timerResolution * 0.05
-    
+
     def getTimerTicks(self): return self.__ticks
-    
+
     def handleTimerTick(self, timeNow):
         if self.__nextTime == 0:   # initial initialization
             self.__nextTime = timeNow + self.__timerResolution - self.__timerDelta
 
         if self.__nextTime >= timeNow:
             return
-        
+
         self.__ticks += 1
         self.__nextTime = timeNow + self.__timerResolution - self.__timerDelta
 
@@ -170,7 +181,7 @@ class AbstractTransportDispatcher:
 
     def runDispatcher(self, timeout=0.0):
         raise error.CarrierError('Method not implemented')
-        
+
     def closeDispatcher(self):
         for tDomain in list(self.__transports):
             self.__transports[tDomain].closeTransport()
@@ -184,7 +195,7 @@ class AbstractTransportAddress:
     def setLocalAddress(self, s):
         self._localAddress = s
         return self
- 
+
     def getLocalAddress(self):
         return self._localAddress
 
@@ -213,12 +224,12 @@ class AbstractTransport:
         self.unregisterCbFun()
 
     # Public API
-    
+
     def openClientMode(self, iface=None):
         raise error.CarrierError('Method not implemented')
 
     def openServerMode(self, iface=None):
         raise error.CarrierError('Method not implemented')
-        
+
     def sendMessage(self, outgoingMessage, transportAddress):
         raise error.CarrierError('Method not implemented')

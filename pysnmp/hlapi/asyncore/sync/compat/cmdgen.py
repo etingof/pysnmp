@@ -12,7 +12,7 @@ __all__ = ['getCmd', 'nextCmd', 'setCmd', 'bulkCmd', 'next']
 def next(iter):
     return iter.next()
 
-def getCmd(snmpEngine, authData, transportTarget, contextData, 
+def getCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
 
     def cbFun(snmpEngine, sendRequestHandle,
@@ -48,7 +48,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
 
     yield errorIndication, errorStatus, errorIndex, varBinds
 
-def setCmd(snmpEngine, authData, transportTarget, contextData, 
+def setCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
 
     def cbFun(snmpEngine, sendRequestHandle,
@@ -61,7 +61,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
 
     cbCtx = {}
 
-    while True: 
+    while True:
         cmdgen.setCmd(
             snmpEngine,
             authData,
@@ -81,7 +81,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
         if cbCtx['errorIndication'] != errind.requestTimedOut:
             break
 
-def nextCmd(snmpEngine, authData, transportTarget, contextData, 
+def nextCmd(snmpEngine, authData, transportTarget, contextData,
             *varBinds, **options):
 
     def cbFun(snmpEngine, sendRequestHandle,
@@ -105,7 +105,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
 
     totalRows = totalCalls = 0
 
-    while True: 
+    while True:
         cmdgen.nextCmd(snmpEngine,
                        authData,
                        transportTarget,
@@ -155,7 +155,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
                      maxCalls and totalCalls >= maxCalls:
                 return
 
-def bulkCmd(snmpEngine, authData, transportTarget, contextData, 
+def bulkCmd(snmpEngine, authData, transportTarget, contextData,
             nonRepeaters, maxRepetitions, *varBinds, **options):
 
     def cbFun(snmpEngine, sendRequestHandle,
@@ -181,7 +181,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     totalRows = totalCalls = 0
     stopFlag = False
 
-    while not stopFlag: 
+    while not stopFlag:
         if maxRows and totalRows < maxRows:
             maxRepetitions = min(maxRepetitions, maxRows-totalRows)
 

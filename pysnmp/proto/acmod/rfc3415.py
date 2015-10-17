@@ -69,7 +69,7 @@ class Vacm:
             raise error.StatusInformation(errorIndication=errind.noSuchView)
 
         # XXX split onto object & instance ?
-        
+
         # 3.2.5a
         vacmViewTreeFamilyEntry, = mibInstrumController.mibBuilder.importSymbols('SNMP-VIEW-BASED-ACM-MIB', 'vacmViewTreeFamilyEntry')
         tblIdx = vacmViewTreeFamilyEntry.getInstIdFromIndices(viewName)

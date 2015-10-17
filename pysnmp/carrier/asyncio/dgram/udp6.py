@@ -1,7 +1,6 @@
 import socket
 from pysnmp.carrier.base import AbstractTransportAddress
 from pysnmp.carrier.asyncio.dgram.base import DgramAsyncioProtocol
-from pysnmp.carrier import error
 try:
     import asyncio
 except ImportError:

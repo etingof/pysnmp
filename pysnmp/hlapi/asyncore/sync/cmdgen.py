@@ -6,7 +6,7 @@ from pyasn1.type.univ import Null
 
 __all__ = ['getCmd', 'nextCmd', 'setCmd', 'bulkCmd']
 
-def getCmd(snmpEngine, authData, transportTarget, contextData, 
+def getCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
     """Creates a generator to perform one or more SNMP GET queries.
 
@@ -30,7 +30,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
         One or more class instances representing MIB variables to place
         into SNMP request.
-    
+
     Other Parameters
     ----------------
     \*\*options :
@@ -73,7 +73,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     ...            ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)))
     >>> next(g)
     (None, 0, 0, [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'))])
-    >>> 
+    >>>
 
     """
     def cbFun(snmpEngine, sendRequestHandle,
@@ -86,7 +86,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
 
     cbCtx = {}
 
-    while True: 
+    while True:
         if varBinds:
             cmdgen.getCmd(
                 snmpEngine,
@@ -113,7 +113,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
         if not varBinds:
             break
 
-def setCmd(snmpEngine, authData, transportTarget, contextData, 
+def setCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
     """Creates a generator to perform one or more SNMP SET queries.
 
@@ -137,7 +137,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
         One or more class instances representing MIB variables to place
         into SNMP request.
-    
+
     Other Parameters
     ----------------
     \*\*options :
@@ -181,7 +181,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     ...            ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0), 'Linux i386'))
     >>> next(g)
     (None, 0, 0, [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('Linux i386'))])
-    >>> 
+    >>>
 
     """
     def cbFun(snmpEngine, sendRequestHandle,
@@ -194,7 +194,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
 
     cbCtx = {}
 
-    while True: 
+    while True:
         if varBinds:
             cmdgen.setCmd(
                 snmpEngine,
@@ -221,7 +221,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
         if not varBinds:
             break
 
-def nextCmd(snmpEngine, authData, transportTarget, contextData, 
+def nextCmd(snmpEngine, authData, transportTarget, contextData,
             *varBinds, **options):
     """Creates a generator to perform one or more SNMP GETNEXT queries.
 
@@ -246,7 +246,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
         One or more class instances representing MIB variables to place
         into SNMP request.
-    
+
     Other Parameters
     ----------------
     \*\*options :
@@ -335,7 +335,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
 
     totalRows = totalCalls = 0
 
-    while True: 
+    while True:
         if varBinds:
             cmdgen.nextCmd(snmpEngine,
                            authData,
@@ -394,7 +394,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
                  maxCalls and totalCalls >= maxCalls:
             return
 
-def bulkCmd(snmpEngine, authData, transportTarget, contextData, 
+def bulkCmd(snmpEngine, authData, transportTarget, contextData,
             nonRepeaters, maxRepetitions, *varBinds, **options):
     """Creates a generator to perform one or more SNMP GETBULK queries.
 
@@ -417,7 +417,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
         Class instance representing SNMP ContextEngineId and ContextName values.
 
     nonRepeaters : int
-        One MIB variable is requested in response for the first 
+        One MIB variable is requested in response for the first
         `nonRepeaters` MIB variables in request.
 
     maxRepetitions : int
@@ -429,7 +429,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
         One or more class instances representing MIB variables to place
         into SNMP request.
-    
+
     Other Parameters
     ----------------
     \*\*options :
@@ -524,7 +524,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     totalRows = totalCalls = 0
     stopFlag = False
 
-    while not stopFlag: 
+    while not stopFlag:
         if maxRows and totalRows < maxRows:
             maxRepetitions = min(maxRepetitions, maxRows-totalRows)
 

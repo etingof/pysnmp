@@ -14,7 +14,7 @@ class AbstractTransportTarget:
         self.tagList = tagList
         self.iface = None
 
-    def __repr__(self): 
+    def __repr__(self):
         return '%s(%r, timeout=%r, retries=%r, tagList=%r)' % (
             self.__class__.__name__, self.transportAddr,
             self.timeout, self.retries, self.tagList

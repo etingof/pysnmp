@@ -4,7 +4,7 @@ from pysnmp.hlapi.context import *
 from pysnmp.hlapi.lcd import *
 from pysnmp.hlapi.varbinds import *
 from pysnmp.hlapi.twisted.transport import *
-from pysnmp.entity.rfc3413 import ntforg, context
+from pysnmp.entity.rfc3413 import ntforg
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred
 from twisted.python.failure import Failure
@@ -47,7 +47,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
         Alternatively, a sequence of :py:class:`~pysnmp.smi.rfc1902.ObjectType`
         objects could be passed instead. In the latter case it is up to
         the user to ensure proper Notification PDU contents.
-    
+
     Other Parameters
     ----------------
     \*\*options :
@@ -88,7 +88,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
     --------
     >>> from twisted.internet.task import react
     >>> from pysnmp.hlapi.twisted import *
-    >>> 
+    >>>
     >>> def success((errorStatus, errorIndex, varBinds)):
     ...     print(errorStatus, errorIndex, varBind)
     ...
@@ -104,10 +104,10 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
     ...                          NotificationType(ObjectIdentity('IF-MIB', 'linkDown')))
     ...     d.addCallback(success).addErrback(failure)
     ...     return d
-    ... 
+    ...
     >>> react(run)
     (0, 0, [])
-    >>> 
+    >>>
 
     """
     def __cbFun(snmpEngine, sendRequestHandle,
@@ -121,7 +121,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
                 (errorStatus, errorIndex,
                  vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib))
             )
-    
+
     notifyName = lcd.configure(
         snmpEngine, authData, transportTarget, notifyType
     )

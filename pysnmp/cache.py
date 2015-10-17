@@ -1,4 +1,4 @@
-# Limited-size dictionary class to use for caches
+# Limited-size dictionary-like class to use for caches
 
 class Cache:
     def __init__(self, maxSize=256):
@@ -9,18 +9,20 @@ class Cache:
         self.__cache = {}
         self.__usage = {}
 
-    def __contains__(self, k): return k in self.__cache
+    def __contains__(self, k):
+        return k in self.__cache
 
     def __getitem__(self, k):
         self.__usage[k] = self.__usage[k] + 1
         return self.__cache[k]
 
-    def __len__(self): return self.__size
-        
+    def __len__(self):
+        return self.__size
+
     def __setitem__(self, k, v):
         if self.__size >= self.__maxSize:
             keys = list(self.__usage.keys())
-            keys.sort(key=lambda x,d=self.__usage: d[x])
+            keys.sort(key=lambda x, d=self.__usage: d[x])
             for _k in keys[:self.__chopSize]:
                 del self.__cache[_k]
                 del self.__usage[_k]

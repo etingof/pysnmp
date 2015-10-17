@@ -33,7 +33,7 @@ def mibNameToOid(mibView, name):
             return oid, suffix
     elif not isinstance(name, tuple):
         name = tuple(univ.ObjectIdentifier(name))
-        
+
     oid, label, suffix = mibView.getNodeNameByOid(name)
 
     return oid, suffix

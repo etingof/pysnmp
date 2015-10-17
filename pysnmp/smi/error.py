@@ -15,7 +15,7 @@ class MibOperationError(SmiError):
     def get(self, key, defVal=None): return self.__outArgs.get(key, defVal)
     def keys(self): return self.__outArgs.keys()
     def update(self, d): self.__outArgs.update(d)
-    
+
 # Aligned with SNMPv2 PDU error-status
 class GenError(MibOperationError): pass
 class NoAccessError(MibOperationError): pass

@@ -4,26 +4,26 @@
 #          Zachary Lorusso <zlorusso@gmail.com>
 # Modified by Ilya Etingof <ilya@snmplabs.com>
 #
-# Redistribution and use in source and binary forms, with or without 
+# Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
 # * Redistributions of source code must retain the above copyright notice,
 #   this list of conditions and the following disclaimer.
 #
 # * Redistributions in binary form must reproduce the above copyright
-#   notice, this list of conditions and the following disclaimer in the 
+#   notice, this list of conditions and the following disclaimer in the
 #   documentation and/or other materials provided with the distribution.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 # ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
-# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+# BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-# IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
+# IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
 #
 from pysnmp.smi.rfc1902 import *
@@ -46,7 +46,7 @@ lcd = CommandGeneratorLcdConfigurator()
 isEndOfMib = lambda x: not cmdgen.getNextVarBinds(x)[1]
 
 @asyncio.coroutine
-def getCmd(snmpEngine, authData, transportTarget, contextData, 
+def getCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
     """Creates a generator to perform SNMP GET query.
 
@@ -72,7 +72,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
         One or more class instances representing MIB variables to place
         into SNMP request.
-    
+
     Other Parameters
     ----------------
     \*\*options :
@@ -103,7 +103,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     --------
     >>> import asyncio
     >>> from pysnmp.hlapi.asyncio import *
-    >>> 
+    >>>
     >>> @asyncio.coroutine
     ... def run():
     ...     errorIndication, errorStatus, errorIndex, varBinds = yield from getCmd(
@@ -114,10 +114,10 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     ...         ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0))
     ...     )
     ...     print(errorIndication, errorStatus, errorIndex, varBinds)
-    >>> 
+    >>>
     >>> asyncio.get_event_loop().run_until_complete(run())
     (None, 0, 0, [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'))])
-    >>> 
+    >>>
 
     """
     def __cbFun(snmpEngine, sendRequestHandle,
@@ -130,7 +130,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
             (errorIndication, errorStatus, errorIndex,
              vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib))
         )
-    
+
     addrName, paramsName = lcd.configure(
         snmpEngine, authData, transportTarget
     )
@@ -149,7 +149,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     return future
 
 @asyncio.coroutine
-def setCmd(snmpEngine, authData, transportTarget, contextData, 
+def setCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
     """Creates a generator to perform SNMP SET query.
 
@@ -175,7 +175,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
         One or more class instances representing MIB variables to place
         into SNMP request.
-    
+
     Other Parameters
     ----------------
     \*\*options :
@@ -206,7 +206,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     --------
     >>> import asyncio
     >>> from pysnmp.hlapi.asyncio import *
-    >>> 
+    >>>
     >>> @asyncio.coroutine
     ... def run():
     ...     errorIndication, errorStatus, errorIndex, varBinds = yield from setCmd(
@@ -217,10 +217,10 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     ...         ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0), 'Linux i386')
     ...     )
     ...     print(errorIndication, errorStatus, errorIndex, varBinds)
-    >>> 
+    >>>
     >>> asyncio.get_event_loop().run_until_complete(run())
     (None, 0, 0, [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('Linux i386'))])
-    >>> 
+    >>>
 
     """
     def __cbFun(snmpEngine, sendRequestHandle,
@@ -233,7 +233,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
             (errorIndication, errorStatus, errorIndex,
              vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib))
         )
-    
+
     addrName, paramsName = lcd.configure(
         snmpEngine, authData, transportTarget
     )
@@ -252,7 +252,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     return future
 
 @asyncio.coroutine
-def nextCmd(snmpEngine, authData, transportTarget, contextData, 
+def nextCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
     """Creates a generator to perform SNMP GETNEXT query.
 
@@ -278,7 +278,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
         One or more class instances representing MIB variables to place
         into SNMP request.
-    
+
     Other Parameters
     ----------------
     \*\*options :
@@ -313,7 +313,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     --------
     >>> import asyncio
     >>> from pysnmp.hlapi.asyncio import *
-    >>> 
+    >>>
     >>> @asyncio.coroutine
     ... def run():
     ...     errorIndication, errorStatus, errorIndex, varBinds = yield from nextCmd(
@@ -324,10 +324,10 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     ...         ObjectType(ObjectIdentity('SNMPv2-MIB', 'system'))
     ...     )
     ...     print(errorIndication, errorStatus, errorIndex, varBinds)
-    >>> 
+    >>>
     >>> asyncio.get_event_loop().run_until_complete(run())
     (None, 0, 0, [[ObjectType(ObjectIdentity('1.3.6.1.2.1.1.1.0'), DisplayString('Linux i386'))]])
-    >>> 
+    >>>
 
     """
     def __cbFun(snmpEngine, sendRequestHandle,
@@ -340,7 +340,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
             (errorIndication, errorStatus, errorIndex,
              [ vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable ])
         )
-    
+
     addrName, paramsName = lcd.configure(
         snmpEngine, authData, transportTarget
     )
@@ -383,7 +383,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
         Class instance representing SNMP ContextEngineId and ContextName values.
 
     nonRepeaters : int
-        One MIB variable is requested in response for the first 
+        One MIB variable is requested in response for the first
         `nonRepeaters` MIB variables in request.
 
     maxRepetitions : int
@@ -395,7 +395,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     \*varBinds : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
         One or more class instances representing MIB variables to place
         into SNMP request.
-    
+
     Other Parameters
     ----------------
     \*\*options :
@@ -430,7 +430,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     --------
     >>> import asyncio
     >>> from pysnmp.hlapi.asyncio import *
-    >>> 
+    >>>
     >>> @asyncio.coroutine
     ... def run():
     ...     errorIndication, errorStatus, errorIndex, varBinds = yield from nextCmd(
@@ -442,10 +442,10 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     ...         ObjectType(ObjectIdentity('SNMPv2-MIB', 'system'))
     ...     )
     ...     print(errorIndication, errorStatus, errorIndex, varBinds)
-    >>> 
+    >>>
     >>> asyncio.get_event_loop().run_until_complete(run())
     (None, 0, 0, [[ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m')), ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.2.0')), ObjectIdentifier('1.3.6.1.4.1.424242.1.1')]])
-    >>> 
+    >>>
 
     """
     def __cbFun(snmpEngine, sendRequestHandle,
@@ -458,7 +458,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
             (errorIndication, errorStatus, errorIndex,
              [ vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable ])
         )
-    
+
     addrName, paramsName = lcd.configure(
         snmpEngine, authData, transportTarget
     )
