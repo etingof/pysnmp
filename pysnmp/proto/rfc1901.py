@@ -8,4 +8,4 @@ class Message(univ.Sequence):
         namedtype.NamedType('version', _version),
         namedtype.NamedType('community', univ.OctetString()),
         namedtype.NamedType('data', rfc1905.PDUs())
-        )
+    )

@@ -248,7 +248,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     return deferred
 
 def nextCmd(snmpEngine, authData, transportTarget, contextData,
-           *varBinds, **options):
+            *varBinds, **options):
     """Performs SNMP GETNEXT query.
 
     Based on passed parameters, prepares SNMP GETNEXT packet

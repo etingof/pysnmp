@@ -15,9 +15,9 @@ Integer, ObjectIdentifier = mibBuilder.importSymbols(
 
 (ConstraintsIntersection, ConstraintsUnion, SingleValueConstraint,
  ValueRangeConstraint, ValueSizeConstraint) = mibBuilder.importSymbols(
-    "ASN1-REFINEMENT", "ConstraintsIntersection", "ConstraintsUnion",
-    "SingleValueConstraint", "ValueRangeConstraint", "ValueSizeConstraint"
-)
+     "ASN1-REFINEMENT", "ConstraintsIntersection", "ConstraintsUnion",
+     "SingleValueConstraint", "ValueRangeConstraint", "ValueSizeConstraint"
+ )
 
 # syntax of objects
 
@@ -370,9 +370,9 @@ class MibTree(ObjectType):
         (acFun, acCtx) = acInfo
         if name == self.name:
             if acFun:
-                if self.maxAccess not in (
-                    'readonly', 'readwrite','readcreate'
-                    ) or acFun(name, self.syntax, idx, 'read', acCtx):
+                if self.maxAccess not in ('readonly',
+                                          'readwrite','readcreate') or \
+                       acFun(name, self.syntax, idx, 'read', acCtx):
                     raise error.NoAccessError(idx=idx, name=name)
         else:
             try:
@@ -786,7 +786,7 @@ class MibTableColumn(MibScalar):
             return
         self.__createdInstances[name] = self.protoInstance(
             self.name, name[len(self.name):], self.syntax.clone()
-            )
+        )
         self.__createdInstances[name].createTest(name, val, idx, acInfo)
 
     def createCommit(self, name, val, idx, acInfo):
@@ -805,9 +805,8 @@ class MibTableColumn(MibScalar):
         self.branchVersionId += 1
         if name in self.__createdInstances:
             if self.__createdInstances[name] is not None:
-                self.__createdInstances[name].createCleanup(
-                    name, val, idx, acInfo
-                )
+                self.__createdInstances[name].createCleanup(name, val, idx,
+                                                            acInfo)
             del self.__createdInstances[name]
         elif name in self._vars:
             self._vars[name].createCleanup(name, val, idx, acInfo)
@@ -855,9 +854,8 @@ class MibTableColumn(MibScalar):
         # Drop instance copy
         self.branchVersionId += 1
         if name in self.__destroyedInstances:
-            self.__destroyedInstances[name].destroyCleanup(
-                name, val, idx, acInfo
-            )
+            self.__destroyedInstances[name].destroyCleanup(name, val,
+                                                           idx, acInfo)
             debug.logger & debug.flagIns and debug.logger('destroyCleanup: %s=%r' % (name, val))
             del self.__destroyedInstances[name]
 
@@ -865,9 +863,7 @@ class MibTableColumn(MibScalar):
         # Set back column instance
         if name in self.__destroyedInstances:
             self._vars[name] = self.__destroyedInstances[name]
-            self._vars[name].destroyUndo(
-                name, val, idx, acInfo
-            )
+            self._vars[name].destroyUndo(name, val, idx, acInfo)
             del self.__destroyedInstances[name]
 
     # Set/modify column
@@ -876,9 +872,7 @@ class MibTableColumn(MibScalar):
         # Besides common checks, request row creation on no-instance
         try:
             # First try the instance
-            MibScalar.writeTest(
-                self, name, val, idx, acInfo
-                )
+            MibScalar.writeTest(self, name, val, idx, acInfo)
         # ...otherwise proceed with creating new column
         except (error.NoSuchInstanceError, error.RowCreationWanted):
             self.__rowOpWanted[name] = error.RowCreationWanted()
@@ -892,31 +886,21 @@ class MibTableColumn(MibScalar):
 
     def __delegateWrite(self, subAction, name, val, idx, acInfo):
         if name not in self.__rowOpWanted:
-            getattr(MibScalar, 'write'+subAction)(
-                self, name, val, idx, acInfo
-            )
+            getattr(MibScalar, 'write'+subAction)(self, name, val, idx, acInfo)
             return
         if isinstance(self.__rowOpWanted[name], error.RowCreationWanted):
-            getattr(self, 'create'+subAction)(
-                name, val, idx, acInfo
-            )
+            getattr(self, 'create'+subAction)(name, val, idx, acInfo)
         if isinstance(self.__rowOpWanted[name], error.RowDestructionWanted):
-            getattr(self, 'destroy'+subAction)(
-                           name, val, idx, acInfo
-            )
+            getattr(self, 'destroy'+subAction)(name, val, idx, acInfo)
 
     def writeCommit(self, name, val, idx, acInfo):
-        self.__delegateWrite(
-            'Commit', name, val, idx, acInfo
-        )
+        self.__delegateWrite('Commit', name, val, idx, acInfo)
         if name in self.__rowOpWanted:
             raise self.__rowOpWanted[name]
 
     def writeCleanup(self, name, val, idx, acInfo):
         self.branchVersionId += 1
-        self.__delegateWrite(
-            'Cleanup', name, val, idx, acInfo
-        )
+        self.__delegateWrite('Cleanup', name, val, idx, acInfo)
         if name in self.__rowOpWanted:
             e = self.__rowOpWanted[name]
             del self.__rowOpWanted[name]
@@ -924,9 +908,7 @@ class MibTableColumn(MibScalar):
             raise e
 
     def writeUndo(self, name, val, idx, acInfo):
-        self.__delegateWrite(
-            'Undo', name, val, idx, acInfo
-        )
+        self.__delegateWrite('Undo', name, val, idx, acInfo)
         if name in self.__rowOpWanted:
             e = self.__rowOpWanted[name]
             del self.__rowOpWanted[name]
@@ -1015,18 +997,14 @@ class MibTableRow(MibTree):
         baseIndices = []
         for impliedFlag, modName, symName in self.indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
-            syntax, instId = self.setFromName(
-                mibObj.syntax, instId, impliedFlag
-            )
+            syntax, instId = self.setFromName(mibObj.syntax, instId,
+                                              impliedFlag)
 
             if self.name == mibObj.name[:-1]:
                 baseIndices.append((mibObj.name, syntax))
 
         if instId:
-            raise error.SmiError(
-                'Excessive instance identifier sub-OIDs left at %s: %s' %
-                (self, instId)
-            )
+            raise error.SmiError('Excessive instance identifier sub-OIDs left at %s: %s' % (self, instId))
 
         if not baseIndices:
             return
@@ -1077,9 +1055,8 @@ class MibTableRow(MibTree):
         instId = nameSuffix
         for impliedFlag, modName, symName in self.indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
-            syntax, instId = self.setFromName(
-                mibObj.syntax, instId, impliedFlag
-            )
+            syntax, instId = self.setFromName(mibObj.syntax, instId,
+                                              impliedFlag)
             indexVals[mibObj.name] = syntax
 
         for name, var in self._vars.items():

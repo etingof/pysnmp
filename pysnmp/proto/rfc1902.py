@@ -684,8 +684,8 @@ class ApplicationSyntax(rfc1155.TypeCoercionHackMixIn, univ.Choice):
         namedtype.NamedType('timeticks-value', TimeTicks()),
         namedtype.NamedType('arbitrary-value', Opaque()),
         namedtype.NamedType('big-counter-value', Counter64()),
-# This conflicts with Counter32
-#        namedtype.NamedType('unsigned-integer-value', Unsigned32()),
+        # This conflicts with Counter32
+        #namedtype.NamedType('unsigned-integer-value', Unsigned32()),
         namedtype.NamedType('gauge32-value', Gauge32())
     ) # BITS misplaced?
 

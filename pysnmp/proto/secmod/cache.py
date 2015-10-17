@@ -16,8 +16,7 @@ class Cache:
             securityData = self.__cacheEntries[stateReference]
         else:
             raise error.ProtocolError(
-                'Cache miss for stateReference=%s at %s' %
-                (stateReference, self)
-                )
+                'Cache miss for stateReference=%s at %s' % (stateReference, self)
+            )
         del self.__cacheEntries[stateReference]
         return securityData

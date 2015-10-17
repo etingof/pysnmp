@@ -382,7 +382,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
             errorIndication = errorStatus = errorIndex = None
             varBinds = []
 
-        initialVarBinds = ( yield errorIndication, errorStatus,
+        initialVarBinds = ( yield errorIndication, errorStatus,\
                                   errorIndex, varBinds )
 
         if initialVarBinds:
@@ -596,7 +596,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
                 stopFlag = True
 
             for varBinds in varBindTable:
-                initialVarBinds = ( yield errorIndication, errorStatus,
+                initialVarBinds = ( yield errorIndication, errorStatus,\
                                           errorIndex, varBinds )
 
                 if initialVarBinds:

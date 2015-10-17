@@ -20,9 +20,8 @@ class Udp6SocketTransport(DgramSocketTransport):
                                    0,   # flowinfo
                                    0))  # scopeid
         else:
-            ta = self.addressType(
-                     (transportAddress[0], transportAddress[1], 0, 0)
-                 )
+            ta = self.addressType((transportAddress[0],
+                                   transportAddress[1], 0, 0))
 
         if isinstance(transportAddress, self.addressType) and \
                 transportAddress.getLocalAddress():

@@ -133,20 +133,11 @@ class MsgAndPduDispatcher:
             (transportDomain,
              transportAddress,
              outgoingMessage) = mpHandler.prepareOutgoingMessage(
-                snmpEngine,
-                origTransportDomain,
-                origTransportAddress,
-                messageProcessingModel,
-                securityModel,
-                securityName,
-                securityLevel,
-                contextEngineId,
-                contextName,
-                pduVersion,
-                PDU,
-                expectResponse,
-                sendPduHandle
-            )
+                 snmpEngine, origTransportDomain, origTransportAddress,
+                 messageProcessingModel, securityModel, securityName,
+                 securityLevel, contextEngineId, contextName,
+                 pduVersion, PDU, expectResponse, sendPduHandle
+             )
 
             debug.logger & debug.flagDsp and debug.logger('sendPdu: MP succeeded')
         except PySnmpError:
@@ -224,19 +215,11 @@ class MsgAndPduDispatcher:
             (transportDomain,
              transportAddress,
              outgoingMessage) = mpHandler.prepareResponseMessage(
-                snmpEngine,
-                messageProcessingModel,
-                securityModel,
-                securityName,
-                securityLevel,
-                contextEngineId,
-                contextName,
-                pduVersion,
-                PDU,
-                maxSizeResponseScopedPDU,
-                stateReference,
-                statusInformation
-            )
+                 snmpEngine, messageProcessingModel, securityModel,
+                 securityName, securityLevel, contextEngineId, contextName,
+                 pduVersion, PDU, maxSizeResponseScopedPDU, stateReference,
+                 statusInformation
+             )
 
             debug.logger & debug.flagDsp and debug.logger('returnResponsePdu: MP suceeded')
 
@@ -268,11 +251,9 @@ class MsgAndPduDispatcher:
         )
 
         # 4.1.2.4
-        snmpEngine.transportDispatcher.sendMessage(
-            outgoingMessage,
-            transportDomain,
-            transportAddress
-        )
+        snmpEngine.transportDispatcher.sendMessage(outgoingMessage,
+                                                   transportDomain,
+                                                   transportAddress)
 
         snmpEngine.observer.clearExecutionContext(
             snmpEngine, 'rfc3412.returnResponsePdu'
@@ -313,24 +294,13 @@ class MsgAndPduDispatcher:
 
         # 4.2.1.4
         try:
-            (messageProcessingModel,
-             securityModel,
-             securityName,
-             securityLevel,
-             contextEngineId,
-             contextName,
-             pduVersion,
-             PDU,
-             pduType,
-             sendPduHandle,
-             maxSizeResponseScopedPDU,
-             statusInformation,
+            (messageProcessingModel, securityModel, securityName,
+             securityLevel, contextEngineId, contextName,
+             pduVersion, PDU, pduType, sendPduHandle,
+             maxSizeResponseScopedPDU, statusInformation,
              stateReference) = mpHandler.prepareDataElements(
-                snmpEngine,
-                transportDomain,
-                transportAddress,
-                wholeMsg
-            )
+                 snmpEngine, transportDomain, transportAddress, wholeMsg
+             )
 
             debug.logger & debug.flagDsp and debug.logger('receiveMessage: MP succeded')
 
@@ -379,19 +349,12 @@ class MsgAndPduDispatcher:
                     (destTransportDomain,
                      destTransportAddress,
                      outgoingMessage) = mpHandler.prepareResponseMessage(
-                        snmpEngine,
-                        messageProcessingModel,
-                        securityModel,
-                        securityName,
-                        securityLevel,
-                        contextEngineId,
-                        contextName,
-                        pduVersion,
-                        PDU,
-                        maxSizeResponseScopedPDU,
-                        stateReference,
-                        statusInformation
-                    )
+                         snmpEngine, messageProcessingModel,
+                         securityModel, securityName, securityLevel,
+                         contextEngineId, contextName, pduVersion,
+                         PDU, maxSizeResponseScopedPDU, stateReference,
+                         statusInformation
+                     )
 
                 except error.StatusInformation:
                     debug.logger & debug.flagDsp and debug.logger('receiveMessage: report failed, statusInformation %s' % sys.exc_info()[1])
@@ -400,8 +363,7 @@ class MsgAndPduDispatcher:
                 # 4.2.2.1.2.c
                 try:
                     snmpEngine.transportDispatcher.sendMessage(
-                        outgoingMessage,
-                        destTransportDomain,
+                        outgoingMessage, destTransportDomain,
                         destTransportAddress
                     )
 
@@ -525,13 +487,11 @@ class MsgAndPduDispatcher:
         if not statusInformation:
             statusInformation = error.StatusInformation(
                 errorIndication=errind.requestTimedOut
-        )
+            )
 
-        self.releaseStateInformation(
-            snmpEngine,
-            cachedParams['sendPduHandle'],
-            cachedParams['messageProcessingModel']
-        )
+        self.releaseStateInformation(snmpEngine,
+                                     cachedParams['sendPduHandle'],
+                                     cachedParams['messageProcessingModel'])
 
         processResponsePdu(snmpEngine, None, None, None, None, None,
                            None, None, None, statusInformation,

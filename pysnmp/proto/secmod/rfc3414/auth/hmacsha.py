@@ -45,14 +45,14 @@ class HmacSha(base.AbstractAuthenticationService):
         # 7.3.1.2c
         k1 = univ.OctetString(
             map(lambda x,y: x^y, extendedAuthKey, self.__ipad)
-            )
+        )
 
         # 7.3.1.2d -- noop
 
         # 7.3.1.2e
         k2 = univ.OctetString(
             map(lambda x,y: x^y, extendedAuthKey, self.__opad)
-            )
+        )
 
         # 7.3.1.3
         d1 = sha1(k1.asOctets()+wholeMsg).digest()
@@ -70,7 +70,7 @@ class HmacSha(base.AbstractAuthenticationService):
         if len(authParameters) != 12:
             raise error.StatusInformation(
                 errorIndication=errind.authenticationError
-                )
+            )
 
         # 7.3.2.3
         l = wholeMsg.find(authParameters.asOctets())
@@ -88,14 +88,14 @@ class HmacSha(base.AbstractAuthenticationService):
         # 7.3.2.4c
         k1 = univ.OctetString(
             map(lambda x,y: x^y, extendedAuthKey, self.__ipad)
-            )
+        )
 
         # 7.3.2.4d --> noop
 
         # 7.3.2.4e
         k2 = univ.OctetString(
             map(lambda x,y: x^y, extendedAuthKey, self.__opad)
-            )
+        )
 
         # 7.3.2.5a
         d1 = sha1(k1.asOctets()+authenticatedWholeMsg).digest()
@@ -110,6 +110,6 @@ class HmacSha(base.AbstractAuthenticationService):
         if mac != authParameters:
             raise error.StatusInformation(
                 errorIndication=errind.authenticationFailure
-                )
+            )
 
         return authenticatedWholeMsg

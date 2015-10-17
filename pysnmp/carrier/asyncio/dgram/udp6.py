@@ -19,15 +19,12 @@ class Udp6AsyncioTransport(DgramAsyncioProtocol):
 
     def normalizeAddress(self, transportAddress):
         if '%' in transportAddress[0]:  # strip zone ID
-            return self.addressType(
-                    (transportAddress[0].split('%')[0],
-                     transportAddress[1],
-                     0, # flowinfo
-                     0) # scopeid
-                )
+            return self.addressType((transportAddress[0].split('%')[0],
+                                     transportAddress[1],
+                                     0,  # flowinfo
+                                     0)) # scopeid
         else:
-            return self.addressType(
-                    (transportAddress[0], transportAddress[1], 0, 0)
-                )
+            return self.addressType((transportAddress[0],
+                                     transportAddress[1], 0, 0))
 
 Udp6Transport = Udp6AsyncioTransport

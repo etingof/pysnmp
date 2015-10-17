@@ -19,12 +19,9 @@ class Cache:
 
     def pushByStateRef(self, stateReference, **msgInfo):
         if stateReference in self.__stateReferenceIndex:
-            raise error.ProtocolError(
-                'Cache dup for stateReference=%s at %s' %
-                (stateReference, self)
-                )
+            raise error.ProtocolError('Cache dup for stateReference=%s at %s' % (stateReference, self))
         expireAt = self.__expirationTimer+600
-        self.__stateReferenceIndex[stateReference] = ( msgInfo, expireAt )
+        self.__stateReferenceIndex[stateReference] = msgInfo, expireAt
 
         # Schedule to expire
         if expireAt not in self.__expirationQueue:
@@ -37,10 +34,7 @@ class Cache:
         if stateReference in self.__stateReferenceIndex:
             cacheInfo = self.__stateReferenceIndex[stateReference]
         else:
-            raise error.ProtocolError(
-                'Cache miss for stateReference=%s at %s' %
-                (stateReference, self)
-                )
+            raise error.ProtocolError('Cache miss for stateReference=%s at %s' % (stateReference, self))
         del self.__stateReferenceIndex[stateReference]
         cacheEntry, expireAt = cacheInfo
         del self.__expirationQueue[expireAt]['stateReference'][stateReference]
@@ -55,9 +49,9 @@ class Cache:
         if msgId in self.__msgIdIndex:
             raise error.ProtocolError(
                 'Cache dup for msgId=%s at %s' % (msgId, self)
-                )
+            )
         expireAt = self.__expirationTimer+600
-        self.__msgIdIndex[msgId] = ( msgInfo, expireAt )
+        self.__msgIdIndex[msgId] = msgInfo, expireAt
 
         self.__sendPduHandleIdx[msgInfo['sendPduHandle']] = msgId
 
@@ -74,7 +68,7 @@ class Cache:
         else:
             raise error.ProtocolError(
                 'Cache miss for msgId=%s at %s' % (msgId, self)
-                )
+            )
         msgInfo, expireAt = cacheInfo
         del self.__sendPduHandleIdx[msgInfo['sendPduHandle']]
         del self.__msgIdIndex[msgId]
@@ -97,4 +91,4 @@ class Cache:
                 for msgId in cacheInfo['msgId']:
                     del self.__msgIdIndex[msgId]
             del self.__expirationQueue[self.__expirationTimer]
-        self.__expirationTimer = self.__expirationTimer + 1
+        self.__expirationTimer += 1

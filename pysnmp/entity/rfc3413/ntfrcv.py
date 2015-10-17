@@ -7,11 +7,8 @@ from pysnmp import debug
 
 # 3.4
 class NotificationReceiver:
-    pduTypes = (
-        v1.TrapPDU.tagSet,
-        v2c.SNMPv2TrapPDU.tagSet,
-        v2c.InformRequestPDU.tagSet
-        )
+    pduTypes = (v1.TrapPDU.tagSet, v2c.SNMPv2TrapPDU.tagSet,
+                v2c.InformRequestPDU.tagSet)
 
     def __init__(self, snmpEngine, cbFun, cbCtx=None):
         snmpEngine.msgAndPduDsp.registerContextEngineId(
@@ -27,20 +24,10 @@ class NotificationReceiver:
         )
         self.__cbFun = self.__cbCtx = None
 
-    def processPdu(
-        self,
-        snmpEngine,
-        messageProcessingModel,
-        securityModel,
-        securityName,
-        securityLevel,
-        contextEngineId,
-        contextName,
-        pduVersion,
-        PDU,
-        maxSizeResponseScopedPDU,
-        stateReference
-        ):
+    def processPdu(self, snmpEngine, messageProcessingModel,
+                   securityModel, securityName, securityLevel,
+                   contextEngineId, contextName, pduVersion, PDU,
+                   maxSizeResponseScopedPDU, stateReference):
 
         # Agent-side API complies with SMIv2
         if messageProcessingModel == 0:
@@ -77,19 +64,11 @@ class NotificationReceiver:
             # 3.4.3
             try:
                 snmpEngine.msgAndPduDsp.returnResponsePdu(
-                    snmpEngine,
-                    messageProcessingModel,
-                    securityModel,
-                    securityName,
-                    securityLevel,
-                    contextEngineId,
-                    contextName,
-                    pduVersion,
-                    rspPDU,
-                    maxSizeResponseScopedPDU,
-                    stateReference,
-                    statusInformation
-                    )
+                    snmpEngine, messageProcessingModel, securityModel,
+                    securityName, securityLevel, contextEngineId,
+                    contextName, pduVersion, rspPDU, maxSizeResponseScopedPDU,
+                    stateReference, statusInformation)
+
             except error.StatusInformation:
                 debug.logger & debug.flagApp and debug.logger('processPdu: stateReference %s, statusInformation %s' % (stateReference, sys.exc_info()[1]))
                 snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpSilentDrops')
@@ -103,20 +82,14 @@ class NotificationReceiver:
         debug.logger & debug.flagApp and debug.logger('processPdu: stateReference %s, user cbFun %s, cbCtx %s, varBinds %s' % (stateReference, self.__cbFun, self.__cbCtx, varBinds))
 
         if self.__cbFunVer:
-            self.__cbFun(
-                snmpEngine, stateReference, contextEngineId, contextName,
-                varBinds, self.__cbCtx
-                )
+            self.__cbFun(snmpEngine, stateReference, contextEngineId,
+                         contextName, varBinds, self.__cbCtx)
         else:
             # Compatibility stub (handle legacy cbFun interface)
             try:
-                self.__cbFun(
-                    snmpEngine, contextEngineId, contextName,
-                    varBinds, self.__cbCtx
-                    )
+                self.__cbFun(snmpEngine, contextEngineId, contextName,
+                             varBinds, self.__cbCtx)
             except TypeError:
                 self.__cbFunVer = 1
-                self.__cbFun(
-                    snmpEngine, stateReference, contextEngineId, contextName,
-                    varBinds, self.__cbCtx
-                    )
+                self.__cbFun(snmpEngine, stateReference, contextEngineId,
+                             contextName, varBinds, self.__cbCtx)

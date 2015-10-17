@@ -134,13 +134,8 @@ class SnmpEngine:
 
     # Transport dispatcher bindings
 
-    def __receiveMessageCbFun(
-        self,
-        transportDispatcher,
-        transportDomain,
-        transportAddress,
-        wholeMsg
-        ):
+    def __receiveMessageCbFun(self, transportDispatcher, transportDomain,
+                              transportAddress, wholeMsg):
         self.msgAndPduDsp.receiveMessage(
             self, transportDomain, transportAddress, wholeMsg
         )

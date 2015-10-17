@@ -13,9 +13,9 @@ NamedValues, = mibBuilder.importSymbols("ASN1-ENUMERATION", "NamedValues")
 
 (ConstraintsIntersection, ConstraintsUnion, SingleValueConstraint,
  ValueRangeConstraint, ValueSizeConstraint) = mibBuilder.importSymbols(
-    "ASN1-REFINEMENT", "ConstraintsIntersection", "ConstraintsUnion",
-    "SingleValueConstraint", "ValueRangeConstraint", "ValueSizeConstraint"
-)
+     "ASN1-REFINEMENT", "ConstraintsIntersection", "ConstraintsUnion",
+     "SingleValueConstraint", "ValueRangeConstraint", "ValueSizeConstraint"
+ )
 
 Counter32, Unsigned32, TimeTicks, Counter64 = mibBuilder.importSymbols(
     'SNMPv2-SMI', 'Counter32', 'Unsigned32', 'TimeTicks', 'Counter64'
@@ -54,13 +54,11 @@ class TextualConvention:
 
     def prettyOut(self, value):  # override asn1 type method
         """Implements DISPLAY-HINT evaluation"""
-        if self.displayHint and (
-            self.__integer.isSuperTypeOf(self) or
-            self.__unsigned32.isSuperTypeOf(self) or
-            self.__timeticks.isSuperTypeOf(self) or
-            self.__counter32.isSuperTypeOf(self) or
-            self.__counter64.isSuperTypeOf(self)
-            ):
+        if self.displayHint and (self.__integer.isSuperTypeOf(self) or
+                                 self.__unsigned32.isSuperTypeOf(self) or
+                                 self.__timeticks.isSuperTypeOf(self) or
+                                 self.__counter32.isSuperTypeOf(self) or
+                                 self.__counter64.isSuperTypeOf(self)):
             _ = lambda t, f=0: (t, f)
             t, f = _(*self.displayHint.split('-'))
             if t == 'x':

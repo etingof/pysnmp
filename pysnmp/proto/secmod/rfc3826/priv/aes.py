@@ -22,40 +22,36 @@ class Aes(base.AbstractEncryptionService):
     _localInt = random.randrange(0, 0xffffffffffffffff)
     # 3.1.2.1
     def __getEncryptionKey(self, privKey, snmpEngineBoots, snmpEngineTime):
-        salt = [
-            self._localInt>>56&0xff,
-            self._localInt>>48&0xff,
-            self._localInt>>40&0xff,
-            self._localInt>>32&0xff,
-            self._localInt>>24&0xff,
-            self._localInt>>16&0xff,
-            self._localInt>>8&0xff,
-            self._localInt&0xff
-            ]
+        salt = [self._localInt>>56&0xff,
+                self._localInt>>48&0xff,
+                self._localInt>>40&0xff,
+                self._localInt>>32&0xff,
+                self._localInt>>24&0xff,
+                self._localInt>>16&0xff,
+                self._localInt>>8&0xff,
+                self._localInt&0xff]
 
         if self._localInt == 0xffffffffffffffff:
             self._localInt = 0
         else:
-            self._localInt = self._localInt + 1
+            self._localInt += 1
 
-        return self.__getDecryptionKey(
-            privKey, snmpEngineBoots, snmpEngineTime, salt
-            ) + ( univ.OctetString(salt).asOctets(), )
+        return self.__getDecryptionKey(privKey, snmpEngineBoots, snmpEngineTime, salt) + (univ.OctetString(salt).asOctets(),)
 
     def __getDecryptionKey(self, privKey, snmpEngineBoots,
                            snmpEngineTime, salt):
         snmpEngineBoots, snmpEngineTime, salt = (
             int(snmpEngineBoots), int(snmpEngineTime), salt
-            )
+        )
 
-        iv = [ snmpEngineBoots>>24&0xff,
-               snmpEngineBoots>>16&0xff,
-               snmpEngineBoots>>8&0xff,
-               snmpEngineBoots&0xff,
-               snmpEngineTime>>24&0xff,
-               snmpEngineTime>>16&0xff,
-               snmpEngineTime>>8&0xff,
-               snmpEngineTime&0xff ] + salt
+        iv = [snmpEngineBoots>>24&0xff,
+              snmpEngineBoots>>16&0xff,
+              snmpEngineBoots>>8&0xff,
+              snmpEngineBoots&0xff,
+              snmpEngineTime>>24&0xff,
+              snmpEngineTime>>16&0xff,
+              snmpEngineTime>>8&0xff,
+              snmpEngineTime&0xff] + salt
 
         return privKey[:self.keySize].asOctets(), univ.OctetString(iv).asOctets()
 
@@ -67,7 +63,7 @@ class Aes(base.AbstractEncryptionService):
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
-                )
+            )
 
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
         if authProtocol == hmacmd5.HmacMd5.serviceID:
@@ -77,7 +73,7 @@ class Aes(base.AbstractEncryptionService):
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
-                )
+            )
         return localPrivKey[:16]
 
     # 3.2.4.1
@@ -85,14 +81,14 @@ class Aes(base.AbstractEncryptionService):
         if AES is None:
             raise error.StatusInformation(
                 errorIndication=errind.encryptionError
-                )
+            )
 
         snmpEngineBoots, snmpEngineTime, salt = privParameters
 
         # 3.3.1.1
         aesKey, iv, salt = self.__getEncryptionKey(
             encryptKey, snmpEngineBoots, snmpEngineTime
-            )
+        )
 
         # 3.3.1.3
         aesObj = AES.new(aesKey, AES.MODE_CFB, iv, segment_size=128)
@@ -110,7 +106,7 @@ class Aes(base.AbstractEncryptionService):
         if AES is None:
             raise error.StatusInformation(
                 errorIndication=errind.decryptionError
-                )
+            )
 
         snmpEngineBoots, snmpEngineTime, salt = privParameters
 
@@ -118,12 +114,12 @@ class Aes(base.AbstractEncryptionService):
         if len(salt) != 8:
             raise error.StatusInformation(
                 errorIndication=errind.decryptionError
-                )
+            )
 
         # 3.3.2.3
         aesKey, iv = self.__getDecryptionKey(
             decryptKey, snmpEngineBoots, snmpEngineTime, salt
-            )
+        )
 
         aesObj = AES.new(aesKey, AES.MODE_CFB, iv, segment_size=128)
 

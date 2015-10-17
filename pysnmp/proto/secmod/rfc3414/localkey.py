@@ -23,9 +23,9 @@ def hashPassphraseMD5(passphrase):
         else:
             md.update(
                 ringBuffer[mark:ringBufferLen] + ringBuffer[0:e-ringBufferLen]
-                )
+            )
             mark = e-ringBufferLen
-        count = count + 1
+        count += 1
     return md.digest()
 
 def localizeKeyMD5(passKey, snmpEngineId):
@@ -51,9 +51,9 @@ def hashPassphraseSHA(passphrase):
         else:
             md.update(
                 ringBuffer[mark:ringBufferLen] + ringBuffer[0:e-ringBufferLen]
-                )
+            )
             mark = e-ringBufferLen
-        count = count + 1
+        count += 1
     return md.digest()
 
 def localizeKeySHA(passKey, snmpEngineId):

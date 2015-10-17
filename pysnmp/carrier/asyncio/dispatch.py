@@ -81,14 +81,12 @@ class AsyncioDispatcher(AbstractTransportDispatcher):
 
 # Trollius or Tulip?
 if not hasattr(asyncio, "From"):
-    exec(
-"""\
+    exec("""\
 @asyncio.coroutine
 def handle_timeout(self):
     while True:
         yield from asyncio.sleep(self.getTimerResolution())
         self.handleTimerTick(loop.time())
 AsyncioDispatcher.handle_timeout = handle_timeout\
-"""
-    )
+""")
 

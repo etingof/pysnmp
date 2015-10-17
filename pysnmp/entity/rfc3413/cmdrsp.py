@@ -17,9 +17,9 @@ class CommandResponderBase:
         self.snmpContext = snmpContext
         self.__pendingReqs = {}
 
-    def handleMgmtOperation(
-            self, snmpEngine, stateReference, contextName, PDU, acInfo
-        ): pass
+    def handleMgmtOperation(self, snmpEngine, stateReference, contextName,
+                            PDU, acInfo):
+        pass
 
     def close(self, snmpEngine):
         snmpEngine.msgAndPduDsp.unregisterContextEngineId(
@@ -28,18 +28,11 @@ class CommandResponderBase:
         self.snmpContext = self.__pendingReqs = None
 
     def sendVarBinds(self, snmpEngine, stateReference,
-                        errorStatus, errorIndex, varBinds):
-        ( messageProcessingModel,
-          securityModel,
-          securityName,
-          securityLevel,
-          contextEngineId,
-          contextName,
-          pduVersion,
-          PDU,
-          origPdu,
-          maxSizeResponseScopedPDU,
-          statusInformation ) = self.__pendingReqs[stateReference]
+                     errorStatus, errorIndex, varBinds):
+        (messageProcessingModel, securityModel, securityName,
+         securityLevel, contextEngineId, contextName,
+         pduVersion, PDU, origPdu, maxSizeResponseScopedPDU,
+         statusInformation) = self.__pendingReqs[stateReference]
 
         v2c.apiPDU.setErrorStatus(PDU, errorStatus)
         v2c.apiPDU.setErrorIndex(PDU, errorIndex)
@@ -53,17 +46,10 @@ class CommandResponderBase:
     sendRsp = sendVarBinds
 
     def sendPdu(self, snmpEngine, stateReference, PDU):
-        ( messageProcessingModel,
-          securityModel,
-          securityName,
-          securityLevel,
-          contextEngineId,
-          contextName,
-          pduVersion,
-          _,
-          origPdu,
-          maxSizeResponseScopedPDU,
-          statusInformation ) = self.__pendingReqs[stateReference]
+        (messageProcessingModel, securityModel, securityName,
+         securityLevel, contextEngineId, contextName,
+         pduVersion, _, origPdu, maxSizeResponseScopedPDU,
+         statusInformation) = self.__pendingReqs[stateReference]
 
         # Agent-side API complies with SMIv2
         if messageProcessingModel == 0:
@@ -84,11 +70,12 @@ class CommandResponderBase:
                 maxSizeResponseScopedPDU,
                 stateReference,
                 statusInformation
-                )
+            )
+
         except error.StatusInformation:
             debug.logger & debug.flagApp and debug.logger('sendPdu: stateReference %s, statusInformation %s' % (stateReference, sys.exc_info()[1]))
             snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpSilentDrops')
-            snmpSilentDrops.syntax = snmpSilentDrops.syntax + 1
+            snmpSilentDrops.syntax += 1
 
     _getRequestType = rfc1905.GetRequestPDU.tagSet
     _getNextRequestType = rfc1905.GetNextRequestPDU.tagSet
@@ -99,20 +86,9 @@ class CommandResponderBase:
         if stateReference in self.__pendingReqs:
             del self.__pendingReqs[stateReference]
 
-    def processPdu(
-        self,
-        snmpEngine,
-        messageProcessingModel,
-        securityModel,
-        securityName,
-        securityLevel,
-        contextEngineId,
-        contextName,
-        pduVersion,
-        PDU,
-        maxSizeResponseScopedPDU,
-        stateReference
-        ):
+    def processPdu(self, snmpEngine, messageProcessingModel, securityModel,
+                   securityName, securityLevel, contextEngineId, contextName,
+                   pduVersion, PDU, maxSizeResponseScopedPDU, stateReference):
 
         # Agent-side API complies with SMIv2
         if messageProcessingModel == 0:
@@ -134,18 +110,10 @@ class CommandResponderBase:
         statusInformation = {}
 
         self.__pendingReqs[stateReference] = (
-            messageProcessingModel,
-            securityModel,
-            securityName,
-            securityLevel,
-            contextEngineId,
-            contextName,
-            pduVersion,
-            rspPDU,
-            origPdu,
-            maxSizeResponseScopedPDU,
-            statusInformation
-            )
+            messageProcessingModel, securityModel, securityName,
+            securityLevel, contextEngineId, contextName, pduVersion,
+            rspPDU, origPdu, maxSizeResponseScopedPDU, statusInformation
+        )
 
         # 3.2.5
         varBinds = v2c.apiPDU.getVarBinds(PDU)
@@ -154,10 +122,9 @@ class CommandResponderBase:
         debug.logger & debug.flagApp and debug.logger('processPdu: stateReference %s, varBinds %s' % (stateReference, varBinds))
 
         try:
-            self.handleMgmtOperation(
-                snmpEngine, stateReference,
-                contextName, PDU, (self.__verifyAccess, snmpEngine)
-            )
+            self.handleMgmtOperation(snmpEngine, stateReference,
+                                     contextName, PDU, 
+                                     (self.__verifyAccess, snmpEngine))
         # SNMPv2 SMI exceptions
         except pysnmp.smi.error.GenError:
             errorIndication = sys.exc_info()[1]
@@ -202,31 +169,23 @@ class CommandResponderBase:
         else:  # successful request processor must release state info
             return
 
-        self.sendVarBinds(
-            snmpEngine, stateReference, errorStatus, errorIndex, varBinds
-        )
+        self.sendVarBinds(snmpEngine, stateReference, errorStatus,
+                          errorIndex, varBinds)
 
         self.releaseStateInformation(stateReference)
 
     def __verifyAccess(self, name, syntax, idx, viewType, acCtx):
         snmpEngine = acCtx
-        execCtx = snmpEngine.observer.getExecutionContext(
-                        'rfc3412.receiveMessage:request'
-        )
-        ( securityModel,
-          securityName,
-          securityLevel,
-          contextName,
-          pduType )  = ( execCtx['securityModel'],
-                         execCtx['securityName'],
-                         execCtx['securityLevel'],
-                         execCtx['contextName'],
-                         execCtx['pdu'].getTagSet() )
+        execCtx = snmpEngine.observer.getExecutionContext('rfc3412.receiveMessage:request')
+        (securityModel, securityName, securityLevel, contextName,
+         pduType) = (execCtx['securityModel'], execCtx['securityName'],
+                     execCtx['securityLevel'], execCtx['contextName'],
+                     execCtx['pdu'].getTagSet())
         try:
             snmpEngine.accessControlModel[self.acmID].isAccessAllowed(
                 snmpEngine, securityModel, securityName,
                 securityLevel, viewType, contextName, name
-                )
+            )
         # Map ACM errors onto SMI ones
         except error.StatusInformation:
             statusInformation = sys.exc_info()[1]
@@ -236,69 +195,55 @@ class CommandResponderBase:
             if errorIndication == errind.noSuchView or \
                errorIndication == errind.noAccessEntry or \
                errorIndication == errind.noGroupName:
-                raise pysnmp.smi.error.AuthorizationError(
-                    name=name, idx=idx
-                    )
+                raise pysnmp.smi.error.AuthorizationError(name=name, idx=idx)
             elif errorIndication == errind.otherError:
                 raise pysnmp.smi.error.GenError(name=name, idx=idx)
             elif errorIndication == errind.noSuchContext:
                 snmpUnknownContexts, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-TARGET-MIB', 'snmpUnknownContexts')
-                snmpUnknownContexts.syntax = snmpUnknownContexts.syntax + 1
+                snmpUnknownContexts.syntax += 1
                 # Request REPORT generation
-                raise pysnmp.smi.error.GenError(
-                    name=name, idx=idx,
-                    oid=snmpUnknownContexts.name,
-                    val=snmpUnknownContexts.syntax
-                    )
+                raise pysnmp.smi.error.GenError(name=name, idx=idx,
+                                                oid=snmpUnknownContexts.name,
+                                                val=snmpUnknownContexts.syntax)
             elif errorIndication == errind.notInView:
                 return 1
             else:
-                raise error.ProtocolError(
-                    'Unknown ACM error %s' % errorIndication
-                    )
+                raise error.ProtocolError('Unknown ACM error %s' % errorIndication)
         else:
             # rfc2576: 4.1.2.1
-            if securityModel == 1 and \
-               syntax is not None and \
-               self._counter64Type == syntax.getTagSet() and \
-               self._getNextRequestType == pduType:
+            if securityModel == 1 and syntax is not None and \
+                   self._counter64Type == syntax.getTagSet() and \
+                   self._getNextRequestType == pduType:
                 # This will cause MibTree to skip this OID-value
                 raise pysnmp.smi.error.NoAccessError(name=name, idx=idx)
 
 class GetCommandResponder(CommandResponderBase):
-    pduTypes = ( rfc1905.GetRequestPDU.tagSet, )
+    pduTypes = (rfc1905.GetRequestPDU.tagSet,)
 
     # rfc1905: 4.2.1
-    def handleMgmtOperation(
-        self, snmpEngine, stateReference, contextName, PDU, acInfo
-        ):
+    def handleMgmtOperation(self, snmpEngine, stateReference,
+                            contextName, PDU, acInfo):
         (acFun, acCtx) = acInfo
         # rfc1905: 4.2.1.1
         mgmtFun = self.snmpContext.getMibInstrum(contextName).readVars
-        self.sendVarBinds(
-            snmpEngine, stateReference, 0, 0, mgmtFun(
-                v2c.apiPDU.getVarBinds(PDU), (acFun, acCtx)
-            )
-        )
+        self.sendVarBinds(snmpEngine, stateReference, 0, 0,
+                          mgmtFun(v2c.apiPDU.getVarBinds(PDU), (acFun, acCtx)))
         self.releaseStateInformation(stateReference)
 
 class NextCommandResponder(CommandResponderBase):
-    pduTypes = ( rfc1905.GetNextRequestPDU.tagSet, )
+    pduTypes = (rfc1905.GetNextRequestPDU.tagSet,)
 
     # rfc1905: 4.2.2
-    def handleMgmtOperation(
-        self, snmpEngine, stateReference, contextName, PDU, acInfo
-        ):
+    def handleMgmtOperation(self, snmpEngine, stateReference,
+                            contextName, PDU, acInfo):
         (acFun, acCtx) = acInfo
         # rfc1905: 4.2.2.1
         mgmtFun = self.snmpContext.getMibInstrum(contextName).readNextVars
         varBinds = v2c.apiPDU.getVarBinds(PDU)
-        while 1:
+        while True:
             rspVarBinds = mgmtFun(varBinds, (acFun, acCtx))
             try:
-                self.sendVarBinds(
-                    snmpEngine, stateReference, 0, 0, rspVarBinds
-                )
+                self.sendVarBinds(snmpEngine, stateReference, 0, 0, rspVarBinds)
             except error.StatusInformation:
                 idx = sys.exc_info()[1]['idx']
                 varBinds[idx] = (rspVarBinds[idx][0], varBinds[idx][1])
@@ -307,13 +252,12 @@ class NextCommandResponder(CommandResponderBase):
         self.releaseStateInformation(stateReference)
 
 class BulkCommandResponder(CommandResponderBase):
-    pduTypes = ( rfc1905.GetBulkRequestPDU.tagSet, )
+    pduTypes = (rfc1905.GetBulkRequestPDU.tagSet,)
     maxVarBinds = 64
 
     # rfc1905: 4.2.3
-    def handleMgmtOperation(
-        self, snmpEngine, stateReference, contextName, PDU, acInfo
-        ):
+    def handleMgmtOperation(self, snmpEngine, stateReference,
+                            contextName, PDU, acInfo):
         (acFun, acCtx) = acInfo
         nonRepeaters = v2c.apiBulkPDU.getNonRepeaters(PDU)
         if nonRepeaters < 0:
@@ -342,39 +286,32 @@ class BulkCommandResponder(CommandResponderBase):
 
         varBinds = reqVarBinds[-R:]
         while M and R:
-            rspVarBinds.extend(
-                mgmtFun(varBinds, (acFun, acCtx))
-                )
+            rspVarBinds.extend(mgmtFun(varBinds, (acFun, acCtx)))
             varBinds = rspVarBinds[-R:]
             M = M - 1
 
         if len(rspVarBinds):
-            self.sendVarBinds(
-                snmpEngine, stateReference, 0, 0, rspVarBinds
-            )
+            self.sendVarBinds(snmpEngine, stateReference, 0, 0, rspVarBinds)
             self.releaseStateInformation(stateReference)
         else:
             raise pysnmp.smi.error.SmiError()
 
 class SetCommandResponder(CommandResponderBase):
-    pduTypes = ( rfc1905.SetRequestPDU.tagSet, )
+    pduTypes = (rfc1905.SetRequestPDU.tagSet,)
 
     # rfc1905: 4.2.5
-    def handleMgmtOperation(
-        self, snmpEngine, stateReference, contextName, PDU, acInfo
-        ):
+    def handleMgmtOperation(self, snmpEngine, stateReference,
+                            contextName, PDU, acInfo):
         (acFun, acCtx) = acInfo
         mgmtFun = self.snmpContext.getMibInstrum(contextName).writeVars
         # rfc1905: 4.2.5.1-13
         try:
-            self.sendVarBinds(
-                snmpEngine, stateReference, 0, 0, mgmtFun(
-                    v2c.apiPDU.getVarBinds(PDU), (acFun, acCtx)
-                )
-            )
+            self.sendVarBinds(snmpEngine, stateReference, 0, 0,
+                              mgmtFun(v2c.apiPDU.getVarBinds(PDU),
+                                      (acFun, acCtx)))
             self.releaseStateInformation(stateReference)
-        except ( pysnmp.smi.error.NoSuchObjectError,
-                 pysnmp.smi.error.NoSuchInstanceError ):
+        except (pysnmp.smi.error.NoSuchObjectError,
+                pysnmp.smi.error.NoSuchInstanceError):
             e = pysnmp.smi.error.NotWritableError()
             e.update(sys.exc_info()[1])
             raise e

@@ -65,20 +65,11 @@ class MibInstrumController(AbstractMibInstrumController):
         if self.lastBuildId == self.mibBuilder.lastBuildId:
             return
 
-        ( MibScalarInstance,
-          MibScalar,
-          MibTableColumn,
-          MibTableRow,
-          MibTable,
-          MibTree ) = self.mibBuilder.importSymbols(
-            'SNMPv2-SMI',
-            'MibScalarInstance',
-            'MibScalar',
-            'MibTableColumn',
-            'MibTableRow',
-            'MibTable',
-            'MibTree'
-            )
+        (MibScalarInstance, MibScalar, MibTableColumn, MibTableRow, MibTable,
+         MibTree) = self.mibBuilder.importSymbols(
+             'SNMPv2-SMI', 'MibScalarInstance', 'MibScalar',
+             'MibTableColumn', 'MibTableRow', 'MibTable', 'MibTree'
+         )
 
         mibTree, = self.mibBuilder.importSymbols('SNMPv2-SMI', 'iso')
 
@@ -246,7 +237,9 @@ class MibInstrumController(AbstractMibInstrumController):
 
     def readVars(self, vars, acInfo=(None, None)):
         return self.flipFlopFsm(self.fsmReadVar, vars, acInfo)
+
     def readNextVars(self, vars, acInfo=(None, None)):
         return self.flipFlopFsm(self.fsmReadNextVar, vars, acInfo)
+
     def writeVars(self, vars, acInfo=(None, None)):
         return self.flipFlopFsm(self.fsmWriteVar, vars, acInfo)

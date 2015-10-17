@@ -253,7 +253,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
 
 @asyncio.coroutine
 def nextCmd(snmpEngine, authData, transportTarget, contextData,
-           *varBinds, **options):
+            *varBinds, **options):
     """Creates a generator to perform SNMP GETNEXT query.
 
     When itereator gets advanced by :py:mod:`asyncio` main loop,

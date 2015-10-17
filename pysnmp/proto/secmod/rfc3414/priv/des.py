@@ -4,11 +4,7 @@ from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
 from pysnmp.proto.secmod.rfc3414 import localkey
 from pysnmp.proto import errind, error
 from pyasn1.type import univ
-
-try:
-    from sys import version_info
-except ImportError:
-    version_info = ( 0, 0 )   # a really early version
+from sys import version_info
 
 try:
     from Crypto.Cipher import DES
@@ -34,7 +30,7 @@ class Des(base.AbstractEncryptionService):
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
-                )
+            )
 
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
         if authProtocol == hmacmd5.HmacMd5.serviceID:
@@ -44,7 +40,7 @@ class Des(base.AbstractEncryptionService):
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
-                )
+            )
         return localPrivKey[:32] # key+IV
 
     # 8.1.1.1
@@ -54,43 +50,40 @@ class Des(base.AbstractEncryptionService):
 
         securityEngineBoots = int(snmpEngineBoots)
 
-        salt = [
-            securityEngineBoots>>24&0xff,
-            securityEngineBoots>>16&0xff,
-            securityEngineBoots>>8&0xff,
-            securityEngineBoots&0xff,
-            self._localInt>>24&0xff,
-            self._localInt>>16&0xff,
-            self._localInt>>8&0xff,
-            self._localInt&0xff
-            ]
+        salt = [securityEngineBoots>>24&0xff,
+                securityEngineBoots>>16&0xff,
+                securityEngineBoots>>8&0xff,
+                securityEngineBoots&0xff,
+                self._localInt>>24&0xff,
+                self._localInt>>16&0xff,
+                self._localInt>>8&0xff,
+                self._localInt&0xff]
         if self._localInt == 0xffffffff:
             self._localInt = 0
         else:
             self._localInt = self._localInt + 1
 
-        return desKey.asOctets(), \
-               univ.OctetString(salt).asOctets(), \
-               univ.OctetString(map(lambda x,y:x^y,salt,preIV.asNumbers())).asOctets()
+        return (desKey.asOctets(),
+                univ.OctetString(salt).asOctets(),
+                univ.OctetString(map(lambda x,y:x^y,salt,preIV.asNumbers())).asOctets())
 
     def __getDecryptionKey(self, privKey, salt):
-        return privKey[:8].asOctets(), univ.OctetString(
-            map(lambda x,y:x^y, salt.asNumbers(), privKey[8:16].asNumbers())
-            ).asOctets()
+        return (privKey[:8].asOctets(),
+                univ.OctetString(map(lambda x,y:x^y, salt.asNumbers(), privKey[8:16].asNumbers())).asOctets())
 
     # 8.2.4.1
     def encryptData(self, encryptKey, privParameters, dataToEncrypt):
         if DES is None:
             raise error.StatusInformation(
                 errorIndication=errind.encryptionError
-                )
+            )
 
         snmpEngineBoots, snmpEngineTime, salt = privParameters
 
         # 8.3.1.1
         desKey, salt, iv = self.__getEncryptionKey(
             encryptKey, snmpEngineBoots
-            )
+        )
 
         # 8.3.1.2
         privParameters = univ.OctetString(salt)
@@ -108,7 +101,7 @@ class Des(base.AbstractEncryptionService):
         if DES is None:
             raise error.StatusInformation(
                 errorIndication=errind.decryptionError
-                )
+            )
 
         snmpEngineBoots, snmpEngineTime, salt = privParameters
 
@@ -116,7 +109,7 @@ class Des(base.AbstractEncryptionService):
         if len(salt) != 8:
             raise error.StatusInformation(
                 errorIndication=errind.decryptionError
-                )
+            )
 
         # 8.3.2.2 noop
 
@@ -127,7 +120,7 @@ class Des(base.AbstractEncryptionService):
         if len(encryptedData) % 8 != 0:
             raise error.StatusInformation(
                 errorIndication=errind.decryptionError
-                )
+            )
 
         desObj = DES.new(desKey, DES.MODE_CBC, iv)
 
