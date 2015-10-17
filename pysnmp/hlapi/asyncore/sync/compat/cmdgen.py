@@ -26,9 +26,10 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     cbCtx = {}
 
     if varBinds:
-        cmdgen.getCmd(snmpEngine, authData, transportTarget, contextData,
-            *varBinds, **dict(cbFun=cbFun, cbCtx=cbCtx,
-                              lookupMib=options.get('lookupMib', True)))
+        cmdgen.getCmd(snmpEngine, authData, transportTarget,
+                      contextData, *varBinds,
+                      **dict(cbFun=cbFun, cbCtx=cbCtx,
+                             lookupMib=options.get('lookupMib', True)))
 
         snmpEngine.transportDispatcher.runDispatcher()
 
@@ -56,9 +57,10 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     cbCtx = {}
 
     while True:
-        cmdgen.setCmd(snmpEngine, authData, transportTarget, contextData,
-            *varBinds, **dict(cbFun=cbFun, cbCtx=cbCtx,
-                              lookupMib=options.get('lookupMib', True)))
+        cmdgen.setCmd(snmpEngine, authData, transportTarget,
+                      contextData, *varBinds,
+                      **dict(cbFun=cbFun, cbCtx=cbCtx,
+                             lookupMib=options.get('lookupMib', True)))
 
         snmpEngine.transportDispatcher.runDispatcher()
 

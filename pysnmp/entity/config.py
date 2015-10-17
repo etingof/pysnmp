@@ -271,14 +271,14 @@ def addTargetAddr(snmpEngine, addrName, transportDomain, transportAddress,
     )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpTargetAddrEntry.name + (9,) + tblIdx, 'createAndGo'),
-        (snmpTargetAddrEntry.name + (1,) + tblIdx, addrName),
-        (snmpTargetAddrEntry.name + (2,) + tblIdx, transportDomain),
-        (snmpTargetAddrEntry.name + (3,) + tblIdx, transportAddress),
-        (snmpTargetAddrEntry.name + (4,) + tblIdx, timeout),
-        (snmpTargetAddrEntry.name + (5,) + tblIdx, retryCount),
-        (snmpTargetAddrEntry.name + (6,) + tblIdx, tagList),
-        (snmpTargetAddrEntry.name + (7,) + tblIdx, params),
-        (snmpSourceAddrEntry.name + (1,) + tblIdx, sourceAddress),)
+         (snmpTargetAddrEntry.name + (1,) + tblIdx, addrName),
+         (snmpTargetAddrEntry.name + (2,) + tblIdx, transportDomain),
+         (snmpTargetAddrEntry.name + (3,) + tblIdx, transportAddress),
+         (snmpTargetAddrEntry.name + (4,) + tblIdx, timeout),
+         (snmpTargetAddrEntry.name + (5,) + tblIdx, retryCount),
+         (snmpTargetAddrEntry.name + (6,) + tblIdx, tagList),
+         (snmpTargetAddrEntry.name + (7,) + tblIdx, params),
+         (snmpSourceAddrEntry.name + (1,) + tblIdx, sourceAddress))
     )
 
 def delTargetAddr(snmpEngine, addrName):
@@ -367,9 +367,9 @@ def addVacmGroup(snmpEngine, groupName, securityModel, securityName):
     )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmSecurityToGroupEntry.name + (5,) + tblIdx, 'createAndGo'),
-        (vacmSecurityToGroupEntry.name + (1,) + tblIdx, securityModel),
-        (vacmSecurityToGroupEntry.name + (2,) + tblIdx, securityName),
-        (vacmSecurityToGroupEntry.name + (3,) + tblIdx, groupName),)
+         (vacmSecurityToGroupEntry.name + (1,) + tblIdx, securityModel),
+         (vacmSecurityToGroupEntry.name + (2,) + tblIdx, securityName),
+         (vacmSecurityToGroupEntry.name + (3,) + tblIdx, groupName),)
     )
 
 def delVacmGroup(snmpEngine, securityModel, securityName):
@@ -400,13 +400,13 @@ def addVacmAccess(snmpEngine, groupName, contextName, securityModel,
     )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmAccessEntry.name + (9,) + tblIdx, 'createAndGo'),
-        (vacmAccessEntry.name + (1,) + tblIdx, contextName),
-        (vacmAccessEntry.name + (2,) + tblIdx, securityModel),
-        (vacmAccessEntry.name + (3,) + tblIdx, securityLevel),
-        (vacmAccessEntry.name + (4,) + tblIdx, prefix),
-        (vacmAccessEntry.name + (5,) + tblIdx, readView),
-        (vacmAccessEntry.name + (6,) + tblIdx, writeView),
-        (vacmAccessEntry.name + (7,) + tblIdx, notifyView),)
+         (vacmAccessEntry.name + (1,) + tblIdx, contextName),
+         (vacmAccessEntry.name + (2,) + tblIdx, securityModel),
+         (vacmAccessEntry.name + (3,) + tblIdx, securityLevel),
+         (vacmAccessEntry.name + (4,) + tblIdx, prefix),
+         (vacmAccessEntry.name + (5,) + tblIdx, readView),
+         (vacmAccessEntry.name + (6,) + tblIdx, writeView),
+         (vacmAccessEntry.name + (7,) + tblIdx, notifyView),)
     )
 
 def delVacmAccess(snmpEngine, groupName, contextName, securityModel,
@@ -622,7 +622,7 @@ def setInitialVacmParameters(snmpEngine):
 
     # rfc3415: A.1.5 (semi-secure)
     addVacmView(snmpEngine, "internet",
-               "included", (1, 3, 6, 1), "")
+                "included", (1, 3, 6, 1), "")
     addVacmView(snmpEngine, "restricted",
                 "included", (1, 3, 6, 1, 2, 1, 1), "")
     addVacmView(snmpEngine, "restricted",

@@ -96,9 +96,9 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
     while True:
         if varBinds:
             ntforg.sendNotification(snmpEngine, authData, transportTarget,
-                contextData, notifyType, varBinds,
-                cbFun, cbCtx, lookupMib=options.get('lookupMib', True)
-            )
+                                    contextData, notifyType, varBinds,
+                                    cbFun, cbCtx,
+                                    lookupMib=options.get('lookupMib', True))
 
             snmpEngine.transportDispatcher.runDispatcher()
 

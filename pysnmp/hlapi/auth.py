@@ -77,7 +77,7 @@ class CommunityData:
         if communityIndex is None:
             self.communityIndex = self.securityName = 's%s' % hash(
                 (self.communityName, self.mpModel, self.contextEngineId,
-                  self.contextName, self.tag)
+                 self.contextName, self.tag)
             )
         else:
             self.communityIndex = communityIndex

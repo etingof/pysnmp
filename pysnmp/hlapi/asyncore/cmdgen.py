@@ -446,8 +446,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
                 varBindTable, cbCtx):
         lookupMib, cbFun, cbCtx = cbCtx
         return cbFun(snmpEngine, sendRequestHandle, errorIndication,
-            errorStatus, errorIndex,
-            [vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable], cbCtx)
+                     errorStatus, errorIndex, [vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable], cbCtx)
 
     addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
     return cmdgen.BulkCommandGenerator().sendVarBinds(

@@ -80,6 +80,9 @@ class ObjectIdentity:
         self.__mibSourcesToAdd = self.__modNamesToLoad = None
         self.__asn1SourcesToAdd = self.__asn1SourcesOptions = None
         self.__state = self.stDirty
+        self.__indices = self.__oid = self.__label = ()
+        self.__modName = self.__symName = ''
+        self.__mibNode = None
 
     def getMibSymbol(self):
         """Returns MIB variable symbolic identification.
@@ -923,11 +926,11 @@ class NotificationType:
                        self.__objectIdentity).resolveWithMib(mibViewController)
         )
 
-        NotificationType, = mibViewController.mibBuilder.importSymbols('SNMPv2-SMI', 'NotificationType')
+        SmiNotificationType, = mibViewController.mibBuilder.importSymbols('SNMPv2-SMI', 'NotificationType')
 
         mibNode = self.__objectIdentity.getMibNode()
 
-        if isinstance(mibNode, NotificationType):
+        if isinstance(mibNode, SmiNotificationType):
             for notificationObject in mibNode.getObjects():
                 objectIdentity = ObjectIdentity(*notificationObject+self.__instanceIndex).resolveWithMib(mibViewController)
                 self.__varBinds.append(
