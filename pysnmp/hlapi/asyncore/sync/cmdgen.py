@@ -311,7 +311,6 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
         cbCtx['errorIndex'] = errorIndex
         cbCtx['varBindTable'] = varBindTable
 
-    lookupMib = options.get('lookupMib', True)
     lexicographicMode = options.get('lexicographicMode', True)
     ignoreNonIncreasingOid = options.get('ignoreNonIncreasingOid', False)
     maxRows = options.get('maxRows', 0)

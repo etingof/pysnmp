@@ -65,10 +65,10 @@ class MibInstrumController(AbstractMibInstrumController):
         if self.lastBuildId == self.mibBuilder.lastBuildId:
             return
 
-        (MibScalarInstance, MibScalar, MibTableColumn, MibTableRow, MibTable,
-         MibTree) = self.mibBuilder.importSymbols(
+        (MibScalarInstance, MibScalar, MibTableColumn, MibTableRow,
+         MibTable) = self.mibBuilder.importSymbols(
              'SNMPv2-SMI', 'MibScalarInstance', 'MibScalar',
-             'MibTableColumn', 'MibTableRow', 'MibTable', 'MibTree'
+             'MibTableColumn', 'MibTableRow', 'MibTable'
          )
 
         mibTree, = self.mibBuilder.importSymbols('SNMPv2-SMI', 'iso')

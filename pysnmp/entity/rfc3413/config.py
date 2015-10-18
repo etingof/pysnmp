@@ -224,7 +224,6 @@ def getTargetNames(snmpEngine, tag):
              'SNMP-TARGET-MIB', 'SnmpTagValue', 'snmpTargetAddrName',
              'snmpTargetAddrTagList'
          )
-        targetNames = []
         mibNode = snmpTargetAddrTagList
         while True:
             try:

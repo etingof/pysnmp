@@ -102,7 +102,6 @@ class BulkPDUAPI(PDUAPI):
         reqVarBinds = self.getVarBinds(reqPDU)
 
         N = min(int(nonRepeaters), len(reqVarBinds))
-        M = int(maxRepetitions)
         R = max(len(reqVarBinds)-N, 0)
 
         rspVarBinds = self.getVarBinds(rspPDU)

@@ -113,7 +113,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
     def __cbFun(snmpEngine, sendRequestHandle,
                 errorIndication, errorStatus, errorIndex,
                 varBinds, cbCtx):
-        lookupMib, future = cbCtx
+        lookupMib, deferred = cbCtx
         if errorIndication:
             deferred.errback(Failure(errorIndication))
         else:
