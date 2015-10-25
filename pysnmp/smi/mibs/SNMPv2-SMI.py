@@ -1180,8 +1180,10 @@ class MibTable(MibTree):
 
 zeroDotZero = ObjectIdentity((0, 0))
 
-#dot = MibTree()
+# OID tree
+itu_t = MibTree((0,)).setLabel('itu-t')
 iso = MibTree((1,))
+joint_iso_itu_t = MibTree((2,)).setLabel('joint-iso-itu-t')
 org = MibIdentifier(iso.name + (3,))
 dod = MibIdentifier(org.name + (6,))
 internet = MibIdentifier(dod.name + (1,))
@@ -1211,11 +1213,11 @@ mibBuilder.exportSymbols(
     MibIdentifier=MibIdentifier, MibTree=MibTree,
     MibTableColumn=MibTableColumn, MibTableRow=MibTableRow,
     MibTable=MibTable, zeroDotZero=zeroDotZero,
-    iso=iso, org=org, dod=dod, internet=internet,
-    directory=directory, mgmt=mgmt, mib_2=mib_2, transmission=transmission,
-    experimental=experimental, private=private, enterprises=enterprises,
-    security=security, snmpV2=snmpV2, snmpDomains=snmpDomains,
-    snmpProxys=snmpProxys, snmpModules=snmpModules
+    itu_t=itu_t, iso=iso, joint_iso_itu_t=joint_iso_itu_t, org=org, dod=dod,
+    internet=internet, directory=directory, mgmt=mgmt, mib_2=mib_2,
+    transmission=transmission, experimental=experimental, private=private,
+    enterprises=enterprises, security=security, snmpV2=snmpV2,
+    snmpDomains=snmpDomains, snmpProxys=snmpProxys, snmpModules=snmpModules
 )
 
 # XXX

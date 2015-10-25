@@ -14,6 +14,7 @@ Repository `tarball download <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/py
 - Fix to ObjectIdentity->ObjectIdentifier attributes handover
 - Fixed crash at oneliner compatibility code on EOM response.
 - Fixed crash in hlapi.transport module.
+- Fixed OID resolution issues that roots at node 0 and 2.
 - Source code re-linted
 
 Revision 4.3.0, released 28-09-2015
