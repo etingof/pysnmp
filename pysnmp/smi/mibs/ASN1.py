@@ -9,4 +9,4 @@ mibBuilder.exportSymbols(
     # SMI objects type-compatible with SNMP protocol values
     Integer=rfc1902.Integer32,
     OctetString=rfc1902.OctetString
-    )
+)
