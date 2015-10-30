@@ -13,14 +13,14 @@ A. The most easy to use interface to MIB lookup feature is supported by
 
     lookupNames=True, lookupValues=True
 
-   parameters to getCmd(), setCmd(), nextCmd(), bulkCmd() methods of 
-   oneliner CommandGenerator. Then the OIDs in response variable-binding 
-   list will get replaced by similarily looking MibVariable instances, 
-   their prettyPrint() methods return MIB symbols instead of OIDs.
+parameters to getCmd(), setCmd(), nextCmd(), bulkCmd() methods of 
+oneliner CommandGenerator. Then the OIDs in response variable-binding 
+list will get replaced by similarily looking MibVariable instances, 
+their prettyPrint() methods return MIB symbols instead of OIDs.
 
-   Response values will still be PyASN1 objects but some may be replaced 
-   by TEXTUAL-CONVENTION decorators what make their prettyPrint() methods 
-   returning even more human-friendly output.
+Response values will still be PyASN1 objects but some may be replaced 
+by TEXTUAL-CONVENTION decorators what make their prettyPrint() methods 
+returning even more human-friendly output.
 
 .. code-block:: python
 
@@ -46,5 +46,5 @@ A. The most easy to use interface to MIB lookup feature is supported by
     'Linux cray 2.6.37.6-smp #2 SMP Sat Apr 9 23:39:07 CDT 2011 i686'
     >>>
 
-   If you are using older PySNMP versions it's strongly recommended to 
-   upgrade to the latest one.
+If you are using older PySNMP versions it's strongly recommended to 
+upgrade to the latest one.

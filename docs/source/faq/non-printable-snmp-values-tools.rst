@@ -32,12 +32,12 @@ A. The difference is that Net-SNMP prints values into hex by-default,
     SNMPv2-SMI::enterprises.14988.1.1.1.2.1.1.0.23.183.34.8.200.3 = 
     OctetString: 00 17 b7 22 08 c8
 
-   Another matter is MIB lookup - when snmp*.py tool can use a MIB to figure 
-   out what are the display conventions for particular value type, it will 
-   reformat the value in a human-readable form.
+Another matter is MIB lookup - when snmp*.py tool can use a MIB to figure 
+out what are the display conventions for particular value type, it will 
+reformat the value in a human-readable form.
 
-   To let MIB lookup work, please pass appropriate MIB name to snmp*.py
-   tool through command line:
+To let MIB lookup work, please pass appropriate MIB name to snmp*.py
+tool through command line:
 
 .. code-block:: bash
 

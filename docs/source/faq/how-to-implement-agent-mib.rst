@@ -5,7 +5,7 @@ How to implement MIB at the Agent
 Q. How to instantiate static MIB table at my SNMP Agent?
 
 A. You need to create MibScalarInstance class instances and register 
-   them with your Agent's SNMP engine (mibBuilder, more specifically). 
+   them with your Agent's SNMP engine (mibBuilder, more specifically).
    Here's an example code for a IP-MIB table:
 
 .. code-block:: python
@@ -110,11 +110,11 @@ A. You need to create MibScalarInstance class instances and register
 
     # Command responder code would follow...
 
-   Keep in mind that the values of this table row will not change by 
-   themselves. They basically hold a snapshot of a data set so your 
-   application may have to update them somehow. For example, an app could 
-   periodically lookup particular MibScalarInstance by OID at mibBuilder and 
-   update its "syntax" attribute with a new value.
+Keep in mind that the values of this table row will not change by 
+themselves. They basically hold a snapshot of a data set so your 
+application may have to update them somehow. For example, an app could 
+periodically lookup particular MibScalarInstance by OID at mibBuilder and 
+update its "syntax" attribute with a new value.
 
-   There are other ways for building MIB tables that represent dynamic 
-   Managed Objects.
+There are other ways for building MIB tables that represent dynamic 
+Managed Objects.
