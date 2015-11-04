@@ -1,7 +1,4 @@
-MibScalarInstance, = mibBuilder.importSymbols(
-    'SNMPv2-SMI',
-    'MibScalarInstance'
-)
+MibScalarInstance, = mibBuilder.importSymbols('SNMPv2-SMI', 'MibScalarInstance')
 
 (usmStatsUnsupportedSecLevels,
  usmStatsNotInTimeWindows,

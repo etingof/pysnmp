@@ -2,52 +2,52 @@ from sys import version
 from time import time
 from pysnmp import __version__
 
-( MibScalarInstance,
-  TimeTicks) = mibBuilder.importSymbols(
+(MibScalarInstance,
+ TimeTicks) = mibBuilder.importSymbols(
     'SNMPv2-SMI',
     'MibScalarInstance',
     'TimeTicks'
-    )
+)
 
-( sysDescr,
-  sysObjectID,
-  sysUpTime,
-  sysContact,
-  sysName,
-  sysLocation,
-  sysServices,
-  sysORLastChange,
-  snmpInPkts,
-  snmpOutPkts,
-  snmpInBadVersions,
-  snmpInBadCommunityNames,
-  snmpInBadCommunityUses,
-  snmpInASNParseErrs,
-  snmpInTooBigs,
-  snmpInNoSuchNames,
-  snmpInBadValues,
-  snmpInReadOnlys,
-  snmpInGenErrs,
-  snmpInTotalReqVars,
-  snmpInTotalSetVars,
-  snmpInGetRequests,
-  snmpInGetNexts,
-  snmpInSetRequests,
-  snmpInGetResponses,
-  snmpInTraps,
-  snmpOutTooBigs,
-  snmpOutNoSuchNames,
-  snmpOutBadValues,
-  snmpOutGenErrs,
-  snmpOutSetRequests,
-  snmpOutGetResponses,
-  snmpOutTraps,
-  snmpEnableAuthenTraps,
-  snmpSilentDrops,
-  snmpProxyDrops,
-  snmpTrapOID,
-  coldStart,
-  snmpSetSerialNo ) = mibBuilder.importSymbols(
+(sysDescr,
+ sysObjectID,
+ sysUpTime,
+ sysContact,
+ sysName,
+ sysLocation,
+ sysServices,
+ sysORLastChange,
+ snmpInPkts,
+ snmpOutPkts,
+ snmpInBadVersions,
+ snmpInBadCommunityNames,
+ snmpInBadCommunityUses,
+ snmpInASNParseErrs,
+ snmpInTooBigs,
+ snmpInNoSuchNames,
+ snmpInBadValues,
+ snmpInReadOnlys,
+ snmpInGenErrs,
+ snmpInTotalReqVars,
+ snmpInTotalSetVars,
+ snmpInGetRequests,
+ snmpInGetNexts,
+ snmpInSetRequests,
+ snmpInGetResponses,
+ snmpInTraps,
+ snmpOutTooBigs,
+ snmpOutNoSuchNames,
+ snmpOutBadValues,
+ snmpOutGenErrs,
+ snmpOutSetRequests,
+ snmpOutGetResponses,
+ snmpOutTraps,
+ snmpEnableAuthenTraps,
+ snmpSilentDrops,
+ snmpProxyDrops,
+ snmpTrapOID,
+ coldStart,
+ snmpSetSerialNo) = mibBuilder.importSymbols(
     'SNMPv2-MIB',
     'sysDescr',
     'sysObjectID',
@@ -88,7 +88,7 @@ from pysnmp import __version__
     'snmpTrapOID',
     'coldStart',
     'snmpSetSerialNo'
-    )
+)
 
 __sysDescr = MibScalarInstance(sysDescr.name, (0,), sysDescr.syntax.clone("PySNMP engine version %s, Python %s" % (__version__, version.replace('\n', ' ').replace('\r', ' '))))
 __sysObjectID = MibScalarInstance(sysObjectID.name, (0,), sysObjectID.syntax.clone((1,3,6,1,4,1,20408)))
@@ -177,4 +177,4 @@ mibBuilder.exportSymbols(
     snmpProxyDrops = __snmpProxyDrops,
     snmpTrapOID = __snmpTrapOID,
     snmpSetSerialNo = __snmpSetSerialNo
-    )
+)

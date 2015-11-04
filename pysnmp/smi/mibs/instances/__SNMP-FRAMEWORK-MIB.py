@@ -1,20 +1,17 @@
 import time
 
-( MibScalarInstance, ) = mibBuilder.importSymbols(
-    'SNMPv2-SMI',
-    'MibScalarInstance'
-    )
+MibScalarInstance, = mibBuilder.importSymbols('SNMPv2-SMI', 'MibScalarInstance')
 
-( snmpEngineID,
-  snmpEngineBoots,
-  snmpEngineTime,
-  snmpEngineMaxMessageSize ) = mibBuilder.importSymbols(
+(snmpEngineID,
+ snmpEngineBoots,
+ snmpEngineTime,
+ snmpEngineMaxMessageSize ) = mibBuilder.importSymbols(
     'SNMP-FRAMEWORK-MIB',
     'snmpEngineID',
     'snmpEngineBoots',
     'snmpEngineTime',
     'snmpEngineMaxMessageSize'
-    )
+)
 
 __snmpEngineID = MibScalarInstance(snmpEngineID.name, (0,), snmpEngineID.syntax)
 __snmpEngineBoots = MibScalarInstance(snmpEngineBoots.name, (0,), snmpEngineBoots.syntax.clone(1))
@@ -27,4 +24,4 @@ mibBuilder.exportSymbols(
     snmpEngineBoots = __snmpEngineBoots,
     snmpEngineTime = __snmpEngineTime,
     snmpEngineMaxMessageSize = __snmpEngineMaxMessageSize
-    )
+)
