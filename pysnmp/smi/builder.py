@@ -127,9 +127,12 @@ class ZipMibSource(__AbstractMibSource):
                 self.__loader = p.__loader__
                 self._srcName = self._srcName.replace('.', os.sep)
                 return self
-            else:
+            elif hasattr(p, '__file__'):
                 # Dir relative to PYTHONPATH
                 return DirMibSource(os.path.split(p.__file__)[0]).init()
+            else:
+                raise error.MibLoadError('%s access error' % (p,))
+
         except ImportError:
             # Dir relative to CWD
             return DirMibSource(self._srcName).init()
