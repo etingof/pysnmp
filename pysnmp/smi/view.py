@@ -104,18 +104,20 @@ class MibViewController:
         # Build oid->long-label index
         oidToLabelIdx = self.__mibSymbolsIdx['']['oidToLabelIdx']
         labelToOidIdx = self.__mibSymbolsIdx['']['labelToOidIdx']
-        if oidToLabelIdx:
-            prevOid = oidToLabelIdx.keys()[0]
-        else:
-            prevOid = ()
+        prevOid = ()
         baseLabel = ()
         for key in oidToLabelIdx.keys():
             keydiff = len(key) - len(prevOid)
             if keydiff > 0:
-                baseLabel = oidToLabelIdx[prevOid]
-                if keydiff > 1:
-                    baseLabel = baseLabel + key[-keydiff:-1]
-            if keydiff < 0:
+                if prevOid:
+                    if keydiff == 1:
+                        baseLabel = oidToLabelIdx[prevOid]
+                    else:
+                        baseLabel += key[-keydiff:-1]
+                else:
+                    baseLabel = ()
+            elif keydiff < 0:
+                baseLabel = ()
                 keyLen = len(key)
                 i = keyLen-1
                 while i:
@@ -123,9 +125,9 @@ class MibViewController:
                     if k in oidToLabelIdx:
                         baseLabel = oidToLabelIdx[k]
                         if i != keyLen-1:
-                            baseLabel = baseLabel + key[i:-1]
+                            baseLabel += key[i:-1]
                         break
-                    i = i - 1
+                    i -= 1
             # Build oid->long-label index
             oidToLabelIdx[key] = baseLabel + oidToLabelIdx[key]
             # Build label->oid index
