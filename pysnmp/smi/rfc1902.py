@@ -568,9 +568,9 @@ class ObjectIdentity:
         if self.__state & self.stClean:
             if attr in ('asTuple', 'clone', 'subtype', 'isPrefixOf',
                         'isSameTypeWith', 'isSuperTypeOf', 'getTagSet',
-                        'getEffectiveTagSet', 'getTagMap', 'index'):
+                        'getEffectiveTagSet', 'getTagMap', 'tagSet', 'index'):
                 return getattr(self.__oid, attr)
-            raise AttributeError
+            raise AttributeError(attr)
         else:
             raise SmiError('%s object not properly initialized for accessing %s' % (self.__class__.__name__, attr))
 
