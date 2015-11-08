@@ -16,6 +16,7 @@ Repository `tarball download <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/py
 - Fixed crash in hlapi.transport module.
 - Fixed OID resolution issues that roots at node 0 and 2.
 - Fix to MIB builder to fail gracefully on corrupted MIB package encounter.
+- Fix to docs distribution -- now the are Sphinx-buildable out-of-the-box.
 - Source code re-linted
 
 Revision 4.3.0, released 28-09-2015
