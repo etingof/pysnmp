@@ -1,4 +1,4 @@
-You need Sphinx too build this documentation. Or you can read it in ASCII. ;)
+You need Sphinx to build this documentation. Or you can read it in ASCII. ;)
 
 Better run:
 

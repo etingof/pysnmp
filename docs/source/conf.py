@@ -145,10 +145,12 @@ html_title = "PySNMP"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['.static']
+if 'PYSNMPDEV' in os.environ:
+    html_static_path = ['.static']
 
 # Custom CSS theme
-html_style = 'css/rtdimproved.css'
+if 'PYSNMPDEV' in os.environ:
+    html_style = 'css/rtdimproved.css'
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied

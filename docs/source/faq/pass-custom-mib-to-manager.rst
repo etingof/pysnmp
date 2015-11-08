@@ -2,7 +2,7 @@
 How to pass MIB to the Manager
 ------------------------------
 
-Q. How to make use of my own MIBs at my Manager application?
+Q. How to make use of random MIBs at my Manager application?
 
 A. Starting from PySNMP 4.3.x, plain-text (ASN.1) MIBs can be
    automatically parsed into PySNMP form by the

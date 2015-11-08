@@ -24,7 +24,7 @@ A. Yes, it can do that. The Manager will verify the values you pass to SET
     )
 
 To verify the response values, you should pass at least lookupValues flag 
-to CommandGenerator *cmd() method you use. In the following example 
+to CommandGenerator \*cmd() method you use. In the following example 
 PySNMP will make sure that Agent-supplied value for SNMPv2-MIB::sysName 
 Managed Object satisfies MIB constraints (if any).
 
