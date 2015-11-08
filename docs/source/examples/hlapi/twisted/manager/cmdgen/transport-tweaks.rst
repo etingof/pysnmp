@@ -14,4 +14,4 @@ Transport tweaks
 
 :download:`Download</../../examples/hlapi/twisted/manager/cmdgen/custom-timeout-and-retries.py>` script.
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

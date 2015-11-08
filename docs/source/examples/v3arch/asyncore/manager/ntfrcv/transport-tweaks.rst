@@ -37,4 +37,4 @@ Transport tweaks
 :download:`Download</../../examples/v3arch/asyncore/manager/ntfrcv/determine-peer-network-address.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

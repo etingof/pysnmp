@@ -26,4 +26,4 @@ Advanced Command Generator
 :download:`Download</../../examples/hlapi/twisted/manager/cmdgen/pull-mibs-from-multiple-agents-at-once.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

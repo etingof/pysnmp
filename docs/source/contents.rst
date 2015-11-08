@@ -51,8 +51,8 @@ Documentation
 .. toctree::
    :maxdepth: 2
 
-   /snmp-overview
-   /docs/contents
+   /docs/tutorial
+   /docs/api-reference
 
 Examples
 --------

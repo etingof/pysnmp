@@ -26,4 +26,4 @@ Transport tweaks
 :download:`Download</../../examples/v1arch/asyncore/agent/ntforg/send-inform-over-ipv4-and-ipv6.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

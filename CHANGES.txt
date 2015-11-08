@@ -10,6 +10,7 @@ Repository `tarball download <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/py
   from rfc1902.ObjectType and rfc1902.NotificationType
   (.addAsn1MibSource(), .addMibSource(), .loadMibs())
 - When pretty printing indices at rfc1902.ObjectType, quote only strings.
+- SNMP overview and PySNMP hlapi tutorial added to documentation.
 - Fix to __doc__ use in setup.py to make -O0 installation mode working.
 - Fix to ObjectIdentity->ObjectIdentifier attributes handover
 - Fixed crash at oneliner compatibility code on EOM response.

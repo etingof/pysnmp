@@ -41,4 +41,4 @@ The following few examples use this facility.
 :download:`Download</../../examples/v3arch/asyncore/agent/ntforg/multiple-different-notifications-at-once.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

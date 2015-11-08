@@ -34,4 +34,4 @@ Common notifications
 
 :download:`Download</../../examples/v3arch/asyncore/agent/ntforg/v2c-inform.py>` script.
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

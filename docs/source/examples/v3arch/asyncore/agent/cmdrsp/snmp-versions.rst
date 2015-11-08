@@ -26,4 +26,4 @@ Various SNMP versions
 :download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/multiple-snmp-communities.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

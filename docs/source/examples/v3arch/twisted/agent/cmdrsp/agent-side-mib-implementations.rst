@@ -15,4 +15,4 @@ Agent-side MIB implementations
 :download:`Download</../../examples/v3arch/twisted/agent/cmdrsp/implementing-scalar-mib-objects.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

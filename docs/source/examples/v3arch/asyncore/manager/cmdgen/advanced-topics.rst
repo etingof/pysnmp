@@ -26,4 +26,4 @@ Advanced topics
 :download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/observe-request-processing.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

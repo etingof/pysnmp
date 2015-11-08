@@ -26,4 +26,4 @@ MIB walking operations
 :download:`Download</../../examples/v1arch/asyncore/manager/cmdgen/getbulk-pull-whole-mib.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

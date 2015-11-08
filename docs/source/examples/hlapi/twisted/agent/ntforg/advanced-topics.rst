@@ -14,4 +14,4 @@ Advanced Notification Originator
 
 :download:`Download</../../examples/hlapi/twisted/agent/ntforg/multiple-notifications-at-once.py>` script.
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

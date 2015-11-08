@@ -26,4 +26,4 @@ Walking operations
 :download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/getnext-multiple-oids-to-eom.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

@@ -15,4 +15,4 @@ Fetching variables
 :download:`Download</../../examples/v1arch/asyncore/manager/cmdgen/fetch-scalar-value.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

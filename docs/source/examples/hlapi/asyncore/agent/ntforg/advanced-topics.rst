@@ -37,4 +37,4 @@ Advanced Notification Originator
 :download:`Download</../../examples/hlapi/asyncore/agent/ntforg/running-multiple-snmp-engines-at-once.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

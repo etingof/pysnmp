@@ -81,4 +81,4 @@ Advanced Command Generator
 :download:`Download</../../examples/hlapi/asyncore/sync/manager/cmdgen/query-agents-from-multuple-threads.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

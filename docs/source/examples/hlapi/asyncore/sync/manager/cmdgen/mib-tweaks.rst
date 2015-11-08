@@ -45,4 +45,4 @@ MIB tweaks
 :download:`Download</../../examples/hlapi/asyncore/sync/manager/cmdgen/custom-pysnmp-mibs-search-path.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

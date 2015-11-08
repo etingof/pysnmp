@@ -14,4 +14,4 @@ Walking operations
 
 :download:`Download</../../examples/hlapi/asyncio/manager/cmdgen/getbulk-to-eom.py>` script.
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

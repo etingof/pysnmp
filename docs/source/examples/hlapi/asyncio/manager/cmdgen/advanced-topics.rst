@@ -26,4 +26,4 @@ Advanced Command Generator
 :download:`Download</../../examples/hlapi/asyncio/manager/cmdgen/multiple-sequential-queries.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

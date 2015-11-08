@@ -16,4 +16,4 @@ Modifying values
 :download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/set-multiple-scalar-values.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

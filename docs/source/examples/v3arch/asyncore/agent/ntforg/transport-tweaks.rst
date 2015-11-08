@@ -26,4 +26,4 @@ Transport tweaks
 :download:`Download</../../examples/v3arch/asyncore/agent/ntforg/send-packet-from-specific-address.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

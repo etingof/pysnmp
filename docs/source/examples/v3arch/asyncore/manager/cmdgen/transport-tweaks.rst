@@ -48,4 +48,4 @@ Transport tweaks
 :download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/fetch-variables-over-ipv6.py>` script.
 
 
-See also: :doc:`library-reference </docs/contents>`.
+See also: :doc:`library-reference </docs/api-reference>`.

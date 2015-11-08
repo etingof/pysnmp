@@ -48,4 +48,4 @@ Agent-side MIB implementations
 :download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/custom-mib-controller.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

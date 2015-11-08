@@ -165,4 +165,4 @@ specific flags are:
 * app
 
 For more details on PySNMP programming model and interfaces, please 
-refer to :doc:`library documentation</docs/contents>`.
+refer to :doc:`library documentation</docs/api-reference>`.

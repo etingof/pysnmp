@@ -26,4 +26,4 @@ Transport tweaks
 :download:`Download</../../examples/hlapi/asyncore/sync/manager/cmdgen/fetch-variables-over-ipv6.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

@@ -1,6 +1,6 @@
 include *.txt
 recursive-include examples *.py
-recursive-include docs/source *.rst *.py
+recursive-include docs/source *.rst *.svg *.py
 recursive-include docs/mibs *.txt
 recursive-include docs *.conf Makefile
 prune docs/build

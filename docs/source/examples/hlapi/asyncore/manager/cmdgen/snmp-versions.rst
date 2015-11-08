@@ -26,4 +26,4 @@ Various SNMP versions
 :download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/pull-whole-mib.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

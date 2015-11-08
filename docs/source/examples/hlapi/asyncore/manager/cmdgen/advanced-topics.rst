@@ -37,4 +37,4 @@ Advanced Command Generator
 :download:`Download</../../examples/hlapi/asyncore/manager/cmdgen/multiple-concurrent-queries.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

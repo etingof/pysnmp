@@ -37,4 +37,4 @@ Protocol conversion
 :download:`Download</../../examples/v3arch/asyncore/proxy/command/v3-to-v2c-conversion.py>` script.
 
 
-See also: :doc:`library-reference </docs/contents>`.
+See also: :doc:`library-reference </docs/api-reference>`.

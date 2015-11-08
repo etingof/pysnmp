@@ -26,4 +26,4 @@ Various SNMP versions
 :download:`Download</../../examples/hlapi/twisted/manager/cmdgen/getbulk-to-eom.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

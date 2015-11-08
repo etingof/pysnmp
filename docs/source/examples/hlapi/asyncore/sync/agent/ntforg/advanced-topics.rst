@@ -25,4 +25,4 @@ Advanced Notification Originator
 
 :download:`Download</../../examples/hlapi/asyncore/sync/agent/ntforg/custom-contextengineid.py>` script.
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

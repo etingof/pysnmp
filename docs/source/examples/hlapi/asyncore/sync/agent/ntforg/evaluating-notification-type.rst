@@ -26,4 +26,4 @@ Evaluating NOTIFICATION-TYPE
 :download:`Download</../../examples/hlapi/asyncore/sync/agent/ntforg/send-notification-with-additional-varbinds.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

@@ -26,4 +26,4 @@ Various SNMP versions
 :download:`Download</../../examples/v3arch/twisted/agent/cmdrsp/multiple-usm-users.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

@@ -69,4 +69,4 @@ SNMP versions
 
 :download:`Download</../../examples/hlapi/asyncore/sync/manager/cmdgen/usm-sha-aes128.py>` script.
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

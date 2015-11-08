@@ -25,4 +25,4 @@ Table operations
 :download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/pull-subtree.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

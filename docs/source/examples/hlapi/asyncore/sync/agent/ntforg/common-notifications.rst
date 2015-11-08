@@ -58,4 +58,4 @@ Common notifications
 
 :download:`Download</../../examples/hlapi/asyncore/sync/agent/ntforg/v3-trap.py>` script.
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

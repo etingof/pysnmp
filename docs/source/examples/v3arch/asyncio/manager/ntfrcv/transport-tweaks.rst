@@ -15,4 +15,4 @@ Transport tweaks
 :download:`Download</../../examples/v3arch/asyncio/manager/ntfrcv/multiple-interfaces.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

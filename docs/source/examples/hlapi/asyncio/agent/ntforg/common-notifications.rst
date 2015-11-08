@@ -14,4 +14,4 @@ Common notifications
 
 :download:`Download</../../examples/hlapi/asyncio/agent/ntforg/default-v1-trap.py>` script.
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.

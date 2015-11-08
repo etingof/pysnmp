@@ -48,4 +48,4 @@ Various SNMP versions
 :download:`Download</../../examples/v3arch/asyncore/manager/cmdgen/usm-sha-none.py>` script.
 
 
-See also: :doc:`library reference </docs/contents>`.
+See also: :doc:`library reference </docs/api-reference>`.
