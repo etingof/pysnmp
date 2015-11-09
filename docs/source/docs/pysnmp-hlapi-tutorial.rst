@@ -210,8 +210,21 @@ type instances. As a Python object it looks like a tuple of
    >>> x[1].prettyPrint()
    'Linux i386 box'
 
-Let's read *sysDescr* MIB object instance as defined in *SNMPv2-MIB*
-module.
+The trailing zero is an indication of MIB object *instance*. Objects
+described in MIBs are just declarations, they never contain any data.
+Data is stored in MIB object instances that are addressed by appending
+For scalar MIB objects index is '0' by convention. The
+*ObjectIdentity* class takes indices as its initializers.
+
+.. code-block:: python
+
+   >>> x = ObjectIdentity('SNMPv2-MIB', 'system', 0)
+   >>> # ... calling MIB lookup ...
+   >>> tuple(x)
+   (1, 3, 6, 1, 2, 1, 1, 1, 0)
+
+We will be reading *sysDescr* scalar MIB object instance as defined
+in *SNMPv2-MIB* module.
 
 .. code-block:: python
 
@@ -220,6 +233,7 @@ module.
    ...            UdpTransportTarget(('demo.snmplabs.com', 161)),
    ...            ContextData(),
    ...            ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)))
+
 
 Reading scalar value
 --------------------
