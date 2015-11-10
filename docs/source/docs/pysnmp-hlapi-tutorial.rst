@@ -92,7 +92,7 @@ insecure, it's still the most popular SNMP version in use.
 
    >>> from pysnmp.hlapi import *
    >>>
-   >>> g = getCmd(CommunityData('public'),
+   >>> g = getCmd(SnmpEngine(), CommunityData('public'),
    ...
 
 Setting transport and target
@@ -111,7 +111,8 @@ respectively.
 
    >>> from pysnmp.hlapi import *
    >>>
-   >>> g = getCmd(CommunityData('public'),
+   >>> g = getCmd(SnmpEngine(),
+   ...            CommunityData('public'),
    ...            UdpTransportTarget(('demo.snmplabs.com', 161)),
    ...
 
@@ -133,7 +134,8 @@ For this example we will use the 'empty' context (default).
 
    >>> from pysnmp.hlapi import *
    >>>
-   >>> g = getCmd(CommunityData('public'),
+   >>> g = getCmd(SnmpEngine(),
+   ...            CommunityData('public'),
    ...            UdpTransportTarget(('demo.snmplabs.com', 161)),
    ...            ContextData(),
    ...
@@ -229,7 +231,8 @@ in *SNMPv2-MIB* module.
 .. code-block:: python
 
    >>> from pysnmp.hlapi import *
-   >>> g = getCmd(CommunityData('public'),
+   >>> g = getCmd(SnmpEngine(),
+   ...            CommunityData('public'),
    ...            UdpTransportTarget(('demo.snmplabs.com', 161)),
    ...            ContextData(),
    ...            ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)))
@@ -250,13 +253,132 @@ out, response is awaited, received and parsed.
 .. code-block:: python
 
    >>> from pysnmp.hlapi import *
-   >>> g = getCmd(CommunityData('public'),
+   >>>
+   >>> g = getCmd(SnmpEngine(),
+   ...            CommunityData('public'),
    ...            UdpTransportTarget(('demo.snmplabs.com', 161)),
    ...            ContextData(),
    ...            ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysUpTime', 0)))
    >>> next(g)
    (None, 0, 0, [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.3.0'), TimeTicks(44430646))])
 
-Reading SNMP table
-------------------
+Working with SNMP tables
+++++++++++++++++++++++++
+
+SNMP defines a concept of table. Tables are used when a single given
+MIB object may apply to many instances of a property. For example,
+properties of network interfaces are put into SNMP table. Each
+instance of a property is addressed by a suffix appended to base MIB
+object.
+
+Tables are specified in MIBs, their index (or indices) are declared
+via the *INDEX* clause. Table index is non-zero integer, or string
+or any base SNMP type.
+
+At the protocol level all indices take shape of OID parts. For humans
+to work with indices comfortably, SNMP management applications rely on
+DISPLAY-HINT clause for automatic indices conversion between their
+OID and SNMP type-specific, human-friendly representation.
+
+.. code-block:: bash
+
+   ifEntry OBJECT-TYPE
+       SYNTAX      IfEntry
+       INDEX   { ifIndex }
+   ::= { ifTable 1 }
+
+   ifIndex OBJECT-TYPE
+       SYNTAX      InterfaceIndex
+   ::= { ifEntry 1 }
+
+   ifDescr OBJECT-TYPE
+       SYNTAX      DisplayString (SIZE (0..255))
+   ::= { ifEntry 2 }
+
+   InterfaceIndex ::= TEXTUAL-CONVENTION
+       DISPLAY-HINT "d"
+       SYNTAX       Integer32 (1..2147483647)
+
+In PySNMP parlance:
+
+.. code-block:: python
+
+   >>> x = ObjectIdentity('IF-MIB', 'ifDescr', 123)
+   >>> # ... calling MIB lookup ...
+   >>> str(x)
+   '1.3.6.1.2.1.2.2.1.2.123'
+
+Some SNMP tables are indexed by many indices. Each of these indices
+become parts of OID concatinated to each other and ultimately to
+MIB object OID.
+
+From semantic standpoint, each index reflects an important and
+distinct property of a MIB object.
+
+.. code-block:: bash
+
+   tcpConnectionEntry OBJECT-TYPE
+       SYNTAX  TcpConnectionEntry
+       INDEX   { tcpConnectionLocalAddressType,
+                 tcpConnectionLocalAddress,
+                 tcpConnectionLocalPort,
+                 tcpConnectionRemAddressType,
+                 tcpConnectionRemAddress,
+                 tcpConnectionRemPort }
+   ::= { tcpConnectionTable 1 }
+
+   tcpConnectionLocalPort OBJECT-TYPE
+       SYNTAX     InetPortNumber
+   ::= { tcpConnectionEntry 3 }
+
+PySNMP's :py:class:`~pysnmp.smi.rfc1902.ObjectIdentity` class takes
+any number of indices in human-friendly representation and converts
+them into full OID:
+
+.. code-block:: python
+
+   >>> x = ObjectIdentity('TCP-MIB', 'tcpConnectionState',
+   ...                    'ipv4', '195.218.254.105', 41511,
+   ...                    'ipv4', '194.67.1.250', 993)
+   >>> # ... calling MIB lookup ...
+   >>> str(x)
+   '1.3.6.1.2.1.6.19.1.7.1.4.195.218.254.105.41511.1.4.194.67.1.250.993'
+
+Let's read TCP-MIB::tcpConnectionState object for a TCP connection:
+
+.. code-block:: python
+
+   >>> from pysnmp.hlapi import *
+   >>>
+   >>> g = getCmd(SnmpEngine(),
+   ...            CommunityData('public'),
+   ...            UdpTransportTarget(('demo.snmplabs.com', 161)),
+   ...            ContextData(),
+   ...            ObjectType(ObjectIdentity('TCP-MIB', 'tcpConnectionState',
+   ...                                      'ipv4', '195.218.254.105', 41511,
+   ...                                      'ipv4', '194.67.1.250', 993)
+   >>> next(g)
+   (None, 0, 0, [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.6.19.1.7.1.4.195.218.254.105.41511.1.4.194.67.1.250.993')), Integer(5))])
+
+More SNMP command operations
+----------------------------
+
+SNMP allows you to request a MIB object that is "next" to the given
+one. That way you can read MIB objects you are not aware about in
+advance.
+
+.. code-block:: python
+
+   >>> from pysnmp.hlapi import *
+   >>> g = nextCmd(SnmpEngine(),
+   ...             CommunityData('public'),
+   ...             UdpTransportTarget(('demo.snmplabs.com', 161)),
+   ...             ContextData(),
+   ...             ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr')))
+   >>> next(g)
+   (None, 0, 0, [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.1.0'), DisplayString('SunOS zeus.snmplabs.com'))])
+   >>> next(g)
+   (None, 0, 0, [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.2.0'), ObjectIdentity(ObjectIdentifier('1.3.6.1.4.1.8072.3.2.10')))])
+
+Iteration over the generator object "walk" over SNMP agent's MIB objects.
 

@@ -219,7 +219,7 @@ Both SNMP managed and managing entities could consume MIB information.
 
 From human perspective, MIB is a text file written in a subset of
 ASN.1 language. We maintain `a collection
-<http://mibs.snmmplabs.com/asn1/>`_ of 9000+ MIB modules that you can
+<http://mibs.snmplabs.com/asn1/>`_ of 9000+ MIB modules that you can
 use for your projects.
 
 PySNMP converts ASN.1 MIB files into Python modules, then SNMP
