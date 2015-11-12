@@ -1,6 +1,13 @@
 
-Revision 4.3.1, work in progress
+Revision 4.3.2, work in progress
 --------------------------------
+
+Repository `tarball download <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/pysnmp/?view=tar>`_
+
+- No changes yet
+
+Revision 4.3.1, released 12-11-2015
+-----------------------------------
 
 Repository `tarball download <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/pysnmp/?view=tar>`_
 
