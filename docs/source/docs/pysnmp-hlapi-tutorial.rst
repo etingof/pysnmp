@@ -2,12 +2,13 @@
 .. toctree::
    :maxdepth: 2
 
-High-level PySNMP tutorial
-==========================
+Common operations
+=================
 
 In this tutorial we will gradually build and run a few different
 SNMP command requests and notifications. We will be using PySNMP
-synchronous high-level API which is the simplest to use.
+synchronous :doc:`high-level API </docs/api-reference>`
+which is the simplest to use.
 
 Creating SNMP Engine
 --------------------
@@ -56,7 +57,7 @@ SNMP version we pass :py:class:`~pysnmp.hlapi.UsmUserData` class
 instance.
 
 SNMP community name, as well as the choice between SNMP v1 and v2c,
-is conveyed to SNMP LCD via :py:class:`~pysnmp.hlapi.auth.CommunityData`
+is conveyed to SNMP LCD via :py:class:`~pysnmp.hlapi.CommunityData`
 object.
 
 .. code-block:: python
@@ -68,7 +69,7 @@ object.
    >>> CommunityData('public', mpModel=1)  # SNMPv2c
    CommunityData('public')
 
-Use of :py:class:`~pysnmp.hlapi.auth.UsmUserData` object for LCD
+Use of :py:class:`~pysnmp.hlapi.UsmUserData` object for LCD
 configuration implies using SNMPv3. Besides setting up USM user name,
 *UsmUserData* object can also carry crypto keys and crypto protocols
 to SNMP engine LCD.
@@ -226,7 +227,7 @@ For scalar MIB objects index is '0' by convention. The
    (1, 3, 6, 1, 2, 1, 1, 1, 0)
 
 We will be reading *sysDescr* scalar MIB object instance as defined
-in *SNMPv2-MIB* module.
+in `SNMPv2-MIB <http://mibs.snmplabs.com/asn1/SNMPv2-MIB>`_ module.
 
 .. code-block:: python
 
@@ -237,6 +238,13 @@ in *SNMPv2-MIB* module.
    ...            ContextData(),
    ...            ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)))
 
+By default PySNMP will search your local filesystem for ASN.1 MIB files
+you refer to. It can also be configured to automatically download
+them from remove hosts, as
+:doc:`shown </examples/hlapi/asyncore/sync/manager/cmdgen/mib-tweaks>`
+in the examples. We maintain a
+`collection <http://mibs.snmplabs.com/asn1/>`_ of ASN.1 MIB modules
+that you can use in your SNMP projects.
 
 Reading scalar value
 --------------------
@@ -577,3 +585,26 @@ object OIDs to current values.
    ... )
    >>> next(g)
    (None, 0, 0, [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.3.0'), TimeTicks(0)), ObjectType(ObjectIdentity('1.3.6.1.6.3.1.1.4.1.0'), ObjectIdentity('1.3.6.1.6.3.1.1.5.4')), ObjectType(ObjectName('1.3.6.1.2.1.2.2.1.1.123'), InterfaceIndex(123)), ObjectType(ObjectIdentity('1.3.6.1.2.1.2.2.1.7.123'), Integer(3)), ObjectType(ObjectIdentity('1.3.6.1.2.1.2.2.1.8.123'), Integer(1))]) 
+
+High-volume messaging
+---------------------
+
+When in comes to managing large network, reading MIB objects
+sequentially introduces latency. By some point the latency becomes
+intolerable. Solutions to parallelize queries are well known - you
+could do that by offloading individual operations into multiple
+processes, or multiple threads of execution or build your application
+around the asynchronous I/O model.
+
+Compared to other solutions, asynchronous model is most lightweight
+and scalable. The idea is simple: never wait for I/O - do something
+else whenever possible. The back side of this is that execution flow
+becomes non-linear what hurts program analysis by human reader.
+
+PySNMP high-level API is adapted to work with three popular
+asynchronous I/O frameworks - :mod:`asyncore`, :mod:`twisted` and
+:mod:`asyncio`.
+Please, refer to PySNMP :doc:`library reference </docs/api-reference>`
+and :doc:`examples </examples/contents>` for more information on
+asynchronous API.
+
