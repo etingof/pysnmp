@@ -46,5 +46,5 @@ just cut&paste the following code into your interactive Python session:
 :download:`Download</../../examples/hlapi/asyncore/sync/agent/ntforg/default-v1-trap.py>` script.
 
 For more sophisticated examples and use cases please refer to
-:doc:`examples <examples/contents>` and :doc:`library reference <docs/contents>`
+:doc:`examples <examples/contents>` and :doc:`library reference <docs/api-reference>`
 pages.

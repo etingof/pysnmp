@@ -263,7 +263,7 @@ out, response is awaited, received and parsed.
    (None, 0, 0, [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.3.0'), TimeTicks(44430646))])
 
 Working with SNMP tables
-++++++++++++++++++++++++
+------------------------
 
 SNMP defines a concept of table. Tables are used when a single given
 MIB object may apply to many instances of a property. For example,
@@ -360,12 +360,14 @@ Let's read TCP-MIB::tcpConnectionState object for a TCP connection:
    >>> next(g)
    (None, 0, 0, [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.6.19.1.7.1.4.195.218.254.105.41511.1.4.194.67.1.250.993')), Integer(5))])
 
-More SNMP command operations
-----------------------------
+SNMP command operations
+-----------------------
 
 SNMP allows you to request a MIB object that is "next" to the given
 one. That way you can read MIB objects you are not aware about in
-advance.
+advance. MIB objects are conceptually sorted by their OIDs.
+This feature is implemented by the :py:func:`~pysnmp.hlapi.nextCmd`
+function.
 
 .. code-block:: python
 
@@ -382,3 +384,196 @@ advance.
 
 Iteration over the generator object "walk" over SNMP agent's MIB objects.
 
+SNMPv2c introduced significant optimization to the *GETNEXT* command -
+the revised version is called *GETBULK* and is capable to gather and
+respond a bunch of "next" MIB objects at once. Additional
+non-repeaters and max-repetitions parameters can be used to influence
+MIB objects batching.
+
+PySNMP hides this *GETBULK* optimization at the protocol level, the
+:py:func:`~pysnmp.hlapi.bulkCmd` function exposes the same generator
+API as *getNext()* for convenience.
+
+.. code-block:: python
+
+   >>> from pysnmp.hlapi import *
+   >>>
+   >>> N, R = 0, 25
+   >>> g = bulkCmd(SnmpEngine(),
+   ...             CommunityData('public'),
+   ...             UdpTransportTarget(('demo.snmplabs.com', 161)),
+   ...             ContextData(),
+   ...             N, R,
+   ...             ObjectType(ObjectIdentity('1.3.6')))
+   >>>
+   >>> next(g)
+   (None, 0, 0, [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.1.0'), DisplayString('SunOS zeus.snmplabs.com'))])
+   >>> next(g)
+   (None, 0, 0, [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.2.0'), ObjectIdentifier('1.3.6.1.4.1.20408'))])
+
+Python generators can not only produce data, but it is also possible
+to send data into running generator object. That feature is used by
+the high-level API to repeat the same SNMP operation for a new set
+of MIB objects.
+
+.. code-block:: python
+
+   >>> from pysnmp.hlapi import *
+   >>>
+   >>> g = nextCmd(SnmpEngine(),
+   ...             CommunityData('public'),
+   ...             UdpTransportTarget(('demo.snmplabs.com', 161)),
+   ...             ContextData(),
+   ...             ObjectType(ObjectIdentity('IF-MIB', 'ifTable')))
+   >>>
+   >>> g.send([ObjectType(ObjectIdentity('IF-MIB', 'ifInOctets'))])
+   (None, 0, 0, [(ObjectType(ObjectIdentity('1.3.6.1.2.1.2.2.1.10.1'), Counter32(284817787))])
+
+You could operate on many unrelated MIB object just by listing them in
+a single PDU. Response PDU will carry a list of MIB objects and their
+values in exactly the same order as they were in request message.
+
+.. code-block:: python
+
+   >>> from pysnmp.hlapi import *
+   >>>
+   >>> g = getCmd(SnmpEngine(),
+   ...            CommunityData('public'),
+   ...            UdpTransportTarget(('demo.snmplabs.com', 161)),
+   ...            ContextData(),
+   ...            ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
+   ...            ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysUpTime', 0))
+   ... )
+   >>> next(g)
+   (None, 0, 0, [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.1.0'), DisplayString('SunOS zeus.snmplabs.com')), ObjectType(ObjectIdentity('1.3.6.1.2.1.1.3.0'), TimeTicks(44430646))])
+
+Configuration management part of SNMP relies on SNMP *SET* command.
+Although its implementation on managed entity's side proved to be
+somewhat demanding (due to locking and transactional behavior
+requirements). So vendors tend to leave it out thus rendering
+managed entity being read-only.
+
+PySNMP supports *SET* uniformly through :py:func:`~pysnmp.hlapi.setCmd`
+function.
+
+.. code-block:: python
+
+   >>> from pysnmp.hlapi import *
+   >>>
+   >>> g = setCmd(SnmpEngine(),
+   ...            CommunityData('public'),
+   ...            UdpTransportTarget(('demo.snmplabs.com', 161)),
+   ...            ContextData(),
+   ...            ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0), 'Linux i386')
+   ... )
+   >>> next(g)
+   (None, 0, 0, [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.1.0'), DisplayString('Linux i386'))])
+
+Sending SNMP notifications
+--------------------------
+
+Managed entity could send unsolicited messages to the managing entity.
+That is called notification in SNMP. Notifications help reduce
+polling, what may become a problem for large networks.
+
+SNMP notifications are enumerated and each has definite semantics.
+This is done through a special, high-level SMI construct called
+*NOTIFICATION-TYPE*. Like *OBJECT-TYPE*, that defines a MIB object,
+*NOTIFICATION-TYPE* has a unique OID, but instead of SNMP value
+references a sequence of other MIB objects. These MIB objects
+are specified with the *OBJECTS* clause and when notification is being
+sent, their current values are included into the notification message.
+
+.. code-block:: bash
+
+   linkUp NOTIFICATION-TYPE
+       OBJECTS { ifIndex, ifAdminStatus, ifOperStatus }
+       STATUS  current
+       DESCRIPTION
+           "..."
+   ::= { snmpTraps 4 }
+
+To model *NOTIFICATION-TYPE* construct in PySNMP, we have the
+:py:class:`~pysnmp.smi.rfc1902.NotificationType` class that is a
+container object. It is identified by the
+:py:class:`~pysnmp.smi.rfc1902.ObjectIdentity` class and reference a
+sequence of :py:class:`~pysnmp.smi.rfc1902.ObjectType` class
+instances.
+
+From behavior standpoint, *NotificationType* looks like a sequence of
+*ObjectType* class instances.
+
+.. code-block:: python
+
+   >>> from pysnmp.hlapi import *
+   >>>
+   >>> x = NotificationType(ObjectIdentity('IF-MIB', 'linkUp'))
+   >>> # ... calling MIB lookup ...
+   >>> >>> [ str(y) for x in n ]
+   ['SNMPv2-MIB::snmpTrapOID.0 = 1.3.6.1.6.3.1.1.5.3', 'IF-MIB::ifIndex = ', 'IF-MIB::ifAdminStatus = ', 'IF-MIB::ifOperStatus = ']
+
+Sending notification with PySNMP is not much different than sending
+SNMP command. The difference is in how PDU var-binds are built.
+There are two different kinds of notifications in SNMP: *trap* and
+*inform*.
+
+With *trap*, agent-to-manager communication is one-way - no response
+or acknowledgement is sent.
+
+.. code-block:: python
+
+   >>> from pysnmp.hlapi import *
+   >>>
+   >>> g = sendNotification(SnmpEngine(),
+   ...                      CommunityData('public'),
+   ...                      UdpTransportTarget(('demo.snmplabs.com', 162)),
+   ...                      ContextData(),
+   ...                      'trap',
+   ...                      NotificationType(ObjectIdentity('IF-MIB', 'linkUp'), instanceIndex=(123,))
+   ... )
+   >>> next(g)
+   (None, 0, 0, [])
+
+The *inform* notification is much like a command. The difference is in
+PDU format. Informs are used for manager-to-manager communication as
+well as for agent-to-manager.
+
+   >>> from pysnmp.hlapi import *
+   >>>
+   >>> g = sendNotification(SnmpEngine(),
+   ...                      CommunityData('public'),
+   ...                      UdpTransportTarget(('demo.snmplabs.com', 162)),
+   ...                      ContextData(),
+   ...                      'inform',
+   ...                      NotificationType(ObjectIdentity('IF-MIB', 'linkUp'), instanceIndex=(123,))
+   ... )
+   >>> next(g)
+   (None, 0, 0, [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.3.0'), TimeTicks(0)), ObjectType(ObjectIdentity('1.3.6.1.6.3.1.1.4.1.0'), ObjectIdentity('1.3.6.1.6.3.1.1.5.4')), ObjectType(ObjectName('1.3.6.1.2.1.2.2.1.1.123'), Null()), ObjectType(ObjectIdentity('1.3.6.1.2.1.2.2.1.7.123'), Null()), ObjectType(ObjectIdentity('1.3.6.1.2.1.2.2.1.8.123'), Null())])
+
+In the latter example you can see MIB objects (ifIndex, ifAdminStatus,
+ifOperStatus) being automatically expanded from IF-MIB::linkUp notification.
+To address specific row of SNMP table objects by index, the index part
+of MIB objects could be passed to *NotificationType* via
+*instanceIndex* parameter.
+
+As you can see, the actual values for expanded MIB objects are NULLs.
+That's because in these examples our simple scripts do not have access
+to those MIB objects. We can supply that missing information by
+passing *NotificationType* a dictionary-like object that maps MIB
+object OIDs to current values.
+
+   >>> from pysnmp.hlapi import *
+   >>>
+   >>> mib = {ObjectIdentifier('1.3.6.1.2.1.2.2.1.1.123'): 123,
+   ...        ObjectIdentifier('1.3.6.1.2.1.2.2.1.7.123'): 'testing',
+   ...        ObjectIdentifier('1.3.6.1.2.1.2.2.1.8.123'): 'up'}
+   >>>
+   >>> g = sendNotification(SnmpEngine(),
+   ...                      CommunityData('public'),
+   ...                      UdpTransportTarget(('demo.snmplabs.com', 162)),
+   ...                      ContextData(),
+   ...                      'inform',
+   ...                      NotificationType(ObjectIdentity('IF-MIB', 'linkUp'), instanceIndex=(123,), objects=mib)
+   ... )
+   >>> next(g)
+   (None, 0, 0, [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.3.0'), TimeTicks(0)), ObjectType(ObjectIdentity('1.3.6.1.6.3.1.1.4.1.0'), ObjectIdentity('1.3.6.1.6.3.1.1.5.4')), ObjectType(ObjectName('1.3.6.1.2.1.2.2.1.1.123'), InterfaceIndex(123)), ObjectType(ObjectIdentity('1.3.6.1.2.1.2.2.1.7.123'), Integer(3)), ObjectType(ObjectIdentity('1.3.6.1.2.1.2.2.1.8.123'), Integer(1))]) 
