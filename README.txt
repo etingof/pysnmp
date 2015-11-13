@@ -21,7 +21,7 @@ FEATURES
 * Twisted, Asyncio and Trollius integration
 * PySMI integration for dynamic MIB compilation
 * Python eggs and py2exe friendly
-* 100% Python, works with Python 2.4 though 3.4
+* 100% Python, works with Python 2.4 though 3.5
 * MT-safe (only if run locally to a thread)
 
 Features, specific to SNMPv3 model include:
@@ -142,25 +142,20 @@ REFERENCES
     http://www.ietf.org/rfc/rfc1155.txt - http://www.ietf.org/rfc/rfc1158.txt
     http://www.ietf.org/rfc/rfc1901.txt - http://www.ietf.org/rfc/rfc1909.txt
 
-[6] libsmi homepage
-    http://www.ibr.cs.tu-bs.de/projects/libsmi/
-    Use libsmi version > 0.4.5, possibly from libsmi SVN:
-    svn checkout http://www.ibr.cs.tu-bs.de/svn/libsmi
-
-[7] PySNMP mailing list archives:
+[6] PySNMP mailing list archives:
     http://sourceforge.net/mail/?group_id=14735
 
-[8] PyASN1 project homepage:
+[7] PyASN1 project homepage:
     http://pyasn1.sf.net
 
-[9] PyCrypto package:
+[8] PyCrypto package:
     http://pycrypto.org
 
-[10] PySMI package:
+[9] PySMI package:
     http://sf.net/projects/pysmi
 
 
-[11] Python Software Foundation
+[10] Python Software Foundation
     http://www.python.org/psf/
 
 =-=-=

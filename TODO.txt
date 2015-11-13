@@ -16,8 +16,6 @@ Sparse notes on major existing problems/plans
 * MsgAndPduDispatcher should use TransportDispatcher jobs interface
   to handle SNMPv3 handshake
 
-* Implement 'oneliner' API for v1arch, possibly compatible with v3arch API
-
 * Implement prettyIn value format parser at TC
 
 * Disallow SNMP access to USM objects
@@ -54,12 +52,3 @@ Sparse notes on major existing problems/plans
   may need a means to deal only with specific node types.
 
 * redesign proto.errind.ErrorIndication
-
-* move LCD and var-bind management routines from Async* classes
-
-* make oneliner helper routines more general, not bound to asyncore-based
-  implementation
-
-* improve oneliner modules layout to make it possible to create more
-  transport-specific oneliner interfaces
- 
