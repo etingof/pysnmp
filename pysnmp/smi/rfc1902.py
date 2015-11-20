@@ -238,6 +238,34 @@ class ObjectIdentity:
         return self
 
     def addMibSource(self, *mibSources):
+        """Adds path to repository to search PySNMP MIB files.
+
+        Parameters
+        ----------
+        *mibSources :
+            one or more paths to search or Python package names to import
+            and search for PySNMP MIB modules.
+
+        Returns
+        -------
+        : :py:class:`~pysnmp.smi.rfc1902.ObjectIdentity`
+            reference to itself
+
+        Notes
+        -----
+        Normally, ASN.1-to-Python MIB modules conversion is performed
+        automatically through PySNMP/PySMI interaction. ASN1 MIB modules
+        could also be manually compiled into Python via the
+        `mibdump.py <http://pysmi.sourceforge.net/user-perspective.html>`_
+        tool.
+
+        Examples
+        --------
+        >>> ObjectIdentity('SNMPv2-MIB', 'sysDescr').addMibSource('/opt/pysnmp/mibs', 'pysnmp_mibs')
+        ObjectIdentity('SNMPv2-MIB', 'sysDescr')
+        >>>
+
+        """
         if self.__mibSourcesToAdd is None:
             self.__mibSourcesToAdd = mibSources
         else:
@@ -246,6 +274,26 @@ class ObjectIdentity:
 
     # provides deferred MIBs load
     def loadMibs(self, *modNames):
+        """Schedules search and load of given MIB modules.
+
+        Parameters
+        ----------
+        *modNames:
+            one or more MIB module names to load up and use for MIB
+            variables resolution purposes.
+
+        Returns
+        -------
+        : :py:class:`~pysnmp.smi.rfc1902.ObjectIdentity`
+            reference to itself
+
+        Examples
+        --------
+        >>> ObjectIdentity('SNMPv2-MIB', 'sysDescr').loadMibs('IF-MIB', 'TCP-MIB')
+        ObjectIdentity('SNMPv2-MIB', 'sysDescr')
+        >>>
+
+        """
         if self.__modNamesToLoad is None:
             self.__modNamesToLoad = modNames
         else:
@@ -662,14 +710,91 @@ class ObjectType:
         return self.__state & self.stClean
 
     def addAsn1MibSource(self, *asn1Sources, **kwargs):
+        """Adds path to a repository to search ASN.1 MIB files.
+
+        Parameters
+        ----------
+        *asn1Sources :
+            one or more URL in form of :py:obj:`str` identifying local or
+            remote ASN.1 MIB repositories. Path must include the *@mib@*
+            component which will be replaced with MIB module name at the
+            time of search.
+
+        Returns
+        -------
+        : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
+            reference to itself
+
+        Notes
+        -----
+        Please refer to :py:class:`~pysmi.reader.localfile.FileReader`,
+        :py:class:`~pysmi.reader.httpclient.HttpReader` and
+        :py:class:`~pysmi.reader.ftpclient.FtpReader` classes for
+        in-depth information on ASN.1 MIB lookup.
+
+        Examples
+        --------
+        >>> ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr')).addAsn1Source('http://mibs.snmplabs.com/asn1/@mib@')
+        ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr'))
+        >>>
+
+        """
         self.__args[0].addAsn1MibSource(*asn1Sources, **kwargs)
         return self
 
     def addMibSource(self, *mibSources):
+        """Adds path to repository to search PySNMP MIB files.
+
+        Parameters
+        ----------
+        *mibSources :
+            one or more paths to search or Python package names to import
+            and search for PySNMP MIB modules.
+
+        Returns
+        -------
+        : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
+            reference to itself
+
+        Notes
+        -----
+        Normally, ASN.1-to-Python MIB modules conversion is performed
+        automatically through PySNMP/PySMI interaction. ASN1 MIB modules
+        could also be manually compiled into Python via the
+        `mibdump.py <http://pysmi.sourceforge.net/user-perspective.html>`_
+        tool.
+
+        Examples
+        --------
+        >>> ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr')).addMibSource('/opt/pysnmp/mibs', 'pysnmp_mibs')
+        ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr'))
+        >>>
+
+        """
         self.__args[0].addMibSource(*mibSources)
         return self
 
     def loadMibs(self, *modNames):
+        """Schedules search and load of given MIB modules.
+
+        Parameters
+        ----------
+        *modNames:
+            one or more MIB module names to load up and use for MIB
+            variables resolution purposes.
+
+        Returns
+        -------
+        : :py:class:`~pysnmp.smi.rfc1902.ObjectType`
+            reference to itself
+
+        Examples
+        --------
+        >>> ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr')).loadMibs('IF-MIB', 'TCP-MIB')
+        ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr'))
+        >>>
+
+        """
         self.__args[0].loadMibs(*modNames)
         return self
 
@@ -870,14 +995,91 @@ class NotificationType:
         return self
 
     def addAsn1MibSource(self, *asn1Sources, **kwargs):
+        """Adds path to a repository to search ASN.1 MIB files.
+
+        Parameters
+        ----------
+        *asn1Sources :
+            one or more URL in form of :py:obj:`str` identifying local or
+            remote ASN.1 MIB repositories. Path must include the *@mib@*
+            component which will be replaced with MIB module name at the
+            time of search.
+
+        Returns
+        -------
+        : :py:class:`~pysnmp.smi.rfc1902.NotificationType`
+            reference to itself
+
+        Notes
+        -----
+        Please refer to :py:class:`~pysmi.reader.localfile.FileReader`,
+        :py:class:`~pysmi.reader.httpclient.HttpReader` and
+        :py:class:`~pysmi.reader.ftpclient.FtpReader` classes for
+        in-depth information on ASN.1 MIB lookup.
+
+        Examples
+        --------
+        >>> NotificationType(ObjectIdentity('IF-MIB', 'linkDown'), (), {}).addAsn1Source('http://mibs.snmplabs.com/asn1/@mib@')
+        NotificationType(ObjectIdentity('IF-MIB', 'linkDown'), (), {})
+        >>>
+
+        """
         self.__objectIdentity.addAsn1MibSource(*asn1Sources, **kwargs)
         return self
 
     def addMibSource(self, *mibSources):
+        """Adds path to repository to search PySNMP MIB files.
+
+        Parameters
+        ----------
+        *mibSources :
+            one or more paths to search or Python package names to import
+            and search for PySNMP MIB modules.
+
+        Returns
+        -------
+        : :py:class:`~pysnmp.smi.rfc1902.NotificationType`
+            reference to itself
+
+        Notes
+        -----
+        Normally, ASN.1-to-Python MIB modules conversion is performed
+        automatically through PySNMP/PySMI interaction. ASN1 MIB modules
+        could also be manually compiled into Python via the
+        `mibdump.py <http://pysmi.sourceforge.net/user-perspective.html>`_
+        tool.
+
+        Examples
+        --------
+        >>> NotificationType(ObjectIdentity('IF-MIB', 'linkDown'), (), {}).addMibSource('/opt/pysnmp/mibs', 'pysnmp_mibs')
+        NotificationType(ObjectIdentity('IF-MIB', 'linkDown'), (), {})
+        >>>
+
+        """
         self.__objectIdentity.addMibSource(*mibSources)
         return self
 
     def loadMibs(self, *modNames):
+        """Schedules search and load of given MIB modules.
+
+        Parameters
+        ----------
+        *modNames:
+            one or more MIB module names to load up and use for MIB
+            variables resolution purposes.
+
+        Returns
+        -------
+        : :py:class:`~pysnmp.smi.rfc1902.NotificationType`
+            reference to itself
+
+        Examples
+        --------
+        >>> NotificationType(ObjectIdentity('IF-MIB', 'linkDown'), (), {}).loadMibs('IF-MIB', 'TCP-MIB')
+        NotificationType(ObjectIdentity('IF-MIB', 'linkDown'), (), {})
+        >>>
+
+        """
         self.__objectIdentity.loadMibs(*modNames)
         return self
 
