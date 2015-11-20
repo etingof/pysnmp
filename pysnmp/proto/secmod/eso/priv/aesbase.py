@@ -1,5 +1,9 @@
-# AES 192/256 bit encryption (Internet draft)
-# http://tools.ietf.org/html/draft-blumenthal-aes-usm-04
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 from pysnmp.proto.secmod.rfc3826.priv import aes
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
 from pysnmp.proto.secmod.rfc3414 import localkey

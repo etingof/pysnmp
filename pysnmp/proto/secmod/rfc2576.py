@@ -1,4 +1,9 @@
-# SNMP v1 & v2c security models implementation
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 import sys
 from pyasn1.codec.ber import encoder
 from pyasn1.error import PyAsn1Error

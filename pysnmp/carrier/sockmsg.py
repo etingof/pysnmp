@@ -1,4 +1,9 @@
 #
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 # The following routines act like sendto()/recvfrom() calls but additionally
 # support local address retrieval (what can be useful when listening on
 # 0.0.0.0 or [::]) and source address spoofing (for transparent proxying).

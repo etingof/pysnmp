@@ -1,4 +1,9 @@
-# Implements asyncore-based UDP transport domain
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 from socket import AF_INET
 from pysnmp.carrier.base import AbstractTransportAddress
 from pysnmp.carrier.asyncore.dgram.base import DgramSocketTransport

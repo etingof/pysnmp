@@ -4,7 +4,7 @@ Revision 4.3.2, work in progress
 
 Repository `tarball download <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/pysnmp/?view=tar>`_
 
-- No changes yet
+- Copyright notice added to non-trivial source code files.
 
 Revision 4.3.1, released 12-11-2015
 -----------------------------------

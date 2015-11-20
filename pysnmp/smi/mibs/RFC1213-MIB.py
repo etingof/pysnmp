@@ -1,4 +1,9 @@
 #
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 # PySNMP MIB module RFC1158-MIB (http://pysnmp.sf.net)
 # It is a stripped version of MIB that contains only symbols that is
 # unique to SMIv1 and have no analogues in SMIv2

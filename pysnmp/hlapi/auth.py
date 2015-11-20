@@ -1,3 +1,9 @@
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 from pysnmp.entity import config
 from pysnmp import error
 from pyasn1.compat.octets import null

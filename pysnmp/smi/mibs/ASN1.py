@@ -1,4 +1,9 @@
-# ASN.1 objects used in SNMP
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 from pyasn1.type import univ
 from pysnmp.proto import rfc1902
 

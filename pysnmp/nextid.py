@@ -1,9 +1,15 @@
-# Return a next value in a reasonably MT-safe manner
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 import random
 
 random.seed()
 
 class Integer:
+    """Return a next value in a reasonably MT-safe manner"""
     def __init__(self, maximum, increment=256):
         self.__maximum = maximum
         if increment >= maximum:

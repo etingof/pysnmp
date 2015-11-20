@@ -1,9 +1,15 @@
-# Void Access Control Model
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 from pysnmp.proto import errind, error
 from pysnmp import debug
 
 # rfc3415 3.2
 class Vacm:
+    """Void Access Control Model"""
     accessModelID = 0
     def isAccessAllowed(self,
                         snmpEngine,

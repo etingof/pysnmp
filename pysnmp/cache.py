@@ -1,5 +1,11 @@
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 # Limited-size dictionary-like class to use for caches
-
+#
 class Cache:
     def __init__(self, maxSize=256):
         self.__maxSize = maxSize

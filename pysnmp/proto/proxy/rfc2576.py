@@ -1,4 +1,9 @@
-# PDU v1/v2c two-way proxy
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 from pysnmp.proto import rfc1905, rfc3411, error
 from pysnmp.proto.api import v1, v2c
 from pysnmp import debug

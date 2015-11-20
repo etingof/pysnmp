@@ -1,7 +1,13 @@
-"""Ordered dictionaries classes used for indices"""
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 from bisect import bisect
 
 class OrderedDict(dict):
+    """Ordered dictionary used for indices"""
     def __init__(self, **kwargs):
         self.__keys = []
         self.__dirty = True
@@ -86,6 +92,7 @@ class OrderedDict(dict):
         return self.__keysLens
 
 class OidOrderedDict(OrderedDict):
+    """OID-ordered dictionary used for indices"""
     def __init__(self, **kwargs):
         self.__keysCache = {}
         OrderedDict.__init__(self, **kwargs)

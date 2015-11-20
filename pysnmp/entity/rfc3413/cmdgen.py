@@ -1,3 +1,9 @@
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 import sys
 from pysnmp.entity.rfc3413 import config
 from pysnmp.proto import rfc1905, errind

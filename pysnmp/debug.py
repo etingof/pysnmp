@@ -1,3 +1,9 @@
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 import logging
 from pyasn1.compat.octets import octs2ints
 from pysnmp import error

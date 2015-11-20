@@ -1,5 +1,9 @@
-# Initial SNMP engine configuration functions. During further operation,
-# SNMP engine might be configured remotely (through SNMP).
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 from pyasn1.compat.octets import null
 from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha, noauth

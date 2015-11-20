@@ -1,8 +1,12 @@
 #
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 # THESE FUNCTIONS ARE OBSOLETE AND MUST NOT BE USED!
 # USE pysnmp.entity.rfc3413.oneliner.mibvar INSTEAD
 #
-# MIB variable pretty printers/parsers
 from pyasn1.type import univ
 from pysnmp.smi.error import NoSuchObjectError
 

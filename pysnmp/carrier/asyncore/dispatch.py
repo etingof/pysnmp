@@ -1,4 +1,9 @@
-# Implements I/O over asynchronous sockets
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 from time import time
 from sys import exc_info
 from traceback import format_exception

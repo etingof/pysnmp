@@ -1,3 +1,9 @@
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 import sys
 from pysnmp.proto import rfc1902, rfc1905
 from pysnmp.proto.api import v2c
@@ -725,7 +731,7 @@ class ObjectType:
         try:
             self.__args[1] = self.__args[0].getMibNode().getSyntax().clone(self.__args[1])
         except PyAsn1Error:
-            raise SmiError('Value %r to type %r convertion failure: %s' % (self.__args[1], self.__args[0].getMibNode().getSyntax().__class__.__name__, sys.exc_info()[1]))
+            raise SmiError('MIB object %r having type %r failed to cast value %r: %s' % (self.__args[0].prettyPrint(), self.__args[0].getMibNode().getSyntax().__class__.__name__, self.__args[1], sys.exc_info()[1]))
 
         if self.__args[1].isSuperTypeOf(rfc1902.ObjectIdentifier()):
             self.__args[1] = ObjectIdentity(self.__args[1]).resolveWithMib(mibViewController)

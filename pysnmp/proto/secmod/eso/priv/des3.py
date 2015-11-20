@@ -1,5 +1,9 @@
-# Reeder 3DES-EDE for USM (Internet draft)
-# http://www.snmp.com/eso/draft-reeder-snmpv3-usm-3desede-00.txt
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 import random
 from pysnmp.proto.secmod.rfc3414.priv import base
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
@@ -26,6 +30,10 @@ random.seed()
 # 5.1.1
 
 class Des3(base.AbstractEncryptionService):
+    """Reeder 3DES-EDE for USM (Internet draft).
+
+       http://www.snmp.com/eso/draft-reeder-snmpv3-usm-3desede-00.txt
+    """
     serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 3) # usm3DESEDEPrivProtocol
     keySize = 32
     _localInt = random.randrange(0, 0xffffffff)

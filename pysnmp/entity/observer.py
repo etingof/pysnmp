@@ -1,21 +1,26 @@
 #
-# This is a simple facility for exposing internal SNMP Engine
-# working details to pysnmp applications. These details are
-# basically local scope variables at a fixed point of execution.
+# This file is part of pysnmp software.
 #
-# Two modes of operations are offered:
-# 1. App can request an execution point context by execution point ID.
-# 2. App can register its callback function (and context) to be invoked
-#    once execution reaches specified point. All local scope variables
-#    will be passed to the callback as in #1.
-#
-# It's important to realize that execution context is only guaranteed
-# to exist to functions that are at the same or deeper level of invocation
-# relative to execution point specified.
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
 #
 from pysnmp import error
 
 class MetaObserver:
+    """This is a simple facility for exposing internal SNMP Engine
+       working details to pysnmp applications. These details are
+       basically local scope variables at a fixed point of execution.
+
+       Two modes of operations are offered:
+       1. App can request an execution point context by execution point ID.
+       2. App can register its callback function (and context) to be invoked
+          once execution reaches specified point. All local scope variables
+          will be passed to the callback as in #1.
+
+       It's important to realize that execution context is only guaranteed
+       to exist to functions that are at the same or deeper level of invocation
+       relative to execution point specified.
+    """
     def __init__(self):
         self.__observers = {}
         self.__contexts = {}

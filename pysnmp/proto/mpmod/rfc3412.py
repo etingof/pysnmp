@@ -1,4 +1,9 @@
-# SNMP v3 message processing model implementation
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 import sys
 from pysnmp.proto.mpmod.base import AbstractMessageProcessingModel
 from pysnmp.proto import rfc1905, rfc3411, api, errind, error

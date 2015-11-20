@@ -1,3 +1,9 @@
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 import random
 from pyasn1.type import univ
 from pysnmp.proto.secmod.rfc3414.priv import base

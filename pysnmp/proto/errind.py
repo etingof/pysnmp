@@ -1,8 +1,11 @@
-# SNMPv3 error-indication values.
-# Object below could be compared with literals thus are backward-compatible
-# with original pysnmperror-indication values.
-
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 class ErrorIndication:
+    """SNMPv3 error-indication values"""
     def __init__(self, descr=None):
         self.__value = self.__descr = self.__class__.__name__[0].lower() + self.__class__.__name__[1:]
         if descr:

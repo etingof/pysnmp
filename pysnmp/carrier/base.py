@@ -1,4 +1,9 @@
-# Abstract I/O dispatcher. Defines standard dispatcher API
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 from pysnmp.carrier import error
 
 class TimerCallable:

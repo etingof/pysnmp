@@ -1,4 +1,9 @@
-# SNMP v3 USM model services
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 import time, sys
 from pysnmp.proto.secmod.base import AbstractSecurityModel
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha, noauth

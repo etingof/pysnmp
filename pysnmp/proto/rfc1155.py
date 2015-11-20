@@ -1,3 +1,9 @@
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 from pyasn1.type import univ, tag, constraint, namedtype
 from pyasn1.error import PyAsn1Error
 from pysnmp.proto import error

@@ -1,4 +1,9 @@
 #
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 # This is a Python 2.6- version of the same file at level up
 #
 from pysnmp.hlapi.asyncore import cmdgen

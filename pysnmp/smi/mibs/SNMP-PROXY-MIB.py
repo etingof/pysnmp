@@ -1,4 +1,9 @@
 #
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 # PySNMP MIB module SNMP-PROXY-MIB (http://pysnmp.sf.net)
 # ASN.1 source file:///usr/share/snmp/mibs/SNMP-PROXY-MIB.txt
 # Produced by pysmi-0.0.5 at Sat Sep 19 23:02:14 2015

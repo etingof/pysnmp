@@ -1,4 +1,9 @@
 #
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 # PySNMP MIB module PYSNMP-SOURCE-MIB (http://pysnmp.sf.net)
 # ASN.1 source file:///Users/ilya/src/py/pysnmp/docs/mibs/PYSNMP-SOURCE-MIB.txt
 # Produced by pysmi-0.0.5 at Sat Sep 19 16:25:01 2015

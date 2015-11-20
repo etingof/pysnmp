@@ -1,5 +1,8 @@
 #
-# WARNING: some of the classes below are manually implemented
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
 #
 try:
     from socket import inet_ntop, inet_pton, AF_INET

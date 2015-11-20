@@ -1,3 +1,9 @@
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 import sys
 from pysnmp.proto import rfc1902, rfc1905, rfc3411, errind, error
 from pysnmp.proto.api import v2c  # backend is always SMIv2 compliant

@@ -1,4 +1,9 @@
-# View-based Access Control Model
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 from pysnmp.smi.error import NoSuchInstanceError
 from pysnmp.proto import errind, error
 from pysnmp import debug
@@ -7,6 +12,7 @@ __powOfTwoSeq = [128, 64, 32, 16, 8, 4, 2, 1]
 
 # 3.2
 class Vacm:
+    """View-based Access Control Model"""
     accessModelID = 3
     def isAccessAllowed(self,
                         snmpEngine,

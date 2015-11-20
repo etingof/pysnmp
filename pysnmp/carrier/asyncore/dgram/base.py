@@ -1,4 +1,9 @@
-# Implements asyncore-based generic DGRAM transport
+#
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# License: http://pysnmp.sf.net/license.html
+#
 import socket, errno, sys
 from pysnmp.carrier.asyncore.base import AbstractSocketTransport
 from pysnmp.carrier import sockfix, sockmsg, error
