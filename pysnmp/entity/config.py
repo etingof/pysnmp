@@ -71,14 +71,14 @@ def addV1System(snmpEngine, communityIndex, communityName,
         ((snmpCommunityEntry.name + (8,) + tblIdx, 'destroy'),)
     )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((snmpCommunityEntry.name + (8,) + tblIdx, 'createAndGo'),
-         (snmpCommunityEntry.name + (1,) + tblIdx, communityIndex),
+        ((snmpCommunityEntry.name + (1,) + tblIdx, communityIndex),
          (snmpCommunityEntry.name + (2,) + tblIdx, communityName),
          (snmpCommunityEntry.name + (3,) + tblIdx, securityName is not None and securityName or communityIndex),
          (snmpCommunityEntry.name + (4,) + tblIdx, contextEngineId),
          (snmpCommunityEntry.name + (5,) + tblIdx, contextName),
          (snmpCommunityEntry.name + (6,) + tblIdx, transportTag),
-         (snmpCommunityEntry.name + (7,) + tblIdx, 'nonVolatile'))
+         (snmpCommunityEntry.name + (7,) + tblIdx, 'nonVolatile'),
+         (snmpCommunityEntry.name + (8,) + tblIdx, 'createAndGo'))
     )
 
 def delV1System(snmpEngine, communityIndex):
@@ -127,12 +127,12 @@ def addV3User(snmpEngine, userName,
         ((usmUserEntry.name + (13,) + tblIdx1, 'destroy'),)
     )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((usmUserEntry.name + (13,) + tblIdx1, 'createAndGo'),
-         (usmUserEntry.name + (2,) + tblIdx1, userName),
+        ((usmUserEntry.name + (2,) + tblIdx1, userName),
          (usmUserEntry.name + (3,) + tblIdx1, securityName),
          (usmUserEntry.name + (4,) + tblIdx1, zeroDotZero.name),
          (usmUserEntry.name + (5,) + tblIdx1, authProtocol),
-         (usmUserEntry.name + (8,) + tblIdx1, privProtocol))
+         (usmUserEntry.name + (8,) + tblIdx1, privProtocol),
+         (usmUserEntry.name + (13,) + tblIdx1, 'createAndGo'))
     )
 
     # Localize keys
@@ -170,9 +170,10 @@ def addV3User(snmpEngine, userName,
         ((pysnmpUsmSecretEntry.name + (4,) + tblIdx2, 'destroy'),)
     )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((pysnmpUsmSecretEntry.name + (4,) + tblIdx2, 'createAndGo'),
+        ((pysnmpUsmSecretEntry.name + (1,) + tblIdx2, userName),
          (pysnmpUsmSecretEntry.name + (2,) + tblIdx2, authKey),
-         (pysnmpUsmSecretEntry.name + (3,) + tblIdx2, privKey),)
+         (pysnmpUsmSecretEntry.name + (3,) + tblIdx2, privKey),
+         (pysnmpUsmSecretEntry.name + (4,) + tblIdx2, 'createAndGo'))
     )
 
 def delV3User(snmpEngine,
@@ -231,12 +232,12 @@ def addTargetParams(snmpEngine, name, securityName, securityLevel, mpModel=3):
         ((snmpTargetParamsEntry.name + (7,) + tblIdx, 'destroy'),)
     )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((snmpTargetParamsEntry.name + (7,) + tblIdx, 'createAndGo'),
-         (snmpTargetParamsEntry.name + (1,) + tblIdx, name),
+        ((snmpTargetParamsEntry.name + (1,) + tblIdx, name),
          (snmpTargetParamsEntry.name + (2,) + tblIdx, mpModel),
          (snmpTargetParamsEntry.name + (3,) + tblIdx, securityModel),
          (snmpTargetParamsEntry.name + (4,) + tblIdx, securityName),
-         (snmpTargetParamsEntry.name + (5,) + tblIdx, securityLevel))
+         (snmpTargetParamsEntry.name + (5,) + tblIdx, securityLevel),
+         (snmpTargetParamsEntry.name + (7,) + tblIdx, 'createAndGo'))
     )
 
 def delTargetParams(snmpEngine, name):
@@ -274,15 +275,15 @@ def addTargetAddr(snmpEngine, addrName, transportDomain, transportAddress,
         ((snmpTargetAddrEntry.name + (9,) + tblIdx, 'destroy'),)
     )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((snmpTargetAddrEntry.name + (9,) + tblIdx, 'createAndGo'),
-         (snmpTargetAddrEntry.name + (1,) + tblIdx, addrName),
+        ((snmpTargetAddrEntry.name + (1,) + tblIdx, addrName),
          (snmpTargetAddrEntry.name + (2,) + tblIdx, transportDomain),
          (snmpTargetAddrEntry.name + (3,) + tblIdx, transportAddress),
          (snmpTargetAddrEntry.name + (4,) + tblIdx, timeout),
          (snmpTargetAddrEntry.name + (5,) + tblIdx, retryCount),
          (snmpTargetAddrEntry.name + (6,) + tblIdx, tagList),
          (snmpTargetAddrEntry.name + (7,) + tblIdx, params),
-         (snmpSourceAddrEntry.name + (1,) + tblIdx, sourceAddress))
+         (snmpSourceAddrEntry.name + (1,) + tblIdx, sourceAddress),
+         (snmpTargetAddrEntry.name + (9,) + tblIdx, 'createAndGo'))
     )
 
 def delTargetAddr(snmpEngine, addrName):
@@ -370,10 +371,10 @@ def addVacmGroup(snmpEngine, groupName, securityModel, securityName):
         ((vacmSecurityToGroupEntry.name + (5,) + tblIdx, 'destroy'),)
     )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((vacmSecurityToGroupEntry.name + (5,) + tblIdx, 'createAndGo'),
-         (vacmSecurityToGroupEntry.name + (1,) + tblIdx, securityModel),
+        ((vacmSecurityToGroupEntry.name + (1,) + tblIdx, securityModel),
          (vacmSecurityToGroupEntry.name + (2,) + tblIdx, securityName),
-         (vacmSecurityToGroupEntry.name + (3,) + tblIdx, groupName),)
+         (vacmSecurityToGroupEntry.name + (3,) + tblIdx, groupName),
+         (vacmSecurityToGroupEntry.name + (5,) + tblIdx, 'createAndGo'))
     )
 
 def delVacmGroup(snmpEngine, securityModel, securityName):
@@ -403,14 +404,14 @@ def addVacmAccess(snmpEngine, groupName, contextName, securityModel,
         ((vacmAccessEntry.name + (9,) + tblIdx, 'destroy'),)
     )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((vacmAccessEntry.name + (9,) + tblIdx, 'createAndGo'),
-         (vacmAccessEntry.name + (1,) + tblIdx, contextName),
+        ((vacmAccessEntry.name + (1,) + tblIdx, contextName),
          (vacmAccessEntry.name + (2,) + tblIdx, securityModel),
          (vacmAccessEntry.name + (3,) + tblIdx, securityLevel),
          (vacmAccessEntry.name + (4,) + tblIdx, prefix),
          (vacmAccessEntry.name + (5,) + tblIdx, readView),
          (vacmAccessEntry.name + (6,) + tblIdx, writeView),
-         (vacmAccessEntry.name + (7,) + tblIdx, notifyView),)
+         (vacmAccessEntry.name + (7,) + tblIdx, notifyView),
+         (vacmAccessEntry.name + (9,) + tblIdx, 'createAndGo'))
     )
 
 def delVacmAccess(snmpEngine, groupName, contextName, securityModel,
@@ -436,11 +437,11 @@ def addVacmView(snmpEngine, viewName, viewType, subTree, mask):
         ((vacmViewTreeFamilyEntry.name + (6,) + tblIdx, 'destroy'),)
     )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((vacmViewTreeFamilyEntry.name + (6,) + tblIdx, 'createAndGo'),
-         (vacmViewTreeFamilyEntry.name + (1,) + tblIdx, viewName),
+        ((vacmViewTreeFamilyEntry.name + (1,) + tblIdx, viewName),
          (vacmViewTreeFamilyEntry.name + (2,) + tblIdx, subTree),
          (vacmViewTreeFamilyEntry.name + (3,) + tblIdx, mask),
-         (vacmViewTreeFamilyEntry.name + (4,) + tblIdx, viewType),)
+         (vacmViewTreeFamilyEntry.name + (4,) + tblIdx, viewType),
+         (vacmViewTreeFamilyEntry.name + (6,) + tblIdx, 'createAndGo'))
     )
 
 def delVacmView(snmpEngine, viewName, subTree):
@@ -558,17 +559,17 @@ def addNotificationTarget(snmpEngine, notificationName, paramsName,
         ((snmpNotifyEntry.name + (5,) + tblIdx1, 'destroy'),)
     )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((snmpNotifyEntry.name + (5,) + tblIdx1, 'createAndGo'),
-         (snmpNotifyEntry.name + (2,) + tblIdx1, transportTag),
-         (snmpNotifyEntry.name + (3,) + tblIdx1, notifyType),)
+        ((snmpNotifyEntry.name + (2,) + tblIdx1, transportTag),
+         (snmpNotifyEntry.name + (3,) + tblIdx1, notifyType),
+         (snmpNotifyEntry.name + (5,) + tblIdx1, 'createAndGo'))
     )
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((snmpNotifyFilterProfileEntry.name + (3,) + tblIdx2, 'destroy'),)
     )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((snmpNotifyFilterProfileEntry.name + (3,) + tblIdx2, 'createAndGo'),
-         (snmpNotifyFilterProfileEntry.name + (1,) + tblIdx2, profileName),)
+        ((snmpNotifyFilterProfileEntry.name + (1,) + tblIdx2, profileName),
+         (snmpNotifyFilterProfileEntry.name + (3,) + tblIdx2, 'createAndGo'))
     )
 
     if not snmpNotifyFilterEntry:
@@ -578,10 +579,10 @@ def addNotificationTarget(snmpEngine, notificationName, paramsName,
         ((snmpNotifyFilterEntry.name + (5,) + tblIdx3, 'destroy'),)
     )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((snmpNotifyFilterEntry.name + (5,) + tblIdx3, 'createAndGo'),
-         (snmpNotifyFilterEntry.name + (1,) + tblIdx3, filterSubtree),
+        ((snmpNotifyFilterEntry.name + (1,) + tblIdx3, filterSubtree),
          (snmpNotifyFilterEntry.name + (2,) + tblIdx3, filterMask),
-         (snmpNotifyFilterEntry.name + (3,) + tblIdx3, filterType),)
+         (snmpNotifyFilterEntry.name + (3,) + tblIdx3, filterType),
+         (snmpNotifyFilterEntry.name + (5,) + tblIdx3, 'createAndGo'))
     )
 
 def delNotificationTarget(snmpEngine, notificationName, paramsName,

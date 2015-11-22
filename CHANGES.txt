@@ -5,6 +5,9 @@ Revision 4.3.2, work in progress
 Repository `tarball download <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/pysnmp/?view=tar>`_
 
 - Copyright notice added to non-trivial source code files.
+- SNMP table row consistency check added. This change may break
+  valid SNMP SET operations on tables if RowStatus column is not
+  passed at the very end of var-binds.
 
 Revision 4.3.1, released 12-11-2015
 -----------------------------------

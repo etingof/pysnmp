@@ -878,7 +878,11 @@ class MibTableColumn(MibScalar):
             MibScalar.writeTest(self, name, val, idx, acInfo)
         # ...otherwise proceed with creating new column
         except (error.NoSuchInstanceError, error.RowCreationWanted):
-            self.__rowOpWanted[name] = error.RowCreationWanted()
+            excValue = sys.exc_info()[1]
+            if isinstance(excValue, error.RowCreationWanted):
+                self.__rowOpWanted[name] = excValue
+            else:
+                self.__rowOpWanted[name] = error.RowCreationWanted()
             self.createTest(name, val, idx, acInfo)
         except error.RowDestructionWanted:
             self.__rowOpWanted[name] = error.RowDestructionWanted()
@@ -911,6 +915,8 @@ class MibTableColumn(MibScalar):
             raise e
 
     def writeUndo(self, name, val, idx, acInfo):
+        if name in self.__rowOpWanted:
+            self.__rowOpWanted[name] = error.RowDestructionWanted()
         self.__delegateWrite('Undo', name, val, idx, acInfo)
         if name in self.__rowOpWanted:
             e = self.__rowOpWanted[name]
@@ -1076,6 +1082,7 @@ class MibTableRow(MibTree):
 
     def __delegate(self, subAction, name, val, idx, acInfo):
         # Relay operation request to column, expect row operation request.
+        rowIsActive = False
         try:
             getattr(self.getBranch(name, idx), 'write'+subAction)(
                 name, val, idx, acInfo
@@ -1091,6 +1098,9 @@ class MibTableRow(MibTree):
                 'create'+subAction, name, None, idx, acInfo
             )
 
+            # watch for RowStatus == 'stActive'
+            rowIsActive = sys.exc_info()[1].get('syntax', 0) == 1
+
         except error.RowDestructionWanted:
             self.__manageColumns(
                 'destroy'+subAction, name[:len(self.name)+1],
@@ -1101,11 +1111,18 @@ class MibTableRow(MibTree):
                 'destroy'+subAction, name, None, idx, acInfo
             )
 
+        return rowIsActive
+
     def writeTest(self, name, val, idx, acInfo):
         self.__delegate('Test', name, val, idx, acInfo)
 
     def writeCommit(self, name, val, idx, acInfo):
-        self.__delegate('Commit', name, val, idx, acInfo)
+        rowIsActive = self.__delegate('Commit', name, val, idx, acInfo)
+        if rowIsActive:
+            for mibNode in self._vars.values():
+                colNode = mibNode.getNode(mibNode.name + name[len(self.name)+1:])
+                if not colNode.syntax.hasValue():
+                    raise error.InconsistentValueError(msg='Row consistency check failed for %r' % colNode)
 
     def writeCleanup(self, name, val, idx, acInfo):
         self.branchVersionId += 1
