@@ -71,13 +71,13 @@ class AsyncioDispatcher(AbstractTransportDispatcher):
         AbstractTransportDispatcher.registerTransport(
             self, tDomain, transport
             )
-        self.__transportCount = self.__transportCount + 1
+        self.__transportCount += 1
 
     def unregisterTransport(self, tDomain):
         t = AbstractTransportDispatcher.getTransport(self, tDomain)
         if t is not None:
             AbstractTransportDispatcher.unregisterTransport(self, tDomain)
-            self.__transportCount = self.__transportCount - 1
+            self.__transportCount -= 1
 
         # The last transport has been removed, stop the timeout
         if self.__transportCount == 0 and not self.loopingcall.done():

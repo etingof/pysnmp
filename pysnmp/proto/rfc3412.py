@@ -280,7 +280,7 @@ class MsgAndPduDispatcher:
             msgVersion = verdec.decodeMessageVersion(wholeMsg)
         except error.ProtocolError:
             snmpInASNParseErrs, = self.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
-            snmpInASNParseErrs.syntax = snmpInASNParseErrs.syntax + 1
+            snmpInASNParseErrs.syntax += 1
             return null  # n.b the whole buffer gets dropped
 
         debug.logger & debug.flagDsp and debug.logger('receiveMessage: msgVersion %s, msg decoded' % msgVersion)
@@ -292,7 +292,7 @@ class MsgAndPduDispatcher:
             mpHandler = snmpEngine.messageProcessingSubsystems[k]
         else:
             snmpInBadVersions, = self.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInBadVersions')
-            snmpInBadVersions.syntax = snmpInBadVersions.syntax + 1
+            snmpInBadVersions.syntax += 1
             return restOfWholeMsg
 
         # 4.2.1.3 -- no-op
@@ -337,7 +337,7 @@ class MsgAndPduDispatcher:
             if processPdu is None:
                 # 4.2.2.1.2.a
                 snmpUnknownPDUHandlers, = self.mibInstrumController.mibBuilder.importSymbols('__SNMP-MPD-MIB', 'snmpUnknownPDUHandlers')
-                snmpUnknownPDUHandlers.syntax = snmpUnknownPDUHandlers.syntax+1
+                snmpUnknownPDUHandlers.syntax += 1
 
                 # 4.2.2.1.2.b
                 statusInformation = {
@@ -425,7 +425,7 @@ class MsgAndPduDispatcher:
             # 4.2.2.2.2
             if cachedParams is None:
                 snmpUnknownPDUHandlers, = self.mibInstrumController.mibBuilder.importSymbols('__SNMP-MPD-MIB', 'snmpUnknownPDUHandlers')
-                snmpUnknownPDUHandlers.syntax = snmpUnknownPDUHandlers.syntax+1
+                snmpUnknownPDUHandlers.syntax += 1
                 return restOfWholeMsg
 
             debug.logger & debug.flagDsp and debug.logger('receiveMessage: cache read by sendPduHandle %s' % sendPduHandle)

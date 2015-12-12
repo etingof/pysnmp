@@ -78,7 +78,7 @@ class NotificationReceiver:
             except error.StatusInformation:
                 debug.logger & debug.flagApp and debug.logger('processPdu: stateReference %s, statusInformation %s' % (stateReference, sys.exc_info()[1]))
                 snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpSilentDrops')
-                snmpSilentDrops.syntax = snmpSilentDrops.syntax + 1
+                snmpSilentDrops.syntax += 1
 
         elif PDU.tagSet in rfc3411.unconfirmedClassPDUs:
             pass

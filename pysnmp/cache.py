@@ -19,7 +19,7 @@ class Cache:
         return k in self.__cache
 
     def __getitem__(self, k):
-        self.__usage[k] = self.__usage[k] + 1
+        self.__usage[k] += 1
         return self.__cache[k]
 
     def __len__(self):
@@ -34,7 +34,7 @@ class Cache:
                 del self.__usage[_k]
             self.__size = self.__size - self.__chopSize
         if k not in self.__cache:
-            self.__size = self.__size + 1
+            self.__size += 1
             self.__usage[k] = 0
         self.__cache[k] = v
 

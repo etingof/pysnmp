@@ -119,7 +119,7 @@ class SnmpEngine:
                 pass
 
             try:
-                snmpEngineBoots.syntax = snmpEngineBoots.syntax + 1
+                snmpEngineBoots.syntax += 1
             except:
                 snmpEngineBoots.syntax = snmpEngineBoots.syntax.clone(1)
 

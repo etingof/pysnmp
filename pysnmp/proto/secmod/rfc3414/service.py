@@ -265,7 +265,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             except PyAsn1Error:
                 debug.logger & debug.flagSM and debug.logger('processIncomingMsg: %s' % (sys.exc_info()[1],))
                 snmpInGenErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInGenErrs')
-                snmpInGenErrs.syntax = snmpInGenErrs.syntax + 1
+                snmpInGenErrs.syntax += 1
                 raise error.StatusInformation(
                     errorIndication=errind.invalidMsg
                 )
@@ -532,7 +532,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     not 4 < len(msgAuthoritativeEngineID) < 33:
                 # 3.2.3b
                 usmStatsUnknownEngineIDs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownEngineIDs')
-                usmStatsUnknownEngineIDs.syntax = usmStatsUnknownEngineIDs.syntax+1
+                usmStatsUnknownEngineIDs.syntax += 1
                 debug.logger & debug.flagSM and debug.logger('processIncomingMsg: null or malformed msgAuthoritativeEngineID')
                 pysnmpUsmDiscoverable, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__PYSNMP-USM-MIB', 'pysnmpUsmDiscoverable')
                 if pysnmpUsmDiscoverable.syntax:
@@ -620,7 +620,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             except PyAsn1Error:
                 debug.logger & debug.flagSM and debug.logger('processIncomingMsg: %s' % (sys.exc_info()[1],))
                 snmpInGenErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInGenErrs')
-                snmpInGenErrs.syntax = snmpInGenErrs.syntax + 1
+                snmpInGenErrs.syntax += 1
                 raise error.StatusInformation(errorIndication=errind.invalidMsg)
         else:
             # empty username used for engineID discovery
@@ -669,7 +669,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     __badSecIndication = 'noAuthNoPriv wanted while priv expected'
             if __badSecIndication:
                 usmStatsUnsupportedSecLevels, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnsupportedSecLevels')
-                usmStatsUnsupportedSecLevels.syntax = usmStatsUnsupportedSecLevels.syntax + 1
+                usmStatsUnsupportedSecLevels.syntax += 1
                 debug.logger & debug.flagSM and debug.logger('processIncomingMsg: reporting inappropriate security level for user %s: %s' % (msgUserName, __badSecIndication))
                 raise error.StatusInformation(
                     errorIndication=errind.unsupportedSecurityLevel,
@@ -700,7 +700,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
             except error.StatusInformation:
                 usmStatsWrongDigests, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsWrongDigests')
-                usmStatsWrongDigests.syntax = usmStatsWrongDigests.syntax+1
+                usmStatsWrongDigests.syntax += 1
                 raise error.StatusInformation(
                     errorIndication=errind.authenticationFailure,
                     oid=usmStatsWrongDigests.name,
@@ -760,7 +760,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                    abs(idleTime + int(snmpEngineTime) - \
                        int(msgAuthoritativeEngineTime)) > 150:
                     usmStatsNotInTimeWindows, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsNotInTimeWindows')
-                    usmStatsNotInTimeWindows.syntax = usmStatsNotInTimeWindows.syntax+1
+                    usmStatsNotInTimeWindows.syntax += 1
                     raise error.StatusInformation(
                         errorIndication=errind.notInTimeWindow,
                         oid=usmStatsNotInTimeWindows.name,
@@ -826,7 +826,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
             except error.StatusInformation:
                 usmStatsDecryptionErrors, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsDecryptionErrors')
-                usmStatsDecryptionErrors.syntax = usmStatsDecryptionErrors.syntax+1
+                usmStatsDecryptionErrors.syntax += 1
                 raise error.StatusInformation(
                     errorIndication=errind.decryptionError,
                     oid=usmStatsDecryptionErrors.name,
@@ -870,7 +870,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         # Delayed to include details
         if not msgUserName and not msgAuthoritativeEngineID:
             usmStatsUnknownUserNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownUserNames')
-            usmStatsUnknownUserNames.syntax = usmStatsUnknownUserNames.syntax+1
+            usmStatsUnknownUserNames.syntax += 1
             raise error.StatusInformation(
                 errorIndication=errind.unknownSecurityName,
                 oid=usmStatsUnknownUserNames.name,
