@@ -450,7 +450,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         except PyAsn1Error:
             debug.logger & debug.flagMP and debug.logger('prepareDataElements: %s' % (sys.exc_info()[1],))
             snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
-            snmpInASNParseErrs.syntax = snmpInASNParseErrs.syntax + 1
+            snmpInASNParseErrs.syntax += 1
             raise error.StatusInformation(errorIndication=errind.parseError)
 
         debug.logger & debug.flagMP and debug.logger('prepareDataElements: %s' % (msg.prettyPrint(),))
@@ -471,8 +471,8 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
 
         # 7.2.4
         if securityModel not in snmpEngine.securityModels:
-            snmpUnknownSecurityModels, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpUnknownSecurityModels')
-            snmpUnknownSecurityModels.syntax = snmpUnknownSecurityModels.syntax + 1
+            snmpUnknownSecurityModels, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-MPD-MIB', 'snmpUnknownSecurityModels')
+            snmpUnknownSecurityModels.syntax += 1
             raise error.StatusInformation(errorIndication=errind.unsupportedSecurityModel)
 
         # 7.2.5
@@ -483,8 +483,8 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         elif (msgFlags & 0x03) == 0x03:
             securityLevel = 3
         else:
-            snmpInvalidMsgs = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInvalidMsgs')
-            snmpInvalidMsgs.syntax = snmpInvalidMsgs.syntax + 1
+            snmpInvalidMsgs = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-MPD-MIB', 'snmpInvalidMsgs')
+            snmpInvalidMsgs.syntax += 1
             raise error.StatusInformation(errorIndication=errind.invalidMsg)
 
         if msgFlags & 0x04:

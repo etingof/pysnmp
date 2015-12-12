@@ -8,6 +8,8 @@ Repository `tarball download <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/py
 - SNMP table row consistency check added. This change may break
   valid SNMP SET operations on tables if RowStatus column is not
   passed at the very end of var-binds.
+- Fix to snmpInvalidMsgs and snmpUnknownSecurityModels MIB symbols
+  import at SNMPv3 MP model.
 
 Revision 4.3.1, released 12-11-2015
 -----------------------------------
