@@ -8,7 +8,7 @@ Send SNMP TRAP notification using the following options:
 * with community name 'public'
 * over IPv4/UDP
 * send TRAP notification
-* to a Manager at 127.0.0.1:162
+* to a Manager at 195.218.195.228:162
 * with TRAP ID 'coldStart' specified as an OID
 * include managed objects information:
   1.3.6.1.2.1.1.1.0 = 'Example Notificator'
@@ -16,7 +16,7 @@ Send SNMP TRAP notification using the following options:
 
 Functionally similar to:
 
-| $ snmptrap -v2c -c public 127.0.0.1 12345 1.3.6.1.4.1.20408.4.1.1.2
+| $ snmptrap -v2c -c public 195.218.195.228 12345 1.3.6.1.4.1.20408.4.1.1.2
 
 """#
 from pysnmp.entity import engine, config
@@ -42,7 +42,7 @@ config.addTransport(
 )
 config.addTargetAddr(
     snmpEngine, 'my-nms',
-    udp.domainName, ('127.0.0.1', 162),
+    udp.domainName, ('195.218.195.228', 162),
     'my-creds',
     tagList='all-my-managers'
 )

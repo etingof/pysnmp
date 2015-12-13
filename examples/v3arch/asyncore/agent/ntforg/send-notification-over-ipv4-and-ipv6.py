@@ -17,7 +17,7 @@ network protocols:
 
 Functionally similar to:
 
-| $ snmptrap -v2c -c public udp:127.0.0.1 0 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.1.0 s 'Example notification' 1.3.6.1.2.1.1.5.0 s 'Notificator Example'
+| $ snmptrap -v2c -c public udp:195.218.195.228 0 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.1.0 s 'Example notification' 1.3.6.1.2.1.1.5.0 s 'Notificator Example'
 
 and
 
@@ -49,7 +49,7 @@ config.addTransport(
 )
 config.addTargetAddr(
     snmpEngine, 'my-nms-1',
-    udp.domainName, ('127.0.0.1', 162),
+    udp.domainName, ('195.218.195.228', 162),
     'my-creds',
     tagList='all-my-managers'
 )

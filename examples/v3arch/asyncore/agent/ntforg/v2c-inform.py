@@ -8,7 +8,7 @@ Send SNMP INFORM notification using the following options:
 * with community name 'public'
 * over IPv4/UDP
 * send INFORM notification
-* to a Manager at 127.0.0.1:162
+* to a Manager at 195.218.195.228:162
 * with TRAP ID 'coldStart' specified as an OID
 * include managed objects information:
   1.3.6.1.2.1.1.1.0 = 'Example Notificator'
@@ -16,7 +16,7 @@ Send SNMP INFORM notification using the following options:
 
 Functionally similar to:
 
-| $ snmpinform -v2c -c public demo.snmplabs.com 12345 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.1.0 s 'Example Notificator' 1.3.6.1.2.1.1.5.0 s 'Notificator Example'
+| $ snmpinform -v2c -c public 195.218.195.228 12345 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.1.0 s 'Example Notificator' 1.3.6.1.2.1.1.5.0 s 'Notificator Example'
 
 """#
 from pysnmp.entity import engine, config

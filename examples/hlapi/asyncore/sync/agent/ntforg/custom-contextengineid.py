@@ -29,7 +29,7 @@ from pysnmp.hlapi import *
 errorIndication, errorStatus, errorIndex, varBinds = next(
     sendNotification(SnmpEngine(),
                      UsmUserData('usr-md5-none', 'authkey1'),
-                     UdpTransportTarget(('localhost', 162)),
+                     UdpTransportTarget(('demo.snmplabs.com', 162)),
                      ContextData(OctetString(hexValue='8000000004030201')),
                      'inform',
                      NotificationType(ObjectIdentity('1.3.6.1.6.3.1.1.5.2')))

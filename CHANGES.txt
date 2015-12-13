@@ -10,6 +10,8 @@ Repository `tarball download <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/py
   passed at the very end of var-binds.
 - All SNMP counters now incremented via '+= 1' rather than 'x = x + 1'
   to simplify their tracking by third-party code.
+- Notification originator examples re-pointed to Notification Receiver
+  at demo.snmplabs.com.
 - Fix to snmpInvalidMsgs and snmpUnknownSecurityModels MIB symbols
   import at SNMPv3 MP model.
 

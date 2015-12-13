@@ -33,7 +33,7 @@ from pysnmp.hlapi import *
 errorIndication, errorStatus, errorIndex, varBinds = next(
     sendNotification(SnmpEngine(),
                      CommunityData('public', mpModel=0),
-                     UdpTransportTarget(('localhost', 162)),
+                     UdpTransportTarget(('demo.snmplabs.com', 162)),
                      ContextData(),
                      'trap',
                      NotificationType(

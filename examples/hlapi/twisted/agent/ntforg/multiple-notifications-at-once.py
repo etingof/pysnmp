@@ -70,4 +70,5 @@ def sendall(reactor, destinations):
           for hostname, notifyType in destinations ]
     )
 
-react(sendall, [[('localhost', 'trap'), ('localhost', 'inform')]])
+react(sendall, [[('demo.snmplabs.com', 'trap'),
+                 ('demo.snmplabs.com', 'inform')]])

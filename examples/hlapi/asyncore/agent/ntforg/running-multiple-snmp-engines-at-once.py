@@ -34,11 +34,11 @@ from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
 targets = (
     # 1-st target (SNMPv2c over IPv4/UDP)
     ( CommunityData('public'),
-      UdpTransportTarget(('localhost', 1162)),
+      UdpTransportTarget(('demo.snmplabs.com', 1162)),
       ContextData() ),
     # 2-nd target (SNMPv3 over IPv4/UDP)
     ( UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
-      UdpTransportTarget(('localhost', 162)),
+      UdpTransportTarget(('demo.snmplabs.com', 162)),
       ContextData() ),
 )
 

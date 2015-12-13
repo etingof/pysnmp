@@ -35,7 +35,7 @@ def run():
     errorIndication, errorStatus, errorIndex, varBinds = yield from sendNotification(
         snmpEngine,
         CommunityData('public', mpModel=0),
-        UdpTransportTarget(('localhost', 162)),
+        UdpTransportTarget(('demo.snmplabs.com', 162)),
         ContextData(),
         'trap',
         NotificationType(

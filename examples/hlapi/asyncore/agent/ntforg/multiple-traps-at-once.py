@@ -21,11 +21,11 @@ from pysnmp.hlapi.asyncore import *
 targets = (
     # 1-st target (SNMPv1 over IPv4/UDP)
     ( CommunityData('public', mpModel=0),
-      UdpTransportTarget(('localhost', 162)),
+      UdpTransportTarget(('demo.snmplabs.com', 162)),
       ContextData() ),
     # 2-nd target (SNMPv2c over IPv4/UDP)
     ( CommunityData('public'),
-      UdpTransportTarget(('localhost', 162)),
+      UdpTransportTarget(('demo.snmplabs.com', 162)),
       ContextData() ),
 )
 

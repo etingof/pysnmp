@@ -7,14 +7,14 @@ Send SNMP notification using the following options:
 * SNMPv1
 * with community name 'public'
 * over IPv4/UDP
-* to a Manager at 127.0.0.1 UDP port 162
-* from local address 127.0.0.1, UDP port 61024
+* to a Manager at 195.218.195.228 UDP port 162
+* from local address 0.0.0.0, UDP port 61024
 * send TRAP notification
 * with TRAP ID 'coldStart' specified as an OID
 
 Functionally similar to:
 
-| $ snmptrap -v1 -c public 127.0.0.1 1.3.6.1.6.3.1.1.5.1 0.0.0.0 1 0 0
+| $ snmptrap -v1 -c public 195.218.195.228 1.3.6.1.6.3.1.1.5.1 0.0.0.0 1 0 0
 
 """#
 from pysnmp.entity import engine, config
@@ -38,11 +38,11 @@ config.addTargetParams(snmpEngine, 'my-creds', 'my-area', 'noAuthNoPriv', 0)
 config.addTransport(
     snmpEngine,
     udp.domainName,
-    udp.UdpSocketTransport().openClientMode(iface=('127.0.0.1', 61024))
+    udp.UdpSocketTransport().openClientMode(iface=('0.0.0.0', 61024))
 )
 config.addTargetAddr(
     snmpEngine, 'my-nms',
-    udp.domainName, ('127.0.0.1', 162),
+    udp.domainName, ('195.218.195.228', 162),
     'my-creds',
     tagList='all-my-managers'
 )

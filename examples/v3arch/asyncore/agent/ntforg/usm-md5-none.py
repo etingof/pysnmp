@@ -7,7 +7,7 @@ Send SNMP INFORM notification using the following options:
 * SNMPv3
 * with user 'usr-md5-none', auth: MD5, priv NONE
 * over IPv4/UDP
-* to a Manager at 127.0.0.1:162
+* to a Manager at 195.218.195.228:162
 * send INFORM notification
 * with TRAP ID 'warmStart' specified as an OID
 * include managed object information 1.3.6.1.2.1.1.5.0 = 'system name'
@@ -41,7 +41,7 @@ config.addTransport(
 )
 config.addTargetAddr(
     snmpEngine, 'my-nms',
-    udp.domainName, ('127.0.0.1', 162),
+    udp.domainName, ('195.218.195.228', 162),
     'my-creds',
     tagList='all-my-managers'
 )

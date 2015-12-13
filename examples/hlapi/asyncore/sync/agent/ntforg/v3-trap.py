@@ -33,7 +33,7 @@ errorIndication, errorStatus, errorIndex, varBinds = next(
                      UsmUserData('usr-sha-aes128', 'authkey1', 'privkey1',
                                  authProtocol=usmHMACSHAAuthProtocol,
                                  privProtocol=usmAesCfb128Protocol),
-                     UdpTransportTarget(('localhost', 162)),
+                     UdpTransportTarget(('demo.snmplabs.com', 162)),
                      ContextData(),
                      'trap',
                      NotificationType(

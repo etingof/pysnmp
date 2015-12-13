@@ -33,7 +33,7 @@ snmpEngine = SnmpEngine()
 sendNotification(
     snmpEngine,
     CommunityData('public', mpModel=0),
-    UdpTransportTarget(('localhost', 162)),
+    UdpTransportTarget(('demo.snmplabs.com', 162)),
     ContextData(),
     'trap',
     NotificationType(
