@@ -9,7 +9,7 @@ following options:
 * with community name 'public'
 * over IPv4/UDP and IPv6/UDP
 * send TRAP notification
-* to a Manager at 127.0.0.1:162 and [::1]
+* to a Manager at 195.218.195.228:162 and [::1]
 * with TRAP ID 'coldStart' specified as an OID
 * include managed objects information:
 * with default Uptime value
@@ -18,7 +18,7 @@ following options:
 
 The following Net-SNMP commands will produce similar SNMP notification:
 
-| $ snmptrap -v1 -c public udp:127.0.0.1 1.3.6.1.4.1.20408.4.1.1.2 127.0.0.1 1 0 12345
+| $ snmptrap -v1 -c public udp:195.218.195.228 1.3.6.1.4.1.20408.4.1.1.2 127.0.0.1 1 0 12345
 | $ snmptrap -v1 -c public udp6:[::1] 1.3.6.1.4.1.20408.4.1.1.2 127.0.0.1 1 0 12345
 
 """#
@@ -51,10 +51,10 @@ transportDispatcher = AsyncoreDispatcher()
 # UDP/IPv4
 transportDispatcher.registerTransport(
     udp.domainName, udp.UdpSocketTransport().openClientMode()
-    )
+)
 transportDispatcher.sendMessage(
-    encoder.encode(trapMsg), udp.domainName, ('localhost', 162)
-    )
+    encoder.encode(trapMsg), udp.domainName, ('195.218.195.228', 162)
+)
 
 # UDP/IPv6
 transportDispatcher.registerTransport(
