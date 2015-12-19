@@ -17,6 +17,7 @@ Repository `tarball download <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/py
   engine IDs.
 - Fix to snmpInvalidMsgs and snmpUnknownSecurityModels MIB symbols
   import at SNMPv3 MP model.
+- Fix to NotificationOriginator to cope with unspecified user callable.
 
 Revision 4.3.1, released 12-11-2015
 -----------------------------------

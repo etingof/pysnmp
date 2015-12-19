@@ -270,9 +270,10 @@ class NotificationOriginator:
                        not self.__pendingNotifications[notificationHandle]:
                     if notificationHandle in self.__pendingNotifications:
                         del self.__pendingNotifications[notificationHandle]
-                    cbFun(snmpEngine, notificationHandle,
-                          statusInformation['errorIndication'], 0, 0, (),
-                          cbCtx)
+                    if cbFun:
+                        cbFun(snmpEngine, notificationHandle,
+                              statusInformation['errorIndication'], 0, 0, (),
+                              cbCtx)
                 return notificationHandle
 
             debug.logger & debug.flagApp and debug.logger('sendVarBinds: notificationHandle %s, sendRequestHandle %s, timeout %d' % (notificationHandle, sendRequestHandle, timeout))
