@@ -12,6 +12,9 @@ Repository `tarball download <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/py
   to simplify their tracking by third-party code.
 - Notification originator examples re-pointed to Notification Receiver
   at demo.snmplabs.com.
+- Fix to USM: extra user entry clone removed on incoming message
+  processing. It made USM accepting SNMPv3 TRAPs from unknown SNMP
+  engine IDs.
 - Fix to snmpInvalidMsgs and snmpUnknownSecurityModels MIB symbols
   import at SNMPv3 MP model.
 
