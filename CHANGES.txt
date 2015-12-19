@@ -12,6 +12,9 @@ Repository `tarball download <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/py
   to simplify their tracking by third-party code.
 - Notification originator examples re-pointed to Notification Receiver
   at demo.snmplabs.com.
+- Two more execution observer points added: rfc2576.processIncomingMsg
+  and rfc3414.processIncomingMsg to give an insignt on security modules
+  internals.
 - Fix to USM: extra user entry clone removed on incoming message
   processing. It made USM accepting SNMPv3 TRAPs from unknown SNMP
   engine IDs.

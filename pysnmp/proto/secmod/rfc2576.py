@@ -323,6 +323,9 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         snmpEngine.observer.storeExecutionContext(
             snmpEngine, 'rfc2576.processIncomingMsg:writable', scope
         )
+        snmpEngine.observer.clearExecutionContext(
+            snmpEngine, 'rfc2576.processIncomingMsg:writable'
+        )
 
         try:
             securityName, contextEngineId, contextName = self._com2sec(
@@ -338,6 +341,19 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
         securityEngineID = snmpEngineID.syntax
+
+        snmpEngine.observer.storeExecutionContext(
+            snmpEngine, 'rfc2576.processIncomingMsg',
+            dict(transportInformation=transportInformation,
+                 securityEngineId=securityEngineID,
+                 securityName=securityName,
+                 communityName=communityName,
+                 contextEngineId=contextEngineId,
+                 contextName=contextName)
+        )
+        snmpEngine.observer.clearExecutionContext(
+            snmpEngine, 'rfc2576.processIncomingMsg'
+        )
 
         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: looked up securityName %r securityModel %r contextEngineId %r contextName %r by communityName %r AND transportInformation %r' % (securityName, self.securityModelID, contextEngineId, contextName, communityName, transportInformation))
 
