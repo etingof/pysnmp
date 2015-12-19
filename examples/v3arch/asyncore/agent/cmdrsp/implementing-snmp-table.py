@@ -14,7 +14,7 @@ the following options:
  
 The following Net-SNMP commands will populate and walk a table:
 
-| $ snmpset -v2c -c public 127.0.0.1 1.3.6.6.1.5.2.97.98.99 s 'my value'
+| $ snmpset -v2c -c public 127.0.0.1 1.3.6.6.1.5.2.97.98.99 s "my value"
 | $ snmpset -v2c -c public 127.0.0.1 1.3.6.6.1.5.4.97.98.99 i 4
 | $ snmpwalk -v2c -c public 127.0.0.1 1.3.6
 
