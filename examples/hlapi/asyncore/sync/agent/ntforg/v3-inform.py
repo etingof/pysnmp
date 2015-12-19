@@ -13,11 +13,7 @@ Send SNMP INFORM notification using the following options:
 
 Functionally similar to:
 
-| $ snmpinform -v3 -l authPriv -u usr-sha-aes -A authkey1 -X privkey1 \
-|              demo.snmplabs.com \
-|              12345 \
-|              1.3.6.1.4.1.20408.4.1.1.2 \
-|              '1.3.6.1.2.1.1.1.0' s 'my system'
+| $ snmpinform -v3 -l authPriv -u usr-md5-des -A authkey1 -X privkey1 demo.snmplabs.com 12345 1.3.6.1.4.1.20408.4.1.1.2 '1.3.6.1.2.1.1.1.0' s 'my system'
 
 """#
 from pysnmp.hlapi import *

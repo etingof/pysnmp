@@ -4,10 +4,10 @@ Multiple concurrent notifications
 
 Send multiple SNMP notifications at once using the following options:
 
-* SNMPv2c and SNMPv3
-* with community name 'public' or USM username usr-md5-des
+* SNMPv2c
+* with community name 'public'
 * over IPv4/UDP
-* send INFORM notification
+* send TRAP and INFORM notification
 * to multiple Managers
 * with TRAP ID 'coldStart' specified as a MIB symbol
 * include managed object information specified as var-bind objects pair
@@ -18,12 +18,8 @@ what leads to excessive tables information.
 
 Functionally similar to:
 
+| $ snmptrap -v2c -c public demo.snmplabs.com 12345 1.3.6.1.6.3.1.1.5.2
 | $ snmpinform -v2c -c public demo.snmplabs.com 12345 1.3.6.1.6.3.1.1.5.2
-|
-| $ snmpinform -v3 -l authNoPriv -u usr-md5-none -A authkey1 \
-|              demo.snmplabs.com \
-|              12345 \
-|              1.3.6.1.6.3.1.1.5.2
 
 """#
 from twisted.internet.defer import DeferredList

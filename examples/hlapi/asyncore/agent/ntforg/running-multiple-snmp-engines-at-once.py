@@ -25,6 +25,9 @@ data packet should be handed over. The selection criteria we
 employ here is based on peer's UDP port number. Other selection
 criterias are also possible.
 
+| $ snmpinform -v2c -c public demo.snmplabs.com:1162 123 1.3.6.1.6.3.1.1.5.1
+| $ snmpinform -v3 -u usr-md5-des -l authPriv -A authkey1 -X privkey1 demo.snmplabs.com 123 1.3.6.1.6.3.1.1.5.1
+
 """# 
 from pysnmp.hlapi.asyncore import *
 from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher

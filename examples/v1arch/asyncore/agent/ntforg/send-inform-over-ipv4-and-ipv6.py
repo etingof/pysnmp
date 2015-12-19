@@ -13,7 +13,7 @@ The following script sends SNMP INFORM notification using the following options:
 
 The following Net-SNMP command will produce similar SNMP notification:
 
-| $ snmpinform -v2c -c public udp:195.218.195.228 0 1.3.6.1.6.3.1.1.5.1
+| $ snmpinform -v2c -c public udp:demo.snmplabs.com 0 1.3.6.1.6.3.1.1.5.1
 | $ snmpinform -v2c -c public udp6:[::1] 0 1.3.6.1.6.3.1.1.5.1
 
 """#
@@ -67,7 +67,7 @@ transportDispatcher.registerTransport(
     udp.domainName, udp.UdpSocketTransport().openClientMode()
 )
 transportDispatcher.sendMessage(
-    encoder.encode(trapMsg), udp.domainName, ('195.218.195.228', 162)
+    encoder.encode(trapMsg), udp.domainName, ('demo.snmplabs.com', 162)
 )
 transportDispatcher.jobStarted(1)
 

@@ -17,11 +17,7 @@ the ContextEngineId being used.
 
 Functionally similar to:
 
-| $ snmpinform -v3 -l authNoPriv -u usr-md5-none -A authkey1 \
-|              -E 0x8000000004030201
-|              demo.snmplabs.com \
-|              12345 \
-|              1.3.6.1.6.3.1.1.5.2
+| $ snmpinform -v3 -l authNoPriv -u usr-md5-none -A authkey1 -E 0x8000000004030201 demo.snmplabs.com 12345 1.3.6.1.6.3.1.1.5.2
 
 """#
 from pysnmp.hlapi import *

@@ -13,11 +13,7 @@ Send SNMP notification using the following options:
 
 Functionally similar to:
 
-| $ snmpinform -v2c -c public 
-|              demo.snmplabs.com \
-|              12345 \
-|              1.3.6.1.6.3.1.1.5.1 \
-|              1.3.6.1.2.1.1.1.0 s 'my system'
+| $ snmpinform -v2c -c public demo.snmplabs.com 12345 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.1.0 s 'my system'
 
 """#
 from pysnmp.hlapi import *

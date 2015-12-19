@@ -18,7 +18,7 @@ following options:
 
 The following Net-SNMP commands will produce similar SNMP notification:
 
-| $ snmptrap -v1 -c public udp:195.218.195.228 1.3.6.1.4.1.20408.4.1.1.2 127.0.0.1 1 0 12345
+| $ snmptrap -v1 -c public udp:demo.snmplabs.com 1.3.6.1.4.1.20408.4.1.1.2 127.0.0.1 1 0 12345
 | $ snmptrap -v1 -c public udp6:[::1] 1.3.6.1.4.1.20408.4.1.1.2 127.0.0.1 1 0 12345
 
 """#
@@ -53,7 +53,7 @@ transportDispatcher.registerTransport(
     udp.domainName, udp.UdpSocketTransport().openClientMode()
 )
 transportDispatcher.sendMessage(
-    encoder.encode(trapMsg), udp.domainName, ('195.218.195.228', 162)
+    encoder.encode(trapMsg), udp.domainName, ('demo.snmplabs.com', 162)
 )
 
 # UDP/IPv6

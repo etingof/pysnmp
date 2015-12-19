@@ -20,9 +20,6 @@ security settings:
 Functionally similar to:
 
 | $ snmpinform -v3 -l authPriv -u usr-md5-none -A authkey1 195.218.195.228 0 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.1.0 s 'Example notification'
-
-and
-
 | $ snmpinform -v2c -c public 195.218.195.228 0 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.1.0 s 'Example notification'
 
 """#
