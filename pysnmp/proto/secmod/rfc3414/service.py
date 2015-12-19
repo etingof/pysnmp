@@ -263,7 +263,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: clone user info')
 
             except PyAsn1Error:
-                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: %s' % (sys.exc_info()[1],))
+                debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: %s' % (sys.exc_info()[1],))
                 snmpInGenErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInGenErrs')
                 snmpInGenErrs.syntax += 1
                 raise error.StatusInformation(
@@ -605,7 +605,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 debug.logger & debug.flagSM and debug.logger('processIncomingMsg: unknown securityEngineID %r msgUserName %r' % (msgAuthoritativeEngineID, msgUserName))
                 if __reportUnknownName:
                     usmStatsUnknownUserNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownUserNames')
-                    usmStatsUnknownUserNames.syntax = usmStatsUnknownUserNames.syntax+1
+                    usmStatsUnknownUserNames.syntax += 1
                     raise error.StatusInformation(
                         errorIndication=errind.unknownSecurityName,
                         oid=usmStatsUnknownUserNames.name,
