@@ -125,12 +125,12 @@ easy_install: ::
 
     # pip pysnmp
 
-There's a `public SNMP responder <http://snmpsim.sourceforge.net/public-snmp-simulator.html>`_ 
-configured at *demo.snmplabs.com:161* to let you run PySNMP examples
-scripts in a cut&paste fashion. If you wish to use your own SNMP Agent
-with these scripts, make sure to either configure your local snmpd and/or
-snmptrapd or use a valid address and SNMP credentials of your SNMP Agent
-in the examples to let them work.
+There's a public, multilingual SNMP Command Responder and Notification
+Receiver configured at
+`demo.snmplabs.com <http://snmpsim.sourceforge.net/public-snmp-simulator.html>`_ to let you run PySNMP examples scripts in a cut&paste fashion. If you
+wish to use your own SNMP Agent with these scripts, make sure to either
+configure your local snmpd and/or snmptrapd or use a valid address and
+SNMP credentials of your SNMP Agent in the examples to let them work.
 
 Should you want to use a MIB to make SNMP operations more human-friendly,
 you are welcome to search for it and possibly download one from our
