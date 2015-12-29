@@ -1,7 +1,7 @@
 #
 # This file is part of pysnmp software.
 #
-# Copyright (c) 2005-2015, Ilya Etingof <ilya@glas.net>
+# Copyright (c) 2005-2016, Ilya Etingof <ilya@glas.net>
 # License: http://pysnmp.sf.net/license.html
 #
 # PySNMP MIB module SNMP-NOTIFICATION-MIB (http://pysnmp.sf.net)
