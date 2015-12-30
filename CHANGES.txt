@@ -15,6 +15,8 @@ Repository `tarball download <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/py
 - Two more execution observer points added: rfc2576.processIncomingMsg
   and rfc3414.processIncomingMsg to give an insignt on security modules
   internals.
+- TEXTUAL-CONVENTION's DISPLAY-HINT text formatting reworked for better
+  performance and encoding accurancy of 'a' and 't' formats.
 - Fix to USM: extra user entry clone removed on incoming message
   processing. It made USM accepting SNMPv3 TRAPs from unknown SNMP
   engine IDs.

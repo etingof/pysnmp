@@ -7,6 +7,7 @@
 import sys
 from pysnmp.smi.error import *
 from pysnmp import debug
+from pyasn1.compat import octets
 
 OctetString, Integer, ObjectIdentifier = mibBuilder.importSymbols(
     'ASN1', 'OctetString', 'Integer', 'ObjectIdentifier'
@@ -76,7 +77,7 @@ class TextualConvention:
             elif t == 'o':
                 return '0%o' % value
             elif t == 'b':
-                v = values
+                v = value
                 r = ['B']
                 while v:
                     r.insert(0, '%d' % (v&0x01))
@@ -88,12 +89,12 @@ class TextualConvention:
                     )
         elif self.displayHint and self.__octetString.isSuperTypeOf(self):
             r = ''
-            v = self.__class__(value).asNumbers()
+            v = self.__class__(value).asOctets()
             d = self.displayHint
             while v and d:
                 # 1
                 if d[0] == '*':
-                    repeatIndicator = repeatCount = v[0]
+                    repeatIndicator = repeatCount = octets.oct2int(v[0])
                     d = d[1:]
                     v = v[1:]
                 else:
@@ -103,7 +104,7 @@ class TextualConvention:
                 # 2
                 octetLength = ''
                 while d and d[0] in '0123456789':
-                    octetLength = octetLength + d[0]
+                    octetLength += d[0]
                     d = d[1:]
                 try:
                     octetLength = int(octetLength)
@@ -135,39 +136,40 @@ class TextualConvention:
                     repeatTerminator = None
 
                 while repeatCount:
-                    repeatCount = repeatCount - 1
-                    # 't' stands for UTF-8, does it need any special support?
-                    if displayFormat == 'a' or displayFormat == 't':
-                        r = r + ''.join([chr(x) for x in v[:octetLength]])
+                    repeatCount -= 1
+                    if displayFormat == 'a':
+                        r += v[:octetLength].decode('ascii', 'ignore')
+                    elif displayFormat == 't':
+                        r += v[:octetLength].decode('utf-8', 'ignore')
                     elif displayFormat in ('x', 'd', 'o'):
                         n = 0
                         vv = v[:octetLength]
                         while vv:
                             n = n << 8
                             try:
-                                n = n | vv[0]
+                                n |= octets.oct2int(vv[0])
                                 vv = vv[1:]
                             except Exception:
                                 raise SmiError(
                                     'Display format eval failure: %s: %s'
                                     % (vv, sys.exc_info()[1])
-                                    )
+                                )
                         if displayFormat == 'x':
-                            r = r + '%02x' % n
+                            r += '%02x' % n
                         elif displayFormat == 'o':
-                            r = r + '%03o' % n
+                            r += '%03o' % n
                         else:
-                            r = r + '%d' % n
+                            r += '%d' % n
                     else:
                         raise SmiError(
                             'Unsupported display format char: %s' % \
                             displayFormat
-                            )
+                        )
                     if v and repeatTerminator:
-                        r = r + repeatTerminator
+                        r += repeatTerminator
                     v = v[octetLength:]
                 if v and displaySep:
-                    r = r + displaySep
+                    r += displaySep
                 if not d:
                     d = self.displayHint
 #             if d:
