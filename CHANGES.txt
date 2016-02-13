@@ -20,9 +20,9 @@ Revision 4.3.2, released 2016-02-12
   internals.
 - TEXTUAL-CONVENTION's DISPLAY-HINT text formatting reworked for better
   performance and encoding accurancy of 'a' and 't' formats.
-- Fix to USM: extra user entry clone removed on incoming message
-  processing. It made USM accepting SNMPv3 TRAPs from unknown SNMP
-  engine IDs.
+- WARNING: security fix to USM - extra user entry clone removed on
+  incoming message processing. It made USM accepting SNMPv3 TRAPs
+  from unknown SNMP engine IDs.
 - Fix to snmpInvalidMsgs and snmpUnknownSecurityModels MIB symbols
   import at SNMPv3 MP model.
 - Fix to NotificationOriginator to cope with unspecified user callable.
