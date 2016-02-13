@@ -4,9 +4,16 @@
 # Copyright (c) 2005-2016, Ilya Etingof <ilya@glas.net>
 # License: http://pysnmp.sf.net/license.html
 #
+from sys import version_info
 from pysnmp.hlapi.asyncore import ntforg
 
 __all__ = ['sendNotification']
+
+if version_info[:2] < (2, 6):
+    __all__.append('next')
+
+    def next(iter):
+        return iter.next()
 
 def sendNotification(snmpEngine, authData, transportTarget, contextData,
                      notifyType, varBinds, **options):

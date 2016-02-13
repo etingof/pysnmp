@@ -28,7 +28,8 @@ Revision 4.3.2, released 2016-02-12
 - Fix to NotificationOriginator to cope with unspecified user callable.
 - Fix to OctetString.prettyOut() to pretty-print Python 3 bytes without
   'b' qualifier.
-- Fix to better pysmi absense handling.
+- Fix to better pysmi import errors handling.
+- Fix to missing next() in Python 2.5 at pysnmp.hlapi
 
 Revision 4.3.1, released 2015-11-12
 -----------------------------------
