@@ -1,8 +1,11 @@
 
-Revision 4.3.2, work in progress
+Revision 4.3.3, work in progress
 --------------------------------
 
 Repository `tarball download <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/pysnmp/?view=tar>`_
+
+Revision 4.3.2, released 2016-02-12
+-----------------------------------
 
 - Copyright notice added to non-trivial source code files.
 - SNMP table row consistency check added. This change may break
@@ -25,6 +28,7 @@ Repository `tarball download <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/py
 - Fix to NotificationOriginator to cope with unspecified user callable.
 - Fix to OctetString.prettyOut() to pretty-print Python 3 bytes without
   'b' qualifier.
+- Fix to better pysmi absense handling.
 
 Revision 4.3.1, released 2015-11-12
 -----------------------------------

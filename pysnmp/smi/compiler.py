@@ -31,9 +31,13 @@ try:
 except ImportError:
     from pysnmp.smi import error
 
-    def addMibCompiler(mibBuilder, **kwargs):
-        if not kwargs.get('ifAvailable'):
-            raise error.SmiError('MIB compiler not available (pysmi not installed)')
+    def addMibCompilerDecorator(errorMsg):
+        def addMibCompiler(mibBuilder, **kwargs):
+            if not kwargs.get('ifAvailable'):
+                raise error.SmiError('MIB compiler not available: %s' % errorMsg)
+        return addMibCompiler
+
+    addMibCompiler = addMibCompilerDecorator(sys.exc_info()[1])
 
 else:
 
