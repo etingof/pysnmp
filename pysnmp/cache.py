@@ -27,12 +27,11 @@ class Cache:
 
     def __setitem__(self, k, v):
         if self.__size >= self.__maxSize:
-            keys = list(self.__usage.keys())
-            keys.sort(key=lambda x, d=self.__usage: d[x])
-            for _k in keys[:self.__chopSize]:
+            usageKeys = sorted(self.__usage, key=lambda x, d=self.__usage: d[x])
+            for _k in usageKeys[:self.__chopSize]:
                 del self.__cache[_k]
                 del self.__usage[_k]
-            self.__size = self.__size - self.__chopSize
+            self.__size -= self.__chopSize
         if k not in self.__cache:
             self.__size += 1
             self.__usage[k] = 0
@@ -41,4 +40,4 @@ class Cache:
     def __delitem__(self, k):
         del self.__cache[k]
         del self.__usage[k]
-        self.__size = self.__size - 1
+        self.__size -= 1
