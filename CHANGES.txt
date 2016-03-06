@@ -2,7 +2,14 @@
 Revision 4.3.3, work in progress
 --------------------------------
 
-Repository `tarball download <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/pysnmp/?view=tar>`_
+Github `repo <https://github.com/etingof/pysnmp>`_
+
+- NotificationType now allows additional var-binds specified as
+  MIB objects. A side effect of this change is that additional
+  var-binds can only be added prior to .resolveMibObjects() is
+  run.
+- Fix to NotificationType to make additional var-binds overriding
+  MIB objects implicitly included through NOTIFICATION-TYPE OBJECTS.
 
 Revision 4.3.2, released 2016-02-12
 -----------------------------------

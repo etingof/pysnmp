@@ -989,7 +989,7 @@ class NotificationType:
         """
         debug.logger & debug.flagMIB and debug.logger('additional var-binds: %r' % (varBinds,))
         if self.__state & self.stClean:
-            self.__varBinds.extend(varBinds)
+            raise SmiError('%s object is already sealed' % self.__class__.__name__)
         else:
             self.__additionalVarBinds.extend(varBinds)
         return self
@@ -1138,18 +1138,28 @@ class NotificationType:
 
         mibNode = self.__objectIdentity.getMibNode()
 
+        varBindsLocation = {}
+
         if isinstance(mibNode, SmiNotificationType):
             for notificationObject in mibNode.getObjects():
                 objectIdentity = ObjectIdentity(*notificationObject+self.__instanceIndex).resolveWithMib(mibViewController)
                 self.__varBinds.append(
                     ObjectType(objectIdentity, self.__objects.get(notificationObject, rfc1905.unSpecified)).resolveWithMib(mibViewController)
                 )
+                varBindsLocation[objectIdentity] = len(self.__varBinds) - 1
         else:
             debug.logger & debug.flagMIB and debug.logger('WARNING: MIB object %r is not NOTIFICATION-TYPE (MIB not loaded?)' % (self.__objectIdentity,))
 
-        if self.__additionalVarBinds:
-            self.__varBinds.extend(self.__additionalVarBinds)
-            self.__additionalVarBinds = []
+        for varBinds in self.__additionalVarBinds:
+            if not isinstance(varBinds, ObjectType):
+                varBinds = ObjectType(ObjectIdentity(varBinds[0]), varBinds[1])
+            varBinds.resolveWithMib(mibViewController)
+            if varBinds[0] in varBindsLocation:
+                self.__varBinds[varBindsLocation[varBinds[0]]] = varBinds
+            else:
+                self.__varBinds.append(varBinds)
+
+        self.__additionalVarBinds = []
 
         self.__state |= self.stClean
 
