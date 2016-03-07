@@ -54,21 +54,16 @@ written in pure-Python could be installed via:
 
     $ pip install pysnmp-apps
 
-and used in the very similar manner as conventional Net-SNMP tools.
+and used in the very similar manner as conventional Net-SNMP tools:
+
+    $ snmpget.py -v3 -l authPriv -u usr-md5-des -A authkey1 -X privkey1 demo.snmplabs.com sysDescr.0
+    SNMPv2-MIB::sysDescr.0 = DisplayString: SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m 
 
 Examples
 --------
 
-As of this writing, PySNMP implements two SNMP architectures -- the first
-is a legacy one specified by SNMPv1 & v2c standards. It is quite
-low-level and protocol-oriented by design. In particular, it requires
-application to manage authentication and access issues, deal with transport
-failures and similar housekeeping stuff.
-
-The second model supported by PySNMP is aligned to [SNMPv3 architecture]
-(http://www.ibr.cs.tu-bs.de/projects/snmpv3/). Here is an example on querying SNMP agent
-for arbitrary value (sysDescr) over SNMP v3 with authentication and
-privacy enabled:
+PySNMP is designed highly modular and implements many programming interfaces. Most
+high-level and easy to use API is called *hlapi* and can be used like this:
 
     from pysnmp.hlapi import *
 
@@ -91,6 +86,9 @@ privacy enabled:
             for varBind in varBinds:
                 print('='.join([x.prettyPrint() for x in varBind]))
 
+
+We maintain publically available SNMP Agent and TRAP sink at *demo.snmplabs.com*. You are
+welcome to play with it while experimenting with your PySNMP scripts.
 
 For more example scripts please refer to [examples section](http://pysnmp.sourceforge.net/examples/contents.html#high-level-snmp)
 at pysnmp web site.
