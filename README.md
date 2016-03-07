@@ -34,15 +34,27 @@ Features, specific to SNMPv3 model include:
   SNMP entities (RFC2576)
 * Remote SNMP engine configuration
 * Optional SNMP engine discovery
-* Shipped with standard [SNMP applications](https://github.com/etingof/pysnmp-apps) (RC3413)
+* Shipped with standard SNMP applications (RC3413)
 
 Installation
 ------------
 
-The PySNMP package uses setuptools for package management. The [PyASN1](http://pyasn1.sf.net)
-package is required. For secure SNMPv3 communication, [PyCrypto](http://pycrypto.org)
-should also be installed. For MIB-related operations [PySMI](http://pysmi.sf.net) package is
-needed.
+Just run:
+
+    $ pip install pysnmp
+    
+to download and install PySNMP along with its dependencies:
+
+* [PyASN1](http://pyasn1.sf.net)
+* [PyCrypto](http://pycrypto.org) (required only if SNMPv3 encryption is in use)
+* [PySMI](http://pysmi.sf.net) (required for MIB services only)
+
+Besides the library, command-line [SNMP utilities](https://github.com/etingof/pysnmp-apps)
+written in pure-Python could be installed via:
+
+    $ pip install pysnmp-apps
+
+and used in the very similar manner as conventional Net-SNMP tools.
 
 Examples
 --------
