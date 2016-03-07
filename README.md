@@ -87,8 +87,12 @@ high-level and easy to use API is called *hlapi* and can be used like this:
                 print('='.join([x.prettyPrint() for x in varBind]))
 
 
-We maintain publically available SNMP Agent and TRAP sink at *demo.snmplabs.com*. You are
-welcome to play with it while experimenting with your PySNMP scripts.
+We maintain publically available SNMP Agent and TRAP sink at 
+[demo.snmplabs.com](http://snmpsim.sourceforge.net/public-snmp-simulator.html). You are
+welcome to play with it while experimenting with your PySNMP scripts. Other than that, PySNMP 
+is capable to automatically fetch required MIBs from HTTP, FTP or local directories.
+You could configure any publicly available directory (including [this one](http://mibs.snmplabs.com/asn1/))
+for that purpose.
 
 For more example scripts please refer to [examples section](http://pysnmp.sourceforge.net/examples/contents.html#high-level-snmp)
 at pysnmp web site.
