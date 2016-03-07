@@ -3,7 +3,7 @@ SNMP library for Python
 -----------------------
 
 This is a pure-Python, open source and free implementation of v1/v2c/v3
-SNMP engine.
+SNMP engine distributed under 2-clause [BSD license](http://pysnmp.sourceforge.net/license.html).
 
 The PySNMP project was initially sponsored by a [PSF](http://www.python.org/psf/) grant.
 Thank you!
@@ -74,16 +74,17 @@ high-level and easy to use API is called *hlapi* and can be used like this:
         ContextData(),
         ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0))
     )
+    
     errorIndication, errorStatus, errorIndex, varBinds = next(iterator)
 
-    if errorIndication: # SNMP engine errors
+    if errorIndication:  # SNMP engine errors
         print errorIndication
     else:
-        if errorStatus: # SNMP agent errors
+        if errorStatus:  # SNMP agent errors
             print(%s at %s' % (errorStatus.prettyPrint(),
                                errorIndex and varBinds[int(errorIndex)-1] or '?'))
         else:
-            for varBind in varBinds:
+            for varBind in varBinds:  # SNMP response contents
                 print('='.join([x.prettyPrint() for x in varBind]))
 
 
@@ -123,5 +124,5 @@ I'm interested in bug reports and fixes, suggestions and improvements.
 I'd be happy knowning whenever you used the PySNMP software for whatever
 purpose. Please, send me a note then. Thanks!
 
-=-=-=
-mailto: ilya@glas.net
+Copyright (c) 2005-2016, [Ilya Etingof](http://ilya@glas.net). All rights reserved.
+
