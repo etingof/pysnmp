@@ -4,15 +4,15 @@
 Evaluating NOTIFICATION-TYPE
 ----------------------------
 
-.. include:: /../../examples/hlapi/asyncore/sync/agent/ntforg/v2c-trap-via-notification-type.py
+.. include:: /../../examples/hlapi/asyncore/sync/agent/ntforg/v2c-trap-with-notification-objects.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/hlapi/asyncore/sync/agent/ntforg/v2c-trap-via-notification-type.py
+.. literalinclude:: /../../examples/hlapi/asyncore/sync/agent/ntforg/v2c-trap-with-notification-objects.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/hlapi/asyncore/sync/agent/ntforg/v2c-trap-via-notification-type.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/sync/agent/ntforg/v2c-trap-with-notification-objects.py>` script.
 
 
 .. include:: /../../examples/hlapi/asyncore/sync/agent/ntforg/send-notification-with-additional-varbinds.py
