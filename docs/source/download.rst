@@ -11,7 +11,7 @@ license, and can be freely downloaded from Source Forge
 
 Besides official releases, it's advisable to try the cutting-edge
 development code that could be taken from PySNMP
-`source code repository <http://pysnmp.cvs.sourceforge.net/viewvc/pysnmp/pysnmp/?view=tar>`_.
+`source code repository <https://github.com/etingof/pysnmp>`_.
 It may be less stable in regards to general operation and changes to
 public interfaces, but it's first to contain fixes to recently discovered bugs.
 
