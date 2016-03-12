@@ -77,25 +77,22 @@ high-level and easy to use API is called *hlapi* and can be used like this:
 ```python
 from pysnmp.hlapi import *
 
-iterator = getCmd(
-    SnmpEngine(),
-    CommunityData('public'),
-    UdpTransportTarget(('demo.snmplabs.com', 161)),
-    ContextData(),
-    ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0))
-)
+iterator = getCmd(SnmpEngine(),
+                  CommunityData('public'),
+                  UdpTransportTarget(('demo.snmplabs.com', 161)),
+                  ContextData(),
+                  ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)))
 
 errorIndication, errorStatus, errorIndex, varBinds = next(iterator)
 
 if errorIndication:  # SNMP engine errors
-    print errorIndication
+    print(errorIndication)
 else:
     if errorStatus:  # SNMP agent errors
-        print(%s at %s' % (errorStatus.prettyPrint(),
-                           errorIndex and varBinds[int(errorIndex)-1] or '?'))
+        print(%s at %s' % (errorStatus.prettyPrint(), varBinds[int(errorIndex)-1] if errorIndex else '?'))
     else:
         for varBind in varBinds:  # SNMP response contents
-            print('='.join([x.prettyPrint() for x in varBind]))
+            print(' = '.join([x.prettyPrint() for x in varBind]))
 ```
 
 We maintain publically available SNMP Agent and TRAP sink at 

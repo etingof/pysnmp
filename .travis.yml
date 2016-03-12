@@ -8,8 +8,8 @@ python:
   - "3.4"
   - "3.5"
   - "nightly"
-  - "pypy"
-  - "pypy3"
+#  - "pypy"
+#  - "pypy3"
 install:
   - pip install pycrypto
   - pip install pyasn1
