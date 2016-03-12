@@ -1,4 +1,4 @@
-include *.txt *.md
+include *.txt *.md *.sh
 recursive-include examples *.py
 recursive-include docs/source *.rst *.svg *.py
 recursive-include docs/mibs *.txt
