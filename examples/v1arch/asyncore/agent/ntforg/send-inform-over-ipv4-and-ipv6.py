@@ -20,7 +20,7 @@ The following Net-SNMP command will produce similar SNMP notification:
 from time import time
 from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
 from pysnmp.carrier.asynsock.dgram import udp, udp6
-from pyasn1.codec.ber import encoder
+from pyasn1.codec.ber import encoder, decoder
 from pysnmp.proto.api import v2c as pMod
 
 # Build PDU
@@ -38,7 +38,7 @@ startedAt = time()
 def cbTimerFun(timeNow):
     if timeNow - startedAt > 3:
         raise Exception("Request timed out")
- 
+
 def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
               wholeMsg, reqPDU=reqPDU):
     while wholeMsg:
@@ -56,7 +56,7 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
                     print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
             transportDispatcher.jobFinished(1)
     return wholeMsg
- 
+
 transportDispatcher = AsynsockDispatcher()
 
 transportDispatcher.registerRecvCbFun(cbRecvFun)
@@ -72,13 +72,13 @@ transportDispatcher.sendMessage(
 transportDispatcher.jobStarted(1)
 
 # UDP/IPv6
-transportDispatcher.registerTransport(
-    udp6.domainName, udp6.Udp6SocketTransport().openClientMode()
-)
-transportDispatcher.sendMessage(
-    encoder.encode(trapMsg), udp6.domainName, ('::1', 162)
-)
-transportDispatcher.jobStarted(1)
+#transportDispatcher.registerTransport(
+#    udp6.domainName, udp6.Udp6SocketTransport().openClientMode()
+#)
+#transportDispatcher.sendMessage(
+#    encoder.encode(trapMsg), udp6.domainName, ('::1', 162)
+#)
+#transportDispatcher.jobStarted(1)
 
 # Dispatcher will finish as all scheduled messages are sent
 transportDispatcher.runDispatcher()
