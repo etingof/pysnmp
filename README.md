@@ -44,7 +44,9 @@ Installation
 
 Just run:
 
+    ```bash
     $ pip install pysnmp
+    ```
     
 to download and install PySNMP along with its dependencies:
 
@@ -55,19 +57,24 @@ to download and install PySNMP along with its dependencies:
 Besides the library, command-line [SNMP utilities](https://github.com/etingof/pysnmp-apps)
 written in pure-Python could be installed via:
 
+    ```bash
     $ pip install pysnmp-apps
-
+    ```
+    
 and used in the very similar manner as conventional Net-SNMP tools:
 
+    ```bash
     $ snmpget.py -v3 -l authPriv -u usr-md5-des -A authkey1 -X privkey1 demo.snmplabs.com sysDescr.0
     SNMPv2-MIB::sysDescr.0 = DisplayString: SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m 
-
+    ```
+    
 Examples
 --------
 
 PySNMP is designed highly modular and implements many programming interfaces. Most
 high-level and easy to use API is called *hlapi* and can be used like this:
 
+    ```python
     from pysnmp.hlapi import *
 
     iterator = getCmd(
@@ -89,14 +96,25 @@ high-level and easy to use API is called *hlapi* and can be used like this:
         else:
             for varBind in varBinds:  # SNMP response contents
                 print('='.join([x.prettyPrint() for x in varBind]))
-
+    ```
 
 We maintain publically available SNMP Agent and TRAP sink at 
 [demo.snmplabs.com](http://snmpsim.sourceforge.net/public-snmp-simulator.html). You are
-welcome to play with it while experimenting with your PySNMP scripts. Other than that, PySNMP 
-is capable to automatically fetch required MIBs from HTTP, FTP or local directories.
-You could configure any publicly available directory (including [this one](http://mibs.snmplabs.com/asn1/))
-for that purpose.
+welcome to play with it while experimenting with your PySNMP scripts.
+
+    ```bash
+    $ python3 examples/hlapi/asyncore/sync/manager/cmdgen/usm-sha-aes128.py
+    SNMPv2-MIB::sysDescr.0 = SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m
+    $
+    $ python3 examples//hlapi/asyncore/sync/agent/ntforg/v3-inform.py
+    SNMPv2-MIB::sysUpTime.0 = 0
+    SNMPv2-MIB::snmpTrapOID.0 = SNMPv2-MIB::warmStart
+    SNMPv2-MIB::sysName.0 = system name
+    ```
+    
+Other than that, PySNMP is capable to automatically fetch required MIBs from HTTP, FTP sites
+or local directories. You could configure any MIB source available to you (including
+[this one](http://mibs.snmplabs.com/asn1/)) for that purpose.
 
 For more example scripts please refer to [examples section](http://pysnmp.sourceforge.net/examples/contents.html#high-level-snmp)
 at pysnmp web site.

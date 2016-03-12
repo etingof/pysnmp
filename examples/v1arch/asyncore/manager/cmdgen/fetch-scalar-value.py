@@ -78,15 +78,15 @@ transportDispatcher.sendMessage(
 transportDispatcher.jobStarted(1)
 
 ## UDP/IPv6 (second copy of the same PDU will be sent)
-transportDispatcher.registerTransport(
-    udp6.domainName, udp6.Udp6SocketTransport().openClientMode()
-)
+#transportDispatcher.registerTransport(
+#    udp6.domainName, udp6.Udp6SocketTransport().openClientMode()
+#)
 
 # Pass message to dispatcher
-transportDispatcher.sendMessage(
-    encoder.encode(reqMsg), udp6.domainName, ('::1', 161)
-)
-transportDispatcher.jobStarted(1)
+#transportDispatcher.sendMessage(
+#    encoder.encode(reqMsg), udp6.domainName, ('::1', 161)
+#)
+#transportDispatcher.jobStarted(1)
 
 ## Local domain socket
 #transportDispatcher.registerTransport(

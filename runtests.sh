@@ -14,7 +14,8 @@ for x in examples/hlapi/asyncore/sync/manager/cmdgen/*.py \
          examples/smi/agent/*.py
 do
     case "$x" in
-    *spoof*)
+    *spoof*|*ipv6*)
+        echo "skipping $x"
         continue
         ;;
     *)
