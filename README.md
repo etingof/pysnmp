@@ -39,6 +39,12 @@ Features, specific to SNMPv3 model include:
 * Optional SNMP engine discovery
 * Shipped with standard SNMP applications (RC3413)
 
+Download
+--------
+
+The PySNMP software is freely available for download from [PyPI](https://pypi.python.org/pypi/pysnmp)
+and [project site](http://pysnmp.sf.net/download.html).
+
 Installation
 ------------
 
@@ -95,7 +101,7 @@ else:
             print(' = '.join([x.prettyPrint() for x in varBind]))
 ```
 
-We maintain publically available SNMP Agent and TRAP sink at 
+We maintain publicly available SNMP Agent and TRAP sink at 
 [demo.snmplabs.com](http://snmpsim.sourceforge.net/public-snmp-simulator.html). You are
 welcome to play with it while experimenting with your PySNMP scripts.
 
@@ -122,12 +128,6 @@ Documentation
 Detailed information on SNMP design, history as well as PySNMP programming interfaces could
 be found at [pysnmp site](http://pysnmp.sf.net/docs/tutorial.html).
 
-Download
---------
-
-The PySNMP software is freely available for download from [PyPI](https://pypi.python.org/pypi/pysnmp)
-and [project site](http://pysnmp.sf.net/download.html).
-
 Getting help
 ------------
 
@@ -135,12 +135,10 @@ If something does not work as expected, try browsing PySNMP
 [mailing list archives](http://sourceforge.net/mail/?group_id=14735) or post
 your question [to Stack Overflow](http://stackoverflow.com/questions/ask).
 
-Feedback
---------
+Feedback and collaboration
+--------------------------
 
-I'm interested in bug reports and fixes, suggestions and improvements.
-I'd be happy knowning whenever you used the PySNMP software for whatever
-purpose. Please, send me a note then. Thanks!
+I'm interested in bug reports, fixes, suggestions and improvements. Your
+pull requests are very welcome!
 
 Copyright (c) 2005-2016, [Ilya Etingof](http://ilya@glas.net). All rights reserved.
-

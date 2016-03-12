@@ -11,10 +11,8 @@ python:
 #  - "pypy"
 #  - "pypy3"
 install:
-  - pip install pycrypto
-  - pip install pyasn1
+  - pip install -r requirements.txt
   - pip install pysnmp-mibs
-  - pip install pysmi
   - python setup.py install
 script:
   - sh runtests.sh
