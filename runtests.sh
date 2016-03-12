@@ -13,5 +13,12 @@ for x in examples/hlapi/asyncore/sync/manager/cmdgen/*.py \
          examples/smi/manager/*py \
          examples/smi/agent/*.py
 do
-    python $x
+    case "$x" in
+    *spoof*)
+        continue
+        ;;
+    *)
+        python $x
+        ;;
+    esac
 done
