@@ -18,10 +18,10 @@ PySNMP implementation closely follows intricate system details and features
 bringing most possible power and flexibility to its users.
 
 Current PySNMP stable version is 4.3. It runs with Python 2.4 through 3.5 
-and is recommended for new applications as well as for migration from older, 
-now obsolete, PySNMP releases. All site documentation and examples are written 
-for the 4.3 and later versions in mind. Older materials are still 
-available under the obsolete section.
+and is recommended for new applications as well as for migration from
+older, now obsolete, PySNMP releases. All site documentation and 
+examples are written for the 4.3 and later versions in mind.
+Older materials are still available under the obsolete section.
 
 Besides the libraries, a set of pure-Python 
 `command-line tools <https://pypi.python.org/pypi/pysnmp-apps/>`_
@@ -30,8 +30,11 @@ and behaviour of popular Net-SNMP snmpget/snmpset/snmpwalk utilities.
 They may be useful in a cross-platform situations as well as a testing
 and prototyping instrument for pysnmp users.
 
-PySNMP software is free and open-source. It's being distributed under a 
-liberal BSD-style license. PySNMP development has been initially sponsored 
+PySNMP software is free and open-source. Source code is hosted in 
+a `Github repo <https://github.com/etingof/pysnmp>`_.
+The library is being distributed under 2-clause BSD-style license.
+
+PySNMP library development has been initially sponsored 
 by a `PSF <http://www.python.org/psf/>`_ grant.
 
 Quick start
@@ -40,10 +43,10 @@ Quick start
 You already know something about SNMP and have no courage to dive into
 this implementation? Try out quick start page!
 
-   .. toctree::
-      :maxdepth: 2
+.. toctree::
+   :maxdepth: 2
 
-      /quick-start
+   /quick-start
 
 Documentation
 -------------
@@ -57,10 +60,10 @@ Documentation
 Examples
 --------
 
-   .. toctree::
-      :maxdepth: 2
+.. toctree::
+   :maxdepth: 2
 
-      /examples/contents
+   /examples/contents
 
 Download
 --------
@@ -74,26 +77,26 @@ Best way is usually to
 If that does not work for you for some reason, you might need to read the 
 following page.
 
-   .. toctree::
-      :maxdepth: 2
+.. toctree::
+   :maxdepth: 2
 
-      /download
+   /download
 
 License
 -------
 
-   .. toctree::
-      :maxdepth: 2
+.. toctree::
+   :maxdepth: 2
 
-      /license
+   /license
 
 FAQ
 ---
 
-   .. toctree::
-      :maxdepth: 2
+.. toctree::
+   :maxdepth: 2
 
-      /faq
+   /faq
 
 Further development
 -------------------
@@ -102,18 +105,18 @@ We fanatically document all fixes, changes and new features in changelog.
 There you could also download the latest unreleased pysnmp tarball
 containing the latest fixes and improvements.
 
-   .. toctree::
-      :maxdepth: 1
+.. toctree::
+   :maxdepth: 1
 
-      /changelog
+   /changelog
 
 Our development plans and new features we consider for eventual implementation
 are collected in the following section.
 
-   .. toctree::
-      :maxdepth: 2
+.. toctree::
+   :maxdepth: 2
 
-      /development
+   /development
 
 Contact
 -------
@@ -127,7 +130,7 @@ should you have any questions or issues in regards to PySNMP.
 Old site archive
 ----------------
 
-   .. toctree::
-      :maxdepth: 2
+.. toctree::
+   :maxdepth: 2
 
-      /oldsite
+   /oldsite
