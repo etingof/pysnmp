@@ -1,0 +1,11 @@
+*.pyc
+__pycache__
+
+# vim swapfiles
+*.sw?
+
+# python packaging
+MANIFEST
+dist/
+build/
+pyasn1.egg-info/
