@@ -34,7 +34,7 @@ observerContext = {}
 # Register a callback to be invoked at specified execution point of 
 # SNMP Engine and passed local variables at execution point's local scope
 snmpEngine.observer.registerObserver(
-    lambda e,p,v,c: c.update(securityEngineId=v['securityEngineId']),
+    lambda e, p, v, c: c.update(securityEngineId=v['securityEngineId']),
     'rfc3412.prepareDataElements:internal',
     cbCtx=observerContext
 )
@@ -62,7 +62,7 @@ print('Remote securityEngineId = %s' % securityEngineId.prettyPrint())
 # Query remote SNMP Engine using usmUserTable entry configured for it
 #
 
-authData = UsmUserData('usr-md5-none', 'authkey1', 
+authData = UsmUserData('usr-md5-none', 'authkey1',
                        securityEngineId=securityEngineId)
 
 errorIndication, errorStatus, errorIndex, varBinds = next(
@@ -76,11 +76,8 @@ errorIndication, errorStatus, errorIndex, varBinds = next(
 if errorIndication:
     print(errorIndication)
 elif errorStatus:
-    print('%s at %s' % (
-        errorStatus.prettyPrint(),
-        errorIndex and varBinds[int(errorIndex)-1][0] or '?'
-        )
-    )
+    print('%s at %s' % (errorStatus.prettyPrint(),
+                        errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
 else:
     for name, val in varBinds:
         print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))

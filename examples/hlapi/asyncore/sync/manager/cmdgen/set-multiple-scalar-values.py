@@ -15,10 +15,7 @@ inferred from passed objects.
 
 Functionally similar to:
 
-| $ snmpset -v1 -c public demo.snmplabs.com \
-|                    1.3.6.1.2.1.1.9.1.2.1 o 1.3.6.1.4.1.20408.1.1 \
-|                    1.3.6.1.2.1.1.9.1.2.1 = 1.3.6.1.4.1.20408.1.1 \
-|                    1.3.6.1.2.1.1.9.1.3.1 s "new system name"
+| $ snmpset -v1 -c public demo.snmplabs.com 1.3.6.1.2.1.1.9.1.2.1 o 1.3.6.1.4.1.20408.1.1 1.3.6.1.2.1.1.9.1.2.1 = 1.3.6.1.4.1.20408.1.1 1.3.6.1.2.1.1.9.1.3.1 s "new system name"
 
 """#
 from pysnmp.hlapi import *
@@ -39,11 +36,8 @@ errorIndication, errorStatus, errorIndex, varBinds = next(
 if errorIndication:
     print(errorIndication)
 elif errorStatus:
-    print('%s at %s' % (
-            errorStatus.prettyPrint(),
-            errorIndex and varBinds[int(errorIndex)-1][0] or '?'
-        )
-    )
+    print('%s at %s' % (errorStatus.prettyPrint(),
+                        errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
 else:
     for varBind in varBinds:
-        print(' = '.join([ x.prettyPrint() for x in varBind ]))
+        print(' = '.join([x.prettyPrint() for x in varBind]))

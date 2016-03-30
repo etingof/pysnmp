@@ -11,29 +11,23 @@ Send SNMP GET request using the following options:
 
 Functionally similar to:
 
-| $ snmpget -v3 -l noAuthNoPriv -u usr-none-none
-|           demo.snmplabs.com \
-|           IF-MIB::ifInOctets.1
+| $ snmpget -v3 -l noAuthNoPriv -u usr-none-none demo.snmplabs.com IF-MIB::ifInOctets.1
 
 """#
 from pysnmp.hlapi import *
 
 errorIndication, errorStatus, errorIndex, varBinds = next(
     getCmd(SnmpEngine(),
-            UsmUserData('usr-none-none'),
-            UdpTransportTarget(('demo.snmplabs.com', 161)),
-            ContextData(),
-            ObjectType(ObjectIdentity('IF-MIB', 'ifInOctets', 1)))
+           UsmUserData('usr-none-none'),
+           UdpTransportTarget(('demo.snmplabs.com', 161)),
+           ContextData(),
+           ObjectType(ObjectIdentity('IF-MIB', 'ifInOctets', 1)))
 )
 
 if errorIndication:
     print(errorIndication)
 elif errorStatus:
-    print('%s at %s' % (
-            errorStatus.prettyPrint(),
-            errorIndex and varBinds[int(errorIndex)-1][0] or '?'
-        )
-    )
+    print('%s at %s' % (errorStatus.prettyPrint(), errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
 else:
     for varBind in varBinds:
-        print(' = '.join([ x.prettyPrint() for x in varBind ]))
+        print(' = '.join([x.prettyPrint() for x in varBind]))
