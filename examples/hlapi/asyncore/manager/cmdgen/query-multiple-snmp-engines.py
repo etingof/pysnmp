@@ -35,51 +35,48 @@ from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
 # ( ( authData, transportTarget, varNames ), ... )
 targets = (
     # 1-st target (SNMPv1 over IPv4/UDP)
-    ( CommunityData('public', mpModel=0),
-      UdpTransportTarget(('demo.snmplabs.com', 161)),
-      ( ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
-        ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) )) ),
+    (CommunityData('public', mpModel=0),
+     UdpTransportTarget(('demo.snmplabs.com', 161)),
+     (ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
+      ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0)))),
     # 2-nd target (SNMPv2c over IPv4/UDP)
-    ( CommunityData('public'),
-      UdpTransportTarget(('demo.snmplabs.com', 1161)),
-      ( ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
-        ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) )) ),
+    (CommunityData('public'),
+     UdpTransportTarget(('demo.snmplabs.com', 1161)),
+     (ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
+      ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0)))),
     # 3-nd target (SNMPv3 over IPv4/UDP)
-    ( UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
-      UdpTransportTarget(('demo.snmplabs.com', 2161)),
-      ( ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
-        ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0) )) )
+    (UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
+     UdpTransportTarget(('demo.snmplabs.com', 2161)),
+     (ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
+      ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0))))
     # N-th target
     # ...
 )
 
+
 # Wait for responses or errors
+# noinspection PyUnusedLocal,PyUnusedLocal
 def cbFun(snmpEngine, sendRequestHandle, errorIndication,
           errorStatus, errorIndex, varBinds, cbCtx):
     (snmpEngine, authData, transportTarget) = cbCtx
-    print('snmpEngine %s: %s via %s' % 
-        (snmpEngine.snmpEngineID.prettyPrint(), authData, transportTarget)
-    )
+    print('snmpEngine %s: %s via %s' % (snmpEngine.snmpEngineID.prettyPrint(), authData, transportTarget))
     if errorIndication:
         print(errorIndication)
-        return 1
+        return True
     elif errorStatus:
-        print('%s at %s' % (
-            errorStatus.prettyPrint(),
-            errorIndex and varBinds[int(errorIndex)-1][0] or '?'
-            )
-        )
-        return 1
+        print('%s at %s' % (errorStatus.prettyPrint(), errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
+        return True
     else:
         for varBind in varBinds:
-            print(' = '.join([ x.prettyPrint() for x in varBind ]))
+            print(' = '.join([x.prettyPrint() for x in varBind]))
+
 
 # Instantiate the single transport dispatcher object
 transportDispatcher = AsyncoreDispatcher()
 
 # Setup a custom data routing function to select snmpEngine by transportDomain
 transportDispatcher.registerRoutingCbFun(
-    lambda td,ta,d: ta[1] % 3 and 'A' or 'B'
+    lambda td, ta, d: ta[1] % 3 and 'A' or 'B'
 )
 
 snmpEngineA = SnmpEngine()
@@ -90,7 +87,7 @@ snmpEngineB.registerTransportDispatcher(transportDispatcher, 'B')
 
 for authData, transportTarget, varBinds in targets:
     snmpEngine = transportTarget.getTransportInfo()[1][1] % 3 and \
-            snmpEngineA or snmpEngineB
+                 snmpEngineA or snmpEngineB
     getCmd(snmpEngine, authData, transportTarget, ContextData(), *varBinds,
            **dict(cbFun=cbFun, cbCtx=(snmpEngine, authData, transportTarget)))
 

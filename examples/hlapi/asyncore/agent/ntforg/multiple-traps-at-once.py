@@ -23,13 +23,13 @@ from pysnmp.hlapi.asyncore import *
 # ( ( authData, transportTarget ), ... )
 targets = (
     # 1-st target (SNMPv1 over IPv4/UDP)
-    ( CommunityData('public', mpModel=0),
-      UdpTransportTarget(('demo.snmplabs.com', 162)),
-      ContextData() ),
+    (CommunityData('public', mpModel=0),
+     UdpTransportTarget(('demo.snmplabs.com', 162)),
+     ContextData()),
     # 2-nd target (SNMPv2c over IPv4/UDP)
-    ( CommunityData('public'),
-      UdpTransportTarget(('demo.snmplabs.com', 162)),
-      ContextData() ),
+    (CommunityData('public'),
+     UdpTransportTarget(('demo.snmplabs.com', 162)),
+     ContextData()),
 )
 
 snmpEngine = SnmpEngine()
@@ -40,12 +40,12 @@ for authData, transportTarget, contextData in targets:
         authData,
         transportTarget,
         contextData,
-        'trap',         # NotifyType
+        'trap',  # NotifyType
         NotificationType(
             ObjectIdentity('SNMPv2-MIB', 'coldStart')
         ).addVarBinds(
-            ( ObjectIdentifier('1.3.6.1.2.1.1.1.0'),
-              OctetString('my name') )
+            (ObjectIdentifier('1.3.6.1.2.1.1.1.0'),
+             OctetString('my name'))
         )
     )
 

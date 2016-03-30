@@ -67,6 +67,7 @@ v2c.apiTrapPDU.setVarBinds(
 ntfOrg = ntforg.NotificationOriginator()
 
 # Error/confirmation receiver
+# noinspection PyUnusedLocal,PyUnusedLocal,PyUnusedLocal,PyUnusedLocal,PyUnusedLocal
 def cbFun(snmpEngine, sendRequestHandle, errorIndication,
           errorStatus, errorIndex, varBinds, cbCtx):
     print('Notification %s, status - %s' % (

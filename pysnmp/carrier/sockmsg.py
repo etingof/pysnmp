@@ -16,9 +16,12 @@
 # http://carnivore.it/2012/10/12/python3.3_sendmsg_and_recvmsg
 #
 import sys
+
 if sys.version_info[:2] < (3, 3):
+    # noinspection PyUnusedLocal
     def getRecvFrom(addressType):
         raise error.CarrierError('sendmsg()/recvmsg() interface is not supported by this OS and/or Python version')
+
 
     def getSendTo(addressType):
         raise error.CarrierError('sendmsg()/recvmsg() interface is not supported by this OS and/or Python version')
@@ -31,8 +34,10 @@ else:
     uint32_t = ctypes.c_uint32
     in_addr_t = uint32_t
 
+
     class in_addr(ctypes.Structure):
         _fields_ = [('s_addr', in_addr_t)]
+
 
     class in6_addr_U(ctypes.Union):
         _fields_ = [
@@ -41,10 +46,12 @@ else:
             ('__u6_addr32', ctypes.c_uint32 * 4),
         ]
 
+
     class in6_addr(ctypes.Structure):
         _fields_ = [
             ('__in6_u', in6_addr_U),
         ]
+
 
     class in_pktinfo(ctypes.Structure):
         _fields_ = [
@@ -53,11 +60,13 @@ else:
             ('ipi_addr', in_addr),
         ]
 
+
     class in6_pktinfo(ctypes.Structure):
         _fields_ = [
             ('ipi6_addr', in6_addr),
             ('ipi6_ifindex', ctypes.c_uint),
         ]
+
 
     def getRecvFrom(addressType):
         def recvfrom(s, sz):
@@ -73,7 +82,9 @@ else:
                     addr = ipaddress.ip_address(memoryview(addr.ipi6_addr).tobytes())
                     _to = (str(addr), s.getsockname()[1])
             return data, addressType(_from).setLocalAddress(_to)
+
         return recvfrom
+
 
     def getSendTo(addressType):
         def sendto(s, _data, _to):
@@ -91,4 +102,5 @@ else:
                 _f.ipi6_addr = in6_addr.from_buffer_copy(addr.packed)
                 ancdata = [(socket.SOL_IPV6, socket.IPV6_PKTINFO, memoryview(_f).tobytes())]
             return s.sendmsg([_data], ancdata, 0, _to)
+
         return sendto

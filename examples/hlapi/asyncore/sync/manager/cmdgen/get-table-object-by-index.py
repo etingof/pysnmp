@@ -12,9 +12,7 @@ Send SNMP GET request using the following options:
 
 Functionally similar to:
 
-| $ snmpget -v3 -l authPriv -u usr-md5-des -A authkey1 -X privkey1 \
-|                   demo.snmplabs.com \
-|                   IF-MIB::ifInOctets.1 IF-MIB::ifOutOctets.1
+| $ snmpget -v3 -l authPriv -u usr-md5-des -A authkey1 -X privkey1 demo.snmplabs.com IF-MIB::ifInOctets.1 IF-MIB::ifOutOctets.1
 
 """#
 from pysnmp.hlapi import *
@@ -31,11 +29,8 @@ errorIndication, errorStatus, errorIndex, varBinds = next(
 if errorIndication:
     print(errorIndication)
 elif errorStatus:
-    print('%s at %s' % (
-            errorStatus.prettyPrint(),
-            errorIndex and varBinds[int(errorIndex)-1][0] or '?'
-        )
-    )
+    print('%s at %s' % (errorStatus.prettyPrint(),
+                        errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
 else:
     for varBind in varBinds:
-        print(' = '.join([ x.prettyPrint() for x in varBind ]))
+        print(' = '.join([x.prettyPrint() for x in varBind]))

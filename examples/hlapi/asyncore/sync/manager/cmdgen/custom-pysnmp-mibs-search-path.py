@@ -14,32 +14,31 @@ Send a series of SNMP GETBULK requests using the following options:
 
 Functionally similar to:
 
-| $ snmpbulkwalk -v3 -lnoAuthNoPriv -u usr-none-none -Cn0 -Cr50 \
-|                demo.snmplabs.com  TCP-MIB::tcpConnTable
+| $ snmpbulkwalk -v3 -lnoAuthNoPriv -u usr-none-none -Cn0 -Cr50 demo.snmplabs.com  TCP-MIB::tcpConnTable
 
 """#
 from pysnmp.hlapi import *
 
-for errorIndication, \
-    errorStatus, errorIndex, \
-    varBinds in bulkCmd(SnmpEngine(),
-                        UsmUserData('usr-none-none'),
-                        UdpTransportTarget(('demo.snmplabs.com', 161)),
-                        ContextData(),
-                        0, 50,
-                        ObjectType(ObjectIdentity('TCP-MIB', 'tcpConnTable').addMibSource('/opt/mibs/pysnmp').addMibSource('python_packaged_mibs')),
-                        lexicographicMode=False):
+for (errorIndication,
+     errorStatus,
+     errorIndex,
+     varBinds) in bulkCmd(SnmpEngine(),
+                          UsmUserData('usr-none-none'),
+                          UdpTransportTarget(('demo.snmplabs.com', 161)),
+                          ContextData(),
+                          0, 50,
+                          ObjectType(
+                              ObjectIdentity('TCP-MIB', 'tcpConnTable').addMibSource('/opt/mibs/pysnmp').addMibSource('python_packaged_mibs')
+                          ),
+                          lexicographicMode=False):
 
     if errorIndication:
         print(errorIndication)
         break
     elif errorStatus:
-        print('%s at %s' % (
-                errorStatus.prettyPrint(),
-                errorIndex and varBinds[int(errorIndex)-1][0] or '?'
-            )
-        )
+        print('%s at %s' % (errorStatus.prettyPrint(),
+                            errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
         break
     else:
         for varBind in varBinds:
-            print(' = '.join([ x.prettyPrint() for x in varBind ]))
+            print(' = '.join([x.prettyPrint() for x in varBind]))

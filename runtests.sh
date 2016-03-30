@@ -13,13 +13,13 @@ for x in examples/hlapi/asyncore/sync/manager/cmdgen/*.py \
          examples/smi/manager/*py \
          examples/smi/agent/*.py
 do
-    case "$x" in
+    case "${x}" in
     *spoof*|*ipv6*)
-        echo "skipping $x"
+        echo "skipping ${x}"
         continue
         ;;
     *)
-        python $x
+        python "${x}"
         ;;
     esac
 done

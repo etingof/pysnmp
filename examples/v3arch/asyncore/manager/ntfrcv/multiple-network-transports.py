@@ -48,6 +48,7 @@ config.addTransport(
 config.addV1System(snmpEngine, 'my-area', 'public')
 
 # Callback function for receiving notifications
+# noinspection PyUnusedLocal,PyUnusedLocal,PyUnusedLocal
 def cbFun(snmpEngine, stateReference, contextEngineId, contextName,
           varBinds, cbCtx):
     print('Notification from ContextEngineId "%s", ContextName "%s"' % (

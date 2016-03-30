@@ -7,10 +7,13 @@
 from pysnmp.proto import errind, error
 from pysnmp import debug
 
+
 # rfc3415 3.2
+# noinspection PyUnusedLocal
 class Vacm:
     """Void Access Control Model"""
     accessModelID = 0
+
     def isAccessAllowed(self,
                         snmpEngine,
                         securityModel,
@@ -19,8 +22,9 @@ class Vacm:
                         viewType,
                         contextName,
                         variableName):
-
-        debug.logger & debug.flagACL and debug.logger('isAccessAllowed: viewType %s for variableName %s - OK' % (viewType, variableName))
+        debug.logger & debug.flagACL and debug.logger(
+            'isAccessAllowed: viewType %s for variableName %s - OK' % (viewType, variableName)
+        )
 
         # rfc3415 3.2.5c
         return error.StatusInformation(errorIndication=errind.accessAllowed)

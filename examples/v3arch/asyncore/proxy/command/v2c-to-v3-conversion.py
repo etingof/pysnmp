@@ -114,6 +114,7 @@ class CommandResponder(cmdrsp.CommandResponderBase):
             )
 
     # SNMP response relay
+    # noinspection PyUnusedLocal
     def handleResponsePdu(self, snmpEngine, sendRequestHandle,
                           errorIndication, PDU, cbCtx):
         stateReference, reqPDU = cbCtx

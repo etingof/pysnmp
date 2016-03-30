@@ -44,6 +44,8 @@ def cbTimerFun(timeNow):
     if timeNow - startedAt > 3:
         raise Exception("Request timed out")
 
+
+# noinspection PyUnusedLocal
 def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
               wholeMsg, reqPDU=reqPDU, headVars=headVars):
     while wholeMsg:

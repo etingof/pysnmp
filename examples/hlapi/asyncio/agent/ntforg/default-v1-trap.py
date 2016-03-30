@@ -23,6 +23,7 @@ Functionally similar to:
 import asyncio
 from pysnmp.hlapi.asyncio import *
 
+
 @asyncio.coroutine
 def run():
     snmpEngine = SnmpEngine()
@@ -44,5 +45,6 @@ def run():
         print(errorIndication)
 
     snmpEngine.transportDispatcher.closeDispatcher()
+
 
 asyncio.get_event_loop().run_until_complete(run())

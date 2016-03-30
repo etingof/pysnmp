@@ -31,8 +31,10 @@ targets = (
      ContextData()),
 )
 
-def cbFun(snmpEngine, sendRequestHandle, errorIndication, 
-          errorStatus, errorIndex, varBinds, cbctx):
+
+# noinspection PyUnusedLocal
+def cbFun(snmpEngine, sendRequestHandle, errorIndication,
+          errorStatus, errorIndex, varBinds, cbCtx):
     if errorIndication:
         print('Notification %s not sent: %s' % (sendRequestHandle, errorIndication))
     elif errorStatus:
@@ -43,6 +45,7 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
         for name, val in varBinds:
             print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
 
+
 snmpEngine = SnmpEngine()
 
 for authData, transportTarget, contextData in targets:
@@ -51,10 +54,10 @@ for authData, transportTarget, contextData in targets:
         authData,
         transportTarget,
         contextData,
-        'inform',       # NotifyType
+        'inform',  # NotifyType
         NotificationType(
             ObjectIdentity('SNMPv2-MIB', 'coldStart')
-        ).addVarBinds( ( '1.3.6.1.2.1.1.1.0', 'my name' ) ),
+        ).addVarBinds(('1.3.6.1.2.1.1.1.0', 'my name')),
         cbFun=cbFun
     )
 

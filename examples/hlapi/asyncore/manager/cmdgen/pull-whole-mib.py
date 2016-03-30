@@ -17,33 +17,32 @@ Functionally similar to:
 """#
 from pysnmp.hlapi.asyncore import *
 
-def cbFun(snmpEngine, sendRequestHandle, errorIndication, 
+
+# noinspection PyUnusedLocal,PyUnusedLocal,PyUnusedLocal
+def cbFun(snmpEngine, sendRequestHandle, errorIndication,
           errorStatus, errorIndex, varBindTable, cbCtx):
     if errorIndication:
         print(errorIndication)
         return
     elif errorStatus:
-        print('%s at %s' % (
-                errorStatus.prettyPrint(),
-                errorIndex and varBindTable[-1][int(errorIndex)-1][0] or '?'
-            )
-        )
+        print('%s at %s' % (errorStatus.prettyPrint(), errorIndex and varBindTable[-1][int(errorIndex) - 1][0] or '?'))
         return
     else:
         for varBindRow in varBindTable:
             for varBind in varBindRow:
-                print(' = '.join([ x.prettyPrint() for x in varBind ]))
+                print(' = '.join([x.prettyPrint() for x in varBind]))
 
     return True  # request lower layers to do GETNEXT and call us back
+
 
 snmpEngine = SnmpEngine()
 
 nextCmd(snmpEngine,
-         UsmUserData('usr-md5-none', 'authkey1'),
-         UdpTransportTarget(('demo.snmplabs.com', 161)),
-         ContextData(),
-         ObjectType(ObjectIdentity('SNMPv2-MIB', 'system')),
-         ObjectType(ObjectIdentity('IF-MIB', 'ifTable')),
-         cbFun=cbFun)
+        UsmUserData('usr-md5-none', 'authkey1'),
+        UdpTransportTarget(('demo.snmplabs.com', 161)),
+        ContextData(),
+        ObjectType(ObjectIdentity('SNMPv2-MIB', 'system')),
+        ObjectType(ObjectIdentity('IF-MIB', 'ifTable')),
+        cbFun=cbFun)
 
 snmpEngine.transportDispatcher.runDispatcher()

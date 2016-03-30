@@ -40,6 +40,7 @@ snmpEngine = engine.SnmpEngine()
 # If at this execution point passed variables are modified, their new
 # values will be propagated back and used by SNMP Engine for securityName
 # selection.
+# noinspection PyUnusedLocal,PyUnusedLocal,PyUnusedLocal
 def requestObserver(snmpEngine, execpoint, variables, cbCtx):
     if re.match('.*love.*', str(variables['communityName'])):
         print('Rewriting communityName \'%s\' from %s into \'public\'' % (variables['communityName'], ':'.join([str(x) for x in variables['transportInformation'][1]])))
@@ -65,6 +66,7 @@ config.addTransport(
 config.addV1System(snmpEngine, 'my-area', 'public')
 
 # Callback function for receiving notifications
+# noinspection PyUnusedLocal,PyUnusedLocal,PyUnusedLocal
 def cbFun(snmpEngine, stateReference, contextEngineId, contextName,
           varBinds, cbCtx):
     print('Notification from ContextEngineId "%s", ContextName "%s"' % (

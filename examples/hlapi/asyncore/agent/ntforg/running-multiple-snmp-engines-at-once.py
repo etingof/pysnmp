@@ -28,7 +28,7 @@ criterias are also possible.
 | $ snmpinform -v2c -c public demo.snmplabs.com:1162 123 1.3.6.1.6.3.1.1.5.1
 | $ snmpinform -v3 -u usr-md5-des -l authPriv -A authkey1 -X privkey1 demo.snmplabs.com 123 1.3.6.1.6.3.1.1.5.1
 
-"""# 
+"""#
 from pysnmp.hlapi.asyncore import *
 from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
 
@@ -36,16 +36,18 @@ from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
 # ( ( authData, transportTarget ), ... )
 targets = (
     # 1-st target (SNMPv2c over IPv4/UDP)
-    ( CommunityData('public'),
-      UdpTransportTarget(('demo.snmplabs.com', 1162)),
-      ContextData() ),
+    (CommunityData('public'),
+     UdpTransportTarget(('demo.snmplabs.com', 1162)),
+     ContextData()),
     # 2-nd target (SNMPv3 over IPv4/UDP)
-    ( UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
-      UdpTransportTarget(('demo.snmplabs.com', 162)),
-      ContextData() ),
+    (UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
+     UdpTransportTarget(('demo.snmplabs.com', 162)),
+     ContextData()),
 )
 
-def cbFun(snmpEngine, sendRequestHandle, errorIndication, 
+
+# noinspection PyUnusedLocal
+def cbFun(snmpEngine, sendRequestHandle, errorIndication,
           errorStatus, errorIndex, varBinds, cbCtx):
     snmpEngine = cbCtx
     if errorIndication:
@@ -57,12 +59,13 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
         for name, val in varBinds:
             print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
 
+
 # Instantiate the single transport dispatcher object
 transportDispatcher = AsyncoreDispatcher()
 
 # Setup a custom data routing function to select snmpEngine by transportDomain
 transportDispatcher.registerRoutingCbFun(
-    lambda td,ta,d: ta[1] % 3 and 'A' or 'B'
+    lambda td, ta, d: ta[1] % 3 and 'A' or 'B'
 )
 
 snmpEngineA = SnmpEngine()
@@ -73,16 +76,16 @@ snmpEngineB.registerTransportDispatcher(transportDispatcher, 'B')
 
 for authData, transportTarget, contextData in targets:
     snmpEngine = transportTarget.getTransportInfo()[1][1] % 3 and \
-            snmpEngineA or snmpEngineB
+                 snmpEngineA or snmpEngineB
     sendPduHandle = sendNotification(
         snmpEngine,
         authData,
         transportTarget,
         contextData,
-        'inform',       # NotifyType
+        'inform',  # NotifyType
         NotificationType(
             ObjectIdentity('SNMPv2-MIB', 'coldStart')
-        ).addVarBinds( ( '1.3.6.1.2.1.1.1.0', 'my name' ) ),
+        ).addVarBinds(('1.3.6.1.2.1.1.1.0', 'my name')),
         cbFun=cbFun, cbCtx=snmpEngine
     )
 

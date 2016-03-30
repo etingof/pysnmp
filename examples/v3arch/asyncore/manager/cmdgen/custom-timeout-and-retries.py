@@ -52,6 +52,7 @@ config.addTargetAddr(
 )
 
 # Error/response receiver
+# noinspection PyUnusedLocal,PyUnusedLocal,PyUnusedLocal
 def cbFun(snmpEngine, sendRequestHandle, errorIndication,
           errorStatus, errorIndex, varBinds, cbCtx):
     if errorIndication:

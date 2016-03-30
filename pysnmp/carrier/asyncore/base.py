@@ -17,6 +17,8 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
     retryCount = 0
     retryInterval = 0
     bufferSize = 131070
+
+    # noinspection PyUnusedLocal
     def __init__(self, sock=None, sockMap=None):
         asyncore.dispatcher.__init__(self)
         if sock is None:

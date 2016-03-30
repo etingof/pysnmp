@@ -13,36 +13,30 @@ Send a series of SNMP GETBULK requests using the following options:
 
 Functionally similar to:
 
-| $ snmpbulkwalk -v3 -lauthPriv -u usr-md5-des -A authkey1 -X privkey1 \
-|                -Cn1, -Cr25 \
-|                demo.snmplabs.com \
-|                IP-MIB::ipAdEntAddr \
-|                IP-MIB::ipAddrEntry
+| $ snmpbulkwalk -v3 -lauthPriv -u usr-md5-des -A authkey1 -X privkey1 -Cn1, -Cr25 demo.snmplabs.com IP-MIB::ipAdEntAddr IP-MIB::ipAddrEntry
 
 """#
 from pysnmp.hlapi import *
 
-for errorIndication, \
-    errorStatus, errorIndex, \
-    varBinds in bulkCmd(SnmpEngine(),
-                        UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
-                        Udp6TransportTarget(('::1', 161)),
-                        ContextData(),
-                        1, 25,
-                        ObjectType(ObjectIdentity('IP-MIB', 'ipAdEntAddr')),
-                        ObjectType(ObjectIdentity('IP-MIB', 'ipAddrEntry')),
-                        lexicographicMode=False):
+for (errorIndication,
+     errorStatus,
+     errorIndex,
+     varBinds) in bulkCmd(SnmpEngine(),
+                          UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
+                          Udp6TransportTarget(('::1', 161)),
+                          ContextData(),
+                          1, 25,
+                          ObjectType(ObjectIdentity('IP-MIB', 'ipAdEntAddr')),
+                          ObjectType(ObjectIdentity('IP-MIB', 'ipAddrEntry')),
+                          lexicographicMode=False):
 
     if errorIndication:
         print(errorIndication)
         break
     elif errorStatus:
-        print('%s at %s' % (
-                errorStatus.prettyPrint(),
-                errorIndex and varBinds[int(errorIndex)-1][0] or '?'
-            )
-        )
+        print('%s at %s' % (errorStatus.prettyPrint(),
+                            errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
         break
     else:
         for varBind in varBinds:
-            print(' = '.join([ x.prettyPrint() for x in varBind ]))
+            print(' = '.join([x.prettyPrint() for x in varBind]))

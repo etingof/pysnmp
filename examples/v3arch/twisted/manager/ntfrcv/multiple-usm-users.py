@@ -91,6 +91,7 @@ config.addV3User(
 # -- end of SNMPv3/USM setup
 
 # Callback function for receiving notifications
+# noinspection PyUnusedLocal,PyUnusedLocal,PyUnusedLocal
 def cbFun(snmpEngine, stateReference, contextEngineId, contextName,
           varBinds, cbCtx):
     print('Notification from ContextEngineId "%s", ContextName "%s"' % (

@@ -21,18 +21,19 @@ Functionally similar to:
 from pysnmp.hlapi import *
 
 errorIndication, errorStatus, errorIndex, varBinds = next(
-    sendNotification(SnmpEngine(),
-                     CommunityData('public'),
-                     UdpTransportTarget(('demo.snmplabs.com', 162)),
-                     ContextData(),
-                     'trap',
-                     NotificationType(
-                         ObjectIdentity('IF-MIB', 'linkUp'),
-                         instanceIndex=(123,),
-                         objects={('IF-MIB', 'ifIndex'): 123,
-                                  ('IF-MIB', 'ifAdminStatus'): 'up',
-                                  ('IF-MIB', 'ifOperStatus'): 'up'}
-                     )
+    sendNotification(
+        SnmpEngine(),
+        CommunityData('public'),
+        UdpTransportTarget(('demo.snmplabs.com', 162)),
+        ContextData(),
+        'trap',
+        NotificationType(
+            ObjectIdentity('IF-MIB', 'linkUp'),
+                           instanceIndex=(123,),
+                           objects={('IF-MIB', 'ifIndex'): 123,
+                                    ('IF-MIB', 'ifAdminStatus'): 'up',
+                                    ('IF-MIB', 'ifOperStatus'): 'up'}
+        )
     )
 )
 

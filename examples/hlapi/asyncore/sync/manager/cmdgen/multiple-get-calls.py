@@ -16,14 +16,13 @@ could consume input
 
 Functionally similar to:
 
-| $ snmpget -v3 -l authNoPriv -u usr-md5-none -A authkey1 demo.snmplabs.com \
-|        IF-MIB::ifInOctets.1
+| $ snmpget -v3 -l authNoPriv -u usr-md5-none -A authkey1 demo.snmplabs.com IF-MIB::ifInOctets.1
 
 """#
 from pysnmp.hlapi import *
 
-queue = [ [ ObjectType(ObjectIdentity('IF-MIB', 'ifInOctets', 1)) ],
-          [ ObjectType(ObjectIdentity('IF-MIB', 'ifOutOctets', 1)) ] ]
+queue = [[ObjectType(ObjectIdentity('IF-MIB', 'ifInOctets', 1))],
+         [ObjectType(ObjectIdentity('IF-MIB', 'ifOutOctets', 1))]]
 
 iter = getCmd(SnmpEngine(),
               UsmUserData('usr-md5-none', 'authkey1'),
@@ -37,11 +36,8 @@ while queue:
     if errorIndication:
         print(errorIndication)
     elif errorStatus:
-        print('%s at %s' % (
-                errorStatus.prettyPrint(),
-                errorIndex and varBinds[int(errorIndex)-1][0] or '?'
-            )
-        )
+        print('%s at %s' % (errorStatus.prettyPrint(),
+                            errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
     else:
         for varBind in varBinds:
-            print(' = '.join([ x.prettyPrint() for x in varBind ]))
+            print(' = '.join([x.prettyPrint() for x in varBind]))

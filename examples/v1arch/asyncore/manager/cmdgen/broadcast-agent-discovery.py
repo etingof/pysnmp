@@ -55,7 +55,9 @@ class StopWaiting(Exception): pass
 def cbTimerFun(timeNow):
     if timeNow - startedAt > maxWaitForResponses:
         raise StopWaiting()
-    
+
+
+# noinspection PyUnusedLocal,PyUnusedLocal
 def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
               wholeMsg, reqPDU=reqPDU):
     while wholeMsg:

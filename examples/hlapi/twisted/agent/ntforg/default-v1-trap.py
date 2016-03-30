@@ -38,6 +38,8 @@ def success((errorStatus, errorIndex, varBinds), hostname):
 def failure(errorIndication, hostname):
     print('%s failure: %s' % (hostname, errorIndication))
 
+
+# noinspection PyUnusedLocal
 def run(reactor, hostname):
     d = sendNotification(
         SnmpEngine(),

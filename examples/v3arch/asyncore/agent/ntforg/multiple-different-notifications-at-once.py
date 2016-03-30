@@ -88,6 +88,7 @@ config.addVacmUser(snmpEngine, 3, 'usr-md5-none', 'authNoPriv', (), (), (1,3,6))
 ntfOrg = ntforg.NotificationOriginator()
 
 # Error/confirmation receiver
+# noinspection PyUnusedLocal,PyUnusedLocal,PyUnusedLocal,PyUnusedLocal,PyUnusedLocal
 def cbFun(snmpEngine, sendRequestHandle, errorIndication,
           errorStatus, errorIndex, varBinds, cbCtx):
     print('Notification %s, status - %s' % (

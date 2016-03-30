@@ -29,6 +29,7 @@ snmpEngine = engine.SnmpEngine()
 
 # Register a callback to be invoked at specified execution point of 
 # SNMP Engine and passed local variables at code point's local scope
+# noinspection PyUnusedLocal,PyUnusedLocal
 def requestObserver(snmpEngine, execpoint, variables, cbCtx):
     print('Execution point: %s' % execpoint)
     print('* transportDomain: %s' % '.'.join([str(x) for x in variables['transportDomain']]))
@@ -76,6 +77,7 @@ config.addTargetAddr(
 )
 
 # Error/response receiver
+# noinspection PyUnusedLocal,PyUnusedLocal,PyUnusedLocal
 def cbFun(snmpEngine, sendRequestHandle, errorIndication,
           errorStatus, errorIndex, varBinds, cbCtx):
     if errorIndication:

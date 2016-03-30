@@ -20,6 +20,7 @@ Functionally similar to:
 import asyncio
 from pysnmp.hlapi.asyncio import *
 
+
 @asyncio.coroutine
 def getone(snmpEngine, hostname):
     errorIndication, errorStatus, errorIndex, varBinds = yield from getCmd(
@@ -34,13 +35,14 @@ def getone(snmpEngine, hostname):
         print(errorIndication)
     elif errorStatus:
         print('%s at %s' % (
-                errorStatus.prettyPrint(),
-                errorIndex and varBinds[int(errorIndex)-1][0] or '?'
-            )
+            errorStatus.prettyPrint(),
+            errorIndex and varBinds[int(errorIndex) - 1][0] or '?'
         )
+              )
     else:
         for varBind in varBinds:
-            print(' = '.join([ x.prettyPrint() for x in varBind ]))
+            print(' = '.join([x.prettyPrint() for x in varBind]))
+
 
 snmpEngine = SnmpEngine()
 

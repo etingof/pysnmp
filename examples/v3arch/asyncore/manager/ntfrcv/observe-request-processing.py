@@ -31,6 +31,7 @@ snmpEngine = engine.SnmpEngine()
 
 # Register a callback to be invoked at specified execution point of 
 # SNMP Engine and passed local variables at code point's local scope
+# noinspection PyUnusedLocal,PyUnusedLocal
 def requestObserver(snmpEngine, execpoint, variables, cbCtx):
     print('Execution point: %s' % execpoint)
     print('* transportDomain: %s' % '.'.join([str(x) for x in variables['transportDomain']]))
@@ -70,6 +71,7 @@ config.addTransport(
 config.addV1System(snmpEngine, 'my-area', 'public')
 
 # Callback function for receiving notifications
+# noinspection PyUnusedLocal,PyUnusedLocal,PyUnusedLocal
 def cbFun(snmpEngine, stateReference, contextEngineId, contextName,
           varBinds, cbCtx):
     print('Notification from ContextEngineId "%s", ContextName "%s"' % (
