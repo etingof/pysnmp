@@ -19,24 +19,24 @@ from twisted.internet.defer import DeferredList
 from twisted.internet.task import react
 from pysnmp.hlapi.twisted import *
 
+
 def success((errorStatus, errorIndex, varBindTable), reactor, snmpEngine, hostname):
     if errorStatus:
-        print('%s: %s at %s' % (
-                hostname,
-                errorStatus.prettyPrint(),
-                errorIndex and varBindTable[0][int(errorIndex)-1][0] or '?'
-            )
-        )
+        print('%s: %s at %s' % (hostname,
+                                errorStatus.prettyPrint(),
+                                errorIndex and varBindTable[0][int(errorIndex) - 1][0] or '?'))
     else:
         for varBindRow in varBindTable:
             for varBind in varBindRow:
-                print(' = '.join([ x.prettyPrint() for x in varBind ]))
+                print(' = '.join([x.prettyPrint() for x in varBind]))
 
         if not isEndOfMib(varBindTable[-1]):
             return getbulk(reactor, snmpEngine, hostname, *varBindTable[-1])
 
+
 def failure(errorIndication):
     print(errorIndication)
+
 
 def getbulk(reactor, snmpEngine, hostname, varBinds):
     d = bulkCmd(snmpEngine,
@@ -48,14 +48,15 @@ def getbulk(reactor, snmpEngine, hostname, varBinds):
     d.addCallback(success, reactor, snmpEngine, hostname).addErrback(failure)
     return d
 
+
 def getall(reactor, hostnames):
     snmpEngine = SnmpEngine()
 
     return DeferredList(
-        [ getbulk(reactor, snmpEngine, hostname,
-                  ObjectType(ObjectIdentity('SNMPv2-MIB', 'system')))
-          for hostname in hostnames ]
+        [getbulk(reactor, snmpEngine, hostname,
+                 ObjectType(ObjectIdentity('SNMPv2-MIB', 'system')))
+         for hostname in hostnames]
     )
 
-react(getall, [(('demo.snmplabs.com', 161), ('demo.snmplabs.com', 1161))])
 
+react(getall, [(('demo.snmplabs.com', 161), ('demo.snmplabs.com', 1161))])
