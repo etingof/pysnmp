@@ -24,14 +24,17 @@ Functionally similar to:
 import trollius
 from pysnmp.hlapi.asyncio import *
 
+
 @trollius.coroutine
 def run():
     snmpEngine = SnmpEngine()
-    errorIndication, errorStatus, \
-    errorIndex, varBinds = yield trollius.From(
+    (errorIndication,
+     errorStatus,
+     errorIndex,
+     varBinds) = yield trollius.From(
         sendNotification(
             snmpEngine,
-            CommunityData('public'), # mpModel=0),
+            CommunityData('public'),  # mpModel=0),
             UdpTransportTarget(('demo.snmplabs.com', 162)),
             ContextData(),
             'inform',
@@ -47,11 +50,13 @@ def run():
     if errorIndication:
         print(errorIndication)
     elif errorStatus:
-        print('%s: at %s' % (errorStatus.prettyPrint(), errorIndex and varBinds[int(errorIndex)-1][0] or '?'))
+        print('%s: at %s' % (errorStatus.prettyPrint(),
+                             errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
     else:
         for varBind in varBinds:
             print(' = '.join([x.prettyPrint() for x in varBind]))
 
     snmpEngine.transportDispatcher.closeDispatcher()
+
 
 trollius.get_event_loop().run_until_complete(run())

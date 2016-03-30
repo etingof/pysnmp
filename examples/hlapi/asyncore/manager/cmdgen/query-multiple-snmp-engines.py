@@ -64,7 +64,8 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
         print(errorIndication)
         return True
     elif errorStatus:
-        print('%s at %s' % (errorStatus.prettyPrint(), errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
+        print('%s at %s' % (errorStatus.prettyPrint(),
+                            errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
         return True
     else:
         for varBind in varBinds:
