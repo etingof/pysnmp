@@ -1,4 +1,12 @@
-# SNMP manager-side MIB management
+"""
+SNMP MIB browser
+++++++++++++++++
+
+This script explains how Python application (typically SNMP Manager)
+could load SNMP MIB modules into memory and introspect Managed Objects
+defined in MIB.
+
+"""#
 from pysnmp.smi import builder, view, compiler, error
 
 # Create MIB loader/builder

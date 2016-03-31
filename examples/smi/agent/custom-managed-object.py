@@ -1,4 +1,11 @@
-# Managed Objects implementation
+"""
+Implementing MIB objects
+++++++++++++++++++++++++
+
+This script explains how SNMP Agent application could model
+real-world data as Managed Objects defined in MIB.
+
+"""#
 from pysnmp.smi import builder
 
 # MIB Builder is normally pre-created by SNMP engine

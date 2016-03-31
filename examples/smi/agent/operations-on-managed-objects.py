@@ -1,10 +1,18 @@
+"""
+Agent operations on MIB
++++++++++++++++++++++++
+
+This script explains how SNMP Agent application manipulates
+its MIB possibly triggered by SNMP Manager's commands.
+
+"""#
 # SNMP agent backend e.g. Agent access to Managed Objects
 from pysnmp.smi import builder, instrum, exval
 
 print('Loading MIB modules...'),
 mibBuilder = builder.MibBuilder().loadModules(
     'SNMPv2-MIB', 'SNMP-FRAMEWORK-MIB', 'SNMP-COMMUNITY-MIB'
-    )
+)
 print('done')
 
 print('Building MIB tree...'),
@@ -20,9 +28,9 @@ print('done')
 
 print('Create/update SNMP-COMMUNITY-MIB::snmpCommunityEntry table row: ')
 varBinds = mibInstrum.writeVars(
-    ( (snmpCommunityEntry.name+(2,)+instanceId, 'mycomm'),
-      (snmpCommunityEntry.name+(3,)+instanceId, 'mynmsname'),
-      (snmpCommunityEntry.name+(7,)+instanceId, 'volatile') )
+    ((snmpCommunityEntry.name + (2,) + instanceId, 'mycomm'),
+     (snmpCommunityEntry.name + (3,) + instanceId, 'mynmsname'),
+     (snmpCommunityEntry.name + (7,) + instanceId, 'volatile'))
 )
 for oid, val in varBinds:
     print('%s = %s' % ('.'.join([str(x) for x in oid]), val.prettyPrint()))

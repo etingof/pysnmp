@@ -1,4 +1,12 @@
-# SNMP variables MIB resolution
+"""
+SNMP var-binds MIB resolution
++++++++++++++++++++++++++++++
+
+This script explains how Python application (typically pysnmp-based SNMP Manager)
+could enrich SNMP PDU variable-bindings with MIB information or convert MIB objects
+into variable-bindings.
+
+"""#
 from pysnmp.smi import builder, view, rfc1902, error
 
 # MIB Builder manages pysnmp MIBs
