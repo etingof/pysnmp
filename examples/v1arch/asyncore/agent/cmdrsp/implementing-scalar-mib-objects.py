@@ -25,40 +25,58 @@ from pyasn1.codec.ber import encoder, decoder
 from pysnmp.proto import api
 import time, bisect
 
+
 class SysDescr:
-    name = (1,3,6,1,2,1,1,1,0)
+    name = (1, 3, 6, 1, 2, 1, 1, 1, 0)
+
     def __eq__(self, other): return self.name == other
+
     def __ne__(self, other): return self.name != other
+
     def __lt__(self, other): return self.name < other
+
     def __le__(self, other): return self.name <= other
+
     def __gt__(self, other): return self.name > other
+
     def __ge__(self, other): return self.name >= other
+
     def __call__(self, protoVer):
         return api.protoModules[protoVer].OctetString(
             'PySNMP example command responder'
-            )
+        )
+
 
 class Uptime:
-    name = (1,3,6,1,2,1,1,3,0)
+    name = (1, 3, 6, 1, 2, 1, 1, 3, 0)
     birthday = time.time()
+
     def __eq__(self, other): return self.name == other
+
     def __ne__(self, other): return self.name != other
+
     def __lt__(self, other): return self.name < other
+
     def __le__(self, other): return self.name <= other
+
     def __gt__(self, other): return self.name > other
-    def __ge__(self, other): return self.name >= other    
+
+    def __ge__(self, other): return self.name >= other
+
     def __call__(self, protoVer):
         return api.protoModules[protoVer].TimeTicks(
-            (time.time()-self.birthday)*100
-            )
+            (time.time() - self.birthday) * 100
+        )
+
 
 mibInstr = (
-    SysDescr(), Uptime() # sorted by object name
-    )
+    SysDescr(), Uptime()  # sorted by object name
+)
 
 mibInstrIdx = {}
 for mibVar in mibInstr:
     mibInstrIdx[mibVar.name] = mibVar
+
 
 def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
     while wholeMsg:
@@ -70,11 +88,12 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
             return
         reqMsg, wholeMsg = decoder.decode(
             wholeMsg, asn1Spec=pMod.Message(),
-            )
+        )
         rspMsg = pMod.apiMessage.getResponse(reqMsg)
-        rspPDU = pMod.apiMessage.getPDU(rspMsg)        
+        rspPDU = pMod.apiMessage.getPDU(rspMsg)
         reqPDU = pMod.apiMessage.getPDU(reqMsg)
-        varBinds = []; pendingErrors = []
+        varBinds = [];
+        pendingErrors = []
         errorIndex = 0
         # GETNEXT PDU
         if reqPDU.isSameTypeWith(pMod.GetNextRequestPDU()):
@@ -88,12 +107,12 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
                     varBinds.append((oid, val))
                     pendingErrors.append(
                         (pMod.apiPDU.setEndOfMibError, errorIndex)
-                        )
+                    )
                 else:
                     # Report value if OID is found
                     varBinds.append(
                         (mibInstr[nextIdx].name, mibInstr[nextIdx](msgVer))
-                        )
+                    )
         elif reqPDU.isSameTypeWith(pMod.GetRequestPDU()):
             for oid, val in pMod.apiPDU.getVarBinds(reqPDU):
                 if oid in mibInstrIdx:
@@ -103,7 +122,7 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
                     varBinds.append((oid, val))
                     pendingErrors.append(
                         (pMod.apiPDU.setNoSuchInstanceError, errorIndex)
-                        )
+                    )
                     break
         else:
             # Report unsupported request type
@@ -114,8 +133,9 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
             f(rspPDU, i)
         transportDispatcher.sendMessage(
             encoder.encode(rspMsg), transportDomain, transportAddress
-            )
+        )
     return wholeMsg
+
 
 transportDispatcher = AsyncoreDispatcher()
 transportDispatcher.registerRecvCbFun(cbFun)
@@ -131,9 +151,9 @@ transportDispatcher.registerTransport(
 )
 
 ## Local domain socket
-#transportDispatcher.registerTransport(
+# transportDispatcher.registerTransport(
 #    unix.domainName, unix.UnixSocketTransport().openServerMode('/tmp/snmp-agent')
-#)
+# )
 
 transportDispatcher.jobStarted(1)
 

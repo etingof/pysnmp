@@ -29,15 +29,15 @@ from pysnmp.proto import api
 
 # Protocol version to use
 pMod = api.protoModules[api.protoVersion1]
-#pMod = api.protoModules[api.protoVersion2c]
+# pMod = api.protoModules[api.protoVersion2c]
 
 # Build PDU
-trapPDU =  pMod.TrapPDU()
+trapPDU = pMod.TrapPDU()
 pMod.apiTrapPDU.setDefaults(trapPDU)
 
 # Traps have quite different semantics across proto versions
 if pMod == api.protoModules[api.protoVersion1]:
-    pMod.apiTrapPDU.setEnterprise(trapPDU, (1,3,6,1,1,2,3,4,1))
+    pMod.apiTrapPDU.setEnterprise(trapPDU, (1, 3, 6, 1, 1, 2, 3, 4, 1))
     pMod.apiTrapPDU.setGenericTrap(trapPDU, 'coldStart')
 
 # Build message
@@ -65,12 +65,12 @@ transportDispatcher.sendMessage(
 )
 
 ## Local domain socket
-#transportDispatcher.registerTransport(
+# transportDispatcher.registerTransport(
 #    unix.domainName, unix.UnixSocketTransport().openClientMode()
-#)
-#transportDispatcher.sendMessage(
+# )
+# transportDispatcher.sendMessage(
 #    encoder.encode(trapMsg), unix.domainName, '/tmp/snmp-manager'
-#)
+# )
 
 # Dispatcher will finish as all scheduled messages are sent
 transportDispatcher.runDispatcher()

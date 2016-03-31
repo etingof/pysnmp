@@ -31,16 +31,16 @@ maxWaitForResponses = 5
 maxNumberResponses = 10
 
 # Protocol version to use
-#pMod = api.protoModules[api.protoVersion1]
+# pMod = api.protoModules[api.protoVersion1]
 pMod = api.protoModules[api.protoVersion2c]
 
 # Build PDU
-reqPDU =  pMod.GetRequestPDU()
+reqPDU = pMod.GetRequestPDU()
 pMod.apiPDU.setDefaults(reqPDU)
 pMod.apiPDU.setVarBinds(
-    reqPDU, ( ('1.3.6.1.2.1.1.1.0', pMod.Null('')),
-              ('1.3.6.1.2.1.1.3.0', pMod.Null('')) )
-    )
+    reqPDU, (('1.3.6.1.2.1.1.1.0', pMod.Null('')),
+             ('1.3.6.1.2.1.1.3.0', pMod.Null('')))
+)
 
 # Build message
 reqMsg = pMod.Message()
@@ -50,7 +50,9 @@ pMod.apiMessage.setPDU(reqMsg, reqPDU)
 
 startedAt = time()
 
+
 class StopWaiting(Exception): pass
+
 
 def cbTimerFun(timeNow):
     if timeNow - startedAt > maxWaitForResponses:
@@ -64,7 +66,7 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
         rspMsg, wholeMsg = decoder.decode(wholeMsg, asn1Spec=pMod.Message())
         rspPDU = pMod.apiMessage.getPDU(rspMsg)
         # Match response to request
-        if pMod.apiPDU.getRequestID(reqPDU)==pMod.apiPDU.getRequestID(rspPDU):
+        if pMod.apiPDU.getRequestID(reqPDU) == pMod.apiPDU.getRequestID(rspPDU):
             # Check for SNMP errors reported
             errorStatus = pMod.apiPDU.getErrorStatus(rspPDU)
             if errorStatus:
@@ -74,6 +76,7 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
                     print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
             transportDispatcher.jobFinished(1)
     return wholeMsg
+
 
 transportDispatcher = AsyncoreDispatcher()
 

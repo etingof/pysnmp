@@ -41,7 +41,7 @@ mibVar = rfc1902.ObjectIdentity(str(mibVar)).resolveWithMib(mibView)
 print(mibVar.prettyPrint(), tuple(mibVar), str(mibVar))
 
 # Obtain MIB object information by a mix of OID/label parts
-mibVar = rfc1902.ObjectIdentity((1,3,6,1,2,'mib-2',1,'sysDescr')).resolveWithMib(mibView)
+mibVar = rfc1902.ObjectIdentity((1, 3, 6, 1, 2, 'mib-2', 1, 'sysDescr')).resolveWithMib(mibView)
 
 print(mibVar.prettyPrint(), tuple(mibVar), str(mibVar))
 
@@ -85,18 +85,17 @@ varBind = rfc1902.ObjectType(
 print(varBind[0].prettyPrint(), varBind[1].__class__.__name__, varBind[1].prettyPrint())
 
 # Create var-binds from MIB notification object (without OBJECTS clause)
-varBinds =  rfc1902.NotificationType(
+varBinds = rfc1902.NotificationType(
     rfc1902.ObjectIdentity('SNMPv2-MIB', 'coldStart')
 ).resolveWithMib(mibView)
 
-print([ '%s = %s(%s)' % (x[0].prettyPrint(), x[1].__class__.__name__, x[1].prettyPrint()) for x in varBinds])
+print(['%s = %s(%s)' % (x[0].prettyPrint(), x[1].__class__.__name__, x[1].prettyPrint()) for x in varBinds])
 
 # Create var-binds from MIB notification object (with OBJECTS clause)
-varBinds =  rfc1902.NotificationType(
+varBinds = rfc1902.NotificationType(
     rfc1902.ObjectIdentity('IF-MIB', 'linkUp'),
-    instanceIndex = (1,),
-    objects= { ('IF-MIB', 'ifOperStatus'): 'down' }
+    instanceIndex=(1,),
+    objects={('IF-MIB', 'ifOperStatus'): 'down'}
 ).resolveWithMib(mibView)
 
 print(varBinds.prettyPrint())
-

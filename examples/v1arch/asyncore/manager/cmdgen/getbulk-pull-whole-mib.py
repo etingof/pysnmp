@@ -22,14 +22,14 @@ from pysnmp.proto.api import v2c
 from time import time
 
 # SNMP table header
-headVars = [ v2c.ObjectIdentifier((1,3,6)) ]
+headVars = [v2c.ObjectIdentifier((1, 3, 6))]
 
 # Build PDU
-reqPDU =  v2c.GetBulkRequestPDU()
+reqPDU = v2c.GetBulkRequestPDU()
 v2c.apiBulkPDU.setDefaults(reqPDU)
 v2c.apiBulkPDU.setNonRepeaters(reqPDU, 0)
 v2c.apiBulkPDU.setMaxRepetitions(reqPDU, 25)
-v2c.apiBulkPDU.setVarBinds(reqPDU, [ (x, v2c.null) for x in headVars ])
+v2c.apiBulkPDU.setVarBinds(reqPDU, [(x, v2c.null) for x in headVars])
 
 # Build message
 reqMsg = v2c.Message()
@@ -38,6 +38,7 @@ v2c.apiMessage.setCommunity(reqMsg, 'public')
 v2c.apiMessage.setPDU(reqMsg, reqPDU)
 
 startedAt = time()
+
 
 def cbTimerFun(timeNow):
     if timeNow - startedAt > 3:
@@ -53,7 +54,7 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
         rspPDU = v2c.apiMessage.getPDU(rspMsg)
 
         # Match response to request
-        if v2c.apiBulkPDU.getRequestID(reqPDU)==v2c.apiBulkPDU.getRequestID(rspPDU):
+        if v2c.apiBulkPDU.getRequestID(reqPDU) == v2c.apiBulkPDU.getRequestID(rspPDU):
             # Format var-binds table
             varBindTable = v2c.apiBulkPDU.getVarBindTable(reqPDU, rspPDU)
 
@@ -62,7 +63,7 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
             if errorStatus and errorStatus != 2:
                 errorIndex = v2c.apiBulkPDU.getErrorIndex(rspPDU)
                 print('%s at %s' % (errorStatus.prettyPrint(),
-                                    errorIndex and varBindTable[int(errorIndex)-1] or '?'))
+                                    errorIndex and varBindTable[int(errorIndex) - 1] or '?'))
                 transportDispatcher.jobFinished(1)
                 break
 
@@ -71,8 +72,8 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
                 for name, val in tableRow:
                     print('from: %s, %s = %s' % (
                         transportAddress, name.prettyPrint(), val.prettyPrint()
-                        )
                     )
+                          )
 
             # Stop on EOM
             for oid, val in varBindTable[-1]:
@@ -80,20 +81,21 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
                     break
             else:
                 transportDispatcher.jobFinished(1)
-                
+
             # Generate request for next row
             v2c.apiBulkPDU.setVarBinds(
-                reqPDU, [ (x, v2c.null) for x,y in varBindTable[-1] ]
-                )
+                reqPDU, [(x, v2c.null) for x, y in varBindTable[-1]]
+            )
             v2c.apiBulkPDU.setRequestID(reqPDU, v2c.getNextRequestID())
             transportDispatcher.sendMessage(
                 encoder.encode(reqMsg), transportDomain, transportAddress
-                )
+            )
             global startedAt
             if time() - startedAt > 3:
                 raise Exception('Request timed out')
             startedAt = time()
     return wholeMsg
+
 
 transportDispatcher = AsyncoreDispatcher()
 

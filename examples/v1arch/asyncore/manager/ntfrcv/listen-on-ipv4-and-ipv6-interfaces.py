@@ -37,34 +37,19 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
             return
         reqMsg, wholeMsg = decoder.decode(
             wholeMsg, asn1Spec=pMod.Message(),
-            )
+        )
         print('Notification message from %s:%s: ' % (
             transportDomain, transportAddress
-            )
         )
+              )
         reqPDU = pMod.apiMessage.getPDU(reqMsg)
         if reqPDU.isSameTypeWith(pMod.TrapPDU()):
             if msgVer == api.protoVersion1:
-                print('Enterprise: %s' % (
-                    pMod.apiTrapPDU.getEnterprise(reqPDU).prettyPrint()
-                    )
-                )
-                print('Agent Address: %s' % (
-                    pMod.apiTrapPDU.getAgentAddr(reqPDU).prettyPrint()
-                    )
-                )
-                print('Generic Trap: %s' % (
-                    pMod.apiTrapPDU.getGenericTrap(reqPDU).prettyPrint()
-                    )
-                )
-                print('Specific Trap: %s' % (
-                    pMod.apiTrapPDU.getSpecificTrap(reqPDU).prettyPrint()
-                    )
-                )
-                print('Uptime: %s' % (
-                    pMod.apiTrapPDU.getTimeStamp(reqPDU).prettyPrint()
-                    )
-                )
+                print('Enterprise: %s' % (pMod.apiTrapPDU.getEnterprise(reqPDU).prettyPrint()))
+                print('Agent Address: %s' % (pMod.apiTrapPDU.getAgentAddr(reqPDU).prettyPrint()))
+                print('Generic Trap: %s' % (pMod.apiTrapPDU.getGenericTrap(reqPDU).prettyPrint()))
+                print('Specific Trap: %s' % (pMod.apiTrapPDU.getSpecificTrap(reqPDU).prettyPrint()))
+                print('Uptime: %s' % (pMod.apiTrapPDU.getTimeStamp(reqPDU).prettyPrint()))
                 varBinds = pMod.apiTrapPDU.getVarBindList(reqPDU)
             else:
                 varBinds = pMod.apiPDU.getVarBindList(reqPDU)
@@ -72,6 +57,7 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
             for oid, val in varBinds:
                 print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
     return wholeMsg
+
 
 transportDispatcher = AsyncoreDispatcher()
 
@@ -88,9 +74,9 @@ transportDispatcher.registerTransport(
 )
 
 ## Local domain socket
-#transportDispatcher.registerTransport(
+# transportDispatcher.registerTransport(
 #    unix.domainName, unix.UnixSocketTransport().openServerMode('/tmp/snmp-manager')
-#)
+# )
 
 transportDispatcher.jobStarted(1)
 

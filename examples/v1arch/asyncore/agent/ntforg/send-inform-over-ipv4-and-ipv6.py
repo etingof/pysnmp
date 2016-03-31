@@ -24,7 +24,7 @@ from pyasn1.codec.ber import encoder, decoder
 from pysnmp.proto.api import v2c as pMod
 
 # Build PDU
-reqPDU =  pMod.InformRequestPDU()
+reqPDU = pMod.InformRequestPDU()
 pMod.apiTrapPDU.setDefaults(reqPDU)
 
 # Build message
@@ -34,6 +34,7 @@ pMod.apiMessage.setCommunity(trapMsg, 'public')
 pMod.apiMessage.setPDU(trapMsg, reqPDU)
 
 startedAt = time()
+
 
 def cbTimerFun(timeNow):
     if timeNow - startedAt > 3:
@@ -47,7 +48,7 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
         rspMsg, wholeMsg = decoder.decode(wholeMsg, asn1Spec=pMod.Message())
         rspPDU = pMod.apiMessage.getPDU(rspMsg)
         # Match response to request
-        if pMod.apiPDU.getRequestID(reqPDU)==pMod.apiPDU.getRequestID(rspPDU):
+        if pMod.apiPDU.getRequestID(reqPDU) == pMod.apiPDU.getRequestID(rspPDU):
             # Check for SNMP errors reported
             errorStatus = pMod.apiPDU.getErrorStatus(rspPDU)
             if errorStatus:
@@ -58,6 +59,7 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
                     print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
             transportDispatcher.jobFinished(1)
     return wholeMsg
+
 
 transportDispatcher = AsynsockDispatcher()
 
@@ -74,13 +76,13 @@ transportDispatcher.sendMessage(
 transportDispatcher.jobStarted(1)
 
 # UDP/IPv6
-#transportDispatcher.registerTransport(
+# transportDispatcher.registerTransport(
 #    udp6.domainName, udp6.Udp6SocketTransport().openClientMode()
-#)
-#transportDispatcher.sendMessage(
+# )
+# transportDispatcher.sendMessage(
 #    encoder.encode(trapMsg), udp6.domainName, ('::1', 162)
-#)
-#transportDispatcher.jobStarted(1)
+# )
+# transportDispatcher.jobStarted(1)
 
 # Dispatcher will finish as all scheduled messages are sent
 transportDispatcher.runDispatcher()
