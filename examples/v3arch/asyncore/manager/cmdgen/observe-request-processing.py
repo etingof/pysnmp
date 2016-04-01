@@ -25,6 +25,7 @@ from pysnmp.entity.rfc3413 import cmdgen
 # Create SNMP engine instance
 snmpEngine = engine.SnmpEngine()
 
+
 # Execution point observer setup
 
 # Register a callback to be invoked at specified execution point of 
@@ -41,8 +42,9 @@ def requestObserver(snmpEngine, execpoint, variables, cbCtx):
     print('* contextName: %s' % variables['contextName'].prettyPrint())
     print('* PDU: %s' % variables['pdu'].prettyPrint())
 
+
 snmpEngine.observer.registerObserver(
-    requestObserver, 
+    requestObserver,
     'rfc3412.sendPdu',
     'rfc3412.receiveMessage:response'
 )
@@ -76,6 +78,7 @@ config.addTargetAddr(
     'my-creds'
 )
 
+
 # Error/response receiver
 # noinspection PyUnusedLocal,PyUnusedLocal,PyUnusedLocal
 def cbFun(snmpEngine, sendRequestHandle, errorIndication,
@@ -83,21 +86,19 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
     if errorIndication:
         print(errorIndication)
     elif errorStatus:
-        print('%s at %s' % (
-            errorStatus.prettyPrint(),
-            errorIndex and varBinds[int(errorIndex)-1][0] or '?'
-            )
-        )
+        print('%s at %s' % (errorStatus.prettyPrint(),
+                            errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
     else:
         for oid, val in varBinds:
             print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
+
 
 # Prepare and send a request message
 cmdgen.GetCommandGenerator().sendVarBinds(
     snmpEngine,
     'my-router',
     None, '',  # contextEngineId, contextName
-    [ ((1,3,6,1,2,1,1,1,0), None) ],
+    [((1, 3, 6, 1, 2, 1, 1, 1, 0), None)],
     cbFun
 )
 

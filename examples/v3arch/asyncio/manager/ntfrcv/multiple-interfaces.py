@@ -19,7 +19,7 @@ receiver:
 
 Requires Python 3.4 and later!
 
-"""#
+""" #
 from pysnmp.entity import engine, config
 from pysnmp.carrier.asyncio.dgram import udp
 from pysnmp.entity.rfc3413 import ntfrcv
@@ -53,6 +53,7 @@ config.addTransport(
 # SecurityName <-> CommunityName mapping
 config.addV1System(snmpEngine, 'my-area', 'public')
 
+
 # Callback function for receiving notifications
 # noinspection PyUnusedLocal
 def cbFun(snmpEngine,
@@ -61,14 +62,13 @@ def cbFun(snmpEngine,
           varBinds,
           cbCtx):
     transportDomain, transportAddress = snmpEngine.msgAndPduDsp.getTransportInfo(stateReference)
-    print('Notification from %s, SNMP Engine %s, Context %s' % (
-            transportAddress, contextEngineId.prettyPrint(),
-            contextName.prettyPrint()
-        )
-    )
+    print('Notification from %s, SNMP Engine %s, Context %s' % (transportAddress,
+                                                                contextEngineId.prettyPrint(),
+                                                                contextName.prettyPrint()))
     for name, val in varBinds:
         print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
- 
+
+
 # Register SNMP Application at the SNMP engine
 ntfrcv.NotificationReceiver(snmpEngine, cbFun)
 

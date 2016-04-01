@@ -27,6 +27,7 @@ from pysnmp.carrier.asyncore.dgram import udp
 # Create SNMP engine
 snmpEngine = engine.SnmpEngine()
 
+
 # Execution point observer setup
 
 # Register a callback to be invoked at specified execution point of 
@@ -42,6 +43,7 @@ def requestObserver(snmpEngine, execpoint, variables, cbCtx):
     print('* contextEngineId: %s' % variables['contextEngineId'].prettyPrint())
     print('* contextName: %s' % variables['contextName'].prettyPrint())
     print('* PDU: %s' % variables['pdu'].prettyPrint())
+
 
 snmpEngine.observer.registerObserver(
     requestObserver,
@@ -68,7 +70,7 @@ config.addV3User(
 )
 
 # Allow full MIB access for each user at VACM
-config.addVacmUser(snmpEngine, 3, 'usr-md5-des', 'authPriv', (1,3,6,1,2,1), (1,3,6,1,2,1)) 
+config.addVacmUser(snmpEngine, 3, 'usr-md5-des', 'authPriv', (1, 3, 6, 1, 2, 1), (1, 3, 6, 1, 2, 1))
 
 # Get default SNMP context this SNMP engine serves
 snmpContext = context.SnmpContext(snmpEngine)

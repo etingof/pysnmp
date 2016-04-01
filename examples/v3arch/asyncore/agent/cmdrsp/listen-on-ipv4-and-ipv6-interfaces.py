@@ -46,7 +46,7 @@ config.addTransport(
 config.addV1System(snmpEngine, 'my-area', 'public')
 
 # Allow full MIB access for this user / securityModels at VACM
-config.addVacmUser(snmpEngine, 2, 'my-area', 'noAuthNoPriv', (1,3,6,1,2,1), (1,3,6,1,2,1))
+config.addVacmUser(snmpEngine, 2, 'my-area', 'noAuthNoPriv', (1, 3, 6, 1, 2, 1), (1, 3, 6, 1, 2, 1))
 
 # Get default SNMP context this SNMP engine serves
 snmpContext = context.SnmpContext(snmpEngine)

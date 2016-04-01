@@ -44,8 +44,8 @@ config.addV1System(snmpEngine, 'my-read-area', 'public')
 config.addV1System(snmpEngine, 'my-write-area', 'private')
 
 # Allow full MIB access for this user / securityModels at VACM
-config.addVacmUser(snmpEngine, 1, 'my-read-area', 'noAuthNoPriv', (1,3,6,1,2,1))
-config.addVacmUser(snmpEngine, 1, 'my-write-area', 'noAuthNoPriv', (1,3,6,1,2,1), (1,3,6,1,2,1))
+config.addVacmUser(snmpEngine, 1, 'my-read-area', 'noAuthNoPriv', (1, 3, 6, 1, 2, 1))
+config.addVacmUser(snmpEngine, 1, 'my-write-area', 'noAuthNoPriv', (1, 3, 6, 1, 2, 1), (1, 3, 6, 1, 2, 1))
 
 # Get default SNMP context this SNMP engine serves
 snmpContext = context.SnmpContext(snmpEngine)

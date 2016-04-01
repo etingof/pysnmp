@@ -87,22 +87,21 @@ config.addV3User(
     securityEngineId=v2c.OctetString(hexValue='8000000001020304')
 )
 
+
 # Callback function for receiving notifications
 # noinspection PyUnusedLocal,PyUnusedLocal,PyUnusedLocal
 def cbFun(snmpEngine, stateReference, contextEngineId, contextName,
           varBinds, cbCtx):
-    print('Notification from ContextEngineId "%s", ContextName "%s"' % (
-        contextEngineId.prettyPrint(),
-        contextName.prettyPrint()
-        )
-    )
+    print('Notification from ContextEngineId "%s", ContextName "%s"' % (contextEngineId.prettyPrint(),
+                                                                        contextName.prettyPrint()))
     for name, val in varBinds:
         print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
+
 
 # Register SNMP Application at the SNMP engine
 ntfrcv.NotificationReceiver(snmpEngine, cbFun)
 
-snmpEngine.transportDispatcher.jobStarted(1) # this job would never finish
+snmpEngine.transportDispatcher.jobStarted(1)  # this job would never finish
 
 # Run I/O dispatcher which would receive queries and send confirmations
 try:

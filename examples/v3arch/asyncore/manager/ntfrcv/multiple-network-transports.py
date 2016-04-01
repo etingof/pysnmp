@@ -40,29 +40,28 @@ config.addTransport(
     snmpEngine,
     udp6.domainName,
     udp6.Udp6Transport().openServerMode(('::1', 162))
-    )
+)
 
 # SNMPv1/2c setup
 
 # SecurityName <-> CommunityName mapping
 config.addV1System(snmpEngine, 'my-area', 'public')
 
+
 # Callback function for receiving notifications
 # noinspection PyUnusedLocal,PyUnusedLocal,PyUnusedLocal
 def cbFun(snmpEngine, stateReference, contextEngineId, contextName,
           varBinds, cbCtx):
-    print('Notification from ContextEngineId "%s", ContextName "%s"' % (
-        contextEngineId.prettyPrint(),
-        contextName.prettyPrint()
-        )
-    )
+    print('Notification from ContextEngineId "%s", ContextName "%s"' % (contextEngineId.prettyPrint(),
+                                                                        contextName.prettyPrint()))
     for name, val in varBinds:
         print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
+
 
 # Register SNMP Application at the SNMP engine
 ntfrcv.NotificationReceiver(snmpEngine, cbFun)
 
-snmpEngine.transportDispatcher.jobStarted(1) # this job would never finish
+snmpEngine.transportDispatcher.jobStarted(1)  # this job would never finish
 
 # Run I/O dispatcher which would receive queries and send confirmations
 try:

@@ -27,7 +27,7 @@ snmpEngine = engine.SnmpEngine()
 # This call will fail if PySMI is not present on the system
 compiler.addMibCompiler(snmpEngine.getMibBuilder())
 # ... alternatively, this call will not complain on missing PySMI
-#compiler.addMibCompiler(snmpEngine.getMibBuilder(), ifAvailable=True)
+# compiler.addMibCompiler(snmpEngine.getMibBuilder(), ifAvailable=True)
 
 # Used for MIB objects resolution
 mibViewController = view.MibViewController(snmpEngine.getMibBuilder())
@@ -60,6 +60,7 @@ config.addTargetAddr(
     'my-creds'
 )
 
+
 # Error/response receiver
 # noinspection PyUnusedLocal,PyUnusedLocal,PyUnusedLocal
 def cbFun(snmpEngine, sendRequestHandle, errorIndication,
@@ -70,24 +71,23 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
     # SNMPv1 response may contain noSuchName error *and* SNMPv2c exception,
     # so we ignore noSuchName error here
     if errorStatus and errorStatus != 2:
-        print('%s at %s' % (
-            errorStatus.prettyPrint(),
-            errorIndex and varBindTable[-1][int(errorIndex)-1][0] or '?'
-            )
-        )
+        print('%s at %s' % (errorStatus.prettyPrint(),
+                            errorIndex and varBindTable[-1][int(errorIndex) - 1][0] or '?'))
         return  # stop on error
     for varBindRow in varBindTable:
         for varBind in varBindRow:
-            print(rfc1902.ObjectType(rfc1902.ObjectIdentity(varBind[0]), varBind[1]).resolveWithMib(mibViewController).prettyPrint())
-    return 1 # signal dispatcher to continue
+            print(rfc1902.ObjectType(rfc1902.ObjectIdentity(varBind[0]),
+                                     varBind[1]).resolveWithMib(mibViewController).prettyPrint())
+    return 1  # signal dispatcher to continue
+
 
 # Prepare initial request to be sent
 cmdgen.NextCommandGenerator().sendVarBinds(
     snmpEngine,
     'my-router',
     None, '',  # contextEngineId, contextName
-    [ rfc1902.ObjectType(rfc1902.ObjectIdentity('iso.org.dod')).resolveWithMib(mibViewController),
-      rfc1902.ObjectType(rfc1902.ObjectIdentity('IF-MIB', 'ifMIB')).resolveWithMib(mibViewController) ],
+    [rfc1902.ObjectType(rfc1902.ObjectIdentity('iso.org.dod')).resolveWithMib(mibViewController),
+     rfc1902.ObjectType(rfc1902.ObjectIdentity('IF-MIB', 'ifMIB')).resolveWithMib(mibViewController)],
     cbFun
 )
 

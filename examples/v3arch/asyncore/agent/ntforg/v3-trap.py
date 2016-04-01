@@ -61,7 +61,7 @@ config.addNotificationTarget(
 # Allow NOTIFY access to Agent's MIB by this SNMP model (3), securityLevel
 # and SecurityName
 config.addContext(snmpEngine, '')
-config.addVacmUser(snmpEngine, 3, 'usr-md5-des', 'authPriv', (), (), (1,3,6))
+config.addVacmUser(snmpEngine, 3, 'usr-md5-des', 'authPriv', (), (), (1, 3, 6))
 
 # *** SNMP engine configuration is complete by this line ***
 
@@ -73,13 +73,13 @@ ntfOrg.sendVarBinds(
     snmpEngine,
     # Notification targets
     'my-notification',  # notification targets
-    None, '',           # contextEngineId, contextName
+    None, '',  # contextEngineId, contextName
     # var-binds
     [
         # SNMPv2-SMI::snmpTrapOID.0 = SNMPv2-MIB::coldStart
-        ((1,3,6,1,6,3,1,1,4,1,0), v2c.ObjectIdentifier((1,3,6,1,6,3,1,1,5,1))),
+        ((1, 3, 6, 1, 6, 3, 1, 1, 4, 1, 0), v2c.ObjectIdentifier((1, 3, 6, 1, 6, 3, 1, 1, 5, 1))),
         # additional var-binds: ( (oid, value), ... )
-        ((1,3,6,1,2,1,1,5,0), v2c.OctetString('Notificator Example'))
+        ((1, 3, 6, 1, 2, 1, 1, 5, 0), v2c.OctetString('Notificator Example'))
     ]
 )
 

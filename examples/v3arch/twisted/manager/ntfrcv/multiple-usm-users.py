@@ -88,19 +88,19 @@ config.addV3User(
     securityEngineId=rfc1902.OctetString(hexValue='8000000001020304')
 )
 
+
 # -- end of SNMPv3/USM setup
 
 # Callback function for receiving notifications
 # noinspection PyUnusedLocal,PyUnusedLocal,PyUnusedLocal
 def cbFun(snmpEngine, stateReference, contextEngineId, contextName,
           varBinds, cbCtx):
-    print('Notification from ContextEngineId "%s", ContextName "%s"' % (
-            contextEngineId.prettyPrint(), contextName.prettyPrint()
-        )
-    )
+    print('Notification from ContextEngineId "%s", ContextName "%s"' % (contextEngineId.prettyPrint(),
+                                                                        contextName.prettyPrint()))
     for name, val in varBinds:
         print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
- 
+
+
 # Register SNMP Application at the SNMP engine
 ntfrcv.NotificationReceiver(snmpEngine, cbFun)
 

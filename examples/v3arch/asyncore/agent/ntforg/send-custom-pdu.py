@@ -50,21 +50,22 @@ config.addTargetAddr(
 # *** SNMP engine configuration is complete by this line ***
 
 # Create SNMP v2c TRAP PDU with defaults
-trapPDU =  v2c.TrapPDU()
+trapPDU = v2c.TrapPDU()
 v2c.apiTrapPDU.setDefaults(trapPDU)
 
 # Set custom var-binds to TRAP PDU
 v2c.apiTrapPDU.setVarBinds(
     trapPDU, [
         # sysUpTime
-        ( v2c.ObjectIdentifier('1.3.6.1.2.1.1.3.0'), v2c.TimeTicks(123) ),
+        (v2c.ObjectIdentifier('1.3.6.1.2.1.1.3.0'), v2c.TimeTicks(123)),
         # snmpTrapPDU
-        ( (1,3,6,1,6,3,1,1,4,1,0), v2c.ObjectIdentifier((1,3,6,1,6,3,1,1,5,1)) )
+        ((1, 3, 6, 1, 6, 3, 1, 1, 4, 1, 0), v2c.ObjectIdentifier((1, 3, 6, 1, 6, 3, 1, 1, 5, 1)))
     ]
 )
 
 # Create Notification Originator App instance. 
 ntfOrg = ntforg.NotificationOriginator()
+
 
 # Error/confirmation receiver
 # noinspection PyUnusedLocal,PyUnusedLocal,PyUnusedLocal,PyUnusedLocal,PyUnusedLocal
@@ -72,15 +73,16 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
           errorStatus, errorIndex, varBinds, cbCtx):
     print('Notification %s, status - %s' % (
         sendRequestHandle, errorIndication and errorIndication or 'delivered'
-      )
     )
+          )
+
 
 # Build and submit notification message to dispatcher
 ntfOrg.sendPdu(
     snmpEngine,
     # Notification targets
-    'my-nms',           # target address
-    None, '',           # contextEngineId, contextName
+    'my-nms',  # target address
+    None, '',  # contextEngineId, contextName
     trapPDU,
     cbFun
 )

@@ -40,7 +40,7 @@ config.addTransport(
 config.addV1System(snmpEngine, 'my-area', 'public')
 
 # Allow read MIB access for this user / securityModels at VACM
-config.addVacmUser(snmpEngine, 2, 'my-area', 'noAuthNoPriv', (1,3,6,5))
+config.addVacmUser(snmpEngine, 2, 'my-area', 'noAuthNoPriv', (1, 3, 6, 5))
 
 # Create an SNMP context
 snmpContext = context.SnmpContext(snmpEngine)
@@ -53,6 +53,7 @@ MibScalar, MibScalarInstance = mibBuilder.importSymbols(
     'SNMPv2-SMI', 'MibScalar', 'MibScalarInstance'
 )
 
+
 class MyStaticMibScalarInstance(MibScalarInstance):
     # noinspection PyUnusedLocal,PyUnusedLocal
     def getValue(self, name, idx):
@@ -60,9 +61,10 @@ class MyStaticMibScalarInstance(MibScalarInstance):
             'Python %s running on a %s platform' % (sys.version, sys.platform)
         )
 
+
 mibBuilder.exportSymbols(
-  '__MY_MIB', MibScalar((1,3,6,5,1), v2c.OctetString()),
-              MyStaticMibScalarInstance((1,3,6,5,1), (0,), v2c.OctetString())
+    '__MY_MIB', MibScalar((1, 3, 6, 5, 1), v2c.OctetString()),
+    MyStaticMibScalarInstance((1, 3, 6, 5, 1), (0,), v2c.OctetString())
 )
 
 # --- end of Managed Object Instance initialization ----

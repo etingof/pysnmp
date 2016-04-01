@@ -70,8 +70,7 @@ config.addV1System(snmpEngine, '1-my-area', 'public')
 # to let it match first in snmpCommunityTable on response processing.
 #
 
-config.addV1System(snmpEngine, '0-distant-area', 'public',
-                   transportTag='remote')
+config.addV1System(snmpEngine, '0-distant-area', 'public', transportTag='remote')
 
 #
 # Transport target used by Manager
@@ -81,20 +80,21 @@ config.addTargetParams(
     snmpEngine, 'distant-agent-auth', '0-distant-area', 'noAuthNoPriv', 1
 )
 config.addTargetAddr(
-        snmpEngine, 'distant-agent', 
-        udp.domainName, ('195.218.195.228', 161),
-        'distant-agent-auth', retryCount=0, tagList='remote'
+    snmpEngine, 'distant-agent',
+    udp.domainName, ('195.218.195.228', 161),
+    'distant-agent-auth', retryCount=0, tagList='remote'
 )
 
 # Default SNMP context
 config.addContext(snmpEngine, '')
 
+
 class CommandResponder(cmdrsp.CommandResponderBase):
-    cmdGenMap = { 
+    cmdGenMap = {
         v2c.GetRequestPDU.tagSet: cmdgen.GetCommandGenerator(),
         v2c.SetRequestPDU.tagSet: cmdgen.SetCommandGenerator(),
         v2c.GetNextRequestPDU.tagSet: cmdgen.NextCommandGeneratorSingleRun(),
-        v2c.GetBulkRequestPDU.tagSet: cmdgen.BulkCommandGeneratorSingleRun() 
+        v2c.GetBulkRequestPDU.tagSet: cmdgen.BulkCommandGeneratorSingleRun()
     }
     pduTypes = cmdGenMap.keys()  # This app will handle these PDUs
 
@@ -105,14 +105,14 @@ class CommandResponder(cmdrsp.CommandResponderBase):
         contextEngineId = None  # address authoritative SNMP Engine
         try:
             self.cmdGenMap[PDU.tagSet].sendPdu(
-                snmpEngine, 'distant-agent', 
+                snmpEngine, 'distant-agent',
                 contextEngineId, contextName,
                 PDU,
                 self.handleResponsePdu, cbCtx
             )
         except error.PySnmpError:
             self.handleResponsePdu(
-                stateReference,  'error', None, cbCtx
+                snmpEngine, stateReference, 'error', None, cbCtx
             )
 
     # SNMP response relay
@@ -131,9 +131,10 @@ class CommandResponder(cmdrsp.CommandResponderBase):
 
         self.releaseStateInformation(stateReference)
 
+
 CommandResponder(snmpEngine, context.SnmpContext(snmpEngine))
 
-snmpEngine.transportDispatcher.jobStarted(1) # this job would never finish
+snmpEngine.transportDispatcher.jobStarted(1)  # this job would never finish
 
 # Run I/O dispatcher which would receive queries and send responses
 try:

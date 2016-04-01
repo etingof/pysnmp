@@ -33,15 +33,15 @@ from pysnmp.carrier.asyncore.dgram import udp
 
 # Configuration parameters for each of SNMP Engines
 snmpEngineInfo = (
-    ( '0102030405060708', udp.domainName + (0,), ('127.0.0.1', 161) ),
-    ( '0807060504030201', udp.domainName + (1,), ('127.0.0.2', 161) )
+    ('0102030405060708', udp.domainName + (0,), ('127.0.0.1', 161)),
+    ('0807060504030201', udp.domainName + (1,), ('127.0.0.2', 161))
 )
 
 # Instantiate the single transport dispatcher object
 transportDispatcher = AsyncoreDispatcher()
 
 # Setup a custom data routing function to select snmpEngine by transportDomain
-transportDispatcher.registerRoutingCbFun(lambda td,t,d: td)
+transportDispatcher.registerRoutingCbFun(lambda td, t, d: td)
 
 # Instantiate and configure SNMP Engines 
 for snmpEngineId, transportDomain, transportAddress in snmpEngineInfo:
@@ -71,7 +71,7 @@ for snmpEngineId, transportDomain, transportAddress in snmpEngineInfo:
     )
 
     # Allow full MIB access for this user / securityModels at VACM
-    config.addVacmUser(snmpEngine, 3, 'usr-md5-des', 'authPriv', (1,3,6), (1,3,6,1,2,1)) 
+    config.addVacmUser(snmpEngine, 3, 'usr-md5-des', 'authPriv', (1, 3, 6), (1, 3, 6, 1, 2, 1))
 
     # Get default SNMP context this SNMP engine serves
     snmpContext = context.SnmpContext(snmpEngine)

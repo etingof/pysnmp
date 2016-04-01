@@ -43,23 +43,25 @@ config.addV3User(
 )
 
 # Allow full MIB access for each user at VACM
-config.addVacmUser(snmpEngine, 3, 'usr-none-none', 'noAuthNoPriv', (1,3,6,1,2,1), (1,3,6,1,2,1)) 
+config.addVacmUser(snmpEngine, 3, 'usr-none-none', 'noAuthNoPriv', (1, 3, 6, 1, 2, 1), (1, 3, 6, 1, 2, 1))
 
 # Create an SNMP context
 snmpContext = context.SnmpContext(snmpEngine)
+
 
 # Very basic Management Instrumentation Controller without
 # any Managed Objects attached. It supports only GET's and
 # always echos request var-binds in response.
 class EchoMibInstrumController(instrum.AbstractMibInstrumController):
     def readVars(self, vars, acInfo=(None, None)):
-        return [ (ov[0], v2c.OctetString('You queried OID %s' % ov[0])) for ov in vars]
+        return [(ov[0], v2c.OctetString('You queried OID %s' % ov[0])) for ov in vars]
+
 
 # Create a custom Management Instrumentation Controller and register at
 # SNMP Context under ContextName 'my-context'
 snmpContext.registerContextName(
-    v2c.OctetString('my-context'),          # Context Name
-    EchoMibInstrumController()              # Management Instrumentation
+    v2c.OctetString('my-context'),  # Context Name
+    EchoMibInstrumController()  # Management Instrumentation
 )
 
 # Register GET&SET Applications at the SNMP engine for a custom SNMP context

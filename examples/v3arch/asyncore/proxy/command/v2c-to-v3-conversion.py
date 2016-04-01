@@ -79,20 +79,21 @@ config.addTargetParams(
     snmpEngine, 'distant-agent-auth', 'usr-md5-none', 'authNoPriv'
 )
 config.addTargetAddr(
-        snmpEngine, 'distant-agent', 
-        udp.domainName + (2,), ('195.218.195.228', 161),
-        'distant-agent-auth', retryCount=0
+    snmpEngine, 'distant-agent',
+    udp.domainName + (2,), ('195.218.195.228', 161),
+    'distant-agent-auth', retryCount=0
 )
 
 # Default SNMP context
 config.addContext(snmpEngine, '')
 
+
 class CommandResponder(cmdrsp.CommandResponderBase):
-    cmdGenMap = { 
+    cmdGenMap = {
         v2c.GetRequestPDU.tagSet: cmdgen.GetCommandGenerator(),
         v2c.SetRequestPDU.tagSet: cmdgen.SetCommandGenerator(),
         v2c.GetNextRequestPDU.tagSet: cmdgen.NextCommandGeneratorSingleRun(),
-        v2c.GetBulkRequestPDU.tagSet: cmdgen.BulkCommandGeneratorSingleRun() 
+        v2c.GetBulkRequestPDU.tagSet: cmdgen.BulkCommandGeneratorSingleRun()
     }
     pduTypes = cmdGenMap.keys()  # This app will handle these PDUs
 
@@ -110,7 +111,7 @@ class CommandResponder(cmdrsp.CommandResponderBase):
             )
         except error.PySnmpError:
             self.handleResponsePdu(
-                stateReference,  'error', None, cbCtx
+                snmpEngine, stateReference, 'error', None, cbCtx
             )
 
     # SNMP response relay
@@ -129,9 +130,10 @@ class CommandResponder(cmdrsp.CommandResponderBase):
 
         self.releaseStateInformation(stateReference)
 
+
 CommandResponder(snmpEngine, context.SnmpContext(snmpEngine))
 
-snmpEngine.transportDispatcher.jobStarted(1) # this job would never finish
+snmpEngine.transportDispatcher.jobStarted(1)  # this job would never finish
 
 # Run I/O dispatcher which would receive queries and send responses
 try:

@@ -50,6 +50,7 @@ config.addTargetAddr(
     'my-creds'
 )
 
+
 # Error/response receiver
 # noinspection PyUnusedLocal,PyUnusedLocal,PyUnusedLocal
 def cbFun(snmpEngine, sendRequestHandle, errorIndication,
@@ -57,21 +58,19 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
     if errorIndication:
         print(errorIndication)
     elif errorStatus:
-        print('%s at %s' % (
-            errorStatus.prettyPrint(),
-            errorIndex and varBinds[int(errorIndex)-1][0] or '?'
-            )
-        )
+        print('%s at %s' % (errorStatus.prettyPrint(),
+                            errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
     else:
         for oid, val in varBinds:
             print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
+
 
 # Prepare and send a request message
 cmdgen.SetCommandGenerator().sendVarBinds(
     snmpEngine,
     'my-router',
     None, '',  # contextEngineId, contextName
-    [ ((1,3,6,1,2,1,1,9,1,3,1), rfc1902.OctetString('my new value')) ],
+    [((1, 3, 6, 1, 2, 1, 1, 9, 1, 3, 1), rfc1902.OctetString('my new value'))],
     cbFun
 )
 

@@ -74,26 +74,26 @@ config.addNotificationTarget(
 # Allow NOTIFY access to Agent's MIB by this SNMP model (2), securityLevel
 # and SecurityName
 config.addContext(snmpEngine, '')
-config.addVacmUser(snmpEngine, 2, 'my-area', 'noAuthNoPriv', (), (), (1,3,6))
+config.addVacmUser(snmpEngine, 2, 'my-area', 'noAuthNoPriv', (), (), (1, 3, 6))
 
 # *** SNMP engine configuration is complete by this line ***
 
 # Create Notification Originator App instance. 
 ntfOrg = ntforg.NotificationOriginator()
- 
+
 # Build and submit notification message to dispatcher
 ntfOrg.sendVarBinds(
     snmpEngine,
     # Notification targets
     'my-notification',  # notification targets
-    None, '',           # contextEngineId, contextName
+    None, '',  # contextEngineId, contextName
     # var-binds
     [
         # SNMPv2-SMI::snmpTrapOID.0 = SNMPv2-MIB::coldStart
-        ((1,3,6,1,6,3,1,1,4,1,0), v2c.ObjectIdentifier((1,3,6,1,6,3,1,1,5,1))),
+        ((1, 3, 6, 1, 6, 3, 1, 1, 4, 1, 0), v2c.ObjectIdentifier((1, 3, 6, 1, 6, 3, 1, 1, 5, 1))),
         # additional var-binds: ( (oid, value), ... )
-        ((1,3,6,1,2,1,1,1,0), v2c.OctetString('Example Notificator')),
-        ((1,3,6,1,2,1,1,5,0), v2c.OctetString('Notificator Example'))
+        ((1, 3, 6, 1, 2, 1, 1, 1, 0), v2c.OctetString('Example Notificator')),
+        ((1, 3, 6, 1, 2, 1, 1, 5, 0), v2c.OctetString('Notificator Example'))
     ]
 )
 

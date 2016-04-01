@@ -45,7 +45,7 @@ config.addV3User(
 )
 
 # Allow full MIB access for each user at VACM
-config.addVacmUser(snmpEngine, 3, 'usr-md5-none', 'authNoPriv', (1,3,6,1,2,1), (1,3,6,1,2,1)) 
+config.addVacmUser(snmpEngine, 3, 'usr-md5-none', 'authNoPriv', (1, 3, 6, 1, 2, 1), (1, 3, 6, 1, 2, 1))
 
 # Create an SNMP context with ContextEngineId = 8000000001020304
 snmpContext = context.SnmpContext(
@@ -56,7 +56,7 @@ snmpContext = context.SnmpContext(
 # Management Instrumentation Controller and register at SNMP Context
 # under ContextName 'my-context'
 snmpContext.registerContextName(
-    v2c.OctetString('my-context'),                      # Context Name
+    v2c.OctetString('my-context'),  # Context Name
     instrum.MibInstrumController(builder.MibBuilder())  # Managed Objects
 )
 

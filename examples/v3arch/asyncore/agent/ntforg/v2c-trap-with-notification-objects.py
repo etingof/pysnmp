@@ -83,7 +83,7 @@ config.addNotificationTarget(
 # Allow NOTIFY access to Agent's MIB by this SNMP model (2), securityLevel
 # and SecurityName
 config.addContext(snmpEngine, '')
-config.addVacmUser(snmpEngine, 2, 'my-area', 'noAuthNoPriv', (), (), (1,3,6))
+config.addVacmUser(snmpEngine, 2, 'my-area', 'noAuthNoPriv', (), (), (1, 3, 6))
 
 # *** SNMP engine configuration is complete by this line ***
 
@@ -94,7 +94,7 @@ ntfOrg = ntforg.NotificationOriginator()
 ntfOrg.sendVarBinds(
     snmpEngine,
     'my-notification',  # notification targets
-    None, '',           # contextEngineId, contextName
+    None, '',  # contextEngineId, contextName
     rfc1902.NotificationType(
         rfc1902.ObjectIdentity('IF-MIB', 'linkUp'),
         instanceIndex=instanceIndex,

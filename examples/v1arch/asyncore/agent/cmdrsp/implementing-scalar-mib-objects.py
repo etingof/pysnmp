@@ -92,7 +92,7 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
         rspMsg = pMod.apiMessage.getResponse(reqMsg)
         rspPDU = pMod.apiMessage.getPDU(rspMsg)
         reqPDU = pMod.apiMessage.getPDU(reqMsg)
-        varBinds = [];
+        varBinds = []
         pendingErrors = []
         errorIndex = 0
         # GETNEXT PDU
