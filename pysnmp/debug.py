@@ -34,6 +34,7 @@ flagMap = {'io': flagIO,
            'app': flagApp,
            'all': flagAll}
 
+
 class Printer:
     def __init__(self, logger=None, handler=None, formatter=None):
         if logger is None:
@@ -54,6 +55,7 @@ class Printer:
     def __str__(self):
         return '<python built-in logging>'
 
+
 if hasattr(logging, 'NullHandler'):
     NullHandler = logging.NullHandler
 else:
@@ -62,8 +64,10 @@ else:
         def emit(self, record):
             pass
 
+
 class Debug:
     defaultPrinter = None
+
     def __init__(self, *flags, **options):
         self._flags = flagNone
         if options.get('printer') is not None:
@@ -106,13 +110,16 @@ class Debug:
     def __rand__(self, flag):
         return flag & self._flags
 
+
 # This will yield false from bitwise and with a flag, and save
 # on unnecessary calls
 logger = 0
+
 
 def setLogger(l):
     global logger
     logger = l
 
+
 def hexdump(octets):
-    return ' '.join(['%s%.2X' % (n%16 == 0 and ('\n%.5d: ' % n) or '', x) for n, x in zip(range(len(octets)), octs2ints(octets))])
+    return ' '.join(['%s%.2X' % (n % 16 == 0 and ('\n%.5d: ' % n) or '', x) for n, x in zip(range(len(octets)), octs2ints(octets))])
