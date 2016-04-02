@@ -38,6 +38,7 @@ from pysnmp.hlapi.lcd import *
 from pysnmp.hlapi.varbinds import *
 from pysnmp.hlapi.asyncio.transport import *
 from pysnmp.entity.rfc3413 import cmdgen
+
 try:
     import asyncio
 except ImportError:
@@ -49,6 +50,7 @@ vbProcessor = CommandGeneratorVarBinds()
 lcd = CommandGeneratorLcdConfigurator()
 
 isEndOfMib = lambda x: not cmdgen.getNextVarBinds(x)[1]
+
 
 @asyncio.coroutine
 def getCmd(snmpEngine, authData, transportTarget, contextData,
@@ -125,6 +127,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     >>>
 
     """
+
     def __cbFun(snmpEngine, sendRequestHandle,
                 errorIndication, errorStatus, errorIndex,
                 varBinds, cbCtx):
@@ -146,6 +149,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
         (options.get('lookupMib', True), future)
     )
     return future
+
 
 @asyncio.coroutine
 def setCmd(snmpEngine, authData, transportTarget, contextData,
@@ -222,6 +226,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     >>>
 
     """
+
     def __cbFun(snmpEngine, sendRequestHandle,
                 errorIndication, errorStatus, errorIndex,
                 varBinds, cbCtx):
@@ -243,6 +248,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
         (options.get('lookupMib', True), future)
     )
     return future
+
 
 @asyncio.coroutine
 def nextCmd(snmpEngine, authData, transportTarget, contextData,
@@ -323,6 +329,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     >>>
 
     """
+
     def __cbFun(snmpEngine, sendRequestHandle,
                 errorIndication, errorStatus, errorIndex,
                 varBindTable, cbCtx):
@@ -330,7 +337,8 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
         if future.cancelled():
             return
         future.set_result(
-            (errorIndication, errorStatus, errorIndex, [vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable])
+            (errorIndication, errorStatus, errorIndex,
+             [vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable])
         )
 
     addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
@@ -344,6 +352,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
         (options.get('lookupMib', True), future)
     )
     return future
+
 
 @asyncio.coroutine
 def bulkCmd(snmpEngine, authData, transportTarget, contextData,
@@ -435,6 +444,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     >>>
 
     """
+
     def __cbFun(snmpEngine, sendRequestHandle,
                 errorIndication, errorStatus, errorIndex,
                 varBindTable, cbCtx):
@@ -442,7 +452,8 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
         if future.cancelled():
             return
         future.set_result(
-            (errorIndication, errorStatus, errorIndex, [vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable])
+            (errorIndication, errorStatus, errorIndex,
+             [vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable])
         )
 
     addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)

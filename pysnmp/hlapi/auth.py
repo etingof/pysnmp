@@ -15,6 +15,7 @@ __all__ = ['CommunityData', 'UsmUserData',
            'usmHMACSHAAuthProtocol', 'usmNoAuthProtocol',
            'usmNoPrivProtocol']
 
+
 class CommunityData:
     """Creates SNMP v1/v2c configuration entry.
 
@@ -59,11 +60,12 @@ class CommunityData:
     >>>
 
     """
-    mpModel = 1 # Default is SMIv2
+    mpModel = 1  # Default is SMIv2
     securityModel = mpModel + 1
     securityLevel = 'noAuthNoPriv'
     contextName = null
     tag = null
+
     def __init__(self, communityIndex, communityName=None, mpModel=None,
                  contextEngineId=None, contextName=None, tag=None,
                  securityName=None):
@@ -119,6 +121,7 @@ class CommunityData:
             securityName is None and self.securityName or securityName
         )
 
+
 #: No Authentication Protocol.
 usmNoAuthProtocol = config.usmNoAuthProtocol
 #: The HMAC-MD5-96 Digest Authentication Protocol (:RFC:`3414#section-6`)
@@ -138,6 +141,7 @@ usmAesCfb128Protocol = config.usmAesCfb128Protocol
 usmAesCfb192Protocol = config.usmAesCfb192Protocol
 #: The CFB128-AES-256 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)
 usmAesCfb256Protocol = config.usmAesCfb256Protocol
+
 
 class UsmUserData:
     """Creates SNMP v3 User Security Model (USM) configuration entry.
@@ -208,6 +212,7 @@ class UsmUserData:
     securityModel = 3
     mpModel = 3
     contextName = null
+
     # the contextEngineId/contextName values stored here should
     # be used for USM configuration only, not for PDU contents
     def __init__(self, userName,
@@ -257,7 +262,7 @@ class UsmUserData:
         raise TypeError('%s is not hashable' % self.__class__.__name__)
 
     def __repr__(self):
-        return '%s(userName=%r, authKey=<AUTHKEY>, privKey=<PRIVKEY>, authProtocol=%r, privProtocol=%r, securityEngineId=%r, securityName=%r)'%(
+        return '%s(userName=%r, authKey=<AUTHKEY>, privKey=<PRIVKEY>, authProtocol=%r, privProtocol=%r, securityEngineId=%r, securityName=%r)' % (
             self.__class__.__name__,
             self.userName,
             self.authProtocol,

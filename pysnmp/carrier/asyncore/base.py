@@ -4,12 +4,14 @@
 # Copyright (c) 2005-2016, Ilya Etingof <ilya@glas.net>
 # License: http://pysnmp.sf.net/license.html
 #
-import socket, sys
+import socket
+import sys
 import asyncore
 from pysnmp.carrier import error
 from pysnmp.carrier.base import AbstractTransport
 from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
 from pysnmp import debug
+
 
 class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
     protoTransportDispatcher = AsyncoreDispatcher
@@ -25,11 +27,11 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
             if self.sockFamily is None:
                 raise error.CarrierError(
                     'Address family %s not supported' % self.__class__.__name__
-                    )
+                )
             if self.sockType is None:
                 raise error.CarrierError(
                     'Socket type %s not supported' % self.__class__.__name__
-                    )
+                )
             try:
                 sock = socket.socket(self.sockFamily, self.sockType)
             except socket.error:
@@ -42,7 +44,7 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
                         sock.setsockopt(socket.SOL_SOCKET, b, self.bufferSize)
                         debug.logger & debug.flagIO and debug.logger('%s: socket %d buffer size increased from %d to %d for buffer %d' % (self.__class__.__name__, sock.fileno(), bsize, self.bufferSize, b))
             except Exception:
-                debug.logger & debug.flagIO and debug.logger('%s: socket buffer size option mangling failure for buffer %d: %s' % (self.__class__.__name__, b, sys.exc_info()[1]))
+                debug.logger & debug.flagIO and debug.logger('%s: socket buffer size option mangling failure for buffer: %s' % (self.__class__.__name__, sys.exc_info()[1]))
 
         # The socket map is managed by the AsyncoreDispatcher on
         # which this transport is registered. Here we just prepare

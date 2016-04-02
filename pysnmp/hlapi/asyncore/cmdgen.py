@@ -19,6 +19,7 @@ lcd = CommandGeneratorLcdConfigurator()
 
 isEndOfMib = lambda x: not cmdgen.getNextVarBinds(x)[1]
 
+
 def getCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
     """Performs SNMP GET query.
@@ -108,6 +109,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     >>>
 
     """
+
     def __cbFun(snmpEngine, sendRequestHandle,
                 errorIndication, errorStatus, errorIndex,
                 varBinds, cbCtx):
@@ -128,6 +130,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
         (options.get('lookupMib', True),
          options.get('cbFun'), options.get('cbCtx'))
     )
+
 
 def setCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
@@ -218,6 +221,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     >>>
 
     """
+
     def __cbFun(snmpEngine, sendRequestHandle,
                 errorIndication, errorStatus, errorIndex,
                 varBinds, cbCtx):
@@ -236,6 +240,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
         __cbFun, (options.get('lookupMib', True),
                   options.get('cbFun'), options.get('cbCtx'))
     )
+
 
 def nextCmd(snmpEngine, authData, transportTarget, contextData,
             *varBinds, **options):
@@ -328,12 +333,14 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     >>>
 
     """
+
     def __cbFun(snmpEngine, sendRequestHandle, errorIndication,
                 errorStatus, errorIndex, varBindTable, cbCtx):
         lookupMib, cbFun, cbCtx = cbCtx
         return cbFun(snmpEngine, sendRequestHandle, errorIndication,
                      errorStatus, errorIndex,
-                     [vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable],
+                     [vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in
+                      varBindTable],
                      cbCtx)
 
     addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
@@ -344,6 +351,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
         __cbFun, (options.get('lookupMib', True),
                   options.get('cbFun'), options.get('cbCtx'))
     )
+
 
 def bulkCmd(snmpEngine, authData, transportTarget, contextData,
             nonRepeaters, maxRepetitions, *varBinds, **options):
@@ -447,12 +455,15 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     >>>
 
     """
+
     def __cbFun(snmpEngine, sendRequestHandle,
                 errorIndication, errorStatus, errorIndex,
                 varBindTable, cbCtx):
         lookupMib, cbFun, cbCtx = cbCtx
         return cbFun(snmpEngine, sendRequestHandle, errorIndication,
-                     errorStatus, errorIndex, [vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable], cbCtx)
+                     errorStatus, errorIndex,
+                     [vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in
+                      varBindTable], cbCtx)
 
     addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
     return cmdgen.BulkCommandGenerator().sendVarBinds(

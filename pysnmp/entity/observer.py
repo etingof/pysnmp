@@ -6,6 +6,7 @@
 #
 from pysnmp import error
 
+
 class MetaObserver:
     """This is a simple facility for exposing internal SNMP Engine
        working details to pysnmp applications. These details are
@@ -21,6 +22,7 @@ class MetaObserver:
        to exist to functions that are at the same or deeper level of invocation
        relative to execution point specified.
     """
+
     def __init__(self):
         self.__observers = {}
         self.__contexts = {}
@@ -32,7 +34,7 @@ class MetaObserver:
         else:
             self.__contexts[cbFun] = kwargs.get('cbCtx')
         for execpoint in execpoints:
-            if not execpoint in self.__observers:
+            if execpoint not in self.__observers:
                 self.__observers[execpoint] = []
             self.__observers[execpoint].append(cbFun)
 

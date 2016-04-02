@@ -6,6 +6,7 @@
 #
 from pysnmp.proto.secmod.eso.priv import aesbase
 
+
 class Aes256(aesbase.AbstractAes):
     """AES 192/256 bit encryption (Internet draft)
 

@@ -4,7 +4,9 @@
 # Copyright (c) 2005-2016, Ilya Etingof <ilya@glas.net>
 # License: http://pysnmp.sf.net/license.html
 #
-import socket, errno, sys
+import socket
+import errno
+import sys
 from pysnmp.carrier.asyncore.base import AbstractSocketTransport
 from pysnmp.carrier import sockfix, sockmsg, error
 from pysnmp import debug
@@ -21,17 +23,21 @@ if hasattr(errno, 'EBADFD'):
     # bad FD may happen upon FD closure on n-1 select() event
     sockErrors[errno.EBADFD] = True
 
+
 class DgramSocketTransport(AbstractSocketTransport):
     sockType = socket.SOCK_DGRAM
     retryCount = 3
     retryInterval = 1
     addressType = lambda x: x
+
     def __init__(self, sock=None, sockMap=None):
         self.__outQueue = []
         self._sendto = lambda s, b, a: s.sendto(b, a)
+
         def __recvfrom(s, sz):
             d, a = s.recvfrom(sz)
             return d, self.addressType(a)
+
         self._recvfrom = __recvfrom
         AbstractSocketTransport.__init__(self, sock, sockMap)
 
@@ -40,10 +46,11 @@ class DgramSocketTransport(AbstractSocketTransport):
             try:
                 self.socket.bind(iface)
             except socket.error:
-                raise error.CarrierError('bind() for %s failed: %s' % (iface is None and "<all local>" or iface, sys.exc_info()[1]))
+                raise error.CarrierError(
+                    'bind() for %s failed: %s' % (iface is None and "<all local>" or iface, sys.exc_info()[1]))
         return self
 
-    def openServerMode(self, iface=None):
+    def openServerMode(self, iface):
         try:
             self.socket.bind(iface)
         except socket.error:
@@ -62,7 +69,7 @@ class DgramSocketTransport(AbstractSocketTransport):
 
     def enablePktInfo(self, flag=1):
         if not hasattr(self.socket, 'sendmsg') or \
-           not hasattr(self.socket, 'recvmsg'):
+                not hasattr(self.socket, 'recvmsg'):
             raise error.CarrierError('sendmsg()/recvmsg() interface is not supported by this OS and/or Python version')
 
         try:
@@ -100,7 +107,7 @@ class DgramSocketTransport(AbstractSocketTransport):
     def sendMessage(self, outgoingMessage, transportAddress):
         self.__outQueue.append(
             (outgoingMessage, self.normalizeAddress(transportAddress))
-            )
+        )
         debug.logger & debug.flagIO and debug.logger('sendMessage: outgoingMessage queued (%d octets) %s' % (len(outgoingMessage), debug.hexdump(outgoingMessage)))
 
     def normalizeAddress(self, transportAddress):
@@ -114,8 +121,8 @@ class DgramSocketTransport(AbstractSocketTransport):
         # one evil OS does not seem to support getsockname() for DGRAM sockets
         try:
             return self.socket.getsockname()
-        except:
-            return ('0.0.0.0', 0)
+        except Exception:
+            return '0.0.0.0', 0
 
     # asyncore API
     def handle_connect(self):
@@ -145,11 +152,10 @@ class DgramSocketTransport(AbstractSocketTransport):
 
     def handle_read(self):
         try:
-            incomingMessage, transportAddress = self._recvfrom(
-                self.socket, 65535
-            )
+            incomingMessage, transportAddress = self._recvfrom(self.socket, 65535)
             transportAddress = self.normalizeAddress(transportAddress)
-            debug.logger & debug.flagIO and debug.logger('handle_read: transportAddress %r -> %r incomingMessage (%d octets) %s' % (transportAddress, transportAddress.getLocalAddress(), len(incomingMessage), debug.hexdump(incomingMessage)))
+            debug.logger & debug.flagIO and debug.logger(
+                'handle_read: transportAddress %r -> %r incomingMessage (%d octets) %s' % (transportAddress, transportAddress.getLocalAddress(), len(incomingMessage), debug.hexdump(incomingMessage)))
             if not incomingMessage:
                 self.handle_close()
                 return
@@ -165,4 +171,4 @@ class DgramSocketTransport(AbstractSocketTransport):
                 raise error.CarrierError('recvfrom() failed: %s' % (sys.exc_info()[1],))
 
     def handle_close(self):
-        pass # no datagram connection
+        pass  # no datagram connection

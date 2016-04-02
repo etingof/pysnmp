@@ -6,6 +6,7 @@
 #
 import os
 import random
+
 try:
     from socket import AF_UNIX
 except ImportError:
@@ -17,12 +18,15 @@ domainName = snmpLocalDomain = (1, 3, 6, 1, 2, 1, 100, 1, 13)
 
 random.seed()
 
+
 class UnixTransportAddress(str, AbstractTransportAddress):
     pass
+
 
 class UnixSocketTransport(DgramSocketTransport):
     sockFamily = AF_UNIX
     addressType = UnixTransportAddress
+    _iface = ''
 
     def openClientMode(self, iface=None):
         if iface is None:
@@ -35,20 +39,21 @@ class UnixSocketTransport(DgramSocketTransport):
         if os.path.exists(iface):
             os.remove(iface)
         DgramSocketTransport.openClientMode(self, iface)
-        self.__iface = iface
+        self._iface = iface
         return self
 
     def openServerMode(self, iface):
         DgramSocketTransport.openServerMode(self, iface)
-        self.__iface = iface
+        self._iface = iface
         return self
 
     def closeTransport(self):
         DgramSocketTransport.closeTransport(self)
         try:
-            os.remove(self.__iface)
+            os.remove(self._iface)
         except OSError:
             pass
+
 
 UnixTransport = UnixSocketTransport
 

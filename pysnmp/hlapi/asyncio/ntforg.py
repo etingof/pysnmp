@@ -15,6 +15,7 @@ from pysnmp.hlapi.lcd import *
 from pysnmp.hlapi.varbinds import *
 from pysnmp.hlapi.asyncio.transport import *
 from pysnmp.entity.rfc3413 import ntforg
+
 try:
     import asyncio
 except ImportError:
@@ -24,6 +25,7 @@ __all__ = ['sendNotification']
 
 vbProcessor = NotificationOriginatorVarBinds()
 lcd = NotificationOriginatorLcdConfigurator()
+
 
 @asyncio.coroutine
 def sendNotification(snmpEngine, authData, transportTarget, contextData,
@@ -115,6 +117,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
     >>>
 
     """
+
     def __cbFun(snmpEngine, sendRequestHandle,
                 errorIndication, errorStatus, errorIndex,
                 varBinds, cbCtx):

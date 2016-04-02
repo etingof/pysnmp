@@ -9,8 +9,10 @@ from pysnmp.smi.rfc1902 import *
 
 __all__ = ['CommandGeneratorVarBinds', 'NotificationOriginatorVarBinds']
 
+
 class AbstractVarBinds:
-    def getMibViewController(self, snmpEngine):
+    @staticmethod
+    def getMibViewController(snmpEngine):
         mibViewController = snmpEngine.getUserContext('mibViewController')
         if not mibViewController:
             mibViewController = view.MibViewController(
@@ -18,6 +20,7 @@ class AbstractVarBinds:
             )
             snmpEngine.setUserContext(mibViewController=mibViewController)
         return mibViewController
+
 
 class CommandGeneratorVarBinds(AbstractVarBinds):
     def makeVarBinds(self, snmpEngine, varBinds):
@@ -44,6 +47,7 @@ class CommandGeneratorVarBinds(AbstractVarBinds):
 
         return varBinds
 
+
 class NotificationOriginatorVarBinds(AbstractVarBinds):
     def makeVarBinds(self, snmpEngine, varBinds):
         mibViewController = self.getMibViewController(snmpEngine)
@@ -65,4 +69,3 @@ class NotificationOriginatorVarBinds(AbstractVarBinds):
             mibViewController = self.getMibViewController(snmpEngine)
             varBinds = [ObjectType(ObjectIdentity(x[0]), x[1]).resolveWithMib(mibViewController) for x in varBinds]
         return varBinds
-

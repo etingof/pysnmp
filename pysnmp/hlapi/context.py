@@ -8,6 +8,7 @@ from pyasn1.compat.octets import null
 
 __all__ = ['ContextData']
 
+
 class ContextData:
     """Creates UDP/IPv6 configuration entry and initialize socket API if needed.
 
@@ -44,6 +45,7 @@ class ContextData:
     ContextData(contextEngineId=None, contextName='mycontext')
 
     """
+
     def __init__(self, contextEngineId=None, contextName=null):
         self.contextEngineId = contextEngineId
         self.contextName = contextName

@@ -9,12 +9,16 @@ from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
 from pysnmp.proto.secmod.rfc3414 import localkey
 from pysnmp.proto import error
 from math import ceil
+
 try:
     from hashlib import md5, sha1
 except ImportError:
-    import md5, sha
+    import md5
+    import sha
+
     md5 = md5.new
     sha1 = sha.new
+
 
 class AbstractAes(aes.Aes):
     serviceID = ()
@@ -24,14 +28,15 @@ class AbstractAes(aes.Aes):
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
         if authProtocol == hmacmd5.HmacMd5.serviceID:
             localPrivKey = localkey.localizeKeyMD5(privKey, snmpEngineID)
-            while ceil(self.keySize//len(localPrivKey)):
+            while ceil(self.keySize // len(localPrivKey)):
+                # noinspection PyDeprecation,PyCallingNonCallable
                 localPrivKey = localPrivKey + md5(localPrivKey).digest()
         elif authProtocol == hmacsha.HmacSha.serviceID:
             localPrivKey = localkey.localizeKeySHA(privKey, snmpEngineID)
-            while ceil(self.keySize//len(localPrivKey)):
+            while ceil(self.keySize // len(localPrivKey)):
                 localPrivKey = localPrivKey + sha1(localPrivKey).digest()
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
-                )
+            )
         return localPrivKey[:self.keySize]

@@ -11,6 +11,7 @@ from pysnmp.carrier.twisted.base import AbstractTwistedTransport
 from pysnmp.carrier import error
 from pysnmp import debug
 
+
 class DgramTwistedTransport(DatagramProtocol, AbstractTwistedTransport):
     """Base Twisted datagram Transport, to be used with TwistedDispatcher"""
 

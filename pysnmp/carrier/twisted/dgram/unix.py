@@ -17,6 +17,7 @@ class UnixTransportAddress(str, AbstractTransportAddress):
 
 class UnixTwistedTransport(DgramTwistedTransport):
     addressType = UnixTransportAddress
+    _lport = None
 
     # AbstractTwistedTransport API
 
@@ -27,7 +28,7 @@ class UnixTwistedTransport(DgramTwistedTransport):
             raise error.CarrierError(sys.exc_info()[1])
         return self
 
-    def openServerMode(self, iface=None):
+    def openServerMode(self, iface):
         try:
             self._lport = reactor.listenUNIXDatagram(iface, self)
         except Exception:
@@ -36,8 +37,10 @@ class UnixTwistedTransport(DgramTwistedTransport):
         return self
 
     def closeTransport(self):
-        d = self._lport.stopListening()
-        d and d.addCallback(lambda x: None)
+        if self._lport is not None:
+            d = self._lport.stopListening()
+            if d:
+                d.addCallback(lambda x: None)
         DgramTwistedTransport.closeTransport(self)
 
 UnixTransport = UnixTwistedTransport

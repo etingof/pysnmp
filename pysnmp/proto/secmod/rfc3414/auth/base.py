@@ -6,6 +6,7 @@
 #
 from pysnmp.proto import errind, error
 
+
 class AbstractAuthenticationService:
     serviceID = None
 

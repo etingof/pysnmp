@@ -12,9 +12,10 @@ from asyncore import loop
 from pysnmp.carrier.base import AbstractTransportDispatcher
 from pysnmp.error import PySnmpError
 
+
 class AsyncoreDispatcher(AbstractTransportDispatcher):
     def __init__(self):
-        self.__sockMap = {} # use own map for MT safety
+        self.__sockMap = {}  # use own map for MT safety
         self.timeout = 0.5
         AbstractTransportDispatcher.__init__(self)
 

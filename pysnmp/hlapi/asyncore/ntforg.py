@@ -17,6 +17,7 @@ __all__ = ['sendNotification']
 vbProcessor = NotificationOriginatorVarBinds()
 lcd = NotificationOriginatorLcdConfigurator()
 
+
 def sendNotification(snmpEngine, authData, transportTarget, contextData,
                      notifyType, varBinds, cbFun=None, cbCtx=None,
                      lookupMib=False):
@@ -46,22 +47,13 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
         Indicates type of notification to be sent. Recognized literal
         values are *trap* or *inform*.
 
-    varBinds: tuple
+    varBinds : tuple
         Single :py:class:`~pysnmp.smi.rfc1902.NotificationType` class
         instance representing a minimum sequence of MIB variables
         required for particular notification type. Alternatively,
         a sequence of :py:class:`~pysnmp.smi.rfc1902.ObjectType`
         objects could be passed instead. In the latter case it is up to
         the user to ensure proper Notification PDU contents.
-
-    cbInfo : tuple
-
-        * `cbFun` - user-supplied callable that is invoked to pass
-          SNMP response to *INFORM* notification or error to user at
-          a later point of time. The `cbFun` callable is never invoked
-          for *TRAP* notifications.
-        * `cbCtx` - user-supplied object passing additional parameters
-          to/from `cbFun`. Default is `None`.
 
     Other Parameters
     ----------------
@@ -125,6 +117,8 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
     >>>
 
     """
+
+    # noinspection PyShadowingNames
     def __cbFun(snmpEngine, sendRequestHandle, errorIndication,
                 errorStatus, errorIndex, varBinds, cbCtx):
         lookupMib, cbFun, cbCtx = cbCtx

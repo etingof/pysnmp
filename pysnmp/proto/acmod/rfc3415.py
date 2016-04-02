@@ -10,10 +10,12 @@ from pysnmp import debug
 
 __powOfTwoSeq = [128, 64, 32, 16, 8, 4, 2, 1]
 
+
 # 3.2
 class Vacm:
     """View-based Access Control Model"""
     accessModelID = 3
+
     def isAccessAllowed(self,
                         snmpEngine,
                         securityModel,
@@ -24,7 +26,9 @@ class Vacm:
                         variableName):
         mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
 
-        debug.logger & debug.flagACL and debug.logger('isAccessAllowed: securityModel %s, securityName %s, securityLevel %s, viewType %s, contextName %s for variableName %s' % (securityModel, securityName, securityLevel, viewType, contextName, variableName))
+        debug.logger & debug.flagACL and debug.logger(
+            'isAccessAllowed: securityModel %s, securityName %s, securityLevel %s, viewType %s, contextName %s for variableName %s' % (
+                securityModel, securityName, securityLevel, viewType, contextName, variableName))
 
         # 3.2.1
         vacmContextEntry, = mibInstrumController.mibBuilder.importSymbols('SNMP-VIEW-BASED-ACM-MIB', 'vacmContextEntry')
@@ -37,7 +41,8 @@ class Vacm:
             raise error.StatusInformation(errorIndication=errind.noSuchContext)
 
         # 3.2.2
-        vacmSecurityToGroupEntry, = mibInstrumController.mibBuilder.importSymbols('SNMP-VIEW-BASED-ACM-MIB', 'vacmSecurityToGroupEntry')
+        vacmSecurityToGroupEntry, = mibInstrumController.mibBuilder.importSymbols('SNMP-VIEW-BASED-ACM-MIB',
+                                                                                  'vacmSecurityToGroupEntry')
         tblIdx = vacmSecurityToGroupEntry.getInstIdFromIndices(
             securityModel, securityName
         )
@@ -77,7 +82,8 @@ class Vacm:
         # XXX split onto object & instance ?
 
         # 3.2.5a
-        vacmViewTreeFamilyEntry, = mibInstrumController.mibBuilder.importSymbols('SNMP-VIEW-BASED-ACM-MIB', 'vacmViewTreeFamilyEntry')
+        vacmViewTreeFamilyEntry, = mibInstrumController.mibBuilder.importSymbols('SNMP-VIEW-BASED-ACM-MIB',
+                                                                                 'vacmViewTreeFamilyEntry')
         tblIdx = vacmViewTreeFamilyEntry.getInstIdFromIndices(viewName)
 
         # Walk over entries
@@ -101,18 +107,18 @@ class Vacm:
             if vacmViewTreeFamilyMask.syntax:
                 mask = []
                 for c in vacmViewTreeFamilyMask.syntax.asNumbers():
-                    mask = mask + [b&c for b in __powOfTwoSeq]
-                m = len(mask)-1
-                idx = l-1
+                    mask = mask + [b & c for b in __powOfTwoSeq]
+                m = len(mask) - 1
+                idx = l - 1
                 while idx:
                     if idx > m or mask[idx] and \
-                       vacmViewTreeFamilySubtree.syntax[idx] != variableName[idx]:
+                            vacmViewTreeFamilySubtree.syntax[idx] != variableName[idx]:
                         break
-                    idx = idx - 1
+                    idx -= 1
                 if idx:
-                    continue # no match
-            else: # no mask
+                    continue  # no match
+            else:  # no mask
                 if vacmViewTreeFamilySubtree.syntax != variableName[:l]:
-                    continue # no match
+                    continue  # no match
             # 3.2.5c
             return error.StatusInformation(errorIndication=errind.accessAllowed)

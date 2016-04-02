@@ -11,6 +11,7 @@ from pysnmp.proto.api import v1, v2c  # backend is always SMIv2 compliant
 from pysnmp.proto.proxy import rfc2576
 from pysnmp import debug
 
+
 # 3.4
 class NotificationReceiver:
     pduTypes = (v1.TrapPDU.tagSet, v2c.SNMPv2TrapPDU.tagSet,
@@ -18,7 +19,7 @@ class NotificationReceiver:
 
     def __init__(self, snmpEngine, cbFun, cbCtx=None):
         snmpEngine.msgAndPduDsp.registerContextEngineId(
-            null, self.pduTypes, self.processPdu # '' is a wildcard
+            null, self.pduTypes, self.processPdu  # '' is a wildcard
         )
         self.__cbFunVer = 0
         self.__cbFun = cbFun
@@ -46,7 +47,8 @@ class NotificationReceiver:
         errorIndex = 0
         varBinds = v2c.apiPDU.getVarBinds(PDU)
 
-        debug.logger & debug.flagApp and debug.logger('processPdu: stateReference %s, varBinds %s' % (stateReference, varBinds))
+        debug.logger & debug.flagApp and debug.logger(
+            'processPdu: stateReference %s, varBinds %s' % (stateReference, varBinds))
 
         # 3.4
         if PDU.tagSet in rfc3411.confirmedClassPDUs:
@@ -59,7 +61,8 @@ class NotificationReceiver:
             v2c.apiPDU.setErrorIndex(rspPDU, errorIndex)
             v2c.apiPDU.setVarBinds(rspPDU, varBinds)
 
-            debug.logger & debug.flagApp and debug.logger('processPdu: stateReference %s, confirm PDU %s' % (stateReference, rspPDU.prettyPrint()))
+            debug.logger & debug.flagApp and debug.logger(
+                'processPdu: stateReference %s, confirm PDU %s' % (stateReference, rspPDU.prettyPrint()))
 
             # Agent-side API complies with SMIv2
             if messageProcessingModel == 0:
@@ -76,8 +79,10 @@ class NotificationReceiver:
                     stateReference, statusInformation)
 
             except error.StatusInformation:
-                debug.logger & debug.flagApp and debug.logger('processPdu: stateReference %s, statusInformation %s' % (stateReference, sys.exc_info()[1]))
-                snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpSilentDrops')
+                debug.logger & debug.flagApp and debug.logger(
+                    'processPdu: stateReference %s, statusInformation %s' % (stateReference, sys.exc_info()[1]))
+                snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB',
+                                                                                                         'snmpSilentDrops')
                 snmpSilentDrops.syntax += 1
 
         elif PDU.tagSet in rfc3411.unconfirmedClassPDUs:
@@ -85,7 +90,9 @@ class NotificationReceiver:
         else:
             raise error.ProtocolError('Unexpected PDU class %s' % PDU.tagSet)
 
-        debug.logger & debug.flagApp and debug.logger('processPdu: stateReference %s, user cbFun %s, cbCtx %s, varBinds %s' % (stateReference, self.__cbFun, self.__cbCtx, varBinds))
+        debug.logger & debug.flagApp and debug.logger(
+            'processPdu: stateReference %s, user cbFun %s, cbCtx %s, varBinds %s' % (
+                stateReference, self.__cbFun, self.__cbCtx, varBinds))
 
         if self.__cbFunVer:
             self.__cbFun(snmpEngine, stateReference, contextEngineId,

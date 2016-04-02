@@ -12,8 +12,10 @@ __all__ = ['sendNotification']
 if version_info[:2] < (2, 6):
     __all__.append('next')
 
+    # noinspection PyShadowingBuiltins
     def next(iter):
         return iter.next()
+
 
 def sendNotification(snmpEngine, authData, transportTarget, contextData,
                      notifyType, varBinds, **options):
@@ -96,6 +98,8 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
     >>>
 
     """
+
+    # noinspection PyShadowingNames
     def cbFun(snmpEngine, sendRequestHandle,
               errorIndication, errorStatus, errorIndex,
               varBinds, cbCtx):

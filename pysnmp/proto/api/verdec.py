@@ -9,6 +9,7 @@ from pyasn1.codec.ber import decoder, eoo
 from pyasn1.error import PyAsn1Error
 from pysnmp.proto.error import ProtocolError
 
+
 def decodeMessageVersion(wholeMsg):
     try:
         seq, wholeMsg = decoder.decode(

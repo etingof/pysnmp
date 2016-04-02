@@ -35,6 +35,7 @@ import traceback
 from pysnmp.carrier.asyncio.base import AbstractAsyncioTransport
 from pysnmp.carrier import error
 from pysnmp import debug
+
 try:
     import asyncio
 except ImportError:
@@ -42,14 +43,16 @@ except ImportError:
 
 loop = asyncio.get_event_loop()
 
+
 class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
     """Base Asyncio datagram Transport, to be used with AsyncioDispatcher"""
     sockFamily = None
     addressType = lambda x: x
     transport = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, sock=None, sockMap=None):
         self._writeQ = []
+        self._lport = None
 
     def datagram_received(self, datagram, transportAddress):
         if self._cbFun is None:
@@ -95,7 +98,8 @@ class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
         return self
 
     def closeTransport(self):
-        self._lport.cancel()
+        if self._lport is not None:
+            self._lport.cancel()
         if self.transport is not None:
             self.transport.close()
         AbstractAsyncioTransport.closeTransport(self)

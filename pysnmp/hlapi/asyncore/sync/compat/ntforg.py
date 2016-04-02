@@ -10,8 +10,11 @@ from pysnmp.hlapi.asyncore import ntforg
 
 __all__ = ['sendNotification', 'next']
 
+
+# noinspection PyShadowingBuiltins
 def next(iter):
     return iter.next()
+
 
 #
 # Synchronous one-liner SNMP Notification Originator application
@@ -19,7 +22,7 @@ def next(iter):
 
 def sendNotification(snmpEngine, authData, transportTarget, contextData,
                      notifyType, varBinds, **options):
-
+    # noinspection PyShadowingNames
     def cbFun(snmpEngine, sendRequestHandle,
               errorIndication, errorStatus, errorIndex,
               varBinds, cbCtx):

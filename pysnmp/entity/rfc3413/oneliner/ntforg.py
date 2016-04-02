@@ -21,6 +21,7 @@ __all__ = ['AsynNotificationOriginator',
 
 MibVariable = ObjectIdentity
 
+
 class ErrorIndicationReturn:
     def __init__(self, *vars):
         self.__vars = vars
@@ -29,7 +30,7 @@ class ErrorIndicationReturn:
         return self.__vars[i]
 
     def __nonzero__(self):
-        return self.__vars[0] and 1 or 0
+        return bool(self)
 
     def __bool__(self):
         return bool(self.__vars[0])
@@ -37,9 +38,11 @@ class ErrorIndicationReturn:
     def __str__(self):
         return str(self.__vars[0])
 
+
 class AsynNotificationOriginator:
     vbProcessor = NotificationOriginatorVarBinds()
     lcd = NotificationOriginatorLcdConfigurator()
+
     def __init__(self, snmpEngine=None, snmpContext=None):
         if snmpEngine is None:
             self.snmpEngine = snmpEngine = SnmpEngine()
@@ -133,8 +136,10 @@ class AsynNotificationOriginator:
 
     asyncSendNotification = sendNotification
 
+
 class NotificationOriginator:
     vbProcessor = NotificationOriginatorVarBinds()
+
     def __init__(self, snmpEngine=None, snmpContext=None, asynNtfOrg=None):
         # compatibility attributes
         self.snmpEngine = snmpEngine or SnmpEngine()
@@ -162,15 +167,15 @@ class NotificationOriginator:
         for errorIndication, \
             errorStatus, errorIndex, \
             rspVarBinds \
-            in sync.sendNotification(self.snmpEngine, authData,
-                                     transportTarget,
-                                     ContextData(
-                                         kwargs.get('contextEngineId'),
-                                         kwargs.get('contextName', null)
-                                     ),
-                                     notifyType,
-                                     notificationType.addVarBinds(*varBinds),
-                                     **kwargs):
+                in sync.sendNotification(self.snmpEngine, authData,
+                                         transportTarget,
+                                         ContextData(
+                                             kwargs.get('contextEngineId'),
+                                             kwargs.get('contextName', null)
+                                         ),
+                                         notifyType,
+                                         notificationType.addVarBinds(*varBinds),
+                                         **kwargs):
             if notifyType == 'inform':
                 return errorIndication, errorStatus, errorIndex, rspVarBinds
             else:

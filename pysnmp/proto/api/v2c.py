@@ -46,8 +46,9 @@ getNextRequestID = v1.getNextRequestID
 
 apiVarBind = v1.apiVarBind
 
+
 class PDUAPI(v1.PDUAPI):
-    _errorStatus = rfc1905._errorStatus.clone(0)
+    _errorStatus = rfc1905.errorStatus.clone(0)
     _errorIndex = univ.Integer(0).subtype(subtypeSpec=constraint.ValueRangeConstraint(0, rfc1905.max_bindings))
 
     def getResponse(self, reqPDU):
@@ -61,21 +62,24 @@ class PDUAPI(v1.PDUAPI):
 
     def setEndOfMibError(self, pdu, errorIndex):
         varBindList = self.getVarBindList(pdu)
-        varBindList[errorIndex-1].setComponentByPosition(
+        varBindList[errorIndex - 1].setComponentByPosition(
             1, rfc1905.endOfMibView, verifyConstraints=False
         )
 
     def setNoSuchInstanceError(self, pdu, errorIndex):
         varBindList = self.getVarBindList(pdu)
-        varBindList[errorIndex-1].setComponentByPosition(
+        varBindList[errorIndex - 1].setComponentByPosition(
             1, rfc1905.noSuchInstance, verifyConstraints=False
         )
 
+
 apiPDU = PDUAPI()
 
+
 class BulkPDUAPI(PDUAPI):
-    _nonRepeaters = rfc1905._nonRepeaters.clone(0)
-    _maxRepetitions = rfc1905._maxRepetitions.clone(10)
+    _nonRepeaters = rfc1905.nonRepeaters.clone(0)
+    _maxRepetitions = rfc1905.maxRepetitions.clone(10)
+
     def setDefaults(self, pdu):
         PDUAPI.setDefaults(self, pdu)
         pdu.setComponentByPosition(
@@ -89,34 +93,37 @@ class BulkPDUAPI(PDUAPI):
         )
         pdu.setComponentByPosition(3)
 
-    def getNonRepeaters(self, pdu):
+    @staticmethod
+    def getNonRepeaters(pdu):
         return pdu.getComponentByPosition(1)
 
-    def setNonRepeaters(self, pdu, value):
+    @staticmethod
+    def setNonRepeaters(pdu, value):
         pdu.setComponentByPosition(1, value)
 
-    def getMaxRepetitions(self, pdu):
+    @staticmethod
+    def getMaxRepetitions(pdu):
         return pdu.getComponentByPosition(2)
 
-    def setMaxRepetitions(self, pdu, value):
+    @staticmethod
+    def setMaxRepetitions(pdu, value):
         pdu.setComponentByPosition(2, value)
 
     def getVarBindTable(self, reqPDU, rspPDU):
         nonRepeaters = self.getNonRepeaters(reqPDU)
-        maxRepetitions = self.getMaxRepetitions(reqPDU)
 
         reqVarBinds = self.getVarBinds(reqPDU)
 
         N = min(int(nonRepeaters), len(reqVarBinds))
-        R = max(len(reqVarBinds)-N, 0)
+        R = max(len(reqVarBinds) - N, 0)
 
         rspVarBinds = self.getVarBinds(rspPDU)
 
         varBindTable = []
 
         if R:
-            for i in range(0, len(rspVarBinds)-N, R):
-                varBindRow = rspVarBinds[:N] + rspVarBinds[N+i:N+R+i]
+            for i in range(0, len(rspVarBinds) - N, R):
+                varBindRow = rspVarBinds[:N] + rspVarBinds[N + i:N + R + i]
                 # ignore stray OIDs / non-rectangular table
                 if len(varBindRow) == N + R:
                     varBindTable.append(varBindRow)
@@ -125,7 +132,9 @@ class BulkPDUAPI(PDUAPI):
 
         return varBindTable
 
+
 apiBulkPDU = BulkPDUAPI()
+
 
 class TrapPDUAPI(v1.PDUAPI):
     sysUpTime = (1, 3, 6, 1, 2, 1, 1, 3, 0)
@@ -135,6 +144,7 @@ class TrapPDUAPI(v1.PDUAPI):
     snmpTrapEnterprise = (1, 3, 6, 1, 6, 3, 1, 1, 4, 3, 0)
     _zeroTime = TimeTicks(0)
     _genTrap = ObjectIdentifier((1, 3, 6, 1, 6, 3, 1, 1, 5, 1))
+
     def setDefaults(self, pdu):
         v1.PDUAPI.setDefaults(self, pdu)
         varBinds = [(self.sysUpTime, self._zeroTime),
@@ -142,10 +152,13 @@ class TrapPDUAPI(v1.PDUAPI):
                     (self.snmpTrapOID, self._genTrap)]
         self.setVarBinds(pdu, varBinds)
 
+
 apiTrapPDU = TrapPDUAPI()
 
+
 class MessageAPI(v1.MessageAPI):
-    _version = rfc1901._version.clone(1)
+    _version = rfc1901.version.clone(1)
+
     def setDefaults(self, msg):
         msg.setComponentByPosition(0, self._version, verifyConstraints=False)
         msg.setComponentByPosition(1, self._community, verifyConstraints=False)
@@ -158,5 +171,6 @@ class MessageAPI(v1.MessageAPI):
         self.setCommunity(rspMsg, self.getCommunity(reqMsg))
         self.setPDU(rspMsg, apiPDU.getResponse(self.getPDU(reqMsg)))
         return rspMsg
+
 
 apiMessage = MessageAPI()

@@ -7,11 +7,11 @@
 import socket
 
 symbols = {
-    'IP_PKTINFO':       8,
-    'IP_TRANSPARENT':   19,
-    'SOL_IPV6':         41,
+    'IP_PKTINFO': 8,
+    'IP_TRANSPARENT': 19,
+    'SOL_IPV6': 41,
     'IPV6_RECVPKTINFO': 49,
-    'IPV6_PKTINFO':     50
+    'IPV6_PKTINFO': 50
 }
 
 for symbol in symbols:

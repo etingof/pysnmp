@@ -11,9 +11,11 @@ from pysnmp.hlapi.auth import *
 __all__ = ['CommandGeneratorLcdConfigurator',
            'NotificationOriginatorLcdConfigurator']
 
+
 class AbstractLcdConfigurator:
     nextID = nextid.Integer(0xffffffff)
     cacheKeys = []
+
     def _getCache(self, snmpEngine):
         cacheId = self.__class__.__name__
         cache = snmpEngine.getUserContext(cacheId)
@@ -22,15 +24,17 @@ class AbstractLcdConfigurator:
             snmpEngine.setUserContext(**{cacheId: cache})
         return cache
 
-    def configure(self, snmpEngine, authData, transportTarget):
+    def configure(self, snmpEngine, authData, transportTarget, *options):
         pass
 
     def unconfigure(self, snmpEngine, authData=None):
         pass
 
+
 class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
     cacheKeys = ['auth', 'parm', 'tran', 'addr']
-    def configure(self, snmpEngine, authData, transportTarget):
+
+    def configure(self, snmpEngine, authData, transportTarget, *options):
         cache = self._getCache(snmpEngine)
         if isinstance(authData, CommunityData):
             if authData.communityIndex not in cache['auth']:
@@ -59,9 +63,9 @@ class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
         else:
             raise error.PySnmpError('Unsupported authentication object')
 
-        paramsKey = authData.securityName, \
-                    authData.securityLevel, \
-                    authData.mpModel
+        paramsKey = (authData.securityName,
+                     authData.securityLevel,
+                     authData.mpModel)
         if paramsKey in cache['parm']:
             paramsName, useCount = cache['parm'][paramsKey]
             cache['parm'][paramsKey] = paramsName, useCount + 1
@@ -145,9 +149,9 @@ class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
             else:
                 raise error.PySnmpError('Unsupported authentication object')
 
-            paramsKey = authDataX.securityName, \
-                        authDataX.securityLevel, \
-                        authDataX.mpModel
+            paramsKey = (authDataX.securityName,
+                         authDataX.securityLevel,
+                         authDataX.mpModel)
             if paramsKey in cache['parm']:
                 paramsName, useCount = cache['parm'][paramsKey]
                 useCount -= 1
@@ -186,11 +190,15 @@ class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
 
         return addrNames, paramsNames
 
+
 class NotificationOriginatorLcdConfigurator(AbstractLcdConfigurator):
     cacheKeys = ['auth', 'name']
     _cmdGenLcdCfg = CommandGeneratorLcdConfigurator()
-    def configure(self, snmpEngine, authData, transportTarget, notifyType):
+
+    def configure(self, snmpEngine, authData, transportTarget, *options):
         cache = self._getCache(snmpEngine)
+        notifyType = options and options[0] or 'trap'
+        notifyName = None
 
         # Create matching transport tags if not given by user. Not good!
         if not transportTarget.tagList:
@@ -220,7 +228,7 @@ class NotificationOriginatorLcdConfigurator(AbstractLcdConfigurator):
                 )
                 cache['name'][notifyNameKey] = notifyName, paramsName, 1
         authDataKey = authData.securityName, authData.securityModel
-        if  authDataKey in cache['auth']:
+        if authDataKey in cache['auth']:
             authDataX, subTree, useCount = cache['auth'][authDataKey]
             cache['auth'][authDataKey] = authDataX, subTree, useCount + 1
         else:

@@ -10,15 +10,18 @@ from pysnmp import error
 
 __all__ = []
 
+
 class AbstractTransportTarget:
     transportDomain = None
     protoTransport = AbstractTransport
+
     def __init__(self, transportAddr, timeout=1, retries=5, tagList=null):
         self.transportAddr = self._resolveAddr(transportAddr)
         self.timeout = timeout
         self.retries = retries
         self.tagList = tagList
         self.iface = None
+        self.transport = None
 
     def __repr__(self):
         return '%s(%r, timeout=%r, retries=%r, tagList=%r)' % (
@@ -39,7 +42,8 @@ class AbstractTransportTarget:
 
     def verifyDispatcherCompatibility(self, snmpEngine):
         if not self.protoTransport.isCompatibleWithDispatcher(snmpEngine.transportDispatcher):
-            raise error.PySnmpError('Transport %r is not compatible with dispatcher %r' % (self.protoTransport, snmpEngine.transportDispatcher))
+            raise error.PySnmpError('Transport %r is not compatible with dispatcher %r' % (
+                self.protoTransport, snmpEngine.transportDispatcher))
 
     def _resolveAddr(self, transportAddr):
         raise NotImplementedError()

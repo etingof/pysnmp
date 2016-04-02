@@ -34,6 +34,7 @@ import sys
 import traceback
 from pysnmp.carrier.base import AbstractTransportDispatcher
 from pysnmp.error import PySnmpError
+
 try:
     import asyncio
 except ImportError:
@@ -41,8 +42,10 @@ except ImportError:
 
 loop = asyncio.get_event_loop()
 
+
 class AsyncioDispatcher(AbstractTransportDispatcher):
     """AsyncioDispatcher based on asyncio event loop"""
+
     def __init__(self, *args, **kwargs):
         AbstractTransportDispatcher.__init__(self)
         self.__transportCount = 0
@@ -70,7 +73,7 @@ class AsyncioDispatcher(AbstractTransportDispatcher):
             self.loopingcall = asyncio.async(self.handle_timeout())
         AbstractTransportDispatcher.registerTransport(
             self, tDomain, transport
-            )
+        )
         self.__transportCount += 1
 
     def unregisterTransport(self, tDomain):
@@ -84,9 +87,10 @@ class AsyncioDispatcher(AbstractTransportDispatcher):
             self.loopingcall.cancel()
             self.loopingcall = None
 
+
 # Trollius or Tulip?
 if not hasattr(asyncio, "From"):
-    exec("""\
+    exec ("""\
 @asyncio.coroutine
 def handle_timeout(self):
     while True:
@@ -94,4 +98,3 @@ def handle_timeout(self):
         self.handleTimerTick(loop.time())
 AsyncioDispatcher.handle_timeout = handle_timeout\
 """)
-

@@ -22,7 +22,7 @@ __v1ToV2ValueMap = {
     v1.Opaque.tagSet: v2c.Opaque()
 }
 
-__v2ToV1ValueMap = { # XXX do not re-create same-type items?
+__v2ToV1ValueMap = {  # XXX do not re-create same-type items?
     v2c.Integer32.tagSet: v1.Integer(),
     v2c.OctetString.tagSet: v1.OctetString(),
     v2c.Null.tagSet: v1.Null(),
@@ -50,7 +50,7 @@ __v2ToV1PduMap = {
     v2c.SetRequestPDU.tagSet: v1.SetRequestPDU(),
     v2c.ResponsePDU.tagSet: v1.GetResponsePDU(),
     v2c.SNMPv2TrapPDU.tagSet: v1.TrapPDU(),
-    v2c.GetBulkRequestPDU.tagSet: v1.GetNextRequestPDU() # 4.1.1
+    v2c.GetBulkRequestPDU.tagSet: v1.GetNextRequestPDU()  # 4.1.1
 }
 
 # Trap map
@@ -76,15 +76,15 @@ __v2ToV1TrapMap = {
 # 4.3
 
 __v2ToV1ErrorMap = {
-    0:  0,
-    1:  1,
-    5:  5,
+    0: 0,
+    1: 1,
+    5: 5,
     10: 3,
-    9:  3,
-    7:  3,
-    8:  3,
+    9: 3,
+    7: 3,
+    8: 3,
     12: 3,
-    6:  2,
+    6: 2,
     17: 2,
     11: 2,
     18: 2,
@@ -95,6 +95,7 @@ __v2ToV1ErrorMap = {
 }
 
 __zeroInt = v1.Integer(0)
+
 
 def v1ToV2(v1Pdu, origV2Pdu=None):
     pduType = v1Pdu.tagSet
@@ -112,8 +113,7 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
         # 3.1.2
         genericTrap = v1.apiTrapPDU.getGenericTrap(v1Pdu)
         if genericTrap == 6:
-            snmpTrapOIDParam = v1.apiTrapPDU.getEnterprise(v1Pdu) + (0,) + \
-                               (int(v1.apiTrapPDU.getSpecificTrap(v1Pdu)),)
+            snmpTrapOIDParam = v1.apiTrapPDU.getEnterprise(v1Pdu) + (0, int(v1.apiTrapPDU.getSpecificTrap(v1Pdu)))
 
         # 3.1.3
         else:
@@ -146,15 +146,11 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
         # 4.1.2.2.1&2
         errorStatus = int(v1.apiPDU.getErrorStatus(v1Pdu))
         errorIndex = int(v1.apiPDU.getErrorIndex(v1Pdu, muteErrors=True))
-        if errorStatus == 2: # noSuchName
+        if errorStatus == 2:  # noSuchName
             if origV2Pdu.tagSet == v2c.GetNextRequestPDU.tagSet:
-                v2VarBinds = [
-                    (o, rfc1905.endOfMibView) for o, v in v2VarBinds
-                ]
+                v2VarBinds = [(o, rfc1905.endOfMibView) for o, v in v2VarBinds]
             else:
-                v2VarBinds = [
-                    (o, rfc1905.noSuchObject) for o, v in v2VarBinds
-                ]
+                v2VarBinds = [(o, rfc1905.noSuchObject) for o, v in v2VarBinds]
             v2c.apiPDU.setErrorStatus(v2Pdu, 0)
             v2c.apiPDU.setErrorIndex(v2Pdu, 0)
         else:
@@ -162,7 +158,7 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
             v2c.apiPDU.setErrorStatus(v2Pdu, errorStatus)
             v2c.apiPDU.setErrorIndex(v2Pdu, errorIndex)
 
-        # 4.1.2.1 --> no-op
+            # 4.1.2.1 --> no-op
 
     elif pduType in rfc3411.confirmedClassPDUs:
         v2c.apiPDU.setErrorStatus(v2Pdu, 0)
@@ -176,6 +172,7 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
     debug.logger & debug.flagPrx and debug.logger('v1ToV2: v2Pdu %s' % v2Pdu.prettyPrint())
 
     return v2Pdu
+
 
 def v2ToV1(v2Pdu, origV1Pdu=None):
     debug.logger & debug.flagPrx and debug.logger('v2ToV1: v2Pdu %s' % v2Pdu.prettyPrint())
@@ -238,9 +235,9 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         __v2VarBinds = []
         for oid, val in v2VarBinds[2:]:
             if oid in __v2ToV1TrapMap or \
-                   oid in (v2c.apiTrapPDU.sysUpTime,
-                           v2c.apiTrapPDU.snmpTrapAddress,
-                           v2c.apiTrapPDU.snmpTrapEnterprise):
+                    oid in (v2c.apiTrapPDU.sysUpTime,
+                            v2c.apiTrapPDU.snmpTrapAddress,
+                            v2c.apiTrapPDU.snmpTrapEnterprise):
                 continue
             __v2VarBinds.append((oid, val))
         v2VarBinds = __v2VarBinds
@@ -252,14 +249,14 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         v1.apiPDU.setErrorIndex(v1Pdu, __zeroInt)
 
     if pduType in rfc3411.responseClassPDUs:
-        idx = len(v2VarBinds)-1
+        idx = len(v2VarBinds) - 1
         while idx >= 0:
             # 4.1.2.1
             oid, val = v2VarBinds[idx]
             if v2c.Counter64.tagSet == val.tagSet:
                 if origV1Pdu.tagSet == v1.GetRequestPDU.tagSet:
                     v1.apiPDU.setErrorStatus(v1Pdu, 2)
-                    v1.apiPDU.setErrorIndex(v1Pdu, idx+1)
+                    v1.apiPDU.setErrorIndex(v1Pdu, idx + 1)
                     break
                 elif origV1Pdu.tagSet == v1.GetNextRequestPDU.tagSet:
                     raise error.StatusInformation(idx=idx, pdu=v2Pdu)
@@ -271,7 +268,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
                               v2c.NoSuchInstance.tagSet,
                               v2c.EndOfMibView.tagSet):
                 v1.apiPDU.setErrorStatus(v1Pdu, 2)
-                v1.apiPDU.setErrorIndex(v1Pdu, idx+1)
+                v1.apiPDU.setErrorIndex(v1Pdu, idx + 1)
 
             idx -= 1
 
@@ -280,7 +277,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         if v2ErrorStatus:
             v1.apiPDU.setErrorStatus(
                 v1Pdu, __v2ToV1ErrorMap.get(v2ErrorStatus, 5)
-                )
+            )
             v1.apiPDU.setErrorIndex(v1Pdu, v2c.apiPDU.getErrorIndex(v2Pdu, muteErrors=True))
 
     elif pduType in rfc3411.confirmedClassPDUs:
@@ -289,7 +286,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
 
     # Translate Var-Binds
     if pduType in rfc3411.responseClassPDUs and \
-           v1.apiPDU.getErrorStatus(v1Pdu):
+            v1.apiPDU.getErrorStatus(v1Pdu):
         v1VarBinds = v1.apiPDU.getVarBinds(origV1Pdu)
     else:
         for oid, v2Val in v2VarBinds:

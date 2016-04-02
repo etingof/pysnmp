@@ -18,6 +18,7 @@ __all__ = ['AsynCommandGenerator', 'CommandGenerator', 'MibVariable']
 
 MibVariable = ObjectIdentity
 
+
 class AsynCommandGenerator:
     _null = univ.Null('')
 
@@ -26,7 +27,7 @@ class AsynCommandGenerator:
 
     def __init__(self, snmpEngine=None):
         if snmpEngine is None:
-            self.snmpEngine = snmpEngine = SnmpEngine()
+            self.snmpEngine = SnmpEngine()
         else:
             self.snmpEngine = snmpEngine
 
@@ -95,7 +96,6 @@ class AsynCommandGenerator:
         if contextName is null and authData.contextName:
             contextName = authData.contextName
 
-
         return setCmd(
             self.snmpEngine, authData, transportTarget,
             ContextData(contextEngineId, contextName), *varBinds,
@@ -159,8 +159,10 @@ class AsynCommandGenerator:
 
     asyncBulkCmd = bulkCmd
 
+
 class CommandGenerator:
     _null = univ.Null('')
+
     def __init__(self, snmpEngine=None, asynCmdGen=None):
         # compatibility attributes
         self.snmpEngine = snmpEngine or SnmpEngine()
@@ -172,8 +174,8 @@ class CommandGenerator:
             kwargs['lookupValues'] = False
         errorIndication, errorStatus, errorIndex, varBinds = None, 0, 0, []
         for errorIndication, \
-                errorStatus, errorIndex, \
-                varBinds \
+            errorStatus, errorIndex, \
+            varBinds \
                 in sync.getCmd(self.snmpEngine, authData, transportTarget,
                                ContextData(kwargs.get('contextEngineId'),
                                            kwargs.get('contextName', null)),
@@ -189,8 +191,8 @@ class CommandGenerator:
             kwargs['lookupValues'] = False
         errorIndication, errorStatus, errorIndex, rspVarBinds = None, 0, 0, []
         for errorIndication, \
-                errorStatus, errorIndex, \
-                rspVarBinds \
+            errorStatus, errorIndex, \
+            rspVarBinds \
                 in sync.setCmd(self.snmpEngine, authData, transportTarget,
                                ContextData(kwargs.get('contextEngineId'),
                                            kwargs.get('contextName', null)),
@@ -210,8 +212,8 @@ class CommandGenerator:
         errorIndication, errorStatus, errorIndex = None, 0, 0
         varBindTable = []
         for errorIndication, \
-                errorStatus, errorIndex, \
-                varBinds \
+            errorStatus, errorIndex, \
+            varBinds \
                 in sync.nextCmd(self.snmpEngine, authData, transportTarget,
                                 ContextData(kwargs.get('contextEngineId'),
                                             kwargs.get('contextName', null)),
@@ -235,8 +237,8 @@ class CommandGenerator:
         errorIndication, errorStatus, errorIndex = None, 0, 0
         varBindTable = []
         for errorIndication, \
-                errorStatus, errorIndex, \
-                varBinds \
+            errorStatus, errorIndex, \
+            varBinds \
                 in sync.bulkCmd(self.snmpEngine, authData,
                                 transportTarget,
                                 ContextData(kwargs.get('contextEngineId'),

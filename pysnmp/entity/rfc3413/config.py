@@ -7,6 +7,7 @@
 from pysnmp.smi.error import SmiError, NoSuchInstanceError
 from pysnmp.entity import config
 
+
 def getTargetAddr(snmpEngine, snmpTargetAddrName):
     mibBuilder = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
 
@@ -30,10 +31,10 @@ def getTargetAddr(snmpEngine, snmpTargetAddrName):
          snmpTargetAddrTimeout,
          snmpTargetAddrRetryCount,
          snmpTargetAddrParams) = mibBuilder.importSymbols(
-             'SNMP-TARGET-MIB', 'snmpTargetAddrTDomain',
-             'snmpTargetAddrTAddress', 'snmpTargetAddrTimeout',
-             'snmpTargetAddrRetryCount', 'snmpTargetAddrParams'
-         )
+            'SNMP-TARGET-MIB', 'snmpTargetAddrTDomain',
+            'snmpTargetAddrTAddress', 'snmpTargetAddrTimeout',
+            'snmpTargetAddrRetryCount', 'snmpTargetAddrParams'
+        )
         snmpSourceAddrTAddress, = mibBuilder.importSymbols('PYSNMP-SOURCE-MIB', 'snmpSourceAddrTAddress')
 
         tblIdx = snmpTargetAddrEntry.getInstIdFromIndices(snmpTargetAddrName)
@@ -63,12 +64,14 @@ def getTargetAddr(snmpEngine, snmpTargetAddrName):
         transport = snmpEngine.transportDispatcher.getTransport(snmpTargetAddrTDomain)
 
         if snmpTargetAddrTDomain[:len(config.snmpUDPDomain)] == config.snmpUDPDomain:
-            SnmpUDPAddress, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-TM', 'SnmpUDPAddress')
+            SnmpUDPAddress, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-TM',
+                                                                                                    'SnmpUDPAddress')
             snmpTargetAddrTAddress = transport.addressType(
                 SnmpUDPAddress(snmpTargetAddrTAddress)
             ).setLocalAddress(SnmpUDPAddress(snmpSourceAddrTAddress))
         elif snmpTargetAddrTDomain[:len(config.snmpUDP6Domain)] == config.snmpUDP6Domain:
-            TransportAddressIPv6, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('TRANSPORT-ADDRESS-MIB', 'TransportAddressIPv6')
+            TransportAddressIPv6, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
+                'TRANSPORT-ADDRESS-MIB', 'TransportAddressIPv6')
             snmpTargetAddrTAddress = transport.addressType(
                 TransportAddressIPv6(snmpTargetAddrTAddress)
             ).setLocalAddress(TransportAddressIPv6(snmpSourceAddrTAddress))
@@ -111,10 +114,10 @@ def getTargetParams(snmpEngine, paramsName):
         (snmpTargetParamsMPModel, snmpTargetParamsSecurityModel,
          snmpTargetParamsSecurityName,
          snmpTargetParamsSecurityLevel) = mibBuilder.importSymbols(
-             'SNMP-TARGET-MIB', 'snmpTargetParamsMPModel',
-             'snmpTargetParamsSecurityModel', 'snmpTargetParamsSecurityName',
-             'snmpTargetParamsSecurityLevel'
-         )
+            'SNMP-TARGET-MIB', 'snmpTargetParamsMPModel',
+            'snmpTargetParamsSecurityModel', 'snmpTargetParamsSecurityName',
+            'snmpTargetParamsSecurityLevel'
+        )
 
         tblIdx = snmpTargetParamsEntry.getInstIdFromIndices(paramsName)
 
@@ -143,6 +146,7 @@ def getTargetParams(snmpEngine, paramsName):
 
     return nameToParamsMap[paramsName]
 
+
 def getTargetInfo(snmpEngine, snmpTargetAddrName):
     # Transport endpoint
     (snmpTargetAddrTDomain,
@@ -161,6 +165,7 @@ def getTargetInfo(snmpEngine, snmpTargetAddrName):
             snmpTargetAddrTimeout, snmpTargetAddrRetryCount,
             snmpTargetParamsMPModel, snmpTargetParamsSecurityModel,
             snmpTargetParamsSecurityName, snmpTargetParamsSecurityLevel)
+
 
 def getNotificationInfo(snmpEngine, notificationTarget):
     mibBuilder = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
@@ -206,6 +211,7 @@ def getNotificationInfo(snmpEngine, notificationTarget):
 
     return targetToNotifyMap[notificationTarget]
 
+
 def getTargetNames(snmpEngine, tag):
     mibBuilder = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
 
@@ -226,9 +232,9 @@ def getTargetNames(snmpEngine, tag):
 
         (SnmpTagValue, snmpTargetAddrName,
          snmpTargetAddrTagList) = mibBuilder.importSymbols(
-             'SNMP-TARGET-MIB', 'SnmpTagValue', 'snmpTargetAddrName',
-             'snmpTargetAddrTagList'
-         )
+            'SNMP-TARGET-MIB', 'SnmpTagValue', 'snmpTargetAddrName',
+            'snmpTargetAddrTagList'
+        )
         mibNode = snmpTargetAddrTagList
         while True:
             try:

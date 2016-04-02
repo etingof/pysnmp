@@ -12,11 +12,14 @@ from pysnmp.carrier import error
 
 domainName = snmpUDPDomain = (1, 3, 6, 1, 6, 1, 1)
 
+
 class UdpTransportAddress(tuple, AbstractTransportAddress):
     pass
 
+
 class UdpTwistedTransport(DgramTwistedTransport):
     addressType = UdpTransportAddress
+    _lport = None
 
     # AbstractTwistedTransport API
 
@@ -37,8 +40,11 @@ class UdpTwistedTransport(DgramTwistedTransport):
         return self
 
     def closeTransport(self):
-        d = self._lport.stopListening()
-        d and d.addCallback(lambda x: None)
-        DgramTwistedTransport.closeTransport(self)
+        if self._lport is not None:
+            d = self._lport.stopListening()
+            if d:
+                d.addCallback(lambda x: None)
+            DgramTwistedTransport.closeTransport(self)
+
 
 UdpTransport = UdpTwistedTransport

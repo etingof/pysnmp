@@ -15,7 +15,10 @@
 from pysnmp.carrier.twisted.dispatch import TwistedDispatcher
 from pysnmp.carrier.base import AbstractTransport
 
+
 class AbstractTwistedTransport(AbstractTransport):
     protoTransportDispatcher = TwistedDispatcher
-    def __init__(self):
+
+    def __init__(self, sock=None, sockMap=None):
         self._writeQ = []
+        DgramTwistedTransport.__init__(self)

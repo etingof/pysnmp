@@ -7,8 +7,10 @@
 from pysnmp.proto.mpmod import cache
 from pysnmp.proto import error
 
+
 class AbstractMessageProcessingModel:
     snmpMsgSpec = NotImplementedError
+
     def __init__(self):
         self._snmpMsgSpec = self.snmpMsgSpec()  # local copy
         self._cache = cache.Cache()
@@ -35,7 +37,7 @@ class AbstractMessageProcessingModel:
         try:
             self._cache.popBySendPduHandle(sendPduHandle)
         except error.ProtocolError:
-            pass # XXX maybe these should all follow some scheme?
+            pass  # XXX maybe these should all follow some scheme?
 
     def receiveTimerTick(self, snmpEngine, timeNow):
         self._cache.expireCaches()

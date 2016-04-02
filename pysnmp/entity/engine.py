@@ -9,10 +9,10 @@ import sys
 import tempfile
 from pysnmp.proto.rfc3412 import MsgAndPduDispatcher
 from pysnmp.proto.mpmod.rfc2576 import SnmpV1MessageProcessingModel, \
-     SnmpV2cMessageProcessingModel
+    SnmpV2cMessageProcessingModel
 from pysnmp.proto.mpmod.rfc3412 import SnmpV3MessageProcessingModel
 from pysnmp.proto.secmod.rfc2576 import SnmpV1SecurityModel, \
-     SnmpV2cSecurityModel
+    SnmpV2cSecurityModel
 from pysnmp.proto.secmod.rfc3414 import SnmpUSMSecurityModel
 from pysnmp.proto.acmod import rfc3415, void
 from pysnmp.entity import observer
@@ -20,6 +20,7 @@ from pysnmp import debug
 from pysnmp import error
 
 __all__ = ['SnmpEngine']
+
 
 class SnmpEngine:
     """Creates SNMP engine object.
@@ -51,6 +52,7 @@ class SnmpEngine:
     >>>
 
     """
+
     def __init__(self, snmpEngineID=None, maxMessageSize=65507,
                  msgAndPduDsp=None):
         self.cache = {}
@@ -63,11 +65,11 @@ class SnmpEngine:
             self.msgAndPduDsp = msgAndPduDsp
         self.messageProcessingSubsystems = {
             SnmpV1MessageProcessingModel.messageProcessingModelID:
-            SnmpV1MessageProcessingModel(),
+                SnmpV1MessageProcessingModel(),
             SnmpV2cMessageProcessingModel.messageProcessingModelID:
-            SnmpV2cMessageProcessingModel(),
+                SnmpV2cMessageProcessingModel(),
             SnmpV3MessageProcessingModel.messageProcessingModelID:
-            SnmpV3MessageProcessingModel()
+                SnmpV3MessageProcessingModel()
         }
         self.securityModels = {
             SnmpV1SecurityModel.securityModelID: SnmpV1SecurityModel(),
@@ -85,11 +87,14 @@ class SnmpEngine:
             raise error.PySnmpError(
                 'MIB instrumentation does not yet exist'
             )
-        snmpEngineMaxMessageSize, = self.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
+        snmpEngineMaxMessageSize, = self.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
+            '__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
         snmpEngineMaxMessageSize.syntax = snmpEngineMaxMessageSize.syntax.clone(maxMessageSize)
-        snmpEngineBoots, = self.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineBoots')
+        snmpEngineBoots, = self.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB',
+                                                                                           'snmpEngineBoots')
         snmpEngineBoots.syntax += 1
-        origSnmpEngineID, = self.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+        origSnmpEngineID, = self.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB',
+                                                                                            'snmpEngineID')
 
         if snmpEngineID is None:
             self.snmpEngineID = origSnmpEngineID.syntax
@@ -97,7 +102,8 @@ class SnmpEngine:
             origSnmpEngineID.syntax = origSnmpEngineID.syntax.clone(snmpEngineID)
             self.snmpEngineID = origSnmpEngineID.syntax
 
-            debug.logger & debug.flagApp and debug.logger('SnmpEngine: using custom SNMP Engine ID: %s' % self.snmpEngineID.prettyPrint())
+            debug.logger & debug.flagApp and debug.logger(
+                'SnmpEngine: using custom SNMP Engine ID: %s' % self.snmpEngineID.prettyPrint())
 
             # Attempt to make some of snmp Engine settings persistent.
             # This should probably be generalized as a non-volatile MIB store.
@@ -115,12 +121,12 @@ class SnmpEngine:
             f = os.path.join(persistentPath, 'boots')
             try:
                 snmpEngineBoots.syntax = snmpEngineBoots.syntax.clone(open(f).read())
-            except:
+            except Exception:
                 pass
 
             try:
                 snmpEngineBoots.syntax += 1
-            except:
+            except Exception:
                 snmpEngineBoots.syntax = snmpEngineBoots.syntax.clone(1)
 
             try:
@@ -128,14 +134,16 @@ class SnmpEngine:
                 os.write(fd, snmpEngineBoots.syntax.prettyPrint())
                 os.close(fd)
                 os.rename(fn, f)
-            except:
-                debug.logger & debug.flagApp and debug.logger('SnmpEngine: could not stored SNMP Engine Boots: %s' % sys.exc_info()[1])
+            except Exception:
+                debug.logger & debug.flagApp and debug.logger(
+                    'SnmpEngine: could not stored SNMP Engine Boots: %s' % sys.exc_info()[1])
             else:
-                debug.logger & debug.flagApp and debug.logger('SnmpEngine: stored SNMP Engine Boots: %s' % snmpEngineBoots.syntax.prettyPrint())
+                debug.logger & debug.flagApp and debug.logger(
+                    'SnmpEngine: stored SNMP Engine Boots: %s' % snmpEngineBoots.syntax.prettyPrint())
 
     def __repr__(self):
         return '%s(snmpEngineID=%r)' % \
-            (self.__class__.__name__, self.snmpEngineID)
+               (self.__class__.__name__, self.snmpEngineID)
 
     # Transport dispatcher bindings
 
@@ -193,4 +201,3 @@ class SnmpEngine:
             del self.cache['__%s' % arg]
         except KeyError:
             pass
-

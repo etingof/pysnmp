@@ -14,20 +14,24 @@ from pysnmp.proto import rfc3411, errind, error
 from pysnmp.proto.api import v1, v2c
 from pysnmp import debug
 
+
 # Since I have not found a detailed reference to v1MP/v2cMP
 # inner workings, the following has been patterned from v3MP. Most
 # references here goes to RFC3412.
 
 class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
-    messageProcessingModelID = univ.Integer(0) # SNMPv1
+    messageProcessingModelID = univ.Integer(0)  # SNMPv1
     snmpMsgSpec = v1.Message
+
     # rfc3412: 7.1
     def prepareOutgoingMessage(self, snmpEngine, transportDomain,
                                transportAddress, messageProcessingModel,
                                securityModel, securityName, securityLevel,
                                contextEngineId, contextName, pduVersion,
                                pdu, expectResponse, sendPduHandle):
-        snmpEngineId, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+        mibBuilder = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
+
+        snmpEngineId, = mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
         snmpEngineId = snmpEngineId.syntax
 
         # rfc3412: 7.1.1b
@@ -36,7 +40,8 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             pdu.setComponentByPosition(1)
             msgID = self._cache.newMsgID()
             reqID = pdu.getComponentByPosition(0)
-            debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: PDU request-id %s replaced with unique ID %s' % (reqID, msgID))
+            debug.logger & debug.flagMP and debug.logger(
+                'prepareOutgoingMessage: PDU request-id %s replaced with unique ID %s' % (reqID, msgID))
 
         # rfc3412: 7.1.4
         # Since there's no SNMP engine identification in v1/2c,
@@ -48,7 +53,8 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         if not contextName:
             contextName = null
 
-        debug.logger & debug.flagMP and debug.logger('prepareOutgoingMessage: using contextEngineId %r contextName %r' % (contextEngineId, contextName))
+        debug.logger & debug.flagMP and debug.logger(
+            'prepareOutgoingMessage: using contextEngineId %r contextName %r' % (contextEngineId, contextName))
 
         # rfc3412: 7.1.6
         scopedPDU = (contextEngineId, contextName, pdu)
@@ -73,22 +79,25 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
         # rfc3412: 7.1.9.a & rfc2576: 5.2.1 --> no-op
 
-        snmpEngineMaxMessageSize, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
+        snmpEngineMaxMessageSize, = mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB',
+                                                             'snmpEngineMaxMessageSize')
 
         # fix unique request-id right prior PDU serialization
         if pdu.tagSet in rfc3411.confirmedClassPDUs:
+            # noinspection PyUnboundLocalVariable
             pdu.setComponentByPosition(0, msgID)
 
         # rfc3412: 7.1.9.b
         (securityParameters,
          wholeMsg) = smHandler.generateRequestMsg(
-             snmpEngine, self.messageProcessingModelID, globalData,
-             snmpEngineMaxMessageSize.syntax, securityModel,
-             snmpEngineId, securityName, securityLevel, scopedPDU
-         )
+            snmpEngine, self.messageProcessingModelID, globalData,
+            snmpEngineMaxMessageSize.syntax, securityModel,
+            snmpEngineId, securityName, securityLevel, scopedPDU
+        )
 
         # return original request-id right after PDU serialization
         if pdu.tagSet in rfc3411.confirmedClassPDUs:
+            # noinspection PyUnboundLocalVariable
             pdu.setComponentByPosition(0, reqID)
 
         # rfc3412: 7.1.9.c
@@ -131,7 +140,9 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                                contextEngineId, contextName, pduVersion,
                                pdu, maxSizeResponseScopedPDU, stateReference,
                                statusInformation):
-        snmpEngineId, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+        mibBuilder = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
+
+        snmpEngineId, = mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
         snmpEngineId = snmpEngineId.syntax
 
         # rfc3412: 7.1.2.b
@@ -151,7 +162,9 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         transportDomain = cachedParams['transportDomain']
         transportAddress = cachedParams['transportAddress']
 
-        debug.logger & debug.flagMP and debug.logger('prepareResponseMessage: cache read msgID %s transportDomain %s transportAddress %s by stateReference %s' % (msgID, transportDomain, transportAddress, stateReference))
+        debug.logger & debug.flagMP and debug.logger(
+            'prepareResponseMessage: cache read msgID %s transportDomain %s transportAddress %s by stateReference %s' % (
+                msgID, transportDomain, transportAddress, stateReference))
 
         # rfc3412: 7.1.3
         if statusInformation:
@@ -173,7 +186,8 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.1.6
         scopedPDU = (contextEngineId, contextName, pdu)
 
-        debug.logger & debug.flagMP and debug.logger('prepareResponseMessage: using contextEngineId %r contextName %r' % (contextEngineId, contextName))
+        debug.logger & debug.flagMP and debug.logger(
+            'prepareResponseMessage: using contextEngineId %r contextName %r' % (contextEngineId, contextName))
 
         msg = self._snmpMsgSpec
         msg.setComponentByPosition(0, messageProcessingModel)
@@ -231,13 +245,14 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
     def prepareDataElements(self, snmpEngine, transportDomain,
                             transportAddress, wholeMsg):
+        mibBuilder = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
+
         # rfc3412: 7.2.2
         try:
-            msg, restOfwholeMsg = decoder.decode(wholeMsg,
-                                                 asn1Spec=self._snmpMsgSpec)
+            msg, restOfWholeMsg = decoder.decode(wholeMsg, asn1Spec=self._snmpMsgSpec)
         except PyAsn1Error:
             debug.logger & debug.flagMP and debug.logger('prepareDataElements: %s' % (sys.exc_info()[1],))
-            snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
+            snmpInASNParseErrs, = mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
             snmpInASNParseErrs.syntax += 1
             raise error.StatusInformation(errorIndication=errind.parseError)
 
@@ -247,14 +262,13 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             raise error.StatusInformation(errorIndication=errind.parseError)
 
         # rfc3412: 7.2.3
-        msgVersion = messageProcessingModel = msg.getComponentByPosition(0)
+        msgVersion = msg.getComponentByPosition(0)
 
         # rfc2576: 5.2.1
-        snmpEngineMaxMessageSize, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
+        snmpEngineMaxMessageSize, = mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
         communityName = msg.getComponentByPosition(1)
         # transportDomain identifies local enpoint
-        securityParameters = (communityName,
-                              (transportDomain, transportAddress))
+        securityParameters = (communityName, (transportDomain, transportAddress))
         messageProcessingModel = int(msg.getComponentByPosition(0))
         securityModel = messageProcessingModel + 1
         securityLevel = 1
@@ -270,14 +284,15 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             )
 
         # rfc3412: 7.2.6
-        (securityEngineId, securityName, scopedPDU, maxSizeResponseScopedPDU,
-         securityStateReference) = smHandler.processIncomingMsg(
-             snmpEngine, messageProcessingModel,
-             snmpEngineMaxMessageSize.syntax, securityParameters,
-             securityModel, securityLevel, wholeMsg, msg
-         )
+        (securityEngineId, securityName, scopedPDU,
+         maxSizeResponseScopedPDU, securityStateReference) = smHandler.processIncomingMsg(
+            snmpEngine, messageProcessingModel,
+            snmpEngineMaxMessageSize.syntax, securityParameters,
+            securityModel, securityLevel, wholeMsg, msg
+        )
 
-        debug.logger & debug.flagMP and debug.logger('prepareDataElements: SM returned securityEngineId %r securityName %r' % (securityEngineId, securityName))
+        debug.logger & debug.flagMP and debug.logger(
+            'prepareDataElements: SM returned securityEngineId %r securityName %r' % (securityEngineId, securityName))
 
         # rfc3412: 7.2.6a --> noop
 
@@ -305,7 +320,9 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             # recover original PDU request-id to return to app
             pdu.setComponentByPosition(0, cachedReqParams['reqID'])
 
-            debug.logger & debug.flagMP and debug.logger('prepareDataElements: unique PDU request-id %s replaced with original ID %s' % (msgID, cachedReqParams['reqID']))
+            debug.logger & debug.flagMP and debug.logger(
+                'prepareDataElements: unique PDU request-id %s replaced with original ID %s' % (
+                    msgID, cachedReqParams['reqID']))
 
             # 7.2.10b
             sendPduHandle = cachedReqParams['sendPduHandle']
@@ -321,11 +338,12 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         if pduType in rfc3411.responseClassPDUs:
             # rfc3412: 7.2.12a -> noop
             # rfc3412: 7.2.12b
+            # noinspection PyUnboundLocalVariable
             if securityModel != cachedReqParams['securityModel'] or \
-                   securityName != cachedReqParams['securityName'] or \
-                   securityLevel != cachedReqParams['securityLevel'] or \
-                   contextEngineId != cachedReqParams['contextEngineId'] or \
-                   contextName != cachedReqParams['contextName']:
+                    securityName != cachedReqParams['securityName'] or \
+                    securityLevel != cachedReqParams['securityLevel'] or \
+                    contextEngineId != cachedReqParams['contextEngineId'] or \
+                    contextName != cachedReqParams['contextName']:
                 smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(errorIndication=errind.dataMismatch)
 
@@ -364,10 +382,11 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             reqID = pdu.getComponentByPosition(0)
             msgID = self._cache.newMsgID()
             pdu.setComponentByPosition(0, msgID)
-            debug.logger & debug.flagMP and debug.logger('prepareDataElements: received PDU request-id %s replaced with unique ID %s' % (reqID, msgID))
+            debug.logger & debug.flagMP and debug.logger(
+                'prepareDataElements: received PDU request-id %s replaced with unique ID %s' % (reqID, msgID))
 
             # rfc3412: 7.2.13a
-            snmpEngineId, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+            snmpEngineId, = mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
             if securityEngineId != snmpEngineId.syntax:
                 smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(
@@ -405,7 +424,8 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                 snmpEngine, 'rfc2576.prepareDataElements:confirmed'
             )
 
-            debug.logger & debug.flagMP and debug.logger('prepareDataElements: cached by new stateReference %s' % stateReference)
+            debug.logger & debug.flagMP and debug.logger(
+                'prepareDataElements: cached by new stateReference %s' % stateReference)
 
             # rfc3412: 7.2.13c
             return (messageProcessingModel, securityModel, securityName,
@@ -448,6 +468,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         smHandler.releaseStateInformation(securityStateReference)
         raise error.StatusInformation(errorIndication=errind.unsupportedPDUtype)
 
+
 class SnmpV2cMessageProcessingModel(SnmpV1MessageProcessingModel):
-    messageProcessingModelID = univ.Integer(1) # SNMPv2c
+    messageProcessingModelID = univ.Integer(1)  # SNMPv2c
     snmpMsgSpec = v2c.Message

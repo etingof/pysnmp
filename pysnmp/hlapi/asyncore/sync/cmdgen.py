@@ -16,8 +16,10 @@ __all__ = ['getCmd', 'nextCmd', 'setCmd', 'bulkCmd']
 if version_info[:2] < (2, 6):
     __all__.append('next')
 
+    # noinspection PyShadowingBuiltins
     def next(iter):
         return iter.next()
+
 
 def getCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
@@ -89,6 +91,8 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     >>>
 
     """
+
+    # noinspection PyShadowingNames
     def cbFun(snmpEngine, sendRequestHandle,
               errorIndication, errorStatus, errorIndex,
               varBinds, cbCtx):
@@ -120,6 +124,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
 
         if not varBinds:
             break
+
 
 def setCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
@@ -192,6 +197,8 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     >>>
 
     """
+
+    # noinspection PyShadowingNames
     def cbFun(snmpEngine, sendRequestHandle,
               errorIndication, errorStatus, errorIndex,
               varBinds, cbCtx):
@@ -223,6 +230,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
 
         if not varBinds:
             break
+
 
 def nextCmd(snmpEngine, authData, transportTarget, contextData,
             *varBinds, **options):
@@ -316,6 +324,8 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     >>> g.send( [ ObjectType(ObjectIdentity('IF-MIB', 'ifInOctets')) ] )
     (None, 0, 0, [(ObjectName('1.3.6.1.2.1.2.2.1.10.1'), Counter32(284817787))])
     """
+
+    # noinspection PyShadowingNames
     def cbFun(snmpEngine, sendRequestHandle,
               errorIndication, errorStatus, errorIndex,
               varBindTable, cbCtx):
@@ -351,11 +361,11 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
             errorIndex = cbCtx['errorIndex']
 
             if ignoreNonIncreasingOid and errorIndication and \
-                   isinstance(errorIndication, errind.OidNotIncreasing):
+                    isinstance(errorIndication, errind.OidNotIncreasing):
                 errorIndication = None
 
             if errorIndication:
-                yield errorIndication, errorStatus, errorIndex, varBinds
+                yield (errorIndication, errorStatus, errorIndex, varBinds)
                 return
             elif errorStatus:
                 if errorStatus == 2:
@@ -363,7 +373,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
                     # from SNMPv1 Agent through internal pysnmp proxy.
                     errorStatus = errorStatus.clone(0)
                     errorIndex = errorIndex.clone(0)
-                yield errorIndication, errorStatus, errorIndex, varBinds
+                yield (errorIndication, errorStatus, errorIndex, varBinds)
                 return
             else:
                 varBinds = cbCtx['varBindTable'] and cbCtx['varBindTable'][0]
@@ -381,16 +391,16 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
             errorIndication = errorStatus = errorIndex = None
             varBinds = []
 
-        initialVarBinds = (yield errorIndication, errorStatus,\
-                                 errorIndex, varBinds)
+        initialVarBinds = (yield errorIndication, errorStatus, errorIndex, varBinds)
 
         if initialVarBinds:
             varBinds = initialVarBinds
             initialVars = [x[0] for x in vbProcessor.makeVarBinds(snmpEngine, varBinds)]
 
         if maxRows and totalRows >= maxRows or \
-                 maxCalls and totalCalls >= maxCalls:
+                maxCalls and totalCalls >= maxCalls:
             return
+
 
 def bulkCmd(snmpEngine, authData, transportTarget, contextData,
             nonRepeaters, maxRepetitions, *varBinds, **options):
@@ -499,6 +509,8 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     >>> g.send( [ ObjectType(ObjectIdentity('IF-MIB', 'ifInOctets')) ] )
     (None, 0, 0, [(ObjectName('1.3.6.1.2.1.2.2.1.10.1'), Counter32(284817787))])
     """
+
+    # noinspection PyShadowingNames
     def cbFun(snmpEngine, sendRequestHandle,
               errorIndication, errorStatus, errorIndex,
               varBindTable, cbCtx):
@@ -524,7 +536,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
 
     while not stopFlag:
         if maxRows and totalRows < maxRows:
-            maxRepetitions = min(maxRepetitions, maxRows-totalRows)
+            maxRepetitions = min(maxRepetitions, maxRows - totalRows)
 
         cmdgen.bulkCmd(snmpEngine, authData, transportTarget, contextData,
                        nonRepeaters, maxRepetitions,
@@ -544,8 +556,8 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
             errorIndication = None
 
         if errorIndication:
-            yield errorIndication, errorStatus, errorIndex, \
-                    varBindTable and varBindTable[0] or []
+            yield (errorIndication, errorStatus, errorIndex,
+                   varBindTable and varBindTable[0] or [])
             if errorIndication != errind.requestTimedOut:
                 return
         elif errorStatus:
@@ -554,14 +566,13 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
                 # from SNMPv1 Agent through internal pysnmp proxy.
                 errorStatus = errorStatus.clone(0)
                 errorIndex = errorIndex.clone(0)
-            yield errorIndication, errorStatus, errorIndex, \
-                    varBindTable and varBindTable[0] or []
+            yield (errorIndication, errorStatus, errorIndex, varBindTable and varBindTable[0] or [])
             return
         else:
             for i in range(len(varBindTable)):
                 stopFlag = True
                 if len(varBindTable[i]) != len(initialVars):
-                    varBindTable = i and varBindTable[:i-1] or []
+                    varBindTable = i and varBindTable[:i - 1] or []
                     break
                 for j in range(len(varBindTable[i])):
                     name, val = varBindTable[i][j]
@@ -572,11 +583,11 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
                     if isinstance(val, Null):
                         nullVarBinds[j] = True
                     elif not lexicographicMode and \
-                                not initialVars[j].isPrefixOf(name):
+                            not initialVars[j].isPrefixOf(name):
                         varBindTable[i][j] = name, endOfMibView
                         nullVarBinds[j] = True
                 if stopFlag:
-                    varBindTable = i and varBindTable[:i-1] or []
+                    varBindTable = i and varBindTable[:i - 1] or []
                     break
 
             totalRows += len(varBindTable)
@@ -584,15 +595,14 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
 
             if maxRows and totalRows >= maxRows:
                 if totalRows > maxRows:
-                    varBindTable = varBindTable[:-(totalRows-maxRows)]
+                    varBindTable = varBindTable[:-(totalRows - maxRows)]
                 stopFlag = True
 
             if maxCalls and totalCalls >= maxCalls:
                 stopFlag = True
 
             for varBinds in varBindTable:
-                initialVarBinds = (yield errorIndication, errorStatus,\
-                                         errorIndex, varBinds)
+                initialVarBinds = (yield errorIndication, errorStatus, errorIndex, varBinds)
 
                 if initialVarBinds:
                     varBinds = initialVarBinds

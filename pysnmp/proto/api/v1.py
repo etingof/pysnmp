@@ -31,25 +31,32 @@ SetRequestPDU = rfc1157.SetRequestPDU
 TrapPDU = rfc1157.TrapPDU
 Message = rfc1157.Message
 
+
 class VarBindAPI:
-    def setOIDVal(self, varBind, oidVal):
+    @staticmethod
+    def setOIDVal(varBind, oidVal):
         (oid, val) = oidVal
         varBind.setComponentByPosition(0, oid)
         if val is None:
             val = null
-        varBind.setComponentByPosition(1).getComponentByPosition(1).setComponentByType(val.getTagSet(), val, 1, verifyConstraints=False)
+        varBind.setComponentByPosition(1).getComponentByPosition(1).setComponentByType(val.getTagSet(), val, 1,
+                                                                                       verifyConstraints=False)
         return varBind
 
-    def getOIDVal(self, varBind):
+    @staticmethod
+    def getOIDVal(varBind):
         return varBind[0], varBind[1].getComponent(1)
+
 
 apiVarBind = VarBindAPI()
 
 getNextRequestID = nextid.Integer(0xffffff)
 
+
 class PDUAPI:
-    _errorStatus = rfc1157._errorStatus.clone(0)
+    _errorStatus = rfc1157.errorStatus.clone(0)
     _errorIndex = Integer(0)
+
     def setDefaults(self, pdu):
         pdu.setComponentByPosition(
             0, getNextRequestID(), verifyConstraints=False
@@ -62,19 +69,24 @@ class PDUAPI:
         )
         pdu.setComponentByPosition(3)
 
-    def getRequestID(self, pdu):
+    @staticmethod
+    def getRequestID(pdu):
         return pdu.getComponentByPosition(0)
 
-    def setRequestID(self, pdu, value):
+    @staticmethod
+    def setRequestID(pdu, value):
         pdu.setComponentByPosition(0, value)
 
-    def getErrorStatus(self, pdu):
+    @staticmethod
+    def getErrorStatus(pdu):
         return pdu.getComponentByPosition(1)
 
-    def setErrorStatus(self, pdu, value):
+    @staticmethod
+    def setErrorStatus(pdu, value):
         pdu.setComponentByPosition(1, value)
 
-    def getErrorIndex(self, pdu, muteErrors=False):
+    @staticmethod
+    def getErrorIndex(pdu, muteErrors=False):
         errorIndex = pdu.getComponentByPosition(2)
         if errorIndex > len(pdu[3]):
             if muteErrors:
@@ -84,7 +96,8 @@ class PDUAPI:
             )
         return errorIndex
 
-    def setErrorIndex(self, pdu, value):
+    @staticmethod
+    def setErrorIndex(pdu, value):
         pdu.setComponentByPosition(2, value)
 
     def setEndOfMibError(self, pdu, errorIndex):
@@ -94,19 +107,23 @@ class PDUAPI:
     def setNoSuchInstanceError(self, pdu, errorIndex):
         self.setEndOfMibError(pdu, errorIndex)
 
-    def getVarBindList(self, pdu):
+    @staticmethod
+    def getVarBindList(pdu):
         return pdu.getComponentByPosition(3)
 
-    def setVarBindList(self, pdu, varBindList):
-        varBindList = pdu.setComponentByPosition(3, varBindList)
+    @staticmethod
+    def setVarBindList(pdu, varBindList):
+        pdu.setComponentByPosition(3, varBindList)
 
-    def getVarBinds(self, pdu):
+    @staticmethod
+    def getVarBinds(pdu):
         varBinds = []
         for varBind in pdu.getComponentByPosition(3):
             varBinds.append(apiVarBind.getOIDVal(varBind))
         return varBinds
 
-    def setVarBinds(self, pdu, varBinds):
+    @staticmethod
+    def setVarBinds(pdu, varBinds):
         varBindList = pdu.setComponentByPosition(3).getComponentByPosition(3)
         varBindList.clear()
         idx = 0
@@ -135,22 +152,25 @@ class PDUAPI:
         else:
             return [apiPDU.getVarBinds(rspPDU)]
 
+
 apiPDU = PDUAPI()
+
 
 class TrapPDUAPI:
     _networkAddress = None
     _entOid = ObjectIdentifier((1, 3, 6, 1, 4, 1, 20408))
-    _genericTrap = rfc1157._genericTrap.clone('coldStart')
+    _genericTrap = rfc1157.genericTrap.clone('coldStart')
     _zeroInt = univ.Integer(0)
     _zeroTime = TimeTicks(0)
+
     def setDefaults(self, pdu):
         if self._networkAddress is None:
             try:
                 import socket
                 agentAddress = IpAddress(socket.gethostbyname(socket.gethostname()))
-            except:
+            except Exception:
                 agentAddress = IpAddress('0.0.0.0')
-        self._networkAddress = NetworkAddress().setComponentByPosition(0, agentAddress)
+            self._networkAddress = NetworkAddress().setComponentByPosition(0, agentAddress)
         pdu.setComponentByPosition(0, self._entOid, verifyConstraints=False)
         pdu.setComponentByPosition(1, self._networkAddress, verifyConstraints=False)
         pdu.setComponentByPosition(2, self._genericTrap, verifyConstraints=False)
@@ -158,49 +178,63 @@ class TrapPDUAPI:
         pdu.setComponentByPosition(4, self._zeroTime, verifyConstraints=False)
         pdu.setComponentByPosition(5)
 
-    def getEnterprise(self, pdu):
+    @staticmethod
+    def getEnterprise(pdu):
         return pdu.getComponentByPosition(0)
 
-    def setEnterprise(self, pdu, value):
+    @staticmethod
+    def setEnterprise(pdu, value):
         pdu.setComponentByPosition(0, value)
 
-    def getAgentAddr(self, pdu):
+    @staticmethod
+    def getAgentAddr(pdu):
         return pdu.getComponentByPosition(1).getComponentByPosition(0)
 
-    def setAgentAddr(self, pdu, value):
+    @staticmethod
+    def setAgentAddr(pdu, value):
         pdu.setComponentByPosition(1).getComponentByPosition(1).setComponentByPosition(0, value)
 
-    def getGenericTrap(self, pdu):
+    @staticmethod
+    def getGenericTrap(pdu):
         return pdu.getComponentByPosition(2)
 
-    def setGenericTrap(self, pdu, value):
+    @staticmethod
+    def setGenericTrap(pdu, value):
         pdu.setComponentByPosition(2, value)
 
-    def getSpecificTrap(self, pdu):
+    @staticmethod
+    def getSpecificTrap(pdu):
         return pdu.getComponentByPosition(3)
 
-    def setSpecificTrap(self, pdu, value):
+    @staticmethod
+    def setSpecificTrap(pdu, value):
         pdu.setComponentByPosition(3, value)
 
-    def getTimeStamp(self, pdu):
+    @staticmethod
+    def getTimeStamp(pdu):
         return pdu.getComponentByPosition(4)
 
-    def setTimeStamp(self, pdu, value):
+    @staticmethod
+    def setTimeStamp(pdu, value):
         pdu.setComponentByPosition(4, value)
 
-    def getVarBindList(self, pdu):
+    @staticmethod
+    def getVarBindList(pdu):
         return pdu.getComponentByPosition(5)
 
-    def setVarBindList(self, pdu, varBindList):
-        varBindList = pdu.setComponentByPosition(5, varBindList)
+    @staticmethod
+    def setVarBindList(pdu, varBindList):
+        pdu.setComponentByPosition(5, varBindList)
 
-    def getVarBinds(self, pdu):
+    @staticmethod
+    def getVarBinds(pdu):
         varBinds = []
         for varBind in pdu.getComponentByPosition(5):
             varBinds.append(apiVarBind.getOIDVal(varBind))
         return varBinds
 
-    def setVarBinds(self, pdu, varBinds):
+    @staticmethod
+    def setVarBinds(pdu, varBinds):
         varBindList = pdu.setComponentByPosition(5).getComponentByPosition(5)
         varBindList.clear()
         idx = 0
@@ -211,36 +245,46 @@ class TrapPDUAPI:
                 varBindList.setComponentByPosition(idx)
                 apiVarBind.setOIDVal(
                     varBindList.getComponentByPosition(idx), varBind
-                    )
-            idx = idx + 1
+                )
+            idx += 1
+
 
 apiTrapPDU = TrapPDUAPI()
 
+
 class MessageAPI:
-    _version = rfc1157._version.clone(0)
+    _version = rfc1157.version.clone(0)
     _community = univ.OctetString('public')
+
     def setDefaults(self, msg):
         msg.setComponentByPosition(0, self._version, verifyConstraints=False)
         msg.setComponentByPosition(1, self._community, verifyConstraints=False)
         return msg
 
-    def getVersion(self, msg):
+    @staticmethod
+    def getVersion(msg):
         return msg.getComponentByPosition(0)
 
-    def setVersion(self, msg, value):
+    @staticmethod
+    def setVersion(msg, value):
         msg.setComponentByPosition(0, value)
 
-    def getCommunity(self, msg):
+    @staticmethod
+    def getCommunity(msg):
         return msg.getComponentByPosition(1)
 
-    def setCommunity(self, msg, value):
+    @staticmethod
+    def setCommunity(msg, value):
         msg.setComponentByPosition(1, value)
 
-    def getPDU(self, msg):
+    @staticmethod
+    def getPDU(msg):
         return msg.getComponentByPosition(2).getComponent()
 
-    def setPDU(self, msg, value):
-        msg.setComponentByPosition(2).getComponentByPosition(2).setComponentByType(value.getTagSet(), value, 1, verifyConstraints=False)
+    @staticmethod
+    def setPDU(msg, value):
+        msg.setComponentByPosition(2).getComponentByPosition(2).setComponentByType(value.getTagSet(), value, 1,
+                                                                                   verifyConstraints=False)
 
     def getResponse(self, reqMsg):
         rspMsg = Message()
@@ -249,5 +293,6 @@ class MessageAPI:
         self.setCommunity(rspMsg, self.getCommunity(reqMsg))
         self.setPDU(rspMsg, apiPDU.getResponse(self.getPDU(reqMsg)))
         return rspMsg
+
 
 apiMessage = MessageAPI()

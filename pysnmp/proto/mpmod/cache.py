@@ -7,9 +7,11 @@
 from pysnmp.proto import error
 from pysnmp import nextid
 
+
 class Cache:
     __stateReference = nextid.Integer(0xffffff)
     __msgID = nextid.Integer(0xffffff)
+
     def __init__(self):
         self.__msgIdIndex = {}
         self.__stateReferenceIndex = {}
@@ -26,7 +28,7 @@ class Cache:
     def pushByStateRef(self, stateReference, **msgInfo):
         if stateReference in self.__stateReferenceIndex:
             raise error.ProtocolError('Cache dup for stateReference=%s at %s' % (stateReference, self))
-        expireAt = self.__expirationTimer+600
+        expireAt = self.__expirationTimer + 600
         self.__stateReferenceIndex[stateReference] = msgInfo, expireAt
 
         # Schedule to expire
@@ -56,7 +58,7 @@ class Cache:
             raise error.ProtocolError(
                 'Cache dup for msgId=%s at %s' % (msgId, self)
             )
-        expireAt = self.__expirationTimer+600
+        expireAt = self.__expirationTimer + 600
         self.__msgIdIndex[msgId] = msgInfo, expireAt
 
         self.__sendPduHandleIdx[msgInfo['sendPduHandle']] = msgId

@@ -4,12 +4,14 @@
 # Copyright (c) 2005-2016, Ilya Etingof <ilya@glas.net>
 # License: http://pysnmp.sf.net/license.html
 #
-import socket, sys
+import socket
+import sys
 from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
 from pysnmp.hlapi.transport import AbstractTransportTarget
 from pysnmp import error
 
 __all__ = ['UnixTransportTarget', 'Udp6TransportTarget', 'UdpTransportTarget']
+
 
 class UdpTransportTarget(AbstractTransportTarget):
     """Creates UDP/IPv4 configuration entry and initialize socket API if needed.
@@ -47,6 +49,7 @@ class UdpTransportTarget(AbstractTransportTarget):
     """
     transportDomain = udp.domainName
     protoTransport = udp.UdpSocketTransport
+
     def _resolveAddr(self, transportAddr):
         try:
             return socket.getaddrinfo(transportAddr[0],
@@ -55,7 +58,9 @@ class UdpTransportTarget(AbstractTransportTarget):
                                       socket.SOCK_DGRAM,
                                       socket.IPPROTO_UDP)[0][4][:2]
         except socket.gaierror:
-            raise error.PySnmpError('Bad IPv4/UDP transport address %s: %s' % ('@'.join([str(x) for x in transportAddr]), sys.exc_info()[1]))
+            raise error.PySnmpError('Bad IPv4/UDP transport address %s: %s' % (
+                '@'.join([str(x) for x in transportAddr]), sys.exc_info()[1]))
+
 
 class Udp6TransportTarget(AbstractTransportTarget):
     """Creates UDP/IPv6 configuration entry and initialize socket API if needed.
@@ -102,6 +107,7 @@ class Udp6TransportTarget(AbstractTransportTarget):
     """
     transportDomain = udp6.domainName
     protoTransport = udp6.Udp6SocketTransport
+
     def _resolveAddr(self, transportAddr):
         try:
             return socket.getaddrinfo(transportAddr[0],
@@ -110,7 +116,9 @@ class Udp6TransportTarget(AbstractTransportTarget):
                                       socket.SOCK_DGRAM,
                                       socket.IPPROTO_UDP)[0][4][:2]
         except socket.gaierror:
-            raise error.PySnmpError('Bad IPv6/UDP transport address %s: %s' % ('@'.join([str(x) for x in transportAddr]), sys.exc_info()[1]))
+            raise error.PySnmpError('Bad IPv6/UDP transport address %s: %s' % (
+                '@'.join([str(x) for x in transportAddr]), sys.exc_info()[1]))
+
 
 class UnixTransportTarget(AbstractTransportTarget):
     transportDomain = unix.domainName

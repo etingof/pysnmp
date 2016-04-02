@@ -17,8 +17,10 @@ from twisted.internet import reactor, task
 from pysnmp.carrier.base import AbstractTransportDispatcher
 from pysnmp.error import PySnmpError
 
+
 class TwistedDispatcher(AbstractTransportDispatcher):
     """TransportDispatcher based on twisted.internet.reactor"""
+
     def __init__(self, *args, **kwargs):
         AbstractTransportDispatcher.__init__(self)
         self.__transportCount = 0
