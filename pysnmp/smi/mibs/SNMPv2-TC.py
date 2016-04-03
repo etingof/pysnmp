@@ -17,13 +17,14 @@ NamedValues, = mibBuilder.importSymbols("ASN1-ENUMERATION", "NamedValues")
 
 (ConstraintsIntersection, ConstraintsUnion, SingleValueConstraint,
  ValueRangeConstraint, ValueSizeConstraint) = mibBuilder.importSymbols(
-     "ASN1-REFINEMENT", "ConstraintsIntersection", "ConstraintsUnion",
-     "SingleValueConstraint", "ValueRangeConstraint", "ValueSizeConstraint"
- )
+    "ASN1-REFINEMENT", "ConstraintsIntersection", "ConstraintsUnion",
+    "SingleValueConstraint", "ValueRangeConstraint", "ValueSizeConstraint"
+)
 
 Counter32, Unsigned32, TimeTicks, Counter64 = mibBuilder.importSymbols(
     'SNMPv2-SMI', 'Counter32', 'Unsigned32', 'TimeTicks', 'Counter64'
 )
+
 
 class TextualConvention:
     displayHint = ''
@@ -38,6 +39,7 @@ class TextualConvention:
     __counter64 = Counter64()
     __octetString = OctetString()
     __objectIdentifier = ObjectIdentifier()
+
     def getDisplayHint(self):
         return self.displayHint
 
@@ -69,7 +71,7 @@ class TextualConvention:
                 return '0x%x' % value
             elif t == 'd':
                 try:
-                    return '%.*f' % (int(f), float(value)/pow(10, int(f)))
+                    return '%.*f' % (int(f), float(value) / pow(10, int(f)))
                 except Exception:
                     raise SmiError(
                         'float num evaluation error: %s' % sys.exc_info()[1]
@@ -80,13 +82,13 @@ class TextualConvention:
                 v = value
                 r = ['B']
                 while v:
-                    r.insert(0, '%d' % (v&0x01))
-                    v = v>>1
+                    r.insert(0, '%d' % (v & 0x01))
+                    v >>= 1
                 return ''.join(r)
             else:
                 raise SmiError(
                     'Unsupported numeric type spec: %s' % t
-                    )
+                )
         elif self.displayHint and self.__octetString.isSuperTypeOf(self):
             r = ''
             v = self.__class__(value).asOctets()
@@ -145,7 +147,7 @@ class TextualConvention:
                         n = 0
                         vv = v[:octetLength]
                         while vv:
-                            n = n << 8
+                            n <<= 8
                             try:
                                 n |= octets.oct2int(vv[0])
                                 vv = vv[1:]
@@ -162,7 +164,7 @@ class TextualConvention:
                             r += '%d' % n
                     else:
                         raise SmiError(
-                            'Unsupported display format char: %s' % \
+                            'Unsupported display format char: %s' %
                             displayFormat
                         )
                     if v and repeatTerminator:
@@ -172,10 +174,10 @@ class TextualConvention:
                     r += displaySep
                 if not d:
                     d = self.displayHint
-#             if d:
-#                 raise SmiError(
-#                     'Unparsed display hint left: %s' % d
-#                     )
+                    #             if d:
+                    #                 raise SmiError(
+                    #                     'Unparsed display hint left: %s' % d
+                    #                     )
             return r
         elif self.__objectIdentifier.isSuperTypeOf(self):
             return self.__objectIdentifier.prettyOut(value)
@@ -184,7 +186,8 @@ class TextualConvention:
         else:
             return str(value)
 
-#         elif self.bits:
+
+# elif self.bits:
 #             try:
 #                 return self.bits[value]
 #             except Exception:
@@ -198,57 +201,69 @@ class TextualConvention:
 #        return str(value)
 
 class DisplayString(TextualConvention, OctetString):
-    subtypeSpec = OctetString.subtypeSpec+ValueSizeConstraint(0,255)
+    subtypeSpec = OctetString.subtypeSpec + ValueSizeConstraint(0, 255)
     displayHint = "255a"
+
 
 class PhysAddress(TextualConvention, OctetString):
     displayHint = "1x:"
 
+
 class MacAddress(TextualConvention, OctetString):
-    subtypeSpec = OctetString.subtypeSpec+ValueSizeConstraint(6,6)
+    subtypeSpec = OctetString.subtypeSpec + ValueSizeConstraint(6, 6)
     displayHint = "1x:"
     fixedLength = 6
 
+
 class TruthValue(Integer, TextualConvention):
-    subtypeSpec = Integer.subtypeSpec+SingleValueConstraint(1, 2)
+    subtypeSpec = Integer.subtypeSpec + SingleValueConstraint(1, 2)
     namedValues = NamedValues(('true', 1), ('false', 2))
 
+
 class TestAndIncr(Integer, TextualConvention):
-    subtypeSpec = Integer.subtypeSpec+ValueRangeConstraint(0, 2147483647)
+    subtypeSpec = Integer.subtypeSpec + ValueRangeConstraint(0, 2147483647)
     defaultValue = 0
+
     def setValue(self, value):
         if value is not None:
             if value != self:
                 raise InconsistentValueError()
-            value = value + 1
+            value += 1
             if value > 2147483646:
                 value = 0
         return self.clone(self, value)
 
+
 class AutonomousType(ObjectIdentifier, TextualConvention):
     pass
+
 
 class InstancePointer(ObjectIdentifier, TextualConvention):
     status = 'obsolete'
 
+
 class VariablePointer(ObjectIdentifier, TextualConvention):
     pass
 
+
 class RowPointer(ObjectIdentifier, TextualConvention):
     pass
+
 
 class RowStatus(Integer, TextualConvention):
     """A special kind of scalar MIB variable responsible for
        MIB table row creation/destruction.
     """
-    subtypeSpec = Integer.subtypeSpec+SingleValueConstraint(0, 1, 2, 3, 4, 5, 6)
+    subtypeSpec = Integer.subtypeSpec + SingleValueConstraint(0, 1, 2, 3, 4, 5, 6)
     namedValues = NamedValues(
         ('notExists', 0), ('active', 1), ('notInService', 2), ('notReady', 3),
         ('createAndGo', 4), ('createAndWait', 5), ('destroy', 6)
     )
     # Known row states
-    stNotExists, stActive, stNotInService, stNotReady, \
-                 stCreateAndGo, stCreateAndWait, stDestroy = list(range(7))
+    (stNotExists, stActive, stNotInService,
+     stNotReady, stCreateAndGo, stCreateAndWait,
+     stDestroy) = list(range(7))
+
     # States transition matrix (see RFC-1903)
     stateMatrix = {
         # (new-state, current-state)  ->  (error, new-state)
@@ -292,38 +307,48 @@ class RowStatus(Integer, TextualConvention):
         )
         newState = self.clone(newState)
 
-        debug.logger & debug.flagIns and debug.logger('RowStatus state change from %r to %r produced new state %r, error indication %r' % (self, value, newState, excValue))
+        debug.logger & debug.flagIns and debug.logger(
+            'RowStatus state change from %r to %r produced new state %r, error indication %r' % (
+                self, value, newState, excValue))
 
         if excValue is not None:
             excValue = excValue(
-                msg='Exception at row state transition from %r to %r yields state %r and exception' % (self, value, newState), syntax=newState
+                msg='Exception at row state transition from %r to %r yields state %r and exception' % (
+                    self, value, newState), syntax=newState
             )
             raise excValue
 
         return newState
 
+
 class TimeStamp(TimeTicks, TextualConvention):
     pass
 
+
 class TimeInterval(Integer, TextualConvention):
-    subtypeSpec = Integer.subtypeSpec+ValueRangeConstraint(0, 2147483647)
+    subtypeSpec = Integer.subtypeSpec + ValueRangeConstraint(0, 2147483647)
+
 
 class DateAndTime(TextualConvention, OctetString):
-    subtypeSpec = OctetString.subtypeSpec+ValueSizeConstraint(8, 11)
+    subtypeSpec = OctetString.subtypeSpec + ValueSizeConstraint(8, 11)
     displayHint = "2d-1d-1d,1d:1d:1d.1d,1a1d:1d"
 
+
 class StorageType(Integer, TextualConvention):
-    subtypeSpec = Integer.subtypeSpec+SingleValueConstraint(1, 2, 3, 4, 5)
+    subtypeSpec = Integer.subtypeSpec + SingleValueConstraint(1, 2, 3, 4, 5)
     namedValues = NamedValues(
         ('other', 1), ('volatile', 2), ('nonVolatile', 3),
         ('permanent', 4), ('readOnly', 5)
     )
 
+
 class TDomain(ObjectIdentifier, TextualConvention):
     pass
 
+
 class TAddress(OctetString, TextualConvention):
-    subtypeSpec = OctetString.subtypeSpec+ValueSizeConstraint(1, 255)
+    subtypeSpec = OctetString.subtypeSpec + ValueSizeConstraint(1, 255)
+
 
 mibBuilder.exportSymbols(
     'SNMPv2-TC', TextualConvention=TextualConvention,

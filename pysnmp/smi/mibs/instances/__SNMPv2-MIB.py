@@ -96,15 +96,19 @@ from pysnmp import __version__
     'snmpSetSerialNo'
 )
 
-__sysDescr = MibScalarInstance(sysDescr.name, (0,), sysDescr.syntax.clone("PySNMP engine version %s, Python %s" % (__version__, version.replace('\n', ' ').replace('\r', ' '))))
-__sysObjectID = MibScalarInstance(sysObjectID.name, (0,), sysObjectID.syntax.clone((1,3,6,1,4,1,20408)))
+__sysDescr = MibScalarInstance(sysDescr.name, (0,), sysDescr.syntax.clone(
+    "PySNMP engine version %s, Python %s" % (__version__, version.replace('\n', ' ').replace('\r', ' '))))
+__sysObjectID = MibScalarInstance(sysObjectID.name, (0,), sysObjectID.syntax.clone((1, 3, 6, 1, 4, 1, 20408)))
+
 
 class SysUpTime(TimeTicks):
     createdAt = time()
+
     def clone(self, **kwargs):
         if 'value' not in kwargs:
-            kwargs['value'] = int((time()-self.createdAt)*100)
+            kwargs['value'] = int((time() - self.createdAt) * 100)
         return TimeTicks.clone(self, **kwargs)
+
 
 __sysUpTime = MibScalarInstance(sysUpTime.name, (0,), SysUpTime(0))
 __sysContact = MibScalarInstance(sysContact.name, (0,), sysContact.syntax.clone(''))
@@ -115,7 +119,8 @@ __sysORLastChange = MibScalarInstance(sysORLastChange.name, (0,), sysORLastChang
 __snmpInPkts = MibScalarInstance(snmpInPkts.name, (0,), snmpInPkts.syntax.clone(0))
 __snmpOutPkts = MibScalarInstance(snmpOutPkts.name, (0,), snmpOutPkts.syntax.clone(0))
 __snmpInBadVersions = MibScalarInstance(snmpInBadVersions.name, (0,), snmpInBadVersions.syntax.clone(0))
-__snmpInBadCommunityNames = MibScalarInstance(snmpInBadCommunityNames.name, (0,), snmpInBadCommunityNames.syntax.clone(0))
+__snmpInBadCommunityNames = MibScalarInstance(snmpInBadCommunityNames.name, (0,),
+                                              snmpInBadCommunityNames.syntax.clone(0))
 __snmpInBadCommunityUses = MibScalarInstance(snmpInBadCommunityUses.name, (0,), snmpInBadCommunityUses.syntax.clone(0))
 __snmpInASNParseErrs = MibScalarInstance(snmpInASNParseErrs.name, (0,), snmpInASNParseErrs.syntax.clone(0))
 __snmpInTooBigs = MibScalarInstance(snmpInTooBigs.name, (0,), snmpInTooBigs.syntax.clone(0))
@@ -145,42 +150,42 @@ __snmpSetSerialNo = MibScalarInstance(snmpSetSerialNo.name, (0,), snmpSetSerialN
 
 mibBuilder.exportSymbols(
     "__SNMPv2-MIB",
-    sysDescr = __sysDescr,
-    sysObjectID = __sysObjectID,
-    sysUpTime = __sysUpTime,
-    sysContact = __sysContact,
-    sysName = __sysName,
-    sysLocation = __sysLocation,
-    sysServices = __sysServices,
-    sysORLastChange = __sysORLastChange,
-    snmpInPkts = __snmpInPkts,
-    snmpOutPkts = __snmpOutPkts,
-    snmpInBadVersions = __snmpInBadVersions,
-    snmpInBadCommunityNames = __snmpInBadCommunityNames,
-    snmpInBadCommunityUses = __snmpInBadCommunityUses,
-    snmpInASNParseErrs = __snmpInASNParseErrs,
-    snmpInTooBigs = __snmpInTooBigs,
-    snmpInNoSuchNames = __snmpInNoSuchNames,
-    snmpInBadValues = __snmpInBadValues,
-    snmpInReadOnlys = __snmpInReadOnlys,
-    snmpInGenErrs = __snmpInGenErrs,
-    snmpInTotalReqVars = __snmpInTotalReqVars,
-    snmpInTotalSetVars = __snmpInTotalSetVars,
-    snmpInGetRequests = __snmpInGetRequests,
-    snmpInGetNexts = __snmpInGetNexts,
-    snmpInSetRequests = __snmpInSetRequests,
-    snmpInGetResponses = __snmpInGetResponses,
-    snmpInTraps = __snmpInTraps,
-    snmpOutTooBigs = __snmpOutTooBigs,
-    snmpOutNoSuchNames = __snmpOutNoSuchNames,
-    snmpOutBadValues = __snmpOutBadValues,
-    snmpOutGenErrs = __snmpOutGenErrs,
-    snmpOutSetRequests = __snmpOutSetRequests,
-    snmpOutGetResponses = __snmpOutGetResponses,
-    snmpOutTraps = __snmpOutTraps,
-    snmpEnableAuthenTraps = __snmpEnableAuthenTraps,
-    snmpSilentDrops = __snmpSilentDrops,
-    snmpProxyDrops = __snmpProxyDrops,
-    snmpTrapOID = __snmpTrapOID,
-    snmpSetSerialNo = __snmpSetSerialNo
+    sysDescr=__sysDescr,
+    sysObjectID=__sysObjectID,
+    sysUpTime=__sysUpTime,
+    sysContact=__sysContact,
+    sysName=__sysName,
+    sysLocation=__sysLocation,
+    sysServices=__sysServices,
+    sysORLastChange=__sysORLastChange,
+    snmpInPkts=__snmpInPkts,
+    snmpOutPkts=__snmpOutPkts,
+    snmpInBadVersions=__snmpInBadVersions,
+    snmpInBadCommunityNames=__snmpInBadCommunityNames,
+    snmpInBadCommunityUses=__snmpInBadCommunityUses,
+    snmpInASNParseErrs=__snmpInASNParseErrs,
+    snmpInTooBigs=__snmpInTooBigs,
+    snmpInNoSuchNames=__snmpInNoSuchNames,
+    snmpInBadValues=__snmpInBadValues,
+    snmpInReadOnlys=__snmpInReadOnlys,
+    snmpInGenErrs=__snmpInGenErrs,
+    snmpInTotalReqVars=__snmpInTotalReqVars,
+    snmpInTotalSetVars=__snmpInTotalSetVars,
+    snmpInGetRequests=__snmpInGetRequests,
+    snmpInGetNexts=__snmpInGetNexts,
+    snmpInSetRequests=__snmpInSetRequests,
+    snmpInGetResponses=__snmpInGetResponses,
+    snmpInTraps=__snmpInTraps,
+    snmpOutTooBigs=__snmpOutTooBigs,
+    snmpOutNoSuchNames=__snmpOutNoSuchNames,
+    snmpOutBadValues=__snmpOutBadValues,
+    snmpOutGenErrs=__snmpOutGenErrs,
+    snmpOutSetRequests=__snmpOutSetRequests,
+    snmpOutGetResponses=__snmpOutGetResponses,
+    snmpOutTraps=__snmpOutTraps,
+    snmpEnableAuthenTraps=__snmpEnableAuthenTraps,
+    snmpSilentDrops=__snmpSilentDrops,
+    snmpProxyDrops=__snmpProxyDrops,
+    snmpTrapOID=__snmpTrapOID,
+    snmpSetSerialNo=__snmpSetSerialNo
 )

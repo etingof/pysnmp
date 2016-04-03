@@ -19,7 +19,8 @@ MibScalarInstance, = mibBuilder.importSymbols(
 )
 
 __snmpTargetSpinLock = MibScalarInstance(snmpTargetSpinLock.name, (0,), snmpTargetSpinLock.syntax.clone(0))
-__snmpUnavailableContexts = MibScalarInstance(snmpUnavailableContexts.name, (0,), snmpUnavailableContexts.syntax.clone(0))
+__snmpUnavailableContexts = MibScalarInstance(snmpUnavailableContexts.name, (0,),
+                                              snmpUnavailableContexts.syntax.clone(0))
 __snmpUnknownContexts = MibScalarInstance(snmpUnknownContexts.name, (0,), snmpUnknownContexts.syntax.clone(0))
 
 mibBuilder.exportSymbols(
@@ -28,4 +29,3 @@ mibBuilder.exportSymbols(
     snmpUnavailableContexts=__snmpUnavailableContexts,
     snmpUnknownContexts=__snmpUnknownContexts
 )
-

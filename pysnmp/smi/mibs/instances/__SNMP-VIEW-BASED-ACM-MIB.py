@@ -12,5 +12,5 @@ __vacmViewSpinLock = MibScalarInstance(vacmViewSpinLock.name, (0,), vacmViewSpin
 
 mibBuilder.exportSymbols(
     "__SNMP-VIEW-BASED-ACM-MIB",
-    vacmViewSpinLock = __vacmViewSpinLock
+    vacmViewSpinLock=__vacmViewSpinLock
 )
