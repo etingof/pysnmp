@@ -11,11 +11,12 @@ from pysnmp.proto import error
 __all__ = ['Opaque', 'NetworkAddress', 'ObjectName', 'TimeTicks',
            'Counter', 'Gauge', 'IpAddress']
 
+
 class IpAddress(univ.OctetString):
     tagSet = univ.OctetString.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x00)
     )
-    subtypeSpec = univ.OctetString.subtypeSpec+constraint.ValueSizeConstraint(
+    subtypeSpec = univ.OctetString.subtypeSpec + constraint.ValueSizeConstraint(
         4, 4
     )
 
@@ -24,7 +25,7 @@ class IpAddress(univ.OctetString):
             try:
                 value = [int(x) for x in value.split('.')]
             except:
-                raise error.ProtocolError('Bad IP address syntax %s' %  value)
+                raise error.ProtocolError('Bad IP address syntax %s' % value)
         if len(value) != 4:
             raise error.ProtocolError('Bad IP address syntax')
         return univ.OctetString.prettyIn(self, value)
@@ -35,44 +36,51 @@ class IpAddress(univ.OctetString):
         else:
             return ''
 
+
 class Counter(univ.Integer):
     tagSet = univ.Integer.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x01)
     )
-    subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
+    subtypeSpec = univ.Integer.subtypeSpec + constraint.ValueRangeConstraint(
         0, 4294967295
     )
+
 
 class NetworkAddress(univ.Choice):
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('internet', IpAddress())
     )
 
+
 class Gauge(univ.Integer):
     tagSet = univ.Integer.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x02)
     )
-    subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
+    subtypeSpec = univ.Integer.subtypeSpec + constraint.ValueRangeConstraint(
         0, 4294967295
     )
+
 
 class TimeTicks(univ.Integer):
     tagSet = univ.Integer.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x03)
     )
-    subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
+    subtypeSpec = univ.Integer.subtypeSpec + constraint.ValueRangeConstraint(
         0, 4294967295
     )
+
 
 class Opaque(univ.OctetString):
     tagSet = univ.OctetString.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x04)
     )
 
+
 class ObjectName(univ.ObjectIdentifier):
     pass
 
-class TypeCoercionHackMixIn: # XXX
+
+class TypeCoercionHackMixIn:  # XXX
     # Reduce ASN1 type check to simple tag check as SMIv2 objects may
     # not be constraints-compatible with those used in SNMP PDU.
     def _verifyComponent(self, idx, value, **kwargs):
@@ -84,6 +92,7 @@ class TypeCoercionHackMixIn: # XXX
             if not t.getTagSet().isSuperTagSetOf(value.getTagSet()):
                 raise PyAsn1Error('Component type error %r vs %r' % (t, value))
 
+
 class SimpleSyntax(TypeCoercionHackMixIn, univ.Choice):
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('number', univ.Integer()),
@@ -91,6 +100,7 @@ class SimpleSyntax(TypeCoercionHackMixIn, univ.Choice):
         namedtype.NamedType('object', univ.ObjectIdentifier()),
         namedtype.NamedType('empty', univ.Null())
     )
+
 
 class ApplicationSyntax(TypeCoercionHackMixIn, univ.Choice):
     componentType = namedtype.NamedTypes(
@@ -100,6 +110,7 @@ class ApplicationSyntax(TypeCoercionHackMixIn, univ.Choice):
         namedtype.NamedType('ticks', TimeTicks()),
         namedtype.NamedType('arbitrary', Opaque())
     )
+
 
 class ObjectSyntax(univ.Choice):
     componentType = namedtype.NamedTypes(

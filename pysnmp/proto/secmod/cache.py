@@ -7,8 +7,10 @@
 from pysnmp import nextid
 from pysnmp.proto import error
 
+
 class Cache:
     __stateReference = nextid.Integer(0xffffff)
+
     def __init__(self):
         self.__cacheEntries = {}
 

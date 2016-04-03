@@ -6,6 +6,7 @@
 #
 from pysnmp.proto import error
 
+
 class AbstractEncryptionService:
     serviceID = None
 

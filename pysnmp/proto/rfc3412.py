@@ -8,14 +8,16 @@ import sys
 from pyasn1.compat.octets import null
 from pysnmp.smi import builder, instrum
 from pysnmp.proto import errind, error, cache
-from pysnmp.proto.api import verdec # XXX
+from pysnmp.proto.api import verdec  # XXX
 from pysnmp.error import PySnmpError
 from pysnmp import nextid, debug
+
 
 class MsgAndPduDispatcher:
     """SNMP engine PDU & message dispatcher. Exchanges SNMP PDU's with
        applications and serialized messages with transport level.
     """
+
     def __init__(self, mibInstrumController=None):
         if mibInstrumController is None:
             self.mibInstrumController = instrum.MibInstrumController(
@@ -68,7 +70,8 @@ class MsgAndPduDispatcher:
             # 4.3.4
             self.__appsRegistration[k] = processPdu
 
-        debug.logger & debug.flagDsp and debug.logger('registerContextEngineId: contextEngineId %r pduTypes %s' % (contextEngineId, pduTypes))
+        debug.logger & debug.flagDsp and debug.logger(
+            'registerContextEngineId: contextEngineId %r pduTypes %s' % (contextEngineId, pduTypes))
 
     # 4.4.1
     def unregisterContextEngineId(self, contextEngineId, pduTypes):
@@ -76,14 +79,16 @@ class MsgAndPduDispatcher:
         # 4.3.4
         if contextEngineId is None:
             # Default to local snmpEngineId
-            contextEngineId, = self.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
+            contextEngineId, = self.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB',
+                                                                                  'snmpEngineID')
 
         for pduType in pduTypes:
             k = (contextEngineId, pduType)
             if k in self.__appsRegistration:
                 del self.__appsRegistration[k]
 
-        debug.logger & debug.flagDsp and debug.logger('unregisterContextEngineId: contextEngineId %r pduTypes %s' % (contextEngineId, pduTypes))
+        debug.logger & debug.flagDsp and debug.logger(
+            'unregisterContextEngineId: contextEngineId %r pduTypes %s' % (contextEngineId, pduTypes))
 
     def getRegisteredApp(self, contextEngineId, pduType):
         k = (contextEngineId, pduType)
@@ -91,7 +96,7 @@ class MsgAndPduDispatcher:
             return self.__appsRegistration[k]
         k = (null, pduType)
         if k in self.__appsRegistration:
-            return self.__appsRegistration[k] # wildcard
+            return self.__appsRegistration[k]  # wildcard
 
     # Dispatcher <-> application API
 
@@ -112,7 +117,8 @@ class MsgAndPduDispatcher:
                 errorIndication=errind.unsupportedMsgProcessingModel
             )
 
-        debug.logger & debug.flagDsp and debug.logger('sendPdu: securityName %s, PDU\n%s' % (securityName, PDU.prettyPrint()))
+        debug.logger & debug.flagDsp and debug.logger(
+            'sendPdu: securityName %s, PDU\n%s' % (securityName, PDU.prettyPrint()))
 
         # 4.1.1.3
         sendPduHandle = self.__sendPduHandle()
@@ -121,14 +127,16 @@ class MsgAndPduDispatcher:
                 sendPduHandle,
                 messageProcessingModel=messageProcessingModel,
                 sendPduHandle=sendPduHandle,
-                timeout=timeout+snmpEngine.transportDispatcher.getTimerTicks(),
+                timeout=timeout + snmpEngine.transportDispatcher.getTimerTicks(),
                 cbFun=cbFun,
                 cbCtx=cbCtx
             )
 
-            debug.logger & debug.flagDsp and debug.logger('sendPdu: current time %d ticks, one tick is %s seconds' % (snmpEngine.transportDispatcher.getTimerTicks(), snmpEngine.transportDispatcher.getTimerResolution()))
+            debug.logger & debug.flagDsp and debug.logger('sendPdu: current time %d ticks, one tick is %s seconds' % (
+                snmpEngine.transportDispatcher.getTimerTicks(), snmpEngine.transportDispatcher.getTimerResolution()))
 
-        debug.logger & debug.flagDsp and debug.logger('sendPdu: new sendPduHandle %s, timeout %s ticks, cbFun %s' % (sendPduHandle, timeout, cbFun))
+        debug.logger & debug.flagDsp and debug.logger(
+            'sendPdu: new sendPduHandle %s, timeout %s ticks, cbFun %s' % (sendPduHandle, timeout, cbFun))
 
         origTransportDomain = transportDomain
         origTransportAddress = transportAddress
@@ -138,11 +146,11 @@ class MsgAndPduDispatcher:
             (transportDomain,
              transportAddress,
              outgoingMessage) = mpHandler.prepareOutgoingMessage(
-                 snmpEngine, origTransportDomain, origTransportAddress,
-                 messageProcessingModel, securityModel, securityName,
-                 securityLevel, contextEngineId, contextName,
-                 pduVersion, PDU, expectResponse, sendPduHandle
-             )
+                snmpEngine, origTransportDomain, origTransportAddress,
+                messageProcessingModel, securityModel, securityName,
+                securityLevel, contextEngineId, contextName,
+                pduVersion, PDU, expectResponse, sendPduHandle
+            )
 
             debug.logger & debug.flagDsp and debug.logger('sendPdu: MP succeeded')
         except PySnmpError:
@@ -213,18 +221,19 @@ class MsgAndPduDispatcher:
                 errorIndication=errind.unsupportedMsgProcessingModel
             )
 
-        debug.logger & debug.flagDsp and debug.logger('returnResponsePdu: PDU %s' % (PDU and PDU.prettyPrint() or "<empty>",))
+        debug.logger & debug.flagDsp and debug.logger(
+            'returnResponsePdu: PDU %s' % (PDU and PDU.prettyPrint() or "<empty>",))
 
         # 4.1.2.2
         try:
             (transportDomain,
              transportAddress,
              outgoingMessage) = mpHandler.prepareResponseMessage(
-                 snmpEngine, messageProcessingModel, securityModel,
-                 securityName, securityLevel, contextEngineId, contextName,
-                 pduVersion, PDU, maxSizeResponseScopedPDU, stateReference,
-                 statusInformation
-             )
+                snmpEngine, messageProcessingModel, securityModel,
+                securityName, securityLevel, contextEngineId, contextName,
+                pduVersion, PDU, maxSizeResponseScopedPDU, stateReference,
+                statusInformation
+            )
 
             debug.logger & debug.flagDsp and debug.logger('returnResponsePdu: MP suceeded')
 
@@ -233,9 +242,10 @@ class MsgAndPduDispatcher:
             raise
 
         # Handle oversized messages XXX transport constrains?
-        snmpEngineMaxMessageSize, = self.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
+        snmpEngineMaxMessageSize, = self.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB',
+                                                                                       'snmpEngineMaxMessageSize')
         if snmpEngineMaxMessageSize.syntax and \
-               len(outgoingMessage) > snmpEngineMaxMessageSize.syntax:
+                len(outgoingMessage) > snmpEngineMaxMessageSize.syntax:
             snmpSilentDrops, = self.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpSilentDrops')
             snmpSilentDrops.syntax += 1
             raise error.StatusInformation(errorIndication=errind.tooBig)
@@ -271,15 +281,16 @@ class MsgAndPduDispatcher:
         # 4.2.1.1
         snmpInPkts, = self.mibInstrumController.mibBuilder.importSymbols(
             '__SNMPv2-MIB', 'snmpInPkts'
-            )
+        )
         snmpInPkts.syntax += 1
 
         # 4.2.1.2
         try:
-            restOfWholeMsg = null # XXX fix decoder non-recursive return
+            restOfWholeMsg = null  # XXX fix decoder non-recursive return
             msgVersion = verdec.decodeMessageVersion(wholeMsg)
         except error.ProtocolError:
-            snmpInASNParseErrs, = self.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
+            snmpInASNParseErrs, = self.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB',
+                                                                                     'snmpInASNParseErrs')
             snmpInASNParseErrs.syntax += 1
             return null  # n.b the whole buffer gets dropped
 
@@ -304,8 +315,8 @@ class MsgAndPduDispatcher:
              pduVersion, PDU, pduType, sendPduHandle,
              maxSizeResponseScopedPDU, statusInformation,
              stateReference) = mpHandler.prepareDataElements(
-                 snmpEngine, transportDomain, transportAddress, wholeMsg
-             )
+                snmpEngine, transportDomain, transportAddress, wholeMsg
+            )
 
             debug.logger & debug.flagDsp and debug.logger('receiveMessage: MP succeded')
 
@@ -314,7 +325,8 @@ class MsgAndPduDispatcher:
             if 'sendPduHandle' in statusInformation:
                 # Dropped REPORT -- re-run pending reqs queue as some
                 # of them may be waiting for this REPORT
-                debug.logger & debug.flagDsp and debug.logger('receiveMessage: MP failed, statusInformation %s, forcing a retry' % statusInformation)
+                debug.logger & debug.flagDsp and debug.logger(
+                    'receiveMessage: MP failed, statusInformation %s, forcing a retry' % statusInformation)
                 self.__expireRequest(
                     statusInformation['sendPduHandle'],
                     self.__cache.pop(statusInformation['sendPduHandle']),
@@ -336,7 +348,8 @@ class MsgAndPduDispatcher:
             # 4.2.2.1.2
             if processPdu is None:
                 # 4.2.2.1.2.a
-                snmpUnknownPDUHandlers, = self.mibInstrumController.mibBuilder.importSymbols('__SNMP-MPD-MIB', 'snmpUnknownPDUHandlers')
+                snmpUnknownPDUHandlers, = self.mibInstrumController.mibBuilder.importSymbols('__SNMP-MPD-MIB',
+                                                                                             'snmpUnknownPDUHandlers')
                 snmpUnknownPDUHandlers.syntax += 1
 
                 # 4.2.2.1.2.b
@@ -354,15 +367,16 @@ class MsgAndPduDispatcher:
                     (destTransportDomain,
                      destTransportAddress,
                      outgoingMessage) = mpHandler.prepareResponseMessage(
-                         snmpEngine, messageProcessingModel,
-                         securityModel, securityName, securityLevel,
-                         contextEngineId, contextName, pduVersion,
-                         PDU, maxSizeResponseScopedPDU, stateReference,
-                         statusInformation
-                     )
+                        snmpEngine, messageProcessingModel,
+                        securityModel, securityName, securityLevel,
+                        contextEngineId, contextName, pduVersion,
+                        PDU, maxSizeResponseScopedPDU, stateReference,
+                        statusInformation
+                    )
 
                 except error.StatusInformation:
-                    debug.logger & debug.flagDsp and debug.logger('receiveMessage: report failed, statusInformation %s' % sys.exc_info()[1])
+                    debug.logger & debug.flagDsp and debug.logger(
+                        'receiveMessage: report failed, statusInformation %s' % sys.exc_info()[1])
                     return restOfWholeMsg
 
                 # 4.2.2.1.2.c
@@ -372,7 +386,7 @@ class MsgAndPduDispatcher:
                         destTransportAddress
                     )
 
-                except PySnmpError: # XXX
+                except PySnmpError:  # XXX
                     pass
 
                 debug.logger & debug.flagDsp and debug.logger('receiveMessage: reporting succeeded')
@@ -424,11 +438,13 @@ class MsgAndPduDispatcher:
 
             # 4.2.2.2.2
             if cachedParams is None:
-                snmpUnknownPDUHandlers, = self.mibInstrumController.mibBuilder.importSymbols('__SNMP-MPD-MIB', 'snmpUnknownPDUHandlers')
+                snmpUnknownPDUHandlers, = self.mibInstrumController.mibBuilder.importSymbols('__SNMP-MPD-MIB',
+                                                                                             'snmpUnknownPDUHandlers')
                 snmpUnknownPDUHandlers.syntax += 1
                 return restOfWholeMsg
 
-            debug.logger & debug.flagDsp and debug.logger('receiveMessage: cache read by sendPduHandle %s' % sendPduHandle)
+            debug.logger & debug.flagDsp and debug.logger(
+                'receiveMessage: cache read by sendPduHandle %s' % sendPduHandle)
 
             # 4.2.2.2.3
             # no-op ? XXX
@@ -476,6 +492,7 @@ class MsgAndPduDispatcher:
 
     # Cache expiration stuff
 
+    # noinspection PyUnusedLocal
     def __expireRequest(self, cacheKey, cachedParams, snmpEngine,
                         statusInformation=None):
         timeNow = snmpEngine.transportDispatcher.getTimerTicks()
@@ -504,5 +521,6 @@ class MsgAndPduDispatcher:
                            cachedParams['cbCtx'])
         return True
 
+    # noinspection PyUnusedLocal
     def receiveTimerTick(self, snmpEngine, timeNow):
         self.__cache.expire(self.__expireRequest, snmpEngine)

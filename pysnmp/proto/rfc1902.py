@@ -13,6 +13,7 @@ __all__ = ['Opaque', 'TimeTicks', 'Bits', 'Integer', 'OctetString',
            'IpAddress', 'Counter64', 'Unsigned32', 'Gauge32', 'Integer32',
            'ObjectIdentifier', 'Counter32']
 
+
 class Integer32(univ.Integer):
     """Creates an instance of SNMP Integer32 class.
 
@@ -55,7 +56,7 @@ class Integer32(univ.Integer):
         >>>
 
     """
-    subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
+    subtypeSpec = univ.Integer.subtypeSpec + constraint.ValueRangeConstraint(
         -2147483648, 2147483647
     )
 
@@ -63,8 +64,10 @@ class Integer32(univ.Integer):
     def withValues(cls, *values):
         """Creates a subclass with discreet values constraint.
         """
+
         class X(cls):
             subtypeSpec = cls.subtypeSpec + constraint.SingleValueConstraint(*values)
+
         X.__name__ = cls.__name__
         return X
 
@@ -72,10 +75,13 @@ class Integer32(univ.Integer):
     def withRange(cls, minimum, maximum):
         """Creates a subclass with value range constraint.
         """
+
         class X(cls):
             subtypeSpec = cls.subtypeSpec + constraint.ValueRangeConstraint(minimum, maximum)
+
         X.__name__ = cls.__name__
         return X
+
 
 class Integer(Integer32):
     """Creates an instance of SNMP INTEGER class.
@@ -120,15 +126,19 @@ class Integer(Integer32):
         >>>
 
     """
+
     @classmethod
     def withNamedValues(cls, **values):
         """Creates a subclass with discreet named values constraint.
         """
+
         class X(cls):
             namedValues = cls.namedValues + namedval.NamedValues(*values.items())
             subtypeSpec = cls.subtypeSpec + constraint.SingleValueConstraint(*values.values())
+
         X.__name__ = cls.__name__
         return X
+
 
 class OctetString(univ.OctetString):
     """Creates an instance of SNMP OCTET STRING class.
@@ -169,7 +179,7 @@ class OctetString(univ.OctetString):
         >>>
 
     """
-    subtypeSpec = univ.OctetString.subtypeSpec+constraint.ValueSizeConstraint(
+    subtypeSpec = univ.OctetString.subtypeSpec + constraint.ValueSizeConstraint(
         0, 65535
     )
 
@@ -205,8 +215,10 @@ class OctetString(univ.OctetString):
     def withSize(cls, minimum, maximum):
         """Creates a subclass with value size constraint.
         """
+
         class X(cls):
             subtypeSpec = cls.subtypeSpec + constraint.ValueSizeConstraint(minimum, maximum)
+
         X.__name__ = cls.__name__
         return X
 
@@ -221,6 +233,7 @@ class OctetString(univ.OctetString):
                 return '0x' + ''.join(('%.2x' % x for x in numbers))
         else:
             return octets.octs2str(value)
+
 
 class ObjectIdentifier(univ.ObjectIdentifier):
     """Creates an instance of SNMP OBJECT IDENTIFIER class.
@@ -256,6 +269,7 @@ class ObjectIdentifier(univ.ObjectIdentifier):
 
     """
 
+
 class IpAddress(OctetString):
     """Creates an instance of SNMP IpAddress class.
 
@@ -289,7 +303,7 @@ class IpAddress(OctetString):
     tagSet = OctetString.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x00)
     )
-    subtypeSpec = OctetString.subtypeSpec+constraint.ValueSizeConstraint(
+    subtypeSpec = OctetString.subtypeSpec + constraint.ValueSizeConstraint(
         4, 4
     )
     fixedLength = 4
@@ -299,7 +313,7 @@ class IpAddress(OctetString):
             try:
                 value = [int(x) for x in value.split('.')]
             except:
-                raise error.ProtocolError('Bad IP address syntax %s' %  value)
+                raise error.ProtocolError('Bad IP address syntax %s' % value)
         value = OctetString.prettyIn(self, value)
         if len(value) != 4:
             raise error.ProtocolError('Bad IP address syntax')
@@ -312,6 +326,7 @@ class IpAddress(OctetString):
             )
         else:
             return ''
+
 
 class Counter32(univ.Integer):
     """Creates an instance of SNMP Counter32 class.
@@ -347,9 +362,10 @@ class Counter32(univ.Integer):
     tagSet = univ.Integer.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x01)
     )
-    subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
+    subtypeSpec = univ.Integer.subtypeSpec + constraint.ValueRangeConstraint(
         0, 4294967295
     )
+
 
 class Gauge32(univ.Integer):
     """Creates an instance of SNMP Gauge32 class.
@@ -385,9 +401,10 @@ class Gauge32(univ.Integer):
     tagSet = univ.Integer.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x02)
     )
-    subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
+    subtypeSpec = univ.Integer.subtypeSpec + constraint.ValueRangeConstraint(
         0, 4294967295
     )
+
 
 class Unsigned32(univ.Integer):
     """Creates an instance of SNMP Unsigned32 class.
@@ -422,9 +439,10 @@ class Unsigned32(univ.Integer):
     tagSet = univ.Integer.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x02)
     )
-    subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
+    subtypeSpec = univ.Integer.subtypeSpec + constraint.ValueRangeConstraint(
         0, 4294967295
     )
+
 
 class TimeTicks(univ.Integer):
     """Creates an instance of SNMP TimeTicks class.
@@ -459,9 +477,10 @@ class TimeTicks(univ.Integer):
     tagSet = univ.Integer.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x03)
     )
-    subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
+    subtypeSpec = univ.Integer.subtypeSpec + constraint.ValueRangeConstraint(
         0, 4294967295
     )
+
 
 class Opaque(univ.OctetString):
     """Creates an instance of SNMP Opaque class.
@@ -507,6 +526,7 @@ class Opaque(univ.OctetString):
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x04)
     )
 
+
 class Counter64(univ.Integer):
     """Creates an instance of SNMP Counter64 class.
 
@@ -541,9 +561,10 @@ class Counter64(univ.Integer):
     tagSet = univ.Integer.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x06)
     )
-    subtypeSpec = univ.Integer.subtypeSpec+constraint.ValueRangeConstraint(
+    subtypeSpec = univ.Integer.subtypeSpec + constraint.ValueRangeConstraint(
         0, 18446744073709551615
     )
+
 
 class Bits(OctetString):
     """Creates an instance of SNMP BITS class.
@@ -595,6 +616,7 @@ class Bits(OctetString):
 
     """
     namedValues = namedval.NamedValues()
+
     def __init__(self, value=None, tagSet=None, subtypeSpec=None,
                  encoding=None, binValue=None, hexValue=None,
                  namedValues=None):
@@ -608,19 +630,19 @@ class Bits(OctetString):
 
     def prettyIn(self, bits):
         if not isinstance(bits, (tuple, list)):
-            return OctetString.prettyIn(self, bits) # raw bitstring
-        octets = []
-        for bit in bits: # tuple of named bits
+            return OctetString.prettyIn(self, bits)  # raw bitstring
+        _octets = []
+        for bit in bits:  # tuple of named bits
             v = self.__namedValues.getValue(bit)
             if v is None:
                 raise error.ProtocolError(
                     'Unknown named bit %s' % bit
-                    )
+                )
             d, m = divmod(v, 8)
-            if d >= len(octets):
-                octets.extend([0] * (d - len(octets) + 1))
-            octets[d] = octets[d] | 0x01 << (7-m)
-        return OctetString.prettyIn(self, octets)
+            if d >= len(_octets):
+                _octets.extend([0] * (d - len(_octets) + 1))
+            _octets[d] |= 0x01 << (7 - m)
+        return OctetString.prettyIn(self, _octets)
 
     def prettyOut(self, value):
         names = []
@@ -630,10 +652,10 @@ class Bits(OctetString):
             v = ints[i]
             j = 7
             while j >= 0:
-                if v & (0x01<<j):
-                    name = self.__namedValues.getName(i*8+7-j)
+                if v & (0x01 << j):
+                    name = self.__namedValues.getName(i * 8 + 7 - j)
                     if name is None:
-                        name = 'UnknownBit-%s' % (i*8+7-j,)
+                        name = 'UnknownBit-%s' % (i * 8 + 7 - j,)
                     names.append(name)
                 j -= 1
             i += 1
@@ -643,7 +665,7 @@ class Bits(OctetString):
               encoding=None, binValue=None, hexValue=None,
               namedValues=None):
         if value is None and tagSet is None and subtypeSpec is None \
-               and namedValues is None:
+                and namedValues is None:
             return self
         if value is None:
             value = self._value
@@ -681,8 +703,10 @@ class Bits(OctetString):
     def withNamedBits(cls, **values):
         """Creates a subclass with discreet named bits constraint.
         """
+
         class X(cls):
             namedValues = cls.namedValues + namedval.NamedValues(*values.items())
+
         X.__name__ = cls.__name__
         return X
 
@@ -690,12 +714,14 @@ class Bits(OctetString):
 class ObjectName(univ.ObjectIdentifier):
     pass
 
+
 class SimpleSyntax(rfc1155.TypeCoercionHackMixIn, univ.Choice):
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('integer-value', Integer()),
         namedtype.NamedType('string-value', OctetString()),
         namedtype.NamedType('objectID-value', univ.ObjectIdentifier())
     )
+
 
 class ApplicationSyntax(rfc1155.TypeCoercionHackMixIn, univ.Choice):
     componentType = namedtype.NamedTypes(
@@ -705,9 +731,10 @@ class ApplicationSyntax(rfc1155.TypeCoercionHackMixIn, univ.Choice):
         namedtype.NamedType('arbitrary-value', Opaque()),
         namedtype.NamedType('big-counter-value', Counter64()),
         # This conflicts with Counter32
-        #namedtype.NamedType('unsigned-integer-value', Unsigned32()),
+        # namedtype.NamedType('unsigned-integer-value', Unsigned32()),
         namedtype.NamedType('gauge32-value', Gauge32())
-    ) # BITS misplaced?
+    )  # BITS misplaced?
+
 
 class ObjectSyntax(univ.Choice):
     componentType = namedtype.NamedTypes(

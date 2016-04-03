@@ -7,8 +7,10 @@
 from pysnmp.proto.secmod import cache
 from pysnmp.proto import error
 
+
 class AbstractSecurityModel:
     securityModelID = None
+
     def __init__(self):
         self._cache = cache.Cache()
 

@@ -19,12 +19,13 @@ except ImportError:
 
 random.seed()
 
+
 # 8.2.4
 
 class Des(base.AbstractEncryptionService):
-    serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 2) # usmDESPrivProtocol
+    serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 2)  # usmDESPrivProtocol
     if version_info < (2, 3):
-        _localInt = int(random.random()*0xffffffff)
+        _localInt = int(random.random() * 0xffffffff)
     else:
         _localInt = random.randrange(0, 0xffffffff)
 
@@ -47,7 +48,7 @@ class Des(base.AbstractEncryptionService):
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
             )
-        return localPrivKey[:32] # key+IV
+        return localPrivKey[:32]  # key+IV
 
     # 8.1.1.1
     def __getEncryptionKey(self, privKey, snmpEngineBoots):
@@ -56,14 +57,14 @@ class Des(base.AbstractEncryptionService):
 
         securityEngineBoots = int(snmpEngineBoots)
 
-        salt = [securityEngineBoots>>24&0xff,
-                securityEngineBoots>>16&0xff,
-                securityEngineBoots>>8&0xff,
-                securityEngineBoots&0xff,
-                self._localInt>>24&0xff,
-                self._localInt>>16&0xff,
-                self._localInt>>8&0xff,
-                self._localInt&0xff]
+        salt = [securityEngineBoots >> 24 & 0xff,
+                securityEngineBoots >> 16 & 0xff,
+                securityEngineBoots >> 8 & 0xff,
+                securityEngineBoots & 0xff,
+                self._localInt >> 24 & 0xff,
+                self._localInt >> 16 & 0xff,
+                self._localInt >> 8 & 0xff,
+                self._localInt & 0xff]
         if self._localInt == 0xffffffff:
             self._localInt = 0
         else:
@@ -71,11 +72,12 @@ class Des(base.AbstractEncryptionService):
 
         return (desKey.asOctets(),
                 univ.OctetString(salt).asOctets(),
-                univ.OctetString(map(lambda x, y: x^y, salt, preIV.asNumbers())).asOctets())
+                univ.OctetString(map(lambda x, y: x ^ y, salt, preIV.asNumbers())).asOctets())
 
-    def __getDecryptionKey(self, privKey, salt):
+    @staticmethod
+    def __getDecryptionKey(privKey, salt):
         return (privKey[:8].asOctets(),
-                univ.OctetString(map(lambda x, y: x^y, salt.asNumbers(), privKey[8:16].asNumbers())).asOctets())
+                univ.OctetString(map(lambda x, y: x ^ y, salt.asNumbers(), privKey[8:16].asNumbers())).asOctets())
 
     # 8.2.4.1
     def encryptData(self, encryptKey, privParameters, dataToEncrypt):

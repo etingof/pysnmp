@@ -18,31 +18,34 @@ except ImportError:
 
 random.seed()
 
+
 # RFC3826
 
 #
 
 class Aes(base.AbstractEncryptionService):
-    serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 4) # usmAesCfb128Protocol
+    serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 4)  # usmAesCfb128Protocol
     keySize = 16
     _localInt = random.randrange(0, 0xffffffffffffffff)
+
     # 3.1.2.1
     def __getEncryptionKey(self, privKey, snmpEngineBoots, snmpEngineTime):
-        salt = [self._localInt>>56&0xff,
-                self._localInt>>48&0xff,
-                self._localInt>>40&0xff,
-                self._localInt>>32&0xff,
-                self._localInt>>24&0xff,
-                self._localInt>>16&0xff,
-                self._localInt>>8&0xff,
-                self._localInt&0xff]
+        salt = [self._localInt >> 56 & 0xff,
+                self._localInt >> 48 & 0xff,
+                self._localInt >> 40 & 0xff,
+                self._localInt >> 32 & 0xff,
+                self._localInt >> 24 & 0xff,
+                self._localInt >> 16 & 0xff,
+                self._localInt >> 8 & 0xff,
+                self._localInt & 0xff]
 
         if self._localInt == 0xffffffffffffffff:
             self._localInt = 0
         else:
             self._localInt += 1
 
-        return self.__getDecryptionKey(privKey, snmpEngineBoots, snmpEngineTime, salt) + (univ.OctetString(salt).asOctets(),)
+        return self.__getDecryptionKey(privKey, snmpEngineBoots, snmpEngineTime, salt) + (
+        univ.OctetString(salt).asOctets(),)
 
     def __getDecryptionKey(self, privKey, snmpEngineBoots,
                            snmpEngineTime, salt):
@@ -50,14 +53,14 @@ class Aes(base.AbstractEncryptionService):
             int(snmpEngineBoots), int(snmpEngineTime), salt
         )
 
-        iv = [snmpEngineBoots>>24&0xff,
-              snmpEngineBoots>>16&0xff,
-              snmpEngineBoots>>8&0xff,
-              snmpEngineBoots&0xff,
-              snmpEngineTime>>24&0xff,
-              snmpEngineTime>>16&0xff,
-              snmpEngineTime>>8&0xff,
-              snmpEngineTime&0xff] + salt
+        iv = [snmpEngineBoots >> 24 & 0xff,
+              snmpEngineBoots >> 16 & 0xff,
+              snmpEngineBoots >> 8 & 0xff,
+              snmpEngineBoots & 0xff,
+              snmpEngineTime >> 24 & 0xff,
+              snmpEngineTime >> 16 & 0xff,
+              snmpEngineTime >> 8 & 0xff,
+              snmpEngineTime & 0xff] + salt
 
         return privKey[:self.keySize].asOctets(), univ.OctetString(iv).asOctets()
 
@@ -100,7 +103,7 @@ class Aes(base.AbstractEncryptionService):
         aesObj = AES.new(aesKey, AES.MODE_CFB, iv, segment_size=128)
 
         # PyCrypto seems to require padding
-        dataToEncrypt = dataToEncrypt + univ.OctetString((0,) * (16-len(dataToEncrypt)%16)).asOctets()
+        dataToEncrypt = dataToEncrypt + univ.OctetString((0,) * (16 - len(dataToEncrypt) % 16)).asOctets()
 
         ciphertext = aesObj.encrypt(dataToEncrypt)
 
@@ -130,7 +133,7 @@ class Aes(base.AbstractEncryptionService):
         aesObj = AES.new(aesKey, AES.MODE_CFB, iv, segment_size=128)
 
         # PyCrypto seems to require padding
-        encryptedData = encryptedData + univ.OctetString((0,) * (16-len(encryptedData)%16)).asOctets()
+        encryptedData = encryptedData + univ.OctetString((0,) * (16 - len(encryptedData) % 16)).asOctets()
 
         # 3.3.2.4-6
         return aesObj.decrypt(encryptedData.asOctets())
