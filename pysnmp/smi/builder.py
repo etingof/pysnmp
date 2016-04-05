@@ -4,7 +4,14 @@
 # Copyright (c) 2005-2016, Ilya Etingof <ilya@glas.net>
 # License: http://pysnmp.sf.net/license.html
 #
-import os, sys, imp, struct, marshal, time, traceback
+import os
+import sys
+import imp
+import struct
+import marshal
+import time
+import traceback
+
 try:
     from errno import ENOENT
 except ImportError:
@@ -14,9 +21,11 @@ from pysnmp import debug
 
 if sys.version_info[0] <= 2:
     import types
+
     classTypes = (types.ClassType, type)
 else:
     classTypes = (type,)
+
 
 class __AbstractMibSource:
     def __init__(self, srcName):
@@ -71,7 +80,7 @@ class __AbstractMibSource:
                 if why.errno == ENOENT or ENOENT == -1:
                     pycTime = -1
                 else:
-                    raise error.MibLoadError('MIB file %s access error: %s' % (f+pycSfx, why))
+                    raise error.MibLoadError('MIB file %s access error: %s' % (f + pycSfx, why))
             else:
                 if self.__magic == pycData[:4]:
                     pycData = pycData[4:]
@@ -80,34 +89,38 @@ class __AbstractMibSource:
                     break
                 else:
                     debug.logger & debug.flagBld and debug.logger(
-                        'bad magic in %s' % (f+pycSfx,)
-                        )
+                        'bad magic in %s' % (f + pycSfx,)
+                    )
                     pycTime = -1
 
+        # noinspection PyUnboundLocalVariable
         debug.logger & debug.flagBld and debug.logger(
-            'file %s mtime %d' % (f+pycSfx, pycTime)
-            )
+            'file %s mtime %d' % (f + pycSfx, pycTime)
+        )
 
         for pySfx, pySfxLen, pyMode in self.__sfx[imp.PY_SOURCE]:
             try:
-                pyTime = self._getTimestamp(f+pySfx)
+                pyTime = self._getTimestamp(f + pySfx)
             except IOError:
                 why = sys.exc_info()[1]
                 if why.errno == ENOENT or ENOENT == -1:
                     pyTime = -1
                 else:
-                    raise error.MibLoadError('MIB file %s access error: %s' % (f+pySfx, why))
+                    raise error.MibLoadError('MIB file %s access error: %s' % (f + pySfx, why))
             else:
                 break
 
+        # noinspection PyUnboundLocalVariable
         debug.logger & debug.flagBld and debug.logger(
-            'file %s mtime %d' % (f+pySfx, pyTime)
-            )
+            'file %s mtime %d' % (f + pySfx, pyTime)
+        )
 
         if pycTime != -1 and pycTime >= pyTime:
+            # noinspection PyUnboundLocalVariable
             return marshal.loads(pycData), pycSfx
         if pyTime != -1:
-            return self._getData(f+pySfx, pyMode), pySfx
+            # noinspection PyUnboundLocalVariable
+            return self._getData(f + pySfx, pyMode), pySfx
 
         raise IOError(ENOENT, 'No suitable module found', f)
 
@@ -121,8 +134,9 @@ class __AbstractMibSource:
     def _getTimestamp(self, f):
         raise NotImplementedError()
 
-    def _getData(self, f, mode=None):
+    def _getData(self, f, mode):
         NotImplementedError()
+
 
 class ZipMibSource(__AbstractMibSource):
     def _init(self):
@@ -142,20 +156,22 @@ class ZipMibSource(__AbstractMibSource):
             # Dir relative to CWD
             return DirMibSource(self._srcName).init()
 
-    def _parseDosTime(self, dosdate, dostime):
-        t = (((dosdate >> 9) & 0x7f) + 1980, # year
+    @staticmethod
+    def _parseDosTime(dosdate, dostime):
+        t = (((dosdate >> 9) & 0x7f) + 1980,  # year
              ((dosdate >> 5) & 0x0f),  # month
-             dosdate & 0x1f, # mday
-             (dostime >> 11) & 0x1f, # hour
-             (dostime >> 5) & 0x3f, # min
-             (dostime & 0x1f) * 2, # sec
-             -1, # wday
-             -1, # yday
-             -1) # dst
+             dosdate & 0x1f,  # mday
+             (dostime >> 11) & 0x1f,  # hour
+             (dostime >> 5) & 0x3f,  # min
+             (dostime & 0x1f) * 2,  # sec
+             -1,  # wday
+             -1,  # yday
+             -1)  # dst
         return time.mktime(t)
 
     def _listdir(self):
         l = []
+        # noinspection PyProtectedMember
         for f in self.__loader._files.keys():
             d, f = os.path.split(f)
             if d == self._srcName:
@@ -164,7 +180,9 @@ class ZipMibSource(__AbstractMibSource):
 
     def _getTimestamp(self, f):
         p = os.path.join(self._srcName, f)
+        # noinspection PyProtectedMember
         if p in self.__loader._files:
+            # noinspection PyProtectedMember
             return self._parseDosTime(
                 self.__loader._files[p][6], self.__loader._files[p][5]
             )
@@ -178,6 +196,7 @@ class ZipMibSource(__AbstractMibSource):
         except:  # ZIP code seems to return all kinds of errors
             raise IOError(ENOENT, 'No such file in ZIP archive: %s' % sys.exc_info()[1], p)
 
+
 class DirMibSource(__AbstractMibSource):
     def _init(self):
         self._srcName = os.path.normpath(self._srcName)
@@ -187,7 +206,8 @@ class DirMibSource(__AbstractMibSource):
         try:
             return self._uniqNames(os.listdir(self._srcName))
         except OSError:
-            debug.logger & debug.flagBld and debug.logger('listdir() failed for %s: %s' % (self._srcName, sys.exc_info()[1]))
+            debug.logger & debug.flagBld and debug.logger(
+                'listdir() failed for %s: %s' % (self._srcName, sys.exc_info()[1]))
             return ()
 
     def _getTimestamp(self, f):
@@ -200,7 +220,7 @@ class DirMibSource(__AbstractMibSource):
     def _getData(self, f, mode):
         p = os.path.join(self._srcName, f)
         try:
-            if f in os.listdir(self._srcName): # make FS case-sensitive
+            if f in os.listdir(self._srcName):  # make FS case-sensitive
                 fp = open(p, mode)
                 data = fp.read()
                 fp.close()
@@ -212,6 +232,7 @@ class DirMibSource(__AbstractMibSource):
 
         raise IOError(ENOENT, 'No such file: %s' % sys.exc_info()[1], p)
 
+
 class MibBuilder:
     loadTexts = 0
     defaultCoreMibs = os.pathsep.join(
@@ -219,6 +240,7 @@ class MibBuilder:
     )
     defaultMiscMibs = 'pysnmp_mibs'
     moduleID = 'PYSNMP_MODULE_ID'
+
     def __init__(self):
         self.lastBuildId = self._autoName = 0
         sources = []
@@ -232,6 +254,7 @@ class MibBuilder:
         for m in self.defaultCoreMibs.split(os.pathsep):
             sources.insert(0, ZipMibSource(m))
         self.mibSymbols = {}
+        self.__mibSources = []
         self.__modSeen = {}
         self.__modPathsSeen = {}
         self.__mibCompiler = None
@@ -252,7 +275,6 @@ class MibBuilder:
     def addMibSources(self, *mibSources):
         self.__mibSources.extend([s.init() for s in mibSources])
         debug.logger & debug.flagBld and debug.logger('addMibSources: new MIB sources %s' % (self.__mibSources,))
-
 
     def setMibSources(self, *mibSources):
         self.__mibSources = [s.init() for s in mibSources]
@@ -282,7 +304,8 @@ class MibBuilder:
             try:
                 modData, sfx = mibSource.read(modName)
             except IOError:
-                debug.logger & debug.flagBld and debug.logger('loadModule: read %s from %s failed: %s' % (modName, mibSource, sys.exc_info()[1]))
+                debug.logger & debug.flagBld and debug.logger(
+                    'loadModule: read %s from %s failed: %s' % (modName, mibSource, sys.exc_info()[1]))
                 continue
 
             modPath = mibSource.fullPath(modName, sfx)
@@ -298,7 +321,7 @@ class MibBuilder:
             g = {'mibBuilder': self, 'userCtx': userCtx}
 
             try:
-                exec(modData, g)
+                exec (modData, g)
 
             except Exception:
                 del self.__modPathsSeen[modPath]
@@ -314,7 +337,8 @@ class MibBuilder:
 
         if modName not in self.__modSeen:
             raise error.MibNotFoundError(
-                'MIB file \"%s\" not found in search path (%s)' % (modName and modName + ".py[co]", ', '.join([str(x) for x in self.__mibSources]))
+                'MIB file \"%s\" not found in search path (%s)' % (
+                    modName and modName + ".py[co]", ', '.join([str(x) for x in self.__mibSources]))
             )
 
         return self
@@ -339,7 +363,8 @@ class MibBuilder:
                 if self.__mibCompiler:
                     debug.logger & debug.flagBld and debug.logger('loadModules: calling MIB compiler for %s' % modName)
                     status = self.__mibCompiler.compile(modName, genTexts=self.loadTexts)
-                    errs = '; '.join([hasattr(x, 'error') and str(x.error) or x for x in status.values() if x in ('failed', 'missing')])
+                    errs = '; '.join([hasattr(x, 'error') and str(x.error) or x for x in status.values() if
+                                      x in ('failed', 'missing')])
                     if errs:
                         raise error.MibNotFoundError('%s compilation error(s): %s' % (modName, errs))
                     # compilation suceeded, MIB might load now
@@ -359,7 +384,7 @@ class MibBuilder:
             del self.__modPathsSeen[self.__modSeen[modName]]
             del self.__modSeen[modName]
 
-            debug.logger & debug.flagBld and debug.logger('unloadModules: ' % (modName))
+            debug.logger & debug.flagBld and debug.logger('unloadModules: %s' % modName)
 
         return self
 
@@ -389,7 +414,8 @@ class MibBuilder:
         mibSymbols = self.mibSymbols[modName]
 
         for symObj in anonymousSyms:
-            debug.logger & debug.flagBld and debug.logger('exportSymbols: anonymous symbol %s::__pysnmp_%ld'  % (modName, self._autoName))
+            debug.logger & debug.flagBld and debug.logger(
+                'exportSymbols: anonymous symbol %s::__pysnmp_%ld' % (modName, self._autoName))
             mibSymbols['__pysnmp_%ld' % self._autoName] = symObj
             self._autoName += 1
         for symName, symObj in namedSyms.items():
@@ -399,7 +425,7 @@ class MibBuilder:
                 )
 
             if symName != self.moduleID and \
-                   not isinstance(symObj, classTypes):
+                    not isinstance(symObj, classTypes):
                 label = symObj.getLabel()
                 if label:
                     symName = label
