@@ -31,11 +31,14 @@ try:
 except ImportError:
     from pysnmp.smi import error
 
+
     def addMibCompilerDecorator(errorMsg):
         def addMibCompiler(mibBuilder, **kwargs):
             if not kwargs.get('ifAvailable'):
                 raise error.SmiError('MIB compiler not available: %s' % errorMsg)
+
         return addMibCompiler
+
 
     addMibCompiler = addMibCompilerDecorator(sys.exc_info()[1])
 
@@ -53,7 +56,9 @@ else:
 
         compiler.addSearchers(StubSearcher(*baseMibs))
         compiler.addSearchers(*[PyPackageSearcher(x.fullPath()) for x in mibBuilder.getMibSources()])
-        compiler.addBorrowers(*[PyFileBorrower(x, genTexts=mibBuilder.loadTexts) for x in getReadersFromUrls(*kwargs.get('borrowers') or defaultBorrowers, **dict(lowcaseMatching=False))])
+        compiler.addBorrowers(*[PyFileBorrower(x, genTexts=mibBuilder.loadTexts) for x in
+                                getReadersFromUrls(*kwargs.get('borrowers') or defaultBorrowers,
+                                                   **dict(lowcaseMatching=False))])
 
         mibBuilder.setMibCompiler(
             compiler, kwargs.get('destination') or defaultDest

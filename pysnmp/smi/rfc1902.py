@@ -16,6 +16,7 @@ from pysnmp import debug
 
 __all__ = ['ObjectIdentity', 'ObjectType', 'NotificationType']
 
+
 class ObjectIdentity:
     """Create an object representing MIB variable ID.
 
@@ -355,7 +356,8 @@ class ObjectIdentity:
             addMibCompiler(mibViewController.mibBuilder,
                            ifAvailable=True, ifNotAdded=True)
         else:
-            debug.logger & debug.flagMIB and debug.logger('adding MIB compiler with source paths %s' % ', '.join(self.__asn1SourcesToAdd))
+            debug.logger & debug.flagMIB and debug.logger(
+                'adding MIB compiler with source paths %s' % ', '.join(self.__asn1SourcesToAdd))
             addMibCompiler(
                 mibViewController.mibBuilder,
                 sources=self.__asn1SourcesToAdd,
@@ -375,7 +377,8 @@ class ObjectIdentity:
         if self.__state & self.stClean:
             return self
 
-        MibScalar, MibTableColumn = mibViewController.mibBuilder.importSymbols('SNMPv2-SMI', 'MibScalar', 'MibTableColumn')
+        MibScalar, MibTableColumn = mibViewController.mibBuilder.importSymbols('SNMPv2-SMI', 'MibScalar',
+                                                                               'MibTableColumn')
 
         self.__indices = ()
 
@@ -418,7 +421,8 @@ class ObjectIdentity:
                     self.__oid
                 )
 
-            debug.logger & debug.flagMIB and debug.logger('resolved %r into prefix %r and suffix %r' % (self.__args, prefix, suffix))
+            debug.logger & debug.flagMIB and debug.logger(
+                'resolved %r into prefix %r and suffix %r' % (self.__args, prefix, suffix))
 
             modName, symName, _ = mibViewController.getNodeLocation(prefix)
 
@@ -435,7 +439,7 @@ class ObjectIdentity:
 
             debug.logger & debug.flagMIB and debug.logger('resolved prefix %r into MIB node %r' % (prefix, mibNode))
 
-            if isinstance(mibNode, MibTableColumn): # table column
+            if isinstance(mibNode, MibTableColumn):  # table column
                 if suffix:
                     rowModName, rowSymName, _ = mibViewController.getNodeLocation(
                         mibNode.name[:-1]
@@ -444,7 +448,7 @@ class ObjectIdentity:
                         rowModName, rowSymName
                     )
                     self.__indices = rowNode.getIndicesFromInstId(suffix)
-            elif isinstance(mibNode, MibScalar): # scalar
+            elif isinstance(mibNode, MibScalar):  # scalar
                 if suffix:
                     self.__indices = (rfc1902.ObjectName(suffix),)
             else:
@@ -486,9 +490,10 @@ class ObjectIdentity:
             )
             self.__label = label
 
-            debug.logger & debug.flagMIB and debug.logger('resolved %r into prefix %r and suffix %r' % (self.__args, prefix, suffix))
+            debug.logger & debug.flagMIB and debug.logger(
+                'resolved %r into prefix %r and suffix %r' % (self.__args, prefix, suffix))
 
-            if isinstance(mibNode, MibTableColumn): # table
+            if isinstance(mibNode, MibTableColumn):  # table
                 rowModName, rowSymName, _ = mibViewController.getNodeLocation(
                     mibNode.name[:-1]
                 )
@@ -501,8 +506,9 @@ class ObjectIdentity:
                         self.__oid += instIds
                         self.__indices = rowNode.getIndicesFromInstId(instIds)
                     except PyAsn1Error:
-                        raise SmiError('Instance index %r to OID convertion failure at object %r: %s' % (self.__args[2:], mibNode.getLabel(), sys.exc_info()[1]))
-            elif self.__args[2:]: # any other kind of MIB node with indices
+                        raise SmiError('Instance index %r to OID convertion failure at object %r: %s' % (
+                            self.__args[2:], mibNode.getLabel(), sys.exc_info()[1]))
+            elif self.__args[2:]:  # any other kind of MIB node with indices
                 if self.__args[2:]:
                     instId = rfc1902.ObjectName(
                         '.'.join([str(x) for x in self.__args[2:]])
@@ -522,9 +528,8 @@ class ObjectIdentity:
             s = rfc1902.OctetString()
             return '%s::%s%s%s' % (
                 self.__modName, self.__symName,
-                self.__indices and  '.' or '',
-                '.'.join([x.isSuperTypeOf(s) and '"%s"' % x.prettyPrint()
-                          or x.prettyPrint() for x in self.__indices])
+                self.__indices and '.' or '',
+                '.'.join([x.isSuperTypeOf(s) and '"%s"' % x.prettyPrint() or x.prettyPrint() for x in self.__indices])
             )
         else:
             raise SmiError('%s object not fully initialized' % self.__class__.__name__)
@@ -628,6 +633,7 @@ class ObjectIdentity:
         else:
             raise SmiError('%s object not properly initialized for accessing %s' % (self.__class__.__name__, attr))
 
+
 # A two-element sequence of ObjectIdentity and SNMP data type object
 class ObjectType:
     """Create an object representing MIB variable.
@@ -688,6 +694,7 @@ class ObjectType:
 
     """
     stDirty, stClean = 1, 2
+
     def __init__(self, objectIdentity, objectSyntax=rfc1905.unSpecified):
         if not isinstance(objectIdentity, ObjectIdentity):
             raise SmiError('initializer should be ObjectIdentity instance, not %r' % (objectIdentity,))
@@ -837,7 +844,8 @@ class ObjectType:
 
         self.__args[0].resolveWithMib(mibViewController)
 
-        MibScalar, MibTableColumn = mibViewController.mibBuilder.importSymbols('SNMPv2-SMI', 'MibScalar', 'MibTableColumn')
+        MibScalar, MibTableColumn = mibViewController.mibBuilder.importSymbols('SNMPv2-SMI', 'MibScalar',
+                                                                               'MibTableColumn')
 
         if not isinstance(self.__args[0].getMibNode(),
                           (MibScalar, MibTableColumn)):
@@ -856,7 +864,9 @@ class ObjectType:
         try:
             self.__args[1] = self.__args[0].getMibNode().getSyntax().clone(self.__args[1])
         except PyAsn1Error:
-            raise SmiError('MIB object %r having type %r failed to cast value %r: %s' % (self.__args[0].prettyPrint(), self.__args[0].getMibNode().getSyntax().__class__.__name__, self.__args[1], sys.exc_info()[1]))
+            raise SmiError('MIB object %r having type %r failed to cast value %r: %s' % (
+                self.__args[0].prettyPrint(), self.__args[0].getMibNode().getSyntax().__class__.__name__, self.__args[1],
+                sys.exc_info()[1]))
 
         if self.__args[1].isSuperTypeOf(rfc1902.ObjectIdentifier()):
             self.__args[1] = ObjectIdentity(self.__args[1]).resolveWithMib(mibViewController)
@@ -873,6 +883,7 @@ class ObjectType:
                                 self.__args[1].prettyPrint())
         else:
             raise SmiError('%s object not fully initialized' % self.__class__.__name__)
+
 
 class NotificationType:
     """Create an object representing SNMP Notification.
@@ -935,11 +946,12 @@ class NotificationType:
     >>> from pysnmp.smi.rfc1902 import *
     >>> NotificationType(ObjectIdentity('1.3.6.1.6.3.1.1.5.3'))
     NotificationType(ObjectIdentity('1.3.6.1.6.3.1.1.5.3'), (), {})
-    >>> NotificationType(ObjectIdentity('IP-MIB', 'linkDown'), ObjectName('3.5))
+    >>> NotificationType(ObjectIdentity('IP-MIB', 'linkDown'), ObjectName('3.5'))
     NotificationType(ObjectIdentity('1.3.6.1.6.3.1.1.5.3'), ObjectName('3.5'), {})
 
     """
     stDirty, stClean = 1, 2
+
     def __init__(self, objectIdentity, instanceIndex=(), objects={}):
         if not isinstance(objectIdentity, ObjectIdentity):
             raise SmiError('initializer should be ObjectIdentity instance, not %r' % (objectIdentity,))
@@ -1142,13 +1154,17 @@ class NotificationType:
 
         if isinstance(mibNode, SmiNotificationType):
             for notificationObject in mibNode.getObjects():
-                objectIdentity = ObjectIdentity(*notificationObject+self.__instanceIndex).resolveWithMib(mibViewController)
+                objectIdentity = ObjectIdentity(*notificationObject + self.__instanceIndex).resolveWithMib(
+                    mibViewController)
                 self.__varBinds.append(
-                    ObjectType(objectIdentity, self.__objects.get(notificationObject, rfc1905.unSpecified)).resolveWithMib(mibViewController)
+                    ObjectType(objectIdentity,
+                               self.__objects.get(notificationObject, rfc1905.unSpecified)).resolveWithMib(
+                        mibViewController)
                 )
                 varBindsLocation[objectIdentity] = len(self.__varBinds) - 1
         else:
-            debug.logger & debug.flagMIB and debug.logger('WARNING: MIB object %r is not NOTIFICATION-TYPE (MIB not loaded?)' % (self.__objectIdentity,))
+            debug.logger & debug.flagMIB and debug.logger(
+                'WARNING: MIB object %r is not NOTIFICATION-TYPE (MIB not loaded?)' % (self.__objectIdentity,))
 
         for varBinds in self.__additionalVarBinds:
             if not isinstance(varBinds, ObjectType):

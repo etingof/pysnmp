@@ -6,6 +6,8 @@
 #
 # Limited-size dictionary-like class to use for caches
 #
+
+
 class Cache:
     def __init__(self, maxSize=256):
         self.__maxSize = maxSize

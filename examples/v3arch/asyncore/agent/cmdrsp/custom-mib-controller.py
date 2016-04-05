@@ -53,8 +53,8 @@ snmpContext = context.SnmpContext(snmpEngine)
 # any Managed Objects attached. It supports only GET's and
 # always echos request var-binds in response.
 class EchoMibInstrumController(instrum.AbstractMibInstrumController):
-    def readVars(self, vars, acInfo=(None, None)):
-        return [(ov[0], v2c.OctetString('You queried OID %s' % ov[0])) for ov in vars]
+    def readVars(self, varBinds, acInfo=(None, None)):
+        return [(ov[0], v2c.OctetString('You queried OID %s' % ov[0])) for ov in varBinds]
 
 
 # Create a custom Management Instrumentation Controller and register at

@@ -6,8 +6,10 @@
 #
 from bisect import bisect
 
+
 class OrderedDict(dict):
     """Ordered dictionary used for indices"""
+
     def __init__(self, **kwargs):
         self.__keys = []
         self.__dirty = True
@@ -91,8 +93,10 @@ class OrderedDict(dict):
             self.__order()
         return self.__keysLens
 
+
 class OidOrderedDict(OrderedDict):
     """OID-ordered dictionary used for indices"""
+
     def __init__(self, **kwargs):
         self.__keysCache = {}
         OrderedDict.__init__(self, **kwargs)
@@ -109,6 +113,7 @@ class OidOrderedDict(OrderedDict):
         if key in self.__keysCache:
             del self.__keysCache[key]
         OrderedDict.__delitem__(self, key)
+
     __delattr__ = __delitem__
 
     def sortingFun(self, keys):
