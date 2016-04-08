@@ -13,7 +13,7 @@ Functionally similar to:
 
 | $ snmpget -v3 -l authPriv -u usr-md5-des -A authkey1 -X privkey1 demo.snmplabs.com IF-MIB::ifInOctets.1
 
-"""  #
+"""#
 from pysnmp.hlapi import *
 
 errorIndication, errorStatus, errorIndex, varBinds = next(
