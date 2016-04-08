@@ -80,7 +80,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
 
     Examples
     --------
-    >>> from pysnmp.hlapi.asyncore import *
+    >>> from pysnmp.hlapi import *
     >>> g = getCmd(SnmpEngine(),
     ...            CommunityData('public'),
     ...            UdpTransportTarget(('demo.snmplabs.com', 161)),
@@ -186,7 +186,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
 
     Examples
     --------
-    >>> from pysnmp.hlapi.asyncore import *
+    >>> from pysnmp.hlapi import *
     >>> g = setCmd(SnmpEngine(),
     ...            CommunityData('public'),
     ...            UdpTransportTarget(('demo.snmplabs.com', 161)),
@@ -313,7 +313,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
 
     Examples
     --------
-    >>> from pysnmp.hlapi.asyncore import *
+    >>> from pysnmp.hlapi import *
     >>> g = nextCmd(SnmpEngine(),
     ...             CommunityData('public'),
     ...             UdpTransportTarget(('demo.snmplabs.com', 161)),
@@ -497,7 +497,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
 
     Examples
     --------
-    >>> from pysnmp.hlapi.asyncore import *
+    >>> from pysnmp.hlapi import *
     >>> g = bulkCmd(SnmpEngine(),
     ...             CommunityData('public'),
     ...             UdpTransportTarget(('demo.snmplabs.com', 161)),

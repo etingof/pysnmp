@@ -86,7 +86,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
 
     Examples
     --------
-    >>> from pysnmp.hlapi.asyncore import *
+    >>> from pysnmp.hlapi import *
     >>> g = sendNotification(SnmpEngine(),
     ...                      CommunityData('public'),
     ...                      UdpTransportTarget(('demo.snmplabs.com', 162)),
