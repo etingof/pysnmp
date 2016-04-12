@@ -101,6 +101,28 @@ else:
             print(' = '.join([x.prettyPrint() for x in varBind]))
 ```
 
+or, to send SNMP TRAP:
+
+```python
+from pysnmp.hlapi import *
+
+errorIndication, errorStatus, errorIndex, varBinds = next(
+    sendNotification(
+        SnmpEngine(OctetString(hexValue='8000000001020304')),
+        UsmUserData('usr-sha-aes128', 'authkey1', 'privkey1',
+                    authProtocol=usmHMACSHAAuthProtocol,
+                    privProtocol=usmAesCfb128Protocol),
+        UdpTransportTarget(('demo.snmplabs.com', 162)),
+        ContextData(),
+        'trap',
+        NotificationType(ObjectIdentity('SNMPv2-MIB', 'authenticationFailure'))
+    )
+)
+
+if errorIndication:
+    print(errorIndication)
+```
+
 We maintain publicly available SNMP Agent and TRAP sink at 
 [demo.snmplabs.com](http://snmpsim.sourceforge.net/public-snmp-simulator.html). You are
 welcome to play with it while experimenting with your PySNMP scripts.
