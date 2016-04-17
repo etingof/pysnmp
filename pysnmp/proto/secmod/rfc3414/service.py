@@ -791,7 +791,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 int(time.time())
             )
 
-            expireAt = int(self.__expirationTimer + 300 / snmpEngine.transportDispatcher.getTimerResolution())
+            timerResolution = snmpEngine.transportDispatcher is None and 1.0 or snmpEngine.transportDispatcher.getTimerResolution()
+            expireAt = int(self.__expirationTimer + 300 / timerResolution)
             if expireAt not in self.__timelineExpQueue:
                 self.__timelineExpQueue[expireAt] = []
             self.__timelineExpQueue[expireAt].append(msgAuthoritativeEngineId)
@@ -859,7 +860,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         msgAuthoritativeEngineTime,
                         int(time.time())
                     )
-                    expireAt = int(self.__expirationTimer + 300 / snmpEngine.transportDispatcher.getTimerResolution())
+
+                    timerResolution = snmpEngine.transportDispatcher is None and 1.0 or snmpEngine.transportDispatcher.getTimerResolution()
+                    expireAt = int(self.__expirationTimer + 300 / timerResolution)
                     if expireAt not in self.__timelineExpQueue:
                         self.__timelineExpQueue[expireAt] = []
                     self.__timelineExpQueue[expireAt].append(msgAuthoritativeEngineId)
