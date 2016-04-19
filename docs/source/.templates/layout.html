@@ -133,10 +133,14 @@
         <div class="rst-content">
           {% include "breadcrumbs.html" %}
           <div role="main" class="document">
-            {% include "top.html" %}
+            {% if include_analytics %}
+              {% include "top.html" %}
+            {% endif %}
             {% block body %}{% endblock %}
-            {% include "bottom.html" %}
-            {% include "analytics.html" %}
+            {% if include_analytics %}
+              {% include "bottom.html" %}
+              {% include "analytics.html" %}
+            {% endif %}
           <hr/>
           </div>
           {% include "footer.html" %}

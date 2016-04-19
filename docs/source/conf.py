@@ -53,7 +53,7 @@ master_doc = 'contents'
 
 # General information about the project.
 project = u'PySNMP'
-copyright = u'2015, Ilya Etingof <ilya@glas.net>'
+copyright = u'2016, Ilya Etingof <ilya@glas.net>'
 author = u'Ilya Etingof <ilya@glas.net>'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -214,6 +214,10 @@ html_show_sphinx = False
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'PySNMPdoc'
+
+html_context = {
+    'include_analytics': 'PYSNMPDEV' in os.environ
+}
 
 # -- Options for LaTeX output ---------------------------------------------
 
