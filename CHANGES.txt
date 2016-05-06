@@ -10,6 +10,7 @@ Github `repo <https://github.com/etingof/pysnmp>`_
   run.
 - Fix to NotificationType to make additional var-binds overriding
   MIB objects implicitly included through NOTIFICATION-TYPE OBJECTS.
+- Fix to SNMP engine boots counter persistence on Python 3.
 
 Revision 4.3.2, released 2016-02-12
 -----------------------------------

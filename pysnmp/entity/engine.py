@@ -7,6 +7,7 @@
 import os
 import sys
 import tempfile
+from pyasn1.compat.octets import str2octs
 from pysnmp.proto.rfc3412 import MsgAndPduDispatcher
 from pysnmp.proto.mpmod.rfc2576 import SnmpV1MessageProcessingModel, \
     SnmpV2cMessageProcessingModel
@@ -131,16 +132,10 @@ class SnmpEngine:
 
             try:
                 fd, fn = tempfile.mkstemp(dir=persistentPath)
-                os.write(fd, snmpEngineBoots.syntax.prettyPrint())
+                os.write(fd, str2octs(snmpEngineBoots.syntax.prettyPrint()))
                 os.close(fd)
                 os.rename(fn, f)
             except Exception:
-                try:
-                    os.close(fd)
-                    os.unlink(fn)
-                except Exception:
-                    pass
-
                 debug.logger & debug.flagApp and debug.logger(
                     'SnmpEngine: could not stored SNMP Engine Boots: %s' % sys.exc_info()[1])
             else:
