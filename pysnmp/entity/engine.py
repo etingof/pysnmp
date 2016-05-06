@@ -135,6 +135,12 @@ class SnmpEngine:
                 os.close(fd)
                 os.rename(fn, f)
             except Exception:
+                try:
+                    os.close(fd)
+                    os.unlink(fn)
+                except Exception:
+                    pass
+
                 debug.logger & debug.flagApp and debug.logger(
                     'SnmpEngine: could not stored SNMP Engine Boots: %s' % sys.exc_info()[1])
             else:
