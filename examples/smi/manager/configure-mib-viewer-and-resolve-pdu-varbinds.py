@@ -1,6 +1,6 @@
 """
-SNMP var-binds MIB resolution (configure MIB compiler)
-++++++++++++++++++++++++++++++++++++++++++++++++++++++
+PDU var-binds to MIB objects
+++++++++++++++++++++++++++++
 
 This script explains how Python application could turn SNMP PDU
 variable-bindings into MIB objects or the other way around.

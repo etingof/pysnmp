@@ -116,6 +116,15 @@ Notification Receiver
 
    /examples/v1arch/asyncore/manager/ntfrcv/transport-tweaks
 
+Low-level MIB access
+--------------------
+
+.. toctree::
+
+   /examples/smi/manager/browsing-mib-tree
+   /examples/smi/agent/implementing-mib-objects
+
+
 Using these examples
 --------------------
 
