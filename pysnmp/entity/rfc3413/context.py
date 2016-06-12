@@ -10,7 +10,7 @@ from pysnmp import error
 from pysnmp import debug
 
 
-class SnmpContext:
+class SnmpContext(object):
     def __init__(self, snmpEngine, contextEngineId=None):
         snmpEngineId, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB',
                                                                                               'snmpEngineID')

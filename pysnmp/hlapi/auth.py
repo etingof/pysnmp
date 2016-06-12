@@ -16,7 +16,7 @@ __all__ = ['CommunityData', 'UsmUserData',
            'usmNoPrivProtocol']
 
 
-class CommunityData:
+class CommunityData(object):
     """Creates SNMP v1/v2c configuration entry.
 
     This object can be used by
@@ -143,7 +143,7 @@ usmAesCfb192Protocol = config.usmAesCfb192Protocol
 usmAesCfb256Protocol = config.usmAesCfb256Protocol
 
 
-class UsmUserData:
+class UsmUserData(object):
     """Creates SNMP v3 User Security Model (USM) configuration entry.
 
     This object can be used by

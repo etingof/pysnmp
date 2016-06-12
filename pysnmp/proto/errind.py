@@ -6,7 +6,7 @@
 #
 
 
-class ErrorIndication:
+class ErrorIndication(object):
     """SNMPv3 error-indication values"""
 
     def __init__(self, descr=None):

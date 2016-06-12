@@ -10,7 +10,7 @@ from pysnmp.smi.rfc1902 import *
 __all__ = ['CommandGeneratorVarBinds', 'NotificationOriginatorVarBinds']
 
 
-class AbstractVarBinds:
+class AbstractVarBinds(object):
     @staticmethod
     def getMibViewController(snmpEngine):
         mibViewController = snmpEngine.getUserContext('mibViewController')

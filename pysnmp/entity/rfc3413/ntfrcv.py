@@ -13,7 +13,7 @@ from pysnmp import debug
 
 
 # 3.4
-class NotificationReceiver:
+class NotificationReceiver(object):
     pduTypes = (v1.TrapPDU.tagSet, v2c.SNMPv2TrapPDU.tagSet,
                 v2c.InformRequestPDU.tagSet)
 

@@ -32,7 +32,7 @@ TrapPDU = rfc1157.TrapPDU
 Message = rfc1157.Message
 
 
-class VarBindAPI:
+class VarBindAPI(object):
     @staticmethod
     def setOIDVal(varBind, oidVal):
         (oid, val) = oidVal
@@ -53,7 +53,7 @@ apiVarBind = VarBindAPI()
 getNextRequestID = nextid.Integer(0xffffff)
 
 
-class PDUAPI:
+class PDUAPI(object):
     _errorStatus = rfc1157.errorStatus.clone(0)
     _errorIndex = Integer(0)
 
@@ -156,7 +156,7 @@ class PDUAPI:
 apiPDU = PDUAPI()
 
 
-class TrapPDUAPI:
+class TrapPDUAPI(object):
     _networkAddress = None
     _entOid = ObjectIdentifier((1, 3, 6, 1, 4, 1, 20408))
     _genericTrap = rfc1157.genericTrap.clone('coldStart')
@@ -252,7 +252,7 @@ class TrapPDUAPI:
 apiTrapPDU = TrapPDUAPI()
 
 
-class MessageAPI:
+class MessageAPI(object):
     _version = rfc1157.version.clone(0)
     _community = univ.OctetString('public')
 

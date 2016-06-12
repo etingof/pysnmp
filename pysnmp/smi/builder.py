@@ -27,7 +27,7 @@ else:
     classTypes = (type,)
 
 
-class __AbstractMibSource:
+class __AbstractMibSource(object):
     def __init__(self, srcName):
         self._srcName = srcName
         self.__magic = imp.get_magic()
@@ -233,7 +233,7 @@ class DirMibSource(__AbstractMibSource):
         raise IOError(ENOENT, 'No such file: %s' % sys.exc_info()[1], p)
 
 
-class MibBuilder:
+class MibBuilder(object):
     loadTexts = 0
     defaultCoreMibs = os.pathsep.join(
         ('pysnmp.smi.mibs.instances', 'pysnmp.smi.mibs')

@@ -7,7 +7,7 @@
 from pysnmp.carrier import error
 
 
-class TimerCallable:
+class TimerCallable(object):
     def __init__(self, cbFun, callInterval):
         self.__cbFun = cbFun
         self.__callInterval = callInterval
@@ -37,7 +37,7 @@ class TimerCallable:
         return self.__cbFun >= cbFun
 
 
-class AbstractTransportDispatcher:
+class AbstractTransportDispatcher(object):
     def __init__(self):
         self.__transports = {}
         self.__transportDomainMap = {}
@@ -196,7 +196,7 @@ class AbstractTransportDispatcher:
         self.unregisterTimerCbFun()
 
 
-class AbstractTransportAddress:
+class AbstractTransportAddress(object):
     _localAddress = None
 
     def setLocalAddress(self, s):
@@ -210,7 +210,7 @@ class AbstractTransportAddress:
         return self.__class__(self).setLocalAddress(localAddress is None and self.getLocalAddress() or localAddress)
 
 
-class AbstractTransport:
+class AbstractTransport(object):
     protoTransportDispatcher = None
     addressType = AbstractTransportAddress
     _cbFun = None

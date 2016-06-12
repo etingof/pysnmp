@@ -18,7 +18,7 @@ from pysnmp import debug
 getNextHandle = nextid.Integer(0x7fffffff)
 
 
-class NotificationOriginator:
+class NotificationOriginator(object):
     acmID = 3  # default MIB access control method to use
 
     def __init__(self, snmpContext=None):

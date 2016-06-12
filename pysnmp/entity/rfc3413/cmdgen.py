@@ -40,7 +40,7 @@ def getNextVarBinds(varBinds, origVarBinds=None):
     return errorIndication, rspVarBinds
 
 
-class CommandGenerator:
+class CommandGenerator(object):
     _null = univ.Null('')
 
     def __init__(self):

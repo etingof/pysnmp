@@ -11,7 +11,7 @@ from pysnmp import error
 __all__ = []
 
 
-class AbstractTransportTarget:
+class AbstractTransportTarget(object):
     transportDomain = None
     protoTransport = AbstractTransport
 

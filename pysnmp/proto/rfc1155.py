@@ -80,7 +80,7 @@ class ObjectName(univ.ObjectIdentifier):
     pass
 
 
-class TypeCoercionHackMixIn:  # XXX
+class TypeCoercionHackMixIn(object):  # XXX
     # Reduce ASN1 type check to simple tag check as SMIv2 objects may
     # not be constraints-compatible with those used in SNMP PDU.
     def _verifyComponent(self, idx, value, **kwargs):

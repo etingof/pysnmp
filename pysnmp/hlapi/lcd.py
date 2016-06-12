@@ -12,7 +12,7 @@ __all__ = ['CommandGeneratorLcdConfigurator',
            'NotificationOriginatorLcdConfigurator']
 
 
-class AbstractLcdConfigurator:
+class AbstractLcdConfigurator(object):
     nextID = nextid.Integer(0xffffffff)
     cacheKeys = []
 

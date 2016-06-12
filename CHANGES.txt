@@ -4,6 +4,7 @@ Revision 4.3.3, work in progress
 
 Github `repo <https://github.com/etingof/pysnmp>`_
 
+- Switched to new-style classes.
 - NotificationType now allows additional var-binds specified as
   MIB objects. A side effect of this change is that additional
   var-binds can only be added prior to .resolveMibObjects() is

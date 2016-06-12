@@ -7,7 +7,7 @@
 from pysnmp.proto import errind, error
 
 
-class AbstractAuthenticationService:
+class AbstractAuthenticationService(object):
     serviceID = None
 
     def hashPassphrase(self, authKey):

@@ -13,7 +13,7 @@ from pysnmp import debug
 
 
 # 3.2
-class CommandResponderBase:
+class CommandResponderBase(object):
     acmID = 3  # default MIB access control method to use
     pduTypes = ()
 

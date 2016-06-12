@@ -8,7 +8,7 @@
 #
 
 
-class Cache:
+class Cache(object):
     def __init__(self, maxSize=256):
         self.__maxSize = maxSize
         self.__size = 0

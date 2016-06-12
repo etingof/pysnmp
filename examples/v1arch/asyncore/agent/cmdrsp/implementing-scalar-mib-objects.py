@@ -26,7 +26,7 @@ from pysnmp.proto import api
 import time, bisect
 
 
-class SysDescr:
+class SysDescr(object):
     name = (1, 3, 6, 1, 2, 1, 1, 1, 0)
 
     def __eq__(self, other): return self.name == other
@@ -47,7 +47,7 @@ class SysDescr:
         )
 
 
-class Uptime:
+class Uptime(object):
     name = (1, 3, 6, 1, 2, 1, 1, 3, 0)
     birthday = time.time()
 

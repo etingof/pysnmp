@@ -7,12 +7,12 @@
 from pysnmp import error
 
 
-class MetaObserver:
+class MetaObserver(object):
     """This is a simple facility for exposing internal SNMP Engine
        working details to pysnmp applications. These details are
        basically local scope variables at a fixed point of execution.
 
-       Two modes of operations are offered:
+       Two modes of operations are offered(object):
        1. App can request an execution point context by execution point ID.
        2. App can register its callback function (and context) to be invoked
           once execution reaches specified point. All local scope variables

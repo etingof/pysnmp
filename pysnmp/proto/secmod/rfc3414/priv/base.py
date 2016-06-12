@@ -7,7 +7,7 @@
 from pysnmp.proto import error
 
 
-class AbstractEncryptionService:
+class AbstractEncryptionService(object):
     serviceID = None
 
     def hashPassphrase(self, authProtocol, privKey):

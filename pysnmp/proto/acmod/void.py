@@ -10,7 +10,7 @@ from pysnmp import debug
 
 # rfc3415 3.2
 # noinspection PyUnusedLocal
-class Vacm:
+class Vacm(object):
     """Void Access Control Model"""
     accessModelID = 0
 

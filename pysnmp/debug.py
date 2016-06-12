@@ -35,7 +35,7 @@ flagMap = {'io': flagIO,
            'all': flagAll}
 
 
-class Printer:
+class Printer(object):
     def __init__(self, logger=None, handler=None, formatter=None):
         if logger is None:
             logger = logging.getLogger('pysnmp')
@@ -65,7 +65,7 @@ else:
             pass
 
 
-class Debug:
+class Debug(object):
     defaultPrinter = None
 
     def __init__(self, *flags, **options):

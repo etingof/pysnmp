@@ -22,7 +22,7 @@ __all__ = ['AsynNotificationOriginator',
 MibVariable = ObjectIdentity
 
 
-class ErrorIndicationReturn:
+class ErrorIndicationReturn(object):
     def __init__(self, *vars):
         self.__vars = vars
 
@@ -39,7 +39,7 @@ class ErrorIndicationReturn:
         return str(self.__vars[0])
 
 
-class AsynNotificationOriginator:
+class AsynNotificationOriginator(object):
     vbProcessor = NotificationOriginatorVarBinds()
     lcd = NotificationOriginatorLcdConfigurator()
 
@@ -137,7 +137,7 @@ class AsynNotificationOriginator:
     asyncSendNotification = sendNotification
 
 
-class NotificationOriginator:
+class NotificationOriginator(object):
     vbProcessor = NotificationOriginatorVarBinds()
 
     def __init__(self, snmpEngine=None, snmpContext=None, asynNtfOrg=None):

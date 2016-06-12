@@ -12,7 +12,7 @@ __powOfTwoSeq = [128, 64, 32, 16, 8, 4, 2, 1]
 
 
 # 3.2
-class Vacm:
+class Vacm(object):
     """View-based Access Control Model"""
     accessModelID = 3
 

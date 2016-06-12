@@ -21,7 +21,7 @@ else:
     instanceTypes = (object,)
 
 
-class MibViewController:
+class MibViewController(object):
     def __init__(self, mibBuilder):
         self.mibBuilder = mibBuilder
         self.lastBuildId = -1

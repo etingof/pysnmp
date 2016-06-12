@@ -23,7 +23,7 @@ from pysnmp import error
 __all__ = ['SnmpEngine']
 
 
-class SnmpEngine:
+class SnmpEngine(object):
     """Creates SNMP engine object.
 
     SNMP engine object is central in SNMP v3 architecture. It is an umbrella

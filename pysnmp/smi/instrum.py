@@ -12,7 +12,7 @@ from pysnmp import debug
 __all__ = ['AbstractMibInstrumController', 'MibInstrumController']
 
 
-class AbstractMibInstrumController:
+class AbstractMibInstrumController(object):
     def readVars(self, varBinds, acInfo=(None, None)):
         raise error.NoSuchInstanceError(idx=0)
 

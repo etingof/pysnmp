@@ -42,7 +42,7 @@ class ExtUTCTime(OctetString):
 
 # MIB tree foundation class
 
-class MibNode:
+class MibNode(object):
     label = ''
 
     def __init__(self, name):

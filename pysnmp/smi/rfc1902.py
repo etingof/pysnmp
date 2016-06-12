@@ -17,7 +17,7 @@ from pysnmp import debug
 __all__ = ['ObjectIdentity', 'ObjectType', 'NotificationType']
 
 
-class ObjectIdentity:
+class ObjectIdentity(object):
     """Create an object representing MIB variable ID.
 
     At the protocol level, MIB variable is only identified by an OID.
@@ -51,7 +51,7 @@ class ObjectIdentity:
     Other parameters
     ----------------
     kwargs
-        MIB resolution options:
+        MIB resolution options(object):
 
         * whenever only MIB name is given, resolve into last variable defined
           in MIB if last=True.  Otherwise resolves to first variable (default).
@@ -635,11 +635,11 @@ class ObjectIdentity:
 
 
 # A two-element sequence of ObjectIdentity and SNMP data type object
-class ObjectType:
+class ObjectType(object):
     """Create an object representing MIB variable.
 
     Instances of :py:class:`~pysnmp.smi.rfc1902.ObjectType` class are
-    containters incorporating :py:class:`~pysnmp.smi.rfc1902.ObjectIdentity`
+    containers incorporating :py:class:`~pysnmp.smi.rfc1902.ObjectIdentity`
     class instance (identifying MIB variable) and optional value belonging
     to one of SNMP types (:RFC:`1902`).
 
@@ -885,11 +885,11 @@ class ObjectType:
             raise SmiError('%s object not fully initialized' % self.__class__.__name__)
 
 
-class NotificationType:
+class NotificationType(object):
     """Create an object representing SNMP Notification.
 
     Instances of :py:class:`~pysnmp.smi.rfc1902.NotificationType` class are
-    containters incorporating :py:class:`~pysnmp.smi.rfc1902.ObjectIdentity`
+    containers incorporating :py:class:`~pysnmp.smi.rfc1902.ObjectIdentity`
     class instance (identifying particular notification) and a collection
     of MIB variables IDs that
     :py:class:`~pysnmp.entity.rfc3413.oneliner.cmdgen.NotificationOriginator`

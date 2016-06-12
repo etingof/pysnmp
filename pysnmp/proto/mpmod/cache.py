@@ -8,7 +8,7 @@ from pysnmp.proto import error
 from pysnmp import nextid
 
 
-class Cache:
+class Cache(object):
     __stateReference = nextid.Integer(0xffffff)
     __msgID = nextid.Integer(0xffffff)
 

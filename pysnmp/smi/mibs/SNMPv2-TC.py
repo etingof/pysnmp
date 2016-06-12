@@ -26,7 +26,7 @@ Counter32, Unsigned32, TimeTicks, Counter64 = mibBuilder.importSymbols(
 )
 
 
-class TextualConvention:
+class TextualConvention(object):
     displayHint = ''
     status = 'current'
     description = ''

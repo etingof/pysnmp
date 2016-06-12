@@ -13,7 +13,7 @@ from pysnmp.error import PySnmpError
 from pysnmp import nextid, debug
 
 
-class MsgAndPduDispatcher:
+class MsgAndPduDispatcher(object):
     """SNMP engine PDU & message dispatcher. Exchanges SNMP PDU's with
        applications and serialized messages with transport level.
     """

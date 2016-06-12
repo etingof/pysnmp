@@ -79,7 +79,7 @@ class Worker(Thread):
                 self.requests.task_done()
 
 
-class ThreadPool:
+class ThreadPool(object):
     def __init__(self, num_threads):
         self.requests = Queue(num_threads)
         self.responses = []
