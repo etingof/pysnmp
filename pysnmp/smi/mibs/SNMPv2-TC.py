@@ -8,6 +8,7 @@ import sys
 from pysnmp.smi.error import *
 from pysnmp import debug
 from pyasn1.compat import octets
+from pyasn1.type.base import Asn1Item
 
 OctetString, Integer, ObjectIdentifier = mibBuilder.importSymbols(
     'ASN1', 'OctetString', 'Integer', 'ObjectIdentifier'
@@ -26,7 +27,8 @@ Counter32, Unsigned32, TimeTicks, Counter64 = mibBuilder.importSymbols(
 )
 
 
-class TextualConvention(object):
+# XXX keep this old-style class till pyasn1 types becomes new-style
+class TextualConvention:
     displayHint = ''
     status = 'current'
     description = ''
@@ -215,12 +217,12 @@ class MacAddress(TextualConvention, OctetString):
     fixedLength = 6
 
 
-class TruthValue(Integer, TextualConvention):
+class TruthValue(TextualConvention, Integer):
     subtypeSpec = Integer.subtypeSpec + SingleValueConstraint(1, 2)
     namedValues = NamedValues(('true', 1), ('false', 2))
 
 
-class TestAndIncr(Integer, TextualConvention):
+class TestAndIncr(TextualConvention, Integer):
     subtypeSpec = Integer.subtypeSpec + ValueRangeConstraint(0, 2147483647)
     defaultValue = 0
 
@@ -234,23 +236,23 @@ class TestAndIncr(Integer, TextualConvention):
         return self.clone(self, value)
 
 
-class AutonomousType(ObjectIdentifier, TextualConvention):
+class AutonomousType(TextualConvention, ObjectIdentifier):
     pass
 
 
-class InstancePointer(ObjectIdentifier, TextualConvention):
+class InstancePointer(TextualConvention, ObjectIdentifier):
     status = 'obsolete'
 
 
-class VariablePointer(ObjectIdentifier, TextualConvention):
+class VariablePointer(TextualConvention, ObjectIdentifier):
     pass
 
 
-class RowPointer(ObjectIdentifier, TextualConvention):
+class RowPointer(TextualConvention, ObjectIdentifier):
     pass
 
 
-class RowStatus(Integer, TextualConvention):
+class RowStatus(TextualConvention, Integer):
     """A special kind of scalar MIB variable responsible for
        MIB table row creation/destruction.
     """
@@ -321,11 +323,11 @@ class RowStatus(Integer, TextualConvention):
         return newState
 
 
-class TimeStamp(TimeTicks, TextualConvention):
+class TimeStamp(TextualConvention, TimeTicks):
     pass
 
 
-class TimeInterval(Integer, TextualConvention):
+class TimeInterval(TextualConvention, Integer):
     subtypeSpec = Integer.subtypeSpec + ValueRangeConstraint(0, 2147483647)
 
 
@@ -334,7 +336,7 @@ class DateAndTime(TextualConvention, OctetString):
     displayHint = "2d-1d-1d,1d:1d:1d.1d,1a1d:1d"
 
 
-class StorageType(Integer, TextualConvention):
+class StorageType(TextualConvention, Integer):
     subtypeSpec = Integer.subtypeSpec + SingleValueConstraint(1, 2, 3, 4, 5)
     namedValues = NamedValues(
         ('other', 1), ('volatile', 2), ('nonVolatile', 3),
@@ -342,11 +344,11 @@ class StorageType(Integer, TextualConvention):
     )
 
 
-class TDomain(ObjectIdentifier, TextualConvention):
+class TDomain(TextualConvention, ObjectIdentifier):
     pass
 
 
-class TAddress(OctetString, TextualConvention):
+class TAddress(TextualConvention, OctetString):
     subtypeSpec = OctetString.subtypeSpec + ValueSizeConstraint(1, 255)
 
 
