@@ -72,13 +72,17 @@ class __AbstractMibSource(object):
         return self._listdir()
 
     def read(self, f):
+        pycTime = pyTime = -1
+
         for pycSfx, pycSfxLen, pycMode in self.__sfx[imp.PY_COMPILED]:
             try:
                 pycData = self._getData(f + pycSfx, pycMode)
             except IOError:
                 why = sys.exc_info()[1]
-                if why.errno == ENOENT or ENOENT == -1:
-                    pycTime = -1
+                if ENOENT == -1 or why.errno == ENOENT:
+                    debug.logger & debug.flagBld and debug.logger(
+                        'file %s access error: %s' % (f + pycSfx, why)
+                    )
                 else:
                     raise error.MibLoadError('MIB file %s access error: %s' % (f + pycSfx, why))
             else:
@@ -86,34 +90,31 @@ class __AbstractMibSource(object):
                     pycData = pycData[4:]
                     pycTime = struct.unpack('<L', pycData[:4])[0]
                     pycData = pycData[4:]
+                    debug.logger & debug.flagBld and debug.logger(
+                        'file %s mtime %d' % (f + pycSfx, pycTime)
+                    )
                     break
                 else:
                     debug.logger & debug.flagBld and debug.logger(
                         'bad magic in %s' % (f + pycSfx,)
                     )
-                    pycTime = -1
-
-        # noinspection PyUnboundLocalVariable
-        debug.logger & debug.flagBld and debug.logger(
-            'file %s mtime %d' % (f + pycSfx, pycTime)
-        )
 
         for pySfx, pySfxLen, pyMode in self.__sfx[imp.PY_SOURCE]:
             try:
                 pyTime = self._getTimestamp(f + pySfx)
             except IOError:
                 why = sys.exc_info()[1]
-                if why.errno == ENOENT or ENOENT == -1:
-                    pyTime = -1
+                if ENOENT == -1 or why.errno == ENOENT:
+                    debug.logger & debug.flagBld and debug.logger(
+                        'file %s access error: %s' % (f + pySfx, why)
+                    )
                 else:
                     raise error.MibLoadError('MIB file %s access error: %s' % (f + pySfx, why))
             else:
+                debug.logger & debug.flagBld and debug.logger(
+                    'file %s mtime %d' % (f + pySfx, pyTime)
+                )
                 break
-
-        # noinspection PyUnboundLocalVariable
-        debug.logger & debug.flagBld and debug.logger(
-            'file %s mtime %d' % (f + pySfx, pyTime)
-        )
 
         if pycTime != -1 and pycTime >= pyTime:
             # noinspection PyUnboundLocalVariable
