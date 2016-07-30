@@ -83,7 +83,7 @@ class Aes(base.AbstractEncryptionService):
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
             )
-        return localPrivKey[:16]
+        return localPrivKey[:self.keySize]
 
     # 3.2.4.1
     def encryptData(self, encryptKey, privParameters, dataToEncrypt):

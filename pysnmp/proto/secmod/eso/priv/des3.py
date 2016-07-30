@@ -51,21 +51,22 @@ class Des3(base.AbstractEncryptionService):
                 'Unknown auth protocol %s' % (authProtocol,)
             )
 
+    # 2.1
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
         if authProtocol == hmacmd5.HmacMd5.serviceID:
             localPrivKey = localkey.localizeKeyMD5(privKey, snmpEngineID)
-            while ceil(self.keySize // len(localPrivKey)):
+            for count in range(1, int(ceil(self.keySize * 1.0 / len(localPrivKey)))):
                 # noinspection PyDeprecation,PyCallingNonCallable
-                localPrivKey = localPrivKey + md5(localPrivKey).digest()
+                localPrivKey += localkey.localizeKeyMD5(localPrivKey, snmpEngineID)
         elif authProtocol == hmacsha.HmacSha.serviceID:
             localPrivKey = localkey.localizeKeySHA(privKey, snmpEngineID)
-            while ceil(self.keySize // len(localPrivKey)):
-                localPrivKey = localPrivKey + sha1(localPrivKey).digest()
+            for count in range(1, int(ceil(self.keySize * 1.0 / len(localPrivKey)))):
+                localPrivKey += localkey.localizeKeySHA(localPrivKey, snmpEngineID)
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
             )
-        return localPrivKey[:self.keySize]  # key+IV
+        return localPrivKey[:self.keySize]
 
     # 5.1.1.1
     def __getEncryptionKey(self, privKey, snmpEngineBoots):

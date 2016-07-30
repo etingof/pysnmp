@@ -24,6 +24,8 @@ random.seed()
 
 class Des(base.AbstractEncryptionService):
     serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 2)  # usmDESPrivProtocol
+    keySize = 16
+
     if version_info < (2, 3):
         _localInt = int(random.random() * 0xffffffff)
     else:
@@ -48,7 +50,7 @@ class Des(base.AbstractEncryptionService):
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
             )
-        return localPrivKey[:32]  # key+IV
+        return localPrivKey[:self.keySize]
 
     # 8.1.1.1
     def __getEncryptionKey(self, privKey, snmpEngineBoots):

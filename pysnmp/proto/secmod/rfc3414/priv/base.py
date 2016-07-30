@@ -9,6 +9,7 @@ from pysnmp.proto import error
 
 class AbstractEncryptionService(object):
     serviceID = None
+    keySize = 0
 
     def hashPassphrase(self, authProtocol, privKey):
         raise error.ProtocolError('no encryption')

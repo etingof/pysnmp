@@ -28,13 +28,14 @@ class AbstractAes(aes.Aes):
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
         if authProtocol == hmacmd5.HmacMd5.serviceID:
             localPrivKey = localkey.localizeKeyMD5(privKey, snmpEngineID)
-            while ceil(self.keySize // len(localPrivKey)):
+            for count in range(1, int(ceil(self.keySize * 1.0 / len(localPrivKey)))):
                 # noinspection PyDeprecation,PyCallingNonCallable
-                localPrivKey = localPrivKey + md5(localPrivKey).digest()
+                localPrivKey += md5(localPrivKey).digest()
         elif authProtocol == hmacsha.HmacSha.serviceID:
             localPrivKey = localkey.localizeKeySHA(privKey, snmpEngineID)
-            while ceil(self.keySize // len(localPrivKey)):
-                localPrivKey = localPrivKey + sha1(localPrivKey).digest()
+            # RFC mentions this algo generates 480bit key, but only up to 256 bits are used
+            for count in range(1, int(ceil(self.keySize * 1.0 / len(localPrivKey)))):
+                localPrivKey += sha1(localPrivKey).digest()
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
