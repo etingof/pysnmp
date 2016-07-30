@@ -8,7 +8,7 @@ Act as a local SNMPv2c Agent, relay messages to distant SNMPv1 Agent:
 * with local SNMPv2c community public
 * local Agent listening at 127.0.0.1:161
 * remote SNMPv1, community public
-* remote Agent listening at 195.218.195.228:161
+* remote Agent listening at 104.236.166.95:161
 
 This script can be queried with the following Net-SNMP command:
 
@@ -16,7 +16,7 @@ This script can be queried with the following Net-SNMP command:
 
 due to proxy, it is equivalent to
 
-| $ snmpwalk -v1 -c public 195.218.195.228:161 system
+| $ snmpwalk -v1 -c public 104.236.166.95:161 system
 
 Warning: for production operation you would need to modify this script
 so that it will re-map possible duplicate request-ID values, coming in
@@ -80,7 +80,7 @@ config.addTargetParams(snmpEngine, 'distant-agent-auth', 'distant-area',
 
 config.addTargetAddr(
     snmpEngine, 'distant-agent',
-    udp.domainName + (2,), ('195.218.195.228', 161),
+    udp.domainName + (2,), ('104.236.166.95', 161),
     'distant-agent-auth', retryCount=0, tagList='distant'
 )
 

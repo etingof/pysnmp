@@ -9,7 +9,7 @@ following options:
 * with community name 'public'
 * over IPv4/UDP
 * send TRAP notification
-* to multiple Managers at 195.218.195.228:162, 195.218.195.228:162
+* to multiple Managers at 104.236.166.95:162, 104.236.166.95:162
 * with TRAP ID 'coldStart' specified as an OID
 * include managed objects information:
   1.3.6.1.2.1.1.1.0 = 'Example Notificator'
@@ -17,9 +17,9 @@ following options:
 
 Functionally similar to:
 
-| $ snmptrap -v2c -c public 195.218.195.228 0 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.1.0 s 'Example notification' 1.3.6.1.2.1.1.5.0 s 'Notificator Example'
-| $ snmptrap -v2c -c public 195.218.195.228 0 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.1.0 s 'Example notification' 1.3.6.1.2.1.1.5.0 s 'Notificator Example'
-| $ snmptrap -v2c -c public 195.218.195.228 0 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.1.0 s 'Example notification' 1.3.6.1.2.1.1.5.0 s 'Notificator Example'
+| $ snmptrap -v2c -c public 104.236.166.95 0 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.1.0 s 'Example notification' 1.3.6.1.2.1.1.5.0 s 'Notificator Example'
+| $ snmptrap -v2c -c public 104.236.166.95 0 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.1.0 s 'Example notification' 1.3.6.1.2.1.1.5.0 s 'Notificator Example'
+| $ snmptrap -v2c -c public 104.236.166.95 0 1.3.6.1.6.3.1.1.5.1 1.3.6.1.2.1.1.1.0 s 'Example notification' 1.3.6.1.2.1.1.5.0 s 'Notificator Example'
 
 """#
 from pysnmp.entity import engine, config
@@ -46,21 +46,21 @@ config.addTransport(
 # First target
 config.addTargetAddr(
     snmpEngine, 'my-nms-1',
-    udp.domainName, ('195.218.195.228', 162),
+    udp.domainName, ('104.236.166.95', 162),
     'my-creds',
     tagList='all-my-managers'
 )
 # Second target
 config.addTargetAddr(
     snmpEngine, 'my-nms-2',
-    udp.domainName, ('195.218.195.228', 162),
+    udp.domainName, ('104.236.166.95', 162),
     'my-creds',
     tagList='all-my-managers'
 )
 # Third target
 config.addTargetAddr(
     snmpEngine, 'my-nms-3',
-    udp.domainName, ('195.218.195.228', 162),
+    udp.domainName, ('104.236.166.95', 162),
     'my-creds',
     tagList='all-my-managers'
 )

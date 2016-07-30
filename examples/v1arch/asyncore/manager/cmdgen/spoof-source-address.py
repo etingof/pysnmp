@@ -6,13 +6,13 @@ Send SNMP GET request from a non-local IP address:
 
 * with SNMPv2c, community 'public'
 * over IPv4/UDP
-* to an Agent at 195.218.195.228:161
+* to an Agent at 104.236.166.95:161
 * from a non-local, spoofed IP 1.2.3.4 (root and Python 3.3+ required)
 * for OIDs in string form
 
 This script performs similar to the following Net-SNMP command:
 
-| $ snmpget -v2c -c public -ObentU 195.218.195.228 1.3.6.1.2.1.1.1.0 1.3.6.1.2.1.1.3.0
+| $ snmpget -v2c -c public -ObentU 104.236.166.95 1.3.6.1.2.1.1.1.0 1.3.6.1.2.1.1.3.0
 
 But unlike the above command, this script issues SNMP request from a 
 non-default, non-local IP address.
@@ -35,7 +35,7 @@ from pyasn1.codec.ber import encoder, decoder
 from time import time
 
 # Send request message to this address
-transportAddress = udp.UdpTransportAddress(('195.218.195.228', 161))
+transportAddress = udp.UdpTransportAddress(('104.236.166.95', 161))
 
 # Send request message from this non-local (!) IP address
 transportAddress.setLocalAddress(('1.2.3.4', 0))

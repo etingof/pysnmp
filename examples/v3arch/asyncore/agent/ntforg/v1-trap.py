@@ -7,18 +7,18 @@ Send SNMP notification using the following options:
 * SNMPv1
 * with community name 'public'
 * over IPv4/UDP
-* to a Manager at 195.218.195.228:162
+* to a Manager at 104.236.166.95:162
 * send TRAP notification
 * with TRAP ID 'coldStart' specified as an OID
 * include managed objects information:
 * overriding Uptime value with 12345
-* overriding Agent Address with '195.218.195.228'
+* overriding Agent Address with '104.236.166.95'
 * overriding Enterprise OID with 1.3.6.1.4.1.20408.4.1.1.2
 * include managed object information '1.3.6.1.2.1.1.1.0' = 'my system'
 
 Functionally similar to:
 
-| $ snmptrap -v1 -c public demo.snmplabs.com 1.3.6.1.4.1.20408.4.1.1.2 195.218.195.228 6 432 12345 1.3.6.1.2.1.1.1.0 s "my system"
+| $ snmptrap -v1 -c public demo.snmplabs.com 1.3.6.1.4.1.20408.4.1.1.2 104.236.166.95 6 432 12345 1.3.6.1.2.1.1.1.0 s "my system"
 
 """#
 from pysnmp.entity import engine, config
@@ -44,7 +44,7 @@ config.addTransport(
 )
 config.addTargetAddr(
     snmpEngine, 'my-nms',
-    udp.domainName, ('195.218.195.228', 162),
+    udp.domainName, ('104.236.166.95', 162),
     'my-creds',
     tagList='all-my-managers'
 )

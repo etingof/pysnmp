@@ -6,12 +6,12 @@ Perform SNMP SET operation with the following options:
 
 * with SNMPv2c, community 'public'
 * over IPv4/UDP
-* to an Agent at 195.218.195.228:161
+* to an Agent at demo.snmplabs.com:161
 * for OIDs in string form and values in form of pyasn1 objects
 
 This script performs similar to the following Net-SNMP command:
 
-| $ snmpset -v2c -c public -ObentU 195.218.195.228 1.3.6.1.2.1.1.9.1.3.1 s 'New description' 1.3.6.1.2.1.1.9.1.4.1 t 12
+| $ snmpset -v2c -c public -ObentU demo.snmplabs.com 1.3.6.1.2.1.1.9.1.3.1 s 'New description' 1.3.6.1.2.1.1.9.1.4.1 t 12
 
 """#
 from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher

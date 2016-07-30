@@ -15,6 +15,7 @@ Github `repo <https://github.com/etingof/pysnmp>`_
 - Fix to Pythonized MIBs loading when only .pyc files are
   present (e.g. py2exe/cx_freeze environments).
 - Fix to key localization for 3DES-based encryption.
+- Updated IP address for demo.snmplabs.com in examples.
 
 Revision 4.3.2, released 2016-02-12
 -----------------------------------

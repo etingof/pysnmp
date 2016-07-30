@@ -6,7 +6,7 @@ Send SNMP GET request with the following options:
 
 * with SNMPv3 with user 'usr-sha-aes', SHA auth and AES128 privacy protocols
 * over IPv4/UDP
-* to an Agent at 195.218.195.228:161
+* to an Agent at 104.236.166.95:161
 * for an OID in tuple form
 * also registers its own execution observer to snmpEngine
 
@@ -15,7 +15,7 @@ as seen by rfc3412.sendPdu() and rfc3412.receiveMessage() abstract interfaces.
 
 This script performs similar to the following Net-SNMP command:
 
-| $ snmpget -v3 -l authPriv -u usr-sha-aes -a SHA -A authkey1 -x AES -X privkey1 -ObentU 195.218.195.228:161  1.3.6.1.2.1.1.1.0
+| $ snmpget -v3 -l authPriv -u usr-sha-aes -a SHA -A authkey1 -x AES -X privkey1 -ObentU 104.236.166.95:161  1.3.6.1.2.1.1.1.0
 
 """#
 from pysnmp.entity import engine, config
@@ -74,7 +74,7 @@ config.addTransport(
 )
 config.addTargetAddr(
     snmpEngine, 'my-router',
-    udp.domainName, ('195.218.195.228', 161),
+    udp.domainName, ('104.236.166.95', 161),
     'my-creds'
 )
 

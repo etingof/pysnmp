@@ -9,7 +9,7 @@ following options:
 * with community name 'public'
 * over IPv4/UDP and IPv6/UDP
 * send TRAP notification
-* to a Manager at 195.218.195.228:162 and [::1]
+* to a Manager at demo.snmplabs.com:162 and [::1]
 * with TRAP ID 'coldStart' specified as an OID
 * include managed objects information:
 * with default Uptime value

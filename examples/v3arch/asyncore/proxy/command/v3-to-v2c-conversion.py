@@ -7,7 +7,7 @@ Act as a local SNMPv3 Agent, relay messages to distant SNMPv1/v2c Agent:
 * with local SNMPv3 user usr-md5-des, MD5 auth and DES privacy protocols
 * local Agent listening at 127.0.0.1:161
 * remote SNMPv1, community public
-* remote Agent listening at 195.218.195.228:161
+* remote Agent listening at 104.236.166.95:161
 
 This script can be queried with the following Net-SNMP command:
 
@@ -15,7 +15,7 @@ This script can be queried with the following Net-SNMP command:
 
 due to proxy, it is equivalent to
 
-| $ snmpget -v2c -c public 195.218.195.228:161 1.3.6.1.2.1.1.1.0
+| $ snmpget -v2c -c public 104.236.166.95:161 1.3.6.1.2.1.1.1.0
 
 Warning: for production operation you would need to modify this script
 so that it will re-map possible duplicate request-ID values, coming in
@@ -83,7 +83,7 @@ config.addTargetParams(snmpEngine, 'distant-agent-auth', 'my-area',
 
 config.addTargetAddr(
     snmpEngine, 'distant-agent',
-    udp.domainName + (2,), ('195.218.195.228', 161),
+    udp.domainName + (2,), ('104.236.166.95', 161),
     'distant-agent-auth', retryCount=0
 )
 

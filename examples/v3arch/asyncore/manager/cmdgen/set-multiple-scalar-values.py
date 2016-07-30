@@ -6,12 +6,12 @@ Send SNMP SET request with the following options:
 
 * with SNMPv1 with community name 'private'
 * over IPv4/UDP
-* to an Agent at 195.218.195.228:161
+* to an Agent at 104.236.166.95:161
 * for OIDs in tuple form and an integer and string-typed values
 
 This script performs similar to the following Net-SNMP command:
 
-| $ snmpset -v1 -c private -ObentU 195.218.195.228:161 1.3.6.1.2.1.1.9.1.3.1 s 'my value'  1.3.6.1.2.1.1.9.1.4.1 t 123 
+| $ snmpset -v1 -c private -ObentU 104.236.166.95:161 1.3.6.1.2.1.1.9.1.3.1 s 'my value'  1.3.6.1.2.1.1.9.1.4.1 t 123 
 
 """#
 from pysnmp.entity import engine, config
@@ -45,7 +45,7 @@ config.addTransport(
 )
 config.addTargetAddr(
     snmpEngine, 'my-router',
-    udp.domainName, ('195.218.195.228', 161),
+    udp.domainName, ('104.236.166.95', 161),
     'my-creds'
 )
 

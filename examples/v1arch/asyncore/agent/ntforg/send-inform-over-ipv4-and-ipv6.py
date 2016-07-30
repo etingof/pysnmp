@@ -8,7 +8,7 @@ The following script sends SNMP INFORM notification using the following options:
 * with community name 'public'
 * over IPv4/UDP and IPv6/UDP
 * send INFORM notification
-* to a Manager at 195.218.195.228:162 and [::1]:162
+* to a Manager at demo.snmplabs.com:162 and [::1]:162
 * with TRAP ID 'coldStart' specified as an OID
 
 The following Net-SNMP command will produce similar SNMP notification:

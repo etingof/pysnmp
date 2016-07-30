@@ -6,12 +6,12 @@ Perform SNMP GETNEXT operation with the following options:
 
 * with SNMPv1, community 'public'
 * over IPv4/UDP
-* to an Agent at 195.218.195.228:161
+* to an Agent at demo.snmplabs.com:161
 * for OID in tuple form
 
 This script performs similar to the following Net-SNMP command:
 
-| $ snmpwalk -v1 -c public -ObentU 195.218.195.228 1.3.6
+| $ snmpwalk -v1 -c public -ObentU demo.snmplabs.com 1.3.6
 
 """#
 from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher

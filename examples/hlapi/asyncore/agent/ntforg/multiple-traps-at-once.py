@@ -13,7 +13,7 @@ wait for responses asynchronously:
 * with TRAP ID 'coldStart' specified as a MIB symbol
 * include managed object information specified as var-bind objects pair
 
-| $ snmptrap -v1 -c public demo.snmplabs.com 1.3.6.1.4.1.20408.4.1.1.2 195.218.195.228 6 432 12345 1.3.6.1.2.1.1.1.0 s "my system"
+| $ snmptrap -v1 -c public demo.snmplabs.com 1.3.6.1.4.1.20408.4.1.1.2 demo.snmplabs.com 6 432 12345 1.3.6.1.2.1.1.1.0 s "my system"
 | $ snmptrap -v2c -c public demo.snmplabs.com 123 1.3.6.1.6.3.1.1.5.1
 
 """#
