@@ -8,6 +8,7 @@ import random
 from pysnmp.proto.secmod.rfc3414.priv import base
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
 from pysnmp.proto.secmod.rfc3414 import localkey
+from pysnmp.proto.secmod.rfc3414.localkey import hashPassphraseMD5,localizeKeyMD5,hashPassphraseSHA,localizeKeySHA
 from pysnmp.proto import errind, error
 from pyasn1.type import univ
 from pyasn1.compat.octets import null
@@ -51,17 +52,19 @@ class Des3(base.AbstractEncryptionService):
                 'Unknown auth protocol %s' % (authProtocol,)
             )
 
-    # 2.1
+    #key localization as per https://tools.ietf.org/html/draft-reeder-snmpv3-usm-3desede-00
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
         if authProtocol == hmacmd5.HmacMd5.serviceID:
             localPrivKey = localkey.localizeKeyMD5(privKey, snmpEngineID)
-            for count in range(1, int(ceil(self.keySize * 1.0 / len(localPrivKey)))):
-                # noinspection PyDeprecation,PyCallingNonCallable
-                localPrivKey += localkey.localizeKeyMD5(localPrivKey, snmpEngineID)
+            #now extend this key if too short by repeating steps that includes the hashPassphrase step
+            while (len(localPrivKey) < self.keySize):
+                newKey = hashPassphraseMD5(localPrivKey)
+                localPrivKey = localPrivKey + localizeKeyMD5(newKey, snmpEngineID)
         elif authProtocol == hmacsha.HmacSha.serviceID:
             localPrivKey = localkey.localizeKeySHA(privKey, snmpEngineID)
-            for count in range(1, int(ceil(self.keySize * 1.0 / len(localPrivKey)))):
-                localPrivKey += localkey.localizeKeySHA(localPrivKey, snmpEngineID)
+            while (len(localPrivKey) < self.keySize):
+                newKey = hashPassphraseSHA(localPrivKey)
+                localPrivKey = localPrivKey + localizeKeySHA(newKey, snmpEngineID)
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
@@ -120,15 +123,7 @@ class Des3(base.AbstractEncryptionService):
         privParameters = univ.OctetString(salt)
 
         plaintext = dataToEncrypt + univ.OctetString((0,) * (8 - len(dataToEncrypt) % 8)).asOctets()
-        cipherblock = iv
-        ciphertext = null
-        while plaintext:
-            cipherblock = des3Obj.encrypt(
-                univ.OctetString(map(lambda x, y: x ^ y, univ.OctetString(cipherblock).asNumbers(),
-                                     univ.OctetString(plaintext[:8]).asNumbers())).asOctets()
-            )
-            ciphertext = ciphertext + cipherblock
-            plaintext = plaintext[8:]
+        ciphertext = des3Obj.encrypt(plaintext)
 
         return univ.OctetString(ciphertext), privParameters
 
@@ -156,12 +151,6 @@ class Des3(base.AbstractEncryptionService):
 
         plaintext = null
         ciphertext = encryptedData.asOctets()
-        cipherblock = iv
-        while ciphertext:
-            plaintext = plaintext + univ.OctetString(map(lambda x, y: x ^ y, univ.OctetString(cipherblock).asNumbers(),
-                                                         univ.OctetString(
-                                                             des3Obj.decrypt(ciphertext[:8])).asNumbers())).asOctets()
-            cipherblock = ciphertext[:8]
-            ciphertext = ciphertext[8:]
+        plaintext = des3Obj.decrypt(ciphertext)
 
         return plaintext
