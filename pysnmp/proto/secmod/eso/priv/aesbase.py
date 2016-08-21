@@ -20,7 +20,7 @@ except ImportError:
     sha1 = sha.new
 
 
-class AbstractAes(aes.Aes):
+class AbstractAesBlumenthal(aes.Aes):
     serviceID = ()
     keySize = 0
 
@@ -43,10 +43,10 @@ class AbstractAes(aes.Aes):
         return localPrivKey[:self.keySize]
 
 
-class AbstractAesReeder(AbstractAes):
+class AbstractAesReeder(aes.Aes):
     """AES encryption with non-standard key localization.
 
-    Cisco devices do not use:
+    Many vendors (including Cisco) do not use:
 
     https://tools.itef.org/pdf/draft_bluementhal-aes-usm-04.txt
 
@@ -58,6 +58,8 @@ class AbstractAesReeder(AbstractAes):
     The difference between the two is that the Reeder draft does key extension by repeating
     the steps in the password to key algorithm (hash phrase, then localize with SNMPEngine ID).
     """
+    serviceID = ()
+    keySize = 0
 
     # 2.1 of https://tools.itef.org/pdf/draft_bluementhal-aes-usm-04.txt
     def localizeKey(self, authProtocol, privKey, snmpEngineID):

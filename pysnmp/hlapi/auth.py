@@ -11,6 +11,7 @@ from pyasn1.compat.octets import null
 __all__ = ['CommunityData', 'UsmUserData',
            'usm3DESEDEPrivProtocol', 'usmAesCfb128Protocol',
            'usmAesCfb192Protocol', 'usmAesCfb256Protocol',
+           'usmAesBlumenthalCfb192Protocol', 'usmAesBlumenthalCfb256Protocol',
            'usmDESPrivProtocol', 'usmHMACMD5AuthProtocol',
            'usmHMACSHAAuthProtocol', 'usmNoAuthProtocol',
            'usmNoPrivProtocol']
@@ -137,10 +138,14 @@ usmDESPrivProtocol = config.usmDESPrivProtocol
 usm3DESEDEPrivProtocol = config.usm3DESEDEPrivProtocol
 #: The CFB128-AES-128 Symmetric Encryption Protocol (:RFC:`3826#section-3`)
 usmAesCfb128Protocol = config.usmAesCfb128Protocol
-#: The CFB128-AES-192 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)
+#: The CFB128-AES-192 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_) with Reeder key localization
 usmAesCfb192Protocol = config.usmAesCfb192Protocol
-#: The CFB128-AES-256 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)
+#: The CFB128-AES-256 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_) with Reeder key localization
 usmAesCfb256Protocol = config.usmAesCfb256Protocol
+#: The CFB128-AES-192 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)
+usmAesBlumenthalCfb192Protocol = config.usmAesBlumenthalCfb192Protocol
+#: The CFB128-AES-256 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)
+usmAesBlumenthalCfb256Protocol = config.usmAesBlumenthalCfb256Protocol
 
 
 class UsmUserData(object):

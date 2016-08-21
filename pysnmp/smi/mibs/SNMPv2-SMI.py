@@ -577,7 +577,7 @@ class MibScalar(MibTree):
 
     def readGetNext(self, name, val, idx, acInfo, oName=None):
         (acFun, acCtx) = acInfo
-        # have to dublicate AC here as *Next code above treats
+        # have to duplicate AC here as *Next code above treats
         # noAccess as a noSuchObject at the Test stage, goes on
         # to Reading
         if acFun:

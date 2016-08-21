@@ -222,6 +222,8 @@ via constant OIDs:
 .. autodata:: pysnmp.hlapi.usmAesCfb128Protocol
 .. autodata:: pysnmp.hlapi.usmAesCfb192Protocol
 .. autodata:: pysnmp.hlapi.usmAesCfb256Protocol
+.. autodata:: pysnmp.hlapi.usmAesBlumenthalCfb192Protocol
+.. autodata:: pysnmp.hlapi.usmAesBlumenthalCfb256Protocol
 
 Transport configuration is I/O framework specific and is described in
 respective sections.

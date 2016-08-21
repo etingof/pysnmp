@@ -5,6 +5,7 @@
 # License: http://pysnmp.sf.net/license.html
 #
 from pysnmp.proto.rfc1902 import *
+from pysnmp.proto.rfc1905 import NoSuchInstance, NoSuchObject, EndOfMibView
 from pysnmp.smi.rfc1902 import *
 from pysnmp.hlapi.auth import *
 from pysnmp.hlapi.context import *

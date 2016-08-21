@@ -7,7 +7,7 @@
 from pysnmp.proto.secmod.eso.priv import aesbase
 
 
-class Aes192(aesbase.AbstractAes):
+class AesBlumenthal192(aesbase.AbstractAesBlumenthal):
     """AES 192 bit encryption (Internet draft)
 
        Reeder AES encryption:
@@ -18,7 +18,7 @@ class Aes192(aesbase.AbstractAes):
     keySize = 24
 
 
-class AesReeder192(aesbase.AbstractAesReeder):
+class Aes192(aesbase.AbstractAesReeder):
     """AES 192 bit encryption (Internet draft)
 
     Reeder AES encryption with non-standard key localization algorithm
@@ -29,5 +29,5 @@ class AesReeder192(aesbase.AbstractAesReeder):
 
     Known to be used by many vendors including Cisco and others.
     """
-    serviceID = (1, 3, 6, 1, 4, 1, 9, 12, 6, 1, 101)  # cusmAESCfb192PrivProtocol (non-standard)
+    serviceID = (1, 3, 6, 1, 4, 1, 9, 12, 6, 1, 101)  # cusmAESCfb192PrivProtocol (non-standard OID)
     keySize = 24

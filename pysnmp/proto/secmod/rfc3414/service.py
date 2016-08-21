@@ -44,10 +44,10 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
     privServices = {des.Des.serviceID: des.Des(),
                     des3.Des3.serviceID: des3.Des3(),
                     aes.Aes.serviceID: aes.Aes(),
-                    aes192.Aes192.serviceID: aes192.Aes192(),
-                    aes256.Aes256.serviceID: aes256.Aes256(),
-                    aes192.AesReeder192.serviceID: aes192.AesReeder192(),  # non-standard
-                    aes256.AesReeder256.serviceID: aes256.AesReeder256(),  # non-standard
+                    aes192.AesBlumenthal192.serviceID: aes192.AesBlumenthal192(),
+                    aes256.AesBlumenthal256.serviceID: aes256.AesBlumenthal256(),
+                    aes192.Aes192.serviceID: aes192.Aes192(),  # non-standard
+                    aes256.Aes256.serviceID: aes256.Aes256(),  # non-standard
                     nopriv.NoPriv.serviceID: nopriv.NoPriv()}
 
     def __init__(self):
