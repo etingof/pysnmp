@@ -9,6 +9,12 @@ Github `repo <https://github.com/etingof/pysnmp>`_
   MIB objects. A side effect of this change is that additional
   var-binds can only be added prior to .resolveMibObjects() is
   run.
+- Non-standard (but apparently used by many vendors) Reeder AES192/256
+  key localization algorithm implemented and set as default for
+  usmAesCfb192Protocol and usmAesCfb256Protocol identifiers.
+  Original and more standard implementation can still be used
+  with the usmAesBlumenthalCfb192Protocol and
+  usmAesBlumenthalCfb192Protocol IDs respectively.
 - Fix to NotificationType to make additional var-binds overriding
   MIB objects implicitly included through NOTIFICATION-TYPE OBJECTS.
 - Fix to SNMP engine boots counter persistence on Python 3.
