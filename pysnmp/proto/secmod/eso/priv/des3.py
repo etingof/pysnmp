@@ -35,7 +35,7 @@ random.seed()
 class Des3(base.AbstractEncryptionService):
     """Reeder 3DES-EDE for USM (Internet draft).
 
-       http://www.snmp.com/eso/draft-reeder-snmpv3-usm-3desede-00.txt
+       https://tools.ietf.org/html/draft-reeder-snmpv3-usm-3desede-00
     """
     serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 3)  # usm3DESEDEPrivProtocol
     keySize = 32
@@ -51,11 +51,11 @@ class Des3(base.AbstractEncryptionService):
                 'Unknown auth protocol %s' % (authProtocol,)
             )
 
-    #key localization as per https://tools.ietf.org/html/draft-reeder-snmpv3-usm-3desede-00
+    # 2.1
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
         if authProtocol == hmacmd5.HmacMd5.serviceID:
             localPrivKey = localkey.localizeKeyMD5(privKey, snmpEngineID)
-            #now extend this key if too short by repeating steps that includes the hashPassphrase step
+            # now extend this key if too short by repeating steps that includes the hashPassphrase step
             while len(localPrivKey) < self.keySize:
                 newKey = localkey.hashPassphraseMD5(localPrivKey)
                 localPrivKey += localkey.localizeKeyMD5(newKey, snmpEngineID)
@@ -148,7 +148,6 @@ class Des3(base.AbstractEncryptionService):
 
         des3Obj = DES3.new(des3Key, DES3.MODE_CBC, iv)
 
-        plaintext = null
         ciphertext = encryptedData.asOctets()
         plaintext = des3Obj.decrypt(ciphertext)
 
