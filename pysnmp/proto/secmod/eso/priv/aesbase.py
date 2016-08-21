@@ -67,13 +67,13 @@ class AbstractAesReeder(aes.Aes):
             localPrivKey = localkey.localizeKeyMD5(privKey, snmpEngineID)
             # now extend this key if too short by repeating steps that includes the hashPassphrase step
             while len(localPrivKey) < self.keySize:
-                newKey = hashPassphraseMD5(localPrivKey)  # this is the difference between reeder and bluementhal
-                localPrivKey += localizeKeyMD5(newKey, snmpEngineID)
+                newKey = localkey.hashPassphraseMD5(localPrivKey)  # this is the difference between reeder and bluementhal
+                localPrivKey += localkey.localizeKeyMD5(newKey, snmpEngineID)
         elif authProtocol == hmacsha.HmacSha.serviceID:
             localPrivKey = localkey.localizeKeySHA(privKey, snmpEngineID)
-            while len(localPrivKey < self.keySize):
-                newKey = hashPassphraseSHA(localPrivKey)
-                localPrivKey += localizeKeySHA(newKey, snmpEngineID)
+            while len(localPrivKey) < self.keySize:
+                newKey = localkey.hashPassphraseSHA(localPrivKey)
+                localPrivKey += localkey.localizeKeySHA(newKey, snmpEngineID)
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
