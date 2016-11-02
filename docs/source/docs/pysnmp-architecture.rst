@@ -66,7 +66,7 @@ PySNMP inner components:
   SNMPv1/v2c-native API (the lowest-level one), these interfaces would
   be invoked directly.
 
-* Message and PDU Dispatcher is the locus of SNMP message processing
+* Message and PDU Dispatcher is the focus of SNMP message processing
   activities. Its main responsibilities include dispatching PDUs from
   SNMP Applications through various subsystems all the way down to
   Transport Dispatcher, and passing SNMP messages coming from network
