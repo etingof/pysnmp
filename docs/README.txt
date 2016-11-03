@@ -2,7 +2,7 @@ You need Sphinx to build this documentation. Or you can read it in ASCII. ;)
 
 Better run:
 
-# pip sphinx
+# pip install sphinx
 
 and once Sphinx is installed on your system, run:
 
