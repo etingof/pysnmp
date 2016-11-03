@@ -45,7 +45,7 @@ corresponding functions.
    ['bulkCmd', 'getCmd', 'nextCmd', 'setCmd']
    >>> getCmd
    <function getCmd at 0x222b330>
-   >>> g = getCmd(
+   >>> g = getCmd()
 
 Choosing SNMP protocol and credentials
 --------------------------------------
