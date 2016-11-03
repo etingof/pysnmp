@@ -252,10 +252,10 @@ Reading scalar value
 We are finally in a position to send SNMP query and hopefully receive
 something meaningful in response.
 
-The distinctive feature of synchronous API is that it is build around
+The distinctive feature of synchronous API is that it is built around
 the idea of Python generator. Any function invocation ends up with a
 generator object. Iteration over the generator object performs actual
-SNMP communication. On each iteration SNMP message gets build and send
+SNMP communication. On each iteration SNMP message gets built and sent
 out, response is awaited, received and parsed.
 
 .. code-block:: python
