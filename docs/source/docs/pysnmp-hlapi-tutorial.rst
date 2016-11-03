@@ -214,7 +214,9 @@ type instances. As a Python object it looks like a tuple of
 
 The trailing zero is an indication of MIB object *instance*. Objects
 described in MIBs are just declarations, they never contain any data.
-Data is stored in MIB object instances that are addressed by appending
+Data is stored in MIB object instances addressed by appending extra
+information (known as *index*) to MIB object identifiers.
+
 For scalar MIB objects index is '0' by convention. The
 *ObjectIdentity* class takes indices as its initializers.
 
