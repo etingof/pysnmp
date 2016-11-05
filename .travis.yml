@@ -13,6 +13,6 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install pysnmp-mibs
-  - python setup.py install
+  - pip install --no-deps .
 script:
   - sh runtests.sh
