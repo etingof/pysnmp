@@ -48,7 +48,7 @@ operational:
 
 Optional, but recommended:
 
-* `PyCrypto <https://pypi.python.org/pypi/pycrypto/>`_,
+* `PyCryptodome <https://pypi.python.org/pypi/pycryptodome/>`_,
   used by SNMPv3 crypto features (Windows users need 
   `precompiled version <http://www.voidspace.org.uk/python/modules.shtml>`_)
 * `PySMI <https://pypi.python.org/pypi/pysmi/>`_ for automatic

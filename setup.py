@@ -62,7 +62,7 @@ try:
         'zip_safe': True
     }
     if sys.platform.lower()[:3] != 'win':
-        params['install_requires'].append('pycrypto>=2.4.1')
+        params['install_requires'].append('pycryptodome')
 
 except ImportError:
     for arg in sys.argv:
@@ -75,7 +75,7 @@ except ImportError:
     if sys.version_info[:2] > (2, 4):
         params['requires'] = ['pyasn1(>=0.1.8)', 'pysmi']
         if sys.platform.lower()[:3] != 'win':
-            params['requires'].append('pycrypto(>=2.4.1)')
+            params['requires'].append('pycryptodome')
 
 if sys.platform.lower()[:3] == 'win':
     try:
