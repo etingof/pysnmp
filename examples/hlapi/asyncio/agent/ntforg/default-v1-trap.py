@@ -27,6 +27,7 @@ from pysnmp.hlapi.asyncio import *
 @asyncio.coroutine
 def run():
     snmpEngine = SnmpEngine()
+
     errorIndication, errorStatus, errorIndex, varBinds = yield from sendNotification(
         snmpEngine,
         CommunityData('public', mpModel=0),
@@ -44,7 +45,7 @@ def run():
     if errorIndication:
         print(errorIndication)
 
-    snmpEngine.transportDispatcher.closeDispatcher()
+    yield from unconfigureNtfOrg(snmpEngine)
 
 
 asyncio.get_event_loop().run_until_complete(run())

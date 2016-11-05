@@ -56,7 +56,12 @@ def sendone(snmpEngine, hostname, notifyType):
 snmpEngine = SnmpEngine()
 
 loop = asyncio.get_event_loop()
+
+# send notifications concurrently
 loop.run_until_complete(
     asyncio.wait([sendone(snmpEngine, 'demo.snmplabs.com', 'trap'),
                   sendone(snmpEngine, 'demo.snmplabs.com', 'inform')])
 )
+
+# this will cancel internal timer
+loop.run_until_complete(unconfigureNtfOrg(snmpEngine))

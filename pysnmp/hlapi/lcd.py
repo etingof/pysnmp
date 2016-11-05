@@ -37,7 +37,8 @@ class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
     def configure(self, snmpEngine, authData, transportTarget, *options):
         cache = self._getCache(snmpEngine)
         if isinstance(authData, CommunityData):
-            if authData.communityIndex not in cache['auth']:
+            authDataKey = authData.communityIndex
+            if authDataKey not in cache['auth']:
                 config.addV1System(
                     snmpEngine,
                     authData.communityIndex,
@@ -66,21 +67,26 @@ class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
         paramsKey = (authData.securityName,
                      authData.securityLevel,
                      authData.mpModel)
+
         if paramsKey in cache['parm']:
             paramsName, useCount = cache['parm'][paramsKey]
-            cache['parm'][paramsKey] = paramsName, useCount + 1
+            useCount.add(authDataKey)
         else:
             paramsName = 'p%s' % self.nextID()
             config.addTargetParams(
                 snmpEngine, paramsName,
                 authData.securityName, authData.securityLevel, authData.mpModel
             )
-            cache['parm'][paramsKey] = paramsName, 1
+            cache['parm'][paramsKey] = paramsName, set([authDataKey])
+
+        transportKey = (paramsName, transportTarget.transportDomain,
+                        transportTarget.transportAddr,
+                        transportTarget.tagList)
 
         if transportTarget.transportDomain in cache['tran']:
             transport, useCount = cache['tran'][transportTarget.transportDomain]
             transportTarget.verifyDispatcherCompatibility(snmpEngine)
-            cache['tran'][transportTarget.transportDomain] = transport, useCount + 1
+            useCount.add(transportKey)
         elif config.getTransport(snmpEngine, transportTarget.transportDomain):
             transportTarget.verifyDispatcherCompatibility(snmpEngine)
         else:
@@ -90,15 +96,10 @@ class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
                 transportTarget.transportDomain,
                 transport
             )
-            cache['tran'][transportTarget.transportDomain] = transport, 1
-
-        transportKey = (paramsName, transportTarget.transportDomain,
-                        transportTarget.transportAddr,
-                        transportTarget.tagList)
+            cache['tran'][transportTarget.transportDomain] = transport, set([transportKey])
 
         if transportKey in cache['addr']:
-            addrName, useCount = cache['addr'][transportKey]
-            cache['addr'][transportKey] = addrName, useCount + 1
+            addrName = cache['addr'][transportKey]
         else:
             addrName = 'a%s' % self.nextID()
             config.addTargetAddr(
@@ -110,7 +111,7 @@ class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
                 transportTarget.retries,
                 transportTarget.tagList
             )
-            cache['addr'][transportKey] = addrName, 1
+            cache['addr'][transportKey] = addrName
 
         return addrName, paramsName
 
@@ -152,12 +153,12 @@ class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
             paramsKey = (authDataX.securityName,
                          authDataX.securityLevel,
                          authDataX.mpModel)
+
             if paramsKey in cache['parm']:
                 paramsName, useCount = cache['parm'][paramsKey]
-                useCount -= 1
-                if useCount:
-                    cache['parm'][paramsKey] = paramsName, useCount
-                else:
+                if authDataKey in useCount:
+                    useCount.remove(authDataKey)
+                if not useCount:
                     del cache['parm'][paramsKey]
                     config.delTargetParams(
                         snmpEngine, paramsName
@@ -169,24 +170,20 @@ class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
             addrKeys = [x for x in cache['addr'] if x[0] == paramsName]
 
             for addrKey in addrKeys:
-                addrName, useCount = cache['addr'][addrKey]
-                useCount -= 1
-                if useCount:
-                    cache['addr'][addrKey] = addrName, useCount
-                else:
-                    config.delTargetAddr(snmpEngine, addrName)
+                addrName = cache['addr'][addrKey]
 
-                    addrNames.add(addrKey)
+                config.delTargetAddr(snmpEngine, addrName)
 
-                    if addrKey[1] in cache['tran']:
-                        transport, useCount = cache['tran'][addrKey[1]]
-                        if useCount > 1:
-                            useCount -= 1
-                            cache['tran'][addrKey[1]] = transport, useCount
-                        else:
-                            config.delTransport(snmpEngine, addrKey[1])
-                            transport.closeTransport()
-                            del cache['tran'][addrKey[1]]
+                addrNames.add(addrKey)
+
+                if addrKey[1] in cache['tran']:
+                    transport, useCount = cache['tran'][addrKey[1]]
+                    if addrKey in useCount:
+                        useCount.remove(addrKey)
+                    if not useCount:
+                        config.delTransport(snmpEngine, addrKey[1])
+                        transport.closeTransport()
+                        del cache['tran'][addrKey[1]]
 
         return addrNames, paramsNames
 

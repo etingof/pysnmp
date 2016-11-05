@@ -58,3 +58,15 @@ Sparse notes on major existing problems/plans
 * add RowStatus checks when reading MIB tables (LCD)
 
 * Disallow empty SET value reaching scalar MIB object
+
+----
+
+- Make pyasn1 classes calling .super() for MI to work
+- Release pyasn1 and make pysnmp dependent on it
+- Make all pysnmp classes new-style
+- Make pysnmp's TextualConvention leading MI
+- Fix pysmi to put TextualConvention at the first position in MI
+- Make SNMP NULL objects singletones
+- Allow MIB resolution to fail gracefully on constraints violation
+- add AES192/256 examples + snmpsim
+- docstrings for USM protocol constants not rendered in sphinx docs

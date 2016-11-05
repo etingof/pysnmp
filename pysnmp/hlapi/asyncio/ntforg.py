@@ -21,10 +21,25 @@ try:
 except ImportError:
     import trollius as asyncio
 
-__all__ = ['sendNotification']
+__all__ = ['sendNotification', 'unconfigureNtfOrg']
 
 vbProcessor = NotificationOriginatorVarBinds()
 lcd = NotificationOriginatorLcdConfigurator()
+
+
+@asyncio.coroutine
+def unconfigureNtfOrg(snmpEngine, authData=None):
+    """Remove LCD configuration entry.
+
+    If `authData` is not given, all currently configured LCD entries will be
+    removed.
+
+    Note
+    ----
+    Configuration entry removal may have a side effect of removing unused transport
+    and shutting down unused transport dispatcher.
+    """
+    lcd.unconfigure(snmpEngine, authData)
 
 
 @asyncio.coroutine

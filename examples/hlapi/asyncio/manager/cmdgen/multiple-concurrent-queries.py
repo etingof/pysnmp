@@ -47,8 +47,13 @@ def getone(snmpEngine, hostname):
 snmpEngine = SnmpEngine()
 
 loop = asyncio.get_event_loop()
+
+# run parallel queries
 loop.run_until_complete(
     asyncio.wait([getone(snmpEngine, ('demo.snmplabs.com', 1161)),
                   getone(snmpEngine, ('demo.snmplabs.com', 2161)),
                   getone(snmpEngine, ('demo.snmplabs.com', 3161))])
 )
+
+# unconfigure SNMP engine
+loop.run_until_complete(unconfigureCmdGen(snmpEngine))

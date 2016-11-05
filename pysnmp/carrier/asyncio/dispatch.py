@@ -51,13 +51,14 @@ class AsyncioDispatcher(AbstractTransportDispatcher):
         self.__transportCount = 0
         if 'timeout' in kwargs:
             self.setTimerResolution(kwargs['timeout'])
-        self.loopingcall = None
+        self._futureTimer = None
 
     @asyncio.coroutine
-    def handle_timeout(self):
-        while True:
-            yield asyncio.From(asyncio.sleep(self.getTimerResolution()))
-            self.handleTimerTick(loop.time())
+    def fireTimer(self):
+        yield asyncio.From(asyncio.sleep(self.getTimerResolution()))
+        self.handleTimerTick(loop.time())
+        if self._futureTimer:
+            self._futureTimer = asyncio.async(self.fireTimer())
 
     def runDispatcher(self, timeout=0.0):
         if not loop.is_running():
@@ -69,8 +70,8 @@ class AsyncioDispatcher(AbstractTransportDispatcher):
                 raise PySnmpError(';'.join(traceback.format_exception(*sys.exc_info())))
 
     def registerTransport(self, tDomain, transport):
-        if self.loopingcall is None and self.getTimerResolution() > 0:
-            self.loopingcall = asyncio.async(self.handle_timeout())
+        if not self._futureTimer and self.getTimerResolution() > 0:
+            self._futureTimer = asyncio.async(self.fireTimer())
         AbstractTransportDispatcher.registerTransport(
             self, tDomain, transport
         )
@@ -83,18 +84,20 @@ class AsyncioDispatcher(AbstractTransportDispatcher):
             self.__transportCount -= 1
 
         # The last transport has been removed, stop the timeout
-        if self.__transportCount == 0 and not self.loopingcall.done():
-            self.loopingcall.cancel()
-            self.loopingcall = None
+        if self.__transportCount == 0:
+            if self._futureTimer:
+                self._futureTimer.cancel()
+                self._futureTimer = None
 
 
 # Trollius or Tulip?
 if not hasattr(asyncio, "From"):
-    exec ("""\
+    exec("""\
 @asyncio.coroutine
-def handle_timeout(self):
-    while True:
-        yield from asyncio.sleep(self.getTimerResolution())
-        self.handleTimerTick(loop.time())
-AsyncioDispatcher.handle_timeout = handle_timeout\
+def fireTimer(self):
+    yield from asyncio.sleep(self.getTimerResolution())
+    self.handleTimerTick(loop.time())
+    if self._futureTimer:
+        self._futureTimer = asyncio.async(self.fireTimer())
+AsyncioDispatcher.fireTimer = fireTimer\
 """)

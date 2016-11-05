@@ -44,12 +44,27 @@ try:
 except ImportError:
     import trollius as asyncio
 
-__all__ = ['getCmd', 'nextCmd', 'setCmd', 'bulkCmd', 'isEndOfMib']
+__all__ = ['getCmd', 'nextCmd', 'setCmd', 'bulkCmd', 'isEndOfMib', 'unconfigureCmdGen']
 
 vbProcessor = CommandGeneratorVarBinds()
 lcd = CommandGeneratorLcdConfigurator()
 
 isEndOfMib = lambda x: not cmdgen.getNextVarBinds(x)[1]
+
+
+@asyncio.coroutine
+def unconfigureCmdGen(snmpEngine, authData=None):
+    """Remove LCD configuration entry.
+
+    If `authData` is not given, all currently configured LCD entries will be
+    removed.
+
+    Note
+    ----
+    Configuration entry removal may have a side effect of removing unused transport
+    and shutting down unused transport dispatcher.
+    """
+    lcd.unconfigure(snmpEngine, authData)
 
 
 @asyncio.coroutine
