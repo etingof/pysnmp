@@ -58,24 +58,21 @@ try:
     from setuptools import setup
 
     params = {
-        'install_requires': ['pyasn1>=0.1.8', 'pysmi'],
+        'install_requires': ['pyasn1>=0.1.8', 'pysmi', 'pycryptodome'],
         'zip_safe': True
     }
-    if sys.platform.lower()[:3] != 'win':
-        params['install_requires'].append('pycryptodome')
 
 except ImportError:
     for arg in sys.argv:
         if 'egg' in arg:
             howto_install_setuptools()
             sys.exit(1)
+
     from distutils.core import setup
 
     params = {}
     if sys.version_info[:2] > (2, 4):
-        params['requires'] = ['pyasn1(>=0.1.8)', 'pysmi']
-        if sys.platform.lower()[:3] != 'win':
-            params['requires'].append('pycryptodome')
+        params['requires'] = ['pyasn1(>=0.1.8)', 'pysmi', 'pycryptodome']
 
 doclines = [x.strip() for x in (__doc__ or '').split('\n') if x]
 
