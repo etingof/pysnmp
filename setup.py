@@ -77,16 +77,6 @@ except ImportError:
         if sys.platform.lower()[:3] != 'win':
             params['requires'].append('pycryptodome')
 
-if sys.platform.lower()[:3] == 'win':
-    try:
-        import Crypto
-    except ImportError:
-        sys.stderr.write("""WARNING! WARNING! WARNING!
-PyCrypto binaries are required for SNMPv3 encryption to work.
-You may wish to grab them from http://www.voidspace.org.uk/python/modules.shtml
-and install into your system.
-""")
-
 doclines = [x.strip() for x in (__doc__ or '').split('\n') if x]
 
 params.update({
