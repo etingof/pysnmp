@@ -58,3 +58,5 @@ Sparse notes on major existing problems/plans
 * add RowStatus checks when reading MIB tables (LCD)
 
 * Disallow empty SET value reaching scalar MIB object
+
+* Figure out why .getUnitis() are not propagated from SNMPv2-SMI::ObjectType to response object

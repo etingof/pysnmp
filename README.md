@@ -1,7 +1,6 @@
 
 SNMP library for Python
 -----------------------
-[![Downloads](https://img.shields.io/pypi/dm/pysnmp.svg)](https://pypi.python.org/pypi/pysnmp)
 [![PyPI](https://img.shields.io/pypi/v/pysnmp.svg?maxAge=2592000)](https://pypi.python.org/pypi/pysnmp)
 [![Python Versions](https://img.shields.io/pypi/pyversions/pysnmp.svg)](https://pypi.python.org/pypi/pysnmp/)
 [![Build status](https://travis-ci.org/etingof/pysnmp.svg?branch=master)](https://secure.travis-ci.org/etingof/pysnmp)
