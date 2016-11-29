@@ -8,4 +8,8 @@ __pycache__
 MANIFEST
 dist/
 build/
-pyasn1.egg-info/
+*.egg-info/
+docs/source/.templates/
+
+# PyCharm stuff
+.idea/
