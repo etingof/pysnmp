@@ -19,14 +19,14 @@
  Bits, Counter32,) = mibBuilder.importSymbols("SNMPv2-SMI", "Integer32", "MibScalar", "MibTable", "MibTableRow",
                                               "MibTableColumn", "mib-2", "IpAddress", "TimeTicks", "iso", "Gauge32",
                                               "MibIdentifier", "Bits", "Counter32")
-(DisplayString,) = mibBuilder.importSymbols("SNMPv2-TC", "DisplayString")
+(DisplayString, PhysAddress) = mibBuilder.importSymbols("SNMPv2-TC", "DisplayString", "PhysAddress")
 at = MibIdentifier((1, 3, 6, 1, 2, 1, 3))
 ip = MibIdentifier((1, 3, 6, 1, 2, 1, 4))
 egp = MibIdentifier((1, 3, 6, 1, 2, 1, 8))
-atTable = MibTable((1, 3, 6, 1, 2, 1, 3, 1)).setMaxAccess("readwrite")
-atEntry = MibTableRow((1, 3, 6, 1, 2, 1, 3, 1, 1)).setMaxAccess("readwrite")
+atTable = MibTable((1, 3, 6, 1, 2, 1, 3, 1))
+atEntry = MibTableRow((1, 3, 6, 1, 2, 1, 3, 1, 1)).setIndexNames((0, "RFC1213-MIB", "atIfIndex"), (0, "RFC1213-MIB", "atNetAddress"))
 atIfIndex = MibTableColumn((1, 3, 6, 1, 2, 1, 3, 1, 1, 1), Integer32()).setMaxAccess("readwrite")
-atPhysAddress = MibTableColumn((1, 3, 6, 1, 2, 1, 3, 1, 1, 2), OctetString()).setMaxAccess("readwrite")
+atPhysAddress = MibTableColumn((1, 3, 6, 1, 2, 1, 3, 1, 1, 2), PhysAddress()).setMaxAccess("readwrite")
 atNetAddress = MibTableColumn((1, 3, 6, 1, 2, 1, 3, 1, 1, 3), IpAddress()).setMaxAccess("readwrite")
 ipRouteTable = MibTable((1, 3, 6, 1, 2, 1, 4, 21))
 ipRouteEntry = MibTableRow((1, 3, 6, 1, 2, 1, 4, 21, 1)).setIndexNames((0, "RFC1213-MIB", "ipRouteDest"))
