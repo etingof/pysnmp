@@ -54,7 +54,10 @@ saves its configuration for the lifetime of SNMP engine object.
    :maxdepth: 2
 
 .. autoclass:: pysnmp.hlapi.UdpTransportTarget
+   :members: setLocalAddress
+
 .. autoclass:: pysnmp.hlapi.Udp6TransportTarget
+   :members: setLocalAddress
 
 Asynchronous: asyncore
 ----------------------
@@ -87,7 +90,10 @@ Transport configuration
    :maxdepth: 2
 
 .. autoclass:: pysnmp.hlapi.asyncore.UdpTransportTarget
+   :members: setLocalAddress
+
 .. autoclass:: pysnmp.hlapi.asyncore.Udp6TransportTarget
+   :members: setLocalAddress
 
 Asynchronous: asyncio
 ---------------------
@@ -121,7 +127,10 @@ Transport configuration
    :maxdepth: 2
 
 .. autoclass:: pysnmp.hlapi.asyncio.UdpTransportTarget
+   :members: setLocalAddress
+
 .. autoclass:: pysnmp.hlapi.asyncio.Udp6TransportTarget
+   :members: setLocalAddress
 
 Asynchronous: trollius
 ----------------------
@@ -166,6 +175,7 @@ Transport configuration
    :maxdepth: 2
 
 .. autoclass:: pysnmp.hlapi.twisted.UdpTransportTarget
+   :members: setLocalAddress
 
 SNMP Engine
 -----------

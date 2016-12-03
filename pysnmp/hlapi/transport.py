@@ -33,6 +33,19 @@ class AbstractTransportTarget(object):
         return self.transportDomain, self.transportAddr
 
     def setLocalAddress(self, iface):
+        """Set source address.
+
+        Parameters
+        ----------
+        iface : tuple
+            Indicates network address of a local interface from which SNMP packets will be originated.
+            Format is the same as of `transportAddress`.
+
+        Returns
+        -------
+            self
+
+        """
         self.iface = iface
         return self
 
