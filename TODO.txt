@@ -60,3 +60,12 @@ Sparse notes on major existing problems/plans
 * Disallow empty SET value reaching scalar MIB object
 
 * Figure out why .getUnitis() are not propagated from SNMPv2-SMI::ObjectType to response object
+
+* Extent pysmi/mibdump tool to produce MIB instances from ASN.1 MIBs
+
+* Write a tool that parses iana-private-enterprise numbers into a pysnmp MIB instance
+
+* Make mibdump producing OID->MIB indices in form of pysnmp MIB instance and JSON
+
+* Write a helper function/module based on pysnmp that reports device details based on SNMP data.
+  In particular: description, vendor ID/name (sysObjectID), implemented MIBs (sysORTable)
