@@ -23,7 +23,7 @@ from pysnmp.hlapi.twisted import *
 
 
 def success(args, hostname):
-    (errorStatus, errorIndex, varBindTable) = args
+    (errorStatus, errorIndex, varBinds) = args
 
     if errorStatus:
         print('%s: %s at %s' % (hostname,

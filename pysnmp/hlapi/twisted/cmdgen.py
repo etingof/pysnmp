@@ -317,7 +317,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     >>> from pysnmp.hlapi.twisted import *
     >>>
     >>> def success(args):
-    ...     (errorStatus, errorIndex, varBinds) = args
+    ...     (errorStatus, errorIndex, varBindTable) = args
     ...     print(errorStatus, errorIndex, varBindTable)
     ...
     >>> def failure(errorIndication):
@@ -443,7 +443,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     >>> from pysnmp.hlapi.twisted import *
     >>>
     >>> def success(args):
-    ...     (errorStatus, errorIndex, varBinds) = args
+    ...     (errorStatus, errorIndex, varBindTable) = args
     ...     print(errorStatus, errorIndex, varBindTable)
     ...
     >>> def failure(errorIndication):
