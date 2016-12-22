@@ -95,7 +95,8 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
     >>> from twisted.internet.task import react
     >>> from pysnmp.hlapi.twisted import *
     >>>
-    >>> def success((errorStatus, errorIndex, varBinds)):
+    >>> def success(args):
+    ...     (errorStatus, errorIndex, varBinds) = args
     ...     print(errorStatus, errorIndex, varBind)
     ...
     >>> def failure(errorIndication):

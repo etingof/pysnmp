@@ -88,7 +88,8 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     >>> from twisted.internet.task import react
     >>> from pysnmp.hlapi.twisted import *
     >>>
-    >>> def success((errorStatus, errorIndex, varBinds)):
+    >>> def success(args):
+    ...     (errorStatus, errorIndex, varBinds) = args
     ...     print(errorStatus, errorIndex, varBind)
     ...
     >>> def failure(errorIndication):
@@ -199,7 +200,8 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     >>> from twisted.internet.task import react
     >>> from pysnmp.hlapi.twisted import *
     >>>
-    >>> def success((errorStatus, errorIndex, varBinds)):
+    >>> def success(args):
+    ...     (errorStatus, errorIndex, varBinds) = args
     ...     print(errorStatus, errorIndex, varBind)
     ...
     >>> def failure(errorIndication):
@@ -314,7 +316,8 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     >>> from twisted.internet.task import react
     >>> from pysnmp.hlapi.twisted import *
     >>>
-    >>> def success((errorStatus, errorIndex, varBindTable)):
+    >>> def success(args):
+    ...     (errorStatus, errorIndex, varBindTable) = args
     ...     print(errorStatus, errorIndex, varBindTable)
     ...
     >>> def failure(errorIndication):
@@ -439,7 +442,8 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     >>> from twisted.internet.task import react
     >>> from pysnmp.hlapi.twisted import *
     >>>
-    >>> def success((errorStatus, errorIndex, varBindTable)):
+    >>> def success(args):
+    ...     (errorStatus, errorIndex, varBindTable) = args
     ...     print(errorStatus, errorIndex, varBindTable)
     ...
     >>> def failure(errorIndication):

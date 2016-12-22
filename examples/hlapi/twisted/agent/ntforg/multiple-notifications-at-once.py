@@ -27,7 +27,9 @@ from twisted.internet.task import react
 from pysnmp.hlapi.twisted import *
 
 
-def success((errorStatus, errorIndex, varBinds), hostname):
+def success(args, hostname):
+    (errorStatus, errorIndex, varBinds) = args
+
     if errorStatus:
         print('%s: %s at %s' % (hostname,
                                 errorStatus.prettyPrint(),
