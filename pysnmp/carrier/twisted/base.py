@@ -21,4 +21,4 @@ class AbstractTwistedTransport(AbstractTransport):
 
     def __init__(self, sock=None, sockMap=None):
         self._writeQ = []
-#        DgramTwistedTransport.__init__(self)
+        AbstractTransport.__init__(self)

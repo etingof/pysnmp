@@ -23,7 +23,8 @@ Github `repo <https://github.com/etingof/pysnmp>`_
   present (e.g. py2exe/cx_freeze environments).
 - Fix broken 3DES key localization and encryption procedures.
 - Updated IP address for demo.snmplabs.com in examples.
-- Missing index added to bundled RFC1213::atEntry MIB table
+- Missing index added to bundled RFC1213::atEntry MIB table.
+- Twisted intergation made Python3 compatible.
 
 Revision 4.3.2, released 2016-02-12
 -----------------------------------
