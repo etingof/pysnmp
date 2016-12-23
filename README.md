@@ -26,7 +26,7 @@ Features
   and [Trollius](http://trollius.readthedocs.org/index.html) integration
 * [PySMI](http://pysmi.sf.net) integration for dynamic MIB compilation
 * Python eggs and py2exe friendly
-* 100% Python, works with Python 2.4 though 3.5
+* 100% Python, works with Python 2.4 though 3.6
 * MT-safe (only if run locally to a thread)
 
 Features, specific to SNMPv3 model include:
