@@ -31,7 +31,6 @@ Programming Language :: Python :: 3.4
 Programming Language :: Python :: 3.5
 Programming Language :: Python :: 3.6
 Topic :: Communications
-Topic :: Software Development :: Libraries :: Python Modules
 Topic :: System :: Monitoring
 Topic :: System :: Networking :: Monitoring
 Topic :: Software Development :: Libraries :: Python Modules

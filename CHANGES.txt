@@ -25,6 +25,7 @@ Github `repo <https://github.com/etingof/pysnmp>`_
 - Updated IP address for demo.snmplabs.com in examples.
 - Missing index added to bundled RFC1213::atEntry MIB table.
 - Twisted intergation made Python3 compatible.
+- Author's email changed, copyright extended to 2017
 
 Revision 4.3.2, released 2016-02-12
 -----------------------------------
