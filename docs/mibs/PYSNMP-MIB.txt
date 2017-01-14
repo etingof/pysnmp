@@ -11,7 +11,7 @@ pysnmp MODULE-IDENTITY
     LAST-UPDATED "200505140000Z"
     ORGANIZATION "pysnmp.sf.net"
     CONTACT-INFO    
-        "email: ilya@glas.net"
+        "email: etingof@gmail.com"
     DESCRIPTION
 	"Top-level infrastructure of the PySNMP project enterprise MIB tree"
     REVISION     "200505140000Z"

@@ -53,8 +53,8 @@ master_doc = 'contents'
 
 # General information about the project.
 project = u'PySNMP'
-copyright = u'2016, Ilya Etingof <ilya@glas.net>'
-author = u'Ilya Etingof <ilya@glas.net>'
+copyright = u'2005-2017, Ilya Etingof <etingof@gmail.com>'
+author = u'Ilya Etingof <etingof@gmail.com>'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -240,7 +240,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   (master_doc, 'PySNMP.tex', u'PySNMP Documentation',
-   u'Ilya Etingof \\textless{}ilya@glas.net\\textgreater{}', 'manual'),
+   u'Ilya Etingof \\textless{}etingof@gmail.com\\textgreater{}', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

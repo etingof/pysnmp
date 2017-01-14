@@ -16,7 +16,7 @@ IMPORTS
 pysnmpUsmMIB MODULE-IDENTITY
     LAST-UPDATED "200505140000Z"          -- 14 May 2005, midnight
     ORGANIZATION "The PySNMP project"
-    CONTACT-INFO "E-mail:     ilya@glas.net
+    CONTACT-INFO "E-mail:     etingof@gmail.com
                   Subscribe:  pysnmp-users-request@lists.sourceforge.net"
         DESCRIPTION
             "This MIB module defines objects specific to User
