@@ -18,6 +18,8 @@ Github `repo <https://github.com/etingof/pysnmp>`_
   usmAesBlumenthalCfb192Protocol IDs respectively.
 - TextualConvention.prettyOut() improved to produce prettier and
   more SMI-compliant output.
+- TextualConvention.prettyIn() implemented to handle DISPLAY-HINT
+  based value parsing.
 - Fix to NotificationType to make additional var-binds overriding
   MIB objects implicitly included through NOTIFICATION-TYPE OBJECTS.
 - Fix to SNMP engine boots counter persistence on Python 3.

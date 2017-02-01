@@ -6,6 +6,7 @@
 #
 import sys
 import inspect
+import string
 from pysnmp.smi.error import *
 from pysnmp import debug
 from pyasn1.compat import octets
@@ -64,126 +65,311 @@ class TextualConvention:
                                  self.__unsigned32.isSuperTypeOf(self) or
                                  self.__timeticks.isSuperTypeOf(self)):
             _ = lambda t, f=0: (t, f)
-            t, f = _(*self.displayHint.split('-'))
-            if t == 'x':
+            displayHintType, decimalPrecision = _(*self.displayHint.split('-'))
+            if displayHintType == 'x':
                 return '0x%x' % value
-            elif t == 'd':
+            elif displayHintType == 'd':
                 try:
-                    return '%.*f' % (int(f), float(value) / pow(10, int(f)))
+                    return '%.*f' % (int(decimalPrecision), float(value) / pow(10, int(decimalPrecision)))
                 except Exception:
                     raise SmiError(
-                        'float num evaluation error: %s' % sys.exc_info()[1]
+                        'float evaluation error: %s' % sys.exc_info()[1]
                     )
-            elif t == 'o':
+            elif displayHintType == 'o':
                 return '0%o' % value
-            elif t == 'b':
-                v = value
-                r = ['B']
-                while v:
-                    r.insert(0, '%d' % (v & 0x01))
-                    v >>= 1
-                return ''.join(r)
+            elif displayHintType == 'b':
+                runningValue = value
+                outputValue = ['B']
+                while runningValue:
+                    outputValue.insert(0, '%d' % (runningValue & 0x01))
+                    runningValue >>= 1
+                return ''.join(outputValue)
             else:
                 raise SmiError(
-                    'Unsupported numeric type spec: %s' % t
+                    'Unsupported numeric type spec: %s' % displayHintType
                 )
         elif self.displayHint and self.__octetString.isSuperTypeOf(self):
-            r = ''
-            v = self.__class__(value).asOctets()
-            d = self.displayHint
-            while v and d:
+            outputValue = ''
+            runningValue = OctetString(value).asOctets()
+            displayHint = self.displayHint
+            while runningValue and displayHint:
                 # 1
-                if d[0] == '*':
-                    repeatIndicator = repeatCount = octets.oct2int(v[0])
-                    d = d[1:]
-                    v = v[1:]
+                if displayHint[0] == '*':
+                    repeatIndicator = repeatCount = octets.oct2int(runningValue[0])
+                    displayHint = displayHint[1:]
+                    runningValue = runningValue[1:]
                 else:
                     repeatCount = 1
                     repeatIndicator = None
 
                 # 2
                 octetLength = ''
-                while d and d[0] in '0123456789':
-                    octetLength += d[0]
-                    d = d[1:]
+                while displayHint and displayHint[0] in string.digits:
+                    octetLength += displayHint[0]
+                    displayHint = displayHint[1:]
+
+                # length is manatory, but people ignore that
+                if not octetLength:
+                    octetLength = len(runningValue)
+
                 try:
                     octetLength = int(octetLength)
                 except Exception:
                     raise SmiError(
                         'Bad octet length: %s' % octetLength
                     )
-                if not d:
+
+                if not displayHint:
                     raise SmiError(
                         'Short octet length: %s' % self.displayHint
                     )
+
                 # 3
-                displayFormat = d[0]
-                d = d[1:]
+                displayFormat = displayHint[0]
+                displayHint = displayHint[1:]
 
                 # 4
-                if d and d[0] not in '0123456789' and d[0] != '*':
-                    displaySep = d[0]
-                    d = d[1:]
+                if displayHint and displayHint[0] not in string.digits and displayHint[0] != '*':
+                    displaySep = displayHint[0]
+                    displayHint = displayHint[1:]
                 else:
                     displaySep = ''
 
                 # 5
-                if d and displaySep and repeatIndicator is not None:
-                    repeatTerminator = d[0]
+                if displayHint and displaySep and repeatIndicator is not None:
+                    repeatTerminator = displayHint[0]
                     displaySep = ''
-                    d = d[1:]
+                    displayHint = displayHint[1:]
                 else:
                     repeatTerminator = None
 
                 while repeatCount:
                     repeatCount -= 1
                     if displayFormat == 'a':
-                        r += v[:octetLength].decode('ascii', 'ignore')
+                        outputValue += runningValue[:octetLength].decode('ascii', 'ignore')
                     elif displayFormat == 't':
-                        r += v[:octetLength].decode('utf-8', 'ignore')
+                        outputValue += runningValue[:octetLength].decode('utf-8', 'ignore')
                     elif displayFormat in ('x', 'd', 'o'):
-                        n = 0
-                        vv = v[:octetLength]
-                        while vv:
-                            n <<= 8
+                        number = 0
+                        numberString = runningValue[:octetLength]
+                        while numberString:
+                            number <<= 8
                             try:
-                                n |= octets.oct2int(vv[0])
-                                vv = vv[1:]
+                                number |= octets.oct2int(numberString[0])
+                                numberString = numberString[1:]
                             except Exception:
                                 raise SmiError(
                                     'Display format eval failure: %s: %s'
-                                    % (vv, sys.exc_info()[1])
+                                    % (numberString, sys.exc_info()[1])
                                 )
                         if displayFormat == 'x':
-                            r += '%02x' % n
+                            outputValue += '%02x' % number
                         elif displayFormat == 'o':
-                            r += '%03o' % n
+                            outputValue += '%03o' % number
                         else:
-                            r += '%d' % n
+                            outputValue += '%d' % number
                     else:
                         raise SmiError(
                             'Unsupported display format char: %s' %
                             displayFormat
                         )
-                    if v and repeatTerminator:
-                        r += repeatTerminator
-                    v = v[octetLength:]
-                if v and displaySep:
-                    r += displaySep
-                if not d:
-                    d = self.displayHint
-                    #             if d:
-                    #                 raise SmiError(
-                    #                     'Unparsed display hint left: %s' % d
-                    #                     )
-            return r
+                    if runningValue and repeatTerminator:
+                        outputValue += repeatTerminator
+                    runningValue = runningValue[octetLength:]
+                if runningValue and displaySep:
+                    outputValue += displaySep
+                if not displayHint:
+                    displayHint = self.displayHint
+
+            return outputValue
 
         for base in inspect.getmro(self.__class__):
             if base != self.__class__ and issubclass(base, Asn1Item):
                 return base.prettyOut(self, value)
 
-        # this should never happen
-        return str(value)
+        raise SmiError('TEXTUAL-CONVENTION has no underlying SNMP base type')
+
+    def prettyIn(self, value):  # override asn1 type method
+        """Implements DISPLAY-HINT parsing into base SNMP value
+
+        Proper parsing seems impossible due to ambiguities.
+        Here we are truing to do our best, but be prepared
+        for failures on complicated DISPLAY-HINTs
+        """
+        for base in inspect.getmro(self.__class__):
+            if base != self.__class__ and issubclass(base, Asn1Item):
+                break
+        else:
+            raise SmiError('TEXTUAL-CONVENTION has no underlying SNMP base type')
+
+        if self.displayHint and (self.__integer.isSuperTypeOf(self) and self.getNamedValues() or
+                                 self.__unsigned32.isSuperTypeOf(self) or
+                                 self.__timeticks.isSuperTypeOf(self)):
+            value = str(value)
+
+            _ = lambda t, f=0: (t, f)
+            displayHintType, decimalPrecision = _(*self.displayHint.split('-'))
+            if displayHintType == 'x' and (value.startswith('0x') or value.startswith('-0x')):
+                try:
+                    if value.startswith('-'):
+                        return base.prettyIn(self, -int(value[3:], 16))
+                    else:
+                        return base.prettyIn(self, int(value[2:], 16))
+                except Exception:
+                    raise SmiError(
+                        'integer evaluation error: %s' % sys.exc_info()[1]
+                    )
+            elif displayHintType == 'd' and '.' in value:
+                try:
+                    return base.prettyIn(self, int(float(value) * 10**int(decimalPrecision)))
+                except Exception:
+                    raise SmiError(
+                        'float evaluation error: %s' % sys.exc_info()[1]
+                    )
+            elif displayHintType == 'o' and (value.startswith('0') or value.startswith('-0')):
+                try:
+                    return base.prettyIn(self, int(value, 8))
+                except Exception:
+                    raise SmiError(
+                        'octal evaluation error: %s' % sys.exc_info()[1]
+                    )
+            elif displayHintType == 'b' and (value.startswith('B') or value.startswith('-B')):
+                negative = value.startswith('-')
+                if negative:
+                    value = value[2:]
+                else:
+                    value = value[1:]
+                value = [x != '0' and 1 or 0 for x in value]
+                binValue = 0
+                while value:
+                    binValue <<= value[0]
+                    del value[0]
+                return base.prettyIn(self, binValue)
+            else:
+                raise SmiError(
+                    'Unsupported numeric type spec: %s' % displayHintType
+                )
+
+        elif self.displayHint and self.__octetString.isSuperTypeOf(self):
+            numBase = {
+                'x': 16,
+                'd': 10,
+                'o': 8
+            }
+            numDigits = {
+                'x': octets.str2octs(string.hexdigits),
+                'o': octets.str2octs(string.octdigits),
+                'd': octets.str2octs(string.digits)
+            }
+
+            if octets.isStringType(value):
+                value = base.prettyIn(self, value)
+            else:
+                return base.prettyIn(self, value)
+
+            outputValue = octets.ints2octs()
+            runningValue = value
+            displayHint = self.displayHint
+            while runningValue and displayHint:
+                # 1 this information is totally lost, just fail explicitly
+                if displayHint[0] == '*':
+                    raise SmiError(
+                        'Can\'t parse "*" in DISPLAY-HINT (%s)' % self.__class__.__name__
+                    )
+
+                # 2 this becomes ambiguous when it comes to rendered value
+                octetLength = ''
+                while displayHint and displayHint[0] in string.digits:
+                    octetLength += displayHint[0]
+                    displayHint = displayHint[1:]
+
+                # length is mandatory but people ignore that
+                if not octetLength:
+                    octetLength = len(runningValue)
+
+                try:
+                    octetLength = int(octetLength)
+                except Exception:
+                    raise SmiError(
+                        'Bad octet length: %s' % octetLength
+                    )
+
+                if not displayHint:
+                    raise SmiError(
+                        'Short octet length: %s' % self.displayHint
+                    )
+
+                # 3
+                displayFormat = displayHint[0]
+                displayHint = displayHint[1:]
+
+                # 4 this is the lifesaver -- we could cut by it
+                if displayHint and displayHint[0] not in string.digits and displayHint[0] != '*':
+                    displaySep = displayHint[0]
+                    displayHint = displayHint[1:]
+                else:
+                    displaySep = ''
+
+                # 5 is probably impossible to support
+
+                if displayFormat in ('a', 't'):
+                    outputValue += runningValue[:octetLength]
+                elif displayFormat in numBase:
+                    if displaySep:
+                        guessedOctetLength = runningValue.find(octets.str2octs(displaySep))
+                        if guessedOctetLength == -1:
+                            guessedOctetLength = len(runningValue)
+                    else:
+                        for idx in range(len(runningValue)):
+                            if runningValue[idx] not in numDigits[displayFormat]:
+                                guessedOctetLength = idx
+                                break
+                        else:
+                            guessedOctetLength = len(runningValue)
+
+                    try:
+                        num = int(octets.octs2str(runningValue[:guessedOctetLength]), numBase[displayFormat])
+                    except Exception:
+                        raise SmiError(
+                            'Display format eval failure: %s: %s'
+                            % (runningValue[:guessedOctetLength], sys.exc_info()[1])
+                        )
+
+                    num_as_bytes = []
+                    if num:
+                        while num:
+                            num_as_bytes.append(num & 0xFF)
+                            num >>= 8
+                    else:
+                        num_as_bytes = [0]
+
+                    while len(num_as_bytes) < octetLength:
+                        num_as_bytes.append(0)
+
+                    num_as_bytes.reverse()
+
+                    outputValue += octets.ints2octs(num_as_bytes)
+
+                    if displaySep:
+                        guessedOctetLength += 1
+
+                    octetLength = guessedOctetLength
+                else:
+                    raise SmiError(
+                        'Unsupported display format char: %s' %
+                        displayFormat
+                    )
+
+                runningValue = runningValue[octetLength:]
+
+                if not displayHint:
+                    displayHint = self.displayHint
+
+            return base.prettyIn(self, outputValue)
+
+        else:
+            return base.prettyIn(self, value)
+
 
 class DisplayString(TextualConvention, OctetString):
     subtypeSpec = OctetString.subtypeSpec + ValueSizeConstraint(0, 255)
