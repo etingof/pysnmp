@@ -5,6 +5,7 @@
 # License: http://pysnmp.sf.net/license.html
 #
 import sys
+import inspect
 from pysnmp.smi.error import *
 from pysnmp import debug
 from pyasn1.compat import octets
@@ -35,12 +36,9 @@ class TextualConvention:
     reference = ''
     bits = ()
     __integer = Integer()
-    __counter32 = Counter32()
     __unsigned32 = Unsigned32()
     __timeticks = TimeTicks()
-    __counter64 = Counter64()
     __octetString = OctetString()
-    __objectIdentifier = ObjectIdentifier()
 
     def getDisplayHint(self):
         return self.displayHint
@@ -62,11 +60,9 @@ class TextualConvention:
 
     def prettyOut(self, value):  # override asn1 type method
         """Implements DISPLAY-HINT evaluation"""
-        if self.displayHint and (self.__integer.isSuperTypeOf(self) or
+        if self.displayHint and (self.__integer.isSuperTypeOf(self) and not self.getNamedValues() or
                                  self.__unsigned32.isSuperTypeOf(self) or
-                                 self.__timeticks.isSuperTypeOf(self) or
-                                 self.__counter32.isSuperTypeOf(self) or
-                                 self.__counter64.isSuperTypeOf(self)):
+                                 self.__timeticks.isSuperTypeOf(self)):
             _ = lambda t, f=0: (t, f)
             t, f = _(*self.displayHint.split('-'))
             if t == 'x':
@@ -181,26 +177,13 @@ class TextualConvention:
                     #                     'Unparsed display hint left: %s' % d
                     #                     )
             return r
-        elif self.__objectIdentifier.isSuperTypeOf(self):
-            return self.__objectIdentifier.prettyOut(value)
-        elif self.__octetString.isSuperTypeOf(self):
-            return self.__octetString.prettyOut(value)
-        else:
-            return str(value)
 
+        for base in inspect.getmro(self.__class__):
+            if base != self.__class__ and issubclass(base, Asn1Item):
+                return base.prettyOut(self, value)
 
-# elif self.bits:
-#             try:
-#                 return self.bits[value]
-#             except Exception:
-#                 raise SmiError(
-#                     'Enumeratin resolution failure for %s: %s' % (self, sys.exc_info()[1])
-#                     )
-
-# XXX
-#    def prettyIn(self, value):
-#        # XXX parse TC syntax
-#        return str(value)
+        # this should never happen
+        return str(value)
 
 class DisplayString(TextualConvention, OctetString):
     subtypeSpec = OctetString.subtypeSpec + ValueSizeConstraint(0, 255)

@@ -16,6 +16,8 @@ Github `repo <https://github.com/etingof/pysnmp>`_
   Original and more standard implementation can still be used
   with the usmAesBlumenthalCfb192Protocol and
   usmAesBlumenthalCfb192Protocol IDs respectively.
+- TextualConvention.prettyOut() improved to produce prettier and
+  more SMI-compliant output.
 - Fix to NotificationType to make additional var-binds overriding
   MIB objects implicitly included through NOTIFICATION-TYPE OBJECTS.
 - Fix to SNMP engine boots counter persistence on Python 3.
