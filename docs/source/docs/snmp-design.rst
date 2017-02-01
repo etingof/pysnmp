@@ -104,8 +104,8 @@ represented by Python objects that look like either a string or an
 integer. 
 
 We can convert PyASN1 objects into Python types and back. PyASN1
-objects can participate in basic arethmetic operations (numbers)
-or in operations with strings (concatination, subscrption etc).
+objects can participate in basic arithmetic operations (numbers)
+or in operations with strings (concatenation, subscription etc).
 All SNMP base types are immutable like their Python counterparts.
 
 .. code-block:: python
@@ -198,7 +198,7 @@ Every managed device keeps a database of values for each of the
 definitions written in the MIB. So, the available data is actually not
 dependent on the database, but on the implementation.  It is important
 to realize that MIB files never contain data, they are functionally
-similar to database schemas rather than datastores.
+similar to database schemas rather than data stores.
 
 To organize MIB modules and objects properly, all the manageable
 features of all products (from each vendor) are arranged in this MIB
