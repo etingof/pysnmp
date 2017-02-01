@@ -267,7 +267,7 @@ class TextualConvention:
             else:
                 return base.prettyIn(self, value)
 
-            outputValue = octets.ints2octs()
+            outputValue = octets.str2octs('')
             runningValue = value
             displayHint = self.displayHint
             while runningValue and displayHint:
