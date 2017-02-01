@@ -262,7 +262,9 @@ class TextualConvention:
                 'd': octets.str2octs(string.digits)
             }
 
-            if octets.isStringType(value):
+            # how do we know if object is initialized with display-hint
+            # formatted text? based on "text" input maybe?
+            if octets.isStringType(value) and not octets.isOctetsType(value):
                 value = base.prettyIn(self, value)
             else:
                 return base.prettyIn(self, value)
@@ -303,7 +305,7 @@ class TextualConvention:
                 displayFormat = displayHint[0]
                 displayHint = displayHint[1:]
 
-                # 4 this is the lifesaver -- we could cut by it
+                # 4 this is the lifesaver -- we could use it as an anchor
                 if displayHint and displayHint[0] not in string.digits and displayHint[0] != '*':
                     displaySep = displayHint[0]
                     displayHint = displayHint[1:]
