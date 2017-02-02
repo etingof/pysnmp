@@ -194,7 +194,10 @@ class TextualConvention:
 
         Proper parsing seems impossible due to ambiguities.
         Here we are truing to do our best, but be prepared
-        for failures on complicated DISPLAY-HINTs
+        for failures on complicated DISPLAY-HINTs.
+
+        Keep in mind that this parser only works with "text"
+        input meaning `unicode` (Py2) or `str` (Py3).
         """
         for base in inspect.getmro(self.__class__):
             if base != self.__class__ and issubclass(base, Asn1Item):
