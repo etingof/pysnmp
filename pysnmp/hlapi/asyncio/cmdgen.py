@@ -429,7 +429,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     >>>
     >>> @asyncio.coroutine
     ... def run():
-    ...     errorIndication, errorStatus, errorIndex, varBinds = yield from nextCmd(
+    ...     errorIndication, errorStatus, errorIndex, varBinds = yield from bulkCmd(
     ...         SnmpEngine(),
     ...         CommunityData('public'),
     ...         UdpTransportTarget(('demo.snmplabs.com', 161)),
