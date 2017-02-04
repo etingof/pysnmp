@@ -86,7 +86,7 @@ class TextualConvention:
                 return ''.join(outputValue)
             else:
                 raise SmiError(
-                    'Unsupported numeric type spec: %s' % displayHintType
+                    'Unsupported numeric type spec "%s" at %s' % (displayHintType, self.__class__.__name__)
                 )
         elif self.displayHint and self.__octetString.isSuperTypeOf(self):
             outputValue = ''
@@ -222,7 +222,7 @@ class TextualConvention:
                     raise SmiError(
                         'integer evaluation error: %s' % sys.exc_info()[1]
                     )
-            elif displayHintType == 'd' and '.' in value:
+            elif displayHintType == 'd':
                 try:
                     return base.prettyIn(self, int(float(value) * 10**int(decimalPrecision)))
                 except Exception:
@@ -250,7 +250,7 @@ class TextualConvention:
                 return base.prettyIn(self, binValue)
             else:
                 raise SmiError(
-                    'Unsupported numeric type spec: %s' % displayHintType
+                    'Unsupported numeric type spec "%s" at %s' % (displayHintType, self.__class__.__name__)
                 )
 
         elif self.displayHint and self.__octetString.isSuperTypeOf(self):
