@@ -1,7 +1,7 @@
 #
 # This file is part of pysnmp software.
 #
-# Copyright (c) 2005-2017, Ilya Etingof <etingof@gmail.com>
+# Copyright (c) 2005-2016, Ilya Etingof <ilya@glas.net>
 # License: http://pysnmp.sf.net/license.html
 #
 import sys
@@ -594,7 +594,9 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             # Sniff for engineIdCache
             k = (transportDomain, transportAddress)
             if k not in self.__engineIdCache:
-                contextEngineId, contextName, pdus = scopedPDU
+                contextEngineId = scopedPDU[0]
+                contextName = scopedPDU[1]
+                pdus = scopedPDU[2]
                 pdu = pdus.getComponent()
                 # Here we assume that authentic/default EngineIDs
                 # come only in the course of engine-to-engine communication.
@@ -619,7 +621,10 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         snmpEngineID = snmpEngineID.syntax
 
         # 7.2.7 XXX PDU would be parsed here?
-        contextEngineId, contextName, pdu = scopedPDU
+        contextEngineId = scopedPDU[0]
+        contextName = scopedPDU[1]
+        pdu = scopedPDU[2]
+
         pdu = pdu.getComponent()  # PDUs
 
         # 7.2.8

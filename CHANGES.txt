@@ -1,8 +1,6 @@
 
-Revision 4.3.3, work in progress
---------------------------------
-
-Github `repo <https://github.com/etingof/pysnmp>`_
+Revision 4.3.3, released 04-02-2017
+-----------------------------------
 
 - Switched from now unmaintained PyCrypto to PyCryptodome.
 - Switched to new-style classes.
@@ -29,6 +27,7 @@ Github `repo <https://github.com/etingof/pysnmp>`_
 - Updated IP address for demo.snmplabs.com in examples.
 - Missing index added to bundled RFC1213::atEntry MIB table.
 - Twisted intergation made Python3 compatible.
+- Accommodated ASN.1 SEQUENCE iteration rules change in upcoming pyasn1 version.
 - Author's email changed, copyright extended to 2017
 
 Revision 4.3.2, released 2016-02-12
