@@ -39,14 +39,12 @@ Features, specific to SNMPv3 model include:
 * Optional SNMP engine discovery
 * Shipped with standard SNMP applications (RC3413)
 
-Download
---------
+
+Download & Install
+------------------
 
 The PySNMP software is freely available for download from [PyPI](https://pypi.python.org/pypi/pysnmp)
-and [project site](http://pysnmp.sf.net/download.html).
-
-Installation
-------------
+and [GitHub](https://github.com/etingof/pysnmp.git).
 
 Just run:
 
@@ -147,20 +145,14 @@ at pysnmp web site.
 Documentation
 -------------
 
-Detailed information on SNMP design, history as well as PySNMP programming interfaces could
-be found at [pysnmp site](http://pysnmp.sf.net/docs/tutorial.html).
+Notes on library design and API could be read at [pysnmp project site](http://pysnmp.sf.net/).
 
-Getting help
-------------
+If something does not work as expected, 
+[open an issue](https://github.com/etingof/pysnmp/issues) at GitHub or
+post your question [on Stack Overflow](http://stackoverflow.com/questions/ask)
+or try browsing pysnmp 
+[mailing list archives](https://sourceforge.net/p/pyasn1/mailman/pysnmp-users/).
 
-If something does not work as expected, try browsing PySNMP
-[mailing list archives](http://sourceforge.net/mail/?group_id=14735) or post
-your question [to Stack Overflow](http://stackoverflow.com/questions/ask).
-
-Feedback and collaboration
---------------------------
-
-I'm interested in bug reports, fixes, suggestions and improvements. Your
-pull requests are very welcome!
+Finally, your PRs are warmly welcome! ;-)
 
 Copyright (c) 2005-2017, [Ilya Etingof](mailto:etingof@gmail.com). All rights reserved.
