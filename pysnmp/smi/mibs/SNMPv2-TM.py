@@ -38,14 +38,20 @@ class SnmpUDPAddress(TextualConvention, OctetString):
         return OctetString.prettyIn(self, value)
 
     # Socket address syntax coercion
-    def __getitem__(self, i):
+    def __asSocketAddress(self):
         if not hasattr(self, '__tuple_value'):
             v = self.asOctets()
             self.__tuple_value = (
                 inet_ntop(AF_INET, v[:4]),
                 oct2int(v[4]) << 8 | oct2int(v[5])
             )
-        return self.__tuple_value[i]
+        return self.__tuple_value
+
+    def __iter__(self):
+        return iter(self.__asSocketAddress())
+
+    def __getitem__(self, item):
+        return self.__asSocketAddress()[item]
 
 
 snmpCLNSDomain = ObjectIdentity(snmpDomains.name + (2,))

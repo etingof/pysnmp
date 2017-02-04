@@ -255,14 +255,21 @@ class TransportAddressIPv4(TextualConvention, OctetString):
         return OctetString.prettyIn(self, value)
 
     # Socket address syntax coercion
-    def __getitem__(self, i):
+    def __asSocketAddress(self):
         if not hasattr(self, '__tuple_value'):
             v = self.asOctets()
             self.__tuple_value = (
                 inet_ntop(socket.AF_INET, v[:4]),
                 oct2int(v[4]) << 8 | oct2int(v[5]),
             )
-        return self.__tuple_value[i]
+        self.__tuple_value
+
+    def __iter__(self):
+        return iter(self.__asSocketAddress())
+
+
+    def __getitem__(self, item):
+        return self.__asSocketAddress()[item]
 
 
 class TransportAddressIPv6(TextualConvention, OctetString):
@@ -278,7 +285,7 @@ class TransportAddressIPv6(TextualConvention, OctetString):
         return OctetString.prettyIn(self, value)
 
     # Socket address syntax coercion
-    def __getitem__(self, i):
+    def __asSocketAddress(self):
         if not hasattr(self, '__tuple_value'):
             if not has_ipv6:
                 raise error.PySnmpError('IPv6 not supported by platform')
@@ -288,8 +295,13 @@ class TransportAddressIPv6(TextualConvention, OctetString):
                 oct2int(v[16]) << 8 | oct2int(v[17]),
                 0,  # flowinfo
                 0)  # scopeid
-        return self.__tuple_value[i]
+        return self.__tuple_value
 
+    def __iter__(self):
+        return iter(self.__asSocketAddress())
+
+    def __getitem__(self, item):
+        return self.__asSocketAddress()[item]
 
 class TransportAddressIPv4z(OctetString, TextualConvention):
     displayHint = '1d.1d.1d.1d%4d:2d'
