@@ -19,15 +19,14 @@ Features
   Managed Objects
 * Complete SNMP entity implementation
 * USM Extended Security Options support (3DES, 192/256-bit AES encryption)
-* Extensible network transports framework (UDP/IPv4, UDP/IPv6 and UNIX domain
-  sockets already implemented)
+* Extensible network transports framework (UDP/IPv4, UDP/IPv6)
 * Asynchronous socket-based IO API support
 * [Twisted](http://twistedmatrix.com), [Asyncio](https://docs.python.org/3/library/asyncio.html)
   and [Trollius](http://trollius.readthedocs.org/index.html) integration
 * [PySMI](http://pysmi.sf.net) integration for dynamic MIB compilation
 * Python eggs and py2exe friendly
 * 100% Python, works with Python 2.4 though 3.6
-* MT-safe (only if run locally to a thread)
+* MT-safe (if SnmpEngine is thread-local)
 
 Features, specific to SNMPv3 model include:
 
@@ -69,14 +68,14 @@ and used in the very similar manner as conventional Net-SNMP tools:
 
 ```bash
 $ snmpget.py -v3 -l authPriv -u usr-md5-des -A authkey1 -X privkey1 demo.snmplabs.com sysDescr.0
-SNMPv2-MIB::sysDescr.0 = DisplayString: SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m 
+SNMPv2-MIB::sysDescr.0 = STRING: Linux zeus 4.8.6.5-smp #2 SMP Sun Nov 13 14:58:11 CDT 2016 i686
 ```
     
 Examples
 --------
 
-PySNMP is designed highly modular and implements many programming interfaces. Most
-high-level and easy to use API is called *hlapi* and can be used like this:
+PySNMP is designed in a layered fashion. Top-level and easiest to use API is known as
+*hlapi*. Here's a quick example on how to SNMP GET:
 
 ```python
 from pysnmp.hlapi import *
@@ -99,7 +98,7 @@ else:
             print(' = '.join([x.prettyPrint() for x in varBind]))
 ```
 
-or, to send SNMP TRAP:
+This is how send SNMP TRAP:
 
 ```python
 from pysnmp.hlapi import *
@@ -123,7 +122,7 @@ if errorIndication:
 
 We maintain publicly available SNMP Agent and TRAP sink at 
 [demo.snmplabs.com](http://snmpsim.sourceforge.net/public-snmp-simulator.html). You are
-welcome to play with it while experimenting with your PySNMP scripts.
+welcome to use it while experimenting with whatever SNMP software you deal with.
 
 ```bash
 $ python3 examples/hlapi/asyncore/sync/manager/cmdgen/usm-sha-aes128.py
@@ -135,7 +134,7 @@ SNMPv2-MIB::snmpTrapOID.0 = SNMPv2-MIB::warmStart
 SNMPv2-MIB::sysName.0 = system name
 ```
     
-Other than that, PySNMP is capable to automatically fetch required MIBs from HTTP, FTP sites
+Other than that, PySNMP is capable to automatically fetch and use required MIBs from HTTP, FTP sites
 or local directories. You could configure any MIB source available to you (including
 [this one](http://mibs.snmplabs.com/asn1/)) for that purpose.
 
