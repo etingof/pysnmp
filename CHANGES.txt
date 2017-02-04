@@ -26,9 +26,9 @@ Revision 4.3.3, released 2017-02-04
 - Fix broken 3DES key localization and encryption procedures.
 - Updated IP address for demo.snmplabs.com in examples.
 - Missing index added to bundled RFC1213::atEntry MIB table.
-- Twisted intergation made Python3 compatible.
+- Twisted integration made Python3 compatible.
 - Accommodated ASN.1 SEQUENCE iteration rules change in upcoming pyasn1 version.
-- Author's email changed, copyright extended to 2017
+- Author's email changed, copyright extended to 2017.
 
 Revision 4.3.2, released 2016-02-12
 -----------------------------------
