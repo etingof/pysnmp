@@ -35,7 +35,7 @@ Message = rfc1157.Message
 class VarBindAPI(object):
     @staticmethod
     def setOIDVal(varBind, oidVal):
-        (oid, val) = oidVal
+        oid, val = oidVal[0]. oidVal[1]
         varBind.setComponentByPosition(0, oid)
         if val is None:
             val = null

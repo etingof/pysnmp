@@ -50,9 +50,9 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
                 print('Generic Trap: %s' % (pMod.apiTrapPDU.getGenericTrap(reqPDU).prettyPrint()))
                 print('Specific Trap: %s' % (pMod.apiTrapPDU.getSpecificTrap(reqPDU).prettyPrint()))
                 print('Uptime: %s' % (pMod.apiTrapPDU.getTimeStamp(reqPDU).prettyPrint()))
-                varBinds = pMod.apiTrapPDU.getVarBindList(reqPDU)
+                varBinds = pMod.apiTrapPDU.getVarBinds(reqPDU)
             else:
-                varBinds = pMod.apiPDU.getVarBindList(reqPDU)
+                varBinds = pMod.apiPDU.getVarBinds(reqPDU)
             print('Var-binds:')
             for oid, val in varBinds:
                 print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
