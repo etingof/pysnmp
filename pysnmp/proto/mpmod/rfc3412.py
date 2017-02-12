@@ -280,8 +280,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                                contextEngineId, contextName, pduVersion,
                                pdu, maxSizeResponseScopedPDU, stateReference,
                                statusInformation):
-        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB',
-                                                                                              'snmpEngineID')
+        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
         snmpEngineID = snmpEngineID.syntax
 
         # 7.1.2.b
@@ -474,8 +473,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
 
         except PyAsn1Error:
             debug.logger & debug.flagMP and debug.logger('prepareDataElements: %s' % (sys.exc_info()[1],))
-            snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB',
-                                                                                                        'snmpInASNParseErrs')
+            snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
             snmpInASNParseErrs.syntax += 1
             raise error.StatusInformation(errorIndication=errind.parseError)
 
@@ -512,8 +510,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
         elif (msgFlags & 0x03) == 0x03:
             securityLevel = 3
         else:
-            snmpInvalidMsgs = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-MPD-MIB',
-                                                                                                    'snmpInvalidMsgs')
+            snmpInvalidMsgs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-MPD-MIB', 'snmpInvalidMsgs')
             snmpInvalidMsgs.syntax += 1
             raise error.StatusInformation(errorIndication=errind.invalidMsg)
 
@@ -616,8 +613,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                         'prepareDataElements: cache securityEngineId %r for %r %r' % (
                             securityEngineId, transportDomain, transportAddress))
 
-        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB',
-                                                                                              'snmpEngineID')
+        snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
         snmpEngineID = snmpEngineID.syntax
 
         # 7.2.7 XXX PDU would be parsed here?
