@@ -212,7 +212,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         for oid, val in v2VarBinds:
             # snmpTrapAddress
             if oid == v2c.apiTrapPDU.snmpTrapAddress:
-                v1.apiTrapPDU.setAgentAddr(v1Pdu, val)
+                v1.apiTrapPDU.setAgentAddr(v1Pdu, v1.IpAddress(val))  # v2c.OctetString is more constrained
                 break
         else:
             v1.apiTrapPDU.setAgentAddr(v1Pdu, v1.IpAddress('0.0.0.0'))
