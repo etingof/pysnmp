@@ -302,7 +302,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         msg.setComponentByPosition(1, securityParameters)
         msg.setComponentByPosition(2)
         msg.getComponentByPosition(2).setComponentByType(
-            pdu.tagSet, pdu, verifyConstraints=False
+            pdu.tagSet, pdu, verifyConstraints=False, matchTags=False, matchConstraints=False
         )
 
         debug.logger & debug.flagMP and debug.logger('generateRequestMsg: %s' % (msg.prettyPrint(),))
@@ -332,7 +332,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         msg.setComponentByPosition(1, communityName)
         msg.setComponentByPosition(2)
         msg.getComponentByPosition(2).setComponentByType(
-            pdu.tagSet, pdu, verifyConstraints=False
+            pdu.tagSet, pdu, verifyConstraints=False, matchTags=False, matchConstraints=False
         )
 
         debug.logger & debug.flagMP and debug.logger('generateResponseMsg: %s' % (msg.prettyPrint(),))

@@ -324,7 +324,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         scopedPDUData = msg.setComponentByPosition(3).getComponentByPosition(3)
         scopedPDUData.setComponentByPosition(
-            0, scopedPDU, verifyConstraints=False
+            0, scopedPDU, verifyConstraints=False, matchTags=False, matchConstraints=False
         )
 
         # 3.1.6a
@@ -390,10 +390,10 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             )
 
             securityParameters.setComponentByPosition(
-                5, privParameters, verifyConstraints=False
+                5, privParameters, verifyConstraints=False, matchTags=False, matchConstraints=False
             )
             scopedPDUData.setComponentByPosition(
-                1, encryptedData, verifyConstraints=False
+                1, encryptedData, verifyConstraints=False, matchTags=False, matchConstraints=False
             )
 
             debug.logger & debug.flagSM and debug.logger(
@@ -407,18 +407,18 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         # 3.1.5
         securityParameters.setComponentByPosition(
-            0, securityEngineID, verifyConstraints=False
+            0, securityEngineID, verifyConstraints=False, matchTags=False, matchConstraints=False
         )
         securityParameters.setComponentByPosition(
-            1, snmpEngineBoots, verifyConstraints=False
+            1, snmpEngineBoots, verifyConstraints=False, matchTags=False, matchConstraints=False
         )
         securityParameters.setComponentByPosition(
-            2, snmpEngineTime, verifyConstraints=False
+            2, snmpEngineTime, verifyConstraints=False, matchTags=False, matchConstraints=False
         )
 
         # 3.1.7
         securityParameters.setComponentByPosition(
-            3, usmUserName, verifyConstraints=False
+            3, usmUserName, verifyConstraints=False, matchTags=False, matchConstraints=False
         )
 
         # 3.1.8a
@@ -469,14 +469,14 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         # 3.1.8b
         else:
             securityParameters.setComponentByPosition(
-                4, '', verifyConstraints=False
+                4, '', verifyConstraints=False, matchTags=False, matchConstraints=False
             )
 
             debug.logger & debug.flagSM and debug.logger(
                 '__generateRequestOrResponseMsg: %s' % (securityParameters.prettyPrint(),))
 
             try:
-                msg.setComponentByPosition(2, encoder.encode(securityParameters), verifyConstraints=False)
+                msg.setComponentByPosition(2, encoder.encode(securityParameters), verifyConstraints=False, matchTags=False, matchConstraints=False)
 
             except PyAsn1Error:
                 debug.logger & debug.flagSM and debug.logger(

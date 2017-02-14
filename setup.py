@@ -58,7 +58,7 @@ try:
     from setuptools import setup
 
     params = {
-        'install_requires': ['pyasn1>=0.1.8', 'pysmi', 'pycryptodome'],
+        'install_requires': ['pyasn1>=0.2.3', 'pysmi', 'pycryptodome'],
         'zip_safe': True
     }
 
@@ -72,7 +72,7 @@ except ImportError:
 
     params = {}
     if sys.version_info[:2] > (2, 4):
-        params['requires'] = ['pyasn1(>=0.1.8)', 'pysmi', 'pycryptodome']
+        params['requires'] = ['pyasn1(>=0.2.3)', 'pysmi', 'pycryptodome']
 
 doclines = [x.strip() for x in (__doc__ or '').split('\n') if x]
 

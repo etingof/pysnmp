@@ -63,13 +63,13 @@ class PDUAPI(v1.PDUAPI):
     def setEndOfMibError(self, pdu, errorIndex):
         varBindList = self.getVarBindList(pdu)
         varBindList[errorIndex - 1].setComponentByPosition(
-            1, rfc1905.endOfMibView, verifyConstraints=False
+            1, rfc1905.endOfMibView, verifyConstraints=False, matchTags=False, matchConstraints=False
         )
 
     def setNoSuchInstanceError(self, pdu, errorIndex):
         varBindList = self.getVarBindList(pdu)
         varBindList[errorIndex - 1].setComponentByPosition(
-            1, rfc1905.noSuchInstance, verifyConstraints=False
+            1, rfc1905.noSuchInstance, verifyConstraints=False, matchTags=False, matchConstraints=False
         )
 
 
@@ -83,13 +83,13 @@ class BulkPDUAPI(PDUAPI):
     def setDefaults(self, pdu):
         PDUAPI.setDefaults(self, pdu)
         pdu.setComponentByPosition(
-            0, getNextRequestID(), verifyConstraints=False
+            0, getNextRequestID(), verifyConstraints=False, matchTags=False, matchConstraints=False
         )
         pdu.setComponentByPosition(
-            1, self._nonRepeaters, verifyConstraints=False
+            1, self._nonRepeaters, verifyConstraints=False, matchTags=False, matchConstraints=False
         )
         pdu.setComponentByPosition(
-            2, self._maxRepetitions, verifyConstraints=False
+            2, self._maxRepetitions, verifyConstraints=False, matchTags=False, matchConstraints=False
         )
         pdu.setComponentByPosition(3)
 
@@ -160,8 +160,8 @@ class MessageAPI(v1.MessageAPI):
     _version = rfc1901.version.clone(1)
 
     def setDefaults(self, msg):
-        msg.setComponentByPosition(0, self._version, verifyConstraints=False)
-        msg.setComponentByPosition(1, self._community, verifyConstraints=False)
+        msg.setComponentByPosition(0, self._version, verifyConstraints=False, matchTags=False, matchConstraints=False)
+        msg.setComponentByPosition(1, self._community, verifyConstraints=False, matchTags=False, matchConstraints=False)
         return msg
 
     def getResponse(self, reqMsg):

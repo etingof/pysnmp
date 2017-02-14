@@ -63,7 +63,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         msg.setComponentByPosition(0, self.messageProcessingModelID)
         msg.setComponentByPosition(2)
         msg.getComponentByPosition(2).setComponentByType(
-            pdu.tagSet, pdu, verifyConstraints=False
+            pdu.tagSet, pdu, verifyConstraints=False, matchTags=False, matchConstraints=False
         )
 
         # rfc3412: 7.1.7
@@ -193,7 +193,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         msg.setComponentByPosition(0, messageProcessingModel)
         msg.setComponentByPosition(2)
         msg.getComponentByPosition(2).setComponentByType(
-            pdu.tagSet, pdu, verifyConstraints=False
+            pdu.tagSet, pdu, verifyConstraints=False, matchTags=False, matchConstraints=False
         )
 
         # att: msgId not set back to PDU as it's up to responder app
