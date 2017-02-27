@@ -199,17 +199,11 @@ class OctetString(univ.OctetString):
     def getFixedLength(self):
         return self.fixedLength
 
-    def clone(self, value=None, tagSet=None, subtypeSpec=None,
-              encoding=None, binValue=None, hexValue=None):
-        return univ.OctetString.clone(
-            self, value, tagSet, subtypeSpec, encoding, binValue, hexValue
-        ).setFixedLength(self.getFixedLength())
+    def clone(self, *args, **kwargs):
+        return univ.OctetString.clone(self, *args, **kwargs).setFixedLength(self.getFixedLength())
 
-    def subtype(self, value=None, implicitTag=None, explicitTag=None,
-                subtypeSpec=None):
-        return univ.OctetString.subtype(
-            self, value, implicitTag, explicitTag, subtypeSpec
-        ).setFixedLength(self.getFixedLength())
+    def subtype(self, *args, **kwargs):
+        return univ.OctetString.subtype(self, *args, **kwargs).setFixedLength(self.getFixedLength())
 
     @classmethod
     def withSize(cls, minimum, maximum):
@@ -617,8 +611,8 @@ class Bits(OctetString):
     """
     namedValues = namedval.NamedValues()
 
-    def __init__(self, value=None, tagSet=None, subtypeSpec=None,
-                 encoding=None, binValue=None, hexValue=None,
+    def __init__(self, value=univ.noValue, tagSet=None, subtypeSpec=None,
+                 encoding=None, binValue=univ.noValue, hexValue=univ.noValue,
                  namedValues=None):
         if namedValues is None:
             self.__namedValues = self.namedValues
@@ -661,8 +655,8 @@ class Bits(OctetString):
             i += 1
         return ', '.join([str(x) for x in names])
 
-    def clone(self, value=None, tagSet=None, subtypeSpec=None,
-              encoding=None, binValue=None, hexValue=None,
+    def clone(self, value=univ.noValue, tagSet=None, subtypeSpec=None,
+              encoding=None, binValue=univ.noValue, hexValue=univ.noValue,
               namedValues=None):
         if value is None and tagSet is None and subtypeSpec is None \
                 and namedValues is None:
@@ -678,8 +672,9 @@ class Bits(OctetString):
         return self.__class__(value, tagSet, subtypeSpec, encoding,
                               binValue, hexValue, namedValues)
 
-    def subtype(self, value=None, implicitTag=None, explicitTag=None,
-                subtypeSpec=None, namedValues=None):
+    def subtype(self, value=univ.noValue, implicitTag=None, explicitTag=None,
+                subtypeSpec=None, encoding=None, binValue=univ.noValue,
+                hexValue=univ.noValue, namedValues=None):
         if value is None:
             value = self._value
         if implicitTag is not None:
@@ -696,8 +691,7 @@ class Bits(OctetString):
             namedValues = self.__namedValues
         else:
             namedValues = namedValues + self.__namedValues
-        return self.__class__(value, tagSet, subtypeSpec,
-                              namedValues=namedValues)
+        return self.__class__(value, tagSet, subtypeSpec, namedValues=namedValues)
 
     @classmethod
     def withNamedBits(cls, **values):
