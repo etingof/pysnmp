@@ -11,6 +11,7 @@ from pysnmp.hlapi.lcd import *
 from pysnmp.hlapi.varbinds import *
 from pysnmp.hlapi.twisted.transport import *
 from pysnmp.entity.rfc3413 import cmdgen
+from pysnmp.proto import errind
 from twisted.internet.defer import Deferred
 from twisted.python.failure import Failure
 
@@ -278,6 +279,9 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
 
             * `lookupMib` - load MIB and resolve response MIB variables at
               the cost of slightly reduced performance. Default is `True`.
+            * `ignoreNonIncreasingOid` - continue iteration even if response
+              MIB variables (OIDs) are not greater then request MIB variables.
+              Default is `False`.
 
     Returns
     -------
@@ -341,6 +345,9 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
                 errorIndication, errorStatus, errorIndex,
                 varBindTable, cbCtx):
         lookupMib, deferred = cbCtx
+        if options.get('ignoreNonIncreasingOid', False) and errorIndication and \
+                isinstance(errorIndication, errind.OidNotIncreasing):
+            errorIndication = None
         if errorIndication:
             deferred.errback(Failure(errorIndication))
         else:
@@ -404,6 +411,9 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
 
             * `lookupMib` - load MIB and resolve response MIB variables at
               the cost of slightly reduced performance. Default is `True`.
+            * `ignoreNonIncreasingOid` - continue iteration even if response
+              MIB variables (OIDs) are not greater then request MIB variables.
+              Default is `False`.
 
     Returns
     -------
@@ -468,6 +478,9 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
                 errorIndication, errorStatus, errorIndex,
                 varBindTable, cbCtx):
         lookupMib, deferred = cbCtx
+        if options.get('ignoreNonIncreasingOid', False) and errorIndication and \
+                isinstance(errorIndication, errind.OidNotIncreasing):
+            errorIndication = None
         if errorIndication:
             deferred.errback(Failure(errorIndication))
         else:
