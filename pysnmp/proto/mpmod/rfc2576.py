@@ -37,7 +37,6 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.1.1b
         if pdu.tagSet in rfc3411.confirmedClassPDUs:
             # serve unique PDU request-id
-            pdu.setComponentByPosition(1)
             msgID = self._cache.newMsgID()
             reqID = pdu.getComponentByPosition(0)
             debug.logger & debug.flagMP and debug.logger(

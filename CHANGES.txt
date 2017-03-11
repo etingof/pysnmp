@@ -4,6 +4,8 @@ Revision 4.3.5, released 2017-0X-XX
 
 - The getNext() and getBulk() calls of Twisted interface 
   now support ignoreNonIncreasingOid option.
+- Fix to accidentally reset error-status when building confirmed class
+  SNMPv1 PDU
 
 Revision 4.3.4, released 2017-03-01
 -----------------------------------

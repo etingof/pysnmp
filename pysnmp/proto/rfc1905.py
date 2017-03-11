@@ -89,7 +89,8 @@ errorStatus = univ.Integer(
                                      ('wrongEncoding', 9), ('wrongValue', 10), ('noCreation', 11),
                                      ('inconsistentValue', 12), ('resourceUnavailable', 13), ('commitFailed', 14),
                                      ('undoFailed', 15), ('authorizationError', 16), ('notWritable', 17),
-                                     ('inconsistentName', 18)))
+                                     ('inconsistentName', 18))
+    )
 
 
 # Base class for a non-bulk PDU
