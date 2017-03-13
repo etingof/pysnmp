@@ -116,10 +116,7 @@ class PDUAPI(object):
 
     @staticmethod
     def getVarBinds(pdu):
-        varBinds = []
-        for varBind in pdu.getComponentByPosition(3):
-            varBinds.append(apiVarBind.getOIDVal(varBind))
-        return varBinds
+        return [apiVarBind.getOIDVal(varBind) for varBind in pdu.getComponentByPosition(3)]
 
     @staticmethod
     def setVarBinds(pdu, varBinds):
