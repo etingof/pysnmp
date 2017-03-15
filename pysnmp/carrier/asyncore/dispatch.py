@@ -39,7 +39,8 @@ class AsyncoreDispatcher(AbstractTransportDispatcher):
                 return 1
         return 0
 
-    def runDispatcher(self, timeout=0.0):
+    def runDispatcher(self, timeout=0.0,dispatchTimeout=0.0):
+        timeStart = time()
         while self.jobsArePending() or self.transportsAreWorking():
             try:
                 loop(timeout and timeout or self.timeout,
@@ -49,3 +50,5 @@ class AsyncoreDispatcher(AbstractTransportDispatcher):
             except:
                 raise PySnmpError('poll error: %s' % ';'.join(format_exception(*exc_info())))
             self.handleTimerTick(time())
+            if dispatchTimeout != 0 and (time()-timeStart) > dispatchTimeout:
+                raise PySnmpError('Dispatcher timeout')
