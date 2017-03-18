@@ -183,7 +183,7 @@ class TextualConvention(object):
             return outputValue
 
         for base in inspect.getmro(self.__class__):
-            if base != self.__class__ and issubclass(base, Asn1Item):
+            if not issubclass(base, TextualConvention) and issubclass(base, Asn1Item):
                 return base.prettyOut(self, value)
 
         raise SmiError('TEXTUAL-CONVENTION has no underlying SNMP base type')
