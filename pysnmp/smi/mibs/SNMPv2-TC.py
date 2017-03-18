@@ -29,8 +29,7 @@ Counter32, Unsigned32, TimeTicks, Counter64 = mibBuilder.importSymbols(
 )
 
 
-# XXX keep this old-style class till pyasn1 types becomes new-style
-class TextualConvention:
+class TextualConvention(object):
     displayHint = ''
     status = 'current'
     description = ''
@@ -200,7 +199,7 @@ class TextualConvention:
         input meaning `unicode` (Py2) or `str` (Py3).
         """
         for base in inspect.getmro(self.__class__):
-            if base != self.__class__ and issubclass(base, Asn1Item):
+            if not issubclass(base, TextualConvention) and issubclass(base, Asn1Item):
                 break
         else:
             raise SmiError('TEXTUAL-CONVENTION has no underlying SNMP base type')
