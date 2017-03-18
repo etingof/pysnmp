@@ -37,6 +37,7 @@ def sendtrap(reactor, snmpEngine, hostname):
         )
     )
 
+# Preserve SnmpEngine instance across [potentially] multiple calls to safe on initialization
 snmpEngine = SnmpEngine()
 
 react(sendtrap, [snmpEngine, 'demo.snmplabs.com'])
