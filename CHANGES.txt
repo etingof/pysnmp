@@ -6,6 +6,8 @@ Revision 4.3.5, released 2017-0X-XX
   now support ignoreNonIncreasingOid option.
 - Fix to accidentally reset error-status when building confirmed class
   SNMPv1 PDU
+- Fix to possible infinite recursion in TextualConvention.prettyIn()
+- TextualConvention is now a new-style class
 
 Revision 4.3.4, released 2017-03-01
 -----------------------------------
