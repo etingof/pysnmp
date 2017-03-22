@@ -361,8 +361,6 @@ class MsgAndPduDispatcher(object):
 
                 debug.logger & debug.flagDsp and debug.logger('receiveMessage: unhandled PDU type')
 
-                # XXX fails on unknown PDU
-
                 try:
                     (destTransportDomain,
                      destTransportAddress,
@@ -374,7 +372,7 @@ class MsgAndPduDispatcher(object):
                         statusInformation
                     )
 
-                except error.StatusInformation:
+                except (error.StatusInformation, error.ProtocolError):
                     debug.logger & debug.flagDsp and debug.logger(
                         'receiveMessage: report failed, statusInformation %s' % sys.exc_info()[1])
                     return restOfWholeMsg
