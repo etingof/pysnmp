@@ -361,6 +361,7 @@ class MsgAndPduDispatcher(object):
 
                 debug.logger & debug.flagDsp and debug.logger('receiveMessage: unhandled PDU type')
 
+                # 4.2.2.1.2.c
                 try:
                     (destTransportDomain,
                      destTransportAddress,
@@ -372,25 +373,21 @@ class MsgAndPduDispatcher(object):
                         statusInformation
                     )
 
-                except (error.StatusInformation, error.ProtocolError):
-                    debug.logger & debug.flagDsp and debug.logger(
-                        'receiveMessage: report failed, statusInformation %s' % sys.exc_info()[1])
-                    return restOfWholeMsg
-
-                # 4.2.2.1.2.c
-                try:
                     snmpEngine.transportDispatcher.sendMessage(
                         outgoingMessage, destTransportDomain,
                         destTransportAddress
                     )
 
-                except PySnmpError:  # XXX
-                    pass
+                except PySnmpError:
+                    debug.logger & debug.flagDsp and debug.logger(
+                        'receiveMessage: report failed, statusInformation %s' % sys.exc_info()[1])
 
-                debug.logger & debug.flagDsp and debug.logger('receiveMessage: reporting succeeded')
+                else:
+                    debug.logger & debug.flagDsp and debug.logger('receiveMessage: reporting succeeded')
 
                 # 4.2.2.1.2.d
                 return restOfWholeMsg
+
             else:
                 snmpEngine.observer.storeExecutionContext(
                     snmpEngine, 'rfc3412.receiveMessage:request',
