@@ -99,7 +99,7 @@ else:
             print(' = '.join([x.prettyPrint() for x in varBind]))
 ```
 
-This is how send SNMP TRAP:
+This is how to send SNMP TRAP:
 
 ```python
 from pysnmp.hlapi import *
