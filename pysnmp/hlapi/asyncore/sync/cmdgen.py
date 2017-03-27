@@ -266,12 +266,14 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
             * `lookupMib` - load MIB and resolve response MIB variables at
               the cost of slightly reduced performance. Default is `True`.
               Default is `True`.
-            * `lexicographicMode` - stop iteration when all response MIB
+            * `lexicographicMode` - walk SNMP agent's MIB till the end (if `True`),
+              otherwise (if `False`) stop iteration when all response MIB
               variables leave the scope of initial MIB variables in
               `varBinds`. Default is `True`.
             * `ignoreNonIncreasingOid` - continue iteration even if response
               MIB variables (OIDs) are not greater then request MIB variables.
-              Default is `False`.
+              Be aware that setting it to `True` may cause infinite loop between
+              SNMP management and agent applications. Default is `False`.
             * `maxRows` - stop iteration once this generator instance processed
               `maxRows` of SNMP conceptual table. Default is `0` (no limit).
             * `maxCalls` - stop iteration once this generator instance processed
@@ -305,7 +307,8 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     * SNMP :py:class:`~pysnmp.proto.rfc1905.EndOfMibView` values
       (also known as *SNMP exception values*) are reported for all
       MIB variables in `varBinds`
-    * *lexicographicMode* option is set to `False` and all
+    * *lexicographicMode* option is `True` and SNMP agent reports
+      end-of-mib or *lexicographicMode* is `False` and all
       response MIB variables leave the scope of `varBinds`
 
     At any moment a new sequence of `varBinds` could be send back into
@@ -360,8 +363,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
             errorStatus = cbCtx['errorStatus']
             errorIndex = cbCtx['errorIndex']
 
-            if ignoreNonIncreasingOid and errorIndication and \
-                    isinstance(errorIndication, errind.OidNotIncreasing):
+            if ignoreNonIncreasingOid and errorIndication and isinstance(errorIndication, errind.OidNotIncreasing):
                 errorIndication = None
 
             if errorIndication:
@@ -397,8 +399,10 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
             varBinds = initialVarBinds
             initialVars = [x[0] for x in vbProcessor.makeVarBinds(snmpEngine, varBinds)]
 
-        if maxRows and totalRows >= maxRows or \
-                maxCalls and totalCalls >= maxCalls:
+        if maxRows and totalRows >= maxRows:
+            return
+
+        if maxCalls and totalCalls >= maxCalls:
             return
 
 
@@ -446,12 +450,14 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
             * `lookupMib` - load MIB and resolve response MIB variables at
               the cost of slightly reduced performance. Default is `True`.
               Default is `True`.
-            * `lexicographicMode` - stop iteration when all response MIB
+            * `lexicographicMode` - walk SNMP agent's MIB till the end (if `True`),
+              otherwise (if `False`) stop iteration when all response MIB
               variables leave the scope of initial MIB variables in
               `varBinds`. Default is `True`.
             * `ignoreNonIncreasingOid` - continue iteration even if response
               MIB variables (OIDs) are not greater then request MIB variables.
-              Default is `False`.
+              Be aware that setting it to `True` may cause infinite loop between
+              SNMP management and agent applications. Default is `False`.
             * `maxRows` - stop iteration once this generator instance processed
               `maxRows` of SNMP conceptual table. Default is `0` (no limit).
             * `maxCalls` - stop iteration once this generator instance processed
@@ -485,7 +491,8 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     * SNMP :py:class:`~pysnmp.proto.rfc1905.EndOfMibView` values
       (also known as *SNMP exception values*) are reported for all
       MIB variables in `varBinds`
-    * *lexicographicMode* option is set to `False` and all
+    * *lexicographicMode* option is `True` and SNMP agent reports
+      end-of-mib or *lexicographicMode* is `False` and all
       response MIB variables leave the scope of `varBinds`
 
     At any moment a new sequence of `varBinds` could be send back into
@@ -569,25 +576,24 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
             yield (errorIndication, errorStatus, errorIndex, varBindTable and varBindTable[0] or [])
             return
         else:
-            for i in range(len(varBindTable)):
+            for row in range(len(varBindTable)):
                 stopFlag = True
-                if len(varBindTable[i]) != len(initialVars):
-                    varBindTable = i and varBindTable[:i - 1] or []
+                if len(varBindTable[row]) != len(initialVars):
+                    varBindTable = row and varBindTable[:row - 1] or []
                     break
-                for j in range(len(varBindTable[i])):
-                    name, val = varBindTable[i][j]
-                    if nullVarBinds[j]:
-                        varBindTable[i][j] = name, endOfMibView
+                for col in range(len(varBindTable[row])):
+                    name, val = varBindTable[row][col]
+                    if nullVarBinds[col]:
+                        varBindTable[row][col] = name, endOfMibView
                         continue
                     stopFlag = False
                     if isinstance(val, Null):
-                        nullVarBinds[j] = True
-                    elif not lexicographicMode and \
-                            not initialVars[j].isPrefixOf(name):
-                        varBindTable[i][j] = name, endOfMibView
-                        nullVarBinds[j] = True
+                        nullVarBinds[col] = True
+                    elif not lexicographicMode and not initialVars[col].isPrefixOf(name):
+                        varBindTable[row][col] = name, endOfMibView
+                        nullVarBinds[col] = True
                 if stopFlag:
-                    varBindTable = i and varBindTable[:i - 1] or []
+                    varBindTable = row and varBindTable[:row - 1] or []
                     break
 
             totalRows += len(varBindTable)

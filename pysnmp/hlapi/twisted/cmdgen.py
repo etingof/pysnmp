@@ -281,7 +281,8 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
               the cost of slightly reduced performance. Default is `True`.
             * `ignoreNonIncreasingOid` - continue iteration even if response
               MIB variables (OIDs) are not greater then request MIB variables.
-              Default is `False`.
+              Be aware that setting it to `True` may cause infinite loop between
+              SNMP management and agent applications. Default is `False`.
 
     Returns
     -------
@@ -413,7 +414,8 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
               the cost of slightly reduced performance. Default is `True`.
             * `ignoreNonIncreasingOid` - continue iteration even if response
               MIB variables (OIDs) are not greater then request MIB variables.
-              Default is `False`.
+              Be aware that setting it to `True` may cause infinite loop between
+              SNMP management and agent applications. Default is `False`.
 
     Returns
     -------
