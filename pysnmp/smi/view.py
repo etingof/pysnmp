@@ -48,7 +48,7 @@ class MibViewController(object):
 
         # Oid <-> label indices
 
-        # This is potentionally ambiguous mapping. Sort modules in
+        # This is potentially ambiguous mapping. Sort modules in
         # ascending age for resolution
         def __sortFun(x, b=self.mibBuilder):
             if b.moduleID in b.mibSymbols[x]:
