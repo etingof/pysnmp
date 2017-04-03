@@ -287,6 +287,9 @@ class OtherError(ErrorIndication):
 otherError = OtherError('Unspecified SNMP engine error occurred')
 
 
+class ErrorReportReceived(ErrorIndication):
+    pass
+
 # SNMP Apps errors
 
 class OidNotIncreasing(ErrorIndication):

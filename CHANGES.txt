@@ -3,6 +3,8 @@ Revision 4.3.6, released 2017-XX-XX
 -----------------------------------
 
 - Fixes to *lexicographicMode* option documentation to make it unambiguous.
+- Unified `errorIndication` values produced by various parts of SNMP engine
+  to be `ErrorIndication` instances. This fixes an issue with Twisted.
 
 Revision 4.3.5, released 2017-03-24
 -----------------------------------

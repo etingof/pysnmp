@@ -655,8 +655,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             varBinds = pMod.apiPDU.getVarBinds(pdu)
             if varBinds:
                 statusInformation = error.StatusInformation(
-                    errorIndication=_snmpErrors.get(varBinds[0][0],
-                                                    'errorReportReceived'),
+                    errorIndication=errinf.ErrorReportReceived(_snmpErrors.get(varBinds[0][0], varBinds[0][0].prettyPrint())),
                     oid=varBinds[0][0], val=varBinds[0][1],
                     sendPduHandle=sendPduHandle
                 )
