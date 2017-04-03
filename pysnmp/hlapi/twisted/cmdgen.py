@@ -12,6 +12,7 @@ from pysnmp.hlapi.varbinds import *
 from pysnmp.hlapi.twisted.transport import *
 from pysnmp.entity.rfc3413 import cmdgen
 from pysnmp.proto import errind
+from pysnmp.error import PySnmpError
 from twisted.internet.defer import Deferred
 from twisted.python.failure import Failure
 
@@ -21,6 +22,7 @@ vbProcessor = CommandGeneratorVarBinds()
 lcd = CommandGeneratorLcdConfigurator()
 
 isEndOfMib = lambda x: not cmdgen.getNextVarBinds(x)[1]
+fail = lambda e: Failure(PySnmpError(e)) if isinstance(e, str) else Failure(e)
 
 def getCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
@@ -115,7 +117,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
                 varBinds, cbCtx):
         lookupMib, deferred = cbCtx
         if errorIndication:
-            deferred.errback(Failure(errorIndication))
+            deferred.errback(fail(errorIndication))
         else:
             deferred.callback(
                 (errorStatus, errorIndex,
@@ -227,7 +229,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
                 varBinds, cbCtx):
         lookupMib, deferred = cbCtx
         if errorIndication:
-            deferred.errback(Failure(errorIndication))
+            deferred.errback(fail(errorIndication))
         else:
             deferred.callback(
                 (errorStatus, errorIndex,
@@ -350,7 +352,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
                 isinstance(errorIndication, errind.OidNotIncreasing):
             errorIndication = None
         if errorIndication:
-            deferred.errback(Failure(errorIndication))
+            deferred.errback(fail(errorIndication))
         else:
             deferred.callback(
                 (errorStatus, errorIndex,
@@ -484,7 +486,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
                 isinstance(errorIndication, errind.OidNotIncreasing):
             errorIndication = None
         if errorIndication:
-            deferred.errback(Failure(errorIndication))
+            deferred.errback(fail(errorIndication))
         else:
             deferred.callback(
                 (errorStatus, errorIndex,
