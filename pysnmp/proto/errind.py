@@ -199,7 +199,7 @@ unsupportedSecurityModel = UnsupportedSecurityModel('Unsupported SNMP security m
 class UnsupportedSecLevel(ErrorIndication):
     pass
 
-unsupportedSecLevel = UnsupportedSecurityLevel('Unsupported SNMP security level')
+unsupportedSecLevel = UnsupportedSecLevel('Unsupported SNMP security level')
 
 
 class NotInTimeWindow(ErrorIndication):
