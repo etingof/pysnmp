@@ -56,12 +56,12 @@ class SNMPv3Message(univ.Sequence):
 
 
 # XXX move somewhere?
-_snmpErrors = {(1, 3, 6, 1, 6, 3, 15, 1, 1, 1, 0): 'unsupportedSecLevel',
-               (1, 3, 6, 1, 6, 3, 15, 1, 1, 2, 0): 'notInTimeWindow',
-               (1, 3, 6, 1, 6, 3, 15, 1, 1, 3, 0): 'unknownUserName',
-               (1, 3, 6, 1, 6, 3, 15, 1, 1, 4, 0): 'unknownEngineID',
-               (1, 3, 6, 1, 6, 3, 15, 1, 1, 5, 0): 'wrongDigest',
-               (1, 3, 6, 1, 6, 3, 15, 1, 1, 6, 0): 'decryptionError'}
+_snmpErrors = {(1, 3, 6, 1, 6, 3, 15, 1, 1, 1, 0): errind.unsupportedSecLevel,
+               (1, 3, 6, 1, 6, 3, 15, 1, 1, 2, 0): errind.notInTimeWindow,
+               (1, 3, 6, 1, 6, 3, 15, 1, 1, 3, 0): errind.unknownUserName,
+               (1, 3, 6, 1, 6, 3, 15, 1, 1, 4, 0): errind.unknownEngineID,
+               (1, 3, 6, 1, 6, 3, 15, 1, 1, 5, 0): errind.wrongDigest,
+               (1, 3, 6, 1, 6, 3, 15, 1, 1, 6, 0): errind.decryptionError}
 
 
 class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
@@ -655,7 +655,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             varBinds = pMod.apiPDU.getVarBinds(pdu)
             if varBinds:
                 statusInformation = error.StatusInformation(
-                    errorIndication=errind.ErrorReportReceived(_snmpErrors.get(varBinds[0][0], varBinds[0][0].prettyPrint())),
+                    errorIndication=_snmpErrors.get(varBinds[0][0], errind.ReportPduReceived(varBinds[0][0].prettyPrint())),
                     oid=varBinds[0][0], val=varBinds[0][1],
                     sendPduHandle=sendPduHandle
                 )
