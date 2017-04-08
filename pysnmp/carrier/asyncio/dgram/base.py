@@ -41,8 +41,6 @@ try:
 except ImportError:
     import trollius as asyncio
 
-loop = asyncio.get_event_loop()
-
 
 class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
     """Base Asyncio datagram Transport, to be used with AsyncioDispatcher"""
@@ -50,15 +48,18 @@ class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
     addressType = lambda x: x
     transport = None
 
-    def __init__(self, sock=None, sockMap=None):
+    def __init__(self, sock=None, sockMap=None, loop=None):
         self._writeQ = []
         self._lport = None
+        if loop is None:
+            loop = asyncio.get_event_loop()
+        self.loop = loop
 
     def datagram_received(self, datagram, transportAddress):
         if self._cbFun is None:
             raise error.CarrierError('Unable to call cbFun')
         else:
-            loop.call_soon(self._cbFun, self, transportAddress, datagram)
+            self.loop.call_soon(self._cbFun, self, transportAddress, datagram)
 
     def connection_made(self, transport):
         self.transport = transport
@@ -79,7 +80,7 @@ class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
 
     def openClientMode(self, iface=None):
         try:
-            c = loop.create_datagram_endpoint(
+            c = self.loop.create_datagram_endpoint(
                 lambda: self, local_addr=iface, family=self.sockFamily
             )
             self._lport = asyncio.async(c)
@@ -89,7 +90,7 @@ class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
 
     def openServerMode(self, iface):
         try:
-            c = loop.create_datagram_endpoint(
+            c = self.loop.create_datagram_endpoint(
                 lambda: self, local_addr=iface, family=self.sockFamily
             )
             self._lport = asyncio.async(c)
