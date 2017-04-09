@@ -34,13 +34,6 @@ import socket
 from pysnmp.carrier.base import AbstractTransportAddress
 from pysnmp.carrier.asyncio.dgram.base import DgramAsyncioProtocol
 
-try:
-    import asyncio
-except ImportError:
-    import trollius as asyncio
-
-loop = asyncio.get_event_loop()
-
 domainName = snmpUDPDomain = (1, 3, 6, 1, 6, 1, 1)
 
 

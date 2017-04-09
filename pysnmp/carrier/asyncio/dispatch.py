@@ -40,8 +40,6 @@ try:
 except ImportError:
     import trollius as asyncio
 
-loop = asyncio.get_event_loop()
-
 
 class AsyncioDispatcher(AbstractTransportDispatcher):
     """AsyncioDispatcher based on asyncio event loop"""
@@ -52,17 +50,18 @@ class AsyncioDispatcher(AbstractTransportDispatcher):
         if 'timeout' in kwargs:
             self.setTimerResolution(kwargs['timeout'])
         self.loopingcall = None
+        self.loop = kwargs.pop('loop', asyncio.get_event_loop())
 
     @asyncio.coroutine
     def handle_timeout(self):
         while True:
             yield asyncio.From(asyncio.sleep(self.getTimerResolution()))
-            self.handleTimerTick(loop.time())
+            self.handleTimerTick(self.loop.time())
 
     def runDispatcher(self, timeout=0.0):
-        if not loop.is_running():
+        if not self.loop.is_running():
             try:
-                loop.run_forever()
+                self.loop.run_forever()
             except KeyboardInterrupt:
                 raise
             except Exception:
@@ -95,6 +94,6 @@ if not hasattr(asyncio, "From"):
 def handle_timeout(self):
     while True:
         yield from asyncio.sleep(self.getTimerResolution())
-        self.handleTimerTick(loop.time())
+        self.handleTimerTick(self.loop.time())
 AsyncioDispatcher.handle_timeout = handle_timeout\
 """)
