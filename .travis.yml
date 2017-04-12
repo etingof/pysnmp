@@ -1,8 +1,7 @@
 
 language: python
 python:
-# temporarily disabled due to broken pysmi dependency
-#  - "2.6"
+  - "2.6"
   - "2.7"
   - "3.2"
   - "3.3"
