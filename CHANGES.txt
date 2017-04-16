@@ -2,6 +2,8 @@
 Revision 4.3.6, released 2017-XX-XX
 -----------------------------------
 
+- SNMP table indices correlation implemented within SMI framework. The opaque
+  InetAddress type implemented. INED-ADDRESS-MIB included into the distribution.
 - Fixes to *lexicographicMode* option documentation to make it unambiguous.
 - The `ErrorIndication` object is now derived from `Exception` so that it could
   be raised in exceptions.

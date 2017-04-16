@@ -993,10 +993,12 @@ class MibTableRow(MibTree):
     __ipaddrTagSet = IpAddress.tagSet
     __bitsBaseTag = Bits.tagSet.getBaseTag()
 
-    def setFromName(self, obj, value, impliedFlag=None):
+    def setFromName(self, obj, value, impliedFlag=None, parentIndices=None):
         if not value:
             raise error.SmiError('Short OID for index %r' % (obj,))
         value = tuple(value)  # possible ObjectIdentifiers
+        if hasattr(obj, 'cloneAsIndex'):
+            return obj.cloneAsIndex(value, impliedFlag, parentRow=self, parentIndices=parentIndices)
         baseTag = obj.getTagSet().getBaseTag()
         if baseTag == self.__intBaseTag:
             return obj.clone(value[0]), value[1:]
@@ -1022,7 +1024,9 @@ class MibTableRow(MibTree):
         else:
             raise error.SmiError('Unknown value type for index %r' % (obj,))
 
-    def getAsName(self, obj, impliedFlag=None):
+    def getAsName(self, obj, impliedFlag=None, parentIndices=None):
+        if hasattr(obj, 'cloneAsName'):
+            return obj.cloneAsName(impliedFlag, parentRow=self, parentIndices=parentIndices)
         baseTag = obj.getTagSet().getBaseTag()
         if baseTag == self.__intBaseTag:
             # noinspection PyRedundantParentheses
@@ -1052,13 +1056,16 @@ class MibTableRow(MibTree):
         # Convert OID suffix into index vals
         instId = name[len(self.name) + 1:]
         baseIndices = []
+        indices = []
         for impliedFlag, modName, symName in self.indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
             syntax, instId = self.setFromName(mibObj.syntax, instId,
-                                              impliedFlag)
+                                              impliedFlag, indices)
 
             if self.name == mibObj.name[:-1]:
                 baseIndices.append((mibObj.name, syntax))
+
+            indices.append(syntax)
 
         if instId:
             raise error.SmiError('Excessive instance identifier sub-OIDs left at %s: %s' % (self, instId))
@@ -1079,9 +1086,11 @@ class MibTableRow(MibTree):
         # Resolve indices intersection
         for impliedFlag, modName, symName in self.indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
+            parentIndices = []
             for name, syntax in baseIndices:
                 if name == mibObj.name:
-                    newSuffix = newSuffix + self.getAsName(syntax, impliedFlag)
+                    newSuffix += self.getAsName(syntax, impliedFlag, parentIndices)
+                parentIndices.append(syntax)
 
         if newSuffix:
             debug.logger & debug.flagIns and debug.logger(
@@ -1110,11 +1119,13 @@ class MibTableRow(MibTree):
         # Build a map of index names and values for automatic initialization
         indexVals = {}
         instId = nameSuffix
+        indices = []
         for impliedFlag, modName, symName in self.indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
             syntax, instId = self.setFromName(mibObj.syntax, instId,
-                                              impliedFlag)
+                                              impliedFlag, indices)
             indexVals[mibObj.name] = syntax
+            indices.append(syntax)
 
         for name, var in self._vars.items():
             if name == excludeName:
@@ -1196,7 +1207,7 @@ class MibTableRow(MibTree):
         indices = []
         for impliedFlag, modName, symName in self.indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
-            syntax, instId = self.setFromName(mibObj.syntax, instId, impliedFlag)
+            syntax, instId = self.setFromName(mibObj.syntax, instId, impliedFlag, indices)
             indices.append(syntax)  # to avoid cyclic refs
         if instId:
             raise error.SmiError(
@@ -1214,13 +1225,13 @@ class MibTableRow(MibTree):
         idx = 0
         idxLen = len(indices)
         instId = ()
+        parentIndices = []
         for impliedFlag, modName, symName in self.indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
-            if idx < idxLen:
-                instId = instId + self.getAsName(
-                    mibObj.syntax.clone(indices[idx]), impliedFlag
-                )
-            else:
+            syntax = mibObj.syntax.clone(indices[idx])
+            instId += self.getAsName(syntax, impliedFlag, parentIndices)
+            parentIndices.append(syntax)
+            if idx >= idxLen:
                 break
             idx += 1
         self.__idxToIdCache[indices] = instId
