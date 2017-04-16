@@ -30,28 +30,24 @@ class InetAddressIPv4(TextualConvention, OctetString):
     status = 'current'
     displayHint = '1d.1d.1d.1d'
     subtypeSpec = OctetString.subtypeSpec + ValueSizeConstraint(4, 4)
-    fixedLength = 4
 
 class InetAddressIPv6(TextualConvention, OctetString):
     description = 'Represents an IPv6 network address: Octets Contents Encoding 1-16 IPv6 address network-byte order The corresponding InetAddressType value is ipv6(2). This textual convention SHOULD NOT be used directly in object definitions, as it restricts addresses to a specific format. However, if it is used, it MAY be used either on its own or in conjunction with InetAddressType, as a pair.'
     status = 'current'
     displayHint = '2x:2x:2x:2x:2x:2x:2x:2x'
     subtypeSpec = OctetString.subtypeSpec + ValueSizeConstraint(16, 16)
-    fixedLength = 16
 
 class InetAddressIPv4z(TextualConvention, OctetString):
     description = 'Represents a non-global IPv4 network address, together with its zone index: Octets Contents Encoding 1-4 IPv4 address network-byte order 5-8 zone index network-byte order The corresponding InetAddressType value is ipv4z(3). The zone index (bytes 5-8) is used to disambiguate identical address values on nodes that have interfaces attached to different zones of the same scope. The zone index may contain the special value 0, which refers to the default zone for each scope. This textual convention SHOULD NOT be used directly in object definitions, as it restricts addresses to a specific format. However, if it is used, it MAY be used either on its own or in conjunction with InetAddressType, as a pair.'
     status = 'current'
     displayHint = '1d.1d.1d.1d%4d'
     subtypeSpec = OctetString.subtypeSpec + ValueSizeConstraint(8, 8)
-    fixedLength = 8
 
 class InetAddressIPv6z(TextualConvention, OctetString):
     description = 'Represents a non-global IPv6 network address, together with its zone index: Octets Contents Encoding 1-16 IPv6 address network-byte order 17-20 zone index network-byte order The corresponding InetAddressType value is ipv6z(4). The zone index (bytes 17-20) is used to disambiguate identical address values on nodes that have interfaces attached to different zones of the same scope. The zone index may contain the special value 0, which refers to the default zone for each scope. This textual convention SHOULD NOT be used directly in object definitions, as it restricts addresses to a specific format. However, if it is used, it MAY be used either on its own or in conjunction with InetAddressType, as a pair.'
     status = 'current'
     displayHint = '2x:2x:2x:2x:2x:2x:2x:2x%4d'
     subtypeSpec = OctetString.subtypeSpec + ValueSizeConstraint(20, 20)
-    fixedLength = 20
 
 class InetAddressDNS(TextualConvention, OctetString):
     description = 'Represents a DNS domain name. The name SHOULD be fully qualified whenever possible. The corresponding InetAddressType is dns(16). The DESCRIPTION clause of InetAddress objects that may have InetAddressDNS values MUST fully describe how (and when) these names are to be resolved to IP addresses. The resolution of an InetAddressDNS value may require to query multiple DNS records (e.g., A for IPv4 and AAAA for IPv6). The order of the resolution process and which DNS record takes precedence depends on the configuration of the resolver. This textual convention SHOULD NOT be used directly in object definitions, as it restricts addresses to a specific format. However, if it is used, it MAY be used either on its own or in conjunction with InetAddressType, as a pair.'
