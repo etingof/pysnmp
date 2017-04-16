@@ -1234,16 +1234,15 @@ class MibTableRow(MibTree):
         if indices in self.__idxToIdCache:
             return self.__idxToIdCache[indices]
         idx = 0
-        idxLen = len(indices)
         instId = ()
         parentIndices = []
         for impliedFlag, modName, symName in self.indexNames:
+            if idx >= len(indices):
+                break
             mibObj, = mibBuilder.importSymbols(modName, symName)
             syntax = mibObj.syntax.clone(indices[idx])
             instId += self.getAsName(syntax, impliedFlag, parentIndices)
             parentIndices.append(syntax)
-            if idx >= idxLen:
-                break
             idx += 1
         self.__idxToIdCache[indices] = instId
         return instId
