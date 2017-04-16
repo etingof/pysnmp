@@ -1204,18 +1204,29 @@ class MibTableRow(MibTree):
         """Return index values for instance identification"""
         if instId in self.__idToIdxCache:
             return self.__idToIdxCache[instId]
+
         indices = []
         for impliedFlag, modName, symName in self.indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
-            syntax, instId = self.setFromName(mibObj.syntax, instId, impliedFlag, indices)
+            try:
+                syntax, instId = self.setFromName(mibObj.syntax, instId, impliedFlag, indices)
+            except PyAsn1Error:
+                debug.logger & debug.flagIns and debug.logger('error resolving table indices at %s, %s: %s' % (self.__class__.__name__, instId, sys.exc_info()[1]))
+                indices = [instId]
+                instId = ()
+                break
+
             indices.append(syntax)  # to avoid cyclic refs
+
         if instId:
             raise error.SmiError(
                 'Excessive instance identifier sub-OIDs left at %s: %s' %
                 (self, instId)
             )
+
         indices = tuple(indices)
         self.__idToIdxCache[instId] = indices
+
         return indices
 
     def getInstIdFromIndices(self, *indices):
