@@ -1,4 +1,9 @@
 #
+# This file is part of pysnmp software.
+#
+# Copyright (c) 2005-2017, Ilya Etingof <etingof@gmail.com>
+# License: http://pysnmp.sf.net/license.html
+#
 # PySNMP MIB module INET-ADDRESS-MIB (http://pysnmp.sf.net)
 # ASN.1 source http://mibs.snmplabs.com:80/asn1/INET-ADDRESS-MIB
 # Produced by pysmi-0.1.2 at Sat Apr 15 23:36:33 2017
