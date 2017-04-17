@@ -997,8 +997,8 @@ class MibTableRow(MibTree):
         if not value:
             raise error.SmiError('Short OID for index %r' % (obj,))
         value = tuple(value)  # possible ObjectIdentifiers
-        if hasattr(obj, 'cloneAsIndex'):
-            return obj.cloneAsIndex(value, impliedFlag, parentRow=self, parentIndices=parentIndices)
+        if hasattr(obj, 'cloneFromName'):
+            return obj.cloneFromName(value, impliedFlag, parentRow=self, parentIndices=parentIndices)
         baseTag = obj.getTagSet().getBaseTag()
         if baseTag == self.__intBaseTag:
             return obj.clone(value[0]), value[1:]

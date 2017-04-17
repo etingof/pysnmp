@@ -55,6 +55,8 @@ class InetAddressDNS(TextualConvention, OctetString):
     displayHint = '255a'
     subtypeSpec = OctetString.subtypeSpec + ValueSizeConstraint(1, 255)
 
+# https://tools.ietf.org/html/rfc4001#section-4.1
+
 class InetAddress(TextualConvention, OctetString):
     description = "Denotes a generic Internet address. An InetAddress value is always interpreted within the context of an InetAddressType value. Every usage of the InetAddress textual convention is required to specify the InetAddressType object that provides the context. It is suggested that the InetAddressType object be logically registered before the object(s) that use the InetAddress textual convention, if they appear in the same logical row. The value of an InetAddress object must always be consistent with the value of the associated InetAddressType object. Attempts to set an InetAddress object to a value inconsistent with the associated InetAddressType must fail with an inconsistentValue error. When this textual convention is used as the syntax of an index object, there may be issues with the limit of 128 sub-identifiers specified in SMIv2, STD 58. In this case, the object definition MUST include a 'SIZE' clause to limit the number of potential instance sub-identifiers; otherwise the applicable constraints MUST be stated in the appropriate conceptual row DESCRIPTION clauses, or in the surrounding documentation if there is no single DESCRIPTION clause that is appropriate."
     status = 'current'
@@ -69,7 +71,7 @@ class InetAddress(TextualConvention, OctetString):
     }
 
     @classmethod
-    def cloneAsIndex(cls, value, impliedFlag, parentRow, parentIndices):
+    def cloneFromName(cls, value, impliedFlag, parentRow, parentIndices):
         for parentIndex in reversed(parentIndices):
             if isinstance(parentIndex, InetAddressType):
                 try:
