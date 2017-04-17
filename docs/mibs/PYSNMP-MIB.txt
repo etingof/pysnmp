@@ -8,15 +8,16 @@ IMPORTS
     MODULE-IDENTITY, enterprises FROM SNMPv2-SMI;
 
 pysnmp MODULE-IDENTITY
-    LAST-UPDATED "200505140000Z"
-    ORGANIZATION "pysnmp.sf.net"
-    CONTACT-INFO    
-        "email: etingof@gmail.com"
+    LAST-UPDATED "201704140000Z"
+    ORGANIZATION "The PySNMP Project"
+    CONTACT-INFO "E-mail: Ilya Etingof <etingof@gmail.com>
+                  GitHub: https://github.com/etingof/pysnmp"
     DESCRIPTION
-	"Top-level infrastructure of the PySNMP project enterprise MIB tree"
+	"PySNMP top-level MIB tree infrastructure"
+    REVISION     "201704140000Z"
+    DESCRIPTION  "Updated addresses"
     REVISION     "200505140000Z"
-    DESCRIPTION
-	"Initial revision"
+    DESCRIPTION  "Initial revision"
     ::= { enterprises 20408 }
 
 

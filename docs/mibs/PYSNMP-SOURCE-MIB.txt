@@ -12,16 +12,18 @@ IMPORTS
         FROM PYSNMP-MIB;
 
 pysnmpSourceMIB MODULE-IDENTITY
-    LAST-UPDATED "201501160000Z"          -- 16 January 2015, midnight
-    ORGANIZATION "SNMP Laboratories"
-    CONTACT-INFO "E-mail:     info@snmplabs.com
-                  Subscribe:  pysnmp-users-request@lists.sourceforge.net"
-        DESCRIPTION
-            "This MIB module defines implementation specific objects
-	     that provide variable source transport endpoints feature to
-             SNMP Engine and Applications."
-        REVISION "201501160000Z"          -- 16 January 2015, midnight
-        DESCRIPTION "The Initial Revision"
+    LAST-UPDATED "201704140000Z"
+    ORGANIZATION "The PySNMP Project"
+    CONTACT-INFO "E-mail: Ilya Etingof <etingof@gmail.com>
+                  GitHub: https://github.com/etingof/pysnmp"
+    DESCRIPTION
+        "This MIB module defines implementation specific objects
+         that provide variable source transport endpoints feature to
+         SNMP Engine and Standard SNMP Applications."
+    REVISION    "201704140000Z"
+    DESCRIPTION "Updated addresses"
+    REVISION    "201501160000Z"          -- 16 January 2015, midnight
+    DESCRIPTION "Initial Revision"
     ::= { pysnmpModuleIDs 8 }
 
 -- Administrative assignments ****************************************
