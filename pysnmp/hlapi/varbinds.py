@@ -33,6 +33,8 @@ class CommandGeneratorVarBinds(AbstractVarBinds):
                 varBind = ObjectType(*varBind)
             elif isinstance(varBind[0][0], tuple):  # legacy
                 varBind = ObjectType(ObjectIdentity(varBind[0][0][0], varBind[0][0][1], *varBind[0][1:]), varBind[1])
+            elif isinstance(varBind[0], ObjectType) and len(varBind) == 1:
+                varBind = varBind[0]
             else:
                 varBind = ObjectType(ObjectIdentity(varBind[0]), varBind[1])
 
