@@ -13,7 +13,8 @@ Revision 4.3.6, released 2017-05-28
   unified to be `ErrorIndication` instances. This fixes an issue with Twisted.
 - Embedded MIB modules rebuilt with the latest pysmi adding previously missing
   attributes like `status`, `description` etc.
-- Fix to mistyped UnsupportedSecurityLevel object
+- Fixed potential SNMP engine crash on handling incoming message at unsupported
+  security level
 
 Revision 4.3.5, released 2017-03-24
 -----------------------------------
