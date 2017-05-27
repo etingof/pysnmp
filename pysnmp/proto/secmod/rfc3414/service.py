@@ -640,8 +640,11 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         if msgUserName:
             # 3.2.4
             try:
-                (usmUserName, usmUserSecurityName, usmUserAuthProtocol,
-                 usmUserAuthKeyLocalized, usmUserPrivProtocol,
+                (usmUserName,
+                 usmUserSecurityName,
+                 usmUserAuthProtocol,
+                 usmUserAuthKeyLocalized,
+                 usmUserPrivProtocol,
                  usmUserPrivKeyLocalized) = self.__getUserInfo(
                     snmpEngine.msgAndPduDsp.mibInstrumController,
                     msgAuthoritativeEngineId, msgUserName
@@ -652,9 +655,11 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 debug.logger & debug.flagSM and debug.logger(
                     'processIncomingMsg: unknown securityEngineID %r msgUserName %r' % (
                         msgAuthoritativeEngineId, msgUserName))
+
                 usmStatsUnknownUserNames, = mibBuilder.importSymbols(
                     '__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownUserNames')
                 usmStatsUnknownUserNames.syntax += 1
+
                 raise error.StatusInformation(
                     errorIndication=errind.unknownSecurityName,
                     oid=usmStatsUnknownUserNames.name,
@@ -663,6 +668,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     securityLevel=securityLevel,
                     contextEngineId=contextEngineId,
                     contextName=contextName,
+                    msgUserName=msgUserName,
                     maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
                 )
 
