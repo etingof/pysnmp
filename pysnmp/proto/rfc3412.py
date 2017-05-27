@@ -288,6 +288,7 @@ class MsgAndPduDispatcher(object):
         try:
             restOfWholeMsg = null  # XXX fix decoder non-recursive return
             msgVersion = verdec.decodeMessageVersion(wholeMsg)
+
         except error.ProtocolError:
             snmpInASNParseErrs, = self.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB',
                                                                                      'snmpInASNParseErrs')
@@ -298,10 +299,10 @@ class MsgAndPduDispatcher(object):
 
         messageProcessingModel = msgVersion
 
-        k = int(messageProcessingModel)
-        if k in snmpEngine.messageProcessingSubsystems:
-            mpHandler = snmpEngine.messageProcessingSubsystems[k]
-        else:
+        try:
+            mpHandler = snmpEngine.messageProcessingSubsystems[int(messageProcessingModel)]
+
+        except KeyError:
             snmpInBadVersions, = self.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInBadVersions')
             snmpInBadVersions.syntax += 1
             return restOfWholeMsg
@@ -310,10 +311,18 @@ class MsgAndPduDispatcher(object):
 
         # 4.2.1.4
         try:
-            (messageProcessingModel, securityModel, securityName,
-             securityLevel, contextEngineId, contextName,
-             pduVersion, PDU, pduType, sendPduHandle,
-             maxSizeResponseScopedPDU, statusInformation,
+            (messageProcessingModel,
+             securityModel,
+             securityName,
+             securityLevel,
+             contextEngineId,
+             contextName,
+             pduVersion,
+             PDU,
+             pduType,
+             sendPduHandle,
+             maxSizeResponseScopedPDU,
+             statusInformation,
              stateReference) = mpHandler.prepareDataElements(
                 snmpEngine, transportDomain, transportAddress, wholeMsg
             )

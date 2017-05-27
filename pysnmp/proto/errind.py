@@ -196,10 +196,13 @@ class UnsupportedSecurityModel(ErrorIndication):
 unsupportedSecurityModel = UnsupportedSecurityModel('Unsupported SNMP security model')
 
 
-class UnsupportedSecLevel(ErrorIndication):
+class UnsupportedSecurityLevel(ErrorIndication):
     pass
 
-unsupportedSecLevel = UnsupportedSecLevel('Unsupported SNMP security level')
+# backward compatibility plug
+UnsupportedSecLevel = UnsupportedSecurityLevel
+
+unsupportedSecurityLevel = UnsupportedSecurityLevel('Unsupported SNMP security level')
 
 
 class NotInTimeWindow(ErrorIndication):

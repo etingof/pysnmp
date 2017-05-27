@@ -640,8 +640,11 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         if msgUserName:
             # 3.2.4
             try:
-                (usmUserName, usmUserSecurityName, usmUserAuthProtocol,
-                 usmUserAuthKeyLocalized, usmUserPrivProtocol,
+                (usmUserName,
+                 usmUserSecurityName,
+                 usmUserAuthProtocol,
+                 usmUserAuthKeyLocalized,
+                 usmUserPrivProtocol,
                  usmUserPrivKeyLocalized) = self.__getUserInfo(
                     snmpEngine.msgAndPduDsp.mibInstrumController,
                     msgAuthoritativeEngineId, msgUserName
@@ -652,9 +655,11 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 debug.logger & debug.flagSM and debug.logger(
                     'processIncomingMsg: unknown securityEngineID %r msgUserName %r' % (
                         msgAuthoritativeEngineId, msgUserName))
+
                 usmStatsUnknownUserNames, = mibBuilder.importSymbols(
                     '__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownUserNames')
                 usmStatsUnknownUserNames.syntax += 1
+
                 raise error.StatusInformation(
                     errorIndication=errind.unknownSecurityName,
                     oid=usmStatsUnknownUserNames.name,
@@ -663,6 +668,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     securityLevel=securityLevel,
                     contextEngineId=contextEngineId,
                     contextName=contextName,
+                    msgUserName=msgUserName,
                     maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
                 )
 
@@ -749,6 +755,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     securityLevel=securityLevel,
                     contextEngineId=contextEngineId,
                     contextName=contextName,
+                    msgUserName=msgUserName,
                     maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
                 )
 
@@ -780,6 +787,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     securityLevel=securityLevel,
                     contextEngineId=contextEngineId,
                     contextName=contextName,
+                    msgUserName=msgUserName,
                     maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
                 )
 
@@ -847,6 +855,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         securityLevel=2,
                         contextEngineId=contextEngineId,
                         contextName=contextName,
+                        msgUserName=msgUserName,
                         maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
                     )
             # 3.2.7b
@@ -879,7 +888,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                         msgAuthoritativeEngineBoots == snmpEngineBoots and
                         abs(idleTime + int(snmpEngineTime) - int(msgAuthoritativeEngineTime)) > 150):
                     raise error.StatusInformation(
-                        errorIndication=errind.notInTimeWindow
+                        errorIndication=errind.notInTimeWindow,
+                        msgUserName=msgUserName
                     )
 
         # 3.2.8a
@@ -888,12 +898,14 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 privHandler = self.privServices[usmUserPrivProtocol]
             else:
                 raise error.StatusInformation(
-                    errorIndication=errind.decryptionError
+                    errorIndication=errind.decryptionError,
+                    msgUserName=msgUserName
                 )
             encryptedPDU = scopedPduData.getComponentByPosition(1)
             if encryptedPDU is None:  # no ciphertext
                 raise error.StatusInformation(
-                    errorIndication=errind.decryptionError
+                    errorIndication=errind.decryptionError,
+                    msgUserName=msgUserName
                 )
 
             try:
@@ -919,6 +931,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     securityLevel=securityLevel,
                     contextEngineId=contextEngineId,
                     contextName=contextName,
+                    msgUserName=msgUserName,
                     maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
                 )
             scopedPduSpec = scopedPduData.setComponentByPosition(0).getComponentByPosition(0)
@@ -930,19 +943,22 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 debug.logger & debug.flagSM and debug.logger(
                     'processIncomingMsg: scopedPDU decoder failed %s' % sys.exc_info()[0])
                 raise error.StatusInformation(
-                    errorIndication=errind.decryptionError
+                    errorIndication=errind.decryptionError,
+                    msgUserName=msgUserName
                 )
 
             if eoo.endOfOctets.isSameTypeWith(scopedPDU):
                 raise error.StatusInformation(
-                    errorIndication=errind.decryptionError
+                    errorIndication=errind.decryptionError,
+                    msgUserName=msgUserName
                 )
         else:
             # 3.2.8b
             scopedPDU = scopedPduData.getComponentByPosition(0)
             if scopedPDU is None:  # no plaintext
                 raise error.StatusInformation(
-                    errorIndication=errind.decryptionError
+                    errorIndication=errind.decryptionError,
+                    msgUserName=msgUserName
                 )
 
         debug.logger & debug.flagSM and debug.logger(
@@ -969,6 +985,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 securityLevel=securityLevel,
                 contextEngineId=contextEngineId,
                 contextName=contextName,
+                msgUserName=msgUserName,
                 maxSizeResponseScopedPDU=maxSizeResponseScopedPDU,
                 PDU=scopedPDU
             )

@@ -274,24 +274,47 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
         # rfc3412: 7.2.4 -- 7.2.5 -> no-op
 
-        k = int(securityModel)
-        if k in snmpEngine.securityModels:
-            smHandler = snmpEngine.securityModels[k]
-        else:
-            raise error.StatusInformation(
-                errorIndication=errind.unsupportedSecurityModel
+        try:
+
+            try:
+                smHandler = snmpEngine.securityModels[int(securityModel)]
+
+            except KeyError:
+                raise error.StatusInformation(
+                    errorIndication=errind.unsupportedSecurityModel
+                )
+
+            # rfc3412: 7.2.6
+            (securityEngineId,
+             securityName,
+             scopedPDU,
+             maxSizeResponseScopedPDU,
+             securityStateReference) = smHandler.processIncomingMsg(
+                snmpEngine, messageProcessingModel,
+                snmpEngineMaxMessageSize.syntax, securityParameters,
+                securityModel, securityLevel, wholeMsg, msg
             )
 
-        # rfc3412: 7.2.6
-        (securityEngineId, securityName, scopedPDU,
-         maxSizeResponseScopedPDU, securityStateReference) = smHandler.processIncomingMsg(
-            snmpEngine, messageProcessingModel,
-            snmpEngineMaxMessageSize.syntax, securityParameters,
-            securityModel, securityLevel, wholeMsg, msg
-        )
+            debug.logger & debug.flagMP and debug.logger(
+                'prepareDataElements: SM returned securityEngineId %r securityName %r' % (securityEngineId, securityName))
 
-        debug.logger & debug.flagMP and debug.logger(
-            'prepareDataElements: SM returned securityEngineId %r securityName %r' % (securityEngineId, securityName))
+        except error.StatusInformation:
+            statusInformation = sys.exc_info()[1]
+
+            snmpEngine.observer.storeExecutionContext(
+                snmpEngine, 'rfc2576.prepareDataElements:sm-failure',
+                dict(transportDomain=transportDomain,
+                     transportAddress=transportAddress,
+                     securityModel=securityModel,
+                     securityLevel=securityLevel,
+                     securityParameters=securityParameters,
+                     statusInformation=statusInformation)
+            )
+            snmpEngine.observer.clearExecutionContext(
+                snmpEngine, 'rfc2576.prepareDataElements:sm-failure'
+            )
+
+            raise
 
         # rfc3412: 7.2.6a --> no-op
 

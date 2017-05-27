@@ -371,7 +371,10 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
             snmpInBadCommunityNames, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
                 '__SNMPv2-MIB', 'snmpInBadCommunityNames')
             snmpInBadCommunityNames.syntax += 1
-            raise error.StatusInformation(errorIndication=errind.unknownCommunityName)
+            raise error.StatusInformation(
+                errorIndication=errind.unknownCommunityName,
+                communityName=communityName
+            )
 
         snmpEngineID, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB',
                                                                                               'snmpEngineID')

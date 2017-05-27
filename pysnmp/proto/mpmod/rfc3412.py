@@ -56,7 +56,7 @@ class SNMPv3Message(univ.Sequence):
 
 
 # XXX move somewhere?
-_snmpErrors = {(1, 3, 6, 1, 6, 3, 15, 1, 1, 1, 0): errind.unsupportedSecLevel,
+_snmpErrors = {(1, 3, 6, 1, 6, 3, 15, 1, 1, 1, 0): errind.unsupportedSecurityLevel,
                (1, 3, 6, 1, 6, 3, 15, 1, 1, 2, 0): errind.notInTimeWindow,
                (1, 3, 6, 1, 6, 3, 15, 1, 1, 3, 0): errind.unknownUserName,
                (1, 3, 6, 1, 6, 3, 15, 1, 1, 4, 0): errind.unknownEngineID,
@@ -536,8 +536,23 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
 
         except error.StatusInformation:
             statusInformation, origTraceback = sys.exc_info()[1:3]
+
             debug.logger & debug.flagMP and debug.logger(
                 'prepareDataElements: SM failed, statusInformation %s' % statusInformation)
+
+            snmpEngine.observer.storeExecutionContext(
+                snmpEngine, 'rfc3412.prepareDataElements:sm-failure',
+                dict(transportDomain=transportDomain,
+                     transportAddress=transportAddress,
+                     securityModel=securityModel,
+                     securityLevel=securityLevel,
+                     securityParameters=securityParameters,
+                     statusInformation=statusInformation)
+            )
+            snmpEngine.observer.clearExecutionContext(
+                snmpEngine, 'rfc3412.prepareDataElements:sm-failure'
+            )
+
             if 'errorIndication' in statusInformation:
                 # 7.2.6a
                 if 'oid' in statusInformation:
@@ -580,6 +595,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
                         pass
 
                     debug.logger & debug.flagMP and debug.logger('prepareDataElements: error reported')
+
             # 7.2.6b
             if sys.version_info[0] <= 2:
                 raise statusInformation

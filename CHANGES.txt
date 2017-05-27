@@ -1,7 +1,8 @@
 
-Revision 4.3.6, released 2017-XX-XX
+Revision 4.3.6, released 2017-05-28
 -----------------------------------
 
+- More instrumentation hooks added addressing security failures auditing needs.
 - SNMP table indices correlation implemented within SMI framework. The opaque
   InetAddress type implemented. INET-ADDRESS-MIB included into the distribution.
 - SNMP table indices resolution logic made more robust against malformed indices.
@@ -12,6 +13,8 @@ Revision 4.3.6, released 2017-XX-XX
   unified to be `ErrorIndication` instances. This fixes an issue with Twisted.
 - Embedded MIB modules rebuilt with the latest pysmi adding previously missing
   attributes like `status`, `description` etc.
+- Fixed potential SNMP engine crash on handling incoming message at unsupported
+  security level
 
 Revision 4.3.5, released 2017-03-24
 -----------------------------------
