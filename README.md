@@ -25,6 +25,7 @@ Features
 * [Twisted](http://twistedmatrix.com), [Asyncio](https://docs.python.org/3/library/asyncio.html)
   and [Trollius](http://trollius.readthedocs.org/index.html) integration
 * [PySMI](http://pysmi.sf.net) integration for dynamic MIB compilation
+* Built-in instrumentation exposing protocol engine operations
 * Python eggs and py2exe friendly
 * 100% Python, works with Python 2.4 though 3.6
 * MT-safe (if SnmpEngine is thread-local)
@@ -145,14 +146,14 @@ at pysnmp web site.
 Documentation
 -------------
 
-Notes on library design and API could be read at [pysnmp project site](http://pysnmp.sf.net/).
+Library documentation and examples can be found at the [pysnmp project site](http://pysnmp.sf.net/).
 
-If something does not work as expected, 
+If something does not work as expected, please
 [open an issue](https://github.com/etingof/pysnmp/issues) at GitHub or
 post your question [on Stack Overflow](http://stackoverflow.com/questions/ask)
 or try browsing pysnmp 
 [mailing list archives](https://sourceforge.net/p/pyasn1/mailman/pysnmp-users/).
 
-Finally, your PRs are warmly welcome! ;-)
+Bug reports and PRs are appreciated! ;-)
 
 Copyright (c) 2005-2017, [Ilya Etingof](mailto:etingof@gmail.com). All rights reserved.
