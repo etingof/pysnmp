@@ -68,8 +68,8 @@ class DgramSocketTransport(AbstractSocketTransport):
         return self
 
     def enablePktInfo(self, flag=1):
-        if not hasattr(self.socket, 'sendmsg') or \
-                not hasattr(self.socket, 'recvmsg'):
+        if (not hasattr(self.socket, 'sendmsg') or
+                not hasattr(self.socket, 'recvmsg')):
             raise error.CarrierError('sendmsg()/recvmsg() interface is not supported by this OS and/or Python version')
 
         try:

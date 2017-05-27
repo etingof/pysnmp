@@ -25,8 +25,10 @@ from pysnmp.hlapi.asyncio import *
 def run(varBinds):
     snmpEngine = SnmpEngine()
     while True:
-        errorIndication, errorStatus, errorIndex, \
-        varBindTable = yield from bulkCmd(
+        (errorIndication,
+         errorStatus,
+         errorIndex,
+         varBindTable) = yield from bulkCmd(
             snmpEngine,
             UsmUserData('usr-none-none'),
             UdpTransportTarget(('demo.snmplabs.com', 161)),

@@ -30,11 +30,11 @@ or
 In case you do not have the easy_install command on your system but still 
 would like to use the on-line package installation method, please install 
 `setuptools <http://pypi.python.org/pypi/setuptools>`_ package by 
-downloading and running `ez_setup.pz <https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py>`_ bootstrap:
+downloading and running `ez_setup.pz <https://bootstrap.pypa.io/ez_setup.py>`_ bootstrap:
 
 .. code-block:: bash
 
-   # wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py 
+   # wget https://bootstrap.pypa.io/ez_setup.py
    # python ez_setup.py
 
 In case you are installing PySNMP on an off-line system, the following 

@@ -12,9 +12,9 @@ class MetaObserver(object):
        working details to pysnmp applications. These details are
        basically local scope variables at a fixed point of execution.
 
-       Two modes of operations are offered(object):
-       1. App can request an execution point context by execution point ID.
-       2. App can register its callback function (and context) to be invoked
+       Two modes of operations are offered:
+       1. Consumer: app can request an execution point context by execution point ID.
+       2. Provider: app can register its callback function (and context) to be invoked
           once execution reaches specified point. All local scope variables
           will be passed to the callback as in #1.
 

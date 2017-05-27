@@ -75,8 +75,8 @@ snmpEngineB = SnmpEngine()
 snmpEngineB.registerTransportDispatcher(transportDispatcher, 'B')
 
 for authData, transportTarget, contextData in targets:
-    snmpEngine = transportTarget.getTransportInfo()[1][1] % 3 and \
-                 snmpEngineA or snmpEngineB
+    snmpEngine = (transportTarget.getTransportInfo()[1][1] % 3 and
+                  snmpEngineA or snmpEngineB)
     sendPduHandle = sendNotification(
         snmpEngine,
         authData,

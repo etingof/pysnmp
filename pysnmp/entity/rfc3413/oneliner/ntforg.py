@@ -1,4 +1,4 @@
-#
+pysnmp/carrier/asyncore/dgram/base.py#
 # This file is part of pysnmp software.
 #
 # Copyright (c) 2005-2017, Ilya Etingof <etingof@gmail.com>
@@ -163,19 +163,17 @@ class NotificationOriginator(object):
 
         if not isinstance(notificationType, NotificationType):
             notificationType = NotificationType(notificationType)
-        errorIndication, errorStatus, errorIndex, rspVarBinds = None, 0, 0, []
-        for errorIndication, \
-            errorStatus, errorIndex, \
-            rspVarBinds \
-                in sync.sendNotification(self.snmpEngine, authData,
-                                         transportTarget,
-                                         ContextData(
-                                             kwargs.get('contextEngineId'),
-                                             kwargs.get('contextName', null)
-                                         ),
-                                         notifyType,
-                                         notificationType.addVarBinds(*varBinds),
-                                         **kwargs):
+
+        for (errorIndication,
+             errorStatus,
+             errorIndex,
+             rspVarBinds) in sync.sendNotification(self.snmpEngine, authData,
+                                                   transportTarget,
+                                                   ContextData(kwargs.get('contextEngineId'),
+                                                               kwargs.get('contextName', null)),
+                                                   notifyType,
+                                                   notificationType.addVarBinds(*varBinds),
+                                                   **kwargs):
             if notifyType == 'inform':
                 return errorIndication, errorStatus, errorIndex, rspVarBinds
             else:

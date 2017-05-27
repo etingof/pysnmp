@@ -307,8 +307,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         # 3.1.2
         if securityLevel == 3:
-            if usmUserAuthProtocol == noauth.NoAuth.serviceID or \
-                    usmUserPrivProtocol == nopriv.NoPriv.serviceID:
+            if (usmUserAuthProtocol == noauth.NoAuth.serviceID or
+                    usmUserPrivProtocol == nopriv.NoPriv.serviceID):
                 raise error.StatusInformation(
                     errorIndication=errind.unsupportedSecurityLevel
                 )
@@ -578,13 +578,13 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         snmpEngineID = mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')[0].syntax
 
         # 3.2.3
-        if msgAuthoritativeEngineId != snmpEngineID and \
-                msgAuthoritativeEngineId not in self.__timeline:
-            if msgAuthoritativeEngineId and \
-                    4 < len(msgAuthoritativeEngineId) < 33:
+        if (msgAuthoritativeEngineId != snmpEngineID and
+                msgAuthoritativeEngineId not in self.__timeline):
+            if (msgAuthoritativeEngineId and
+                    4 < len(msgAuthoritativeEngineId) < 33):
                 # 3.2.3a - cloned user when request was sent
                 debug.logger & debug.flagSM and debug.logger(
-                    'processIncomingMsg: unsynchronized securityEngineID %r' % (msgAuthoritativeEngineId,))
+                    'processIncomingMsg: non-synchronized securityEngineID %r' % (msgAuthoritativeEngineId,))
             else:
                 # 3.2.3b
                 debug.logger & debug.flagSM and debug.logger(
@@ -833,9 +833,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
             # 3.2.7a
             if msgAuthoritativeEngineId == snmpEngineID:
-                if snmpEngineBoots == 2147483647 or \
-                        snmpEngineBoots != msgAuthoritativeEngineBoots or \
-                        abs(idleTime + int(snmpEngineTime) - int(msgAuthoritativeEngineTime)) > 150:
+                if (snmpEngineBoots == 2147483647 or
+                        snmpEngineBoots != msgAuthoritativeEngineBoots or
+                        abs(idleTime + int(snmpEngineTime) - int(msgAuthoritativeEngineTime)) > 150):
                     usmStatsNotInTimeWindows, = mibBuilder.importSymbols(
                         '__SNMP-USER-BASED-SM-MIB', 'usmStatsNotInTimeWindows')
                     usmStatsNotInTimeWindows.syntax += 1
@@ -853,9 +853,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             else:
                 # 3.2.7b.1
                 # noinspection PyUnboundLocalVariable
-                if msgAuthoritativeEngineBoots > snmpEngineBoots or \
-                        msgAuthoritativeEngineBoots == snmpEngineBoots and \
-                        msgAuthoritativeEngineTime > latestReceivedEngineTime:
+                if (msgAuthoritativeEngineBoots > snmpEngineBoots or
+                        msgAuthoritativeEngineBoots == snmpEngineBoots and
+                        msgAuthoritativeEngineTime > latestReceivedEngineTime):
                     self.__timeline[msgAuthoritativeEngineId] = (
                         msgAuthoritativeEngineBoots,
                         msgAuthoritativeEngineTime,
@@ -874,10 +874,10 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                             msgAuthoritativeEngineBoots, msgAuthoritativeEngineTime, msgAuthoritativeEngineId))
 
                 # 3.2.7b.2
-                if snmpEngineBoots == 2147483647 or \
-                        msgAuthoritativeEngineBoots < snmpEngineBoots or \
-                        msgAuthoritativeEngineBoots == snmpEngineBoots and \
-                        abs(idleTime + int(snmpEngineTime) - int(msgAuthoritativeEngineTime)) > 150:
+                if (snmpEngineBoots == 2147483647 or
+                        msgAuthoritativeEngineBoots < snmpEngineBoots or
+                        msgAuthoritativeEngineBoots == snmpEngineBoots and
+                        abs(idleTime + int(snmpEngineTime) - int(msgAuthoritativeEngineTime)) > 150):
                     raise error.StatusInformation(
                         errorIndication=errind.notInTimeWindow
                     )

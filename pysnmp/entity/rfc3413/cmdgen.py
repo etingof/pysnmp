@@ -71,11 +71,11 @@ class CommandGenerator(object):
                 'processResponsePdu: sendPduHandle %s, statusInformation %s' % (sendPduHandle, statusInformation))
             errorIndication = statusInformation['errorIndication']
             # SNMP engine discovery will take extra retries, allow that
-            if errorIndication in (errind.notInTimeWindow,
-                                   errind.unknownEngineID) and \
-                    origRetries == origRetryCount + 2 or \
-                    errorIndication not in (errind.notInTimeWindow, errind.unknownEngineID) and \
-                    origRetries == origRetryCount:
+            if (errorIndication in (errind.notInTimeWindow,
+                                    errind.unknownEngineID) and
+                    origRetries == origRetryCount + 2 or
+                    errorIndication not in (errind.notInTimeWindow, errind.unknownEngineID) and
+                    origRetries == origRetryCount):
                 debug.logger & debug.flagApp and debug.logger(
                     'processResponsePdu: sendPduHandle %s, retry count %d exceeded' % (sendPduHandle, origRetries))
                 cbFun(snmpEngine, origSendRequestHandle,
@@ -111,12 +111,12 @@ class CommandGenerator(object):
                       None, cbCtx)
                 return
 
-        if origMessageProcessingModel != messageProcessingModel or \
-                origSecurityModel != securityModel or \
-                origSecurityName != origSecurityName or \
-                origContextEngineId and origContextEngineId != contextEngineId or \
-                origContextName and origContextName != contextName or \
-                origPduVersion != pduVersion:
+        if (origMessageProcessingModel != messageProcessingModel or
+                origSecurityModel != securityModel or
+                origSecurityName != origSecurityName or
+                origContextEngineId and origContextEngineId != contextEngineId or
+                origContextName and origContextName != contextName or
+                origPduVersion != pduVersion):
             debug.logger & debug.flagApp and debug.logger(
                 'processResponsePdu: sendPduHandle %s, request/response data mismatch' % sendPduHandle)
 

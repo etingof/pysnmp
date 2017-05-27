@@ -30,8 +30,8 @@ class Udp6SocketTransport(DgramSocketTransport):
             ta = self.addressType((transportAddress[0],
                                    transportAddress[1], 0, 0))
 
-        if isinstance(transportAddress, self.addressType) and \
-                transportAddress.getLocalAddress():
+        if (isinstance(transportAddress, self.addressType) and
+                transportAddress.getLocalAddress()):
             return ta.setLocalAddress(transportAddress.getLocalAddress())
         else:
             return ta.setLocalAddress(self.getLocalAddress())

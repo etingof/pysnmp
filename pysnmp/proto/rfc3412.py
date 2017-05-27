@@ -57,7 +57,7 @@ class MsgAndPduDispatcher(object):
     # 4.3.1
     def registerContextEngineId(self, contextEngineId, pduTypes, processPdu):
         """Register application with dispatcher"""
-        # 4.3.2 -> noop
+        # 4.3.2 -> no-op
 
         # 4.3.3
         for pduType in pduTypes:
@@ -244,8 +244,8 @@ class MsgAndPduDispatcher(object):
         # Handle oversized messages XXX transport constrains?
         snmpEngineMaxMessageSize, = self.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB',
                                                                                        'snmpEngineMaxMessageSize')
-        if snmpEngineMaxMessageSize.syntax and \
-                len(outgoingMessage) > snmpEngineMaxMessageSize.syntax:
+        if (snmpEngineMaxMessageSize.syntax and
+                len(outgoingMessage) > snmpEngineMaxMessageSize.syntax):
             snmpSilentDrops, = self.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpSilentDrops')
             snmpSilentDrops.syntax += 1
             raise error.StatusInformation(errorIndication=errind.tooBig)

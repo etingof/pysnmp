@@ -9,11 +9,9 @@ import sys
 import tempfile
 from pyasn1.compat.octets import str2octs
 from pysnmp.proto.rfc3412 import MsgAndPduDispatcher
-from pysnmp.proto.mpmod.rfc2576 import SnmpV1MessageProcessingModel, \
-    SnmpV2cMessageProcessingModel
+from pysnmp.proto.mpmod.rfc2576 import SnmpV1MessageProcessingModel, SnmpV2cMessageProcessingModel
 from pysnmp.proto.mpmod.rfc3412 import SnmpV3MessageProcessingModel
-from pysnmp.proto.secmod.rfc2576 import SnmpV1SecurityModel, \
-    SnmpV2cSecurityModel
+from pysnmp.proto.secmod.rfc2576 import SnmpV1SecurityModel, SnmpV2cSecurityModel
 from pysnmp.proto.secmod.rfc3414 import SnmpUSMSecurityModel
 from pysnmp.proto.acmod import rfc3415, void
 from pysnmp.entity import observer
@@ -143,8 +141,7 @@ class SnmpEngine(object):
                     'SnmpEngine: stored SNMP Engine Boots: %s' % snmpEngineBoots.syntax.prettyPrint())
 
     def __repr__(self):
-        return '%s(snmpEngineID=%r)' % \
-               (self.__class__.__name__, self.snmpEngineID)
+        return '%s(snmpEngineID=%r)' % (self.__class__.__name__, self.snmpEngineID)
 
     # Transport dispatcher bindings
 

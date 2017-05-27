@@ -121,7 +121,7 @@ class Des(base.AbstractEncryptionService):
                 errorIndication=errind.decryptionError
             )
 
-        # 8.3.2.2 noop
+        # 8.3.2.2 no-op
 
         # 8.3.2.3
         desKey, iv = self.__getDecryptionKey(decryptKey, salt)

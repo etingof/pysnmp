@@ -110,8 +110,8 @@ class CommandResponderBase(object):
             origPdu = None
 
         # 3.2.1
-        if PDU.tagSet not in rfc3411.readClassPDUs and \
-                PDU.tagSet not in rfc3411.writeClassPDUs:
+        if (PDU.tagSet not in rfc3411.readClassPDUs and
+                PDU.tagSet not in rfc3411.writeClassPDUs):
             raise error.ProtocolError('Unexpected PDU class %s' % PDU.tagSet)
 
         # 3.2.2 --> no-op
@@ -207,9 +207,9 @@ class CommandResponderBase(object):
                 '__verifyAccess: name %s, statusInformation %s' % (name, statusInformation))
             errorIndication = statusInformation['errorIndication']
             # 3.2.5...
-            if errorIndication == errind.noSuchView or \
-                    errorIndication == errind.noAccessEntry or \
-                    errorIndication == errind.noGroupName:
+            if (errorIndication == errind.noSuchView or
+                    errorIndication == errind.noAccessEntry or
+                    errorIndication == errind.noGroupName):
                 raise pysnmp.smi.error.AuthorizationError(name=name, idx=idx)
             elif errorIndication == errind.otherError:
                 raise pysnmp.smi.error.GenError(name=name, idx=idx)
@@ -227,9 +227,9 @@ class CommandResponderBase(object):
                 raise error.ProtocolError('Unknown ACM error %s' % errorIndication)
         else:
             # rfc2576: 4.1.2.1
-            if securityModel == 1 and syntax is not None and \
-                    self._counter64Type == syntax.getTagSet() and \
-                    self._getNextRequestType == pduType:
+            if (securityModel == 1 and syntax is not None and
+                    self._counter64Type == syntax.getTagSet() and
+                    self._getNextRequestType == pduType):
                 # This will cause MibTree to skip this OID-value
                 raise pysnmp.smi.error.NoAccessError(name=name, idx=idx)
 

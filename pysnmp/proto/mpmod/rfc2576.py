@@ -266,13 +266,13 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc2576: 5.2.1
         snmpEngineMaxMessageSize, = mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
         communityName = msg.getComponentByPosition(1)
-        # transportDomain identifies local enpoint
+        # transportDomain identifies local endpoint
         securityParameters = (communityName, (transportDomain, transportAddress))
         messageProcessingModel = int(msg.getComponentByPosition(0))
         securityModel = messageProcessingModel + 1
         securityLevel = 1
 
-        # rfc3412: 7.2.4 -- 7.2.5 -> noop
+        # rfc3412: 7.2.4 -- 7.2.5 -> no-op
 
         k = int(securityModel)
         if k in snmpEngine.securityModels:
@@ -293,7 +293,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         debug.logger & debug.flagMP and debug.logger(
             'prepareDataElements: SM returned securityEngineId %r securityName %r' % (securityEngineId, securityName))
 
-        # rfc3412: 7.2.6a --> noop
+        # rfc3412: 7.2.6a --> no-op
 
         # rfc3412: 7.2.7
         contextEngineId, contextName, pdu = scopedPDU
@@ -302,7 +302,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         pduVersion = msgVersion
         pduType = pdu.tagSet
 
-        # rfc3412: 7.2.8, 7.2.9 -> noop
+        # rfc3412: 7.2.8, 7.2.9 -> no-op
 
         # rfc3412: 7.2.10
         if pduType in rfc3411.responseClassPDUs:
@@ -331,18 +331,18 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # no error by default
         statusInformation = None
 
-        # rfc3412: 7.2.11 -> noop
+        # rfc3412: 7.2.11 -> no-op
 
         # rfc3412: 7.2.12
         if pduType in rfc3411.responseClassPDUs:
-            # rfc3412: 7.2.12a -> noop
+            # rfc3412: 7.2.12a -> no-op
             # rfc3412: 7.2.12b
             # noinspection PyUnboundLocalVariable
-            if securityModel != cachedReqParams['securityModel'] or \
-                    securityName != cachedReqParams['securityName'] or \
-                    securityLevel != cachedReqParams['securityLevel'] or \
-                    contextEngineId != cachedReqParams['contextEngineId'] or \
-                    contextName != cachedReqParams['contextName']:
+            if (securityModel != cachedReqParams['securityModel'] or
+                    securityName != cachedReqParams['securityName'] or
+                    securityLevel != cachedReqParams['securityLevel'] or
+                    contextEngineId != cachedReqParams['contextEngineId'] or
+                    contextName != cachedReqParams['contextName']):
                 smHandler.releaseStateInformation(securityStateReference)
                 raise error.StatusInformation(errorIndication=errind.dataMismatch)
 

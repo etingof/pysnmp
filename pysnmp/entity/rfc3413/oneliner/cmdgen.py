@@ -173,14 +173,14 @@ class CommandGenerator(object):
         if 'lookupValues' not in kwargs:
             kwargs['lookupValues'] = False
         errorIndication, errorStatus, errorIndex, varBinds = None, 0, 0, []
-        for errorIndication, \
-            errorStatus, errorIndex, \
-            varBinds \
-                in sync.getCmd(self.snmpEngine, authData, transportTarget,
-                               ContextData(kwargs.get('contextEngineId'),
-                                           kwargs.get('contextName', null)),
-                               *[(x, self._null) for x in varNames],
-                               **kwargs):
+        for (errorIndication,
+             errorStatus,
+             errorIndex,
+             varBinds) in sync.getCmd(self.snmpEngine, authData, transportTarget,
+                                      ContextData(kwargs.get('contextEngineId'),
+                                                  kwargs.get('contextName', null)),
+                                      *[(x, self._null) for x in varNames],
+                                      **kwargs):
             break
         return errorIndication, errorStatus, errorIndex, varBinds
 
@@ -190,14 +190,14 @@ class CommandGenerator(object):
         if 'lookupValues' not in kwargs:
             kwargs['lookupValues'] = False
         errorIndication, errorStatus, errorIndex, rspVarBinds = None, 0, 0, []
-        for errorIndication, \
-            errorStatus, errorIndex, \
-            rspVarBinds \
-                in sync.setCmd(self.snmpEngine, authData, transportTarget,
-                               ContextData(kwargs.get('contextEngineId'),
-                                           kwargs.get('contextName', null)),
-                               *varBinds,
-                               **kwargs):
+        for (errorIndication,
+             errorStatus,
+             errorIndex,
+             rspVarBinds) in sync.setCmd(self.snmpEngine, authData, transportTarget,
+                                         ContextData(kwargs.get('contextEngineId'),
+                                                     kwargs.get('contextName', null)),
+                                         *varBinds,
+                                         **kwargs):
             break
 
         return errorIndication, errorStatus, errorIndex, rspVarBinds
@@ -211,14 +211,14 @@ class CommandGenerator(object):
             kwargs['lexicographicMode'] = False
         errorIndication, errorStatus, errorIndex = None, 0, 0
         varBindTable = []
-        for errorIndication, \
-            errorStatus, errorIndex, \
-            varBinds \
-                in sync.nextCmd(self.snmpEngine, authData, transportTarget,
-                                ContextData(kwargs.get('contextEngineId'),
-                                            kwargs.get('contextName', null)),
-                                *[(x, self._null) for x in varNames],
-                                **kwargs):
+        for (errorIndication,
+             errorStatus,
+             errorIndex,
+             varBinds) in sync.nextCmd(self.snmpEngine, authData, transportTarget,
+                                       ContextData(kwargs.get('contextEngineId'),
+                                                   kwargs.get('contextName', null)),
+                                       *[(x, self._null) for x in varNames],
+                                       **kwargs):
             if errorIndication or errorStatus:
                 return errorIndication, errorStatus, errorIndex, varBinds
 
@@ -236,16 +236,16 @@ class CommandGenerator(object):
             kwargs['lexicographicMode'] = False
         errorIndication, errorStatus, errorIndex = None, 0, 0
         varBindTable = []
-        for errorIndication, \
-            errorStatus, errorIndex, \
-            varBinds \
-                in sync.bulkCmd(self.snmpEngine, authData,
-                                transportTarget,
-                                ContextData(kwargs.get('contextEngineId'),
-                                            kwargs.get('contextName', null)),
-                                nonRepeaters, maxRepetitions,
-                                *[(x, self._null) for x in varNames],
-                                **kwargs):
+        for (errorIndication,
+             errorStatus,
+             errorIndex,
+             varBinds) in sync.bulkCmd(self.snmpEngine, authData,
+                                       transportTarget,
+                                       ContextData(kwargs.get('contextEngineId'),
+                                                   kwargs.get('contextName', null)),
+                                       nonRepeaters, maxRepetitions,
+                                       *[(x, self._null) for x in varNames],
+                                       **kwargs):
             if errorIndication or errorStatus:
                 return errorIndication, errorStatus, errorIndex, varBinds
 

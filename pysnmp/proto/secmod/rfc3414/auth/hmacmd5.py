@@ -49,14 +49,14 @@ class HmacMd5(base.AbstractAuthenticationService):
         # 6.3.1.2a
         extendedAuthKey = authKey.asNumbers() + _fortyEightZeros
 
-        # 6.3.1.2b --> noop
+        # 6.3.1.2b --> no-op
 
         # 6.3.1.2c
         k1 = univ.OctetString(
             map(lambda x, y: x ^ y, extendedAuthKey, self.__ipad)
         )
 
-        # 6.3.1.2d --> noop
+        # 6.3.1.2d --> no-op
 
         # 6.3.1.2e
         k2 = univ.OctetString(
@@ -94,14 +94,14 @@ class HmacMd5(base.AbstractAuthenticationService):
         # 6.3.2.4a
         extendedAuthKey = authKey.asNumbers() + _fortyEightZeros
 
-        # 6.3.2.4b --> noop
+        # 6.3.2.4b --> no-op
 
         # 6.3.2.4c
         k1 = univ.OctetString(
             map(lambda x, y: x ^ y, extendedAuthKey, self.__ipad)
         )
 
-        # 6.3.2.4d --> noop
+        # 6.3.2.4d --> no-op
 
         # 6.3.2.4e
         k2 = univ.OctetString(
