@@ -1,4 +1,9 @@
 
+Revision 4.3.7, released 2017-05-28
+-----------------------------------
+
+* Fixed import error in legacy NotificationOriginator implementation
+
 Revision 4.3.6, released 2017-05-28
 -----------------------------------
 
