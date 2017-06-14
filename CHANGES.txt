@@ -1,8 +1,10 @@
 
-Revision 4.3.8, released 2017-06-XX
+Revision 4.3.8, released 2017-06-15
 -----------------------------------
 
-No changes yet
+- Security fix to the bug introduced in 4.3.6: msgAuthoritativeEngineTime
+  stopped changing over time and was returning the same timestamp (process
+  start time). This fix makes it growing as it should.
 
 Revision 4.3.7, released 2017-05-29
 -----------------------------------

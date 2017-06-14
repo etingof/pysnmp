@@ -99,7 +99,7 @@ if mibBuilder.loadTexts: snmpEngineID.setDescription("An SNMP engine's administr
 snmpEngineBoots = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 2), Integer32().subtype(subtypeSpec=ValueRangeConstraint(1, 2147483647))).setMaxAccess("readonly")
 if mibBuilder.loadTexts: snmpEngineBoots.setStatus('current')
 if mibBuilder.loadTexts: snmpEngineBoots.setDescription('The number of times that the SNMP engine has (re-)initialized itself since snmpEngineID was last configured. ')
-snmpEngineTime = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 3), Integer32().subtype(subtypeSpec=ValueRangeConstraint(0, 2147483647))).setUnits('seconds').setMaxAccess("readonly")
+snmpEngineTime = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 3), SnmpEngineTime().subtype(subtypeSpec=ValueRangeConstraint(0, 2147483647))).setUnits('seconds').setMaxAccess("readonly")
 if mibBuilder.loadTexts: snmpEngineTime.setStatus('current')
 if mibBuilder.loadTexts: snmpEngineTime.setDescription("The number of seconds since the value of the snmpEngineBoots object last changed. When incrementing this object's value would cause it to exceed its maximum, snmpEngineBoots is incremented as if a re-initialization had occurred, and this object's value consequently reverts to zero. ")
 snmpEngineMaxMessageSize = MibScalar((1, 3, 6, 1, 6, 3, 10, 2, 1, 4), Integer32().subtype(subtypeSpec=ValueRangeConstraint(484, 2147483647))).setMaxAccess("readonly")
