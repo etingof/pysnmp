@@ -5,6 +5,7 @@
 # License: http://pysnmp.sf.net/license.html
 #
 import os
+import shutil
 import sys
 import tempfile
 from pyasn1.compat.octets import str2octs
@@ -132,7 +133,7 @@ class SnmpEngine(object):
                 fd, fn = tempfile.mkstemp(dir=persistentPath)
                 os.write(fd, str2octs(snmpEngineBoots.syntax.prettyPrint()))
                 os.close(fd)
-                os.rename(fn, f)
+                shutil.move(fn, f)
             except Exception:
                 debug.logger & debug.flagApp and debug.logger(
                     'SnmpEngine: could not stored SNMP Engine Boots: %s' % sys.exc_info()[1])
