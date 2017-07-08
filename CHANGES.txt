@@ -2,7 +2,7 @@
 Revision 4.3.9, released 2017-06-XX
 -----------------------------------
 
-No changes yet
+- Fix to (persistent SNMP engine ID) file writing on Windows
 
 Revision 4.3.8, released 2017-06-15
 -----------------------------------
