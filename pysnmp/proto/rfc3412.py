@@ -6,6 +6,7 @@
 #
 import sys
 from pyasn1.compat.octets import null
+from pyasn1.error import PyAsn1Error
 from pysnmp.smi import builder, instrum
 from pysnmp.proto import errind, error, cache
 from pysnmp.proto.api import verdec  # XXX
@@ -342,6 +343,13 @@ class MsgAndPduDispatcher(object):
                     snmpEngine,
                     statusInformation
                 )
+            return restOfWholeMsg
+
+        except PyAsn1Error:
+            debug.logger & debug.flagMP and debug.logger('receiveMessage: %s' % (sys.exc_info()[1],))
+            snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
+            snmpInASNParseErrs.syntax += 1
+
             return restOfWholeMsg
 
         debug.logger & debug.flagDsp and debug.logger('receiveMessage: PDU %s' % PDU.prettyPrint())

@@ -543,16 +543,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             'processIncomingMsg: securityParameters %s' % debug.hexdump(securityParameters))
 
         # 3.2.1
-        try:
-            securityParameters, rest = decoder.decode(
-                securityParameters, asn1Spec=self.__securityParametersSpec
-            )
-
-        except PyAsn1Error:
-            debug.logger & debug.flagSM and debug.logger('processIncomingMsg: %s' % (sys.exc_info()[1],))
-            snmpInASNParseErrs, = mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
-            snmpInASNParseErrs.syntax += 1
-            raise error.StatusInformation(errorIndication=errind.parseError)
+        securityParameters, rest = decoder.decode(
+            securityParameters, asn1Spec=self.__securityParametersSpec
+        )
 
         debug.logger & debug.flagSM and debug.logger('processIncomingMsg: %s' % (securityParameters.prettyPrint(),))
 
@@ -936,8 +929,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 )
             scopedPduSpec = scopedPduData.setComponentByPosition(0).getComponentByPosition(0)
             try:
-                scopedPDU, rest = decoder.decode(decryptedData,
-                                                 asn1Spec=scopedPduSpec)
+                scopedPDU, rest = decoder.decode(decryptedData, asn1Spec=scopedPduSpec)
 
             except PyAsn1Error:
                 debug.logger & debug.flagSM and debug.logger(

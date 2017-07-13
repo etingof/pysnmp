@@ -469,14 +469,7 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
     def prepareDataElements(self, snmpEngine, transportDomain,
                             transportAddress, wholeMsg):
         # 7.2.2
-        try:
-            msg, restOfwholeMsg = decoder.decode(wholeMsg, asn1Spec=self._snmpMsgSpec)
-
-        except PyAsn1Error:
-            debug.logger & debug.flagMP and debug.logger('prepareDataElements: %s' % (sys.exc_info()[1],))
-            snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
-            snmpInASNParseErrs.syntax += 1
-            raise error.StatusInformation(errorIndication=errind.parseError)
+        msg, restOfwholeMsg = decoder.decode(wholeMsg, asn1Spec=self._snmpMsgSpec)
 
         debug.logger & debug.flagMP and debug.logger('prepareDataElements: %s' % (msg.prettyPrint(),))
 

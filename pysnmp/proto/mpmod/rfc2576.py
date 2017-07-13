@@ -247,13 +247,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         mibBuilder = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
 
         # rfc3412: 7.2.2
-        try:
-            msg, restOfWholeMsg = decoder.decode(wholeMsg, asn1Spec=self._snmpMsgSpec)
-        except PyAsn1Error:
-            debug.logger & debug.flagMP and debug.logger('prepareDataElements: %s' % (sys.exc_info()[1],))
-            snmpInASNParseErrs, = mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
-            snmpInASNParseErrs.syntax += 1
-            raise error.StatusInformation(errorIndication=errind.parseError)
+        msg, restOfWholeMsg = decoder.decode(wholeMsg, asn1Spec=self._snmpMsgSpec)
 
         debug.logger & debug.flagMP and debug.logger('prepareDataElements: %s' % (msg.prettyPrint(),))
 
