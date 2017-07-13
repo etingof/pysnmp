@@ -278,4 +278,4 @@ otherError = OtherError('Unspecified SNMP engine error occurred')
 class OidNotIncreasing(ErrorIndication):
     pass
 
-oidNotIncreasing = OidNotIncreasing('OIDs are not increasing')
+oidNotIncreasing = OidNotIncreasing('OID not increasing')

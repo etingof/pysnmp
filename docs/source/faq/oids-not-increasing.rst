@@ -1,14 +1,14 @@
 
-Dealing with OIDs not increasing error
---------------------------------------
+Dealing with the "OID not increasing" error
+-------------------------------------------
 
 Q. I'm walking a particular Agent with the `nextCmd()` or `bulkCmd()`
    functions. It works for some OIDs, but invariably fails at certain
-   OID with the *OIDs are not increasing* diagnostics. What does it mean and
+   OID with the *OID not increasing* diagnostics. What does it mean and
    how do I fix that?
 
 A. The Agent you are talking to seems to be broken. The
-   *OIDs are not increasing* message means that in the course of fetching
+   *OID not increasing* message means that in the course of fetching
    OIDs from Agent, Manager receives an OID that is not greater than those
    used in request.
    Due to the nature of GETNEXT/GETBULK algorithm, passing the same or
