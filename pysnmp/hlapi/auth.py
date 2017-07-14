@@ -32,21 +32,27 @@ class CommunityData(object):
 
     Parameters
     ----------
-    communityIndex : str
+    communityIndex: py:class:`str`
         Unique index value of a row in snmpCommunityTable. If it is the
-        only positional parameter, it is taken as *communityName*.
-    communityName : str
+        only positional parameter, it is treated as a *communityName*.
+        WARNING: if the same *communityIndex* value is supplied repeatedly with
+        different *communityName* (or other parameters), the later call
+        supersedes all previous calls.
+    communityName: py:class:`str`
         SNMP v1/v2c community string.
-    mpModel : int
+        WARNING: make sure not to configure duplicate *communityName* values unless
+        they have distinct *mpModel* and/or *tag* fields. This will make *communityName*
+        based database lookup ambiguous.
+    mpModel: py:class:`int`
         SNMP version - 0 for SNMPv1 and 1 for SNMPv2c.
-    contextEngineId : str
+    contextEngineId: py:class:`str`
         Indicates the location of the context in which management
         information is accessed when using the community string
         specified by the above communityName.
-    contextName : str
+    contextName: py:class:`str`
         The context in which management information is accessed when
         using the above communityName.
-    tag : str
+    tag: py:class:`str`
         Arbitrary string that specifies a set of transport endpoints
         to which a notification may be sent using communityName above
         (see also :RFC:`3413#section-4.1.4`).
@@ -163,21 +169,21 @@ class UsmUserData(object):
 
     Parameters
     ----------
-    userName : str
+    userName: py:class:`str`
         A human readable string representing the name of the SNMP USM user.
-    authKey : str
+    authKey: py:class:`str`
         Initial value of the secret authentication key.  If not set,
         :py:class:`~pysnmp.hlapi.usmNoAuthProtocol`
         is implied.  If set and no *authProtocol* is specified,
         :py:class:`~pysnmp.hlapi.usmHMACMD5AuthProtocol`
         takes effect.
-    privKey : str
+    privKey: py:class:`str`
         Initial value of the secret encryption key.  If not set,
         :py:class:`~pysnmp.hlapi.usmNoPrivProtocol`
         is implied.  If set and no *privProtocol* is specified,
         :py:class:`~pysnmp.hlapi.usmDESPrivProtocol`
         takes effect.
-    authProtocol : tuple
+    authProtocol: py:class:`tuple`
         An indication of whether messages sent on behalf of this USM user
         can be authenticated, and if so, the type of authentication protocol
         which is used.
@@ -187,7 +193,7 @@ class UsmUserData(object):
         * :py:class:`~pysnmp.hlapi.usmNoAuthProtocol` (default is *authKey* not given)
         * :py:class:`~pysnmp.hlapi.usmHMACMD5AuthProtocol` (default if *authKey* is given)
         * :py:class:`~pysnmp.hlapi.usmHMACSHAAuthProtocol`
-    privProtocol : tuple
+    privProtocol: py:class:`tuple`
         An indication of whether messages sent on behalf of this USM user
         be encrypted, and if so, the type of encryption protocol which is used.
 
