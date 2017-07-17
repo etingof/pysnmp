@@ -24,20 +24,21 @@ class UdpTransportTarget(AbstractTransportTarget):
 
     Parameters
     ----------
-    transportAddr : tuple
+    transportAddr: :py:class:`tuple`
         Indicates remote address in Python :py:mod:`socket` module format
         which is a tuple of FQDN, port where FQDN is a string representing
         either hostname or IPv4 address in quad-dotted form, port is an
         integer.
-    timeout : int
+    timeout: :py:class:`int`
         Response timeout in seconds.
-    retries : int
+    retries: :py:class:`int`
         Maximum number of request retries, 0 retries means just a single
         request.
-    tagList : str
-        Arbitrary string that contains a list of tag values which are used
-        to select target addresses for a particular operation
-        (:RFC:`3413#section-4.1.4`).
+    tagList: :py:class:`str`
+        Arbitrary string that contains a list of space-separated tag
+        strings used to select target addresses and/or SNMP configuration
+        (see :RFC:`3413#section-4.1.1`, :RFC:`2576#section-5.3` and
+        :py:class:`~pysnmp.hlapi.CommunityData` object).
 
     Examples
     --------

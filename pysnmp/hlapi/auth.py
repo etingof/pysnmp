@@ -58,13 +58,15 @@ class CommunityData(object):
 
         The other use-case is when multiple distinct SNMP peers share
         the same *communityName* -- binding each instance of
-        *communityName* to transport endpoint lets you distinguish your
+        *communityName* to transport endpoint lets you distinguish
         SNMP peers from each other (e.g. resolving *communityName* into
         proper *securityName*).
 
-        For more technical information on SNMP transport tags please
+        For more technical information on SNMP configuration tags please
         refer to :RFC:`3413#section-4.1.1` and :RFC:`2576#section-5.3`
-        (e.g. *snmpCommunityTransportTag* object).
+        (e.g. the *snmpCommunityTransportTag* object).
+
+        See also: :py:class:`~pysnmp.hlapi.UdpTransportTarget`
 
     Warnings
     --------
