@@ -35,14 +35,8 @@ class CommunityData(object):
     communityIndex: py:class:`str`
         Unique index value of a row in snmpCommunityTable. If it is the
         only positional parameter, it is treated as a *communityName*.
-        WARNING: if the same *communityIndex* value is supplied repeatedly with
-        different *communityName* (or other parameters), the later call
-        supersedes all previous calls.
     communityName: py:class:`str`
         SNMP v1/v2c community string.
-        WARNING: make sure not to configure duplicate *communityName* values unless
-        they have distinct *mpModel* and/or *tag* fields. This will make *communityName*
-        based database lookup ambiguous.
     mpModel: py:class:`int`
         SNMP version - 0 for SNMPv1 and 1 for SNMPv2c.
     contextEngineId: py:class:`str`
@@ -54,8 +48,33 @@ class CommunityData(object):
         using the above communityName.
     tag: py:class:`str`
         Arbitrary string that specifies a set of transport endpoints
-        to which a notification may be sent using communityName above
-        (see also :RFC:`3413#section-4.1.4`).
+        from which a command responder application will accept
+        management requests with given *communityName* or to which
+        notification originator application will send notifications
+        when targets are specified by a tag value(s).
+
+        The other way to look at the *tag* feature is that it can make
+        specific *communityName* only valid for certain targets.
+
+        The other use-case is when multiple distinct SNMP peers share
+        the same *communityName* -- binding each instance of
+        *communityName* to transport endpoint lets you distinguish your
+        SNMP peers from each other (e.g. resolving *communityName* into
+        proper *securityName*).
+
+        For more technical information on SNMP transport tags please
+        refer to :RFC:`3413#section-4.1.1` and :RFC:`2576#section-5.3`
+        (e.g. *snmpCommunityTransportTag* object).
+
+    Warnings
+    --------
+    If the same *communityIndex* value is supplied repeatedly with
+    different *communityName* (or other parameters), the later call
+    supersedes all previous calls.
+
+    Make sure not to configure duplicate *communityName* values unless
+    they have distinct *mpModel* and/or *tag* fields. This will make
+    *communityName* based database lookup ambiguous.
 
     Examples
     --------
