@@ -1,7 +1,8 @@
 
-Revision 4.3.9, released 2017-06-XX
+Revision 4.3.9, released 2017-07-XX
 -----------------------------------
 
+- Deprecated UsmUserData initializaton parameters removed
 - Fix to a crash happening on inbound SNMP message having non-initialized fields
 - Fix to (persistent SNMP engine ID) file writing on Windows
 
