@@ -242,16 +242,28 @@ SNMP Context
 ------------
 
 SNMP engine may serve several instances of the same MIB within
-possibly multiple SNMP entities. SNMP context is a method to
-unambiguously identify a collection of MIB variables behind
+possibly multiple SNMP entities. SNMP context is a tool for
+unambiguously identifying a collection of MIB variables behind the
 SNMP engine. See :RFC:`3411#section-3.3.1` for details.
 
 .. note::
 
-   SNMP context is only defined within SNMPv3 framework. For SNMPv1/v2c
-   architecture integration :RFC:`2576#section-5.1` introduces
-   interoperability aid which is available through
-   :py:class:`~pysnmp.hlapi.CommunityData`.
+   The SNMP context information is not tied to SNMPv3/USM user,
+   but it is transferred in SNMPv3 message header.
+
+   Legacy SNMPv1/v2c protocols do not accommodate the SNMP context
+   information at all.
+
+   To fit legacy SNMPv1/SNMPv2c systems into unified SNMPv3
+   architecture, the mapping procedure is introduced by
+   :RFC:`2576#section-5.1` which essentially lets you first configure
+   and then supply the missing items (e.g. *contextName*,
+   *contextEngineId* and other) to the upper layers of SNMP stack
+   based on SNMPv1/v2c *communityName* and transport endpoint.
+
+   The SNMP context information necessary for this mapping procedure
+   to operate is supplied through the
+   :py:class:`~pysnmp.hlapi.CommunityData` object.
 
 .. toctree::
    :maxdepth: 2
