@@ -612,9 +612,25 @@ class Bits(OctetString):
     namedValues = namedval.NamedValues()
 
     def __init__(self, *args, **kwargs):
-        if 'namedValues' not in kwargs:
-            kwargs['namedValues'] = self.namedValues
+        try:
+            self.namedValues = kwargs.pop('namedValues')
+
+        except KeyError:
+            pass
+
         OctetString.__init__(self, *args, **kwargs)
+
+    def clone(self, *args, **kwargs):
+        namedValues = kwargs.pop('namedValues', self.namedValues)
+        clone = OctetString.clone(self, *args, **kwargs)
+        clone.namedValues = namedValues
+        return clone
+
+    def subtype(self, *args, **kwargs):
+        namedValues = kwargs.pop('namedValues', self.namedValues)
+        clone = OctetString.subtype(self, *args, **kwargs)
+        clone.namedValues = namedValues
+        return clone
 
     def prettyIn(self, bits):
         if not isinstance(bits, (tuple, list)):
