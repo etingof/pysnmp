@@ -611,16 +611,10 @@ class Bits(OctetString):
     """
     namedValues = namedval.NamedValues()
 
-    def __init__(self, value=univ.noValue, tagSet=None, subtypeSpec=None,
-                 encoding=None, binValue=univ.noValue, hexValue=univ.noValue,
-                 namedValues=None):
-        if namedValues is None:
-            self.__namedValues = self.namedValues
-        else:
-            self.__namedValues = namedValues
-        OctetString.__init__(
-            self, value, tagSet, subtypeSpec, encoding, binValue, hexValue
-        )
+    def __init__(self, *args, **kwargs):
+        if 'namedValues' not in kwargs:
+            kwargs['namedValues'] = self.namedValues
+        OctetString.__init__(self, *args, **kwargs)
 
     def prettyIn(self, bits):
         if not isinstance(bits, (tuple, list)):
@@ -654,44 +648,6 @@ class Bits(OctetString):
                 j -= 1
             i += 1
         return ', '.join([str(x) for x in names])
-
-    def clone(self, value=univ.noValue, tagSet=None, subtypeSpec=None,
-              encoding=None, binValue=univ.noValue, hexValue=univ.noValue,
-              namedValues=None):
-        if value is None and tagSet is None and subtypeSpec is None \
-                and namedValues is None:
-            return self
-        if value is None:
-            value = self._value
-        if tagSet is None:
-            tagSet = self._tagSet
-        if subtypeSpec is None:
-            subtypeSpec = self._subtypeSpec
-        if namedValues is None:
-            namedValues = self.__namedValues
-        return self.__class__(value, tagSet, subtypeSpec, encoding,
-                              binValue, hexValue, namedValues)
-
-    def subtype(self, value=univ.noValue, implicitTag=None, explicitTag=None,
-                subtypeSpec=None, encoding=None, binValue=univ.noValue,
-                hexValue=univ.noValue, namedValues=None):
-        if value is None:
-            value = self._value
-        if implicitTag is not None:
-            tagSet = self._tagSet.tagImplicitly(implicitTag)
-        elif explicitTag is not None:
-            tagSet = self._tagSet.tagExplicitly(explicitTag)
-        else:
-            tagSet = self._tagSet
-        if subtypeSpec is None:
-            subtypeSpec = self._subtypeSpec
-        else:
-            subtypeSpec = subtypeSpec + self._subtypeSpec
-        if namedValues is None:
-            namedValues = self.__namedValues
-        else:
-            namedValues = namedValues + self.__namedValues
-        return self.__class__(value, tagSet, subtypeSpec, namedValues=namedValues)
 
     @classmethod
     def withNamedBits(cls, **values):

@@ -62,13 +62,13 @@ class SnmpEngineID(TextualConvention, OctetString):
 
 
 class SnmpEngineTime(Integer32):
-    def clone(self, value=None, tagSet=None, subtypeSpec=None):
-        if value is None:
+    def clone(self, *args, **kwargs):
+        if not args:
             try:
-                value = time.time() - self
+                args = (time.time() - self,)
             except Exception:
                 pass
-        return Integer32.clone(self, value, tagSet, subtypeSpec)
+        return Integer32.clone(self, *args, **kwargs)
 
 
 class SnmpSecurityModel(Integer32, TextualConvention):
