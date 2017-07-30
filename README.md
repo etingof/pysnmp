@@ -32,7 +32,7 @@ Features
 
 Features, specific to SNMPv3 model include:
 
-* USM authentication (MD5/SHA) and privacy (DES/AES) protocols (RFC3414)
+* USM authentication (MD5/SHA-1/SHA-2) and privacy (DES/AES) protocols (RFC3414, RFC7860)
 * View-based access control to use with any SNMP model (RFC3415)
 * Built-in SNMP proxy PDU converter for building multi-lingual
   SNMP entities (RFC2576)

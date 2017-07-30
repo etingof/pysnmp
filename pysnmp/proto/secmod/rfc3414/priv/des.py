@@ -8,6 +8,7 @@ import random
 from pysnmp.proto.secmod.rfc3414.priv import base
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
 from pysnmp.proto.secmod.rfc3414 import localkey
+from pysnmp.proto.secmod.rfc7860.auth import hmacsha2
 from pysnmp.proto import errind, error
 from pyasn1.type import univ
 from sys import version_info
@@ -16,6 +17,14 @@ try:
     from Crypto.Cipher import DES
 except ImportError:
     DES = None
+try:
+    from hashlib import md5, sha1
+except ImportError:
+    import md5
+    import sha
+
+    md5 = md5.new
+    sha1 = sha.new
 
 random.seed()
 
@@ -33,23 +42,29 @@ class Des(base.AbstractEncryptionService):
 
     def hashPassphrase(self, authProtocol, privKey):
         if authProtocol == hmacmd5.HmacMd5.serviceID:
-            return localkey.hashPassphraseMD5(privKey)
+            hashAlgo = md5
         elif authProtocol == hmacsha.HmacSha.serviceID:
-            return localkey.hashPassphraseSHA(privKey)
+            hashAlgo = sha1
+        elif authProtocol in hmacsha2.HmacSha2.hashAlgo:
+            hashAlgo = hmacsha2.HmacSha2.hashAlgo[authProtocol]
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
             )
+        return localkey.hashPassphrase(privKey, hashAlgo)
 
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
         if authProtocol == hmacmd5.HmacMd5.serviceID:
-            localPrivKey = localkey.localizeKeyMD5(privKey, snmpEngineID)
+            hashAlgo = md5
         elif authProtocol == hmacsha.HmacSha.serviceID:
-            localPrivKey = localkey.localizeKeySHA(privKey, snmpEngineID)
+            hashAlgo = sha1
+        elif authProtocol in hmacsha2.HmacSha2.hashAlgo:
+            hashAlgo = hmacsha2.HmacSha2.hashAlgo[authProtocol]
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
             )
+        localPrivKey = localkey.localizeKey(privKey, snmpEngineID, hashAlgo)
         return localPrivKey[:self.keySize]
 
     # 8.1.1.1

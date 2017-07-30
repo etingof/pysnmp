@@ -10,6 +10,7 @@ from pysnmp.proto.secmod.base import AbstractSecurityModel
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha, noauth
 from pysnmp.proto.secmod.rfc3414.priv import des, nopriv
 from pysnmp.proto.secmod.rfc3826.priv import aes
+from pysnmp.proto.secmod.rfc7860.auth import hmacsha2
 from pysnmp.proto.secmod.eso.priv import des3, aes192, aes256
 from pysnmp.smi.error import NoSuchInstanceError
 from pysnmp.proto import rfc1155, errind, error
@@ -40,7 +41,12 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
     securityModelID = 3
     authServices = {hmacmd5.HmacMd5.serviceID: hmacmd5.HmacMd5(),
                     hmacsha.HmacSha.serviceID: hmacsha.HmacSha(),
-                    noauth.NoAuth.serviceID: noauth.NoAuth()}
+                    hmacsha2.HmacSha2.sha224ServiceID: hmacsha2.HmacSha2(hmacsha2.HmacSha2.sha224ServiceID),
+                    hmacsha2.HmacSha2.sha256ServiceID: hmacsha2.HmacSha2(hmacsha2.HmacSha2.sha256ServiceID),
+                    hmacsha2.HmacSha2.sha384ServiceID: hmacsha2.HmacSha2(hmacsha2.HmacSha2.sha384ServiceID),
+                    hmacsha2.HmacSha2.sha512ServiceID: hmacsha2.HmacSha2(hmacsha2.HmacSha2.sha512ServiceID),
+                    noauth.NoAuth.serviceID: noauth.NoAuth(),
+                    }
     privServices = {des.Des.serviceID: des.Des(),
                     des3.Des3.serviceID: des3.Des3(),
                     aes.Aes.serviceID: aes.Aes(),
@@ -432,7 +438,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
             # extra-wild hack to facilitate BER substrate in-place re-write
             securityParameters.setComponentByPosition(
-                4, '\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+                4, '\x00' * authHandler.getTagLen()
             )
 
             debug.logger & debug.flagSM and debug.logger(

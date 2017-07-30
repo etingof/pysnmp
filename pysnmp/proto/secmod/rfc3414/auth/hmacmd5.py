@@ -32,6 +32,9 @@ class HmacMd5(base.AbstractAuthenticationService):
     def localizeKey(self, authKey, snmpEngineID):
         return localkey.localizeKeyMD5(authKey, snmpEngineID)
 
+    def getTagLen(self):
+        return 12
+
     # 6.3.1
     def authenticateOutgoingMsg(self, authKey, wholeMsg):
         # Here we expect calling secmod to indicate where the digest
