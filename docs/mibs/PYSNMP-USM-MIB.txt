@@ -21,6 +21,8 @@ pysnmpUsmMIB MODULE-IDENTITY
     DESCRIPTION
         "This MIB module defines objects specific to User
          Security Model (USM) implementation at PySNMP."
+    REVISION    "201707300000Z"
+    DESCRIPTION "Extended authentication key size"
     REVISION    "201704140000Z"
     DESCRIPTION "Updated addresses"
     REVISION "200505140000Z"          -- 14 May 2005, midnight
@@ -153,7 +155,7 @@ PysnmpUsmKeyEntry ::= SEQUENCE {
 }
 
 pysnmpUsmKeyAuthLocalized OBJECT-TYPE
-    SYNTAX       OCTET STRING (SIZE(8..32))
+    SYNTAX       OCTET STRING (SIZE(8..64))
     MAX-ACCESS   not-accessible
     STATUS       current
     DESCRIPTION
@@ -161,7 +163,7 @@ pysnmpUsmKeyAuthLocalized OBJECT-TYPE
     ::= { pysnmpUsmKeyEntry 1 }
 
 pysnmpUsmKeyPrivLocalized OBJECT-TYPE
-    SYNTAX       OCTET STRING (SIZE(8..32))
+    SYNTAX       OCTET STRING (SIZE(8..64))
     MAX-ACCESS   not-accessible
     STATUS       current
     DESCRIPTION
@@ -169,7 +171,7 @@ pysnmpUsmKeyPrivLocalized OBJECT-TYPE
     ::= { pysnmpUsmKeyEntry 2 }
 
 pysnmpUsmKeyAuth OBJECT-TYPE
-    SYNTAX       OCTET STRING (SIZE(8..32))
+    SYNTAX       OCTET STRING (SIZE(8..64))
     MAX-ACCESS   not-accessible
     STATUS       current
     DESCRIPTION
@@ -177,7 +179,7 @@ pysnmpUsmKeyAuth OBJECT-TYPE
     ::= { pysnmpUsmKeyEntry 3 }
 
 pysnmpUsmKeyPriv OBJECT-TYPE
-    SYNTAX       OCTET STRING (SIZE(8..32))
+    SYNTAX       OCTET STRING (SIZE(8..64))
     MAX-ACCESS   not-accessible
     STATUS       current
     DESCRIPTION

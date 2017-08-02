@@ -13,3 +13,7 @@ docs/source/.templates/
 
 # PyCharm stuff
 .idea/
+
+# Eclipse stuff
+.project
+.pydevproject

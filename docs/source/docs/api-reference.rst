@@ -225,6 +225,10 @@ via constant OIDs:
 .. autodata:: pysnmp.hlapi.usmNoAuthProtocol
 .. autodata:: pysnmp.hlapi.usmHMACMD5AuthProtocol
 .. autodata:: pysnmp.hlapi.usmHMACSHAAuthProtocol
+.. autodata:: pysnmp.hlapi.usmHMAC128SHA224AuthProtocol
+.. autodata:: pysnmp.hlapi.usmHMAC192SHA256AuthProtocol
+.. autodata:: pysnmp.hlapi.usmHMAC256SHA384AuthProtocol
+.. autodata:: pysnmp.hlapi.usmHMAC384SHA512AuthProtocol
 
 .. autodata:: pysnmp.hlapi.usmNoPrivProtocol
 .. autodata:: pysnmp.hlapi.usmDESPrivProtocol

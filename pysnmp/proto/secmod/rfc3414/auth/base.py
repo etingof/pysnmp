@@ -15,6 +15,9 @@ class AbstractAuthenticationService(object):
 
     def localizeKey(self, authKey, snmpEngineID):
         raise error.ProtocolError(errind.noAuthentication)
+    
+    def getTagLen(self):
+        raise error.ProtocolError(errind.noAuthentication)
 
     # 7.2.4.1
     def authenticateOutgoingMsg(self, authKey, wholeMsg):

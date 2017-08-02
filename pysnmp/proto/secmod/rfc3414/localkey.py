@@ -15,44 +15,10 @@ except ImportError:
 from pyasn1.type import univ
 
 
-# RFC3414: A.2.1
-def hashPassphraseMD5(passphrase):
+def hashPassphrase(passphrase, hashFunc):
     passphrase = univ.OctetString(passphrase).asOctets()
     # noinspection PyDeprecation,PyCallingNonCallable
-    md = md5()
-    ringBuffer = passphrase * (passphrase and (64 // len(passphrase) + 1) or 1)
-    # noinspection PyTypeChecker
-    ringBufferLen = len(ringBuffer)
-    count = 0
-    mark = 0
-    while count < 16384:
-        e = mark + 64
-        if e < ringBufferLen:
-            md.update(ringBuffer[mark:e])
-            mark = e
-        else:
-            md.update(
-                ringBuffer[mark:ringBufferLen] + ringBuffer[0:e - ringBufferLen]
-            )
-            mark = e - ringBufferLen
-        count += 1
-    return md.digest()
-
-
-def localizeKeyMD5(passKey, snmpEngineId):
-    passKey = univ.OctetString(passKey).asOctets()
-    # noinspection PyDeprecation,PyCallingNonCallable
-    return md5(passKey + snmpEngineId.asOctets() + passKey).digest()
-
-
-def passwordToKeyMD5(passphrase, snmpEngineId):
-    return localizeKeyMD5(hashPassphraseMD5(passphrase), snmpEngineId)
-
-
-# RFC3414: A.2.2
-def hashPassphraseSHA(passphrase):
-    passphrase = univ.OctetString(passphrase).asOctets()
-    md = sha1()
+    hasher = hashFunc()
     ringBuffer = passphrase * (64 // len(passphrase) + 1)
     # noinspection PyTypeChecker
     ringBufferLen = len(ringBuffer)
@@ -61,21 +27,40 @@ def hashPassphraseSHA(passphrase):
     while count < 16384:
         e = mark + 64
         if e < ringBufferLen:
-            md.update(ringBuffer[mark:e])
+            hasher.update(ringBuffer[mark:e])
             mark = e
         else:
-            md.update(
+            hasher.update(
                 ringBuffer[mark:ringBufferLen] + ringBuffer[0:e - ringBufferLen]
             )
             mark = e - ringBufferLen
         count += 1
-    return md.digest()
+    return hasher.digest()
 
+def passwordToKey(passphrase, snmpEngineId, hashFunc):
+    return localizeKey(hashPassphrase(passphrase, hashFunc), snmpEngineId, hashFunc)
 
-def localizeKeySHA(passKey, snmpEngineId):
+def localizeKey(passKey, snmpEngineId, hashFunc):
     passKey = univ.OctetString(passKey).asOctets()
-    return sha1(passKey + snmpEngineId.asOctets() + passKey).digest()
+    # noinspection PyDeprecation,PyCallingNonCallable
+    return hashFunc(passKey + snmpEngineId.asOctets() + passKey).digest()
 
+# RFC3414: A.2.1
+def hashPassphraseMD5(passphrase):
+    return hashPassphrase(passphrase, md5)
+
+# RFC3414: A.2.2
+def hashPassphraseSHA(passphrase):
+    return hashPassphrase(passphrase, sha1)
+
+def passwordToKeyMD5(passphrase, snmpEngineId):
+    return localizeKey(hashPassphraseMD5(passphrase), snmpEngineId, md5)
 
 def passwordToKeySHA(passphrase, snmpEngineId):
-    return localizeKeySHA(hashPassphraseSHA(passphrase), snmpEngineId)
+    return localizeKey(hashPassphraseMD5(passphrase), snmpEngineId, sha1)
+
+def localizeKeyMD5(passKey, snmpEngineId):
+    return localizeKey(passKey, snmpEngineId, md5)
+
+def localizeKeySHA(passKey, snmpEngineId):
+    return localizeKey(passKey, snmpEngineId, sha1)

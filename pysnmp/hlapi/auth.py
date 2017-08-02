@@ -13,7 +13,9 @@ __all__ = ['CommunityData', 'UsmUserData',
            'usmAesCfb192Protocol', 'usmAesCfb256Protocol',
            'usmAesBlumenthalCfb192Protocol', 'usmAesBlumenthalCfb256Protocol',
            'usmDESPrivProtocol', 'usmHMACMD5AuthProtocol',
-           'usmHMACSHAAuthProtocol', 'usmNoAuthProtocol',
+           'usmHMACSHAAuthProtocol', 'usmHMAC128SHA224AuthProtocol',
+           'usmHMAC192SHA256AuthProtocol', 'usmHMAC256SHA384AuthProtocol',
+           'usmHMAC384SHA512AuthProtocol', 'usmNoAuthProtocol',
            'usmNoPrivProtocol']
 
 
@@ -156,6 +158,11 @@ usmNoAuthProtocol = config.usmNoAuthProtocol
 usmHMACMD5AuthProtocol = config.usmHMACMD5AuthProtocol
 #: The HMAC-SHA-96 Digest Authentication Protocol (:RFC:`3414#section-7`)
 usmHMACSHAAuthProtocol = config.usmHMACSHAAuthProtocol
+#: The HMAC-SHA-2 Digest Authentication Protocols (:RFC:`7860`)
+usmHMAC128SHA224AuthProtocol = config.usmHMAC128SHA224AuthProtocol
+usmHMAC192SHA256AuthProtocol = config.usmHMAC192SHA256AuthProtocol
+usmHMAC256SHA384AuthProtocol = config.usmHMAC256SHA384AuthProtocol
+usmHMAC384SHA512AuthProtocol = config.usmHMAC384SHA512AuthProtocol
 
 #: No Privacy Protocol.
 usmNoPrivProtocol = config.usmNoPrivProtocol
@@ -214,6 +221,10 @@ class UsmUserData(object):
         * :py:class:`~pysnmp.hlapi.usmNoAuthProtocol` (default is *authKey* not given)
         * :py:class:`~pysnmp.hlapi.usmHMACMD5AuthProtocol` (default if *authKey* is given)
         * :py:class:`~pysnmp.hlapi.usmHMACSHAAuthProtocol`
+        * :py:class:`~pysnmp.hlapi.usmHMAC128SHA224AuthProtocol`
+        * :py:class:`~pysnmp.hlapi.usmHMAC192SHA256AuthProtocol`
+        * :py:class:`~pysnmp.hlapi.usmHMAC256SHA384AuthProtocol`
+        * :py:class:`~pysnmp.hlapi.usmHMAC384SHA512AuthProtocol`
     privProtocol: py:class:`tuple`
         An indication of whether messages sent on behalf of this USM user
         be encrypted, and if so, the type of encryption protocol which is used.

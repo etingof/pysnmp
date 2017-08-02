@@ -6,6 +6,7 @@
 #
 from pysnmp.proto.secmod.rfc3826.priv import aes
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
+from pysnmp.proto.secmod.rfc7860.auth import hmacsha2
 from pysnmp.proto.secmod.rfc3414 import localkey
 from pysnmp.proto import error
 from math import ceil
@@ -64,18 +65,19 @@ class AbstractAesReeder(aes.Aes):
     # 2.1 of https://tools.itef.org/pdf/draft_bluementhal-aes-usm-04.txt
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
         if authProtocol == hmacmd5.HmacMd5.serviceID:
-            localPrivKey = localkey.localizeKeyMD5(privKey, snmpEngineID)
-            # now extend this key if too short by repeating steps that includes the hashPassphrase step
-            while len(localPrivKey) < self.keySize:
-                newKey = localkey.hashPassphraseMD5(localPrivKey)  # this is the difference between reeder and bluementhal
-                localPrivKey += localkey.localizeKeyMD5(newKey, snmpEngineID)
+            hashAlgo = md5
         elif authProtocol == hmacsha.HmacSha.serviceID:
-            localPrivKey = localkey.localizeKeySHA(privKey, snmpEngineID)
-            while len(localPrivKey) < self.keySize:
-                newKey = localkey.hashPassphraseSHA(localPrivKey)
-                localPrivKey += localkey.localizeKeySHA(newKey, snmpEngineID)
+            hashAlgo = sha1
+        elif authProtocol in hmacsha2.HmacSha2.hashAlgo:
+            hashAlgo = hmacsha2.HmacSha2.hashAlgo[authProtocol]
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
             )
+        localPrivKey = localkey.localizeKey(privKey, snmpEngineID, hashAlgo)
+        # now extend this key if too short by repeating steps that includes the hashPassphrase step
+        while len(localPrivKey) < self.keySize:
+            # this is the difference between reeder and bluementhal
+            newKey = localkey.hashPassphrase(localPrivKey, hashAlgo)
+            localPrivKey += localkey.localizeKey(newKey, snmpEngineID, hashAlgo)
         return localPrivKey[:self.keySize]

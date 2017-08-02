@@ -9,6 +9,7 @@ from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha, noauth
 from pysnmp.proto.secmod.rfc3414.priv import des, nopriv
 from pysnmp.proto.secmod.rfc3826.priv import aes
+from pysnmp.proto.secmod.rfc7860.auth import hmacsha2
 from pysnmp.proto.secmod.eso.priv import des3, aes192, aes256
 from pysnmp.proto import rfc1905
 from pysnmp import error
@@ -23,6 +24,10 @@ snmpLocalDomain = unix.snmpLocalDomain
 # Auth protocol
 usmHMACMD5AuthProtocol = hmacmd5.HmacMd5.serviceID
 usmHMACSHAAuthProtocol = hmacsha.HmacSha.serviceID
+usmHMAC128SHA224AuthProtocol = hmacsha2.HmacSha2.sha224ServiceID
+usmHMAC192SHA256AuthProtocol = hmacsha2.HmacSha2.sha256ServiceID
+usmHMAC256SHA384AuthProtocol = hmacsha2.HmacSha2.sha384ServiceID
+usmHMAC384SHA512AuthProtocol = hmacsha2.HmacSha2.sha512ServiceID
 usmNoAuthProtocol = noauth.NoAuth.serviceID
 
 # Privacy protocol
@@ -38,6 +43,10 @@ usmNoPrivProtocol = nopriv.NoPriv.serviceID
 # Auth services
 authServices = {hmacmd5.HmacMd5.serviceID: hmacmd5.HmacMd5(),
                 hmacsha.HmacSha.serviceID: hmacsha.HmacSha(),
+                hmacsha2.HmacSha2.sha224ServiceID: hmacsha2.HmacSha2(hmacsha2.HmacSha2.sha224ServiceID),
+                hmacsha2.HmacSha2.sha256ServiceID: hmacsha2.HmacSha2(hmacsha2.HmacSha2.sha256ServiceID),
+                hmacsha2.HmacSha2.sha384ServiceID: hmacsha2.HmacSha2(hmacsha2.HmacSha2.sha384ServiceID),
+                hmacsha2.HmacSha2.sha512ServiceID: hmacsha2.HmacSha2(hmacsha2.HmacSha2.sha512ServiceID),
                 noauth.NoAuth.serviceID: noauth.NoAuth()}
 
 # Privacy services
