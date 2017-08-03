@@ -13,6 +13,10 @@ Available authentication protocols:
 
 #. usmHMACMD5AuthProtocol
 #. usmHMACSHAAuthProtocol
+#. usmHMAC128SHA224AuthProtocol
+#. usmHMAC192SHA256AuthProtocol
+#. usmHMAC256SHA384AuthProtocol
+#. usmHMAC384SHA512AuthProtocol
 #. usmNoAuthProtocol
 
 Available privacy protocols:
