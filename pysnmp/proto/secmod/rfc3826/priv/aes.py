@@ -78,8 +78,8 @@ class Aes(base.AbstractEncryptionService):
             hashAlgo = md5
         elif authProtocol == hmacsha.HmacSha.serviceID:
             hashAlgo = sha1
-        elif authProtocol in hmacsha2.HmacSha2.hashAlgo:
-            hashAlgo = hmacsha2.HmacSha2.hashAlgo[authProtocol]
+        elif authProtocol in hmacsha2.HmacSha2.hashAlgorithms:
+            hashAlgo = hmacsha2.HmacSha2.hashAlgorithms[authProtocol]
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
@@ -91,8 +91,8 @@ class Aes(base.AbstractEncryptionService):
             hashAlgo = md5
         elif authProtocol == hmacsha.HmacSha.serviceID:
             hashAlgo = sha1
-        elif authProtocol in hmacsha2.HmacSha2.hashAlgo:
-            hashAlgo = hmacsha2.HmacSha2.hashAlgo[authProtocol]
+        elif authProtocol in hmacsha2.HmacSha2.hashAlgorithms:
+            hashAlgo = hmacsha2.HmacSha2.hashAlgorithms[authProtocol]
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)

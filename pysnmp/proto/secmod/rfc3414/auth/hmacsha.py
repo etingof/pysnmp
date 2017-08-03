@@ -32,7 +32,8 @@ class HmacSha(base.AbstractAuthenticationService):
     def localizeKey(self, authKey, snmpEngineID):
         return localkey.localizeKeySHA(authKey, snmpEngineID)
 
-    def getTagLen(self):
+    @property
+    def digestLength(self):
         return 12
 
     # 7.3.1

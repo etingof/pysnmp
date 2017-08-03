@@ -32,7 +32,8 @@ class HmacMd5(base.AbstractAuthenticationService):
     def localizeKey(self, authKey, snmpEngineID):
         return localkey.localizeKeyMD5(authKey, snmpEngineID)
 
-    def getTagLen(self):
+    @property
+    def digestLength(self):
         return 12
 
     # 6.3.1

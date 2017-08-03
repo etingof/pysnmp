@@ -438,7 +438,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
             # extra-wild hack to facilitate BER substrate in-place re-write
             securityParameters.setComponentByPosition(
-                4, '\x00' * authHandler.getTagLen()
+                4, '\x00' * authHandler.digestLength
             )
 
             debug.logger & debug.flagSM and debug.logger(
