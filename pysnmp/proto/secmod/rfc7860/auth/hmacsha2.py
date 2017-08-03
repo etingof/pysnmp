@@ -4,12 +4,18 @@
 # Copyright (c) 2005-2017, Olivier Verriest <verri@x25.pm>
 # License: http://pysnmp.sf.net/license.html
 #
+import sys
+import hmac
 try:
     from hashlib import sha224, sha256, sha384, sha512
-    import hmac
-    SHA = True
+
 except ImportError:
-    SHA = False
+
+    class NotAvalable(object):
+        def __call__(self, *args, **kwargs):
+            raise errind.authenticationError
+
+    sha224 = sha256 = sha384 = sha512 = NotAvalable()
 
 from pyasn1.type import univ
 from pysnmp.proto.secmod.rfc3414.auth import base
@@ -65,11 +71,6 @@ class HmacSha2(base.AbstractAuthenticationService):
 
     # 7.3.1
     def authenticateOutgoingMsg(self, authKey, wholeMsg):
-        if not SHA:
-            raise error.StatusInformation(
-                errorIndication=errind.authenticationError
-            )
-
         # 7.3.1.1
         location = wholeMsg.find(self.__placeHolder)
         if location == -1:
@@ -78,7 +79,11 @@ class HmacSha2(base.AbstractAuthenticationService):
         wholeTail = wholeMsg[location + self.__digestLength:]
 
         # 7.3.1.2, 7.3.1.3
-        mac = hmac.new(authKey.asOctets(), wholeMsg, self.__hashAlgo)
+        try:
+            mac = hmac.new(authKey.asOctets(), wholeMsg, self.__hashAlgo)
+
+        except errind.ErrorIndication:
+            raise error.StatusInformation(errorIndication=sys.exc_info()[1])
 
         # 7.3.1.4
         mac = mac.digest()[:self.__digestLength]
@@ -88,11 +93,6 @@ class HmacSha2(base.AbstractAuthenticationService):
 
     # 7.3.2
     def authenticateIncomingMsg(self, authKey, authParameters, wholeMsg):
-        if not SHA:
-            raise error.StatusInformation(
-                errorIndication=errind.authenticationError
-            )
-
         # 7.3.2.1 & 2
         if len(authParameters) != self.__digestLength:
             raise error.StatusInformation(
@@ -108,7 +108,11 @@ class HmacSha2(base.AbstractAuthenticationService):
         authenticatedWholeMsg = wholeHead + self.__placeHolder + wholeTail
 
         # 7.3.2.4
-        mac = hmac.new(authKey.asOctets(), authenticatedWholeMsg, self.__hashAlgo)
+        try:
+            mac = hmac.new(authKey.asOctets(), authenticatedWholeMsg, self.__hashAlgo)
+
+        except errind.ErrorIndication:
+            raise error.StatusInformation(errorIndication=sys.exc_info()[1])
 
         # 7.3.2.5
         mac = mac.digest()[:self.__digestLength]
