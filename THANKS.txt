@@ -28,5 +28,6 @@ Zachary Lorusso
 Floris Bruynooghe
 Laurelin of Middle Earth
 Robert Reese
+Olivier Verriest
 Thanks to Python Software Foundation for granting financial support 
 for the project.

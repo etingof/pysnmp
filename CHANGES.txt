@@ -1,4 +1,9 @@
 
+Revision 4.4.1, released 2017-08-XX
+-----------------------------------
+
+- HMAC-SHA-2 Authentication Protocols support added (RFC-7860)
+
 Revision 4.3.9, released 2017-07-26
 -----------------------------------
 
