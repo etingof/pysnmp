@@ -6,7 +6,6 @@
 #
 from sys import version_info
 from pyasn1.type import univ, tag, constraint, namedtype, namedval
-from pyasn1.compat import octets
 from pysnmp.proto import rfc1155, error
 
 __all__ = ['Opaque', 'TimeTicks', 'Bits', 'Integer', 'OctetString',
@@ -215,18 +214,6 @@ class OctetString(univ.OctetString):
 
         X.__name__ = cls.__name__
         return X
-
-    # modern pyasn1 does this all by itself
-    def prettyOut(self, value):
-        if version_info[0] <= 2:
-            numbers = tuple((ord(x) for x in value))
-        else:
-            numbers = tuple(value)
-        for x in numbers:
-            if x < 32 or x > 126:
-                return '0x' + ''.join(('%.2x' % x for x in numbers))
-        else:
-            return octets.octs2str(value)
 
 
 class ObjectIdentifier(univ.ObjectIdentifier):
