@@ -996,7 +996,6 @@ class MibTableRow(MibTree):
     def setFromName(self, obj, value, impliedFlag=None, parentIndices=None):
         if not value:
             raise error.SmiError('Short OID for index %r' % (obj,))
-        value = tuple(value)  # possible ObjectIdentifiers
         if hasattr(obj, 'cloneFromName'):
             return obj.cloneFromName(value, impliedFlag, parentRow=self, parentIndices=parentIndices)
         baseTag = obj.getTagSet().getBaseTag()
