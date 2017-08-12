@@ -529,7 +529,7 @@ class ObjectIdentity(object):
             return '%s::%s%s%s' % (
                 self.__modName, self.__symName,
                 self.__indices and '.' or '',
-                '.'.join([x.isSuperTypeOf(s) and '"%s"' % x.prettyPrint() or x.prettyPrint() for x in self.__indices])
+                '.'.join([x.isSuperTypeOf(s, matchConstraints=False) and '"%s"' % x.prettyPrint() or x.prettyPrint() for x in self.__indices])
             )
         else:
             raise SmiError('%s object not fully initialized' % self.__class__.__name__)
@@ -868,7 +868,7 @@ class ObjectType(object):
                 self.__args[0].prettyPrint(), self.__args[0].getMibNode().getSyntax().__class__.__name__, self.__args[1],
                 sys.exc_info()[1]))
 
-        if self.__args[1].isSuperTypeOf(rfc1902.ObjectIdentifier()):
+        if self.__args[1].isSuperTypeOf(rfc1902.ObjectIdentifier(), matchConstraints=False):
             self.__args[1] = ObjectIdentity(self.__args[1]).resolveWithMib(mibViewController)
 
         self.__state |= self.stClean

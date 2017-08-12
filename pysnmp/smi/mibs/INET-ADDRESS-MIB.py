@@ -71,7 +71,7 @@ class InetAddress(TextualConvention, OctetString):
         InetAddressType.namedValues.getValue("ipv4"): InetAddressIPv4(),
         InetAddressType.namedValues.getValue("ipv6"): InetAddressIPv6(),
         InetAddressType.namedValues.getValue("ipv4z"): InetAddressIPv4z(),
-        InetAddressType.namedValues.getValue("ipv6"): InetAddressIPv6z(),
+        InetAddressType.namedValues.getValue("ipv6z"): InetAddressIPv6z(),
         InetAddressType.namedValues.getValue("dns"): InetAddressDNS()
     }
 

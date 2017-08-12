@@ -1009,9 +1009,9 @@ class MibTableRow(MibTree):
                 return obj.clone(value), ()
             elif obj.isFixedLength():
                 l = obj.getFixedLength()
-                return obj.clone(value[:l]), value[l:]
+                return obj.clone(tuple(value[:l])), value[l:]
             else:
-                return obj.clone(value[1:value[0] + 1]), value[value[0] + 1:]
+                return obj.clone(tuple(value[1:value[0] + 1])), value[value[0] + 1:]
         elif baseTag == self.__oidBaseTag:
             if impliedFlag:
                 return obj.clone(value), ()
@@ -1019,7 +1019,7 @@ class MibTableRow(MibTree):
                 return obj.clone(value[1:value[0] + 1]), value[value[0] + 1:]
         # rfc2578, 7.1
         elif baseTag == self.__bitsBaseTag:
-            return obj.clone(value[1:value[0] + 1]), value[value[0] + 1:]
+            return obj.clone(tuple(value[1:value[0] + 1])), value[value[0] + 1:]
         else:
             raise error.SmiError('Unknown value type for index %r' % (obj,))
 
