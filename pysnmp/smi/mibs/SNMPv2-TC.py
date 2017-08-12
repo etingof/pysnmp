@@ -49,9 +49,9 @@ class TextualConvention(object):
 
     def prettyOut(self, value):  # override asn1 type method
         """Implements DISPLAY-HINT evaluation"""
-        if self.displayHint and (self.__integer.isSuperTypeOf(self) and not self.getNamedValues() or
-                                 self.__unsigned32.isSuperTypeOf(self) or
-                                 self.__timeticks.isSuperTypeOf(self)):
+        if self.displayHint and (self.__integer.isSuperTypeOf(self, matchConstraints=False) and not self.getNamedValues() or
+                                 self.__unsigned32.isSuperTypeOf(self, matchConstraints=False) or
+                                 self.__timeticks.isSuperTypeOf(self, matchConstraints=False)):
             _ = lambda t, f=0: (t, f)
             displayHintType, decimalPrecision = _(*self.displayHint.split('-'))
             if displayHintType == 'x':
@@ -76,7 +76,7 @@ class TextualConvention(object):
                 raise SmiError(
                     'Unsupported numeric type spec "%s" at %s' % (displayHintType, self.__class__.__name__)
                 )
-        elif self.displayHint and self.__octetString.isSuperTypeOf(self):
+        elif self.displayHint and self.__octetString.isSuperTypeOf(self, matchConstraints=False):
             outputValue = ''
             runningValue = OctetString(value).asOctets()
             displayHint = self.displayHint
@@ -193,9 +193,10 @@ class TextualConvention(object):
         else:
             raise SmiError('TEXTUAL-CONVENTION has no underlying SNMP base type')
 
-        if self.displayHint and (self.__integer.isSuperTypeOf(self) and self.getNamedValues() or
-                                 self.__unsigned32.isSuperTypeOf(self) or
-                                 self.__timeticks.isSuperTypeOf(self)):
+        if self.displayHint and (self.__integer.isSuperTypeOf(self, matchConstraints=False) and
+                                 self.getNamedValues() or
+                                 self.__unsigned32.isSuperTypeOf(self, matchConstraints=False) or
+                                 self.__timeticks.isSuperTypeOf(self, matchConstraints=False)):
             value = str(value)
 
             _ = lambda t, f=0: (t, f)
@@ -241,7 +242,7 @@ class TextualConvention(object):
                     'Unsupported numeric type spec "%s" at %s' % (displayHintType, self.__class__.__name__)
                 )
 
-        elif self.displayHint and self.__octetString.isSuperTypeOf(self):
+        elif self.displayHint and self.__octetString.isSuperTypeOf(self, matchConstraints=False):
             numBase = {
                 'x': 16,
                 'd': 10,
