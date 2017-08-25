@@ -13,10 +13,12 @@ from pysnmp.proto.error import ProtocolError
 def decodeMessageVersion(wholeMsg):
     try:
         seq, wholeMsg = decoder.decode(
-            wholeMsg, asn1Spec=univ.Sequence(), recursiveFlag=0
+            wholeMsg, asn1Spec=univ.Sequence(),
+            recursiveFlag=False, substrateFun=lambda a, b, c: (a, b[:c])
         )
         ver, wholeMsg = decoder.decode(
-            wholeMsg, asn1Spec=univ.Integer(), recursiveFlag=0
+            wholeMsg, asn1Spec=univ.Integer(),
+            recursiveFlag=False, substrateFun=lambda a, b, c: (a, b[:c])
         )
         if eoo.endOfOctets.isSameTypeWith(ver):
             raise ProtocolError('EOO at SNMP version component')
