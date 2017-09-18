@@ -624,7 +624,7 @@ class Bits(OctetString):
             return OctetString.prettyIn(self, bits)  # raw bitstring
         _octets = []
         for bit in bits:  # tuple of named bits
-            v = self.__namedValues.getValue(bit)
+            v = self.namedValues.getValue(bit)
             if v is None:
                 raise error.ProtocolError(
                     'Unknown named bit %s' % bit
@@ -644,7 +644,7 @@ class Bits(OctetString):
             j = 7
             while j >= 0:
                 if v & (0x01 << j):
-                    name = self.__namedValues.getName(i * 8 + 7 - j)
+                    name = self.namedValues.getName(i * 8 + 7 - j)
                     if name is None:
                         name = 'UnknownBit-%s' % (i * 8 + 7 - j,)
                     names.append(name)
