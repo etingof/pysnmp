@@ -1006,7 +1006,7 @@ class MibTableRow(MibTree):
         elif baseTag == self.__strBaseTag:
             # rfc1902, 7.7
             if impliedFlag:
-                return obj.clone(value), ()
+                return obj.clone(tuple(value)), ()
             elif obj.isFixedLength():
                 l = obj.getFixedLength()
                 return obj.clone(tuple(value[:l])), value[l:]
