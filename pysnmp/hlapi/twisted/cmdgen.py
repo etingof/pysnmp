@@ -117,10 +117,14 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
         if errorIndication:
             deferred.errback(Failure(errorIndication))
         else:
-            deferred.callback(
-                (errorStatus, errorIndex,
-                 vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib))
-            )
+            try:
+                varBindsUnmade = vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib)
+
+            except Exception as e:
+                deferred.errback(Failure(e))
+
+            else:
+                deferred.callback((errorStatus, errorIndex, varBindsUnmade))
 
     addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
 
@@ -229,10 +233,14 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
         if errorIndication:
             deferred.errback(Failure(errorIndication))
         else:
-            deferred.callback(
-                (errorStatus, errorIndex,
-                 vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib))
-            )
+            try:
+                varBindsUnmade = vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib)
+
+            except Exception as e:
+                deferred.errback(Failure(e))
+
+            else:
+                deferred.callback((errorStatus, errorIndex, varBindsUnmade))
 
     addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
 
@@ -346,16 +354,23 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
                 errorIndication, errorStatus, errorIndex,
                 varBindTable, cbCtx):
         lookupMib, deferred = cbCtx
-        if options.get('ignoreNonIncreasingOid', False) and errorIndication and \
-                isinstance(errorIndication, errind.OidNotIncreasing):
+        if (options.get('ignoreNonIncreasingOid', False) and
+                errorIndication and isinstance(errorIndication, errind.OidNotIncreasing)):
             errorIndication = None
         if errorIndication:
             deferred.errback(Failure(errorIndication))
         else:
-            deferred.callback(
-                (errorStatus, errorIndex,
-                 [vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable])
-            )
+            try:
+                varBindsUnmade = [vbProcessor.unmakeVarBinds(snmpEngine,
+                                                             varBindTableRow,
+                                                             lookupMib)
+                                  for varBindTableRow in varBindTable]
+
+            except Exception as e:
+                deferred.errback(Failure(e))
+
+            else:
+                deferred.callback((errorStatus, errorIndex, varBindsUnmade))
 
     addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
 
@@ -486,10 +501,17 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
         if errorIndication:
             deferred.errback(Failure(errorIndication))
         else:
-            deferred.callback(
-                (errorStatus, errorIndex,
-                 [vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable])
-            )
+            try:
+                varBindsUnmade = [vbProcessor.unmakeVarBinds(snmpEngine,
+                                                             varBindTableRow,
+                                                             lookupMib)
+                                  for varBindTableRow in varBindTable]
+
+            except Exception as e:
+                deferred.errback(Failure(e))
+
+            else:
+                deferred.callback((errorStatus, errorIndex, varBindsUnmade))
 
     addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
 

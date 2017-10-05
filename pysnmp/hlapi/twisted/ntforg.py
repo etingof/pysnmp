@@ -121,13 +121,18 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
                 errorIndication, errorStatus, errorIndex,
                 varBinds, cbCtx):
         lookupMib, deferred = cbCtx
+
         if errorIndication:
             deferred.errback(Failure(errorIndication))
         else:
-            deferred.callback(
-                (errorStatus, errorIndex,
-                 vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib))
-            )
+            try:
+                varBindsUnmade = vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib)
+
+            except Exception as e:
+                deferred.errback(Failure(e))
+
+            else:
+                deferred.callback((errorStatus, errorIndex, varBindsUnmade))
 
     notifyName = lcd.configure(
         snmpEngine, authData, transportTarget, notifyType
