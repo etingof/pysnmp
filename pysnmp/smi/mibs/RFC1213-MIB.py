@@ -19,6 +19,7 @@ SingleValueConstraint, ConstraintsIntersection, ValueSizeConstraint, Constraints
 ModuleCompliance, NotificationGroup = mibBuilder.importSymbols("SNMPv2-CONF", "ModuleCompliance", "NotificationGroup")
 IpAddress, TimeTicks, NotificationType, ModuleIdentity, Integer32, Counter32, MibIdentifier, ObjectIdentity, Gauge32, Unsigned32, mgmt, MibScalar, MibTable, MibTableRow, MibTableColumn, Bits, iso, Counter64, mib_2 = mibBuilder.importSymbols("SNMPv2-SMI", "IpAddress", "TimeTicks", "NotificationType", "ModuleIdentity", "Integer32", "Counter32", "MibIdentifier", "ObjectIdentity", "Gauge32", "Unsigned32", "mgmt", "MibScalar", "MibTable", "MibTableRow", "MibTableColumn", "Bits", "iso", "Counter64","mib-2")
 DisplayString, PhysAddress = mibBuilder.importSymbols("SNMPv2-TC", "DisplayString", "PhysAddress")
+from pysnmp.proto.rfc1155 import NetworkAddress
 
 at = MibIdentifier((1, 3, 6, 1, 2, 1, 3))
 ip = MibIdentifier((1, 3, 6, 1, 2, 1, 4))
@@ -35,7 +36,7 @@ if mibBuilder.loadTexts: atIfIndex.setDescription("The interface on which this e
 atPhysAddress = MibTableColumn((1, 3, 6, 1, 2, 1, 3, 1, 1, 2), PhysAddress()).setMaxAccess("readwrite")
 if mibBuilder.loadTexts: atPhysAddress.setStatus('deprecated')
 if mibBuilder.loadTexts: atPhysAddress.setDescription("The media-dependent `physical' address. Setting this object to a null string (one of zero length) has the effect of invaliding the corresponding entry in the atTable object. That is, it effectively dissasociates the interface identified with said entry from the mapping identified with said entry. It is an implementation-specific matter as to whether the agent removes an invalidated entry from the table. Accordingly, management stations must be prepared to receive tabular information from agents that corresponds to entries not currently in use. Proper interpretation of such entries requires examination of the relevant atPhysAddress object.")
-atNetAddress = MibTableColumn((1, 3, 6, 1, 2, 1, 3, 1, 1, 3), IpAddress()).setMaxAccess("readwrite")
+atNetAddress = MibTableColumn((1, 3, 6, 1, 2, 1, 3, 1, 1, 3), NetworkAddress()).setMaxAccess("readwrite")
 if mibBuilder.loadTexts: atNetAddress.setStatus('deprecated')
 if mibBuilder.loadTexts: atNetAddress.setDescription("The NetworkAddress (e.g., the IP address) corresponding to the media-dependent `physical' address.")
 ipForwarding = MibScalar((1, 3, 6, 1, 2, 1, 4, 1), Integer32().subtype(subtypeSpec=ConstraintsUnion(SingleValueConstraint(1, 2))).clone(namedValues=NamedValues(("forwarding", 1), ("not-forwarding", 2)))).setMaxAccess("readwrite")
