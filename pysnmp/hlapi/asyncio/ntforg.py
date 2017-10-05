@@ -124,9 +124,15 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
         lookupMib, future = cbCtx
         if future.cancelled():
             return
-        future.set_result(
-            (errorIndication, errorStatus, errorIndex, vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib))
-        )
+        try:
+            varBindsUnmade = vbProcessor.unmakeVarBinds(snmpEngine, varBinds,
+                                                        lookupMib)
+        except Exception as e:
+            future.set_exception(e)
+        else:
+            future.set_result(
+                    (errorIndication, errorStatus, errorIndex, varBindsUnmade)
+            )
 
     notifyName = lcd.configure(
         snmpEngine, authData, transportTarget, notifyType
