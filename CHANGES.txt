@@ -1,10 +1,10 @@
 
-Revision 4.4.1, released 2017-09-XX
------------------------------------
+Revision 4.4.1, released 2017-10-XX
+------------------------------------
 
 - HMAC-SHA-2 Authentication Protocols support added (RFC-7860)
 
-Revision 4.3.10, released 2017-09-XX
+Revision 4.3.10, released 2017-10-XX
 ------------------------------------
 
 - Refactored partial SNMP message decoding to make it less dependent
@@ -16,6 +16,7 @@ Revision 4.3.10, released 2017-09-XX
 - Fixed multiple bugs in SNMP table indices rendering, especially
   the InetAddressIPv6 type which was severely broken.
 - Fixed crashing Bits.prettyPrint() implementation
+- Fixed leaking exceptions bubbling up from the asyncio and Twisted adapters
 
 Revision 4.3.9, released 2017-07-26
 -----------------------------------
