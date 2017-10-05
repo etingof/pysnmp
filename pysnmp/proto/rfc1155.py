@@ -7,6 +7,7 @@
 from pyasn1.type import univ, tag, constraint, namedtype
 from pyasn1.error import PyAsn1Error
 from pysnmp.proto import error
+from pysnmp.smi.error import SmiError
 
 __all__ = ['Opaque', 'NetworkAddress', 'ObjectName', 'TimeTicks',
            'Counter', 'Gauge', 'IpAddress']
@@ -50,6 +51,31 @@ class NetworkAddress(univ.Choice):
     componentType = namedtype.NamedTypes(
         namedtype.NamedType('internet', IpAddress())
     )
+
+    # RFC 1212, section 4.1.6:
+    #
+    #    "(5)  NetworkAddress-valued: `n+1' sub-identifiers, where `n'
+    #          depends on the kind of address being encoded (the first
+    #          sub-identifier indicates the kind of address, value 1
+    #          indicates an IpAddress);"
+
+    def cloneFromName(self, value, impliedFlag, parentRow, parentIndices):
+        kind = value[0]
+        clone = self.clone()
+        if kind == 1:
+            clone['internet'] = tuple(value[1:5])
+            return clone, value[5:]
+        else:
+            raise SmiError('unknown NetworkAddress type %r' % (kind,))
+
+    def cloneAsName(self, impliedFlag, parentRow, parentIndices):
+        kind = self.getName()
+        component = self.getComponent()
+        if kind == 'internet':
+            return (1,) + tuple(component.asNumbers())
+        else:
+            raise SmiError('unknown NetworkAddress type %r' % (kind,))
+
 
 
 class Gauge(univ.Integer):
