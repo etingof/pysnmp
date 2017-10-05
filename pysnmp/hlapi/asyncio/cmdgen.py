@@ -134,9 +134,15 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
         lookupMib, future = cbCtx
         if future.cancelled():
             return
-        future.set_result(
-            (errorIndication, errorStatus, errorIndex, vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib))
-        )
+        try:
+            varBindsUnmade = vbProcessor.unmakeVarBinds(snmpEngine, varBinds,
+                                                        lookupMib)
+        except Exception as e:
+            future.set_exception(e)
+        else:
+            future.set_result(
+                (errorIndication, errorStatus, errorIndex, varBindsUnmade)
+            )
 
     addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
 
@@ -233,9 +239,15 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
         lookupMib, future = cbCtx
         if future.cancelled():
             return
-        future.set_result(
-            (errorIndication, errorStatus, errorIndex, vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib))
-        )
+        try:
+            varBindsUnmade = vbProcessor.unmakeVarBinds(snmpEngine, varBinds,
+                                                        lookupMib)
+        except Exception as e:
+            future.set_exception(e)
+        else:
+            future.set_result(
+                (errorIndication, errorStatus, errorIndex, varBindsUnmade)
+            )
 
     addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
 
@@ -336,10 +348,17 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
         lookupMib, future = cbCtx
         if future.cancelled():
             return
-        future.set_result(
-            (errorIndication, errorStatus, errorIndex,
-             [vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable])
-        )
+        try:
+            varBindsUnmade = [vbProcessor.unmakeVarBinds(snmpEngine,
+                                                         varBindTableRow,
+                                                         lookupMib)
+                              for varBindTableRow in varBindTable]
+        except Exception as e:
+            future.set_exception(e)
+        else:
+            future.set_result(
+                (errorIndication, errorStatus, errorIndex, varBindsUnmade)
+            )
 
     addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
 
@@ -451,10 +470,17 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
         lookupMib, future = cbCtx
         if future.cancelled():
             return
-        future.set_result(
-            (errorIndication, errorStatus, errorIndex,
-             [vbProcessor.unmakeVarBinds(snmpEngine, varBindTableRow, lookupMib) for varBindTableRow in varBindTable])
-        )
+        try:
+            varBindsUnmade = [vbProcessor.unmakeVarBinds(snmpEngine,
+                                                         varBindTableRow,
+                                                         lookupMib)
+                              for varBindTableRow in varBindTable]
+        except Exception as e:
+            future.set_exception(e)
+        else:
+            future.set_result(
+                (errorIndication, errorStatus, errorIndex, varBindsUnmade)
+            )
 
     addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
 
