@@ -48,9 +48,8 @@ operational:
 
 Optional, but recommended:
 
-* `PyCryptodome <https://pypi.python.org/pypi/pycryptodome/>`_,
-  used by SNMPv3 crypto features (Windows users need 
-  `precompiled version <http://www.voidspace.org.uk/python/modules.shtml>`_)
+* `PyCryptodomex <https://pypi.python.org/pypi/pycryptodomex/>`_,
+  used by SNMPv3 crypto features
 * `PySMI <https://pypi.python.org/pypi/pysmi/>`_ for automatic
   MIB download and compilation. That helps visualizing more SNMP objects
 * `Ply <https://pypi.python.org/pypi/ply/>`_, parser generator

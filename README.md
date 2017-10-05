@@ -56,7 +56,7 @@ $ pip install pysnmp
 to download and install PySNMP along with its dependencies:
 
 * [PyASN1](http://pyasn1.sf.net)
-* [PyCryptodome](https://pycryptodome.readthedocs.io) (required only if SNMPv3 encryption is in use)
+* [PyCryptodomex](https://pycryptodome.readthedocs.io) (required only if SNMPv3 encryption is in use)
 * [PySMI](http://pysmi.sf.net) (required for MIB services only)
 
 Besides the library, command-line [SNMP utilities](https://github.com/etingof/pysnmp-apps)

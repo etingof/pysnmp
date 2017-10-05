@@ -14,7 +14,7 @@ from pyasn1.type import univ
 from sys import version_info
 
 try:
-    from Crypto.Cipher import DES
+    from Cryptodome.Cipher import DES
 except ImportError:
     DES = None
 try:

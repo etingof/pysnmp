@@ -13,7 +13,7 @@ from pysnmp.proto.secmod.rfc3414 import localkey
 from pysnmp.proto import errind, error
 
 try:
-    from Crypto.Cipher import AES
+    from Cryptodome.Cipher import AES
 except ImportError:
     AES = None
 try:

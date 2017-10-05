@@ -24,7 +24,7 @@ except ImportError:
     sha1 = sha.new
 
 try:
-    from Crypto.Cipher import DES3
+    from Cryptodome.Cipher import DES3
 except ImportError:
     DES3 = None
 
