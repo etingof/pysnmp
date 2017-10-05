@@ -1,6 +1,6 @@
 
 
-Revision 4.3.10, released 2017-10-XX
+Revision 4.3.10, released 2017-10-06
 ------------------------------------
 
 - Refactored partial SNMP message decoding to make it less dependent
