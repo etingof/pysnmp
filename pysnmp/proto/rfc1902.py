@@ -609,31 +609,33 @@ class Bits(OctetString):
 
     def clone(self, *args, **kwargs):
         namedValues = kwargs.pop('namedValues', self.namedValues)
-        clone = OctetString.clone(self, *args, **kwargs)
+        args = args and self.prettyIn(args[0], namedValues=namedValues)
+        clone = OctetString.clone(self, args, **kwargs)
         clone.namedValues = namedValues
         return clone
 
     def subtype(self, *args, **kwargs):
         namedValues = kwargs.pop('namedValues', self.namedValues)
-        clone = OctetString.subtype(self, *args, **kwargs)
+        args = args and self.prettyIn(args[0], namedValues=namedValues)
+        clone = OctetString.subtype(self, args, **kwargs)
         clone.namedValues = namedValues
         return clone
 
-    def prettyIn(self, bits):
+    def prettyIn(self, bits, namedValues=None):
         if not isinstance(bits, (tuple, list)):
             return OctetString.prettyIn(self, bits)  # raw bitstring
-        _octets = []
+        octets = []
         for bit in bits:  # tuple of named bits
-            v = self.namedValues.getValue(bit)
+            v = (namedValues or self.namedValues).getValue(bit)
             if v is None:
                 raise error.ProtocolError(
                     'Unknown named bit %s' % bit
                 )
             d, m = divmod(v, 8)
-            if d >= len(_octets):
-                _octets.extend([0] * (d - len(_octets) + 1))
-            _octets[d] |= 0x01 << (7 - m)
-        return OctetString.prettyIn(self, _octets)
+            if d >= len(octets):
+                octets.extend([0] * (d - len(octets) + 1))
+            octets[d] |= 0x01 << (7 - m)
+        return OctetString.prettyIn(self, octets)
 
     def prettyOut(self, value):
         names = []
