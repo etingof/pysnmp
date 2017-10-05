@@ -21,6 +21,7 @@ Revision 4.3.10, released 2017-10-XX
 - Fixed multiple bugs in SNMP table indices rendering, especially
   the InetAddressIPv6 type which was severely broken.
 - Fixed crashing Bits.prettyPrint() implementation
+- Fixed crashing Bits.clone()/subtype() implementation
 - Fixed leaking exceptions bubbling up from the asyncio and Twisted adapters
 
 Revision 4.3.9, released 2017-07-26
