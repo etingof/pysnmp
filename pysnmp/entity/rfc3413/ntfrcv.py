@@ -21,9 +21,16 @@ class NotificationReceiver(object):
         snmpEngine.msgAndPduDsp.registerContextEngineId(
             null, self.pduTypes, self.processPdu  # '' is a wildcard
         )
+
+        self.__snmpTrapCommunity = ''
         self.__cbFunVer = 0
         self.__cbFun = cbFun
         self.__cbCtx = cbCtx
+
+        def storeSnmpTrapCommunity(snmpEngine, execpoint, variables, cbCtx):
+            self.__snmpTrapCommunity = variables.get('communityName', '')
+
+        snmpEngine.observer.registerObserver(storeSnmpTrapCommunity, 'rfc2576.processIncomingMsg')
 
     def close(self, snmpEngine):
         snmpEngine.msgAndPduDsp.unregisterContextEngineId(
@@ -39,7 +46,7 @@ class NotificationReceiver(object):
         # Agent-side API complies with SMIv2
         if messageProcessingModel == 0:
             origPdu = PDU
-            PDU = rfc2576.v1ToV2(PDU)
+            PDU = rfc2576.v1ToV2(PDU, snmpTrapCommunity=self.__snmpTrapCommunity)
         else:
             origPdu = None
 

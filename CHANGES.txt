@@ -16,6 +16,8 @@ Revision 4.3.10, released 2017-10-XX
   it propagates to the return value. Before this fix
   ObjectIdentity.prettyPrint() may crash when rendering malformed SNMP
   table indices.
+- Fixed NotificationReceiver to include SNMPv1 TRAP Message community
+  string into SNMPv2c/v3 TRAP PDU
 - Fixed multiple bugs in SNMP table indices rendering, especially
   the InetAddressIPv6 type which was severely broken.
 - Fixed crashing Bits.prettyPrint() implementation
