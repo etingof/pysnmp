@@ -5,12 +5,12 @@ Example scripts
 .. toctree::
    :maxdepth: 2
 
-SNMP is not really simple (PySNMP implementation takes over 15K lines of
-Python code), but PySNMP tries to isolate the complexities and let you 
-perform typical SNMP operations in a quick and intuitive way.
+SNMP is not simple (PySNMP implementation takes over 15K lines of
+Python code), but PySNMP tries to hide the complexities and let you
+carry out typical SNMP operations in a quick and intuitive way.
 
 PySNMP offers three groups of programming interfaces to deal with 
-SNMP protocol. In the order from most consice to most detailed those 
+SNMP protocol. In the order from most concise to most detailed those
 APIs follow.
 
 High-level SNMP
@@ -24,7 +24,7 @@ wrapped into a nearly one-line Python expression.
 It comes in several flavours: one synchronous and a bunch of bindings to
 popular asynchronous I/O frameworks. Those varieties of APIs bring
 subtile differences, mostly to better match particular I/O framework
-customs. Unless you have a vary specific task, one of high-level APIs might
+customs. Unless you have a very specific task, the high-level API might
 solve your SNMP needs.
 
 .. toctree::

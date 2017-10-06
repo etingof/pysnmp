@@ -11,14 +11,14 @@ hands on in the future.
 PySNMP library
 ++++++++++++++
 
-#. Built-in MIB parser. PySNMP uses a data model of its own to work with 
-   information contained in MIB files. To convert ASN.1-based MIB texts 
-   into Python modules, an off-line, third-party tool is employed. As it 
-   turns out, this approach has two major drawback: one is that PySNMP 
-   users may need to pre-process MIB texts to use them with their 
-   PySNMP-based applications. Another is that LibSMI's Python driver 
-   seems to miss some information carried by MIBs. Thus the solution would 
-   be to write another MIB parser and code generator which would produce 
+#. Built-in MIB parser. PySNMP uses a data model of its own to work with
+   information contained in MIB files. To convert ASN.1-based MIB texts
+   into Python modules, an off-line, third-party tool is employed. As it
+   turns out, this approach has two major drawback: one is that PySNMP
+   users may need to pre-process MIB texts to use them with their
+   PySNMP-based applications. Another is that LibSMI's Python driver
+   seems to miss some information carried by MIBs. Thus the solution would
+   be to write another MIB parser and code generator which would produce
    PySNMP compliant Python code right from MIB text files all by itself.
 
    **Done:** see `PySMI project <http://pysmi.sf.net>`_ in conjuction with the latest PySNMP codebase.
@@ -53,7 +53,6 @@ PySNMP library
    inherently DBMS-based, it may be more efficient to move the entire 
    SMI/MIB subsystem into a database. PySNMP engine would talk to it 
    through its simple and well defined SMI API.
-
 
 Stand-alone PySNMP-based tools
 ++++++++++++++++++++++++++++++
@@ -94,7 +93,7 @@ sponsoring it. Please get back to us to discuss details.
 
 Contributions to the PySNMP source code is greatly appreciated as well. 
 We require contributed code to run with Python 2.4 through the latest 
-Python version (which is 3.3 at the time of this writing). Contributed 
+Python version (which is 3.6 at the time of this writing). Contributed
 code will be redistributed under the terms of the same 
 `license <http://pysnmp.sourceforge.net/license.html>`_ as PySNMP is.
 

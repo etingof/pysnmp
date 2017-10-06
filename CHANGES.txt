@@ -1,13 +1,14 @@
 
-Revision 4.4.1, released 2017-10-XX
+Revision 4.4.1, released 2017-10-07
 ------------------------------------
 
 - HMAC-SHA-2 Authentication Protocols support added (RFC-7860)
 - The pycryptodome dependency replaced with pycryptodomex as
   it is recommended by the upstream to avoid unwanted interference
-  with PyCrypto package should it also be installed.
+  with PyCrypto package should it also be installed
+- Sphinx theme changed to Alabaster
 
-Revision 4.3.10, released 2017-10-XX
+Revision 4.3.10, released 2017-10-06
 ------------------------------------
 
 - Refactored partial SNMP message decoding to make it less dependent

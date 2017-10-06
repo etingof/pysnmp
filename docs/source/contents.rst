@@ -11,16 +11,16 @@ engine implementation. It features fully-functional SNMP engine capable
 to act in Agent/Manager/Proxy roles, talking SNMP v1/v2c/v3 protocol 
 versions over IPv4/IPv6 and other network transports.
 
-Despite its name, SNMP is not a really simple protocol. For instance its 
+Despite its name, SNMP is not really a simple protocol. For instance its
 third version introduces complex and open-ended security framework, 
 multilingual capabilities, remote configuration and other features. 
 PySNMP implementation closely follows intricate system details and features 
 bringing most possible power and flexibility to its users.
 
-Current PySNMP stable version is 4.3. It runs with Python 2.4 through 3.5 
+Current PySNMP stable version is 4.4. It runs with Python 2.4 through 3.6
 and is recommended for new applications as well as for migration from
 older, now obsolete, PySNMP releases. All site documentation and 
-examples are written for the 4.3 and later versions in mind.
+examples are written for the 4.4 and later versions in mind.
 Older materials are still available under the obsolete section.
 
 Besides the libraries, a set of pure-Python 
@@ -121,11 +121,9 @@ are collected in the following section.
 Contact
 -------
 
-Please, use our
-`mailing list <https://lists.sourceforge.net/lists/listinfo/pysnmp-users>`_
-or refer to
-`Stack Overflow <http://stackoverflow.com/questions/tagged/pysnmp>`_ 
-should you have any questions or issues in regards to PySNMP.
+In case of questions or troubles using PySNMP, please open up an
+`issue <https://github.com/etingof/pysnmp/issues>`_ at GitHub or ask at
+`Stack Overflow <http://stackoverflow.com/questions/tagged/pysnmp>`_ .
 
 Old site archive
 ----------------
