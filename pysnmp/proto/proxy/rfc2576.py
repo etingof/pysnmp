@@ -97,7 +97,7 @@ __v2ToV1ErrorMap = {
 __zeroInt = v1.Integer(0)
 
 
-def v1ToV2(v1Pdu, origV2Pdu=None):
+def v1ToV2(v1Pdu, origV2Pdu=None, snmpTrapCommunity=''):
     pduType = v1Pdu.tagSet
     v2Pdu = __v1ToV2PduMap[pduType].clone()
 
@@ -119,13 +119,13 @@ def v1ToV2(v1Pdu, origV2Pdu=None):
         else:
             snmpTrapOIDParam = v2c.ObjectIdentifier(__v1ToV2TrapMap[genericTrap])
 
-        # 3.1.4 (XXX snmpTrapCommunity.0 is missing here)
+        # 3.1.4
         v2VarBinds.append((v2c.apiTrapPDU.sysUpTime, sysUpTime))
         v2VarBinds.append((v2c.apiTrapPDU.snmpTrapOID, snmpTrapOIDParam))
         v2VarBinds.append(
             (v2c.apiTrapPDU.snmpTrapAddress, v1.apiTrapPDU.getAgentAddr(v1Pdu))
         )
-        v2VarBinds.append((v2c.apiTrapPDU.snmpTrapCommunity, v2c.OctetString("")))
+        v2VarBinds.append((v2c.apiTrapPDU.snmpTrapCommunity, v2c.OctetString(snmpTrapCommunity)))
         v2VarBinds.append((v2c.apiTrapPDU.snmpTrapEnterprise,
                            v1.apiTrapPDU.getEnterprise(v1Pdu)))
 
