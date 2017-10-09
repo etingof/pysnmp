@@ -7,7 +7,6 @@
 from pyasn1.type import univ, tag, constraint, namedtype
 from pyasn1.error import PyAsn1Error
 from pysnmp.proto import error
-from pysnmp.smi.error import SmiError
 
 __all__ = ['Opaque', 'NetworkAddress', 'ObjectName', 'TimeTicks',
            'Counter', 'Gauge', 'IpAddress']
@@ -52,7 +51,7 @@ class NetworkAddress(univ.Choice):
         namedtype.NamedType('internet', IpAddress())
     )
 
-    def clone(self, value=None, **kwargs):
+    def clone(self, value=univ.noValue, **kwargs):
         """Clone this instance.
 
         If *value* is specified, use its tag as the component type selector,
@@ -63,10 +62,10 @@ class NetworkAddress(univ.Choice):
         :return: the cloned instance.
         :rtype: :py:obj:`pysnmp.proto.rfc1155.NetworkAddress`
         :raise: :py:obj:`pysnmp.smi.error.SmiError`:
-            if tye type of *value* is not allowed for this choice instance.
+            if the type of *value* is not allowed for this Choice instance.
         """
         cloned = univ.Choice.clone(self, **kwargs)
-        if value is not None:
+        if value is not univ.noValue:
             # IpAddress is the only supported type, perhaps forever because
             # this is SNMPv1.
             if not isinstance(value, IpAddress):
@@ -74,7 +73,7 @@ class NetworkAddress(univ.Choice):
             try:
                 tagSet = value.tagSet
             except AttributeError:
-                raise SmiError('component value %r has no tag set' % (value,))
+                raise PyAsn1Error('component value %r has no tag set' % (value,))
             cloned.setComponentByType(tagSet, value)
         return cloned
 
