@@ -51,6 +51,57 @@ class NetworkAddress(univ.Choice):
         namedtype.NamedType('internet', IpAddress())
     )
 
+    def clone(self, value=univ.noValue, **kwargs):
+        """Clone this instance.
+
+        If *value* is specified, use its tag as the component type selector,
+        and itself as the component value.
+
+        :param value: (Optional) the component value.
+        :type value: :py:obj:`pyasn1.type.base.Asn1ItemBase`
+        :return: the cloned instance.
+        :rtype: :py:obj:`pysnmp.proto.rfc1155.NetworkAddress`
+        :raise: :py:obj:`pysnmp.smi.error.SmiError`:
+            if the type of *value* is not allowed for this Choice instance.
+        """
+        cloned = univ.Choice.clone(self, **kwargs)
+        if value is not univ.noValue:
+            # IpAddress is the only supported type, perhaps forever because
+            # this is SNMPv1.
+            if not isinstance(value, IpAddress):
+                value = IpAddress(value)
+            try:
+                tagSet = value.tagSet
+            except AttributeError:
+                raise PyAsn1Error('component value %r has no tag set' % (value,))
+            cloned.setComponentByType(tagSet, value)
+        return cloned
+
+    # RFC 1212, section 4.1.6:
+    #
+    #    "(5)  NetworkAddress-valued: `n+1' sub-identifiers, where `n'
+    #          depends on the kind of address being encoded (the first
+    #          sub-identifier indicates the kind of address, value 1
+    #          indicates an IpAddress);"
+
+    def cloneFromName(self, value, impliedFlag, parentRow, parentIndices):
+        kind = value[0]
+        clone = self.clone()
+        if kind == 1:
+            clone['internet'] = tuple(value[1:5])
+            return clone, value[5:]
+        else:
+            raise SmiError('unknown NetworkAddress type %r' % (kind,))
+
+    def cloneAsName(self, impliedFlag, parentRow, parentIndices):
+        kind = self.getName()
+        component = self.getComponent()
+        if kind == 'internet':
+            return (1,) + tuple(component.asNumbers())
+        else:
+            raise SmiError('unknown NetworkAddress type %r' % (kind,))
+
+
 
 class Gauge(univ.Integer):
     tagSet = univ.Integer.tagSet.tagImplicitly(
