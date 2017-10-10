@@ -1,5 +1,5 @@
 
-Revision 4.4.1, released 2017-10-07
+Revision 4.4.1, released 2017-10-XX
 ------------------------------------
 
 - HMAC-SHA-2 Authentication Protocols support added (RFC-7860)
@@ -7,6 +7,8 @@ Revision 4.4.1, released 2017-10-07
   it is recommended by the upstream to avoid unwanted interference
   with PyCrypto package should it also be installed
 - Sphinx theme changed to Alabaster
+- Fixed ObjectIdentifier-into-ObjectIdentity casting at
+  rfc1902.ObjectType MIB resolution harness
 
 Revision 4.3.10, released 2017-10-06
 ------------------------------------
