@@ -868,7 +868,7 @@ class ObjectType(object):
                 self.__args[0].prettyPrint(), self.__args[0].getMibNode().getSyntax().__class__.__name__, self.__args[1],
                 sys.exc_info()[1]))
 
-        if self.__args[1].isSuperTypeOf(rfc1902.ObjectIdentifier(), matchConstraints=False):
+        if rfc1902.ObjectIdentifier().isSuperTypeOf(self.__args[1], matchConstraints=False):
             self.__args[1] = ObjectIdentity(self.__args[1]).resolveWithMib(mibViewController)
 
         self.__state |= self.stClean
