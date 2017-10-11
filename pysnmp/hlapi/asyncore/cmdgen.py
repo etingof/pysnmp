@@ -428,12 +428,12 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
       - For non-repeaters (``j < nonRepeaters``), the first lexicographic
         successor of ``varBinds[j]``, regardless the value of ``i``, or an
         :py:class:`~pysnmp.smi.rfc1902.ObjectType` instance with the
-        :py:obj:`pysnmp.proto.rfc1905.endOfMibView` value if no such successor
+        :py:obj:`~pysnmp.proto.rfc1905.endOfMibView` value if no such successor
         exists;
       - For repeaters (``j >= nonRepeaters``), the ``i``-th lexicographic
         successor of ``varBinds[j]``, or an
         :py:class:`~pysnmp.smi.rfc1902.ObjectType` instance with the
-        :py:obj:`pysnmp.proto.rfc1905.endOfMibView` value if no such successor
+        :py:obj:`~pysnmp.proto.rfc1905.endOfMibView` value if no such successor
         exists.
 
       See :rfc:`3416#section-4.2.3` for details on the underlying
