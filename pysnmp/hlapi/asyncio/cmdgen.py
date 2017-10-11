@@ -449,7 +449,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
           successor exists.
 
         See :rfc:`3416#section-4.2.3` for details on the underlying
-        `GetBulkRequest-PDU` and the associated `GetResponse-PDU`, such as
+        ``GetBulkRequest-PDU`` and the associated ``GetResponse-PDU``, such as
         specific conditions under which the server may truncate the response,
         causing ``varBindTable`` to have less than ``maxRepetitions`` rows.
 
