@@ -416,12 +416,30 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     * errorIndication (str): True value indicates SNMP engine error.
     * errorStatus (str): True value indicates SNMP PDU error.
     * errorIndex (int): Non-zero value refers to `varBinds[errorIndex-1]`
-    * varBinds (tuple): A sequence of sequences (e.g. 2-D array) of
-      :py:class:`~pysnmp.smi.rfc1902.ObjectType` class instances
-      representing a table of MIB variables returned in SNMP response.
-      Inner sequences represent table rows and ordered exactly the same
-      as `varBinds` in request. Number of rows might be less or equal
-      to `maxRepetitions` value in request.
+    * varBindTable (tuple):
+      A sequence of sequences (e.g. 2-D array) of
+      :py:class:`~pysnmp.smi.rfc1902.ObjectType` class instances representing a
+      table of MIB variables returned in SNMP response, with up to
+      ``maxRepetitions`` rows, i.e. ``len(varBindTable) <= maxRepetitions``.
+
+      For ``0 <= i < len(varBindTable)`` and ``0 <= j < len(varBinds)``,
+      ``varBindTable[i][j]`` represents:
+
+      - For non-repeaters (``j < nonRepeaters``), the first lexicographic
+        successor of ``varBinds[j]``, regardless the value of ``i``, or an
+        :py:class:`~pysnmp.smi.rfc1902.ObjectType` instance with the
+        :py:obj:`~pysnmp.proto.rfc1905.endOfMibView` value if no such successor
+        exists;
+      - For repeaters (``j >= nonRepeaters``), the ``i``-th lexicographic
+        successor of ``varBinds[j]``, or an
+        :py:class:`~pysnmp.smi.rfc1902.ObjectType` instance with the
+        :py:obj:`~pysnmp.proto.rfc1905.endOfMibView` value if no such successor
+        exists.
+
+      See :rfc:`3416#section-4.2.3` for details on the underlying
+      ``GetBulkRequest-PDU`` and the associated ``GetResponse-PDU``, such as
+      specific conditions under which the server may truncate the response,
+      causing ``varBindTable`` to have less than ``maxRepetitions`` rows.
     * `cbCtx` : Original user-supplied object.
 
     Returns
@@ -451,7 +469,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     ...         ObjectType(ObjectIdentity('SNMPv2-MIB', 'system')),
     ...         cbFun=cbFun)
     >>> snmpEngine.transportDispatcher.runDispatcher()
-    (None, 0, 0, [ [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m')), ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.2.0')), ObjectIdentifier('1.3.6.1.4.1.424242.1.1')] ])
+    (None, 0, 0, [[ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'))], [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.2.0')), ObjectIdentifier('1.3.6.1.4.1.424242.1.1'))]])
     >>>
 
     """
