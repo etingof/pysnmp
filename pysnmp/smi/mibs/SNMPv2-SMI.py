@@ -1230,8 +1230,12 @@ class MibTableRow(MibTree):
 
     def getInstIdFromIndices(self, *indices):
         """Return column instance identification from indices"""
-        if indices in self.__idxToIdCache:
+        try:
             return self.__idxToIdCache[indices]
+        except TypeError:
+            cacheable = False
+        except KeyError:
+            cacheable = True
         idx = 0
         instId = ()
         parentIndices = []
@@ -1243,7 +1247,8 @@ class MibTableRow(MibTree):
             instId += self.getAsName(syntax, impliedFlag, parentIndices)
             parentIndices.append(syntax)
             idx += 1
-        self.__idxToIdCache[indices] = instId
+        if cacheable:
+            self.__idxToIdCache[indices] = instId
         return instId
 
     # Table access by index
