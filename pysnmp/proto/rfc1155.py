@@ -66,9 +66,11 @@ class NetworkAddress(univ.Choice):
         """
         cloned = univ.Choice.clone(self, **kwargs)
         if value is not univ.noValue:
-            # IpAddress is the only supported type, perhaps forever because
-            # this is SNMPv1.
-            if not isinstance(value, IpAddress):
+            if isinstance(value, NetworkAddress):
+                value = value.getComponent()
+            elif not isinstance(value, IpAddress):
+                # IpAddress is the only supported type, perhaps forever because
+                # this is SNMPv1.
                 value = IpAddress(value)
             try:
                 tagSet = value.tagSet
