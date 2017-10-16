@@ -156,7 +156,7 @@ following snippet of code at the beginning of your application:
     from pysnmp import debug
 
     # use specific flags or 'all' for full debugging
-    debug.setLogger(debug.Debug('dsp', 'msgproc', 'secmode'))
+    debug.setLogger(debug.Debug('dsp', 'msgproc', 'secmod'))
 
 Then run your app and watch stderr. The Debug initializer enables debugging 
 for a particular PySNMP subsystem, 'all' enables full debugging. More 
