@@ -10,6 +10,8 @@ Revision 4.4.1, released 2017-10-XX
 - Fixed ObjectIdentifier-into-ObjectIdentity casting at
   rfc1902.ObjectType MIB resolution harness
 - Fixed NetworkAddress object handling in SNMP table indices
+- Fixed MIB lookup by module:object.indices MIB object with
+  InetAddressIPv{4,6} objects being in the index
 
 Revision 4.3.10, released 2017-10-06
 ------------------------------------
