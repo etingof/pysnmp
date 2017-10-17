@@ -29,5 +29,6 @@ Floris Bruynooghe
 Laurelin of Middle Earth
 Robert Reese
 Olivier Verriest
+Eugene M. Kim
 Thanks to Python Software Foundation for granting financial support 
 for the project.
