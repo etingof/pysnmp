@@ -90,9 +90,7 @@ class InetAddress(TextualConvention, OctetString):
         for parentIndex in reversed(parentIndices):
             if isinstance(parentIndex, InetAddressType):
                 try:
-                    # TODO: newer pyasn1 should ensure .prettyPrint() returns unicode
-                    prettyValue = self.asOctets().decode()
-                    return parentRow.getAsName(self.typeMap[parentIndex].clone(prettyValue), impliedFlag, parentIndices)
+                    return parentRow.getAsName(self.typeMap[parentIndex].clone(self.asOctets()), impliedFlag, parentIndices)
                 except KeyError:
                     pass
 
