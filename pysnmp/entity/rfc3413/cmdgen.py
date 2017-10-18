@@ -70,6 +70,7 @@ class CommandGenerator(object):
             debug.logger & debug.flagApp and debug.logger(
                 'processResponsePdu: sendPduHandle %s, statusInformation %s' % (sendPduHandle, statusInformation))
             errorIndication = statusInformation['errorIndication']
+
             # SNMP engine discovery will take extra retries, allow that
             if (errorIndication in (errind.notInTimeWindow,
                                     errind.unknownEngineID) and
@@ -81,12 +82,21 @@ class CommandGenerator(object):
                 cbFun(snmpEngine, origSendRequestHandle,
                       statusInformation['errorIndication'], None, cbCtx)
                 return
+
+            # User-side API assumes SMIv2
+            if origMessageProcessingModel == 0:
+                reqPDU = rfc2576.v2ToV1(origPdu)
+                pduVersion = 0
+            else:
+                reqPDU = origPdu
+                pduVersion = 1
+
             try:
                 sendPduHandle = snmpEngine.msgAndPduDsp.sendPdu(
                     snmpEngine, origTransportDomain, origTransportAddress,
                     origMessageProcessingModel, origSecurityModel,
                     origSecurityName, origSecurityLevel, origContextEngineId,
-                    origContextName, origPduVersion, origPdu,
+                    origContextName, pduVersion, reqPDU,
                     True, origTimeout, self.processResponsePdu,
                     (origSendRequestHandle, cbFun, cbCtx))
 

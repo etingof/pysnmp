@@ -13,6 +13,9 @@ Revision 4.4.1, released 2017-10-XX
 - Fixed NetworkAddress object handling in SNMP table indices
 - Fixed MIB lookup by module:object.indices MIB object with
   InetAddressIPv{4,6} objects being in the index
+- Fixed non-translated PDU being retries at CommandGenerator what
+  leads to wrong PDU version being sent and even a crash on
+  incompatible PDU/SNMP message combination
 
 Revision 4.3.10, released 2017-10-06
 ------------------------------------
