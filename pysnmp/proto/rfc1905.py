@@ -19,7 +19,7 @@ max_bindings = rfc1902.Integer(2147483647)
 # Take SNMP exception values out of BindValue structure for convenience
 
 UnSpecified = univ.Null
-unSpecified = UnSpecified()
+unSpecified = UnSpecified('')
 
 
 class NoSuchObject(univ.Null):

@@ -557,7 +557,7 @@ well as for agent-to-manager.
    ...                      NotificationType(ObjectIdentity('IF-MIB', 'linkUp'), instanceIndex=(123,))
    ... )
    >>> next(g)
-   (None, 0, 0, [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.3.0'), TimeTicks(0)), ObjectType(ObjectIdentity('1.3.6.1.6.3.1.1.4.1.0'), ObjectIdentity('1.3.6.1.6.3.1.1.5.4')), ObjectType(ObjectName('1.3.6.1.2.1.2.2.1.1.123'), Null()), ObjectType(ObjectIdentity('1.3.6.1.2.1.2.2.1.7.123'), Null()), ObjectType(ObjectIdentity('1.3.6.1.2.1.2.2.1.8.123'), Null())])
+   (None, 0, 0, [ObjectType(ObjectIdentity('1.3.6.1.2.1.1.3.0'), TimeTicks(0)), ObjectType(ObjectIdentity('1.3.6.1.6.3.1.1.4.1.0'), ObjectIdentity('1.3.6.1.6.3.1.1.5.4')), ObjectType(ObjectName('1.3.6.1.2.1.2.2.1.1.123'), Null('')), ObjectType(ObjectIdentity('1.3.6.1.2.1.2.2.1.7.123'), Null('')), ObjectType(ObjectIdentity('1.3.6.1.2.1.2.2.1.8.123'), Null(''))])
 
 In the latter example you can see MIB objects (ifIndex, ifAdminStatus,
 ifOperStatus) being automatically expanded from IF-MIB::linkUp notification.

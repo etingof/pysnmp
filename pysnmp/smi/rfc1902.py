@@ -688,7 +688,7 @@ class ObjectType(object):
     --------
     >>> from pysnmp.smi.rfc1902 import *
     >>> ObjectType(ObjectIdentity('1.3.6.1.2.1.1.1.0'))
-    ObjectType(ObjectIdentity('1.3.6.1.2.1.1.1.0'), Null())
+    ObjectType(ObjectIdentity('1.3.6.1.2.1.1.1.0'), Null(''))
     >>> ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0), 'Linux i386')
     ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0), 'Linux i386')
 

@@ -7,6 +7,7 @@ Revision 4.4.1, released 2017-10-XX
   it is recommended by the upstream to avoid unwanted interference
   with PyCrypto package should it also be installed
 - Sphinx theme changed to Alabaster
+- Minor adjustments towards pyasn1 0.4.x compatibility
 - Fixed ObjectIdentifier-into-ObjectIdentity casting at
   rfc1902.ObjectType MIB resolution harness
 - Fixed NetworkAddress object handling in SNMP table indices

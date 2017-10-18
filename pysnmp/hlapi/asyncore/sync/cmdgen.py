@@ -353,7 +353,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     while True:
         if varBinds:
             cmdgen.nextCmd(snmpEngine, authData, transportTarget, contextData,
-                           *[(x[0], Null()) for x in varBinds],
+                           *[(x[0], Null('')) for x in varBinds],
                            **dict(cbFun=cbFun, cbCtx=cbCtx,
                                   lookupMib=options.get('lookupMib', True)))
 
@@ -547,7 +547,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
 
         cmdgen.bulkCmd(snmpEngine, authData, transportTarget, contextData,
                        nonRepeaters, maxRepetitions,
-                       *[(x[0], Null()) for x in varBinds],
+                       *[(x[0], Null('')) for x in varBinds],
                        **dict(cbFun=cbFun, cbCtx=cbCtx,
                               lookupMib=options.get('lookupMib', True)))
 

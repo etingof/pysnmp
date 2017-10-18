@@ -285,8 +285,8 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         v1.apiPDU.setErrorIndex(v1Pdu, 0)
 
     # Translate Var-Binds
-    if pduType in rfc3411.responseClassPDUs and \
-            v1.apiPDU.getErrorStatus(v1Pdu):
+    if (pduType in rfc3411.responseClassPDUs and
+            v1.apiPDU.getErrorStatus(v1Pdu)):
         v1VarBinds = v1.apiPDU.getVarBinds(origV1Pdu)
     else:
         for oid, v2Val in v2VarBinds:

@@ -25,7 +25,7 @@ if version_info[0] == 2:
 else:
     from queue import Queue
 
-# List of targets in the followin format:
+# List of targets in the following format:
 # ( ( authData, transportTarget, varNames ), ... )
 targets = (
     # 1-st target (SNMPv1 over IPv4/UDP)

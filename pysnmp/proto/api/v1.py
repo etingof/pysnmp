@@ -122,8 +122,7 @@ class PDUAPI(object):
     def setVarBinds(pdu, varBinds):
         varBindList = pdu.setComponentByPosition(3).getComponentByPosition(3)
         varBindList.clear()
-        idx = 0
-        for varBind in varBinds:
+        for idx, varBind in enumerate(varBinds):
             if isinstance(varBind, VarBind):
                 varBindList.setComponentByPosition(idx, varBind)
             else:
@@ -131,7 +130,6 @@ class PDUAPI(object):
                 apiVarBind.setOIDVal(
                     varBindList.getComponentByPosition(idx), varBind
                 )
-            idx += 1
 
     def getResponse(self, reqPDU):
         rspPDU = GetResponsePDU()
