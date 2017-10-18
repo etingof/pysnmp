@@ -31,7 +31,7 @@ class NoSuchObject(univ.Null):
         return 'No Such Object currently exists at this OID'
 
 
-noSuchObject = NoSuchObject()
+noSuchObject = NoSuchObject('')
 
 
 class NoSuchInstance(univ.Null):
@@ -43,7 +43,7 @@ class NoSuchInstance(univ.Null):
         return 'No Such Instance currently exists at this OID'
 
 
-noSuchInstance = NoSuchInstance()
+noSuchInstance = NoSuchInstance('')
 
 
 class EndOfMibView(univ.Null):
@@ -55,7 +55,7 @@ class EndOfMibView(univ.Null):
         return 'No more variables left in this MIB View'
 
 
-endOfMibView = EndOfMibView()
+endOfMibView = EndOfMibView('')
 
 
 # Made a separate class for better readability
