@@ -10,6 +10,7 @@ from pysnmp.smi.indices import OidOrderedDict
 from pysnmp.smi import exval, error
 from pysnmp.proto import rfc1902
 from pysnmp import cache, debug
+from pyasn1.type import univ
 from pyasn1.error import PyAsn1Error
 
 Integer, ObjectIdentifier = mibBuilder.importSymbols(
@@ -619,6 +620,8 @@ class MibScalarInstance(MibTree):
         return self.syntax.clone()
 
     def setValue(self, value, name, idx):
+        if value is None:
+            value = univ.noValue
         try:
             if hasattr(self.syntax, 'setValue'):
                 return self.syntax.setValue(value)

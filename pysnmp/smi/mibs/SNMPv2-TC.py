@@ -9,6 +9,7 @@ import inspect
 import string
 from pysnmp.smi.error import *
 from pysnmp import debug
+from pyasn1.type import univ
 from pyasn1.compat import octets
 from pyasn1.type.base import Asn1Item
 
@@ -45,6 +46,8 @@ class TextualConvention(object):
         return self.clone()
 
     def setValue(self, value):
+        if value is None:
+            value = univ.noValue
         return self.clone(value)
 
     def prettyOut(self, value):  # override asn1 type method
@@ -406,6 +409,8 @@ class TestAndIncr(TextualConvention, Integer):
             value += 1
             if value > 2147483646:
                 value = 0
+        if value is None:
+            value = univ.noValue
         return self.clone(value)
 
 
@@ -476,6 +481,9 @@ class RowStatus(TextualConvention, Integer):
     }
 
     def setValue(self, value):
+        if value is None:
+            value = univ.noValue
+
         value = self.clone(value)
 
         # Run through states transition matrix,
@@ -485,6 +493,10 @@ class RowStatus(TextualConvention, Integer):
              self.hasValue() and self or self.stNotExists),
             (MibOperationError, None)
         )
+
+        if newState is None:
+            newState = univ.noValue
+
         newState = self.clone(newState)
 
         debug.logger & debug.flagIns and debug.logger(
