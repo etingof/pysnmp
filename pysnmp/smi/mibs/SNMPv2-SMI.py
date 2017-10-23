@@ -1045,7 +1045,7 @@ class MibTableRow(MibTree):
             if impliedFlag:
                 return tuple(obj)
             else:
-                return (len(self.name),) + tuple(obj)
+                return (len(obj),) + tuple(obj)
         # rfc2578, 7.1
         elif baseTag == self.__bitsBaseTag:
             return (len(obj),) + obj.asNumbers()
