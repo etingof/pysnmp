@@ -120,7 +120,13 @@ html_theme = 'alabaster'
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+html_theme_options = {
+    'description': 'SNMP library for Python',
+    'show_powered_by': False,
+    'github_user': 'etingof',
+    'github_repo': 'pysnmp',
+    'fixed_sidebar': True,
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
