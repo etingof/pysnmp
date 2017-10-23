@@ -2,7 +2,7 @@
 Revision 4.4.2, released 2017-10-XX
 -----------------------------------
 
-No changes yet
+- Fixed non-implied-OID encoding in SNMP table indices
 
 Revision 4.4.1, released 2017-10-23
 -----------------------------------
