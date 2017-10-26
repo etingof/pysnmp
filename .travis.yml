@@ -13,7 +13,7 @@ python:
 #  - "pypy"
 #  - "pypy3"
 install:
-  - pip install -r requirements.txt
+  - pip install -r requirements.txt -r devel-requirements.txt
   - pip install pysnmp-mibs
   - pip install --no-deps .
 script:

@@ -38,7 +38,7 @@ extensions = [
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-#templates_path = ['.templates']
+templates_path = ['.templates']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -121,11 +121,22 @@ html_theme = 'alabaster'
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = {
-    'description': 'SNMP library for Python',
+    'logo': 'logo.svg',
+    'description': '<p align=center><i>Brought by SNMP Labs</i></p>',
     'show_powered_by': False,
     'github_user': 'etingof',
     'github_repo': 'pysnmp',
     'fixed_sidebar': True,
+}
+
+html_sidebars = {
+    '**': [
+        'about.html',
+        'navigation.html',
+        'relations.html',
+        'searchbox.html',
+        'donate.html',
+    ]
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
@@ -146,17 +157,12 @@ html_theme_options = {
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-#html_favicon = None
+html_favicon = '.static/favicon.ico'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-#if 'PYSNMPDEV' in os.environ:
-#    html_static_path = ['.static']
-
-# Custom CSS theme
-#if 'PYSNMPDEV' in os.environ:
-#    html_style = 'css/rtdimproved.css'
+html_static_path = ['.static']
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
@@ -220,10 +226,6 @@ html_show_sphinx = False
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'PySNMPdoc'
-
-html_context = {
-    'include_analytics': 'PYSNMPDEV' in os.environ
-}
 
 # -- Options for LaTeX output ---------------------------------------------
 
