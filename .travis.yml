@@ -14,7 +14,7 @@ python:
 #  - "pypy3"
 install:
   - pip install -r requirements.txt -r devel-requirements.txt
+  - pip install -e .
   - pip install pysnmp-mibs
-  - pip install --no-deps .
 script:
   - sh runtests.sh
