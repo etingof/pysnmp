@@ -2,6 +2,8 @@
 Revision 4.4.2, released 2017-11-XX
 -----------------------------------
 
+- The pysnmp version being used gets exposed to the MIB modules
+  via the `MibBuilder` instance
 - The .setObjects() method of the SMI types now accepts
   `append=False` parameter to let the caller adding more
   than 255 elements over the course of multiple calls

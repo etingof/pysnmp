@@ -16,6 +16,7 @@ try:
     from errno import ENOENT
 except ImportError:
     ENOENT = -1
+from pysnmp import __version__ as pysnmp_version
 from pysnmp.smi import error
 from pysnmp import debug
 
@@ -235,12 +236,17 @@ class DirMibSource(__AbstractMibSource):
 
 
 class MibBuilder(object):
-    loadTexts = 0
     defaultCoreMibs = os.pathsep.join(
         ('pysnmp.smi.mibs.instances', 'pysnmp.smi.mibs')
     )
     defaultMiscMibs = 'pysnmp_mibs'
+
     moduleID = 'PYSNMP_MODULE_ID'
+
+    loadTexts = False
+
+    # MIB modules can use this to select the features they can use
+    version = pysnmp_version
 
     def __init__(self):
         self.lastBuildId = self._autoName = 0
