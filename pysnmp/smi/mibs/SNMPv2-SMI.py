@@ -176,8 +176,11 @@ class NotificationType(MibNode):
     def getObjects(self):
         return self.objects
 
-    def setObjects(self, *args):
-        self.objects = args
+    def setObjects(self, *args, **kwargs):
+        if kwargs.get('append'):
+            self.objects += args
+        else:
+            self.objects = args
         return self
 
     def getStatus(self):
@@ -1110,7 +1113,7 @@ class MibTableRow(MibTree):
 
     def setIndexNames(self, *names):
         for name in names:
-            self.indexNames = self.indexNames + (name,)
+            self.indexNames += (name,)
         return self
 
     def getIndexNames(self):

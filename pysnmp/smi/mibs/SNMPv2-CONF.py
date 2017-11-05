@@ -20,8 +20,11 @@ class ObjectGroup(MibNode):
     def getObjects(self):
         return getattr(self, 'objects', ())
 
-    def setObjects(self, *args):
-        self.objects = args
+    def setObjects(self, *args, **kwargs):
+        if kwargs.get('append'):
+            self.objects += args
+        else:
+            self.objects = args
         return self
 
     def getDescription(self):
@@ -46,8 +49,11 @@ class NotificationGroup(MibNode):
     def getObjects(self):
         return getattr(self, 'objects', ())
 
-    def setObjects(self, *args):
-        self.objects = args
+    def setObjects(self, *args, **kwargs):
+        if kwargs.get('append'):
+            self.objects += args
+        else:
+            self.objects = args
         return self
 
     def getDescription(self):
@@ -72,8 +78,11 @@ class ModuleCompliance(MibNode):
     def getObjects(self):
         return getattr(self, 'objects', ())
 
-    def setObjects(self, *args):
-        self.objects = args
+    def setObjects(self, *args, **kwargs):
+        if kwargs.get('append'):
+            self.objects += args
+        else:
+            self.objects = args
         return self
 
     def getDescription(self):

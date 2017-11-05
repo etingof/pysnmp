@@ -1,7 +1,10 @@
 
-Revision 4.4.2, released 2017-10-XX
+Revision 4.4.2, released 2017-11-XX
 -----------------------------------
 
+- The .setObjects() method of the SMI types now accepts
+  `append=False` parameter to let the caller adding more
+  than 255 elements over the course of multiple calls
 - Fixed non-implied-OID encoding in SNMP table indices
 
 Revision 4.4.1, released 2017-10-23
