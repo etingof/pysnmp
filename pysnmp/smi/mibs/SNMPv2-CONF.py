@@ -14,8 +14,16 @@ MibNode, = mibBuilder.importSymbols('SNMPv2-SMI', 'MibNode')
 
 
 class ObjectGroup(MibNode):
+    status = 'current'
     objects = ()
     description = ''
+
+    def getStatus(self):
+        return self.status
+
+    def setStatus(self, v):
+        self.status = v
+        return self
 
     def getObjects(self):
         return getattr(self, 'objects', ())
@@ -35,16 +43,24 @@ class ObjectGroup(MibNode):
         return self
 
     def asn1Print(self):
-        return '\
-OBJECT-GROUP\n\
-  OBJECTS { %s }\n\
-  DESCRIPTION \"%s\"\
-' % (', '.join([x for x in self.getObjects()]), self.getDescription())
+        return """\
+OBJECT-GROUP
+  OBJECTS { %s }
+  DESCRIPTION "%s"
+""" % (', '.join([x for x in self.getObjects()]), self.getDescription())
 
 
 class NotificationGroup(MibNode):
+    status = 'current'
     objects = ()
     description = ''
+
+    def getStatus(self):
+        return self.status
+
+    def setStatus(self, v):
+        self.status = v
+        return self
 
     def getObjects(self):
         return getattr(self, 'objects', ())
@@ -64,16 +80,24 @@ class NotificationGroup(MibNode):
         return self
 
     def asn1Print(self):
-        return '\
-NOTIFICATION-GROUP\n\
-  NOTIFICATIONS { %s }\n\
-  DESCRIPTION \"%s\"\
-' % (', '.join([x for x in self.getObjects()]), self.getDescription())
+        return """\
+NOTIFICATION-GROUP
+  NOTIFICATIONS { %s }
+  DESCRIPTION "%s"
+""" % (', '.join([x for x in self.getObjects()]), self.getDescription())
 
 
 class ModuleCompliance(MibNode):
+    status = 'current'
     objects = ()
     description = ''
+
+    def getStatus(self):
+        return self.status
+
+    def setStatus(self, v):
+        self.status = v
+        return self
 
     def getObjects(self):
         return getattr(self, 'objects', ())
@@ -93,15 +117,25 @@ class ModuleCompliance(MibNode):
         return self
 
     def asn1Print(self):
-        return '\
-MODULE-COMPLIANCE\n\
-  OBJECT { %s } \n\
-  DESCRIPTION \"%s\"\n\
-' % (', '.join([x for x in self.getObjects()]), self.getDescription())
+        return """\
+MODULE-COMPLIANCE
+  OBJECT { %s }
+  DESCRIPTION "%s"
+""" % (', '.join([x for x in self.getObjects()]), self.getDescription())
 
 
 class AgentCapabilities(MibNode):
+    status = 'current'
     description = ''
+    reference = ''
+    productRelease = ''
+
+    def getStatus(self):
+        return self.status
+
+    def setStatus(self, v):
+        self.status = v
+        return self
 
     def getDescription(self):
         return getattr(self, 'description', '')
@@ -110,11 +144,29 @@ class AgentCapabilities(MibNode):
         self.description = v
         return self
 
+    def getReference(self):
+        return self.reference
+
+    def setReference(self, v):
+        self.reference = v
+        return self
+
+    def getProductRelease(self):
+        return self.productRelease
+
+    def setProductRelease(self, v):
+        self.productRelease = v
+        return self
+
+    # TODO: implement the rest of properties
+
     def asn1Print(self):
-        return '\
-AGENT-CAPABILITIES\n\
-  DESCRIPTION \"%s\"\n\
-' % self.getDescription()
+        return """\
+AGENT-CAPABILITIES
+  STATUS "%s"
+  PRODUCT-RELEASE "%s"
+  DESCRIPTION "%s"
+""" % (self.getStatus(), self.getProductRelease(), self.getDescription())
 
 
 mibBuilder.exportSymbols('SNMPv2-CONF', ObjectGroup=ObjectGroup, NotificationGroup=NotificationGroup, ModuleCompliance=ModuleCompliance, AgentCapabilities=AgentCapabilities)

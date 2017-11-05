@@ -74,11 +74,19 @@ class MibNode(object):
 # definitions for information modules
 
 class ModuleIdentity(MibNode):
+    status = 'current'
     lastUpdated = ''
     organization = ''
     contactInfo = ''
     description = ''
     revisions = ()
+
+    def getStatus(self):
+        return self.status
+
+    def setStatus(self, v):
+        self.status = v
+        return self
 
     def getLastUpdated(self):
         return self.lastUpdated
