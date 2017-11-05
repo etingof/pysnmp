@@ -16,7 +16,7 @@ try:
     from errno import ENOENT
 except ImportError:
     ENOENT = -1
-from pysnmp import __version__ as pysnmp_version
+from pysnmp import version as pysnmp_version
 from pysnmp.smi import error
 from pysnmp import debug
 
