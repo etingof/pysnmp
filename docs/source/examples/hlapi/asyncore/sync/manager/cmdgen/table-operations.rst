@@ -25,15 +25,15 @@ Table operations
 :download:`Download</../../examples/hlapi/asyncore/sync/manager/cmdgen/get-table-object-by-multiple-indices.py>` script.
 
 
-.. include:: /../../examples/hlapi/asyncore/sync/manager/cmdgen/getbulk-fetch-scalar-and-table-variables.py
+.. include:: /../../examples/hlapi/asyncore/sync/manager/cmdgen/getbulk-fetch-scalar-and-table-variables-over-ipv6.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/hlapi/asyncore/sync/manager/cmdgen/getbulk-fetch-scalar-and-table-variables.py
+.. literalinclude:: /../../examples/hlapi/asyncore/sync/manager/cmdgen/getbulk-fetch-scalar-and-table-variables-over-ipv6.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/hlapi/asyncore/sync/manager/cmdgen/getbulk-fetch-scalar-and-table-variables.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/sync/manager/cmdgen/getbulk-fetch-scalar-and-table-variables-over-ipv6.py>` script.
 
 
 .. include:: /../../examples/hlapi/asyncore/sync/manager/cmdgen/pull-whole-snmp-table.py

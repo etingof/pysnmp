@@ -4,15 +4,15 @@
 Advanced topics
 ---------------
 
-.. include:: /../../examples/v3arch/asyncore/manager/ntfrcv/observe-request-processing.py
+.. include:: /../../examples/v3arch/asyncore/manager/ntfrcv/observe-request-processing-over-ipv4-and-ipv6.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/v3arch/asyncore/manager/ntfrcv/observe-request-processing.py
+.. literalinclude:: /../../examples/v3arch/asyncore/manager/ntfrcv/observe-request-processing-over-ipv4-and-ipv6.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/v3arch/asyncore/manager/ntfrcv/observe-request-processing.py>` script.
+:download:`Download</../../examples/v3arch/asyncore/manager/ntfrcv/observe-request-processing-over-ipv4-and-ipv6.py>` script.
 
 
 .. include:: /../../examples/v3arch/asyncore/manager/ntfrcv/regexp-community-name.py
