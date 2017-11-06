@@ -70,15 +70,15 @@ Advanced Command Generator
 :download:`Download</../../examples/hlapi/asyncore/sync/manager/cmdgen/specific-v3-engine-id.py>` script.
 
 
-.. include:: /../../examples/hlapi/asyncore/sync/manager/cmdgen/query-agents-from-multuple-threads.py
+.. include:: /../../examples/hlapi/asyncore/sync/manager/cmdgen/query-agents-from-multuple-threads-over-ipv4-and-ipv6.py
    :start-after: """
    :end-before: """#
 
-.. literalinclude:: /../../examples/hlapi/asyncore/sync/manager/cmdgen/query-agents-from-multuple-threads.py
+.. literalinclude:: /../../examples/hlapi/asyncore/sync/manager/cmdgen/query-agents-from-multuple-threads-over-ipv4-and-ipv6.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/hlapi/asyncore/sync/manager/cmdgen/query-agents-from-multuple-threads.py>` script.
+:download:`Download</../../examples/hlapi/asyncore/sync/manager/cmdgen/query-agents-from-multuple-threads-over-ipv4-and-ipv6.py>` script.
 
 
 See also: :doc:`library reference </docs/api-reference>`.

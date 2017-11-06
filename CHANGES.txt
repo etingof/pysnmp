@@ -8,6 +8,8 @@ Revision 4.4.2, released 2017-11-XX
   `append=False` parameter to let the caller adding more
   than 255 elements over the course of multiple calls
 - Added support for some more missing fields of SMIv2 MACRO types
+- Example scripts rearranged in a way that IPv6 requirement is
+  clearly encoded in the script's name
 - Fixed non-implied-OID encoding in SNMP table indices
 
 Revision 4.4.1, released 2017-10-23
