@@ -10,7 +10,7 @@ from pysnmp.entity.rfc3413 import config
 from pysnmp.proto.proxy import rfc2576
 from pysnmp.proto import rfc3411
 from pysnmp.proto.api import v2c
-from pysnmp.proto import error
+from pysnmp.proto import errind, error
 from pysnmp.smi import view, rfc1902
 from pysnmp import nextid
 from pysnmp import debug
@@ -21,10 +21,11 @@ getNextHandle = nextid.Integer(0x7fffffff)
 class NotificationOriginator(object):
     acmID = 3  # default MIB access control method to use
 
-    def __init__(self, snmpContext=None):
+    def __init__(self, **options):
         self.__pendingReqs = {}
         self.__pendingNotifications = {}
-        self.snmpContext = snmpContext  # this is deprecated
+        self.snmpContext = options.pop('snmpContext', None)  # this is deprecated
+        self.__options = options
 
     def processResponsePdu(self, snmpEngine, messageProcessingModel,
                            securityModel, securityName, securityLevel,
@@ -40,7 +41,7 @@ class NotificationOriginator(object):
          origMessageProcessingModel, origSecurityModel,
          origSecurityName, origSecurityLevel, origContextEngineId,
          origContextName, origPdu, origTimeout,
-         origRetryCount, origRetries) = self.__pendingReqs.pop(sendPduHandle)
+         origRetryCount, origRetries, origDiscoveryRetries) = self.__pendingReqs.pop(sendPduHandle)
 
         snmpEngine.transportDispatcher.jobFinished(id(self))
 
@@ -48,12 +49,21 @@ class NotificationOriginator(object):
             debug.logger & debug.flagApp and debug.logger(
                 'processResponsePdu: sendRequestHandle %s, sendPduHandle %s statusInformation %s' % (
                     sendRequestHandle, sendPduHandle, statusInformation))
-            if origRetries == origRetryCount:
+
+            errorIndication = statusInformation['errorIndication']
+
+            if errorIndication in (errind.notInTimeWindow, errind.unknownEngineID):
+                origDiscoveryRetries += 1
+                origRetries = 0
+            else:
+                origDiscoveryRetries = 0
+                origRetries += 1
+
+            if origRetries > origRetryCount or origDiscoveryRetries > self.__options.get('discoveryRetries', 4):
                 debug.logger & debug.flagApp and debug.logger(
                     'processResponsePdu: sendRequestHandle %s, sendPduHandle %s retry count %d exceeded' % (
                         sendRequestHandle, sendPduHandle, origRetries))
-                cbFun(snmpEngine, sendRequestHandle,
-                      statusInformation['errorIndication'], None, cbCtx)
+                cbFun(snmpEngine, sendRequestHandle, errorIndication, None, cbCtx)
                 return
 
             # Convert timeout in seconds into timeout in timer ticks
@@ -98,7 +108,7 @@ class NotificationOriginator(object):
                 origMessageProcessingModel, origSecurityModel,
                 origSecurityName, origSecurityLevel,
                 origContextEngineId, origContextName, origPdu,
-                origTimeout, origRetryCount, origRetries + 1
+                origTimeout, origRetryCount, origRetries, origDiscoveryRetries
             )
             return
 
@@ -148,7 +158,7 @@ class NotificationOriginator(object):
             self.__pendingReqs[sendPduHandle] = (
                 transportDomain, transportAddress, messageProcessingModel,
                 securityModel, securityName, securityLevel, contextEngineId,
-                contextName, pdu, timeout, retryCount, True
+                contextName, pdu, timeout, retryCount, 0, 0
             )
             snmpEngine.transportDispatcher.jobStarted(id(self))
         else:
