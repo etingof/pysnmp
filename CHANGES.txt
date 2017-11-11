@@ -11,7 +11,8 @@ Revision 4.4.2, released 2017-11-11
 - Example scripts rearranged in a way that IPv6 requirement is
   clearly encoded in the script's name
 - Fixed SNMPv2-SMI.NotificationType to expose .set/getReference()
-  instead of .set/getRevision() which
+  instead of .set/getRevision() which should not be there in the
+  first place
 - Fixed non-implied-OID encoding in SNMP table indices
 - Fixed inconsistent SNMPv3 discovery and retrying algorithm
 
