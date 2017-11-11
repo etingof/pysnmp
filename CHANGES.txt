@@ -1,5 +1,5 @@
 
-Revision 4.4.2, released 2017-11-XX
+Revision 4.4.2, released 2017-11-11
 -----------------------------------
 
 - The pysnmp version being used gets exposed to the MIB modules
