@@ -43,7 +43,8 @@ def getNextVarBinds(varBinds, origVarBinds=None):
 class CommandGenerator(object):
     _null = univ.Null('')
 
-    def __init__(self):
+    def __init__(self, **options):
+        self.__options = options
         self.__pendingReqs = {}
 
     def processResponsePdu(self, snmpEngine, messageProcessingModel,
@@ -61,7 +62,7 @@ class CommandGenerator(object):
          origSecurityName, origSecurityLevel, origContextEngineId,
          origContextName, origPduVersion, origPdu,
          origTimeout, origRetryCount,
-         origRetries) = self.__pendingReqs.pop(sendPduHandle)
+         origRetries, origDiscoveryRetries) = self.__pendingReqs.pop(sendPduHandle)
 
         snmpEngine.transportDispatcher.jobFinished(id(self))
 
@@ -69,18 +70,20 @@ class CommandGenerator(object):
         if statusInformation:
             debug.logger & debug.flagApp and debug.logger(
                 'processResponsePdu: sendPduHandle %s, statusInformation %s' % (sendPduHandle, statusInformation))
+
             errorIndication = statusInformation['errorIndication']
 
-            # SNMP engine discovery will take extra retries, allow that
-            if (errorIndication in (errind.notInTimeWindow,
-                                    errind.unknownEngineID) and
-                    origRetries == origRetryCount + 2 or
-                    errorIndication not in (errind.notInTimeWindow, errind.unknownEngineID) and
-                    origRetries == origRetryCount):
+            if errorIndication in (errind.notInTimeWindow, errind.unknownEngineID):
+                origDiscoveryRetries += 1
+                origRetries = 0
+            else:
+                origDiscoveryRetries = 0
+                origRetries += 1
+
+            if origRetries > origRetryCount or origDiscoveryRetries > self.__options.get('discoveryRetries', 4):
                 debug.logger & debug.flagApp and debug.logger(
                     'processResponsePdu: sendPduHandle %s, retry count %d exceeded' % (sendPduHandle, origRetries))
-                cbFun(snmpEngine, origSendRequestHandle,
-                      statusInformation['errorIndication'], None, cbCtx)
+                cbFun(snmpEngine, origSendRequestHandle, errorIndication, None, cbCtx)
                 return
 
             # User-side API assumes SMIv2
@@ -107,7 +110,7 @@ class CommandGenerator(object):
                     origMessageProcessingModel, origSecurityModel,
                     origSecurityName, origSecurityLevel, origContextEngineId,
                     origContextName, origPduVersion, origPdu, origTimeout,
-                    origRetryCount, origRetries + 1
+                    origRetryCount, origRetries, origDiscoveryRetries
                 )
                 return
 
@@ -192,7 +195,7 @@ class CommandGenerator(object):
             transportDomain, transportAddress, messageProcessingModel,
             securityModel, securityName, securityLevel, contextEngineId,
             contextName, pduVersion, origPDU, timeoutInTicks,
-            retryCount, 0
+            retryCount, 0, 0
         )
 
         debug.logger & debug.flagApp and debug.logger(
