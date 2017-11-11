@@ -80,6 +80,7 @@ class ModuleIdentity(MibNode):
     contactInfo = ''
     description = ''
     revisions = ()
+    revisionsDescriptions = ()
 
     def getStatus(self):
         return self.status
@@ -123,6 +124,13 @@ class ModuleIdentity(MibNode):
         self.revisions = args
         return self
 
+    def getRevisionsDescriptions(self):
+        return self.revisionsDescriptions
+
+    def setRevisionsDescriptions(self, args):
+        self.revisionsDescriptions = args
+        return self
+
     def asn1Print(self):
         return """\
 MODULE-IDENTITY
@@ -134,7 +142,7 @@ MODULE-IDENTITY
            self.getOrganization(),
            self.getContactInfo(),
            self.getDescription(),
-           ''.join(["REVISION \"%s\"\n" % x for x in self.getRevisions()]))
+           ''.join(['REVISION "%s"\n' % x for x in self.getRevisions()]))
 
 
 class ObjectIdentity(MibNode):
@@ -168,9 +176,10 @@ class ObjectIdentity(MibNode):
 OBJECT-IDENTITY
   STATUS %s
   DESCRIPTION "%s"
-  REFERENCE "%s" """ % (self.getStatus(),
-                        self.getDescription(),
-                        self.getReference())
+  REFERENCE "%s"
+""" % (self.getStatus(),
+       self.getDescription(),
+       self.getReference())
 
 
 # definition for objects
@@ -179,6 +188,8 @@ class NotificationType(MibNode):
     objects = ()
     status = 'current'
     description = ''
+    reference = ''
+    # retained for compatibility
     revisions = ()
 
     def getObjects(self):
@@ -205,11 +216,20 @@ class NotificationType(MibNode):
         self.description = v
         return self
 
+    def getReference(self):
+        return self.reference
+
+    def setReference(self, v):
+        self.reference = v
+        return self
+
+    # This should not be here. Retained for compatibility.
+
     def getRevisions(self):
         return self.revisions
 
-    def setRevisions(self, args):
-        self.revisions = args
+    def setRevisions(self, v):
+        self.revisions = v
         return self
 
     def asn1Print(self):
@@ -218,10 +238,11 @@ NOTIFICATION-TYPE
   OBJECTS { %s }
   STATUS %s
   DESCRIPTION "%s"
-  %s""" % (', '.join([x for x in self.getObjects()]),
+  REFERENCE "%s"
+""" % (', '.join([x for x in self.getObjects()]),
            self.getStatus(),
            self.getDescription(),
-           ''.join(["REVISION \"%s\"\n" % x for x in self.getRevisions()]))
+           self.getReference())
 
 
 class MibIdentifier(MibNode):
