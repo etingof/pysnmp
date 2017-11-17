@@ -329,7 +329,7 @@ states in form of values. Those values each belong to one
 of SNMP types (:RFC:`1902#section-2`) which, in turn, are based
 on `ASN.1 <https://en.wikipedia.org/wiki/Abstract_Syntax_Notation_One>`_ 
 data description language. PySNMP types are derived from
-`Python ASN.1 types <http://pyasn1.sf.net>`_ implementation.
+`Python ASN.1 types <http://snmplabs.com/pyasn1/>`_ implementation.
 
 .. toctree::
    :maxdepth: 2

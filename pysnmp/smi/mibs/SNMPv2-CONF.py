@@ -2,9 +2,9 @@
 # This file is part of pysnmp software.
 #
 # Copyright (c) 2005-2017, Ilya Etingof <etingof@gmail.com>
-# License: http://pysnmp.sf.net/license.html
+# License: http://snmplabs.com/pysnmp/license.html
 #
-# PySNMP MIB module SNMPv2-CONF (http://pysnmp.sf.net)
+# PySNMP MIB module SNMPv2-CONF (http://snmplabs.com/pysnmp)
 # ASN.1 source http://mibs.snmplabs.com:80/asn1/SNMPv2-CONF
 # Produced by pysmi-0.1.3 at Tue Apr 18 00:51:39 2017
 # On host grommit.local platform Darwin version 16.4.0 by user ilya

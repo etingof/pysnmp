@@ -2,7 +2,7 @@
 # This file is part of pysnmp software.
 #
 # Copyright (c) 2005-2017, Ilya Etingof <etingof@gmail.com>
-# License: http://pysnmp.sf.net/license.html
+# License: http://snmplabs.com/pysnmp/license.html
 #
 from socket import AF_INET
 from pysnmp.carrier.base import AbstractTransportAddress

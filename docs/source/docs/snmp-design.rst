@@ -98,7 +98,7 @@ SNMP-specific subtypes of those base ASN.1 types are:
 In addition to these scalar types, SNMP defines a way to collect them
 into ordered arrays. From these arrays 2-d tables could be built.
 
-PySNMP relies on the `PyASN1 <http://pyasn1.sf.net/>`_ package for
+PySNMP relies on the `PyASN1 <http://snmplabs.com/pyasn1/>`_ package for
 modeling all SNMP types.  With PyASN1, instances of ASN.1 types are
 represented by Python objects that look like either a string or an
 integer. 
@@ -229,7 +229,7 @@ managing entities.
 
 MIB convertion is performed automatically by PySNMP, but technically,
 it is handled by PySNMP sister project called
-`PySMI <http://pysmi.sf.net>`_. However you can also perform said
+`PySMI <http://snmplabs.com/pysmi/>`_. However you can also perform said
 conversion by hand with PySMI's *mibdump.py* tool.
 
 Protocol operations

@@ -7,7 +7,7 @@ SNMP library for Python
 [![GitHub license](https://img.shields.io/badge/license-BSD-blue.svg)](https://raw.githubusercontent.com/etingof/pysnmp/master/LICENSE.txt)
 
 This is a pure-Python, open source and free implementation of v1/v2c/v3
-SNMP engine distributed under 2-clause [BSD license](http://pysnmp.sourceforge.net/license.html).
+SNMP engine distributed under 2-clause [BSD license](http://snmplabs.com/pysnmp/license.html).
 
 The PySNMP project was initially sponsored by a [PSF](http://www.python.org/psf/) grant.
 Thank you!
@@ -24,7 +24,7 @@ Features
 * Asynchronous socket-based IO API support
 * [Twisted](http://twistedmatrix.com), [Asyncio](https://docs.python.org/3/library/asyncio.html)
   and [Trollius](http://trollius.readthedocs.org/index.html) integration
-* [PySMI](http://pysmi.sf.net) integration for dynamic MIB compilation
+* [PySMI](http://snmplabs.com/pysmi/) integration for dynamic MIB compilation
 * Built-in instrumentation exposing protocol engine operations
 * Python eggs and py2exe friendly
 * 100% Python, works with Python 2.4 though 3.6
@@ -55,9 +55,9 @@ $ pip install pysnmp
     
 to download and install PySNMP along with its dependencies:
 
-* [PyASN1](http://pyasn1.sf.net)
+* [PyASN1](http://snmplabs.com/pyasn1/)
 * [PyCryptodomex](https://pycryptodome.readthedocs.io) (required only if SNMPv3 encryption is in use)
-* [PySMI](http://pysmi.sf.net) (required for MIB services only)
+* [PySMI](http://snmplabs.com/pysmi/) (required for MIB services only)
 
 Besides the library, command-line [SNMP utilities](https://github.com/etingof/pysnmp-apps)
 written in pure-Python could be installed via:
@@ -123,7 +123,7 @@ if errorIndication:
 ```
 
 We maintain publicly available SNMP Agent and TRAP sink at 
-[demo.snmplabs.com](http://snmpsim.sourceforge.net/public-snmp-simulator.html). You are
+[demo.snmplabs.com](http://snmplabs.com/snmpsim/public-snmp-agent-simulator.html). You are
 welcome to use it while experimenting with whatever SNMP software you deal with.
 
 ```bash
@@ -140,19 +140,19 @@ Other than that, PySNMP is capable to automatically fetch and use required MIBs 
 or local directories. You could configure any MIB source available to you (including
 [this one](http://mibs.snmplabs.com/asn1/)) for that purpose.
 
-For more example scripts please refer to [examples section](http://pysnmp.sourceforge.net/examples/contents.html#high-level-snmp)
+For more example scripts please refer to [examples section](http://snmplabs.com/pysnmp/examples/contents.html#high-level-snmp)
 at pysnmp web site.
 
 Documentation
 -------------
 
-Library documentation and examples can be found at the [pysnmp project site](http://pysnmp.sf.net/).
+Library documentation and examples can be found at the [pysnmp project site](http://snmplabs.com/pysnmp/).
 
 If something does not work as expected, please
 [open an issue](https://github.com/etingof/pysnmp/issues) at GitHub or
 post your question [on Stack Overflow](http://stackoverflow.com/questions/ask)
 or try browsing pysnmp 
-[mailing list archives](https://sourceforge.net/p/pyasn1/mailman/pysnmp-users/).
+[mailing list archives](https://sourceforge.net/p/pysnmp/mailman/pysnmp-users/).
 
 Bug reports and PRs are appreciated! ;-)
 

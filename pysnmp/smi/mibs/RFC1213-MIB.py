@@ -2,9 +2,9 @@
 # This file is part of pysnmp software.
 #
 # Copyright (c) 2005-2017, Ilya Etingof <etingof@gmail.com>
-# License: http://pysnmp.sf.net/license.html
+# License: http://snmplabs.com/pysnmp/license.html
 #
-# PySNMP MIB module RFC1213-MIB (http://pysnmp.sf.net)
+# PySNMP MIB module RFC1213-MIB (http://snmplabs.com/pysnmp)
 # ASN.1 source http://mibs.snmplabs.com:80/asn1/RFC1213-MIB
 # Produced by pysmi-0.1.3 at Mon Apr 17 12:12:07 2017
 # On host grommit.local platform Darwin version 16.4.0 by user ilya

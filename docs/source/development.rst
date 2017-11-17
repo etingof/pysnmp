@@ -21,7 +21,7 @@ PySNMP library
    be to write another MIB parser and code generator which would produce
    PySNMP compliant Python code right from MIB text files all by itself.
 
-   **Done:** see `PySMI project <http://pysmi.sf.net>`_ in conjuction with the latest PySNMP codebase.
+   **Done:** see `PySMI project <http://snmplabs.com/pysmi/>`_ in conjuction with the latest PySNMP codebase.
 
 #. Reverse MIB index. The variable-bindings received by the system whilst 
    in Manager role could be post-processed using the information kept in 
@@ -63,7 +63,7 @@ Stand-alone PySNMP-based tools
    include extensive configuration facilities, fine-graned access 
    control and logging.
 
-   **Done:** see `SNMP Proxy Forwarder <http://snmpfwd.sf.net>`_.
+   **Done:** see `SNMP Proxy Forwarder <http://snmplabs.com/snmpfwd/>`_.
 
 #. SNMP Trap Receiver. We see this application as a simple yet flexible 
    SNMP TRAP collector. It would listen on network sockets of different 
@@ -81,10 +81,10 @@ Stand-alone PySNMP-based tools
    a relational database application. So we are planning to put some more 
    efforts into the Simulator project as time permits. 
 
-   **Done:** since `snmpsim-0.2.4 <http://snmpsim.sf.net>`_ 
+   **Done:** since `snmpsim-0.2.4 <http://snmplabs.com/snmpsim/>`_ 
 
 If you need some particular feature - please, 
-`drop us a note <http://pysnmp.sourceforge.net/contact.html>`_ . Once we 
+`open a feature request <https://github.com/etingof/pysnmp/issues/new>`_ . Once we 
 see a greater demand in particular area, we would re-arrange our 
 development resources to meet it sooner. 
 
@@ -95,5 +95,5 @@ Contributions to the PySNMP source code is greatly appreciated as well.
 We require contributed code to run with Python 2.4 through the latest 
 Python version (which is 3.6 at the time of this writing). Contributed
 code will be redistributed under the terms of the same 
-`license <http://pysnmp.sourceforge.net/license.html>`_ as PySNMP is.
+`license <http://snmplabs.com/pysnmp/>`_ as PySNMP is.
 

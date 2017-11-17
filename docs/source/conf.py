@@ -312,7 +312,8 @@ texinfo_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3.4/', None),
-    'pysmi': ('http://pysmi.sf.net/', None),
+    'pyasn1': ('http://snmplabs.com/pyasn1/', None),
+    'pysmi': ('http://snmplabs.com/pysmi/', None),
     'twisted': ('https://twistedmatrix.com/documents/15.4.0/api/', None)
 }
 
