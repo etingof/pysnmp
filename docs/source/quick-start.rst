@@ -16,7 +16,7 @@ Fetch SNMP variable
 So just cut&paste the following code right into your Python prompt. The 
 code will performs SNMP GET operation for a sysDescr.0 object at a 
 publically available SNMP Command Responder at
-`demo.snmplabs.com <http://snmpsim.sourceforge.net/public-snmp-simulator.html>`_:
+`demo.snmplabs.com <http://snmplabs.com/snmpsim/public-snmp-simulator.html>`_:
 
 .. literalinclude:: /../../examples/hlapi/asyncore/sync/manager/cmdgen/v1-get.py
    :start-after: """#
@@ -38,7 +38,7 @@ Send SNMP TRAP
 --------------
 
 To send a trivial TRAP message to our hosted Notification Receiver at
-`demo.snmplabs.com <http://snmpsim.sourceforge.net/public-snmp-simulator.html>`_
+`demo.snmplabs.com <http://snmplabs.com/snmpsim/public-snmp-simulator.html>`_
 , just cut&paste the following code into your interactive Python session:
 
 .. literalinclude:: /../../examples/hlapi/asyncore/sync/agent/ntforg/default-v1-trap.py

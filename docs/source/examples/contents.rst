@@ -136,7 +136,7 @@ easy_install: ::
 
 There's a public, multilingual SNMP Command Responder and Notification
 Receiver configured at
-`demo.snmplabs.com <http://snmpsim.sourceforge.net/public-snmp-simulator.html>`_ to let you run PySNMP examples scripts in a cut&paste fashion. If you
+`demo.snmplabs.com <http://snmplabs.com/snmpsim/public-snmp-simulator.html>`_ to let you run PySNMP examples scripts in a cut&paste fashion. If you
 wish to use your own SNMP Agent with these scripts, make sure to either
 configure your local snmpd and/or snmptrapd or use a valid address and
 SNMP credentials of your SNMP Agent in the examples to let them work.

@@ -1,5 +1,5 @@
 #
-# PySNMP MIB module SNMP-USM-HMAC-SHA2-MIB (http://pysnmp.sf.net)
+# PySNMP MIB module SNMP-USM-HMAC-SHA2-MIB (http://snmplabs.com/pysnmp)
 # ASN.1 source http://mibs.snmplabs.com:80/asn1/SNMP-USM-HMAC-SHA2-MIB
 # Produced by pysmi-0.1.4 at Thu Aug  3 02:14:32 2017
 # On host grommit.local platform Darwin version 16.4.0 by user ilya

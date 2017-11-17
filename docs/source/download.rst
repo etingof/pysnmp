@@ -5,9 +5,10 @@ Download PySNMP
    :maxdepth: 2
 
 The PySNMP software is provided under terms and conditions of BSD-style 
-license, and can be freely downloaded from Source Forge
-`download servers <http://sourceforge.net/projects/pysnmp/files/>`_ or 
-`PyPI <http://pypi.python.org/pypi/pysnmp/>`_. 
+license, and can be freely downloaded from 
+`PyPI <http://pypi.python.org/pypi/pysnmp/>`_ or
+GitHub (`master branch <https://github.com/etingof/pysnmp/archive/master.zip>`_).
+
 
 Besides official releases, it's advisable to try the cutting-edge
 development code that could be taken from PySNMP
@@ -66,6 +67,6 @@ The installation procedure for all the above packages is as follows
    # cd .. 
    # rm -rf package-X.X.X
 
-In case of any issues, please `let us know <http://pysnmp.sourceforge.net/contact.html>`_ so we could try to help out.
+In case of any issues, please open a `GitHub issue <https://github.com/etingof/pysnmp/issues/new>`_ so we could try to help out.
 
 
