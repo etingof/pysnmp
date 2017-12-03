@@ -28,19 +28,22 @@ class AbstractAesBlumenthal(aes.Aes):
     # 3.1.2.1
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
         if authProtocol == hmacmd5.HmacMd5.serviceID:
-            localPrivKey = localkey.localizeKeyMD5(privKey, snmpEngineID)
-            for count in range(1, int(ceil(self.keySize * 1.0 / len(localPrivKey)))):
-                # noinspection PyDeprecation,PyCallingNonCallable
-                localPrivKey += md5(localPrivKey).digest()
+            hashAlgo = md5
         elif authProtocol == hmacsha.HmacSha.serviceID:
-            localPrivKey = localkey.localizeKeySHA(privKey, snmpEngineID)
-            # RFC mentions this algo generates 480bit key, but only up to 256 bits are used
-            for count in range(1, int(ceil(self.keySize * 1.0 / len(localPrivKey)))):
-                localPrivKey += sha1(localPrivKey).digest()
+            hashAlgo = sha1
+        elif authProtocol in hmacsha2.HmacSha2.hashAlgorithms:
+            hashAlgo = hmacsha2.HmacSha2.hashAlgorithms[authProtocol]
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
             )
+
+        localPrivKey = localkey.localizeKey(privKey, snmpEngineID, hashAlgo)
+
+        # now extend this key if too short by repeating steps that includes the hashPassphrase step
+        for count in range(1, int(ceil(self.keySize * 1.0 / len(localPrivKey)))):
+            localPrivKey += hashAlgo(localPrivKey).digest()
+
         return localPrivKey[:self.keySize]
 
 
@@ -74,10 +77,13 @@ class AbstractAesReeder(aes.Aes):
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
             )
+
         localPrivKey = localkey.localizeKey(privKey, snmpEngineID, hashAlgo)
+
         # now extend this key if too short by repeating steps that includes the hashPassphrase step
         while len(localPrivKey) < self.keySize:
             # this is the difference between reeder and bluementhal
             newKey = localkey.hashPassphrase(localPrivKey, hashAlgo)
             localPrivKey += localkey.localizeKey(newKey, snmpEngineID, hashAlgo)
+
         return localPrivKey[:self.keySize]

@@ -3,6 +3,7 @@ Revision 4.4.3, released 2017-12-XX
 -----------------------------------
 
 - Migrated references from SourceForge
+- Added missing SHA2 support for Blumenthal key localization
 - Fixed named bits handling at rfc1902.Bits
 
 Revision 4.4.2, released 2017-11-11
