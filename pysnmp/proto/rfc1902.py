@@ -598,39 +598,20 @@ class Bits(OctetString):
     """
     namedValues = namedval.NamedValues()
 
-    def __init__(self, *args, **kwargs):
-        try:
-            self.namedValues = kwargs.pop('namedValues')
+    def __init__(self, value=univ.noValue, **kwargs):
+        if 'namedValues' not in kwargs:
+            kwargs['namedValues'] = self.namedValues
 
-        except KeyError:
-            pass
+        OctetString.__init__(self, value, **kwargs)
 
-        OctetString.__init__(self, *args, **kwargs)
-
-    def clone(self, *args, **kwargs):
-        namedValues = kwargs.pop('namedValues', self.namedValues)
-        args = args and self.prettyIn(args[0], namedValues=namedValues)
-        clone = OctetString.clone(self, args, **kwargs)
-        clone.namedValues = namedValues
-        return clone
-
-    def subtype(self, *args, **kwargs):
-        namedValues = kwargs.pop('namedValues', self.namedValues)
-        args = args and self.prettyIn(args[0], namedValues=namedValues)
-        clone = OctetString.subtype(self, args, **kwargs)
-        clone.namedValues = namedValues
-        return clone
-
-    def prettyIn(self, bits, namedValues=None):
+    def prettyIn(self, bits):
         if not isinstance(bits, (tuple, list)):
             return OctetString.prettyIn(self, bits)  # raw bitstring
         octets = []
         for bit in bits:  # tuple of named bits
-            v = (namedValues or self.namedValues).getValue(bit)
+            v = self.namedValues.getValue(bit)
             if v is None:
-                raise error.ProtocolError(
-                    'Unknown named bit %s' % bit
-                )
+                raise error.ProtocolError('Unknown named bit %s' % bit)
             d, m = divmod(v, 8)
             if d >= len(octets):
                 octets.extend([0] * (d - len(octets) + 1))
@@ -640,8 +621,7 @@ class Bits(OctetString):
     def prettyOut(self, value):
         names = []
         ints = self.__class__(value).asNumbers()
-        i = 0
-        while i < len(ints):
+        for i, v in enumerate(ints):
             v = ints[i]
             j = 7
             while j >= 0:
@@ -651,7 +631,6 @@ class Bits(OctetString):
                         name = 'UnknownBit-%s' % (i * 8 + 7 - j,)
                     names.append(name)
                 j -= 1
-            i += 1
         return ', '.join([str(x) for x in names])
 
     @classmethod
