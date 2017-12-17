@@ -86,14 +86,14 @@ Current and future uses
 -----------------------
 
 As for current SNMP deployment, its virtually impossible to estimate 
-how many SNMP-enabled devices run on the modern Internet. One can
-possibly argue that SNMP monitors the all the Internet nowdays.
+how many SNMP-enabled devices run on the modern Internet today.
+For example, every home router and most of the desktop printers have
+embedded SNMP agent inside.
 
-You may found SNMP useful for your home network monitoring or
-management needs. For instance you could easily setup an open source
-network monitoring application to watch, collect and graph bandwidth
-utilization at your Wi-Fi router for you home network (that helps
-spotting bottlenecks).
+Expanding on that, you may found SNMP useful for your home network monitoring.
+For instance you could easily setup an open source network monitoring
+application to watch, collect and graph bandwidth utilization of your
+home Wi-Fi router.
 
 A significant innovation might be coming in the following years. And that
 is Internet of Things. All those small and low-power gadgets need to
@@ -101,5 +101,5 @@ be monitored and managed. And that may bring new life to the SNMP
 technology. Almost three decades ago SNMP was designed for heavily
 resource-constrained computers of that time. Later on the computers
 grew in power and resources. But now we are back to building a massive
-amount of low-power computers for "things" and original SNMP lightweightness
-can serve us again!
+amount of low-power computers for "things" where original lightweight
+and well-understood SNMP can serve us again!
