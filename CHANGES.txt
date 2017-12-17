@@ -6,6 +6,9 @@ Revision 4.4.3, released 2017-12-XX
 - Added missing SHA2 support for Blumenthal key localization
 - Fixed named bits handling at rfc1902.Bits
 - Fixed missing SmiError exception class at pysnmp.proto.rfc1155
+- Fixed SNMP v1->v2c PDU proxy -- error-status & error-index fields
+  from v1 PDU get copied over to v2c PDU in addition to the exception
+  sentinels being set
 
 Revision 4.4.2, released 2017-11-11
 -----------------------------------

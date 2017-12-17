@@ -151,14 +151,12 @@ def v1ToV2(v1Pdu, origV2Pdu=None, snmpTrapCommunity=''):
                 v2VarBinds = [(o, rfc1905.endOfMibView) for o, v in v2VarBinds]
             else:
                 v2VarBinds = [(o, rfc1905.noSuchObject) for o, v in v2VarBinds]
-            v2c.apiPDU.setErrorStatus(v2Pdu, 0)
-            v2c.apiPDU.setErrorIndex(v2Pdu, 0)
-        else:
-            # partial one-to-one mapping - 4.2.1
-            v2c.apiPDU.setErrorStatus(v2Pdu, errorStatus)
-            v2c.apiPDU.setErrorIndex(v2Pdu, errorIndex)
 
-            # 4.1.2.1 --> no-op
+        # partial one-to-one mapping - 4.2.1
+        v2c.apiPDU.setErrorStatus(v2Pdu, errorStatus)
+        v2c.apiPDU.setErrorIndex(v2Pdu, errorIndex)
+
+        # 4.1.2.1 --> no-op
 
     elif pduType in rfc3411.confirmedClassPDUs:
         v2c.apiPDU.setErrorStatus(v2Pdu, 0)
