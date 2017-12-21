@@ -11,11 +11,11 @@ try:
 
 except ImportError:
 
-    class NotAvalable(object):
+    class NotAvailable(object):
         def __call__(self, *args, **kwargs):
             raise errind.authenticationError
 
-    sha224 = sha256 = sha384 = sha512 = NotAvalable()
+    sha224 = sha256 = sha384 = sha512 = NotAvailable()
 
 from pyasn1.type import univ
 from pysnmp.proto.secmod.rfc3414.auth import base
