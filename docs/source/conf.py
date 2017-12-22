@@ -32,9 +32,7 @@ import shlex
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
-    'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
-    'sphinx.ext.todo'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -107,7 +105,7 @@ pygments_style = 'sphinx'
 #keep_warnings = False
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
-todo_include_todos = True
+#todo_include_todos = True
 
 
 # -- Options for HTML output ----------------------------------------------
@@ -309,7 +307,7 @@ texinfo_documents = [
 #texinfo_no_detailmenu = False
 
 
-# Example configuration for intersphinx: refer to the Python standard library.
+# Configuration for Intersphinx
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3.4/', None),
     'pyasn1': ('http://snmplabs.com/pyasn1/', None),
