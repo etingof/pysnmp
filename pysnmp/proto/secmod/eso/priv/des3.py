@@ -68,6 +68,13 @@ class Des3(base.AbstractEncryptionService):
                 'Unknown auth protocol %s' % (authProtocol,)
             )
         localPrivKey = localkey.localizeKey(privKey, snmpEngineID, hashAlgo)
+
+        # now extend this key if too short by repeating steps that includes the hashPassphrase step
+        while len(localPrivKey) < self.keySize:
+            # this is the difference between reeder and bluementhal
+            newKey = localkey.hashPassphrase(localPrivKey, hashAlgo)
+            localPrivKey += localkey.localizeKey(newKey, snmpEngineID, hashAlgo)
+
         return localPrivKey[:self.keySize]
 
     # 5.1.1.1

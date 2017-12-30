@@ -1,4 +1,10 @@
 
+Revision 4.4.4, released 2017-12-XX
+-----------------------------------
+
+- Fixed short local key expansion at 3DES key localization
+  implementation.
+
 Revision 4.4.3, released 2017-12-22
 -----------------------------------
 
