@@ -1,7 +1,8 @@
 
-Revision 4.4.4, released 2017-12-XX
+Revision 4.4.4, released 2018-01-03
 -----------------------------------
 
+- Copyright notice extended to the year 2018
 - Fixed short local key expansion at 3DES key localization
   implementation.
 

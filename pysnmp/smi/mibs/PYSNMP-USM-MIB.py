@@ -1,7 +1,7 @@
 #
 # This file is part of pysnmp software.
 #
-# Copyright (c) 2005-2017, Ilya Etingof <etingof@gmail.com>
+# Copyright (c) 2005-2018, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
 # PySNMP MIB module PYSNMP-USM-MIB (http://snmplabs.com/pysnmp)

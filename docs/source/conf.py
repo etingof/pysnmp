@@ -51,7 +51,7 @@ master_doc = 'contents'
 
 # General information about the project.
 project = u'SNMP library for Python'
-copyright = u'2005-2017, Ilya Etingof <etingof@gmail.com>'
+copyright = u'2005-2018, Ilya Etingof <etingof@gmail.com>'
 author = u'Ilya Etingof <etingof@gmail.com>'
 
 # The version info for the project you're documenting, acts as replacement for

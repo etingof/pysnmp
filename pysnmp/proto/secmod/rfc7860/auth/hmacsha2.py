@@ -1,7 +1,7 @@
 #
 # This file is part of pysnmp software.
 #
-# Copyright (c) 2005-2017, Olivier Verriest <verri@x25.pm>
+# Copyright (c) 2005-2018, Olivier Verriest <verri@x25.pm>
 # License: http://snmplabs.com/pysnmp/license.html
 #
 import sys
