@@ -247,6 +247,13 @@ in the examples. We maintain a
 `collection <http://mibs.snmplabs.com/asn1/>`_ of ASN.1 MIB modules
 that you can use in your SNMP projects.
 
+.. note::
+
+    An "ASN.1 MIB" is a plain-text description of identifiers and
+    types. It is the common format that is distributed by manufacturers
+    to describe their SNMP services, and is the same format used by
+    Perl's Net::SNMP and almost all SNMP tools.
+
 Reading scalar value
 --------------------
 
