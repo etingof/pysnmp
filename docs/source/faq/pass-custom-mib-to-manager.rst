@@ -21,6 +21,21 @@ A. Starting from PySNMP 4.3.x, plain-text (ASN.1) MIBs can be
    :start-after: """#
    :language: python
 
+.. code:
+    :language: python
+    
+    # Configure the SNMP engine with access to the
+    # common Linux ASN.1 (Textual) MIB directories...
+    from pysnmp import hlapi
+    from pysnmp.smi import compiler
+    engine = hlapi.Engine()
+    builder = engine.getMibBuilder()
+    compiler.addMibCompiler(builder, sources=[
+        '/usr/share/snmp/mibs',
+        os.path.expanduser('~/.snmp/mibs'),
+        'http://mibs.snmplabs.com/asn1/@mib@',
+    ])
+
 :download:`Download</../../examples/hlapi/asyncore/sync/manager/cmdgen/custom-asn1-mib-search-path.py>` script.
 
 Alternatively, you can invoke the
