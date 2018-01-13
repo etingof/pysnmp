@@ -26,4 +26,16 @@ A. Starting from PySNMP 4.3.x, plain-text (ASN.1) MIBs can be
 Alternatively, you can invoke the
 `mibdump.py <http://snmplabs.com/pysmi/mibdump.html>`_
 (shipped with PySMI) by hand and this way compile plain-text MIB
-into PySNMP format.
+into PySNMP format. Once the compiled MIBs are stored in a directory,
+add the directory to your MibBuilder's MibSources.
+
+.. code:: 
+    :language: python
+
+    builder = engine.getMibBuilder()
+    # Make ./mibs available to all OIDs that are created
+    # e.g. with "MIB-NAME-MIB::identifier"
+    builder.addMibSources(builder_module.DirMibSource(
+        os.path.join( HERE, 'mibs')
+    ))
+
