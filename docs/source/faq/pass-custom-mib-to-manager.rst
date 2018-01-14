@@ -44,8 +44,7 @@ Alternatively, you can invoke the
 into PySNMP format. Once the compiled MIBs are stored in a directory,
 add the directory to your MibBuilder's MibSources.
 
-.. code:: 
-    :language: python
+.. code::
 
     builder = engine.getMibBuilder()
     # Make ./mibs available to all OIDs that are created
