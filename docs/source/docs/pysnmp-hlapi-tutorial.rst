@@ -14,7 +14,7 @@ Creating SNMP Engine
 --------------------
 
 SNMP engine is a central, umbrella object in PySNMP. All PySNMP
-opetations involve :py:class:`~pysnmp.hlapi.SnmpEngine` class
+operations involve :py:class:`~pysnmp.hlapi.SnmpEngine` class
 instance. PySNMP app can run multiple independent SNMP engines each
 guided by its own *SnmpEngine* object.
 
