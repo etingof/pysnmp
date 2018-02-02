@@ -16,4 +16,4 @@ install:
   - pip install -e .
   - pip install pysnmp-mibs
 script:
-  - sh runtests.sh
+  - travis_wait 20 sh runtests.sh
