@@ -6,16 +6,13 @@
 #
 import random
 from pyasn1.type import univ
+from pysnmp.crypto.aes import decrypt, encrypt
 from pysnmp.proto.secmod.rfc3414.priv import base
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
 from pysnmp.proto.secmod.rfc7860.auth import hmacsha2
 from pysnmp.proto.secmod.rfc3414 import localkey
 from pysnmp.proto import errind, error
 
-try:
-    from Cryptodome.Cipher import AES
-except ImportError:
-    AES = None
 try:
     from hashlib import md5, sha1
 except ImportError:
@@ -102,11 +99,6 @@ class Aes(base.AbstractEncryptionService):
 
     # 3.2.4.1
     def encryptData(self, encryptKey, privParameters, dataToEncrypt):
-        if AES is None:
-            raise error.StatusInformation(
-                errorIndication=errind.encryptionError
-            )
-
         snmpEngineBoots, snmpEngineTime, salt = privParameters
 
         # 3.3.1.1
@@ -115,23 +107,16 @@ class Aes(base.AbstractEncryptionService):
         )
 
         # 3.3.1.3
-        aesObj = AES.new(aesKey, AES.MODE_CFB, iv, segment_size=128)
-
         # PyCrypto seems to require padding
         dataToEncrypt = dataToEncrypt + univ.OctetString((0,) * (16 - len(dataToEncrypt) % 16)).asOctets()
 
-        ciphertext = aesObj.encrypt(dataToEncrypt)
+        ciphertext = encrypt(dataToEncrypt, aesKey, iv)
 
         # 3.3.1.4
         return univ.OctetString(ciphertext), univ.OctetString(salt)
 
     # 3.2.4.2
     def decryptData(self, decryptKey, privParameters, encryptedData):
-        if AES is None:
-            raise error.StatusInformation(
-                errorIndication=errind.decryptionError
-            )
-
         snmpEngineBoots, snmpEngineTime, salt = privParameters
 
         # 3.3.2.1
@@ -145,10 +130,8 @@ class Aes(base.AbstractEncryptionService):
             decryptKey, snmpEngineBoots, snmpEngineTime, salt
         )
 
-        aesObj = AES.new(aesKey, AES.MODE_CFB, iv, segment_size=128)
-
         # PyCrypto seems to require padding
         encryptedData = encryptedData + univ.OctetString((0,) * (16 - len(encryptedData) % 16)).asOctets()
 
         # 3.3.2.4-6
-        return aesObj.decrypt(encryptedData.asOctets())
+        return decrypt(encryptedData.asOctets(), aesKey, iv)

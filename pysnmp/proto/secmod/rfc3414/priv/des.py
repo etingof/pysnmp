@@ -5,6 +5,7 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 import random
+from pysnmp.crypto.des import decrypt, encrypt
 from pysnmp.proto.secmod.rfc3414.priv import base
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
 from pysnmp.proto.secmod.rfc3414 import localkey
@@ -13,10 +14,6 @@ from pysnmp.proto import errind, error
 from pyasn1.type import univ
 from sys import version_info
 
-try:
-    from Cryptodome.Cipher import DES
-except ImportError:
-    DES = None
 try:
     from hashlib import md5, sha1
 except ImportError:
@@ -98,11 +95,6 @@ class Des(base.AbstractEncryptionService):
 
     # 8.2.4.1
     def encryptData(self, encryptKey, privParameters, dataToEncrypt):
-        if DES is None:
-            raise error.StatusInformation(
-                errorIndication=errind.encryptionError
-            )
-
         snmpEngineBoots, snmpEngineTime, salt = privParameters
 
         # 8.3.1.1
@@ -114,20 +106,14 @@ class Des(base.AbstractEncryptionService):
         privParameters = univ.OctetString(salt)
 
         # 8.1.1.2
-        desObj = DES.new(desKey, DES.MODE_CBC, iv)
         plaintext = dataToEncrypt + univ.OctetString((0,) * (8 - len(dataToEncrypt) % 8)).asOctets()
-        ciphertext = desObj.encrypt(plaintext)
+        ciphertext = encrypt(plaintext, desKey, iv)
 
         # 8.3.1.3 & 4
         return univ.OctetString(ciphertext), privParameters
 
     # 8.2.4.2
     def decryptData(self, decryptKey, privParameters, encryptedData):
-        if DES is None:
-            raise error.StatusInformation(
-                errorIndication=errind.decryptionError
-            )
-
         snmpEngineBoots, snmpEngineTime, salt = privParameters
 
         # 8.3.2.1
@@ -147,7 +133,5 @@ class Des(base.AbstractEncryptionService):
                 errorIndication=errind.decryptionError
             )
 
-        desObj = DES.new(desKey, DES.MODE_CBC, iv)
-
         # 8.3.2.6
-        return desObj.decrypt(encryptedData.asOctets())
+        return decrypt(encryptedData.asOctets(), desKey, iv)

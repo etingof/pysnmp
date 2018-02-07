@@ -5,6 +5,7 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 import random
+from pysnmp.crypto.des3 import decrypt, encrypt
 from pysnmp.proto.secmod.rfc3414.priv import base
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
 from pysnmp.proto.secmod.rfc3414 import localkey
@@ -12,7 +13,6 @@ from pysnmp.proto.secmod.rfc7860.auth import hmacsha2
 from pysnmp.proto import errind, error
 from pyasn1.type import univ
 from pyasn1.compat.octets import null
-from math import ceil
 
 try:
     from hashlib import md5, sha1
@@ -22,11 +22,6 @@ except ImportError:
 
     md5 = md5.new
     sha1 = sha.new
-
-try:
-    from Cryptodome.Cipher import DES3
-except ImportError:
-    DES3 = None
 
 random.seed()
 
@@ -113,32 +108,21 @@ class Des3(base.AbstractEncryptionService):
 
     # 5.1.1.2
     def encryptData(self, encryptKey, privParameters, dataToEncrypt):
-        if DES3 is None:
-            raise error.StatusInformation(
-                errorIndication=errind.encryptionError
-            )
-
         snmpEngineBoots, snmpEngineTime, salt = privParameters
 
         des3Key, salt, iv = self.__getEncryptionKey(
             encryptKey, snmpEngineBoots
         )
 
-        des3Obj = DES3.new(des3Key, DES3.MODE_CBC, iv)
-
         privParameters = univ.OctetString(salt)
 
         plaintext = dataToEncrypt + univ.OctetString((0,) * (8 - len(dataToEncrypt) % 8)).asOctets()
-        ciphertext = des3Obj.encrypt(plaintext)
+        ciphertext = encrypt(plaintext, des3Key, iv)
 
         return univ.OctetString(ciphertext), privParameters
 
     # 5.1.1.3
     def decryptData(self, decryptKey, privParameters, encryptedData):
-        if DES3 is None:
-            raise error.StatusInformation(
-                errorIndication=errind.decryptionError
-            )
         snmpEngineBoots, snmpEngineTime, salt = privParameters
 
         if len(salt) != 8:
@@ -153,9 +137,7 @@ class Des3(base.AbstractEncryptionService):
                 errorIndication=errind.decryptionError
             )
 
-        des3Obj = DES3.new(des3Key, DES3.MODE_CBC, iv)
-
         ciphertext = encryptedData.asOctets()
-        plaintext = des3Obj.decrypt(ciphertext)
+        plaintext = decrypt(ciphertext, des3Key, iv)
 
         return plaintext
