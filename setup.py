@@ -60,11 +60,16 @@ if py_version < (2, 7) or (py_version >= (3, 0) and py_version < (3, 4)):
 else:
     crypto_lib = 'cryptography'
 
+requires = ['pyasn1>=0.2.3', 'pysmi', crypto_lib]
+
+if py_version < (2, 7):
+    requires.append('ordereddict')
+
 try:
     from setuptools import setup
 
     params = {
-        'install_requires': ['pyasn1>=0.2.3', 'pysmi', crypto_lib],
+        'install_requires': requires,
         'zip_safe': True
     }
 
@@ -78,7 +83,7 @@ except ImportError:
 
     params = {}
     if py_version > (2, 4):
-        params['requires'] = ['pyasn1(>=0.2.3)', 'pysmi', crypto_lib]
+        params['requires'] = requires
 
 doclines = [x.strip() for x in (__doc__ or '').split('\n') if x]
 
