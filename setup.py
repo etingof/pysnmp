@@ -50,11 +50,11 @@ def howto_install_setuptools():
 """)
 
 
-if sys.version_info[:2] < (2, 4):
+py_version = sys.version_info[:2]
+if py_version < (2, 4):
     print("ERROR: this package requires Python 2.4 or later!")
     sys.exit(1)
 
-py_version = sys.version_info[:2]
 if py_version < (2, 7) or (py_version >= (3, 0) and py_version < (3, 4)):
     crypto_lib = 'pycryptodomex'
 else:
@@ -77,7 +77,7 @@ except ImportError:
     from distutils.core import setup
 
     params = {}
-    if sys.version_info[:2] > (2, 4):
+    if py_version > (2, 4):
         params['requires'] = ['pyasn1(>=0.2.3)', 'pysmi', crypto_lib]
 
 doclines = [x.strip() for x in (__doc__ or '').split('\n') if x]
