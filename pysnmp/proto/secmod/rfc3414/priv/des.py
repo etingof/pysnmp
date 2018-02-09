@@ -5,7 +5,7 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 import random
-from pysnmp.crypto.des import decrypt, encrypt
+from pysnmp.crypto import des
 from pysnmp.proto.secmod.rfc3414.priv import base
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
 from pysnmp.proto.secmod.rfc3414 import localkey
@@ -107,7 +107,7 @@ class Des(base.AbstractEncryptionService):
 
         # 8.1.1.2
         plaintext = dataToEncrypt + univ.OctetString((0,) * (8 - len(dataToEncrypt) % 8)).asOctets()
-        ciphertext = encrypt(plaintext, desKey, iv)
+        ciphertext = des.encrypt(plaintext, desKey, iv)
 
         # 8.3.1.3 & 4
         return univ.OctetString(ciphertext), privParameters
@@ -134,4 +134,4 @@ class Des(base.AbstractEncryptionService):
             )
 
         # 8.3.2.6
-        return decrypt(encryptedData.asOctets(), desKey, iv)
+        return des.decrypt(encryptedData.asOctets(), desKey, iv)

@@ -6,7 +6,7 @@
 #
 import random
 from pyasn1.type import univ
-from pysnmp.crypto.aes import decrypt, encrypt
+from pysnmp.crypto import aes
 from pysnmp.proto.secmod.rfc3414.priv import base
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
 from pysnmp.proto.secmod.rfc7860.auth import hmacsha2
@@ -110,7 +110,7 @@ class Aes(base.AbstractEncryptionService):
         # PyCrypto seems to require padding
         dataToEncrypt = dataToEncrypt + univ.OctetString((0,) * (16 - len(dataToEncrypt) % 16)).asOctets()
 
-        ciphertext = encrypt(dataToEncrypt, aesKey, iv)
+        ciphertext = aes.encrypt(dataToEncrypt, aesKey, iv)
 
         # 3.3.1.4
         return univ.OctetString(ciphertext), univ.OctetString(salt)
@@ -134,4 +134,4 @@ class Aes(base.AbstractEncryptionService):
         encryptedData = encryptedData + univ.OctetString((0,) * (16 - len(encryptedData) % 16)).asOctets()
 
         # 3.3.2.4-6
-        return decrypt(encryptedData.asOctets(), aesKey, iv)
+        return aes.decrypt(encryptedData.asOctets(), aesKey, iv)
