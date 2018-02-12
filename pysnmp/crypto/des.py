@@ -3,7 +3,7 @@ Crypto logic for RFC3414.
 
 https://tools.ietf.org/html/rfc3414
 """
-from pysnmp.crypto import backend, CRYPTODOME, CRYPTOGRPAHY, des3, generic_decrypt, generic_encrypt
+from pysnmp.crypto import backend, CRYPTODOME, CRYPTOGRAPHY, des3, generic_decrypt, generic_encrypt
 
 if backend == CRYPTODOME:
     from Cryptodome.Cipher import DES
@@ -40,7 +40,7 @@ def encrypt(plaintext, key, iv):
     :returns: Encrypted ciphertext
     :rtype: bytes
     """
-    if backend == CRYPTOGRPAHY:
+    if backend == CRYPTOGRAPHY:
         return des3.encrypt(plaintext, key * 3, iv)
     return generic_encrypt(_CIPHER_FACTORY_MAP, plaintext, key, iv)
 
@@ -54,6 +54,6 @@ def decrypt(ciphertext, key, iv):
     :returns: Decrypted plaintext
     :rtype: bytes
     """
-    if backend == CRYPTOGRPAHY:
+    if backend == CRYPTOGRAPHY:
         return des3.decrypt(ciphertext, key * 3, iv)
     return generic_decrypt(_CIPHER_FACTORY_MAP, ciphertext, key, iv)

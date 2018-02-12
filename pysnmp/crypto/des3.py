@@ -3,9 +3,9 @@ Crypto logic for Reeder 3DES-EDE for USM (Internet draft).
 
 https://tools.ietf.org/html/draft-reeder-snmpv3-usm-3desede-00
 """
-from pysnmp.crypto import backend, CRYPTODOME, CRYPTOGRPAHY, generic_decrypt, generic_encrypt
+from pysnmp.crypto import backend, CRYPTODOME, CRYPTOGRAPHY, generic_decrypt, generic_encrypt
 
-if backend == CRYPTOGRPAHY:
+if backend == CRYPTOGRAPHY:
     from cryptography.hazmat.backends import default_backend
     from cryptography.hazmat.primitives.ciphers import algorithms, Cipher, modes
 elif backend == CRYPTODOME:
@@ -38,7 +38,7 @@ def _cryptography_cipher(key, iv):
 
 
 _CIPHER_FACTORY_MAP = {
-    CRYPTOGRPAHY: _cryptography_cipher,
+    CRYPTOGRAPHY: _cryptography_cipher,
     CRYPTODOME: _cryptodome_cipher
 }
 

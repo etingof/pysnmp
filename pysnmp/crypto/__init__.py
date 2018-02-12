@@ -6,13 +6,13 @@ version. Versions that are supported by pyca/cryptography use that backend; all
 other versions (currently 2.4, 2.5, 2.6, 3.2, and 3.3) fall back to Pycryptodome.
 """
 from pysnmp.proto import errind, error
-CRYPTOGRPAHY = 'cryptography'
+CRYPTOGRAPHY = 'cryptography'
 CRYPTODOME = 'Cryptodome'
 
 # Determine the available backend. Always prefer cryptography if it is available.
 try:
     import cryptography
-    backend = CRYPTOGRPAHY
+    backend = CRYPTOGRAPHY
 except ImportError:
     try:
         import Cryptodome
@@ -86,11 +86,11 @@ def _cryptography_decrypt(cipher_factory, ciphertext, key, iv):
 
 
 _DECRYPT_MAP = {
-    CRYPTOGRPAHY: _cryptography_decrypt,
+    CRYPTOGRAPHY: _cryptography_decrypt,
     CRYPTODOME: _cryptodome_decrypt
 }
 _ENCRYPT_MAP = {
-    CRYPTOGRPAHY: _cryptography_encrypt,
+    CRYPTOGRAPHY: _cryptography_encrypt,
     CRYPTODOME: _cryptodome_encrypt
 }
 
