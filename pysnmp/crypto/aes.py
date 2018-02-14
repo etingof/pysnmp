@@ -17,7 +17,7 @@ def _cryptodome_cipher(key, iv):
 
     :param bytes key: Encryption key
     :param bytes IV: Initialization vector
-    :returns: DES3 Cipher instance
+    :returns: AES Cipher instance
     """
     return AES.new(key, AES.MODE_CFB, iv, segment_size=128)
 
@@ -27,7 +27,7 @@ def _cryptography_cipher(key, iv):
 
     :param bytes key: Encryption key
     :param bytes IV: Initialization vector
-    :returns: TripleDES Cipher instance
+    :returns: AES Cipher instance
     :rtype: cryptography.hazmat.primitives.ciphers.Cipher
     """
     return Cipher(
