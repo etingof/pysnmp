@@ -50,15 +50,26 @@ def howto_install_setuptools():
 """)
 
 
-if sys.version_info[:2] < (2, 4):
+py_version = sys.version_info[:2]
+if py_version < (2, 4):
     print("ERROR: this package requires Python 2.4 or later!")
     sys.exit(1)
+
+if py_version < (2, 7) or (py_version >= (3, 0) and py_version < (3, 4)):
+    crypto_lib = 'pycryptodomex'
+else:
+    crypto_lib = 'cryptography'
+
+requires = ['pyasn1>=0.2.3', 'pysmi', crypto_lib]
+
+if py_version < (2, 7):
+    requires.append('ordereddict')
 
 try:
     from setuptools import setup
 
     params = {
-        'install_requires': ['pyasn1>=0.2.3', 'pysmi', 'pycryptodomex'],
+        'install_requires': requires,
         'zip_safe': True
     }
 
@@ -71,8 +82,8 @@ except ImportError:
     from distutils.core import setup
 
     params = {}
-    if sys.version_info[:2] > (2, 4):
-        params['requires'] = ['pyasn1(>=0.2.3)', 'pysmi', 'pycryptodomex']
+    if py_version > (2, 4):
+        params['requires'] = requires
 
 doclines = [x.strip() for x in (__doc__ or '').split('\n') if x]
 
@@ -101,6 +112,7 @@ params.update({
                  'pysnmp.carrier.twisted.dgram',
                  'pysnmp.carrier.asyncio',
                  'pysnmp.carrier.asyncio.dgram',
+                 'pysnmp.crypto',
                  'pysnmp.entity',
                  'pysnmp.entity.rfc3413',
                  'pysnmp.entity.rfc3413.oneliner',

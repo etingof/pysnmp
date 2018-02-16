@@ -23,3 +23,9 @@ docs/source/.templates/layout.html
 
 # Virtual envs
 venv*
+
+# Tox
+.tox/
+
+# Pyenv
+.python-version

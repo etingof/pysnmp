@@ -1,4 +1,10 @@
 
+Revision 4.?.?, released 2018-??-??
+-----------------------------------
+
+- Crypto abstraction layer added to allow use of pyca/cryptography instead of Pycryptodome
+- Dependencies modified to use pyca/cryptography for supported Python versions
+
 Revision 4.4.4, released 2018-01-03
 -----------------------------------
 

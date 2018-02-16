@@ -1,3 +1,8 @@
 pysmi
-pycryptodomex
+pycryptodomex; python_version < '2.7'
+cryptography; python_version == '2.7'
+pycryptodomex; python_version == '3.2'
+pycryptodomex; python_version == '3.3'
+cryptography; python_version >= '3.4'
 pyasn1>=0.2.3
+ordereddict; python_version < '2.7'
