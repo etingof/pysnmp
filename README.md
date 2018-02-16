@@ -59,11 +59,11 @@ to download and install PySNMP along with its dependencies:
 * [PyCryptodomex](https://pycryptodome.readthedocs.io) (required only if SNMPv3 encryption is in use)
 * [PySMI](http://snmplabs.com/pysmi/) (required for MIB services only)
 
-Besides the library, command-line [SNMP utilities](https://github.com/etingof/pysnmp-apps)
+Besides the library, command-line [SNMP utilities](https://github.com/etingof/snmpclitools)
 written in pure-Python could be installed via:
 
 ```bash
-$ pip install pysnmp-apps
+$ pip install snmpclitools
 ```
     
 and used in the very similar manner as conventional Net-SNMP tools:
