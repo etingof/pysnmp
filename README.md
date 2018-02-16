@@ -61,11 +61,11 @@ to download and install PySNMP along with its dependencies:
     * [pyca/cryptography](http://cryptography.io/) for Python 2.7 and 3.4+
     * [PyCryptodomex](https://pycryptodome.readthedocs.io) for Python 2.4-2.6 and 3.2-3.3
 
-Besides the library, command-line [SNMP utilities](https://github.com/etingof/pysnmp-apps)
+Besides the library, command-line [SNMP utilities](https://github.com/etingof/snmpclitools)
 written in pure-Python could be installed via:
 
 ```bash
-$ pip install pysnmp-apps
+$ pip install snmpclitools
 ```
     
 and used in the very similar manner as conventional Net-SNMP tools:
