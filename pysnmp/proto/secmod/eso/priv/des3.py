@@ -5,15 +5,6 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 import random
-from pysnmp.crypto import des3
-from pysnmp.proto.secmod.rfc3414.priv import base
-from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
-from pysnmp.proto.secmod.rfc3414 import localkey
-from pysnmp.proto.secmod.rfc7860.auth import hmacsha2
-from pysnmp.proto import errind, error
-from pyasn1.type import univ
-from pyasn1.compat.octets import null
-
 try:
     from hashlib import md5, sha1
 except ImportError:
@@ -22,6 +13,21 @@ except ImportError:
 
     md5 = md5.new
     sha1 = sha.new
+
+try:
+    from pysnmpcrypto import des3, PysnmpCryptoError
+
+except ImportError:
+    PysnmpCryptoError = AttributeError
+    des3 = None
+
+from pysnmp.proto.secmod.rfc3414.priv import base
+from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
+from pysnmp.proto.secmod.rfc3414 import localkey
+from pysnmp.proto.secmod.rfc7860.auth import hmacsha2
+from pysnmp.proto import errind, error
+from pyasn1.type import univ
+from pyasn1.compat.octets import null
 
 random.seed()
 
@@ -117,7 +123,14 @@ class Des3(base.AbstractEncryptionService):
         privParameters = univ.OctetString(salt)
 
         plaintext = dataToEncrypt + univ.OctetString((0,) * (8 - len(dataToEncrypt) % 8)).asOctets()
-        ciphertext = des3.encrypt(plaintext, des3Key, iv)
+
+        try:
+            ciphertext = des3.encrypt(plaintext, des3Key, iv)
+
+        except PysnmpCryptoError:
+            raise error.StatusInformation(
+                errorIndication=errind.unsupportedPrivProtocol
+            )
 
         return univ.OctetString(ciphertext), privParameters
 
@@ -138,6 +151,13 @@ class Des3(base.AbstractEncryptionService):
             )
 
         ciphertext = encryptedData.asOctets()
-        plaintext = des3.decrypt(ciphertext, des3Key, iv)
+
+        try:
+            plaintext = des3.decrypt(ciphertext, des3Key, iv)
+
+        except PysnmpCryptoError:
+            raise error.StatusInformation(
+                errorIndication=errind.unsupportedPrivProtocol
+            )
 
         return plaintext

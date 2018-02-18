@@ -9,7 +9,7 @@ We can look at PySNMP's internal structure from the view point of
 SNMP protocol evolution. SNMP was evolving for many years from
 a relatively simple way to structure and retrieve data (SNMPv1/v2c)
 all the way to extensible and modularized framework that supports
-strong crypto out-of-the-box (SNMPv3).
+strong SNMPv3 crypto (with optional pysnmpcrypto package).
 
 In the order from most ancient SNMP services to the most current ones,
 what follows are different layers of PySNMP APIs:

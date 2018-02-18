@@ -5,15 +5,6 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 import random
-from pysnmp.crypto import des
-from pysnmp.proto.secmod.rfc3414.priv import base
-from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
-from pysnmp.proto.secmod.rfc3414 import localkey
-from pysnmp.proto.secmod.rfc7860.auth import hmacsha2
-from pysnmp.proto import errind, error
-from pyasn1.type import univ
-from sys import version_info
-
 try:
     from hashlib import md5, sha1
 except ImportError:
@@ -22,6 +13,22 @@ except ImportError:
 
     md5 = md5.new
     sha1 = sha.new
+
+from sys import version_info
+
+try:
+    from pysnmpcrypto import des, PysnmpCryptoError
+
+except ImportError:
+    PysnmpCryptoError = AttributeError
+    des = None
+
+from pysnmp.proto.secmod.rfc3414.priv import base
+from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
+from pysnmp.proto.secmod.rfc3414 import localkey
+from pysnmp.proto.secmod.rfc7860.auth import hmacsha2
+from pysnmp.proto import errind, error
+from pyasn1.type import univ
 
 random.seed()
 
@@ -107,7 +114,14 @@ class Des(base.AbstractEncryptionService):
 
         # 8.1.1.2
         plaintext = dataToEncrypt + univ.OctetString((0,) * (8 - len(dataToEncrypt) % 8)).asOctets()
-        ciphertext = des.encrypt(plaintext, desKey, iv)
+
+        try:
+            ciphertext = des.encrypt(plaintext, desKey, iv)
+
+        except PysnmpCryptoError:
+            raise error.StatusInformation(
+                errorIndication=errind.unsupportedPrivProtocol
+            )
 
         # 8.3.1.3 & 4
         return univ.OctetString(ciphertext), privParameters
@@ -133,5 +147,11 @@ class Des(base.AbstractEncryptionService):
                 errorIndication=errind.decryptionError
             )
 
-        # 8.3.2.6
-        return des.decrypt(encryptedData.asOctets(), desKey, iv)
+        try:
+            # 8.3.2.6
+            return des.decrypt(encryptedData.asOctets(), desKey, iv)
+
+        except PysnmpCryptoError:
+            raise error.StatusInformation(
+                errorIndication=errind.unsupportedPrivProtocol
+            )

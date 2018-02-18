@@ -1,9 +1,13 @@
 
-Revision 4.?.?, released 2018-??-??
+Revision 5.0.0, released 2018-03-??
 -----------------------------------
 
-- Crypto abstraction layer added to allow use of pyca/cryptography instead of Pycryptodome
-- Dependencies modified to use pyca/cryptography for supported Python versions
+- SNMPv3 crypto operations that require external dependencies
+  made dependent on the optional external
+  package -- pysnmpcrypto.
+- By switching to pysnmpcrypto, pysnmp effectively migrates from
+  PyCryptodomex to pyca/cryptography whenever available on the
+  platform.
 
 Revision 4.4.4, released 2018-01-03
 -----------------------------------
