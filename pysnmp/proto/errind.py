@@ -199,9 +199,6 @@ unsupportedSecurityModel = UnsupportedSecurityModel('Unsupported SNMP security m
 class UnsupportedSecurityLevel(ErrorIndication):
     pass
 
-# backward compatibility plug
-UnsupportedSecLevel = UnsupportedSecurityLevel
-
 unsupportedSecurityLevel = UnsupportedSecurityLevel('Unsupported SNMP security level')
 
 

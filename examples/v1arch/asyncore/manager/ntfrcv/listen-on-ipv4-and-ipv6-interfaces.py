@@ -21,7 +21,7 @@ with Notification Originators - UDP over IPv4 and UDP over IPv6.
 
 """#
 from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
-from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
+from pysnmp.carrier.asyncore.dgram import udp, udp6
 from pyasn1.codec.ber import decoder
 from pysnmp.proto import api
 
@@ -72,11 +72,6 @@ transportDispatcher.registerTransport(
 transportDispatcher.registerTransport(
     udp6.domainName, udp6.Udp6SocketTransport().openServerMode(('::1', 162))
 )
-
-## Local domain socket
-# transportDispatcher.registerTransport(
-#    unix.domainName, unix.UnixSocketTransport().openServerMode('/tmp/snmp-manager')
-# )
 
 transportDispatcher.jobStarted(1)
 

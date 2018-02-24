@@ -233,9 +233,11 @@ class NotificationOriginatorLcdConfigurator(AbstractLcdConfigurator):
             cache['auth'][authDataKey] = authDataX, subTree, useCount + 1
         else:
             subTree = (1, 3, 6)
-            config.addTrapUser(snmpEngine, authData.securityModel,
-                               authData.securityName, authData.securityLevel,
-                               subTree)
+            config.addVacmUser(snmpEngine,
+                               authData.securityModel,
+                               authData.securityName,
+                               authData.securityLevel,
+                               (), (), subTree)
             cache['auth'][authDataKey] = authData, subTree, 1
 
         return notifyName

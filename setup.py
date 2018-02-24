@@ -109,7 +109,6 @@ params.update({
                  'pysnmp.carrier.asyncio.dgram',
                  'pysnmp.entity',
                  'pysnmp.entity.rfc3413',
-                 'pysnmp.entity.rfc3413.oneliner',
                  'pysnmp.hlapi',
                  'pysnmp.hlapi.asyncio',
                  'pysnmp.hlapi.asyncore',

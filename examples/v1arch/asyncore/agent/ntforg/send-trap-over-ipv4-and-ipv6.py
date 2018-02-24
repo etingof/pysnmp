@@ -23,7 +23,7 @@ The following Net-SNMP commands will produce similar SNMP notification:
 
 """#
 from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
-from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
+from pysnmp.carrier.asyncore.dgram import udp, udp6
 from pyasn1.codec.ber import encoder
 from pysnmp.proto import api
 
@@ -63,14 +63,6 @@ transportDispatcher.registerTransport(
 transportDispatcher.sendMessage(
     encoder.encode(trapMsg), udp6.domainName, ('::1', 162)
 )
-
-## Local domain socket
-# transportDispatcher.registerTransport(
-#    unix.domainName, unix.UnixSocketTransport().openClientMode()
-# )
-# transportDispatcher.sendMessage(
-#    encoder.encode(trapMsg), unix.domainName, '/tmp/snmp-manager'
-# )
 
 # Dispatcher will finish as all scheduled messages are sent
 transportDispatcher.runDispatcher()

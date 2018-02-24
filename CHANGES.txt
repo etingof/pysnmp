@@ -8,6 +8,10 @@ Revision 5.0.0, released 2018-03-??
 - By switching to pysnmpcrypto, pysnmp effectively migrates from
   PyCryptodomex to pyca/cryptography whenever available on the
   platform.
+- Many really old backward-compatibility code snippets removed.
+  Most importantly, the `pysnmp.entity.rfc3413.oneliner` and
+  everything related to (non-standard) UNIX domain socket transport
+  are gone.
 
 Revision 4.4.4, released 2018-01-03
 -----------------------------------

@@ -189,8 +189,6 @@ class NotificationType(MibNode):
     status = 'current'
     description = ''
     reference = ''
-    # retained for compatibility
-    revisions = ()
 
     def getObjects(self):
         return self.objects
@@ -221,15 +219,6 @@ class NotificationType(MibNode):
 
     def setReference(self, v):
         self.reference = v
-        return self
-
-    # This should not be here. Retained for compatibility.
-
-    def getRevisions(self):
-        return self.revisions
-
-    def setRevisions(self, v):
-        self.revisions = v
         return self
 
     def asn1Print(self):

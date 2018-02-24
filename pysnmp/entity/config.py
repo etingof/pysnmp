@@ -5,7 +5,7 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 from pyasn1.compat.octets import null
-from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
+from pysnmp.carrier.asyncore.dgram import udp, udp6
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha, noauth
 from pysnmp.proto.secmod.rfc3414.priv import des, nopriv
 from pysnmp.proto.secmod.rfc3826.priv import aes
@@ -19,7 +19,6 @@ from pysnmp import error
 # Transports
 snmpUDPDomain = udp.snmpUDPDomain
 snmpUDP6Domain = udp6.snmpUDP6Domain
-snmpLocalDomain = unix.snmpLocalDomain
 
 # Auth protocol
 usmHMACMD5AuthProtocol = hmacmd5.HmacMd5.serviceID
@@ -129,15 +128,11 @@ def addV3User(snmpEngine, userName,
               authProtocol=usmNoAuthProtocol, authKey=None,
               privProtocol=usmNoPrivProtocol, privKey=None,
               securityEngineId=None,
-              securityName=None,
-              # deprecated parameters follow
-              contextEngineId=None):
+              securityName=None):
     mibBuilder = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
 
     if securityName is None:
         securityName = userName
-    if securityEngineId is None:  # backward compatibility
-        securityEngineId = contextEngineId
     (snmpEngineID, usmUserEntry, tblIdx1,
      pysnmpUsmSecretEntry, tblIdx2) = __cookV3UserInfo(snmpEngine, userName, securityEngineId)
 
@@ -203,11 +198,7 @@ def addV3User(snmpEngine, userName,
 
 def delV3User(snmpEngine,
               userName,
-              securityEngineId=None,
-              # deprecated parameters follow
-              contextEngineId=None):
-    if securityEngineId is None:  # backward compatibility
-        securityEngineId = contextEngineId
+              securityEngineId=None):
     (snmpEngineID, usmUserEntry, tblIdx1, pysnmpUsmSecretEntry,
      tblIdx2) = __cookV3UserInfo(snmpEngine, userName, securityEngineId)
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
@@ -556,40 +547,6 @@ def delVacmUser(snmpEngine, securityModel, securityName, securityLevel,
         delVacmView(
             snmpEngine, notifyView, notifySubTree
         )
-
-
-# Obsolete shortcuts for add/delVacmUser() wrappers
-
-def addRoUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
-    addVacmUser(snmpEngine, securityModel, securityName,
-                securityLevel, subTree)
-
-
-def delRoUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
-    delVacmUser(snmpEngine, securityModel, securityName, securityLevel,
-                subTree)
-
-
-def addRwUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
-    addVacmUser(snmpEngine, securityModel, securityName, securityLevel,
-                subTree, subTree)
-
-
-def delRwUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
-    delVacmUser(snmpEngine, securityModel, securityName, securityLevel,
-                subTree, subTree)
-
-
-def addTrapUser(snmpEngine, securityModel, securityName,
-                securityLevel, subTree):
-    addVacmUser(snmpEngine, securityModel, securityName, securityLevel,
-                (), (), subTree)
-
-
-def delTrapUser(snmpEngine, securityModel, securityName,
-                securityLevel, subTree):
-    delVacmUser(snmpEngine, securityModel, securityName, securityLevel,
-                (), (), subTree)
 
 
 # Notification target setup

@@ -6,11 +6,11 @@
 #
 import socket
 import sys
-from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
+from pysnmp.carrier.asyncore.dgram import udp, udp6
 from pysnmp.hlapi.transport import AbstractTransportTarget
 from pysnmp import error
 
-__all__ = ['UnixTransportTarget', 'Udp6TransportTarget', 'UdpTransportTarget']
+__all__ = ['Udp6TransportTarget', 'UdpTransportTarget']
 
 
 class UdpTransportTarget(AbstractTransportTarget):
@@ -119,8 +119,3 @@ class Udp6TransportTarget(AbstractTransportTarget):
         except socket.gaierror:
             raise error.PySnmpError('Bad IPv6/UDP transport address %s: %s' % (
                 '@'.join([str(x) for x in transportAddr]), sys.exc_info()[1]))
-
-
-class UnixTransportTarget(AbstractTransportTarget):
-    transportDomain = unix.domainName
-    protoTransport = unix.UnixSocketTransport
