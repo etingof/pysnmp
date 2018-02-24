@@ -175,13 +175,13 @@ authenticationFailure = AuthenticationFailure('Authenticator mismatched')
 class UnsupportedAuthProtocol(ErrorIndication):
     pass
 
-unsupportedAuthProtocol = UnsupportedAuthProtocol('Authentication protocol is not supprted')
+unsupportedAuthProtocol = UnsupportedAuthProtocol('Authentication protocol is not supported')
 
 
 class UnsupportedPrivProtocol(ErrorIndication):
     pass
 
-unsupportedPrivProtocol = UnsupportedPrivProtocol('Privacy protocol is not supprted')
+unsupportedPrivProtocol = UnsupportedPrivProtocol('Privacy protocol is not supported')
 
 
 class UnknownSecurityName(ErrorIndication):

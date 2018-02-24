@@ -42,19 +42,16 @@ In case you are installing PySNMP on an off-line system, the following
 packages need to be downloaded and installed for PySNMP to become 
 operational:
 
-* `PyASN1 <https://pypi.python.org/pypi/pyasn1>`_,
-  used for handling ASN.1 objects
-* `PySNMP <https://pypi.python.org/pypi/pysnmp/>`_,
+* `pysnmp <https://pypi.python.org/pypi/pysnmp/>`_,
   SNMP engine implementation
-
-Optional, but recommended:
-
-* `PyCryptodomex <https://pypi.python.org/pypi/pycryptodomex/>`_,
-  used by SNMPv3 crypto features
-* `PySMI <https://pypi.python.org/pypi/pysmi/>`_ for automatic
+* `pyasn1 <https://pypi.python.org/pypi/pyasn1>`_,
+  used for handling ASN.1 objects
+* `pysmi <https://pypi.python.org/pypi/pysmi/>`_ for automatic
   MIB download and compilation. That helps visualizing more SNMP objects
-* `Ply <https://pypi.python.org/pypi/ply/>`_, parser generator
-  required by PySMI
+
+Optional:
+* `pysnmpcrypto <https://pypi.python.org/pypi/pysnmpcrypto/>`_,
+  for strong SNMPv3 crypto support
 
 The installation procedure for all the above packages is as follows 
 (on UNIX-based systems):

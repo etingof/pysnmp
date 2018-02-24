@@ -57,9 +57,8 @@ to download and install PySNMP along with its dependencies:
 
 * [PyASN1](http://snmplabs.com/pyasn1/)
 * [PySMI](http://snmplabs.com/pysmi/) (required for MIB services only)
-* A supported cryptography backend (required only if SNMPv3 encryption is in use)
-    * [pyca/cryptography](http://cryptography.io/) for Python 2.7 and 3.4+
-    * [PyCryptodomex](https://pycryptodome.readthedocs.io) for Python 2.4-2.6 and 3.2-3.3
+* Optional [pysnmpcrypto](https://github.com/etingof/pysnmpcrypto) package
+  whenever strong SNMPv3 encryption is desired
 
 Besides the library, command-line [SNMP utilities](https://github.com/etingof/snmpclitools)
 written in pure-Python could be installed via:
