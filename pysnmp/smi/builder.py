@@ -16,7 +16,7 @@ try:
     from errno import ENOENT
 except ImportError:
     ENOENT = -1
-from pysnmp import version as pysnmp_version
+from pysnmp import __version__ as pysnmp_version
 from pysnmp.smi import error
 from pysnmp import debug
 
@@ -289,21 +289,6 @@ class MibBuilder(object):
 
     def getMibSources(self):
         return tuple(self.__mibSources)
-
-    # Legacy/compatibility methods (won't work for .eggs)
-    def setMibPath(self, *mibPaths):
-        self.setMibSources(*[DirMibSource(x) for x in mibPaths])
-
-    def getMibPath(self):
-        paths = ()
-        for mibSource in self.getMibSources():
-            if isinstance(mibSource, DirMibSource):
-                paths += (mibSource.fullPath(),)
-            else:
-                raise error.MibLoadError(
-                    'MIB source is not a plain directory: %s' % (mibSource,)
-                )
-        return paths
 
     def loadModule(self, modName, **userCtx):
         for mibSource in self.__mibSources:

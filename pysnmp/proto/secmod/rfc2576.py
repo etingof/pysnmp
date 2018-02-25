@@ -8,7 +8,7 @@ import sys
 from pyasn1.codec.ber import encoder
 from pyasn1.error import PyAsn1Error
 from pysnmp.proto.secmod import base
-from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
+from pysnmp.carrier.asyncore.dgram import udp, udp6
 from pysnmp.smi.error import NoSuchInstanceError
 from pysnmp.proto import errind, error
 from pysnmp import debug
@@ -142,8 +142,6 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                     TransportAddressIPv6, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
                         'TRANSPORT-ADDRESS-MIB', 'TransportAddressIPv6')
                     targetAddrTAddress = tuple(TransportAddressIPv6(targetAddrTAddress))
-                elif targetAddrTDomain[:len(unix.snmpLocalDomain)] == unix.snmpLocalDomain:
-                    targetAddrTAddress = str(targetAddrTAddress)
                 targetAddr = targetAddrTDomain, targetAddrTAddress
                 targetAddrTagList = snmpTargetAddrTagList.getNode(snmpTargetAddrTagList.name + instId).syntax
                 if targetAddr not in self.__transportToTagMap:

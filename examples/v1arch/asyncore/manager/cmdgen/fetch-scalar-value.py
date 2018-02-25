@@ -15,7 +15,7 @@ This script performs similar to the following Net-SNMP command:
 
 """#
 from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
-from pysnmp.carrier.asyncore.dgram import udp, udp6, unix
+from pysnmp.carrier.asyncore.dgram import udp, udp6
 from pyasn1.codec.ber import encoder, decoder
 from pysnmp.proto import api
 from time import time
@@ -89,17 +89,6 @@ transportDispatcher.jobStarted(1)
 # Pass message to dispatcher
 # transportDispatcher.sendMessage(
 #    encoder.encode(reqMsg), udp6.domainName, ('::1', 161)
-# )
-# transportDispatcher.jobStarted(1)
-
-## Local domain socket
-# transportDispatcher.registerTransport(
-#    unix.domainName, unix.UnixSocketTransport().openClientMode()
-# )
-#
-# Pass message to dispatcher
-# transportDispatcher.sendMessage(
-#    encoder.encode(reqMsg), unix.domainName, '/tmp/snmp-agent'
 # )
 # transportDispatcher.jobStarted(1)
 

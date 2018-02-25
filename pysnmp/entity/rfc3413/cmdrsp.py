@@ -52,9 +52,6 @@ class CommandResponderBase(object):
 
         self.sendPdu(snmpEngine, stateReference, PDU)
 
-    # backward compatibility
-    sendRsp = sendVarBinds
-
     def sendPdu(self, snmpEngine, stateReference, PDU):
         (messageProcessingModel, securityModel, securityName,
          securityLevel, contextEngineId, contextName,
