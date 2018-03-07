@@ -31,6 +31,7 @@
 # THE POSSIBILITY OF SUCH DAMAGE.
 #
 import sys
+import platform
 import traceback
 from pysnmp.carrier.base import AbstractTransportDispatcher
 from pysnmp.error import PySnmpError
@@ -40,6 +41,7 @@ try:
 except ImportError:
     import trollius as asyncio
 
+python344 = platform.python_version_tuple() >= ('3', '4', '4')
 
 class AsyncioDispatcher(AbstractTransportDispatcher):
     """AsyncioDispatcher based on asyncio event loop"""
@@ -66,10 +68,14 @@ class AsyncioDispatcher(AbstractTransportDispatcher):
                 raise
             except Exception:
                 raise PySnmpError(';'.join(traceback.format_exception(*sys.exc_info())))
-
+    
     def registerTransport(self, tDomain, transport):
         if self.loopingcall is None and self.getTimerResolution() > 0:
-            self.loopingcall = asyncio.async(self.handle_timeout())
+            # Avoid deprecation warning for asyncio.async()
+            if python344:
+              self.loopingcall = asyncio.ensure_future(self.handle_timeout())
+            else: # pragma: no cover
+              self.loopingcall = asyncio.async(self.handle_timeout())
         AbstractTransportDispatcher.registerTransport(
             self, tDomain, transport
         )
