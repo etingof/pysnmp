@@ -1,3 +1,4 @@
-sphinx
+Sphinx <= 1.6; python_version < '2.7'
+Sphinx > 1.6; python_version >= '2.7'
 twisted
 trollius; python_version < '3.0'
