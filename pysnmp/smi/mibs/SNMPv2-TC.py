@@ -259,7 +259,7 @@ class TextualConvention(object):
 
             # how do we know if object is initialized with display-hint
             # formatted text? based on "text" input maybe?
-            if octets.isStringType(value) and not octets.isOctetsType(value):
+            if octets.isStringType(value):
                 value = base.prettyIn(self, value)
             else:
                 return base.prettyIn(self, value)
