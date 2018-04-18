@@ -80,7 +80,7 @@ class InetAddress(TextualConvention, OctetString):
         for parentIndex in reversed(parentIndices):
             if isinstance(parentIndex, InetAddressType):
                 try:
-                    return parentRow.setFromName(cls.typeMap[parentIndex], value, impliedFlag, parentIndices)
+                    return parentRow.setFromName(cls.typeMap[int(parentIndex)], value, impliedFlag, parentIndices)
                 except KeyError:
                     pass
 
@@ -90,7 +90,7 @@ class InetAddress(TextualConvention, OctetString):
         for parentIndex in reversed(parentIndices):
             if isinstance(parentIndex, InetAddressType):
                 try:
-                    return parentRow.getAsName(self.typeMap[parentIndex].clone(self.asOctets()), impliedFlag, parentIndices)
+                    return parentRow.getAsName(self.typeMap[int(parentIndex)].clone(str(self)), impliedFlag, parentIndices)
                 except KeyError:
                     pass
 

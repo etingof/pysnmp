@@ -13,6 +13,12 @@ Revision 5.0.0, released 2018-03-??
   everything related to (non-standard) UNIX domain socket transport
   are gone.
 
+Revision 4.4.5, released 2018-04-XX
+-----------------------------------
+
+- Fixed broken InetAddressType rendering caused by a pyasn1 regression
+- Fixed typo in RFC1158 module
+
 Revision 4.4.4, released 2018-01-03
 -----------------------------------
 
