@@ -6,7 +6,7 @@ Download PySNMP
 
 The PySNMP software is provided under terms and conditions of BSD-style 
 license, and can be freely downloaded from 
-`PyPI <http://pypi.python.org/pypi/pysnmp/>`_ or
+`PyPI <https://pypi.org/project/pysnmp/>`_ or
 GitHub (`master branch <https://github.com/etingof/pysnmp/archive/master.zip>`_).
 
 
@@ -30,7 +30,7 @@ or
 
 In case you do not have the easy_install command on your system but still 
 would like to use the on-line package installation method, please install 
-`setuptools <http://pypi.python.org/pypi/setuptools>`_ package by 
+`setuptools <https://pypi.org/project/setuptools/>`_ package by 
 downloading and running `ez_setup.pz <https://bootstrap.pypa.io/ez_setup.py>`_ bootstrap:
 
 .. code-block:: bash
@@ -42,15 +42,15 @@ In case you are installing PySNMP on an off-line system, the following
 packages need to be downloaded and installed for PySNMP to become 
 operational:
 
-* `pysnmp <https://pypi.python.org/pypi/pysnmp/>`_,
+* `pysnmp <https://pypi.org/project/pysnmp/>`_,
   SNMP engine implementation
-* `pyasn1 <https://pypi.python.org/pypi/pyasn1>`_,
+* `pyasn1 <https://pypi.org/project/pyasn1/>`_,
   used for handling ASN.1 objects
-* `pysmi <https://pypi.python.org/pypi/pysmi/>`_ for automatic
+* `pysmi <https://pypi.org/project/pysmi/>`_ for automatic
   MIB download and compilation. That helps visualizing more SNMP objects
 
 Optional:
-* `pysnmpcrypto <https://pypi.python.org/pypi/pysnmpcrypto/>`_,
+* `pysnmpcrypto <https://pypi.org/project/pysnmpcrypto/>`_,
   for strong SNMPv3 crypto support
 
 The installation procedure for all the above packages is as follows 
