@@ -13,7 +13,7 @@ from pysnmp.proto.secmod.rfc3826.priv import aes
 from pysnmp.proto.secmod.rfc7860.auth import hmacsha2
 from pysnmp.proto.secmod.eso.priv import des3, aes192, aes256
 from pysnmp.smi.error import NoSuchInstanceError
-from pysnmp.proto import rfc1155, errind, error
+from pysnmp.proto import rfc1155, rfc3411, errind, error
 from pysnmp import debug
 from pyasn1.type import univ, namedtype, constraint
 from pyasn1.codec.ber import encoder, decoder, eoo
@@ -333,35 +333,40 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             0, scopedPDU, verifyConstraints=False, matchTags=False, matchConstraints=False
         )
 
-        # 3.1.6a
-        if securityStateReference is None and securityLevel in (2, 3):
-            if securityEngineID in self.__timeline:
-                (snmpEngineBoots, snmpEngineTime, latestReceivedEngineTime,
+        snmpEngineBoots = snmpEngineTime = 0
+
+        if securityLevel in (2, 3):
+            pdu = scopedPDU.getComponentByPosition(2).getComponent()
+
+            # 3.1.6.b
+            if pdu.tagSet in rfc3411.unconfirmedClassPDUs:
+                (snmpEngineBoots,
+                 snmpEngineTime) = mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineBoots', 'snmpEngineTime')
+
+                snmpEngineBoots = snmpEngineBoots.syntax
+                snmpEngineTime = snmpEngineTime.syntax.clone()
+
+                debug.logger & debug.flagSM and debug.logger(
+                    '__generateRequestOrResponseMsg: read snmpEngineBoots, snmpEngineTime from LCD')
+
+            # 3.1.6a
+            elif securityEngineID in self.__timeline:
+                (snmpEngineBoots,
+                 snmpEngineTime,
+                 latestReceivedEngineTime,
                  latestUpdateTimestamp) = self.__timeline[securityEngineID]
+
                 debug.logger & debug.flagSM and debug.logger(
                     '__generateRequestOrResponseMsg: read snmpEngineBoots, snmpEngineTime from timeline')
-            else:
-                # 2.3 XXX is this correct?
-                snmpEngineBoots = snmpEngineTime = 0
-                debug.logger & debug.flagSM and debug.logger(
-                    '__generateRequestOrResponseMsg: no timeline for securityEngineID %r' % (securityEngineID,))
-        # 3.1.6.b
-        elif securityStateReference is not None:  # XXX Report?
-            (snmpEngineBoots,
-             snmpEngineTime) = mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineBoots', 'snmpEngineTime')
-            snmpEngineBoots = snmpEngineBoots.syntax
-            snmpEngineTime = snmpEngineTime.syntax.clone()
-            debug.logger & debug.flagSM and debug.logger(
-                '__generateRequestOrResponseMsg: read snmpEngineBoots, snmpEngineTime from LCD')
-        # 3.1.6.c
-        else:
-            snmpEngineBoots = snmpEngineTime = 0
-            debug.logger & debug.flagSM and debug.logger(
-                '__generateRequestOrResponseMsg: assuming zero snmpEngineBoots, snmpEngineTime')
 
-        debug.logger & debug.flagSM and debug.logger(
-            '__generateRequestOrResponseMsg: use snmpEngineBoots %s snmpEngineTime %s for securityEngineID %r' % (
-                snmpEngineBoots, snmpEngineTime, securityEngineID))
+            # 3.1.6.c
+            else:
+                debug.logger & debug.flagSM and debug.logger(
+                    '__generateRequestOrResponseMsg: assuming zero snmpEngineBoots, snmpEngineTime')
+
+            debug.logger & debug.flagSM and debug.logger(
+                '__generateRequestOrResponseMsg: use snmpEngineBoots %s snmpEngineTime %s for securityEngineID %r' % (
+                    snmpEngineBoots, snmpEngineTime, securityEngineID))
 
         # 3.1.4a
         if securityLevel == 3:
