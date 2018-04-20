@@ -16,6 +16,7 @@ Revision 5.0.0, released 2018-03-??
 Revision 4.4.5, released 2018-04-XX
 -----------------------------------
 
+- Fixed zero SNMPv3 boots/time values put in SNMPv3 TRAP messages
 - Fixed broken InetAddressType rendering caused by a pyasn1 regression
 - Fixed typo in RFC1158 module
 
