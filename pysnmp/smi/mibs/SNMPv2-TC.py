@@ -184,7 +184,7 @@ class TextualConvention(object):
         """Implements DISPLAY-HINT parsing into base SNMP value
 
         Proper parsing seems impossible due to ambiguities.
-        Here we are truing to do our best, but be prepared
+        Here we are trying to do our best, but be prepared
         for failures on complicated DISPLAY-HINTs.
 
         Keep in mind that this parser only works with "text"
@@ -259,7 +259,8 @@ class TextualConvention(object):
 
             # how do we know if object is initialized with display-hint
             # formatted text? based on "text" input maybe?
-            if octets.isStringType(value):
+            # That boils down to `str` object on Py3 or `unicode` on Py2.
+            if octets.isStringType(value) and not octets.isOctetsType(value):
                 value = base.prettyIn(self, value)
             else:
                 return base.prettyIn(self, value)
@@ -267,6 +268,7 @@ class TextualConvention(object):
             outputValue = octets.str2octs('')
             runningValue = value
             displayHint = self.displayHint
+
             while runningValue and displayHint:
                 # 1 this information is totally lost, just fail explicitly
                 if displayHint[0] == '*':
