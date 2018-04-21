@@ -4,6 +4,7 @@ Revision 4.4.5, released 2018-04-XX
 
 - Fixed broken InetAddressType rendering caused by a pyasn1 regression
 - Fixed typo in RFC1158 module
+- Fixed possible infinite loop in GETBULK response PDU builder
 
 Revision 4.4.4, released 2018-01-03
 -----------------------------------
