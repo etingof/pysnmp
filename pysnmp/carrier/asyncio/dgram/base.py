@@ -31,6 +31,7 @@
 # THE POSSIBILITY OF SUCH DAMAGE.
 #
 import sys
+import platform
 import traceback
 from pysnmp.carrier.asyncio.base import AbstractAsyncioTransport
 from pysnmp.carrier import error
@@ -77,13 +78,20 @@ class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
         debug.logger & debug.flagIO and debug.logger('connection_lost: invoked')
 
     # AbstractAsyncioTransport API
-
+    
+    python344 = platform.python_version_tuple() >= ('3', '4', '4')
+    
     def openClientMode(self, iface=None):
         try:
             c = self.loop.create_datagram_endpoint(
                 lambda: self, local_addr=iface, family=self.sockFamily
             )
-            self._lport = asyncio.async(c)
+            # Avoid deprecation warning for asyncio.async()
+            if python344:
+              self._lport = asyncio.ensure_future(c)
+            else: # pragma: no cover
+              self._lport = asyncio.async(c)
+            
         except Exception:
             raise error.CarrierError(';'.join(traceback.format_exception(*sys.exc_info())))
         return self

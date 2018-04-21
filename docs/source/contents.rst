@@ -24,7 +24,7 @@ examples are written for the 4.4 and later versions in mind.
 Older materials are still available under the obsolete section.
 
 Besides the libraries, a set of pure-Python 
-`command-line tools <https://pypi.python.org/pypi/snmpclitools/>`_
+`command-line tools <https://pypi.org/project/snmpclitools/>`_
 are shipped along with the system. Those tools mimic the interface
 and behaviour of popular Net-SNMP snmpget/snmpset/snmpwalk utilities.
 They may be useful in a cross-platform situations as well as a testing
