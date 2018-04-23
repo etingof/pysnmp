@@ -382,7 +382,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
                 for idx, varBind in enumerate(varBinds):
                     name, val = varBind
                     if not isinstance(val, Null):
-                        if lexicographicMode or initialVars[idx].isPrefixOf(name):
+                        if lexicographicMode:
                             break
                 else:
                     return
