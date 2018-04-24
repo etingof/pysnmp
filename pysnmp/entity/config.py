@@ -391,7 +391,7 @@ def addContext(snmpEngine, contextName):
     vacmContextEntry, tblIdx = __cookVacmContextInfo(snmpEngine, contextName)
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((vacmContextEntry.name + (5,) + tblIdx, 'destroy'),)
+        ((vacmContextEntry.name + (2,) + tblIdx, 'destroy'),)
     )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmContextEntry.name + (1,) + tblIdx, contextName),
@@ -403,7 +403,7 @@ def delContext(snmpEngine, contextName):
     vacmContextEntry, tblIdx = __cookVacmContextInfo(snmpEngine, contextName)
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((vacmContextEntry.name + (5,) + tblIdx, 'destroy'),)
+        ((vacmContextEntry.name + (2,) + tblIdx, 'destroy'),)
     )
 
 
