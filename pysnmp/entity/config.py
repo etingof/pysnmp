@@ -380,13 +380,30 @@ delSocketTransport = delTransport
 
 # VACM shortcuts
 
-def addContext(snmpEngine, contextName):
+def __cookVacmContextInfo(snmpEngine, contextName):
     mibBuilder = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
-
     vacmContextEntry, = mibBuilder.importSymbols('SNMP-VIEW-BASED-ACM-MIB', 'vacmContextEntry')
     tblIdx = vacmContextEntry.getInstIdFromIndices(contextName)
+    return vacmContextEntry, tblIdx
+
+
+def addContext(snmpEngine, contextName):
+    vacmContextEntry, tblIdx = __cookVacmContextInfo(snmpEngine, contextName)
+
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((vacmContextEntry.name + (1,) + tblIdx, contextName),)
+        ((vacmContextEntry.name + (2,) + tblIdx, 'destroy'),)
+    )
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
+        ((vacmContextEntry.name + (1,) + tblIdx, contextName),
+         (vacmContextEntry.name + (2,) + tblIdx, 'createAndGo'))
+    )
+
+
+def delContext(snmpEngine, contextName):
+    vacmContextEntry, tblIdx = __cookVacmContextInfo(snmpEngine, contextName)
+
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
+        ((vacmContextEntry.name + (2,) + tblIdx, 'destroy'),)
     )
 
 
@@ -439,7 +456,7 @@ def addVacmAccess(snmpEngine, groupName, contextName, securityModel,
                                                    contextName, securityModel,
                                                    securityLevel)
 
-    addContext(snmpEngine, contextName)  # this is leaky
+    addContext(snmpEngine, contextName)
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmAccessEntry.name + (9,) + tblIdx, 'destroy'),)
@@ -461,6 +478,9 @@ def delVacmAccess(snmpEngine, groupName, contextName, securityModel,
     vacmAccessEntry, tblIdx = __cookVacmAccessInfo(snmpEngine, groupName,
                                                    contextName, securityModel,
                                                    securityLevel)
+
+    delContext(snmpEngine, contextName)
+
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmAccessEntry.name + (9,) + tblIdx, 'destroy'),)
     )
