@@ -126,7 +126,7 @@ objects representing completely different instances of hardware
 or software being managed. This is where SNMP context could
 be used.
 
-To indicate SNMP context at high-level API a preperly initialized
+To indicate SNMP context at high-level API a properly initialized
 :py:class:`~pysnmp.hlapi.ContextData` object should be used.
 For this example we will use the 'empty' context (default).
 
