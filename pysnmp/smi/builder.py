@@ -246,7 +246,7 @@ class MibBuilder(object):
     loadTexts = False
 
     # MIB modules can use this to select the features they can use
-    version = pysnmp_version
+    version = tuple([int(x) for x in pysnmp_version.split('.')])
 
     def __init__(self):
         self.lastBuildId = self._autoName = 0
