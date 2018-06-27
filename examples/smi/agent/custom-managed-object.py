@@ -28,9 +28,9 @@ sysLocation, = mibBuilder.importSymbols('SNMPv2-MIB', 'sysLocation')
 # Custom Managed Object
 class MySysLocationInstance(MibScalarInstance):
     # noinspection PyUnusedLocal
-    def readGet(self, name, *args):
+    def readGet(self, varBind, **context):
         # Just return a custom value
-        return name, self.syntax.clone('The Leaky Cauldron')
+        return varBind[0], self.syntax.clone('The Leaky Cauldron')
 
 
 sysLocationInstance = MySysLocationInstance(
@@ -52,9 +52,12 @@ if __name__ == '__main__':
     mibInstrum = instrum.MibInstrumController(mibBuilder)
 
     print('Remote manager read access to MIB instrumentation (table walk)')
-    oid, val = (), None
-    while 1:
-        oid, val = mibInstrum.readNextVars(((oid, val),))[0]
+
+    varBinds = [((), None)]
+
+    while True:
+        varBinds = mibInstrum.readNextVars(*varBinds)
+        oid, val = varBinds[0]
         if exval.endOfMib.isSameTypeWith(val):
             break
         print(oid, val.prettyPrint())

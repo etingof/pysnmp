@@ -1,5 +1,5 @@
 
-Revision 5.0.0, released 2018-03-??
+Revision 5.0.0, released 2018-07-??
 -----------------------------------
 
 - SNMPv3 crypto operations that require external dependencies
@@ -12,6 +12,16 @@ Revision 5.0.0, released 2018-03-??
   Most importantly, the `pysnmp.entity.rfc3413.oneliner` and
   everything related to (non-standard) UNIX domain socket transport
   are gone.
+- The MIB instrumentation API overhauled in backward incompatible
+  way:
+
+      - MIB instrumentation methods signatures simplified to accept
+        just var-binds (as var-arg), the rest of the parameters packed
+        into opaque kwargs
+      - CommandResponder application passes `snmpEngine` and optionally
+        user-supplied `cbCtx` object throughout the MIB instrumentation
+        methods. The goal is to let MIB objects access/modify whatever
+        custom Python objects they need while being called back.
 
 Revision 4.4.5, released 2018-04-XX
 -----------------------------------
