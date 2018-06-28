@@ -93,7 +93,7 @@ sponsoring it. Please get back to us to discuss details.
 
 Contributions to the PySNMP source code is greatly appreciated as well. 
 We require contributed code to run with Python 2.4 through the latest 
-Python version (which is 3.6 at the time of this writing). Contributed
+Python version (which is 3.7 at the time of this writing). Contributed
 code will be redistributed under the terms of the same 
 `license <http://snmplabs.com/pysnmp/>`_ as PySNMP is.
 
