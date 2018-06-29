@@ -19,7 +19,7 @@ do
         continue
         ;;
     *)
-        python "${x}"
+        python "${x}" | tail -50
         ;;
     esac
 done
