@@ -102,9 +102,9 @@ mibBuilder.exportSymbols(
 rowInstanceId = exampleTableEntry.getInstIdFromIndices('example record one')
 mibInstrumentation = snmpContext.getMibInstrum()
 mibInstrumentation.writeVars(
-    ((exampleTableColumn2.name + rowInstanceId, 'my string value'),
-     (exampleTableColumn3.name + rowInstanceId, 123456),
-     (exampleTableStatus.name + rowInstanceId, 'createAndGo'))
+    (exampleTableColumn2.name + rowInstanceId, 'my string value'),
+    (exampleTableColumn3.name + rowInstanceId, 123456),
+    (exampleTableStatus.name + rowInstanceId, 'createAndGo')
 )
 
 # --- end of SNMP table population ---
