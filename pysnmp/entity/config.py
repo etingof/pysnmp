@@ -422,7 +422,8 @@ def delContext(snmpEngine, contextName):
     vacmContextEntry, tblIdx = __cookVacmContextInfo(snmpEngine, contextName)
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        (vacmContextEntry.name + (2,) + tblIdx, 'destroy')
+        (vacmContextEntry.name + (2,) + tblIdx, 'destroy'),
+        ** dict(snmpEngine=snmpEngine)
     )
 
 
