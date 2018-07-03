@@ -506,7 +506,7 @@ class ObjectIdentity(object):
                         self.__oid += instIds
                         self.__indices = rowNode.getIndicesFromInstId(instIds)
                     except PyAsn1Error:
-                        raise SmiError('Instance index %r to OID convertion failure at object %r: %s' % (
+                        raise SmiError('Instance index %r to OID conversion failure at object %r: %s' % (
                             self.__args[2:], mibNode.getLabel(), sys.exc_info()[1]))
             elif self.__args[2:]:  # any other kind of MIB node with indices
                 if self.__args[2:]:
