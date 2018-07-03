@@ -565,7 +565,7 @@ Revision 4.2.4, released 2013-01-30
   defaulted value changed from None to () meaning no var-binds.
 - Attempt to convert Windows style EOL into UNIX ones in MIB source
   modules appeared to be unnecessary and even destructive to modules
-  data in some cases. So the convertion code removed altogether.
+  data in some cases. So the conversion code removed altogether.
 - Fix to isAccessAllowed() error handling at NotificationOriginator. System
   used to crash on access denied condition.
 - Fix to NotificationOriginator to make it use system uptime and trap OID
@@ -826,7 +826,7 @@ Revision 4.1.16a, released 2011-03-17
     configuration (LCD).
   + default debug.logger is now just a zero value instead of an object
     what saves big on frequent calls
-  + SNMPv2-SMI columnar indices <-> index values convertion code optimized.
+  + SNMPv2-SMI columnar indices <-> index values conversion code optimized.
   + pre-compute and re-use some of ASN.1 structures.
   + avoid setting PDU defaults to save on unnecessary initialization.
   + skip ASN.1 types verification where possible.
@@ -1016,7 +1016,7 @@ Revision 4.1.9a, released 2007-11-28
   effects.
 - Fix to rfc2576.v1ToV2c() PDU converter to perform noSuchName error code
   translation.
-- Fixes to Notification PDU convertion code at rfc2576 in part of
+- Fixes to Notification PDU conversion code at rfc2576 in part of
   snmpTrapOID handling.
 - Fix to nonRepeaters object use as sequence slicer (must be int) at
   cmdrsp.CommandResponderApplication
@@ -1038,7 +1038,7 @@ Revision 4.1.8a, released 2007-08-14
 ------------------------------------
 
 - UNSTABLE ALPHA RELEASE.
-- SMI/dispatcher timeout convertion multiplier is actually 100 (1/100 sec)
+- SMI/dispatcher timeout conversion multiplier is actually 100 (1/100 sec)
   rather than 1/1000. This fix affects timeouts specified through SMI.
 - __repr__() implemented for UdpTransportTarget, CommunityData, UsmUserData
   in oneliner module.
@@ -1089,7 +1089,7 @@ Revision 4.1.7a, released 2007-02-19
 - Fix to MibViewController.getNodeName() to take MIB module name
   into account (SF bug #1505847).
 - Do explicit check for Counter32,Unsigned32,TimeTicks,Counter64 value types
-  in MibTableRow index convertion and in TextualConvention.prettyPrint()
+  in MibTableRow index conversion and in TextualConvention.prettyPrint()
   methods (SF bug #1506341). Handle Bits in indices as RFC2578 suggests.
 - Apply read-create column status to libsmi2pysnmp-generated code
   whenever MIB text specifies that (SF bug #1508955).
@@ -1113,7 +1113,7 @@ Revision 4.1.7a, released 2007-02-19
 - LCD unconfiguration functions for oneliners implemented (SF bug #1635270).
 - unloadModules() and unexportSymbols() implemented at MibBuilder
 - Notification type PDU proxy code fixed to produce symmetrical
-  convertion.
+  conversion.
 - Various SNMP engine-internal caches expiration implemented.
 - SMI-level access control now takes effect only if AC object is
   passed to MIB instrumentation API.

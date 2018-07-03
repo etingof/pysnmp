@@ -227,7 +227,7 @@ engine loads those modules at runtime on demand. PySNMP MIB modules
 are universal -- the same module can be consumed by both managed and
 managing entities.
 
-MIB convertion is performed automatically by PySNMP, but technically,
+MIB conversion is performed automatically by PySNMP, but technically,
 it is handled by PySNMP sister project called
 `PySMI <http://snmplabs.com/pysmi/>`_. However you can also perform said
 conversion by hand with PySMI's *mibdump.py* tool.

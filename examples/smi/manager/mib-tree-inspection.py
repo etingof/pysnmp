@@ -58,10 +58,10 @@ print('MIB node lookup by location: '),
 rowNode, = mibBuilder.importSymbols(modName, symName)
 print(rowNode)
 
-print('Conceptual table index value to oid convertion: '),
+print('Conceptual table index value to oid conversion: '),
 oid = rowNode.getInstIdFromIndices('router')
 print(oid)
-print('Conceptual table index oid to value convertion: '),
+print('Conceptual table index oid to value conversion: '),
 print(rowNode.getIndicesFromInstId(oid))
 
 print('MIB tree traversal')
