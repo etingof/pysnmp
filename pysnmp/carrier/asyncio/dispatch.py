@@ -41,7 +41,7 @@ try:
 except ImportError:
     import trollius as asyncio
 
-python344 = platform.python_version_tuple() >= ('3', '4', '4')
+IS_PYTHON_344_PLUS = platform.python_version_tuple() >= ('3', '4', '4')
 
 class AsyncioDispatcher(AbstractTransportDispatcher):
     """AsyncioDispatcher based on asyncio event loop"""
@@ -72,7 +72,7 @@ class AsyncioDispatcher(AbstractTransportDispatcher):
     def registerTransport(self, tDomain, transport):
         if self.loopingcall is None and self.getTimerResolution() > 0:
             # Avoid deprecation warning for asyncio.async()
-            if python344:
+            if IS_PYTHON_344_PLUS:
               self.loopingcall = asyncio.ensure_future(self.handle_timeout())
             else: # pragma: no cover
               self.loopingcall = asyncio.async(self.handle_timeout())
