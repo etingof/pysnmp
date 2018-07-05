@@ -8,6 +8,11 @@
 import sys
 import os
 
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 classifiers = """\
 Development Status :: 5 - Production/Stable
 Environment :: Console
@@ -62,7 +67,7 @@ if py_version < (2, 7):
     requires.append('ordereddict')
 
 try:
-    from setuptools import setup
+    from setuptools import setup, Command
 
     params = {
         'install_requires': requires,
@@ -75,7 +80,7 @@ except ImportError:
             howto_install_setuptools()
             sys.exit(1)
 
-    from distutils.core import setup
+    from distutils.core import setup, Command
 
     params = {}
     if py_version > (2, 4):
@@ -132,5 +137,28 @@ params.update({
                  'pysnmp.proto.proxy',
                  'pysnmp.proto.api']
 })
+
+# handle unittest discovery feature
+
+class PyTest(Command):
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        suite = unittest.TestLoader().loadTestsFromNames(
+            ['tests.__main__.suite']
+        )
+
+        unittest.TextTestRunner(verbosity=2).run(suite)
+
+params['cmdclass'] = {
+    'test': PyTest,
+    'tests': PyTest,
+}
 
 setup(**params)
