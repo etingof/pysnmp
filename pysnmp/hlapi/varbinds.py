@@ -29,8 +29,8 @@ class CommandGeneratorVarBinds(AbstractVarBinds):
         for varBind in varBinds:
             if isinstance(varBind, ObjectType):
                 pass
-            elif isinstance(varBind[0], ObjectIdentity):
-                varBind = ObjectType(*varBind)
+            elif isinstance(varBind, ObjectIdentity):
+                varBind = ObjectType(varBind)
             elif isinstance(varBind[0][0], tuple):  # legacy
                 varBind = ObjectType(ObjectIdentity(varBind[0][0][0], varBind[0][0][1], *varBind[0][1:]), varBind[1])
             else:
@@ -57,8 +57,8 @@ class NotificationOriginatorVarBinds(AbstractVarBinds):
         for varBind in varBinds:
             if isinstance(varBind, ObjectType):
                 pass
-            elif isinstance(varBind[0], ObjectIdentity):
-                varBind = ObjectType(*varBind)
+            elif isinstance(varBind, ObjectIdentity):
+                varBind = ObjectType(varBind)
             else:
                 varBind = ObjectType(ObjectIdentity(varBind[0]), varBind[1])
             __varBinds.append(varBind.resolveWithMib(mibViewController))
