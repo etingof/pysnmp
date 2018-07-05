@@ -32,7 +32,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
                      notifyType, varBinds, **options):
     """Creates a generator to send SNMP notification.
 
-    When itereator gets advanced by :py:mod:`asyncio` main loop,
+    When iterator gets advanced by :py:mod:`asyncio` main loop,
     SNMP TRAP or INFORM notification is send (:RFC:`1905#section-4.2.6`).
     The iterator yields :py:class:`asyncio.Future` which gets done whenever
     response arrives or error occurs.
