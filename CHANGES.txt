@@ -23,13 +23,15 @@ Revision 5.0.0, released 2018-07-??
         methods. The goal is to let MIB objects access/modify whatever
         custom Python objects they need while being called back.
 
-Revision 4.4.5, released 2018-04-XX
+Revision 4.4.5, released 2018-07-XX
 -----------------------------------
 
 - Fixed zero SNMPv3 boots/time values put in SNMPv3 TRAP messages
 - Fixed broken InetAddressType rendering caused by a pyasn1 regression
 - Fixed typo in RFC1158 module
 - Fixed possible infinite loop in GETBULK response PDU builder
+- Fixed memory leak in the `config.delContext()` VACM management harness
+- Fixed var-binds initialization from `ObjectIdentity` object at `hlapi`
 
 Revision 4.4.4, released 2018-01-03
 -----------------------------------
