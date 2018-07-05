@@ -57,7 +57,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
     """Creates a generator to perform SNMP GET query.
 
-    When itereator gets advanced by :py:mod:`asyncio` main loop,
+    When iterator gets advanced by :py:mod:`asyncio` main loop,
     SNMP GET request is send (:RFC:`1905#section-4.2.1`).
     The iterator yields :py:class:`asyncio.Future` which gets done whenever
     response arrives or error occurs.
@@ -162,7 +162,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
     """Creates a generator to perform SNMP SET query.
 
-    When itereator gets advanced by :py:mod:`asyncio` main loop,
+    When iterator gets advanced by :py:mod:`asyncio` main loop,
     SNMP SET request is send (:RFC:`1905#section-4.2.5`).
     The iterator yields :py:class:`asyncio.Future` which gets done whenever
     response arrives or error occurs.
@@ -267,7 +267,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
             *varBinds, **options):
     """Creates a generator to perform SNMP GETNEXT query.
 
-    When itereator gets advanced by :py:mod:`asyncio` main loop,
+    When iterator gets advanced by :py:mod:`asyncio` main loop,
     SNMP GETNEXT request is send (:RFC:`1905#section-4.2.2`).
     The iterator yields :py:class:`asyncio.Future` which gets done whenever
     response arrives or error occurs.
@@ -378,7 +378,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
             nonRepeaters, maxRepetitions, *varBinds, **options):
     """Creates a generator to perform SNMP GETBULK query.
 
-    When itereator gets advanced by :py:mod:`asyncio` main loop,
+    When iterator gets advanced by :py:mod:`asyncio` main loop,
     SNMP GETBULK request is send (:RFC:`1905#section-4.2.3`).
     The iterator yields :py:class:`asyncio.Future` which gets done whenever
     response arrives or error occurs.
