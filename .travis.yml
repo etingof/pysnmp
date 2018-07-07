@@ -47,7 +47,6 @@ matrix:
     sudo: false
     python: 'pypy3'
 install:
-  - pip install setuptools -U
   - pip install -r requirements.txt -r devel-requirements.txt -r extra-requirements.txt
   - pip install -e .
 script:
