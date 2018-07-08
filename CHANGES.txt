@@ -10,9 +10,13 @@ Revision 5.0.0, released 2018-07-??
   PyCryptodomex to pyca/cryptography whenever available on the
   platform.
 - Many really old backward-compatibility code snippets removed.
-  Most importantly, the `pysnmp.entity.rfc3413.oneliner` and
-  everything related to (non-standard) UNIX domain socket transport
-  are gone.
+  Most importantly:
+  
+  * `pysnmp.entity.rfc3413.oneliner` and everything related
+    to the (non-standard) UNIX domain socket transport is gone
+  * `pysnmp.carrier.asynsock` backward-compatible wrapper over
+    `pysnmp.carrier.asyncore` is gone
+
 - The MIB instrumentation API overhauled in backward incompatible
   way:
 
