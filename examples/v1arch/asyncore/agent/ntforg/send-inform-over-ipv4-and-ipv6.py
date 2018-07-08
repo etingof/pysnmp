@@ -18,8 +18,8 @@ The following Net-SNMP command will produce similar SNMP notification:
 
 """#
 from time import time
-from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
-from pysnmp.carrier.asynsock.dgram import udp, udp6
+from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
+from pysnmp.carrier.asyncore.dgram import udp, udp6
 from pyasn1.codec.ber import encoder, decoder
 from pysnmp.proto.api import v2c as pMod
 
@@ -61,7 +61,7 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
     return wholeMsg
 
 
-transportDispatcher = AsynsockDispatcher()
+transportDispatcher = AsyncoreDispatcher()
 
 transportDispatcher.registerRecvCbFun(cbRecvFun)
 transportDispatcher.registerTimerCbFun(cbTimerFun)

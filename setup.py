@@ -100,8 +100,6 @@ params.update({
                  'pysnmp.smi.mibs',
                  'pysnmp.smi.mibs.instances',
                  'pysnmp.carrier',
-                 'pysnmp.carrier.asynsock',
-                 'pysnmp.carrier.asynsock.dgram',
                  'pysnmp.carrier.asyncore',
                  'pysnmp.carrier.asyncore.dgram',
                  'pysnmp.carrier.twisted',
