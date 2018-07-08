@@ -48,6 +48,7 @@ def cbTimerFun(timeNow):
 # noinspection PyUnusedLocal
 def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
               wholeMsg, reqPDU=reqPDU, headVars=headVars):
+
     while wholeMsg:
         rspMsg, wholeMsg = decoder.decode(wholeMsg, asn1Spec=v2c.Message())
 
@@ -81,6 +82,7 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
                     break
             else:
                 transportDispatcher.jobFinished(1)
+                continue
 
             # Generate request for next row
             v2c.apiBulkPDU.setVarBinds(
@@ -94,6 +96,7 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
             if time() - startedAt > 3:
                 raise Exception('Request timed out')
             startedAt = time()
+
     return wholeMsg
 
 
