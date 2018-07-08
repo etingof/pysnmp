@@ -60,6 +60,25 @@ class PDUAPI(v1.PDUAPI):
     def getVarBindTable(self, reqPDU, rspPDU):
         return [apiPDU.getVarBinds(rspPDU)]
 
+    def getNextVarBinds(self, varBinds, errorIndex=None):
+        errorIndication = None
+
+        rspVarBinds = []
+
+        if errorIndex:
+            return errorIndication, rspVarBinds
+
+        for idx, varBind in enumerate(varBinds):
+            if varBind[1].tagSet in (
+                    rfc1905.NoSuchObject.tagSet,
+                    rfc1905.NoSuchInstance.tagSet,
+                    rfc1905.EndOfMibView.tagSet):
+                continue
+
+            rspVarBinds.append((varBind[0], null))
+
+        return errorIndication, rspVarBinds
+
     def setEndOfMibError(self, pdu, errorIndex):
         varBindList = self.getVarBindList(pdu)
         varBindList[errorIndex - 1].setComponentByPosition(
@@ -115,9 +134,14 @@ class BulkPDUAPI(PDUAPI):
         reqVarBinds = self.getVarBinds(reqPDU)
 
         N = min(int(nonRepeaters), len(reqVarBinds))
-        R = max(len(reqVarBinds) - N, 0)
 
         rspVarBinds = self.getVarBinds(rspPDU)
+
+        # shortcut for the most trivial case
+        if N == 0 and len(reqVarBinds) == 1:
+            return [[vb] for vb in rspVarBinds]
+
+        R = max(len(reqVarBinds) - N, 0)
 
         varBindTable = []
 

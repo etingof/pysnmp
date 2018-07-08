@@ -50,6 +50,7 @@ operational:
   MIB download and compilation. That helps visualizing more SNMP objects
 
 Optional:
+
 * `pysnmpcrypto <https://pypi.org/project/pysnmpcrypto/>`_,
   for strong SNMPv3 crypto support
 

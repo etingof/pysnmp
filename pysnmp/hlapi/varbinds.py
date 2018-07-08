@@ -4,68 +4,86 @@
 # Copyright (c) 2005-2018, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-from pysnmp.smi import view
 from pysnmp.smi.rfc1902 import *
+from pysnmp.smi import builder
+from pysnmp.smi import view
 
 __all__ = ['CommandGeneratorVarBinds', 'NotificationOriginatorVarBinds']
 
 
-class AbstractVarBinds(object):
+class MibViewControllerManager(object):
     @staticmethod
-    def getMibViewController(snmpEngine):
-        mibViewController = snmpEngine.getUserContext('mibViewController')
-        if not mibViewController:
-            mibViewController = view.MibViewController(
-                snmpEngine.getMibBuilder()
-            )
-            snmpEngine.setUserContext(mibViewController=mibViewController)
+    def getMibViewController(userCache):
+        try:
+            mibViewController = userCache['mibViewController']
+
+        except KeyError:
+            mibViewController = view.MibViewController(builder.MibBuilder())
+            userCache['mibViewController'] = mibViewController
+
         return mibViewController
 
 
-class CommandGeneratorVarBinds(AbstractVarBinds):
-    def makeVarBinds(self, snmpEngine, varBinds):
-        mibViewController = self.getMibViewController(snmpEngine)
-        __varBinds = []
+class CommandGeneratorVarBinds(MibViewControllerManager):
+    def makeVarBinds(self, userCache, varBinds):
+        mibViewController = self.getMibViewController(userCache)
+
+        resolvedVarBinds = []
+
         for varBind in varBinds:
             if isinstance(varBind, ObjectType):
                 pass
+
             elif isinstance(varBind[0], ObjectIdentity):
                 varBind = ObjectType(*varBind)
+
             elif isinstance(varBind[0][0], tuple):  # legacy
                 varBind = ObjectType(ObjectIdentity(varBind[0][0][0], varBind[0][0][1], *varBind[0][1:]), varBind[1])
+
             else:
                 varBind = ObjectType(ObjectIdentity(varBind[0]), varBind[1])
 
-            __varBinds.append(varBind.resolveWithMib(mibViewController))
+            resolvedVarBinds.append(varBind.resolveWithMib(mibViewController))
 
-        return __varBinds
+        return resolvedVarBinds
 
-    def unmakeVarBinds(self, snmpEngine, varBinds, lookupMib=True):
+    def unmakeVarBinds(self, userCache, varBinds, lookupMib=True):
         if lookupMib:
-            mibViewController = self.getMibViewController(snmpEngine)
+            mibViewController = self.getMibViewController(userCache)
             varBinds = [ObjectType(ObjectIdentity(x[0]), x[1]).resolveWithMib(mibViewController) for x in varBinds]
 
         return varBinds
 
 
-class NotificationOriginatorVarBinds(AbstractVarBinds):
-    def makeVarBinds(self, snmpEngine, varBinds):
-        mibViewController = self.getMibViewController(snmpEngine)
+class NotificationOriginatorVarBinds(MibViewControllerManager):
+    def makeVarBinds(self, userCache, varBinds):
+        mibViewController = self.getMibViewController(userCache)
+
         if isinstance(varBinds, NotificationType):
-            varBinds.resolveWithMib(mibViewController)
-        __varBinds = []
+            return varBinds.resolveWithMib(mibViewController)
+
+        resolvedVarBinds = []
+
         for varBind in varBinds:
+            if isinstance(varBind, NotificationType):
+                resolvedVarBinds.extend(varBind.resolveWithMib(mibViewController))
+                continue
+
             if isinstance(varBind, ObjectType):
                 pass
+
             elif isinstance(varBind[0], ObjectIdentity):
                 varBind = ObjectType(*varBind)
+
             else:
                 varBind = ObjectType(ObjectIdentity(varBind[0]), varBind[1])
-            __varBinds.append(varBind.resolveWithMib(mibViewController))
-        return __varBinds
 
-    def unmakeVarBinds(self, snmpEngine, varBinds, lookupMib=False):
+            resolvedVarBinds.append(varBind.resolveWithMib(mibViewController))
+
+        return resolvedVarBinds
+
+    def unmakeVarBinds(self, userCache, varBinds, lookupMib=False):
         if lookupMib:
-            mibViewController = self.getMibViewController(snmpEngine)
+            mibViewController = self.getMibViewController(userCache)
             varBinds = [ObjectType(ObjectIdentity(x[0]), x[1]).resolveWithMib(mibViewController) for x in varBinds]
         return varBinds

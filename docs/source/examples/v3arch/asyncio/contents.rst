@@ -26,7 +26,7 @@ remains available to asyncio-backed applications.
 
 We do not provide Command Generator and Notification Originator examples,
 as it is much easier to use
-:doc:`high-level interfaces </examples/hlapi/asyncio/contents>` instead.
+:doc:`high-level interfaces </examples/hlapi/v3arch/asyncio/contents>` instead.
 
 Command Responder Applications
 ------------------------------

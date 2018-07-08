@@ -18,11 +18,11 @@ code will performs SNMP GET operation for a sysDescr.0 object at a
 publically available SNMP Command Responder at
 `demo.snmplabs.com <http://snmplabs.com/snmpsim/public-snmp-simulator.html>`_:
 
-.. literalinclude:: /../../examples/hlapi/asyncore/sync/manager/cmdgen/v1-get.py
+.. literalinclude:: /../../examples/hlapi/v3arch/asyncore/sync/manager/cmdgen/v1-get.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/hlapi/asyncore/sync/manager/cmdgen/v1-get.py>` script.
+:download:`Download</../../examples/hlapi/v3arch/asyncore/sync/manager/cmdgen/v1-get.py>` script.
 
 If everything works as it should you will get:
 
@@ -41,11 +41,11 @@ To send a trivial TRAP message to our hosted Notification Receiver at
 `demo.snmplabs.com <http://snmplabs.com/snmpsim/public-snmp-simulator.html>`_
 , just cut&paste the following code into your interactive Python session:
 
-.. literalinclude:: /../../examples/hlapi/asyncore/sync/agent/ntforg/default-v1-trap.py
+.. literalinclude:: /../../examples/hlapi/v3arch/asyncore/sync/agent/ntforg/default-v1-trap.py
    :start-after: """#
    :language: python
 
-:download:`Download</../../examples/hlapi/asyncore/sync/agent/ntforg/default-v1-trap.py>` script.
+:download:`Download</../../examples/hlapi/v3arch/asyncore/sync/agent/ntforg/default-v1-trap.py>` script.
 
 Many ASN.1 MIB files could be downloaded from
 `mibs.snmplabs.com <http://mibs.snmplabs.com/asn1/>`_ or PySNMP could

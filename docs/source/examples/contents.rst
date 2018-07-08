@@ -16,41 +16,72 @@ APIs follow.
 High-level SNMP
 ---------------
 
-The so called high-level API (hlapi) is designed to be simple, concise and
-suitable for the most frequent operations. For that matter only
-Command Generator and Notification Originator Applications are currently
+The high-level API (`hlapi`) is designed to be simple, concise and
+suitable for the most frequent operations. For that matter, only
+Command Generator and Notification Originator Applications are
 wrapped into a nearly one-line Python expression.
 
-It comes in several flavours: one synchronous and a bunch of bindings to
-popular asynchronous I/O frameworks. Those varieties of APIs bring
-subtile differences, mostly to better match particular I/O framework
-customs. Unless you have a very specific task, the high-level API might
-solve your SNMP needs.
+The `hlapi` interfaces come in several flavours: one synchronous
+and a bunch of asynchronous, adapted to work withing the event loops
+of popular asynchronous I/O frameworks.
+
+The other dimension of differences in the `hlapi` APIs is that it wraps
+two different SNMP implementations - the initial architecture
+(`RFC1901 <https://tools.ietf.org/html/rfc1901>`_ ..
+`RFC1905 <https://tools.ietf.org/html/rfc1905>`_) also known as `v1arch`,
+and the redesigned variant (`RFC3413 <https://tools.ietf.org/html/rfc3413>`_
+and others) -- `v3arch`.
+
+.. note::
+
+   The `v1arch` implements SNMP protocol versions 1 and 2c, while `v3arch`
+   implements versions 1, 2c and 3. Whatever new amendments to the SNMP
+   protocol come up, they will be implemented within `v3arch` model.
+
+The primary reason for maintaining high-level API over both `v1arch` and
+`v3arch` is performance - `v3arch` machinery is much more functional and complicated
+internally, that translates to being heavier on resources and therefore slower.
+
+High-level SNMPv3
++++++++++++++++++
 
 .. toctree::
    :maxdepth: 2
 
-   /examples/hlapi/asyncore/sync/contents
+   /examples/hlapi/v3arch/asyncore/sync/contents
 
 .. toctree::
    :maxdepth: 2
 
-   /examples/hlapi/asyncore/contents
+   /examples/hlapi/v3arch/asyncore/contents
 
 .. toctree::
    :maxdepth: 2
 
-   /examples/hlapi/asyncio/contents
+   /examples/hlapi/v3arch/asyncio/contents
 
 .. toctree::
    :maxdepth: 2
 
-   /examples/hlapi/trollius/contents
+   /examples/hlapi/v3arch/trollius/contents
 
 .. toctree::
    :maxdepth: 2
 
-   /examples/hlapi/twisted/contents
+   /examples/hlapi/v3arch/twisted/contents
+
+High-level SNMPv1/v2c
++++++++++++++++++++++
+
+.. toctree::
+   :maxdepth: 2
+
+   /examples/hlapi/v1arch/asyncore/sync/contents
+
+.. toctree::
+   :maxdepth: 2
+
+   /examples/hlapi/v1arch/asyncore/contents
 
 Native SNMP API
 ---------------

@@ -16,7 +16,7 @@ remains available to asyncio-backed applications.
 
 We do not provide Command Generator and Notification Originator examples,
 as it is much easier to use 
-:doc:`high-level interfaces </examples/hlapi/trollius/contents>` instead.
+:doc:`high-level interfaces </examples/hlapi/v3arch/trollius/contents>` instead.
 As for Command Responder and Notification Receiver, those could be use
 in the same way as with :doc:`asyncio </examples/v3arch/asyncio/contents>`.
 

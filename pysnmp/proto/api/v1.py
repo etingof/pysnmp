@@ -139,12 +139,20 @@ class PDUAPI(object):
 
     def getVarBindTable(self, reqPDU, rspPDU):
         if apiPDU.getErrorStatus(rspPDU) == 2:
-            varBindRow = []
-            for varBind in apiPDU.getVarBinds(reqPDU):
-                varBindRow.append((varBind[0], null))
-            return [varBindRow]
+            varBindRow = [(vb[0], null) for vb in apiPDU.getVarBinds(reqPDU)]
         else:
-            return [apiPDU.getVarBinds(rspPDU)]
+            varBindRow = apiPDU.getVarBinds(rspPDU)
+        return [varBindRow]
+
+    def getNextVarBinds(self, varBinds, errorIndex=None):
+        errorIndication = None
+
+        if errorIndex:
+            return errorIndication, []
+
+        rspVarBinds = [(vb[0], null) for vb in varBinds]
+
+        return errorIndication, rspVarBinds
 
 
 apiPDU = PDUAPI()

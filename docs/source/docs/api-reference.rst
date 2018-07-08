@@ -30,17 +30,17 @@ Command Generator
 .. toctree::
    :maxdepth: 2
 
-   /docs/hlapi/asyncore/sync/manager/cmdgen/getcmd
-   /docs/hlapi/asyncore/sync/manager/cmdgen/setcmd
-   /docs/hlapi/asyncore/sync/manager/cmdgen/nextcmd
-   /docs/hlapi/asyncore/sync/manager/cmdgen/bulkcmd
+   /docs/hlapi/v3arch/asyncore/sync/manager/cmdgen/getcmd
+   /docs/hlapi/v3arch/asyncore/sync/manager/cmdgen/setcmd
+   /docs/hlapi/v3arch/asyncore/sync/manager/cmdgen/nextcmd
+   /docs/hlapi/v3arch/asyncore/sync/manager/cmdgen/bulkcmd
 
 Notification Originator
 
 .. toctree::
    :maxdepth: 2
 
-   /docs/hlapi/asyncore/sync/agent/ntforg/notification 
+   /docs/hlapi/v3arch/asyncore/sync/agent/ntforg/notification 
 
 Transport configuration
 +++++++++++++++++++++++
@@ -71,17 +71,17 @@ Command Generator
 .. toctree::
    :maxdepth: 2
 
-   /docs/hlapi/asyncore/manager/cmdgen/getcmd
-   /docs/hlapi/asyncore/manager/cmdgen/setcmd
-   /docs/hlapi/asyncore/manager/cmdgen/nextcmd
-   /docs/hlapi/asyncore/manager/cmdgen/bulkcmd
+   /docs/hlapi/v3arch/asyncore/manager/cmdgen/getcmd
+   /docs/hlapi/v3arch/asyncore/manager/cmdgen/setcmd
+   /docs/hlapi/v3arch/asyncore/manager/cmdgen/nextcmd
+   /docs/hlapi/v3arch/asyncore/manager/cmdgen/bulkcmd
 
 Notification Originator
 
 .. toctree::
    :maxdepth: 2
 
-   /docs/hlapi/asyncore/agent/ntforg/notification 
+   /docs/hlapi/v3arch/asyncore/agent/ntforg/notification 
 
 Transport configuration
 +++++++++++++++++++++++
@@ -89,10 +89,10 @@ Transport configuration
 .. toctree::
    :maxdepth: 2
 
-.. autoclass:: pysnmp.hlapi.asyncore.UdpTransportTarget
+.. autoclass:: pysnmp.hlapi.v3arch.asyncore.UdpTransportTarget
    :members: setLocalAddress
 
-.. autoclass:: pysnmp.hlapi.asyncore.Udp6TransportTarget
+.. autoclass:: pysnmp.hlapi.v3arch.asyncore.Udp6TransportTarget
    :members: setLocalAddress
 
 Asynchronous: asyncio
@@ -108,17 +108,17 @@ Command Generator
 .. toctree::
    :maxdepth: 2
 
-   /docs/hlapi/asyncio/manager/cmdgen/getcmd
-   /docs/hlapi/asyncio/manager/cmdgen/setcmd
-   /docs/hlapi/asyncio/manager/cmdgen/nextcmd
-   /docs/hlapi/asyncio/manager/cmdgen/bulkcmd
+   /docs/hlapi/v3arch/asyncio/manager/cmdgen/getcmd
+   /docs/hlapi/v3arch/asyncio/manager/cmdgen/setcmd
+   /docs/hlapi/v3arch/asyncio/manager/cmdgen/nextcmd
+   /docs/hlapi/v3arch/asyncio/manager/cmdgen/bulkcmd
 
 Notification Originator
 
 .. toctree::
    :maxdepth: 2
 
-   /docs/hlapi/asyncio/agent/ntforg/notification 
+   /docs/hlapi/v3arch/asyncio/agent/ntforg/notification 
 
 Transport configuration
 +++++++++++++++++++++++
@@ -126,10 +126,10 @@ Transport configuration
 .. toctree::
    :maxdepth: 2
 
-.. autoclass:: pysnmp.hlapi.asyncio.UdpTransportTarget
+.. autoclass:: pysnmp.hlapi.v3arch.asyncio.UdpTransportTarget
    :members: setLocalAddress
 
-.. autoclass:: pysnmp.hlapi.asyncio.Udp6TransportTarget
+.. autoclass:: pysnmp.hlapi.v3arch.asyncio.Udp6TransportTarget
    :members: setLocalAddress
 
 Asynchronous: trollius
@@ -156,17 +156,17 @@ Command Generator
 .. toctree::
    :maxdepth: 2
 
-   /docs/hlapi/twisted/manager/cmdgen/getcmd
-   /docs/hlapi/twisted/manager/cmdgen/setcmd
-   /docs/hlapi/twisted/manager/cmdgen/nextcmd
-   /docs/hlapi/twisted/manager/cmdgen/bulkcmd
+   /docs/hlapi/v3arch/twisted/manager/cmdgen/getcmd
+   /docs/hlapi/v3arch/twisted/manager/cmdgen/setcmd
+   /docs/hlapi/v3arch/twisted/manager/cmdgen/nextcmd
+   /docs/hlapi/v3arch/twisted/manager/cmdgen/bulkcmd
 
 Notification Originator
 
 .. toctree::
    :maxdepth: 2
 
-   /docs/hlapi/twisted/agent/ntforg/notification 
+   /docs/hlapi/v3arch/twisted/agent/ntforg/notification 
 
 Transport configuration
 +++++++++++++++++++++++
@@ -174,7 +174,7 @@ Transport configuration
 .. toctree::
    :maxdepth: 2
 
-.. autoclass:: pysnmp.hlapi.twisted.UdpTransportTarget
+.. autoclass:: pysnmp.hlapi.v3arch.twisted.UdpTransportTarget
    :members: setLocalAddress
 
 SNMP Engine
