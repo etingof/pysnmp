@@ -5,6 +5,10 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 
+import sys
+
 
 class PySnmpError(Exception):
-    pass
+    def __init__(self, message):
+        self.cause = sys.exc_info()
+        Exception.__init__(self, '%s, caused by %s: %s' % (message, self.cause[0], self.cause[1]))

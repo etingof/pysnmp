@@ -1,5 +1,5 @@
 
-Revision 5.0.0, released 2018-07-??
+Revision 5.0.0, released 2018-09-??
 -----------------------------------
 
 - SNMPv3 crypto operations that require external dependencies
@@ -27,9 +27,10 @@ Revision 5.0.0, released 2018-07-??
         methods. The goal is to let MIB objects access/modify whatever
         custom Python objects they need while being called back.
 
-Revision 4.4.5, released 2018-07-XX
+Revision 4.4.5, released 2018-08-XX
 -----------------------------------
 
+- Added PySnmpError.cause attribute holding parent exception tuple
 - Fixed zero SNMPv3 boots/time values put in SNMPv3 TRAP messages
 - Fixed broken InetAddressType rendering caused by a pyasn1 regression
 - Fixed typo in RFC1158 module
