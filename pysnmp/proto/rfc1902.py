@@ -598,11 +598,12 @@ class Bits(OctetString):
     """
     namedValues = namedval.NamedValues()
 
-    def __init__(self, value=univ.noValue, **kwargs):
-        if 'namedValues' not in kwargs:
-            kwargs['namedValues'] = self.namedValues
+    def __new__(cls, *args, **kwargs):
+        if 'namedValues' in kwargs:
+            Bits = cls.withNamedBits(**kwargs.pop('namedValues'))
+            return Bits(*args, **kwargs)
 
-        OctetString.__init__(self, value, **kwargs)
+        return OctetString.__new__(cls)
 
     def prettyIn(self, bits):
         if not isinstance(bits, (tuple, list)):

@@ -1,5 +1,4 @@
 
-
 Revision 5.0.0, released 2018-07-??
 -----------------------------------
 
@@ -36,6 +35,7 @@ Revision 4.4.5, released 2018-07-XX
 - Fixed typo in RFC1158 module
 - Fixed possible infinite loop in GETBULK response PDU builder
 - Fixed memory leak in the `config.delContext()` VACM management harness
+- Fixed `Bits` class initialization when enumeration values are given
 
 Revision 4.4.4, released 2018-01-03
 -----------------------------------
