@@ -38,6 +38,8 @@ Revision 4.4.5, released 2018-07-XX
 - Fixed `Bits` class initialization when enumeration values are given
 - Fixed crash caused by incoming SNMPv3 message requesting SNMPv1/v2c
   security model
+- Fixed out-of-scope OIDs leaking at the end of SNMP table at hlapi
+  `nextCmd` and `bulkCmd` calls when `lexicographicMode = False`
 
 Revision 4.4.4, released 2018-01-03
 -----------------------------------
