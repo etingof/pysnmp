@@ -75,7 +75,7 @@ class AsyncioDispatcher(AbstractTransportDispatcher):
             if IS_PYTHON_344_PLUS:
               self.loopingcall = asyncio.ensure_future(self.handle_timeout())
             else: # pragma: no cover
-              self.loopingcall = asyncio.async(self.handle_timeout())
+              self.loopingcall = getattr(asyncio, 'async')(self.handle_timeout())
         AbstractTransportDispatcher.registerTransport(
             self, tDomain, transport
         )
