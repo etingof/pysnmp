@@ -2,6 +2,8 @@
 
 set -e
 
+PYTHON=${1:-python}
+
 for x in examples/hlapi/asyncore/sync/manager/cmdgen/*.py \
          examples/hlapi/asyncore/sync/agent/ntforg/*.py \
          examples/hlapi/asyncore/manager/cmdgen/*.py \
@@ -19,7 +21,7 @@ do
         continue
         ;;
     *)
-        python "${x}" | tail -50
+        $PYTHON "${x}" | tail -50
         ;;
     esac
 done
