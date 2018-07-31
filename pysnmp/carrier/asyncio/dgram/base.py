@@ -90,7 +90,7 @@ class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
             if IS_PYTHON_344_PLUS:
               self._lport = asyncio.ensure_future(c)
             else: # pragma: no cover
-              self._lport = asyncio.async(c)
+              self._lport = getattr(asyncio, 'async')(c)
 
         except Exception:
             raise error.CarrierError(';'.join(traceback.format_exception(*sys.exc_info())))
@@ -101,7 +101,7 @@ class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
             c = self.loop.create_datagram_endpoint(
                 lambda: self, local_addr=iface, family=self.sockFamily
             )
-            self._lport = asyncio.async(c)
+            self._lport = getattr(asyncio, 'async')(c)
         except Exception:
             raise error.CarrierError(';'.join(traceback.format_exception(*sys.exc_info())))
         return self
