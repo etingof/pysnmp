@@ -42,8 +42,6 @@ try:
 except ImportError:
     import trollius as asyncio
 
-IS_PYTHON_344_PLUS = platform.python_version_tuple() >= ('3', '4', '4')
-
 
 class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
     """Base Asyncio datagram Transport, to be used with AsyncioDispatcher"""
@@ -86,11 +84,7 @@ class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
             c = self.loop.create_datagram_endpoint(
                 lambda: self, local_addr=iface, family=self.sockFamily
             )
-            # Avoid deprecation warning for asyncio.async()
-            if IS_PYTHON_344_PLUS:
-              self._lport = asyncio.ensure_future(c)
-            else: # pragma: no cover
-              self._lport = asyncio.async(c)
+            self._lport = asyncio.ensure_future(c)
 
         except Exception:
             raise error.CarrierError(';'.join(traceback.format_exception(*sys.exc_info())))
@@ -101,7 +95,7 @@ class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
             c = self.loop.create_datagram_endpoint(
                 lambda: self, local_addr=iface, family=self.sockFamily
             )
-            self._lport = asyncio.async(c)
+            self._lport = asyncio.ensure_future(c)
         except Exception:
             raise error.CarrierError(';'.join(traceback.format_exception(*sys.exc_info())))
         return self
