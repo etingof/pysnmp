@@ -40,8 +40,11 @@ class HeaderData(univ.Sequence):
         namedtype.NamedType('msgMaxSize',
                             univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(484, 2147483647))),
         namedtype.NamedType('msgFlags', univ.OctetString().subtype(subtypeSpec=constraint.ValueSizeConstraint(1, 1))),
+        # NOTE (etingof): constrain SNMPv3 message to only USM+ security models
+        # because SNMPv1/v2c seems incompatible in pysnmp implementation, not sure
+        # if it's intended by the SNMP standard at all...
         namedtype.NamedType('msgSecurityModel',
-                            univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(1, 2147483647)))
+                            univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(3, 2147483647)))
     )
 
 
