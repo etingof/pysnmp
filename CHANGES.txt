@@ -7,6 +7,8 @@ Revision 4.4.5, released 2018-04-XX
 - Fixed possible infinite loop in GETBULK response PDU builder
 - Fixed memory leak in the T`config.delContext()` VACM management harness
 - Fixed `Bits` class initialization when enumeration values are given
+- Fixed crash caused by incoming SNMPv3 message requesting SNMPv1/v2c
+  security model
 
 Revision 4.4.4, released 2018-01-03
 -----------------------------------

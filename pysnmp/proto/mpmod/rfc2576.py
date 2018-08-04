@@ -271,7 +271,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         try:
 
             try:
-                smHandler = snmpEngine.securityModels[int(securityModel)]
+                smHandler = snmpEngine.securityModels[securityModel]
 
             except KeyError:
                 raise error.StatusInformation(
