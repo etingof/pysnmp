@@ -6,7 +6,7 @@ Revision 4.4.5, released 2018-08-05
 - Fixed broken InetAddressType rendering caused by a pyasn1 regression
 - Fixed typo in RFC1158 module
 - Fixed possible infinite loop in GETBULK response PDU builder
-- Fixed memory leak in the T`config.delContext()` VACM management harness
+- Fixed memory leak in the `config.delContext()` VACM management harness
 - Fixed `Bits` class initialization when enumeration values are given
 - Fixed crash caused by incoming SNMPv3 message requesting SNMPv1/v2c
   security model
