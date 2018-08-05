@@ -31,6 +31,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
 #
+import sys
+
 from pysnmp.smi.rfc1902 import *
 from pysnmp.hlapi.auth import *
 from pysnmp.hlapi.context import *
@@ -41,6 +43,7 @@ from pysnmp.entity.rfc3413 import cmdgen
 
 try:
     import asyncio
+
 except ImportError:
     import trollius as asyncio
 
@@ -137,8 +140,9 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
         try:
             varBindsUnmade = vbProcessor.unmakeVarBinds(snmpEngine, varBinds,
                                                         lookupMib)
-        except Exception as e:
-            future.set_exception(e)
+        except Exception:
+            ex = sys.exc_info()[1]
+            future.set_exception(ex)
         else:
             future.set_result(
                 (errorIndication, errorStatus, errorIndex, varBindsUnmade)
@@ -242,8 +246,9 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
         try:
             varBindsUnmade = vbProcessor.unmakeVarBinds(snmpEngine, varBinds,
                                                         lookupMib)
-        except Exception as e:
-            future.set_exception(e)
+        except Exception:
+            ex = sys.exc_info()[1]
+            future.set_exception(ex)
         else:
             future.set_result(
                 (errorIndication, errorStatus, errorIndex, varBindsUnmade)
@@ -353,8 +358,9 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
                                                          varBindTableRow,
                                                          lookupMib)
                               for varBindTableRow in varBindTable]
-        except Exception as e:
-            future.set_exception(e)
+        except Exception:
+            ex = sys.exc_info()[1]
+            future.set_exception(ex)
         else:
             future.set_result(
                 (errorIndication, errorStatus, errorIndex, varBindsUnmade)
@@ -493,8 +499,9 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
                                                          varBindTableRow,
                                                          lookupMib)
                               for varBindTableRow in varBindTable]
-        except Exception as e:
-            future.set_exception(e)
+        except Exception:
+            ex = sys.exc_info()[1]
+            future.set_exception(ex)
         else:
             future.set_result(
                 (errorIndication, errorStatus, errorIndex, varBindsUnmade)

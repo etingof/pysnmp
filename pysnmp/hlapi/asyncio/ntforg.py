@@ -8,6 +8,8 @@
 # Authors: Matt Hooks <me@matthooks.com>
 #          Zachary Lorusso <zlorusso@gmail.com>
 #
+import sys
+
 from pysnmp.smi.rfc1902 import *
 from pysnmp.hlapi.auth import *
 from pysnmp.hlapi.context import *
@@ -18,6 +20,7 @@ from pysnmp.entity.rfc3413 import ntforg
 
 try:
     import asyncio
+
 except ImportError:
     import trollius as asyncio
 
@@ -127,8 +130,9 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
         try:
             varBindsUnmade = vbProcessor.unmakeVarBinds(snmpEngine, varBinds,
                                                         lookupMib)
-        except Exception as e:
-            future.set_exception(e)
+        except Exception:
+            ex = sys.exc_info()[1]
+            future.set_exception(ex)
         else:
             future.set_result(
                     (errorIndication, errorStatus, errorIndex, varBindsUnmade)

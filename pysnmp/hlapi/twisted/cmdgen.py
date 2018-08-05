@@ -4,6 +4,8 @@
 # Copyright (c) 2005-2018, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
+import sys
+
 from pysnmp.smi.rfc1902 import *
 from pysnmp.hlapi.auth import *
 from pysnmp.hlapi.context import *
@@ -120,8 +122,9 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
             try:
                 varBindsUnmade = vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib)
 
-            except Exception as e:
-                deferred.errback(Failure(e))
+            except Exception:
+                ex = sys.exc_info()[1]
+                deferred.errback(Failure(ex))
 
             else:
                 deferred.callback((errorStatus, errorIndex, varBindsUnmade))
@@ -236,8 +239,9 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
             try:
                 varBindsUnmade = vbProcessor.unmakeVarBinds(snmpEngine, varBinds, lookupMib)
 
-            except Exception as e:
-                deferred.errback(Failure(e))
+            except Exception:
+                ex = sys.exc_info()[1]
+                deferred.errback(Failure(ex))
 
             else:
                 deferred.callback((errorStatus, errorIndex, varBindsUnmade))
@@ -366,8 +370,9 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
                                                              lookupMib)
                                   for varBindTableRow in varBindTable]
 
-            except Exception as e:
-                deferred.errback(Failure(e))
+            except Exception:
+                ex = sys.exc_info()[1]
+                deferred.errback(Failure(ex))
 
             else:
                 deferred.callback((errorStatus, errorIndex, varBindsUnmade))
@@ -524,8 +529,9 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
                                                              lookupMib)
                                   for varBindTableRow in varBindTable]
 
-            except Exception as e:
-                deferred.errback(Failure(e))
+            except Exception:
+                ex = sys.exc_info()[1]
+                deferred.errback(Failure(ex))
 
             else:
                 deferred.callback((errorStatus, errorIndex, varBindsUnmade))
