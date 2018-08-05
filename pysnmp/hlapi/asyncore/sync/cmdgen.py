@@ -351,6 +351,8 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     totalRows = totalCalls = 0
 
     while True:
+        previousVarBinds = varBinds
+
         if varBinds:
             cmdgen.nextCmd(snmpEngine, authData, transportTarget, contextData,
                            *[(x[0], Null('')) for x in varBinds],
@@ -378,13 +380,22 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
                 yield (errorIndication, errorStatus, errorIndex, varBinds)
                 return
             else:
+                stopFlag = True
+
                 varBinds = cbCtx['varBindTable'] and cbCtx['varBindTable'][0]
-                for idx, varBind in enumerate(varBinds):
+
+                for col, varBind in enumerate(varBinds):
                     name, val = varBind
-                    if not isinstance(val, Null):
-                        if lexicographicMode or initialVars[idx].isPrefixOf(name):
-                            break
-                else:
+                    if isinstance(val, Null):
+                        varBinds[col] = previousVarBinds[col][0], endOfMibView
+
+                    if not lexicographicMode and not initialVars[col].isPrefixOf(name):
+                        varBinds[col] = previousVarBinds[col][0], endOfMibView
+
+                    if stopFlag and varBinds[col][1] is not endOfMibView:
+                        stopFlag = False
+
+                if stopFlag:
                     return
 
                 totalRows += 1
@@ -545,6 +556,8 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
         if maxRows and totalRows < maxRows:
             maxRepetitions = min(maxRepetitions, maxRows - totalRows)
 
+        previousVarBinds = varBinds
+
         cmdgen.bulkCmd(snmpEngine, authData, transportTarget, contextData,
                        nonRepeaters, maxRepetitions,
                        *[(x[0], Null('')) for x in varBinds],
@@ -583,14 +596,17 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
                     break
                 for col in range(len(varBindTable[row])):
                     name, val = varBindTable[row][col]
+                    if row:
+                        previousVarBinds = varBindTable[row - 1]
                     if nullVarBinds[col]:
-                        varBindTable[row][col] = name, endOfMibView
+                        varBindTable[row][col] = previousVarBinds[col][0], endOfMibView
                         continue
                     stopFlag = False
                     if isinstance(val, Null):
+                        varBindTable[row][col] = previousVarBinds[col][0], endOfMibView
                         nullVarBinds[col] = True
-                    elif not lexicographicMode and not initialVars[col].isPrefixOf(name):
-                        varBindTable[row][col] = name, endOfMibView
+                    if not lexicographicMode and not initialVars[col].isPrefixOf(name):
+                        varBindTable[row][col] = previousVarBinds[col][0], endOfMibView
                         nullVarBinds[col] = True
                 if stopFlag:
                     varBindTable = row and varBindTable[:row - 1] or []
@@ -607,9 +623,13 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
             if maxCalls and totalCalls >= maxCalls:
                 stopFlag = True
 
-            for varBinds in varBindTable:
-                initialVarBinds = (yield errorIndication, errorStatus, errorIndex, varBinds)
+            varBinds = varBindTable and varBindTable[-1] or []
+
+            for varBindRow in varBindTable:
+                initialVarBinds = (yield errorIndication, errorStatus, errorIndex, varBindRow)
 
                 if initialVarBinds:
                     varBinds = initialVarBinds
                     initialVars = [x[0] for x in vbProcessor.makeVarBinds(snmpEngine, varBinds)]
+                    nullVarBinds = [False] * len(initialVars)
+
