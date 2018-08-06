@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """SNMP library for Python
 
-   SNMP v1/v2c/v3 engine and apps written in pure-Python.
-   Supports Manager/Agent/Proxy roles, scriptable MIBs,
-   asynchronous operation and multiple transports.
+SNMP v1/v2c/v3 engine and Standard Applications suite written in pure-Python.
+Supports Manager/Agent/Proxy roles, Manager/Agent-side MIBs, asynchronous
+operation and multiple network transports.
 """
 import sys
 import os
@@ -95,13 +95,13 @@ except ImportError:
             re.sub(r'(.*?)([<>=!~]+)(.*)', r'\g<1>\g<2>(\g<3>)', r) for r in requires
         ]
 
-doclines = [x.strip() for x in (__doc__ or '').split('\n') if x]
+doclines = [x.strip() for x in (__doc__ or '').split('\n')]
 
 params.update({
     'name': 'pysnmp',
     'version': open(os.path.join('pysnmp', '__init__.py')).read().split('\'')[1],
     'description': doclines[0],
-    'long_description': ' '.join(doclines[1:]),
+    'long_description': '\n'.join(doclines[1:]),
     'maintainer': 'Ilya Etingof <etingof@gmail.com>',
     'author': 'Ilya Etingof',
     'author_email': 'etingof@gmail.com',
