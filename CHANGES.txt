@@ -27,6 +27,11 @@ Revision 5.0.0, released 2018-09-??
         methods. The goal is to let MIB objects access/modify whatever
         custom Python objects they need while being called back.
 
+Revision 4.4.6, released 2018-09-XX
+-----------------------------------
+
+- Improved package build and dependency tracking
+
 Revision 4.4.5, released 2018-08-05
 -----------------------------------
 

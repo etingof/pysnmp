@@ -7,6 +7,7 @@
 """
 import sys
 import os
+import re
 
 classifiers = """\
 Development Status :: 5 - Production/Stable
@@ -56,13 +57,53 @@ if py_version < (2, 4):
     print("ERROR: this package requires Python 2.4 or later!")
     sys.exit(1)
 
-requires = ['pyasn1>=0.2.3', 'pysmi']
+requires = [ln.strip() for ln in open('requirements.txt').readlines()]
 
-if py_version < (2, 7):
-    requires.append('ordereddict')
+resolved_requires = []
+
+for requirement in requires:
+    match = re.match(
+        r'(.*?)\s*;\s*python_version\s*([<>=!~]+)\s*\'(.*?)\'', requirement)
+
+    if not match:
+        resolved_requires.append(requirement)
+        continue
+
+    package, condition, expected_py = match.groups()
+
+    expected_py = tuple([int(x) for x in expected_py.split('.')])
+
+    if py_version == expected_py and condition in ('<=', '==', '>='):
+        resolved_requires.append(package)
+
+    elif py_version < expected_py and condition in ('<=', '<'):
+        resolved_requires.append(package)
+
+    elif py_version > expected_py and condition in ('>=', '>'):
+        resolved_requires.append(package)
 
 try:
-    from setuptools import setup
+    import setuptools
+
+    setup, Command = setuptools.setup, setuptools.Command
+
+    observed_version = [int(x) for x in setuptools.__version__.split('.')]
+    required_version = [36, 2, 0]
+
+    # NOTE(etingof): require fresh setuptools to build proper wheels
+    # See also: https://hynek.me/articles/conditional-python-dependencies/
+    if ('bdist_wheel' in sys.argv and
+            observed_version < required_version):
+        print("ERROR: your wheels won't come out round with setuptools %s! "
+              "Upgrade to %s and try again." % (
+                '.'.join([str(x) for x in observed_version]),
+                '.'.join([str(x) for x in required_version])))
+        sys.exit(1)
+
+    # NOTE(etingof): older setuptools fail at parsing python_version
+
+    if observed_version < required_version:
+        requires = resolved_requires
 
     params = {
         'install_requires': requires,
@@ -70,16 +111,18 @@ try:
     }
 
 except ImportError:
-    for arg in sys.argv:
-        if 'egg' in arg:
-            howto_install_setuptools()
-            sys.exit(1)
+    if 'bdist_wheel' in sys.argv or 'bdist_egg' in sys.argv:
+        howto_install_setuptools()
+        sys.exit(1)
 
     from distutils.core import setup
 
     params = {}
+
     if py_version > (2, 4):
-        params['requires'] = requires
+        params['requires'] = [
+            re.sub(r'(.*?)([<>=!~]+)(.*)', r'\g<1>\g<2>(\g<3>)', r) for r in resolved_requires
+        ]
 
 doclines = [x.strip() for x in (__doc__ or '').split('\n') if x]
 
