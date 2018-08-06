@@ -2,7 +2,7 @@
 Revision 4.4.6, released 2018-08-XX
 -----------------------------------
 
-No changes so far
+- Improved package build and dependency tracking
 
 Revision 4.4.5, released 2018-08-05
 -----------------------------------
