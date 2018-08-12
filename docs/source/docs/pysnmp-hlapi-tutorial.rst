@@ -242,7 +242,7 @@ in `SNMPv2-MIB <http://mibs.snmplabs.com/asn1/SNMPv2-MIB>`_ module.
 By default PySNMP will search your local filesystem for ASN.1 MIB files
 you refer to. It can also be configured to automatically download
 them from remote hosts, as
-:doc:`shown </examples/hlapi/asyncore/sync/manager/cmdgen/mib-tweaks>`
+:doc:`shown </examples/hlapi/v3arch/asyncore/sync/manager/cmdgen/mib-tweaks>`
 in the examples. We maintain a
 `collection <http://mibs.snmplabs.com/asn1/>`_ of ASN.1 MIB modules
 that you can use in your SNMP projects.

@@ -1,6 +1,6 @@
 
-Asynchronous: Twisted
-=====================
+Asynchronous SNMP (twisted, v3arch)
+===================================
 
 `Twisted <http://twistedmatrix.com/>`_ is event-driven networking engine 
 written in Python. It takes shape of a Python library which is used by many 
@@ -11,7 +11,7 @@ remains available to Twisted applications.
 
 We do not provide Command Generator and Notification Originator examples,
 as it is much easier to use 
-:doc:`high-level interfaces </examples/hlapi/twisted/contents>` instead.
+:doc:`high-level interfaces </examples/hlapi/v3arch/twisted/contents>` instead.
 
 Command Responder Applications
 ------------------------------

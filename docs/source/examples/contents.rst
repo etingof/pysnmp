@@ -9,51 +9,82 @@ SNMP is not simple (PySNMP implementation takes over 15K lines of
 Python code), but PySNMP tries to hide the complexities and let you
 carry out typical SNMP operations in a quick and intuitive way.
 
-PySNMP offers three groups of programming interfaces to deal with 
-SNMP protocol. In the order from most concise to most detailed those
-APIs follow.
+PySNMP offers high and low-level programming interfaces to deal with
+SNMP protocol.
+
+The other dimension of differences in the PySNMP APIs is that there are
+two different SNMP implementations - the initial architecture
+(`RFC1901 <https://tools.ietf.org/html/rfc1901>`_ ..
+`RFC1905 <https://tools.ietf.org/html/rfc1905>`_) also known as SNMP v1 architecture
+and the redesigned variant (`RFC3413 <https://tools.ietf.org/html/rfc3413>`_
+and others) -- SNMPv3 architecture.
+
+.. note::
+
+   The SNMP v1 architecture supports SNMP protocol versions 1 and 2c,
+   while SNMP v3 architecture supports versions 1, 2c and 3. Whatever
+   new amendments to the SNMP protocol may come up in the future, they
+   will be implemented within the v3 model.
 
 High-level SNMP
 ---------------
 
-The so called high-level API (hlapi) is designed to be simple, concise and
-suitable for the most frequent operations. For that matter only
-Command Generator and Notification Originator Applications are currently
+The high-level API (`hlapi`) is designed to be simple, concise and
+suitable for the most typical client-side operations. For that matter,
+only Command Generator and Notification Originator Applications are
 wrapped into a nearly one-line Python expression.
 
-It comes in several flavours: one synchronous and a bunch of bindings to
-popular asynchronous I/O frameworks. Those varieties of APIs bring
-subtile differences, mostly to better match particular I/O framework
-customs. Unless you have a very specific task, the high-level API might
-solve your SNMP needs.
+The `hlapi` interfaces come in several flavours: one synchronous
+and a bunch of asynchronous, adapted to work withing the event loops
+of popular asynchronous I/O frameworks.
+
+The primary reason for maintaining high-level API over both `v1arch` and
+`v3arch` is performance - `v3arch` machinery is much more functional and complicated
+internally, that translates to being heavier on resources and therefore slower.
+
+The v3 architecture
++++++++++++++++++++
 
 .. toctree::
    :maxdepth: 2
 
-   /examples/hlapi/asyncore/sync/contents
+   /examples/hlapi/v3arch/asyncore/sync/contents
 
 .. toctree::
    :maxdepth: 2
 
-   /examples/hlapi/asyncore/contents
+   /examples/hlapi/v3arch/asyncore/contents
 
 .. toctree::
    :maxdepth: 2
 
-   /examples/hlapi/asyncio/contents
+   /examples/hlapi/v3arch/asyncio/contents
 
 .. toctree::
    :maxdepth: 2
 
-   /examples/hlapi/trollius/contents
+   /examples/hlapi/v3arch/trollius/contents
 
 .. toctree::
    :maxdepth: 2
 
-   /examples/hlapi/twisted/contents
+   /examples/hlapi/v3arch/twisted/contents
 
-Native SNMP API
----------------
+The v1 architecture
++++++++++++++++++++
+
+.. toctree::
+   :maxdepth: 2
+
+   /examples/hlapi/v1arch/asyncore/sync/contents
+
+.. toctree::
+   :maxdepth: 2
+
+   /examples/hlapi/v1arch/asyncore/contents
+
+Low-level v3 architecture
+-------------------------
 
 Complete implementation of all official Standard SNMP Applications. It 
 should let you implement any SNMP operation defined in the standard
@@ -70,8 +101,8 @@ framework being used.
    /examples/v3arch/trollius/contents
    /examples/v3arch/twisted/contents
 
-Packet-level SNMP
------------------
+Low-level v1 architecture
+-------------------------
 
 In cases where performance is your top priority and you only need to 
 work with SNMP v1 and v2c systems and you do not mind writing much 
@@ -116,14 +147,13 @@ Notification Receiver
 
    /examples/v1arch/asyncore/manager/ntfrcv/transport-tweaks
 
-Low-level MIB access
---------------------
+Low-level SMI/MIB
+-----------------
 
 .. toctree::
 
    /examples/smi/manager/browsing-mib-tree
    /examples/smi/agent/implementing-mib-objects
-
 
 Using these examples
 --------------------
