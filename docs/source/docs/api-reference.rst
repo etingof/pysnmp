@@ -3,27 +3,23 @@ Library reference
 =================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
 Dealing with many SNMP features may quickly overwhelm developers who aim at a 
 quick and trivial task, PySNMP employs a layered architecture approach
 where the topmost programming API tries to be as simple as possible 
 to allow immediate solutions for most common use cases. 
-It will let you perform SNMP GET/SET/WALK and TRAP/INFORM operations by
-pasting code snippets from PySNMP documentation and example scripts
-right into your Python interactive session.
 
 Most of SNMP operations involve packet exchange over network. PySNMP
 is shipped with a set of bindings to popular asynchronous Python I/O
 frameworks that let you run PySNMP in parallel with other tasks your
 application may perform.
 
-Synchronous SNMP
-----------------
+High-level, v3arch, sync
+------------------------
 
-Most simple and strightforward way to use PySNMP is by employing its
-Synchronous, blocking API. It's also the default API offered by
-users on *pysnmp.hlapi* sub-package import.
+The synchronous `hlapi.v3arch` API is the easiest to use and probably
+the richest in features. However `hlapi.v1arch` API may be faster.
 
 Command Generator
 
@@ -40,7 +36,7 @@ Notification Originator
 .. toctree::
    :maxdepth: 2
 
-   /docs/hlapi/v3arch/asyncore/sync/agent/ntforg/notification 
+   /docs/hlapi/v3arch/asyncore/sync/agent/ntforg/notification
 
 Transport configuration
 +++++++++++++++++++++++
@@ -59,8 +55,8 @@ saves its configuration for the lifetime of SNMP engine object.
 .. autoclass:: pysnmp.hlapi.Udp6TransportTarget
    :members: setLocalAddress
 
-Asynchronous: asyncore
-----------------------
+High-level v3arch asyncore
+--------------------------
 
 The :mod:`asyncore` module is in Python standard library since ancient
 times. Main loop is built around :mod:`select` dispatcher, user
@@ -95,8 +91,8 @@ Transport configuration
 .. autoclass:: pysnmp.hlapi.v3arch.asyncore.Udp6TransportTarget
    :members: setLocalAddress
 
-Asynchronous: asyncio
----------------------
+High-level v3arch asyncio
+-------------------------
 
 The :mod:`asyncio` module first appeared in standard library since
 Python 3.3 (in provisional basis). Its main design feature is that
@@ -132,8 +128,8 @@ Transport configuration
 .. autoclass:: pysnmp.hlapi.v3arch.asyncio.Udp6TransportTarget
    :members: setLocalAddress
 
-Asynchronous: trollius
-----------------------
+High-level v3arch trollius
+--------------------------
 
 An almost compatible alternative to *asyncio* for pre-3.3 Python
 is `Trollius <http://trollius.readthedocs.org>`_ module. PySNMP's
@@ -142,8 +138,8 @@ is `Trollius <http://trollius.readthedocs.org>`_ module. PySNMP's
 Please refer to :doc:`Trollius examples </examples/contents>` for
 more information.
 
-Asynchronous: Twisted
----------------------
+High-level v3arch twisted
+-------------------------
 
 `Twisted <http://twistedmatrix.org>`_ is one of the earliest and hugely
 popular asynchronous I/O framework. It introduced a concept of
@@ -177,11 +173,11 @@ Transport configuration
 .. autoclass:: pysnmp.hlapi.v3arch.twisted.UdpTransportTarget
    :members: setLocalAddress
 
-SNMP Engine
------------
+High-level v3arch SNMP Engine
+-----------------------------
 
 SNMP Engine is a central, stateful object used by all SNMP v3
-substsems.  Calls to high-level Applications API also consume SNMP
+subsystems.  Calls to high-level Applications API also consume SNMP
 Engine object on input.
 
 .. toctree::
@@ -189,8 +185,8 @@ Engine object on input.
 
 .. autoclass:: pysnmp.hlapi.SnmpEngine(snmpEngineID=None)
 
-Security Parameters
--------------------
+High-level v3arch auth
+----------------------
 
 Calls to high-level Applications API consume Security Parameters
 configuration object on input. The shortcut classes described in
@@ -242,8 +238,8 @@ via constant OIDs:
 Transport configuration is I/O framework specific and is described in
 respective sections.
 
-SNMP Context
-------------
+High-level v3arch SNMP Context
+------------------------------
 
 SNMP engine may serve several instances of the same MIB within
 possibly multiple SNMP entities. SNMP context is a tool for
@@ -273,6 +269,111 @@ SNMP engine. See :RFC:`3411#section-3.3.1` for details.
    :maxdepth: 2
 
 .. autoclass:: pysnmp.hlapi.ContextData
+
+High-level v1arch sync
+----------------------
+
+The synchronous `hlapi.v1arch` API is probably the easiest to use and fast to run,
+however it does not support SNMPv3.
+
+Command Generator
+
+.. toctree::
+   :maxdepth: 2
+
+   /docs/hlapi/v1arch/asyncore/sync/manager/cmdgen/getcmd
+   /docs/hlapi/v1arch/asyncore/sync/manager/cmdgen/setcmd
+   /docs/hlapi/v1arch/asyncore/sync/manager/cmdgen/nextcmd
+   /docs/hlapi/v1arch/asyncore/sync/manager/cmdgen/bulkcmd
+
+Notification Originator
+
+.. toctree::
+   :maxdepth: 2
+
+   /docs/hlapi/v1arch/asyncore/sync/agent/ntforg/notification
+
+Transport configuration
++++++++++++++++++++++++
+
+The following shortcut classes convey configuration information to
+SNMP engine's Local Configuration Datastore (:RFC:`2271#section-3.4.2`)
+as well as to underlying socket API. Once committed to LCD, SNMP engine
+saves its configuration for the lifetime of SNMP engine object.
+
+.. toctree::
+   :maxdepth: 2
+
+.. autoclass:: pysnmp.hlapi.v1arch.UdpTransportTarget
+   :members: setLocalAddress
+
+.. autoclass:: pysnmp.hlapi.v1arch.Udp6TransportTarget
+   :members: setLocalAddress
+
+High-level v1arch asyncore
+--------------------------
+
+The :mod:`asyncore` module is in Python standard library since ancient
+times. Main loop is built around :mod:`select` dispatcher, user
+code is invoked through callback callables.
+
+Command Generator
+
+.. toctree::
+   :maxdepth: 2
+
+   /docs/hlapi/v1arch/asyncore/manager/cmdgen/getcmd
+   /docs/hlapi/v1arch/asyncore/manager/cmdgen/setcmd
+   /docs/hlapi/v1arch/asyncore/manager/cmdgen/nextcmd
+   /docs/hlapi/v1arch/asyncore/manager/cmdgen/bulkcmd
+
+Notification Originator
+
+.. toctree::
+   :maxdepth: 2
+
+   /docs/hlapi/v1arch/asyncore/agent/ntforg/notification
+
+Transport configuration
++++++++++++++++++++++++
+
+.. toctree::
+   :maxdepth: 2
+
+.. autoclass:: pysnmp.hlapi.v1arch.asyncore.UdpTransportTarget
+   :members: setLocalAddress
+
+.. autoclass:: pysnmp.hlapi.v1arch.asyncore.Udp6TransportTarget
+   :members: setLocalAddress
+
+High-level v1arch SNMP Dispatcher
+---------------------------------
+
+SNMP Dispatcher is a stateful object representing asynchronous
+I/O event loop and also holding some caches. Calls to `v1arch`
+always require consume SNMP Dispatcher object on input.
+
+.. toctree::
+   :maxdepth: 2
+
+.. autoclass:: pysnmp.hlapi.v1arch.SnmpDispatcher()
+
+High-level v1arch auth
+----------------------
+
+Calls to `v1arch` API require SNMP authentication object on input.
+
+Community-based
++++++++++++++++
+
+Security Parameters object is Security Model specific. The
+:py:class:`~pysnmp.hlapi.v1arch.CommunityData`
+class is used for configuring Community-Based Security Model of SNMPv1/SNMPv2c.
+
+.. toctree::
+   :maxdepth: 2
+
+.. autoclass:: pysnmp.hlapi.v1arch.CommunityData(communityName, mpModel=1)
 
 .. _mib-services:
 

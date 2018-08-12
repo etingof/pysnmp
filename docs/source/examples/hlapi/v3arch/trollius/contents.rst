@@ -1,6 +1,6 @@
 
-Asynchronous: trollius
-======================
+Asynchronous SNMP (trollius, v3arch)
+====================================
 
 In order to use :mod:`asyncio` features with older Python (2.6+), you
 could download and install `Trollius <http://trollius.readthedocs.org/>`_

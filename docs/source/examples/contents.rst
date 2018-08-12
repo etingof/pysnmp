@@ -9,41 +9,41 @@ SNMP is not simple (PySNMP implementation takes over 15K lines of
 Python code), but PySNMP tries to hide the complexities and let you
 carry out typical SNMP operations in a quick and intuitive way.
 
-PySNMP offers three groups of programming interfaces to deal with 
-SNMP protocol. In the order from most concise to most detailed those
-APIs follow.
+PySNMP offers high and low-level programming interfaces to deal with
+SNMP protocol.
+
+The other dimension of differences in the PySNMP APIs is that there are
+two different SNMP implementations - the initial architecture
+(`RFC1901 <https://tools.ietf.org/html/rfc1901>`_ ..
+`RFC1905 <https://tools.ietf.org/html/rfc1905>`_) also known as SNMP v1 architecture
+and the redesigned variant (`RFC3413 <https://tools.ietf.org/html/rfc3413>`_
+and others) -- SNMPv3 architecture.
+
+.. note::
+
+   The SNMP v1 architecture supports SNMP protocol versions 1 and 2c,
+   while SNMP v3 architecture supports versions 1, 2c and 3. Whatever
+   new amendments to the SNMP protocol may come up in the future, they
+   will be implemented within the v3 model.
 
 High-level SNMP
 ---------------
 
 The high-level API (`hlapi`) is designed to be simple, concise and
-suitable for the most frequent operations. For that matter, only
-Command Generator and Notification Originator Applications are
+suitable for the most typical client-side operations. For that matter,
+only Command Generator and Notification Originator Applications are
 wrapped into a nearly one-line Python expression.
 
 The `hlapi` interfaces come in several flavours: one synchronous
 and a bunch of asynchronous, adapted to work withing the event loops
 of popular asynchronous I/O frameworks.
 
-The other dimension of differences in the `hlapi` APIs is that it wraps
-two different SNMP implementations - the initial architecture
-(`RFC1901 <https://tools.ietf.org/html/rfc1901>`_ ..
-`RFC1905 <https://tools.ietf.org/html/rfc1905>`_) also known as `v1arch`,
-and the redesigned variant (`RFC3413 <https://tools.ietf.org/html/rfc3413>`_
-and others) -- `v3arch`.
-
-.. note::
-
-   The `v1arch` implements SNMP protocol versions 1 and 2c, while `v3arch`
-   implements versions 1, 2c and 3. Whatever new amendments to the SNMP
-   protocol come up, they will be implemented within `v3arch` model.
-
 The primary reason for maintaining high-level API over both `v1arch` and
 `v3arch` is performance - `v3arch` machinery is much more functional and complicated
 internally, that translates to being heavier on resources and therefore slower.
 
-High-level SNMPv3
-+++++++++++++++++
+The v3 architecture
++++++++++++++++++++
 
 .. toctree::
    :maxdepth: 2
@@ -70,8 +70,8 @@ High-level SNMPv3
 
    /examples/hlapi/v3arch/twisted/contents
 
-High-level SNMPv1/v2c
-+++++++++++++++++++++
+The v1 architecture
++++++++++++++++++++
 
 .. toctree::
    :maxdepth: 2
@@ -83,8 +83,8 @@ High-level SNMPv1/v2c
 
    /examples/hlapi/v1arch/asyncore/contents
 
-Native SNMP API
----------------
+Low-level v3 architecture
+-------------------------
 
 Complete implementation of all official Standard SNMP Applications. It 
 should let you implement any SNMP operation defined in the standard
@@ -101,8 +101,8 @@ framework being used.
    /examples/v3arch/trollius/contents
    /examples/v3arch/twisted/contents
 
-Packet-level SNMP
------------------
+Low-level v1 architecture
+-------------------------
 
 In cases where performance is your top priority and you only need to 
 work with SNMP v1 and v2c systems and you do not mind writing much 
@@ -147,14 +147,13 @@ Notification Receiver
 
    /examples/v1arch/asyncore/manager/ntfrcv/transport-tweaks
 
-Low-level MIB access
---------------------
+Low-level SMI/MIB
+-----------------
 
 .. toctree::
 
    /examples/smi/manager/browsing-mib-tree
    /examples/smi/agent/implementing-mib-objects
-
 
 Using these examples
 --------------------

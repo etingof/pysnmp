@@ -1,8 +1,8 @@
 
-Asynchronous: Twisted
-=====================
+Asynchronous SNMP (twisted, v3arch)
+===================================
 
-`Twisted <http://twistedmatrix.com>`_ is quite old and widly used
+`Twisted <http://twistedmatrix.com>`_ is quite old but still widely used
 I/O framework. With Twisted, your code will mostly live in isolated
 functions, but unlike as it is with callback-based design, with Twisted
 work-in-progress is represented by a

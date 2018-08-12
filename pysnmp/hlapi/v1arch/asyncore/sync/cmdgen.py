@@ -80,16 +80,16 @@ def getCmd(snmpDispatcher, authData, transportTarget,
 
     Examples
     --------
-    from pysnmp.hlapi.v1arch import *
-    
-    g = getCmd(snmpDispatcher(),
-               CommunityData('public'),
-               UdpTransportTarget(('demo.snmplabs.com', 161)),
-               ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)))
-
-    print(next(g))
-    # -> (None, 0, 0, [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')),
-                       DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'))])
+    >>> from pysnmp.hlapi.v1arch import *
+    >>>
+    >>> g = getCmd(snmpDispatcher(),
+    >>>            CommunityData('public'),
+    >>>            UdpTransportTarget(('demo.snmplabs.com', 161)),
+    >>>            ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)))
+    >>>
+    >>> next(g)
+    (None, 0, 0, [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')),
+                  DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'))])
     """
 
     def cbFun(*args, **kwargs):
@@ -172,16 +172,16 @@ def setCmd(snmpDispatcher, authData, transportTarget,
 
     Examples
     --------
-    from pysnmp.hlapi.v1arch import *
-    
-    g = setCmd(snmpDispatcher(),
-               CommunityData('public'),
-               UdpTransportTarget(('demo.snmplabs.com', 161)),
-               ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0), 'Linux i386'))
-
-    print(next(g))
-    # -> (None, 0, 0, [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')),
-                       DisplayString('Linux i386'))])
+    >>> from pysnmp.hlapi.v1arch import *
+    >>>
+    >>> g = setCmd(snmpDispatcher(),
+    >>>            CommunityData('public'),
+    >>>            UdpTransportTarget(('demo.snmplabs.com', 161)),
+    >>>            ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0), 'Linux i386'))
+    >>>
+    >>> next(g)
+    (None, 0, 0, [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')),
+                  DisplayString('Linux i386'))])
     """
 
     def cbFun(*args, **kwargs):
@@ -288,17 +288,16 @@ def nextCmd(snmpDispatcher, authData, transportTarget,
 
     Examples
     --------
-    from pysnmp.hlapi.v1arch import *
-
-    g = nextCmd(snmpDispatcher(),
-                CommunityData('public'),
-                UdpTransportTarget(('demo.snmplabs.com', 161)),
-                ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr')))
-    next(g)
-    # -> (None, 0, 0, [[ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'))]])
-    
-    g.send([ObjectType(ObjectIdentity('IF-MIB', 'ifInOctets'))])
-    # -> (None, 0, 0, [(ObjectName('1.3.6.1.2.1.2.2.1.10.1'), Counter32(284817787))])
+    >>> from pysnmp.hlapi.v1arch import *
+    >>>
+    >>> g = nextCmd(snmpDispatcher(),
+    >>>             CommunityData('public'),
+    >>>             UdpTransportTarget(('demo.snmplabs.com', 161)),
+    >>>             ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr')))
+    >>> next(g)
+    (None, 0, 0, [[ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'))]])
+    >>> g.send([ObjectType(ObjectIdentity('IF-MIB', 'ifInOctets'))])
+    (None, 0, 0, [(ObjectName('1.3.6.1.2.1.2.2.1.10.1'), Counter32(284817787))])
     """
 
     def cbFun(*args, **kwargs):
@@ -465,18 +464,17 @@ def bulkCmd(snmpDispatcher, authData, transportTarget,
 
     Examples
     --------
-    from pysnmp.hlapi.v1arch import *
-
-    g = bulkCmd(snmpDispatcher(),
-                CommunityData('public'),
-                UdpTransportTarget(('demo.snmplabs.com', 161)),
-                0, 25,
-                ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr')))
-    next(g)
-    # -> (None, 0, 0, [[ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'))]])
-    
-    g.send([ObjectType(ObjectIdentity('IF-MIB', 'ifInOctets'))])
-    # -> (None, 0, 0, [[(ObjectName('1.3.6.1.2.1.2.2.1.10.1'), Counter32(284817787))]])
+    >>> from pysnmp.hlapi.v1arch import *
+    >>>
+    >>> g = bulkCmd(snmpDispatcher(),
+    >>>             CommunityData('public'),
+    >>>             UdpTransportTarget(('demo.snmplabs.com', 161)),
+    >>>             0, 25,
+    >>>             ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr')))
+    >>> next(g)
+    (None, 0, 0, [[ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'))]])
+    >>> g.send([ObjectType(ObjectIdentity('IF-MIB', 'ifInOctets'))])
+    (None, 0, 0, [[(ObjectName('1.3.6.1.2.1.2.2.1.10.1'), Counter32(284817787))]])
     """
 
     def cbFun(*args, **kwargs):

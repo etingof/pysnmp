@@ -86,25 +86,6 @@ def sendNotification(snmpDispatcher, authData, transportTarget,
     advised to maintain it for the lifecycle of the application/thread for
     as long as possible.
 
-    Note
-    ----
-    User-supplied `cbFun` callable must have the following call
-    signature:
-
-    * snmpDispatcher: :py:class:`~pysnmp.hlapi.v1arch.asyncore.SnmpDispatcher`
-      Class instance representing asyncore-based asynchronous event loop and
-      associated state information.
-    * stateHandle (int): Unique request identifier. Can be used
-      for matching multiple ongoing requests with received responses.
-    * errorIndication (str): evaluates to `True` to indicate SNMP dispatcher
-      error.
-    * errorStatus (int): evaluates to `True` to indicate SNMP PDU error.
-    * errorIndex (int): Non-zero value refers to `varBinds[errorIndex-1]`
-    * varBinds (tuple): A sequence of
-      :py:class:`~pysnmp.smi.rfc1902.ObjectType` class instances
-      representing MIB variables returned in SNMP response in exactly
-      the same order as `varBinds` in request.
-    * `cbCtx` (object): Original user-supplied object.
 
     Returns
     -------
@@ -121,19 +102,19 @@ def sendNotification(snmpDispatcher, authData, transportTarget,
 
     Examples
     --------
-    from pysnmp.hlapi.v1arch.asyncore import *
-
-    snmpDispatcher = SnmpDispatcher()
-
-    sendNotification(
-        snmpDispatcher,
-        CommunityData('public'),
-        UdpTransportTarget(('demo.snmplabs.com', 162)),
-        'trap',
-        NotificationType(ObjectIdentity('SNMPv2-MIB', 'coldStart')),
-        lookupMib=True
-    )
-    snmpDispatcher.transportDispatcher.runDispatcher()
+    >>> from pysnmp.hlapi.v1arch.asyncore import *
+    >>>
+    >>> snmpDispatcher = SnmpDispatcher()
+    >>>
+    >>> sendNotification(
+    >>>     snmpDispatcher,
+    >>>     CommunityData('public'),
+    >>>     UdpTransportTarget(('demo.snmplabs.com', 162)),
+    >>>     'trap',
+    >>>     NotificationType(ObjectIdentity('SNMPv2-MIB', 'coldStart')),
+    >>>     lookupMib=True
+    >>> )
+    >>> snmpDispatcher.transportDispatcher.runDispatcher()
     """
 
     def _cbFun(snmpDispatcher, stateHandle, errorIndication, rspPdu, _cbCtx):

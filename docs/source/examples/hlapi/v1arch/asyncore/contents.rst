@@ -1,10 +1,18 @@
 
-Asynchronous: asyncore
-======================
+Asynchronous SNMP (asyncore, v1arch)
+====================================
 
-With :mod:`asyncore` API your scripts get CPU time on :mod:`socket`
-events being watched for by :mod:`select` dispatcher. Your code
-live mostly in isolated functions (or any callable objects).
+Applications build around :mod:`asyncore` get CPU time on :mod:`socket`
+events being watched for by :mod:`select` dispatcher. User code
+lives mostly in isolated functions (or any callable objects).
+
+As it is with any asynchronous I/O system, `asyncore` lets you run
+many SNMP queries in parallel and/or sequentially, interleave SNMP
+queries with other I/O operations for as long as they are managed
+within the same event loop.
+
+The :mod:`pysnmp.hlapi.v1arch.asyncore` package implements `asyncore`
+binding to pysnmp's `v1arch` services.
 
 In most examples approximate analogues of well known Net-SNMP snmp* tools
 command line options are shown. That may help those readers who, by chance

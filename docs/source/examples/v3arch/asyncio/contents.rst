@@ -1,6 +1,6 @@
 
-Asynchronous: asyncio
-=====================
+Asynchronous SNMP (asyncio, v3arch)
+===================================
 
 Python 3.4 introduced a new module - `asyncio <https://docs.python.org/3/library/asyncio.html>`_ (former Tulip,
 PEP 3156) featuring infrastructure for writing single-threaded concurrent

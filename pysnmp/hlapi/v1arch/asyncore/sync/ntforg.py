@@ -105,14 +105,14 @@ def sendNotification(snmpDispatcher, authData, transportTarget,
 
     Examples
     --------
-    from pysnmp.hlapi.v1arch import *
-
-    g = sendNotification(SnmpDispatcher(),
-                         CommunityData('public'),
-                         UdpTransportTarget(('demo.snmplabs.com', 162)),
-                         'trap',
-                         NotificationType(ObjectIdentity('IF-MIB', 'linkDown')))
-    next(g)
+    >>> from pysnmp.hlapi.v1arch import *
+    >>>
+    >>> g = sendNotification(SnmpDispatcher(),
+    >>>                      CommunityData('public'),
+    >>>                      UdpTransportTarget(('demo.snmplabs.com', 162)),
+    >>>                      'trap',
+    >>>                      NotificationType(ObjectIdentity('IF-MIB', 'linkDown')))
+    >>> next(g)
     (None, 0, 0, [])
     """
 

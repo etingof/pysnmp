@@ -1,6 +1,6 @@
 
-Asynchronous: Twisted
-=====================
+Asynchronous SNMP (twisted, v3arch)
+===================================
 
 `Twisted <http://twistedmatrix.com/>`_ is event-driven networking engine 
 written in Python. It takes shape of a Python library which is used by many 

@@ -94,23 +94,23 @@ def getCmd(snmpDispatcher, authData, transportTarget, *varBinds, **options):
 
     Examples
     --------
-    from pysnmp.hlapi.v1arch.asyncore import *
-
-    def cbFun(snmpDispatcher, stateHandle, errorIndication,
-              errorStatus, errorIndex, varBinds, cbCtx):
-        print(errorIndication, errorStatus, errorIndex, varBinds)
-
-    snmpDispatcher = SnmpDispatcher()
-
-    stateHandle = getCmd(
-        snmpDispatcher,
-        CommunityData('public'),
-        UdpTransportTarget(('demo.snmplabs.com', 161)),
-        ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
-        cbFun=cbFun
-    )
-
-    snmpDispatcher.transportDispatcher.runDispatcher()
+    >>> from pysnmp.hlapi.v1arch.asyncore import *
+    >>>
+    >>> def cbFun(snmpDispatcher, stateHandle, errorIndication,
+    >>>           errorStatus, errorIndex, varBinds, cbCtx):
+    >>>     print(errorIndication, errorStatus, errorIndex, varBinds)
+    >>>
+    >>> snmpDispatcher = SnmpDispatcher()
+    >>>
+    >>> stateHandle = getCmd(
+    >>>     snmpDispatcher,
+    >>>     CommunityData('public'),
+    >>>     UdpTransportTarget(('demo.snmplabs.com', 161)),
+    >>>     ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
+    >>>     cbFun=cbFun
+    >>> )
+    >>>
+    >>> snmpDispatcher.transportDispatcher.runDispatcher()
     """
 
     def _cbFun(snmpDispatcher, stateHandle, errorIndication, rspPdu, _cbCtx):
@@ -238,23 +238,23 @@ def setCmd(snmpDispatcher, authData, transportTarget,
 
     Examples
     --------
-    from pysnmp.hlapi.v1arch.asyncore import *
-    
-    def cbFun(snmpDispatcher, stateHandle, errorIndication,
-              errorStatus, errorIndex, varBinds, cbCtx):
-        print(errorIndication, errorStatus, errorIndex, varBinds)
-    
-    snmpDispatcher = SnmpDispatcher()
-
-    stateHandle = setCmd(
-        snmpDispatcher,
-        CommunityData('public'),
-        UdpTransportTarget(('demo.snmplabs.com', 161)),
-        ('1.3.6.1.2.1.1.4.0', OctetString('info@snmplabs.com')),
-        cbFun=cbFun
-    )
-
-    snmpDispatcher.transportDispatcher.runDispatcher()
+    >>> from pysnmp.hlapi.v1arch.asyncore import *
+    >>>
+    >>> def cbFun(snmpDispatcher, stateHandle, errorIndication,
+    >>>           errorStatus, errorIndex, varBinds, cbCtx):
+    >>>     print(errorIndication, errorStatus, errorIndex, varBinds)
+    >>>
+    >>> snmpDispatcher = SnmpDispatcher()
+    >>>
+    >>> stateHandle = setCmd(
+    >>>     snmpDispatcher,
+    >>>     CommunityData('public'),
+    >>>     UdpTransportTarget(('demo.snmplabs.com', 161)),
+    >>>     ('1.3.6.1.2.1.1.4.0', OctetString('info@snmplabs.com')),
+    >>>     cbFun=cbFun
+    >>> )
+    >>>
+    >>> snmpDispatcher.transportDispatcher.runDispatcher()
     """
 
     def _cbFun(snmpDispatcher, stateHandle, errorIndication, rspPdu, _cbCtx):
@@ -376,23 +376,23 @@ def nextCmd(snmpDispatcher, authData, transportTarget,
 
     Examples
     --------
-    from pysnmp.hlapi.v1arch.asyncore import *
-    
-    def cbFun(snmpDispatcher, stateHandle, errorIndication,
-              errorStatus, errorIndex, varBinds, cbCtx):
-        print(errorIndication, errorStatus, errorIndex, varBinds)
-    
-    snmpDispatcher = snmpDispatcher()
-
-    stateHandle = nextCmd(
-        snmpDispatcher,
-        CommunityData('public'),
-        UdpTransportTarget(('demo.snmplabs.com', 161)),
-        ('1.3.6.1.2.1.1', None),
-        cbFun=cbFun
-    )
-    
-    snmpDispatcher.transportDispatcher.runDispatcher()
+    >>> from pysnmp.hlapi.v1arch.asyncore import *
+    >>>
+    >>> def cbFun(snmpDispatcher, stateHandle, errorIndication,
+    >>>           errorStatus, errorIndex, varBinds, cbCtx):
+    >>>     print(errorIndication, errorStatus, errorIndex, varBinds)
+    >>>
+    >>> snmpDispatcher = snmpDispatcher()
+    >>>
+    >>> stateHandle = nextCmd(
+    >>>     snmpDispatcher,
+    >>>     CommunityData('public'),
+    >>>     UdpTransportTarget(('demo.snmplabs.com', 161)),
+    >>>     ('1.3.6.1.2.1.1', None),
+    >>>     cbFun=cbFun
+    >>> )
+    >>>
+    >>> snmpDispatcher.transportDispatcher.runDispatcher()
     """
 
     def _cbFun(snmpDispatcher, stateHandle, errorIndication, rspPdu, _cbCtx):
@@ -548,24 +548,24 @@ def bulkCmd(snmpDispatcher, authData, transportTarget,
 
     Examples
     --------
-    from pysnmp.hlapi.v1arch.asyncore import *
-    
-    def cbFun(snmpDispatcher, stateHandle, errorIndication,
-              errorStatus, errorIndex, varBinds, cbCtx):
-        print(errorIndication, errorStatus, errorIndex, varBinds)
-    
-    snmpDispatcher = snmpDispatcher()
-
-    stateHandle = bulkCmd(
-        snmpDispatcher,
-        CommunityData('public'),
-        UdpTransportTarget(('demo.snmplabs.com', 161)),
-        0, 2,
-        ('1.3.6.1.2.1.1', None),
-        cbFun=cbFun
-    )
-    
-    snmpDispatcher.transportDispatcher.runDispatcher()
+    >>> from pysnmp.hlapi.v1arch.asyncore import *
+    >>>
+    >>> def cbFun(snmpDispatcher, stateHandle, errorIndication,
+    >>>           errorStatus, errorIndex, varBinds, cbCtx):
+    >>>     print(errorIndication, errorStatus, errorIndex, varBinds)
+    >>>
+    >>> snmpDispatcher = snmpDispatcher()
+    >>>
+    >>> stateHandle = bulkCmd(
+    >>>     snmpDispatcher,
+    >>>     CommunityData('public'),
+    >>>     UdpTransportTarget(('demo.snmplabs.com', 161)),
+    >>>     0, 2,
+    >>>     ('1.3.6.1.2.1.1', None),
+    >>>     cbFun=cbFun
+    >>> )
+    >>>
+    >>> snmpDispatcher.transportDispatcher.runDispatcher()
     """
 
     def _cbFun(snmpDispatcher, stateHandle, errorIndication, rspPdu, _cbCtx):

@@ -3,7 +3,7 @@ Synchronous SNMP (v1arch)
 =========================
 
 This chapter illustrates various uses of the synchronous high-level
-programming interface to some of Standard SNMP Applications, along the lines
+programming interface to client-side SNMP entities along the lines
 of `RFC1905 <https://tools.ietf.org/html/rfc1905>`_.
 
 .. note:: The following examples involve creating Python iterator, 

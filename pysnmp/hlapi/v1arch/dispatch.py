@@ -22,11 +22,11 @@ class AbstractSnmpDispatcher(object):
     `SnmpDispatcher` object manages send and receives SNMP PDU
     messages through underlying transport dispatcher and dispatches
     them to the callers.
-    
-    `SnmpDispatcher` is the only stateful object, all `llapi` SNMP
+
+    `SnmpDispatcher` is the only stateful object, all `hlapi.v1arch` SNMP
     operations require an instance of `SnmpDispatcher`. Users do not normally
     request services directly from `SnmpDispather`, but pass it around to
-    other `llapi` interfaces.
+    other `hlapi.v1arch` interfaces.
 
     It is possible to run multiple instances of `SnmpDispatcher` in the
     application. In a multithreaded environment, each thread that
