@@ -107,6 +107,9 @@ class CommunityData(object):
             self.contextName = contextName
         if tag is not None:
             self.tag = tag
+        # Treat `None` as an empty string
+        if communityIndex is None:
+            communityIndex = ''
         # a single arg is considered as a community name
         if communityName is None:
             communityName, communityIndex = communityIndex, None
