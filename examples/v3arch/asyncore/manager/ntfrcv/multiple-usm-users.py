@@ -42,15 +42,8 @@ config.addTransport(
 
 # SNMPv3/USM setup
 
-# user: usr-md5-des, auth: MD5, priv DES
-config.addV3User(
-    snmpEngine, 'usr-md5-des',
-    config.usmHMACMD5AuthProtocol, 'authkey1',
-    config.usmDESPrivProtocol, 'privkey1'
-)
-
 # user: usr-md5-des, auth: MD5, priv DES, securityEngineId: 8000000001020304
-# this USM entry is used for TRAP receiving purposes
+# this USM entry is configured for TRAP receiving purposes
 config.addV3User(
     snmpEngine, 'usr-md5-des',
     config.usmHMACMD5AuthProtocol, 'authkey1',
@@ -58,28 +51,16 @@ config.addV3User(
     securityEngineId=v2c.OctetString(hexValue='8000000001020304')
 )
 
-# user: usr-md5-none, auth: MD5, priv NONE
-config.addV3User(
-    snmpEngine, 'usr-md5-none',
-    config.usmHMACMD5AuthProtocol, 'authkey1'
-)
-
 # user: usr-md5-none, auth: MD5, priv NONE, securityEngineId: 8000000001020304
-# this USM entry is used for TRAP receiving purposes
+# this USM entry is configured for TRAP receiving purposes
 config.addV3User(
     snmpEngine, 'usr-md5-none',
     config.usmHMACMD5AuthProtocol, 'authkey1',
     securityEngineId=v2c.OctetString(hexValue='8000000001020304')
 )
 
-# user: usr-sha-aes128, auth: SHA, priv AES
-config.addV3User(
-    snmpEngine, 'usr-sha-aes128',
-    config.usmHMACSHAAuthProtocol, 'authkey1',
-    config.usmAesCfb128Protocol, 'privkey1'
-)
 # user: usr-sha-aes128, auth: SHA, priv AES, securityEngineId: 8000000001020304
-# this USM entry is used for TRAP receiving purposes
+# this USM entry is configured for TRAP receiving purposes
 config.addV3User(
     snmpEngine, 'usr-sha-aes128',
     config.usmHMACSHAAuthProtocol, 'authkey1',
