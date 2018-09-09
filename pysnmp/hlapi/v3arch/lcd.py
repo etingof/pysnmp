@@ -175,7 +175,7 @@ class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
                     cache['addr'][addrKey] = addrName, useCount
                 else:
                     config.delTargetAddr(snmpEngine, addrName)
-
+                    del cache['addr'][addrKey]
                     addrNames.add(addrKey)
 
                     if addrKey[1] in cache['tran']:
