@@ -54,6 +54,8 @@ Revision 4.4.6, released 2018-09-XX
 - Fixed `CommandGeneratorLcdConfigurator.unconfigure()` to fully clean up
   internal caches, otherwise repetitive attempts to configure the target
   would fail.
+- Fix to tolerate possible duplicate enumerations in `Bits` and `Integer`
+  SMI types.
 
 Revision 4.4.5, released 2018-08-05
 -----------------------------------
