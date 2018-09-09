@@ -128,12 +128,17 @@ class Integer(Integer32):
 
     @classmethod
     def withNamedValues(cls, **values):
-        """Creates a subclass with discreet named values constraint.
+        """Create a subclass with discreet named values constraint.
+
+        Reduce fully duplicate enumerations along the way.
         """
+        enums = set(cls.namedValues.items())
+        enums.update(values.items())
 
         class X(cls):
-            namedValues = cls.namedValues + namedval.NamedValues(*values.items())
-            subtypeSpec = cls.subtypeSpec + constraint.SingleValueConstraint(*values.values())
+            namedValues = namedval.NamedValues(*enums)
+            subtypeSpec = cls.subtypeSpec + constraint.SingleValueConstraint(
+                *values.values())
 
         X.__name__ = cls.__name__
         return X
@@ -637,10 +642,14 @@ class Bits(OctetString):
     @classmethod
     def withNamedBits(cls, **values):
         """Creates a subclass with discreet named bits constraint.
+
+        Reduce fully duplicate enumerations along the way.
         """
+        enums = set(cls.namedValues.items())
+        enums.update(values.items())
 
         class X(cls):
-            namedValues = cls.namedValues + namedval.NamedValues(*values.items())
+            namedValues = namedval.NamedValues(*enums)
 
         X.__name__ = cls.__name__
         return X
