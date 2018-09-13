@@ -38,7 +38,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
 
             nextMibNode = snmpTargetParamsSecurityName
 
-            while 1:
+            while True:
                 try:
                     nextMibNode = snmpTargetParamsSecurityName.getNextNode(nextMibNode.name)
 
@@ -49,10 +49,18 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
 
                 mibNode = snmpTargetParamsSecurityModel.getNode(snmpTargetParamsSecurityModel.name + instId)
 
-                if mibNode.syntax not in self.__nameToModelMap:
-                    self.__nameToModelMap[nextMibNode.syntax] = set()
+                try:
+                    if mibNode.syntax not in self.__nameToModelMap:
+                        self.__nameToModelMap[nextMibNode.syntax] = set()
 
-                self.__nameToModelMap[nextMibNode.syntax].add(mibNode.syntax)
+                    self.__nameToModelMap[nextMibNode.syntax].add(mibNode.syntax)
+
+                except PyAsn1Error:
+                    debug.logger & debug.flagSM and debug.logger(
+                        '_sec2com: table entries %r/%r hashing failed' % (
+                            nextMibNode.syntax, mibNode.syntax)
+                    )
+                    continue
 
             self.__paramsBranchId = snmpTargetParamsSecurityName.branchVersionId
 
@@ -72,7 +80,8 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
             self.__securityMap = {}
 
             nextMibNode = snmpCommunityName
-            while 1:
+
+            while True:
                 try:
                     nextMibNode = snmpCommunityName.getNextNode(nextMibNode.name)
 
@@ -88,9 +97,17 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
 
                 _contextName = snmpCommunityContextName.getNode(snmpCommunityContextName.name + instId).syntax
 
-                self.__securityMap[(_securityName,
-                                    _contextEngineId,
-                                    _contextName)] = nextMibNode.syntax
+                try:
+                    self.__securityMap[(_securityName,
+                                        _contextEngineId,
+                                        _contextName)] = nextMibNode.syntax
+
+                except PyAsn1Error:
+                    debug.logger & debug.flagSM and debug.logger(
+                        '_sec2com: table entries %r/%r/%r hashing failed' % (
+                            _securityName, _contextEngineId, _contextName)
+                    )
+                    continue
 
             self.__securityBranchId = snmpCommunityName.branchVersionId
 
@@ -123,11 +140,14 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
             self.__transportToTagMap = {}
 
             nextMibNode = snmpTargetAddrTagList
+
             while True:
                 try:
                     nextMibNode = snmpTargetAddrTagList.getNextNode(nextMibNode.name)
+
                 except NoSuchInstanceError:
                     break
+
                 instId = nextMibNode.name[len(snmpTargetAddrTagList.name):]
                 targetAddrTDomain = snmpTargetAddrTDomain.getNode(snmpTargetAddrTDomain.name + instId).syntax
                 targetAddrTAddress = snmpTargetAddrTAddress.getNode(snmpTargetAddrTAddress.name + instId).syntax
@@ -142,17 +162,29 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
                     TransportAddressIPv6, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
                         'TRANSPORT-ADDRESS-MIB', 'TransportAddressIPv6')
                     targetAddrTAddress = tuple(TransportAddressIPv6(targetAddrTAddress))
+
                 targetAddr = targetAddrTDomain, targetAddrTAddress
                 targetAddrTagList = snmpTargetAddrTagList.getNode(snmpTargetAddrTagList.name + instId).syntax
+
                 if targetAddr not in self.__transportToTagMap:
                     self.__transportToTagMap[targetAddr] = set()
-                if targetAddrTagList:
-                    self.__transportToTagMap[targetAddr].update(
-                        [SnmpTagValue(x)
-                         for x in targetAddrTagList.asOctets().split()]
+
+                try:
+                    if targetAddrTagList:
+                        self.__transportToTagMap[targetAddr].update(
+                            [SnmpTagValue(x)
+                             for x in targetAddrTagList.asOctets().split()]
+                        )
+
+                    else:
+                        self.__transportToTagMap[targetAddr].add(self.__emptyTag)
+
+                except PyAsn1Error:
+                    debug.logger & debug.flagSM and debug.logger(
+                        '_com2sec: table entries %r/%r hashing failed' % (
+                            targetAddr, targetAddrTagList)
                     )
-                else:
-                    self.__transportToTagMap[targetAddr].add(self.__emptyTag)
+                    continue
 
             self.__transportBranchId = snmpTargetAddrTAddress.branchVersionId
 
@@ -161,6 +193,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
 
         snmpTargetParamsSecurityName, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
             'SNMP-TARGET-MIB', 'snmpTargetParamsSecurityName')
+
         if self.__paramsBranchId != snmpTargetParamsSecurityName.branchVersionId:
             snmpTargetParamsSecurityModel, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
                 'SNMP-TARGET-MIB', 'snmpTargetParamsSecurityModel')
@@ -180,10 +213,18 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
 
                 mibNode = snmpTargetParamsSecurityModel.getNode(snmpTargetParamsSecurityModel.name + instId)
 
-                if nextMibNode.syntax not in self.__nameToModelMap:
-                    self.__nameToModelMap[nextMibNode.syntax] = set()
+                try:
+                    if nextMibNode.syntax not in self.__nameToModelMap:
+                        self.__nameToModelMap[nextMibNode.syntax] = set()
 
-                self.__nameToModelMap[nextMibNode.syntax].add(mibNode.syntax)
+                    self.__nameToModelMap[nextMibNode.syntax].add(mibNode.syntax)
+
+                except PyAsn1Error:
+                    debug.logger & debug.flagSM and debug.logger(
+                        '_com2sec: table entries %r/%r hashing failed' % (
+                            nextMibNode.syntax, mibNode.syntax)
+                    )
+                    continue
 
             self.__paramsBranchId = snmpTargetParamsSecurityName.branchVersionId
 
@@ -209,6 +250,7 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
             self.__tagAndCommunityToSecurityMap = {}
 
             nextMibNode = snmpCommunityName
+
             while True:
                 try:
                     nextMibNode = snmpCommunityName.getNextNode(nextMibNode.name)
@@ -229,17 +271,25 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
 
                 _tagAndCommunity = transportTag, nextMibNode.syntax
 
-                if _tagAndCommunity not in self.__tagAndCommunityToSecurityMap:
-                    self.__tagAndCommunityToSecurityMap[_tagAndCommunity] = set()
+                try:
+                    if _tagAndCommunity not in self.__tagAndCommunityToSecurityMap:
+                        self.__tagAndCommunityToSecurityMap[_tagAndCommunity] = set()
 
-                self.__tagAndCommunityToSecurityMap[_tagAndCommunity].add(
-                    (securityName, contextEngineId, contextName)
-                )
+                    self.__tagAndCommunityToSecurityMap[_tagAndCommunity].add(
+                        (securityName, contextEngineId, contextName)
+                    )
 
-                if nextMibNode.syntax not in self.__communityToTagMap:
-                    self.__communityToTagMap[nextMibNode.syntax] = set()
+                    if nextMibNode.syntax not in self.__communityToTagMap:
+                        self.__communityToTagMap[nextMibNode.syntax] = set()
 
-                self.__communityToTagMap[nextMibNode.syntax].add(transportTag)
+                    self.__communityToTagMap[nextMibNode.syntax].add(transportTag)
+
+                except PyAsn1Error:
+                    debug.logger & debug.flagSM and debug.logger(
+                        '_com2sec: table entries %r/%r hashing failed' % (
+                            _tagAndCommunity, nextMibNode.syntax)
+                    )
+                    continue
 
             self.__communityBranchId = snmpCommunityName.branchVersionId
 
