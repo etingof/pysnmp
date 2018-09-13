@@ -58,6 +58,6 @@ snmpDispatcher = SnmpDispatcher()
 # Submit a bunch of initial GETNEXT requests
 for authData, transportTarget, varBinds in targets:
     nextCmd(snmpDispatcher, authData, transportTarget, *varBinds,
-           **dict(cbFun=cbFun, lookupMib=True))
+           cbFun=cbFun, lookupMib=True)
 
 snmpDispatcher.transportDispatcher.runDispatcher()

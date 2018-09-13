@@ -11,11 +11,5 @@ from pysnmp.hlapi.v1arch.asyncore.transport import *
 from pysnmp.hlapi.v1arch.asyncore.cmdgen import *
 from pysnmp.hlapi.v1arch.asyncore.ntforg import *
 from pysnmp.hlapi.v1arch.asyncore.dispatch import *
-
-try:
-    from pysnmp.hlapi.v1arch.asyncore.sync.cmdgen import *
-    from pysnmp.hlapi.v1arch.asyncore.sync.ntforg import *
-
-except SyntaxError:
-    from pysnmp.hlapi.v1arch.asyncore.sync.compat.cmdgen import *
-    from pysnmp.hlapi.v1arch.asyncore.sync.compat.ntforg import *
+from pysnmp.hlapi.v1arch.asyncore.sync.cmdgen import *
+from pysnmp.hlapi.v1arch.asyncore.sync.ntforg import *

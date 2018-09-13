@@ -170,7 +170,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         # New row
         mibInstrumController.writeVars(
-            (usmUserEntry.name + (13,) + tblIdx2, 4), **dict(snmpEngine=snmpEngine)
+            (usmUserEntry.name + (13,) + tblIdx2, 4), snmpEngine=snmpEngine
         )
 
         # Set user&securityNames

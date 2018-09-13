@@ -58,7 +58,7 @@ else:
         compiler.addSearchers(*[PyPackageSearcher(x.fullPath()) for x in mibBuilder.getMibSources()])
         compiler.addBorrowers(*[PyFileBorrower(x, genTexts=mibBuilder.loadTexts) for x in
                                 getReadersFromUrls(*kwargs.get('borrowers') or defaultBorrowers,
-                                                   **dict(lowcaseMatching=False))])
+                                                   lowcaseMatching=False)])
 
         mibBuilder.setMibCompiler(
             compiler, kwargs.get('destination') or defaultDest

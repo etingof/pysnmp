@@ -27,7 +27,7 @@ Features
 * [PySMI](http://snmplabs.com/pysmi/) integration for dynamic MIB compilation
 * Built-in instrumentation exposing protocol engine operations
 * Python eggs and py2exe friendly
-* 100% Python, works with Python 2.4 though 3.7
+* 100% Python, works with Python 2.6 though 3.7
 * MT-safe (if SnmpEngine is thread-local)
 
 Features, specific to SNMPv3 model include:

@@ -10,10 +10,5 @@ from pysnmp.hlapi.v3arch.auth import *
 from pysnmp.hlapi.v3arch.context import *
 from pysnmp.hlapi.v3arch.asyncore.transport import *
 from pysnmp.entity.engine import *
-
-try:
-    from pysnmp.hlapi.v3arch.asyncore.sync.cmdgen import *
-    from pysnmp.hlapi.v3arch.asyncore.sync.ntforg import *
-except SyntaxError:
-    from pysnmp.hlapi.v3arch.asyncore.sync.compat.cmdgen import *
-    from pysnmp.hlapi.v3arch.asyncore.sync.compat.ntforg import *
+from pysnmp.hlapi.v3arch.asyncore.sync.cmdgen import *
+from pysnmp.hlapi.v3arch.asyncore.sync.ntforg import *

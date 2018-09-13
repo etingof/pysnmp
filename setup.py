@@ -21,8 +21,6 @@ License :: OSI Approved :: BSD License
 Natural Language :: English
 Operating System :: OS Independent
 Programming Language :: Python :: 2
-Programming Language :: Python :: 2.4
-Programming Language :: Python :: 2.5
 Programming Language :: Python :: 2.6
 Programming Language :: Python :: 2.7
 Programming Language :: Python :: 3
@@ -53,8 +51,8 @@ def howto_install_setuptools():
 
 
 py_version = sys.version_info[:2]
-if py_version < (2, 4):
-    print("ERROR: this package requires Python 2.4 or later!")
+if py_version < (2, 6):
+    print("ERROR: this package requires Python 2.6 or later!")
     sys.exit(1)
 
 requires = [ln.strip() for ln in open('requirements.txt').readlines()]
@@ -158,7 +156,6 @@ params.update({
                  'pysnmp.hlapi.v3arch.asyncio',
                  'pysnmp.hlapi.v3arch.asyncore',
                  'pysnmp.hlapi.v3arch.asyncore.sync',
-                 'pysnmp.hlapi.v3arch.asyncore.sync.compat',
                  'pysnmp.hlapi.v3arch.twisted',
                  'pysnmp.proto',
                  'pysnmp.proto.mpmod',

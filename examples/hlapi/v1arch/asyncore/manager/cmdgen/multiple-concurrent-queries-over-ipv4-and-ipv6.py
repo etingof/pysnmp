@@ -58,6 +58,6 @@ snmpDispatcher = SnmpDispatcher()
 # Submit a bunch of initial GET requests
 for authData, transportTarget, varBinds in targets:
     getCmd(snmpDispatcher, authData, transportTarget, *varBinds,
-           **dict(cbFun=cbFun, lookupMib=True))
+           cbFun=cbFun, lookupMib=True)
 
 snmpDispatcher.transportDispatcher.runDispatcher()
