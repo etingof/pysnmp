@@ -154,6 +154,7 @@ params.update({
                  'pysnmp.hlapi',
                  'pysnmp.hlapi.v1arch',
                  'pysnmp.hlapi.v1arch.asyncore',
+                 'pysnmp.hlapi.v1arch.asyncore.sync',
                  'pysnmp.hlapi.v3arch',
                  'pysnmp.hlapi.v3arch.asyncio',
                  'pysnmp.hlapi.v3arch.asyncore',
