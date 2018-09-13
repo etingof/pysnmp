@@ -32,6 +32,9 @@ class CommunityData(object):
 
     def __init__(self, communityName, mpModel=1):
         self.mpModel = mpModel
+        # Treat `None` as an empty string
+        if communityName is None:
+            communityName = ''
         self.communityName = communityName
 
     def __hash__(self):
