@@ -1,5 +1,5 @@
 
-Revision 5.0.0, released 2018-09-??
+Revision 5.0.0, released 2018-10-??
 -----------------------------------
 
 - SNMPv3 crypto operations that require external dependencies
@@ -46,7 +46,7 @@ Revision 5.0.0, released 2018-09-??
   is to unify this method call with similar methods of CommandGenerator.
   This change should not compromise backward compatibility with pysnmp 4.
 
-Revision 4.4.6, released 2018-09-XX
+Revision 4.4.6, released 2018-09-13
 -----------------------------------
 
 - Improved package build and dependency tracking
@@ -56,6 +56,10 @@ Revision 4.4.6, released 2018-09-XX
   would fail.
 - Fix to tolerate possible duplicate enumerations in `Bits` and `Integer`
   SMI types.
+- Fix to tolerate non-initialised entries in SNMP community table. Once a
+  bad entry sneaked into the SNMP community table, all the subsequent
+  SNMP v1/v2c operations failed. The fix ignores incomplete SNMP community
+  table entries in the course of building indices.
 
 Revision 4.4.5, released 2018-08-05
 -----------------------------------
