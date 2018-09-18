@@ -252,13 +252,15 @@ class MibInstrumController(AbstractMibInstrumController):
                     # (seems to be irrelevant on Py3 but just in case)
                     del origTraceback
 
-        return outputVarBinds
+        cbFun = context.get('cbFun')
+        if cbFun:
+            cbFun(outputVarBinds, **context)
 
     def readVars(self, *varBinds, **context):
-        return self.flipFlopFsm(self.fsmReadVar, *varBinds, **context)
+        self.flipFlopFsm(self.fsmReadVar, *varBinds, **context)
 
     def readNextVars(self, *varBinds, **context):
-        return self.flipFlopFsm(self.fsmReadNextVar, *varBinds, **context)
+        self.flipFlopFsm(self.fsmReadNextVar, *varBinds, **context)
 
     def writeVars(self, *varBinds, **context):
-        return self.flipFlopFsm(self.fsmWriteVar, *varBinds, **context)
+        self.flipFlopFsm(self.fsmWriteVar, *varBinds, **context)

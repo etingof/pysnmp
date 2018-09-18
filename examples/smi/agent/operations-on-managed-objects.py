@@ -26,24 +26,40 @@ snmpCommunityEntry, = mibBuilder.importSymbols(
 instanceId = snmpCommunityEntry.getInstIdFromIndices('my-router')
 print('done')
 
+
+def cbFun(varBinds, **context):
+    for oid, val in varBinds:
+        print('%s = %s' % ('.'.join([str(x) for x in oid]), not val.isValue and 'N/A' or val.prettyPrint()))
+
 print('Create/update SNMP-COMMUNITY-MIB::snmpCommunityEntry table row: ')
-varBinds = mibInstrum.writeVars(
+mibInstrum.writeVars(
     (snmpCommunityEntry.name + (2,) + instanceId, 'mycomm'),
     (snmpCommunityEntry.name + (3,) + instanceId, 'mynmsname'),
-    (snmpCommunityEntry.name + (7,) + instanceId, 'volatile')
+    (snmpCommunityEntry.name + (7,) + instanceId, 'volatile'),
+    cbFun=cbFun
 )
-for oid, val in varBinds:
-    print('%s = %s' % ('.'.join([str(x) for x in oid]), not val.isValue and 'N/A' or val.prettyPrint()))
 print('done')
 
+
+def cbFun(varBinds, **context):
+    for oid, val in varBinds:
+        if exval.endOfMib.isSameTypeWith(val):
+            context['state']['stop'] = True
+        print('%s = %s' % ('.'.join([str(x) for x in oid]), not val.isValue and 'N/A' or val.prettyPrint()))
+
+    context['state']['varBinds'] = varBinds
+
+context = {
+    'cbFun': cbFun,
+    'state': {
+        'varBinds': [((1, 3, 6), None)],
+        'stop': False
+    }
+}
+
 print('Read whole MIB (table walk)')
-varBinds = [((), None)]
-while True:
-    varBinds = mibInstrum.readNextVars(*varBinds)
-    oid, val = varBinds[0]
-    if exval.endOfMib.isSameTypeWith(val):
-        break
-    print('%s = %s' % ('.'.join([str(x) for x in oid]), not val.isValue and 'N/A' or val.prettyPrint()))
+while not context['state']['stop']:
+    mibInstrum.readNextVars(*context['state']['varBinds'], **context)
 print('done')
 
 print('Unloading MIB modules...'),

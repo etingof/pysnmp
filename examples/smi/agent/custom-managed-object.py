@@ -51,13 +51,23 @@ if __name__ == '__main__':
 
     mibInstrum = instrum.MibInstrumController(mibBuilder)
 
+    def cbFun(varBinds, **context):
+        for oid, val in varBinds:
+            if exval.endOfMib.isSameTypeWith(val):
+                context['state']['stop'] = True
+            print('%s = %s' % ('.'.join([str(x) for x in oid]), not val.isValue and 'N/A' or val.prettyPrint()))
+
+        context['state']['varBinds'] = varBinds
+
+    context = {
+        'cbFun': cbFun,
+        'state': {
+            'varBinds': [((1, 3, 6), None)],
+            'stop': False
+        }
+    }
+
     print('Remote manager read access to MIB instrumentation (table walk)')
-
-    varBinds = [((), None)]
-
-    while True:
-        varBinds = mibInstrum.readNextVars(*varBinds)
-        oid, val = varBinds[0]
-        if exval.endOfMib.isSameTypeWith(val):
-            break
-        print(oid, val.prettyPrint())
+    while not context['state']['stop']:
+        mibInstrum.readNextVars(*context['state']['varBinds'], **context)
+    print('done')
