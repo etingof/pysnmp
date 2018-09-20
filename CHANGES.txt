@@ -46,6 +46,12 @@ Revision 5.0.0, released 2018-10-??
   is to unify this method call with similar methods of CommandGenerator.
   This change should not compromise backward compatibility with pysnmp 4.
 
+Revision 4.4.7, released 2018-09-XX
+-----------------------------------
+
+- Fixed hlapi/v3arch transport target caching to ensure transport targets
+  are different even if just timeout/retries options differ
+
 Revision 4.4.6, released 2018-09-13
 -----------------------------------
 

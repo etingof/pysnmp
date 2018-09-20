@@ -94,7 +94,10 @@ class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
 
         transportKey = (paramsName, transportTarget.transportDomain,
                         transportTarget.transportAddr,
-                        transportTarget.tagList)
+                        transportTarget.timeout,
+                        transportTarget.retries,
+                        transportTarget.tagList,
+                        transportTarget.iface)
 
         if transportKey in cache['addr']:
             addrName, useCount = cache['addr'][transportKey]
