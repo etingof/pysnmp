@@ -49,10 +49,10 @@ saves its configuration for the lifetime of SNMP engine object.
 .. toctree::
    :maxdepth: 2
 
-.. autoclass:: pysnmp.hlapi.UdpTransportTarget
+.. autoclass:: pysnmp.hlapi.v3arch.UdpTransportTarget
    :members: setLocalAddress
 
-.. autoclass:: pysnmp.hlapi.Udp6TransportTarget
+.. autoclass:: pysnmp.hlapi.v3arch.Udp6TransportTarget
    :members: setLocalAddress
 
 High-level v3arch asyncore
@@ -183,7 +183,7 @@ Engine object on input.
 .. toctree::
    :maxdepth: 2
 
-.. autoclass:: pysnmp.hlapi.SnmpEngine(snmpEngineID=None)
+.. autoclass:: pysnmp.hlapi.v3arch.SnmpEngine(snmpEngineID=None)
 
 High-level v3arch auth
 ----------------------
@@ -199,41 +199,47 @@ Community-based
 +++++++++++++++
 
 Security Parameters object is Security Model specific. The
-:py:class:`~pysnmp.hlapi.CommunityData`
+:py:class:`~pysnmp.hlapi.v3arch.CommunityData`
 class is used for configuring Community-Based Security Model of SNMPv1/SNMPv2c.
 
 .. toctree::
    :maxdepth: 2
 
-.. autoclass:: pysnmp.hlapi.CommunityData(communityIndex, communityName=None, mpModel=1, contextEngineId=None, contextName='', tag='')
+.. autoclass:: pysnmp.hlapi.v3arch.CommunityData(communityIndex, communityName=None, mpModel=1, contextEngineId=None, contextName='', tag='')
 
 User-based
 ++++++++++
 
-The :py:class:`~pysnmp.hlapi.UsmUserData` class provides SNMPv3 User-Based
+The :py:class:`~pysnmp.hlapi.v3arch.UsmUserData` class provides SNMPv3 User-Based
 Security Model configuration for SNMP v3 systems.
 
-.. autoclass:: pysnmp.hlapi.UsmUserData(userName, authKey=None, privKey=None, authProtocol=usmNoAuthProtocol, privProtocol=usmNoPrivProtocol, securityEngineId=None)
+.. autoclass:: pysnmp.hlapi.v3arch.UsmUserData(userName, authKey=None, privKey=None, authProtocol=usmNoAuthProtocol, privProtocol=usmNoPrivProtocol, securityEngineId=None)
 
-Identification of Authentication and Privacy Protocols is done
-via constant OIDs:
+**Authentication protocol identifiers**
 
-.. autodata:: pysnmp.hlapi.usmNoAuthProtocol
-.. autodata:: pysnmp.hlapi.usmHMACMD5AuthProtocol
-.. autodata:: pysnmp.hlapi.usmHMACSHAAuthProtocol
-.. autodata:: pysnmp.hlapi.usmHMAC128SHA224AuthProtocol
-.. autodata:: pysnmp.hlapi.usmHMAC192SHA256AuthProtocol
-.. autodata:: pysnmp.hlapi.usmHMAC256SHA384AuthProtocol
-.. autodata:: pysnmp.hlapi.usmHMAC384SHA512AuthProtocol
+.. autodata:: pysnmp.hlapi.v3arch.usmNoAuthProtocol
+.. autodata:: pysnmp.hlapi.v3arch.usmHMACMD5AuthProtocol
+.. autodata:: pysnmp.hlapi.v3arch.usmHMACSHAAuthProtocol
+.. autodata:: pysnmp.hlapi.v3arch.usmHMAC128SHA224AuthProtocol
+.. autodata:: pysnmp.hlapi.v3arch.usmHMAC192SHA256AuthProtocol
+.. autodata:: pysnmp.hlapi.v3arch.usmHMAC256SHA384AuthProtocol
+.. autodata:: pysnmp.hlapi.v3arch.usmHMAC384SHA512AuthProtocol
 
-.. autodata:: pysnmp.hlapi.usmNoPrivProtocol
-.. autodata:: pysnmp.hlapi.usmDESPrivProtocol
-.. autodata:: pysnmp.hlapi.usm3DESEDEPrivProtocol
-.. autodata:: pysnmp.hlapi.usmAesCfb128Protocol
-.. autodata:: pysnmp.hlapi.usmAesCfb192Protocol
-.. autodata:: pysnmp.hlapi.usmAesCfb256Protocol
-.. autodata:: pysnmp.hlapi.usmAesBlumenthalCfb192Protocol
-.. autodata:: pysnmp.hlapi.usmAesBlumenthalCfb256Protocol
+**Privacy (encryption) protocol identifiers**
+
+.. autodata:: pysnmp.hlapi.v3arch.usmNoPrivProtocol
+.. autodata:: pysnmp.hlapi.v3arch.usmDESPrivProtocol
+.. autodata:: pysnmp.hlapi.v3arch.usm3DESEDEPrivProtocol
+.. autodata:: pysnmp.hlapi.v3arch.usmAesCfb128Protocol
+.. autodata:: pysnmp.hlapi.v3arch.usmAesCfb192Protocol
+.. autodata:: pysnmp.hlapi.v3arch.usmAesCfb256Protocol
+.. autodata:: pysnmp.hlapi.v3arch.usmAesBlumenthalCfb192Protocol
+.. autodata:: pysnmp.hlapi.v3arch.usmAesBlumenthalCfb256Protocol
+
+.. note::
+
+   SNMP authentication and encryption keys must be at least *eight*
+   octets long.
 
 Transport configuration is I/O framework specific and is described in
 respective sections.
@@ -263,12 +269,12 @@ SNMP engine. See :RFC:`3411#section-3.3.1` for details.
 
    The SNMP context information necessary for this mapping procedure
    to operate is supplied through the
-   :py:class:`~pysnmp.hlapi.CommunityData` object.
+   :py:class:`~pysnmp.hlapi.v3arch.CommunityData` object.
 
 .. toctree::
    :maxdepth: 2
 
-.. autoclass:: pysnmp.hlapi.ContextData
+.. autoclass:: pysnmp.hlapi.v3arch.ContextData
 
 High-level v1arch sync
 ----------------------
