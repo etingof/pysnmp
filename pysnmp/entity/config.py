@@ -28,7 +28,9 @@ usmHMAC128SHA224AuthProtocol = hmacsha2.HmacSha2.sha224ServiceID
 usmHMAC192SHA256AuthProtocol = hmacsha2.HmacSha2.sha256ServiceID
 usmHMAC256SHA384AuthProtocol = hmacsha2.HmacSha2.sha384ServiceID
 usmHMAC384SHA512AuthProtocol = hmacsha2.HmacSha2.sha512ServiceID
+
 usmNoAuthProtocol = noauth.NoAuth.serviceID
+"""No authentication service"""
 
 # Privacy protocol
 usmDESPrivProtocol = des.Des.serviceID

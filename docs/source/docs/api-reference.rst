@@ -219,8 +219,7 @@ Security Model configuration for SNMP v3 systems.
 
 .. autoclass:: pysnmp.hlapi.UsmUserData(userName, authKey=None, privKey=None, authProtocol=usmNoAuthProtocol, privProtocol=usmNoPrivProtocol, securityEngineId=None)
 
-Identification of Authentication and Privacy Protocols is done
-via constant OIDs:
+**Authentication protocol identifiers**
 
 .. autodata:: pysnmp.hlapi.usmNoAuthProtocol
 .. autodata:: pysnmp.hlapi.usmHMACMD5AuthProtocol
@@ -230,6 +229,8 @@ via constant OIDs:
 .. autodata:: pysnmp.hlapi.usmHMAC256SHA384AuthProtocol
 .. autodata:: pysnmp.hlapi.usmHMAC384SHA512AuthProtocol
 
+**Privacy (encryption) protocol identifiers**
+
 .. autodata:: pysnmp.hlapi.usmNoPrivProtocol
 .. autodata:: pysnmp.hlapi.usmDESPrivProtocol
 .. autodata:: pysnmp.hlapi.usm3DESEDEPrivProtocol
@@ -238,6 +239,11 @@ via constant OIDs:
 .. autodata:: pysnmp.hlapi.usmAesCfb256Protocol
 .. autodata:: pysnmp.hlapi.usmAesBlumenthalCfb192Protocol
 .. autodata:: pysnmp.hlapi.usmAesBlumenthalCfb256Protocol
+
+.. note::
+
+   SNMP authentication and encryption keys must be at least *eight*
+   octets long.
 
 Transport configuration is I/O framework specific and is described in
 respective sections.
