@@ -5,9 +5,11 @@ Revision 5.0.0, released 2018-10-??
 - SNMPv3 crypto operations that require external dependencies
   made dependent on the optional external
   package -- pysnmpcrypto.
+
 - By switching to pysnmpcrypto, pysnmp effectively migrates from
   PyCryptodomex to pyca/cryptography whenever available on the
   platform.
+
 - Many really old backward-compatibility code snippets removed.
   Most importantly:
   
@@ -19,13 +21,20 @@ Revision 5.0.0, released 2018-10-??
 - The MIB instrumentation API overhauled in backward incompatible
   way:
 
-      - MIB instrumentation methods signatures simplified to accept
-        just var-binds (as var-arg), the rest of the parameters packed
-        into opaque kwargs
-      - CommandResponder application passes `snmpEngine` and optionally
-        user-supplied `cbCtx` object throughout the MIB instrumentation
-        methods. The goal is to let MIB objects access/modify whatever
-        custom Python objects they need while being called back.
+  * MIB instrumentation methods signatures simplified to accept
+    just var-binds (as var-arg), the rest of the parameters packed
+    into opaque kwargs
+
+  * CommandResponder application passes `snmpEngine` and optionally
+    user-supplied `cbCtx` object throughout the MIB instrumentation
+    methods. The goal is to let MIB objects access/modify whatever
+    custom Python objects they need while being called back.
+
+  * CommandResponder refactored to facilitate asynchronous
+    MIB instrumentation routines. The `readVars`, `readNextVars` and
+    `writeVars` MIB controller methods return immediately and
+    deliver their results via a call back.
+
 - The high-level API (`hlapi`) extended to cover lightweight SNMP v1arch
   in hope to ease the use of packet-level SNMP API.
 
@@ -41,6 +50,7 @@ Revision 5.0.0, released 2018-10-??
   automation around building well-formed SNMP messages is and mediating
   differences between SNMP versions is not present in this new `v1arch`
   layer.
+
 - The signature of the hlapi `.sendNotification()` call has changed
   to accept `*varBinds` instead of a sequence of `varBinds`. The rationale
   is to unify this method call with similar methods of CommandGenerator.

@@ -184,15 +184,25 @@ class MibInstrumController(AbstractMibInstrumController):
     # MIB instrumentation
 
     def flipFlopFsm(self, fsmTable, *varBinds, **context):
-        self.__indexMib()
 
-        debug.logger & debug.flagIns and debug.logger('flipFlopFsm: input var-binds %r' % (varBinds,))
+        try:
+            fsmContext = context['fsmState']
+
+        except KeyError:
+            self.__indexMib()
+
+            fsmContext = context['fsmState'] = dict(varBinds=[], state='start', status='ok')
+
+            debug.logger & debug.flagIns and debug.logger('flipFlopFsm: input var-binds %r' % (varBinds,))
 
         mibTree, = self.mibBuilder.importSymbols('SNMPv2-SMI', 'iso')
 
-        outputVarBinds = []
-        state, status = 'start', 'ok'
+        outputVarBinds = fsmContext['varBinds']
+        state = fsmContext['state']
+        status = fsmContext['status']
+
         origExc = origTraceback = None
+
         while True:
             k = state, status
             if k in fsmTable:
@@ -237,7 +247,7 @@ class MibInstrumController(AbstractMibInstrumController):
                     break
                 else:
                     debug.logger & debug.flagIns and debug.logger(
-                        'flipFlopFsm: fun %s suceeded for %s=%r' % (mgmtFun, name, val))
+                        'flipFlopFsm: fun %s succeeded for %s=%r' % (mgmtFun, name, val))
                     if rval is not None:
                         outputVarBinds.append((rval[0], rval[1]))
 
@@ -252,13 +262,15 @@ class MibInstrumController(AbstractMibInstrumController):
                     # (seems to be irrelevant on Py3 but just in case)
                     del origTraceback
 
-        return outputVarBinds
+        cbFun = context.get('cbFun')
+        if cbFun:
+            cbFun(outputVarBinds, **context)
 
     def readVars(self, *varBinds, **context):
-        return self.flipFlopFsm(self.fsmReadVar, *varBinds, **context)
+        self.flipFlopFsm(self.fsmReadVar, *varBinds, **context)
 
     def readNextVars(self, *varBinds, **context):
-        return self.flipFlopFsm(self.fsmReadNextVar, *varBinds, **context)
+        self.flipFlopFsm(self.fsmReadNextVar, *varBinds, **context)
 
     def writeVars(self, *varBinds, **context):
-        return self.flipFlopFsm(self.fsmWriteVar, *varBinds, **context)
+        self.flipFlopFsm(self.fsmWriteVar, *varBinds, **context)

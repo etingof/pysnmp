@@ -54,7 +54,9 @@ snmpContext = context.SnmpContext(snmpEngine)
 # always echos request var-binds in response.
 class EchoMibInstrumController(instrum.AbstractMibInstrumController):
     def readVars(self, *varBinds, **context):
-        return [(ov[0], v2c.OctetString('You queried OID %s' % ov[0])) for ov in varBinds]
+        cbFun = context.get('cbFun')
+        if cbFun:
+            cbFun([(ov[0], v2c.OctetString('You queried OID %s' % ov[0])) for ov in varBinds], **context)
 
 
 # Create a custom Management Instrumentation Controller and register at
