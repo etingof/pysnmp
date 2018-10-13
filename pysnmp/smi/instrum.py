@@ -183,80 +183,6 @@ class MibInstrumController(AbstractMibInstrumController):
 
     # MIB instrumentation
 
-    @staticmethod
-    def _collectVarBindsCb(varBind, cbCtx, **context):
-        cbFun, (cbCtx, idx, varBindsLen, collectedVarBinds) = cbCtx
-
-        if len(collectedVarBinds) < varBindsLen:
-            collectedVarBinds[idx] = varBind
-            return
-
-        varBinds = [vb[1] for vb in sorted(collectedVarBinds.items(), key=lambda x: x[0])]
-
-        cbFun(varBinds, cbCtx, **context)
-
-    @staticmethod
-    def _flipFlopFsmCb(varBinds, cbCtx, **context):
-        cbFun, (cbCtx, state) = cbCtx
-
-        if any([varBind for varBind in varBinds if isinstance(varBind[1], Exception)]):
-            status = 'err'
-            
-        debug.logger & debug.flagIns and debug.logger(
-            '_flipFlopFsmCb: current state %s, status %s' % (state, status))
-
-        try:
-            newState = fsmTable[(state, status)]
-
-        except KeyError:
-            try:
-                newState = fsmTable[('*', status)]
-
-            except KeyError:
-                raise error.SmiError(
-                    'Unresolved FSM state %s, %s' % (state, status)
-                )
-
-            debug.logger & debug.flagIns and debug.logger(
-                '_flipFlopFsmCb: state %s status %s -> new state %s' % (state, status, newState))
-
-        state = newState
-        status = 'ok'
-
-        if state == 'stop':
-            cbFun(varBinds, cbCtx, **context)
-            return
-
-        mgmtFun = getattr(mibTree, state, None)
-        if not mgmtFun:
-            raise error.SmiError(
-                'Unsupported state handler %s at %s' % (state, self)
-            )
-
-        collectedVarBinds = {}
-
-        for idx, (name, val) in enumerate(varBinds):
-            _cbCtx = self._flipFlopFsmCb, (cbCtx, idx, len(varBinds), collectedVarBinds)
-
-            varBind = (tuple(name), val)
-
-            try:
-                mgmtFun(varBind, self._collectVarBindsCb, _cbCtx, **context)
-
-            except error.SmiError:
-                exc = sys.exc_info()
-                debug.logger & debug.flagIns and debug.logger(
-                    '_flipFlopFsmCb: fun %s exception %s for %r with traceback: %s' % (
-                        mgmtFun, exc[0], varBind, traceback.format_exception(*exc)))
-
-                varBind = name, exc
-
-                self._collectVarBindsCb(varBind, _cbCtx, **context)
-
-            else:
-                debug.logger & debug.flagIns and debug.logger(
-                    '_flipFlopFsmCb: func %s succeeded for %r' % (mgmtFun, varBind))
-
     def flipFlopFsm(self, fsmTable, *varBinds, **context):
 
         try:
@@ -321,7 +247,7 @@ class MibInstrumController(AbstractMibInstrumController):
                     break
                 else:
                     debug.logger & debug.flagIns and debug.logger(
-                        'flipFlopFsm: fun %s suceeded for %s=%r' % (mgmtFun, name, val))
+                        'flipFlopFsm: fun %s succeeded for %s=%r' % (mgmtFun, name, val))
                     if rval is not None:
                         outputVarBinds.append((rval[0], rval[1]))
 
@@ -336,13 +262,15 @@ class MibInstrumController(AbstractMibInstrumController):
                     # (seems to be irrelevant on Py3 but just in case)
                     del origTraceback
 
-        return outputVarBinds
+        cbFun = context.get('cbFun')
+        if cbFun:
+            cbFun(outputVarBinds, **context)
 
     def readVars(self, *varBinds, **context):
-        return self.flipFlopFsm(self.fsmReadVar, *varBinds, **context)
+        self.flipFlopFsm(self.fsmReadVar, *varBinds, **context)
 
     def readNextVars(self, *varBinds, **context):
-        return self.flipFlopFsm(self.fsmReadNextVar, *varBinds, **context)
+        self.flipFlopFsm(self.fsmReadNextVar, *varBinds, **context)
 
     def writeVars(self, *varBinds, **context):
-        return self.flipFlopFsm(self.fsmWriteVar, *varBinds, **context)
+        self.flipFlopFsm(self.fsmWriteVar, *varBinds, **context)
