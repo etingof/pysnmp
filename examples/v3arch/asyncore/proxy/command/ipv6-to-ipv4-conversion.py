@@ -96,7 +96,7 @@ class CommandResponder(cmdrsp.CommandResponderBase):
         v2c.GetNextRequestPDU.tagSet: cmdgen.NextCommandGeneratorSingleRun(),
         v2c.GetBulkRequestPDU.tagSet: cmdgen.BulkCommandGeneratorSingleRun()
     }
-    pduTypes = cmdGenMap.keys()  # This app will handle these PDUs
+    SUPPORTED_PDU_TYPES = cmdGenMap.keys()  # This app will handle these PDUs
 
     # SNMP request relay
     def handleMgmtOperation(self, snmpEngine, stateReference, contextName,

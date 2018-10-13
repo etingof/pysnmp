@@ -14,12 +14,12 @@ from pysnmp import debug
 
 # 3.4
 class NotificationReceiver(object):
-    pduTypes = (v1.TrapPDU.tagSet, v2c.SNMPv2TrapPDU.tagSet,
-                v2c.InformRequestPDU.tagSet)
+    SUPPORTED_PDU_TYPES = (v1.TrapPDU.tagSet, v2c.SNMPv2TrapPDU.tagSet,
+                           v2c.InformRequestPDU.tagSet)
 
     def __init__(self, snmpEngine, cbFun, cbCtx=None):
         snmpEngine.msgAndPduDsp.registerContextEngineId(
-            null, self.pduTypes, self.processPdu  # '' is a wildcard
+            null, self.SUPPORTED_PDU_TYPES, self.processPdu  # '' is a wildcard
         )
 
         self.__snmpTrapCommunity = ''
@@ -33,7 +33,7 @@ class NotificationReceiver(object):
 
     def close(self, snmpEngine):
         snmpEngine.msgAndPduDsp.unregisterContextEngineId(
-            null, self.pduTypes
+            null, self.SUPPORTED_PDU_TYPES
         )
         self.__cbFun = self.__cbCtx = None
 
