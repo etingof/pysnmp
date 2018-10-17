@@ -99,7 +99,7 @@ class DgramSocketTransport(AbstractSocketTransport):
         except socket.error:
             raise error.CarrierError('setsockopt() for IP_TRANSPARENT failed: %s' % sys.exc_info()[1])
         except OSError:
-            raise error.CarrierError('IP_TRANSPARENT socket option requires superusre previleges')
+            raise error.CarrierError('IP_TRANSPARENT socket option requires superuser priveleges')
 
         debug.logger & debug.flagIO and debug.logger('enableTransparent: %s option IP_TRANSPARENT on socket %s' % (flag and "enabled" or "disabled", self.socket.fileno()))
         return self
