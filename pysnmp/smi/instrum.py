@@ -6,6 +6,8 @@
 #
 import sys
 import traceback
+import functools
+from pysnmp import nextid
 from pysnmp.smi import error
 from pysnmp import debug
 
@@ -24,38 +26,58 @@ class AbstractMibInstrumController(object):
 
 
 class MibInstrumController(AbstractMibInstrumController):
+    STATUS_OK = 'ok'
+    STATUS_ERROR = 'err'
+    
+    STATE_START = 'start'
+    STATE_STOP = 'stop'
+    STATE_ANY = '*'
+    # These states are actually methods of the MIB objects
+    STATE_READ_TEST = 'readTest'
+    STATE_READ_GET = 'readGet'
+    STATE_READ_TEST_NEXT = 'readTestNext'
+    STATE_READ_GET_NEXT = 'readGetNext'
+    STATE_WRITE_TEST = 'writeTest'
+    STATE_WRITE_COMMIT = 'writeCommit'
+    STATE_WRITE_CLEANUP = 'writeCleanup'
+    STATE_WRITE_UNDO = 'writeUndo'
+
     fsmReadVar = {
         # ( state, status ) -> newState
-        ('start', 'ok'): 'readTest',
-        ('readTest', 'ok'): 'readGet',
-        ('readGet', 'ok'): 'stop',
-        ('*', 'err'): 'stop'
+        (STATE_START, STATUS_OK): STATE_READ_TEST,
+        (STATE_READ_TEST, STATUS_OK): STATE_READ_GET,
+        (STATE_READ_GET, STATUS_OK): STATE_STOP,
+        (STATE_ANY, STATUS_ERROR): STATE_STOP
     }
     fsmReadNextVar = {
         # ( state, status ) -> newState
-        ('start', 'ok'): 'readTestNext',
-        ('readTestNext', 'ok'): 'readGetNext',
-        ('readGetNext', 'ok'): 'stop',
-        ('*', 'err'): 'stop'
+        (STATE_START, STATUS_OK): STATE_READ_TEST_NEXT,
+        (STATE_READ_TEST_NEXT, STATUS_OK): STATE_READ_GET_NEXT,
+        (STATE_READ_GET_NEXT, STATUS_OK): STATE_STOP,
+        (STATE_ANY, STATUS_ERROR): STATE_STOP
     }
     fsmWriteVar = {
         # ( state, status ) -> newState
-        ('start', 'ok'): 'writeTest',
-        ('writeTest', 'ok'): 'writeCommit',
-        ('writeCommit', 'ok'): 'writeCleanup',
-        ('writeCleanup', 'ok'): 'readTest',
+        (STATE_START, STATUS_OK): STATE_WRITE_TEST,
+        (STATE_WRITE_TEST, STATUS_OK): STATE_WRITE_COMMIT,
+        (STATE_WRITE_COMMIT, STATUS_OK): STATE_WRITE_CLEANUP,
+        (STATE_WRITE_CLEANUP, STATUS_OK): STATE_READ_TEST,
         # Do read after successful write
-        ('readTest', 'ok'): 'readGet',
-        ('readGet', 'ok'): 'stop',
+        (STATE_READ_TEST, STATUS_OK): STATE_READ_GET,
+        (STATE_READ_GET, STATUS_OK): STATE_STOP,
         # Error handling
-        ('writeTest', 'err'): 'writeCleanup',
-        ('writeCommit', 'err'): 'writeUndo',
-        ('writeUndo', 'ok'): 'readTest',
+        (STATE_WRITE_TEST, STATUS_ERROR): STATE_WRITE_CLEANUP,
+        (STATE_WRITE_COMMIT, STATUS_ERROR): STATE_WRITE_UNDO,
+        (STATE_WRITE_UNDO, STATUS_OK): STATE_READ_TEST,
         # Ignore read errors (removed columns)
-        ('readTest', 'err'): 'stop',
-        ('readGet', 'err'): 'stop',
-        ('*', 'err'): 'stop'
+        (STATE_READ_TEST, STATUS_ERROR): STATE_STOP,
+        (STATE_READ_GET, STATUS_ERROR): STATE_STOP,
+        (STATE_ANY, STATUS_ERROR): STATE_STOP
     }
+
+    FSM_CONTEXT = '_fsmContext'
+
+    FSM_SESSION_ID = nextid.Integer(0xffffffff)
 
     def __init__(self, mibBuilder):
         self.mibBuilder = mibBuilder
@@ -183,88 +205,115 @@ class MibInstrumController(AbstractMibInstrumController):
 
     # MIB instrumentation
 
-    def flipFlopFsm(self, fsmTable, *varBinds, **context):
+    def _flipFlopFsmCb(self, varBind, **context):
+        fsmContext = context[self.FSM_CONTEXT]
 
+        varBinds = fsmContext['varBinds']
+
+        idx = context.pop('idx')
+
+        if idx >= 0:
+            fsmContext['count'] += 1
+
+            varBinds[idx] = varBind
+
+            debug.logger & debug.flagIns and debug.logger(
+                '_flipFlopFsmCb: var-bind %d, processed %d, expected %d' % (idx, fsmContext['count'], len(varBinds)))
+
+            if fsmContext['count'] < len(varBinds):
+                return
+
+        debug.logger & debug.flagIns and debug.logger(
+            '_flipFlopFsmCb: finished, output %r' % (varBinds,))
+
+        fsmCallable = fsmContext['fsmCallable']
+
+        fsmCallable(**context)
+
+    def flipFlopFsm(self, fsmTable, *varBinds, **context):
         try:
-            fsmContext = context['fsmState']
+            fsmContext = context[self.FSM_CONTEXT]
 
         except KeyError:
             self.__indexMib()
 
-            fsmContext = context['fsmState'] = dict(varBinds=[], state='start', status='ok')
+            fsmContext = context[self.FSM_CONTEXT] = dict(
+                sessionId=self.FSM_SESSION_ID(),
+                varBinds=list(varBinds[:]),
+                fsmCallable=functools.partial(self.flipFlopFsm, fsmTable, *varBinds),
+                state=self.STATE_START, status=self.STATUS_OK
+            )
 
             debug.logger & debug.flagIns and debug.logger('flipFlopFsm: input var-binds %r' % (varBinds,))
 
         mibTree, = self.mibBuilder.importSymbols('SNMPv2-SMI', 'iso')
 
-        outputVarBinds = fsmContext['varBinds']
         state = fsmContext['state']
         status = fsmContext['status']
 
-        origExc = origTraceback = None
+        debug.logger & debug.flagIns and debug.logger(
+            'flipFlopFsm: current state %s, status %s' % (state, status))
 
-        while True:
-            k = state, status
-            if k in fsmTable:
-                fsmState = fsmTable[k]
+        try:
+            newState = fsmTable[(state, status)]
+
+        except KeyError:
+            try:
+                newState = fsmTable[(self.STATE_ANY, status)]
+
+            except KeyError:
+                raise error.SmiError('Unresolved FSM state %s, %s' % (state, status))
+
+        debug.logger & debug.flagIns and debug.logger(
+            'flipFlopFsm: state %s status %s -> new state %s' % (state, status, newState))
+
+        state = newState
+
+        if state == self.STATE_STOP:
+            context.pop(self.FSM_CONTEXT, None)
+
+            cbFun = context.get('cbFun')
+            if cbFun:
+                varBinds = fsmContext['varBinds']
+                cbFun(varBinds, **context)
+
+            return
+
+        fsmContext.update(state=state, count=0)
+
+        # the case of no var-binds
+        if not varBinds:
+            return self._flipFlopFsmCb(None, idx=-1, **context)
+
+        mgmtFun = getattr(mibTree, state, None)
+        if not mgmtFun:
+            raise error.SmiError(
+                'Unsupported state handler %s at %s' % (state, self)
+            )
+
+        for idx, varBind in enumerate(varBinds):
+            try:
+                # TODO: managed objects to run asynchronously
+                #mgmtFun(varBind, idx=idx, **context)
+                self._flipFlopFsmCb(mgmtFun(varBind, idx=idx, **context), idx=idx, **context)
+
+            except error.SmiError:
+                exc = sys.exc_info()
+                debug.logger & debug.flagIns and debug.logger(
+                    'flipFlopFsm: fun %s exception %s for %r with traceback: %s' % (
+                        mgmtFun, exc[0], varBind, traceback.format_exception(*exc)))
+
+                varBind = varBind[0], exc
+
+                fsmContext['status'] = self.STATUS_ERROR
+
+                self._flipFlopFsmCb(varBind, idx=idx, **context)
+
+                return
+
             else:
-                k = '*', status
-                if k in fsmTable:
-                    fsmState = fsmTable[k]
-                else:
-                    raise error.SmiError(
-                        'Unresolved FSM state %s, %s' % (state, status)
-                    )
-            debug.logger & debug.flagIns and debug.logger(
-                'flipFlopFsm: state %s status %s -> fsmState %s' % (state, status, fsmState))
-            state = fsmState
-            status = 'ok'
-            if state == 'stop':
-                break
-
-            for idx, (name, val) in enumerate(varBinds):
-                mgmtFun = getattr(mibTree, state, None)
-                if not mgmtFun:
-                    raise error.SmiError(
-                        'Unsupported state handler %s at %s' % (state, self)
-                    )
-
-                context['idx'] = idx
-
-                try:
-                    # Convert to tuple to avoid ObjectName instantiation
-                    # on subscription
-                    rval = mgmtFun((tuple(name), val), **context)
-
-                except error.SmiError:
-                    exc_t, exc_v, exc_tb = sys.exc_info()
-                    debug.logger & debug.flagIns and debug.logger(
-                        'flipFlopFsm: fun %s exception %s for %s=%r with traceback: %s' % (
-                            mgmtFun, exc_t, name, val, traceback.format_exception(exc_t, exc_v, exc_tb)))
-                    if origExc is None:  # Take the first exception
-                        origExc, origTraceback = exc_v, exc_tb
-                    status = 'err'
-                    break
-                else:
-                    debug.logger & debug.flagIns and debug.logger(
-                        'flipFlopFsm: fun %s succeeded for %s=%r' % (mgmtFun, name, val))
-                    if rval is not None:
-                        outputVarBinds.append((rval[0], rval[1]))
-
-        if origExc:
-            if sys.version_info[0] <= 2:
-                raise origExc
-            else:
-                try:
-                    raise origExc.with_traceback(origTraceback)
-                finally:
-                    # Break cycle between locals and traceback object
-                    # (seems to be irrelevant on Py3 but just in case)
-                    del origTraceback
-
-        cbFun = context.get('cbFun')
-        if cbFun:
-            cbFun(outputVarBinds, **context)
+                debug.logger & debug.flagIns and debug.logger(
+                    'flipFlopFsm: func %s initiated for %r' % (mgmtFun, varBind))
 
     def readVars(self, *varBinds, **context):
         self.flipFlopFsm(self.fsmReadVar, *varBinds, **context)

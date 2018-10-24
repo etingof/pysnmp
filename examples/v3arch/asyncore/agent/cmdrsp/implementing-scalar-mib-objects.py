@@ -56,7 +56,7 @@ MibScalar, MibScalarInstance = mibBuilder.importSymbols(
 
 class MyStaticMibScalarInstance(MibScalarInstance):
     # noinspection PyUnusedLocal,PyUnusedLocal
-    def getValue(self, name, idx):
+    def getValue(self, name, idx, **context):
         return self.getSyntax().clone(
             'Python %s running on a %s platform' % (sys.version, sys.platform)
         )
