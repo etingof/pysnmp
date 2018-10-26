@@ -10,7 +10,32 @@ from pysnmp.proto import rfc1155, error
 
 __all__ = ['Opaque', 'TimeTicks', 'Bits', 'Integer', 'OctetString',
            'IpAddress', 'Counter64', 'Unsigned32', 'Gauge32', 'Integer32',
-           'ObjectIdentifier', 'Counter32']
+           'ObjectIdentifier', 'Counter32', 'Null']
+
+
+class Null(univ.Null):
+    """Creates an instance of SNMP Null class.
+
+    :py:class:`~pysnmp.proto.rfc1902.Null` type represents the absence
+    of value.
+
+    Parameters
+    ----------
+    initializer: str
+        Python string object. Must be an empty string.
+
+    Raises
+    ------
+        PyAsn1Error :
+            On constraint violation or bad initializer.
+
+    Examples
+    --------
+        >>> from pysnmp.proto.rfc1902 import *
+        >>> Null('')
+        Null('')
+        >>>
+    """
 
 
 class Integer32(univ.Integer):
