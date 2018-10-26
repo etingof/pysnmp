@@ -441,6 +441,20 @@ data description language. PySNMP types are derived from
 .. toctree::
    :maxdepth: 2
 
+.. _null:
+
+Null type
++++++++++
+
+.. autoclass:: pysnmp.proto.rfc1902.Null(initializer)
+   :members:
+
+.. note::
+
+   The `NULL` type actually belongs to the base ASN.1 types. It is not defined
+   in :RFC:`1902#section-2` as an SNMP type. The `Null` type is exposed through
+   `rfc1902` module just for convenience.
+
 .. _integer32:
 
 Integer32 type

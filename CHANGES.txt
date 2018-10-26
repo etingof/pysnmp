@@ -61,6 +61,7 @@ Revision 5.0.0, released 2018-10-??
 Revision 4.4.7, released 2018-11-XX
 -----------------------------------
 
+- Exposed ASN.1 `Null` type through `rfc1902` module for convenience.
 - Use `compile()` before `exec`'ing MIB modules to attach filename to
   the stack frames (ultimately shown in traceback/debugger)
 - Fixed hlapi/v3arch transport target caching to ensure transport targets
