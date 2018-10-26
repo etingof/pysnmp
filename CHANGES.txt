@@ -25,15 +25,17 @@ Revision 5.0.0, released 2018-10-??
     just var-binds (as var-arg), the rest of the parameters packed
     into opaque kwargs
 
+  * The `readVars`, `readNextVars` and `writeVars` methods of MIB
+    instrumentation controller return immediately and deliver their
+    results via a call back.
+
   * CommandResponder application passes `snmpEngine` and optionally
     user-supplied `cbCtx` object throughout the MIB instrumentation
     methods. The goal is to let MIB objects access/modify whatever
     custom Python objects they need while being called back.
 
   * CommandResponder refactored to facilitate asynchronous
-    MIB instrumentation routines. The `readVars`, `readNextVars` and
-    `writeVars` MIB controller methods return immediately and
-    deliver their results via a call back.
+    MIB instrumentation routines.
 
 - The high-level API (`hlapi`) extended to cover lightweight SNMP v1arch
   in hope to ease the use of packet-level SNMP API.
