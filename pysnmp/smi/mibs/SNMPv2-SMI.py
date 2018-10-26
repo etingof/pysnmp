@@ -35,15 +35,25 @@ Unsigned32 = rfc1902.Unsigned32
 TimeTicks = rfc1902.TimeTicks
 Opaque = rfc1902.Opaque
 Counter64 = rfc1902.Counter64
+Null = rfc1902.Null
 
 
 class ExtUTCTime(OctetString):
-    subtypeSpec = OctetString.subtypeSpec + ConstraintsUnion(ValueSizeConstraint(11, 11), ValueSizeConstraint(13, 13))
+    subtypeSpec = (OctetString.subtypeSpec +
+                   ConstraintsUnion(ValueSizeConstraint(11, 11),
+                                    ValueSizeConstraint(13, 13)))
 
 
 # MIB tree foundation class
 
 class MibNode(object):
+    """MIB object base.
+
+    Logically binds object identifier, which addresses MIB object in MIB tree,
+    with MIB symbol which identifies MIB object within its MIB module.
+
+    Serves as a foundation for more specialized MIB objects.
+    """
     label = ''
 
     def __init__(self, name):
@@ -271,9 +281,13 @@ class ObjectType(MibNode):
         return self.syntax >= other
 
     def __repr__(self):
-        return '%s(%r, %r)' % (
-            self.__class__.__name__, self.name, self.syntax
-        )
+        representation = '%s(%s' % (self.__class__.__name__, self.name)
+
+        if self.syntax is not None:
+            representation += ', %r' % self.syntax
+
+        representation += ')'
+        return representation
 
     def getSyntax(self):
         return self.syntax
@@ -333,9 +347,47 @@ OBJECT-TYPE
                         self.getReference())
 
 
-class MibTree(ObjectType):
-    branchVersionId = 0  # cnanges on tree structure change
+class ManagedMibObject(ObjectType):
+    """Managed MIB object.
+
+    Implement management instrumentation access protocol which allows for
+    MIB instantiation and operations on Managed Objects Instances.
+
+    Management instrumentation protocol is typically used by SNMP Agent
+    serving Managed Objects to SNMP Managers.
+
+    The :class:`AbstractManagedMibObject` class serves as a basis
+    for a handful of other classes representing various kinds of
+    MIB objects. In the context of management instrumentation these
+    objects are organized into a tree of the following layout:
+
+
+        MibTree
+           |
+           +----MibScalar
+           |        |
+           |        +-----MibScalarInstance
+           |
+           +----MibTable
+           |
+           +----MibTableRow
+                  |
+                  +-------MibTableColumn
+                                |
+                                +------MibScalarInstance(s)
+
+    Management instrumentation queries always come to the top of the
+    tree propagating downwards.
+
+    The basic management instrumentation operations are *read*, *readnext*
+    and *write* of Managed Objects Instances. The latter covers creation
+    and removal of the columnar Managed Objects Instances.
+    """
+    branchVersionId = 0  # changes on tree structure change
     maxAccess = 'not-accessible'
+
+    ST_CREATE = 'create'
+    ST_DESTROY = 'destroy'
 
     def __init__(self, name, syntax=None):
         ObjectType.__init__(self, name, syntax)
@@ -421,154 +473,608 @@ class MibTree(ObjectType):
     # Read operation
 
     def readTest(self, varBind, **context):
+        """Test the ability to read Managed Object Instance.
+
+        Implements the first of the two phases of the SNMP GET command
+        processing (:RFC:`1905#section-4.2.1`).
+
+        The goal of the first phase is to make sure that requested Managed
+        Object Instance could potentially be read. When multiple Managed
+        Objects Instances are read at once (likely coming all in one SNMP PDU),
+        each of them has to run through the first (*test*) phase successfully
+        for the system to transition to the second (*get*) phase.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            Managed Object Instance to read
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass read Managed Object Instance or an error.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this
+        method where `varBind` contains read Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
+
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: readTest(%s, %r)' % (self, name, val)))
+
+        cbFun = context['cbFun']
 
         if name == self.name:
-            acFun = context.get('acFun')
-            if acFun:
-                if (self.maxAccess not in ('readonly', 'readwrite', 'readcreate') or
-                        acFun('read', (name, self.syntax), **context)):
-                    raise error.NoAccessError(name=name, idx=context.get('idx'))
-        else:
-            try:
-                node = self.getBranch(name, **context)
+            cbFun((name, exval.noSuchInstance), **context)
+            return
 
-            except (error.NoSuchInstanceError, error.NoSuchObjectError):
-                return  # missing object is not an error here
+        node = exc = None
 
-            else:
-                node.readTest(varBind, **context)
+        try:
+            node = self.getBranch(name, **context)
+
+        except error.NoSuchObjectError:
+            val = exval.noSuchObject
+
+        except error.NoSuchInstanceError:
+            val = exval.noSuchInstance
+
+        except error.SmiError:
+            exc = sys.exc_info()[1]
+
+            (debug.logger & debug.flagIns and
+             debug.logger('%s: exception %r' % (self, exc)))
+
+        if not node:
+            cbFun((name, val), **dict(context, error=exc))
+            return
+
+        node.readTest(varBind, **context)
 
     def readGet(self, varBind, **context):
+        """Read Managed Object Instance.
+
+        Implements the second of the two phases of the SNMP GET command
+        processing (:RFC:`1905#section-4.2.1`).
+
+        The goal of the second phase is to actually read the requested Managed
+        Object Instance. When multiple Managed Objects Instances are read at
+        once (likely coming all in one SNMP PDU), each of them has to run through
+        the first (*test*) and second (*read) phases successfully for the whole
+        read operation to succeed.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            Managed Object Instance to read
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass read Managed Object Instance or an error.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) has the same signature as
+        this method where `varBind` contains read Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
+
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: readGet(%s, %r)' % (self, name, val)))
+
+        cbFun = context['cbFun']
+
+        if name == self.name:
+            cbFun((name, exval.noSuchInstance), **context)
+            return
+
+        node = exc = None
+
+        try:
+            node = self.getBranch(name, **context)
+
+        except error.NoSuchObjectError:
+            val = exval.noSuchObject
+
+        except error.NoSuchInstanceError:
+            val = exval.noSuchInstance
+
+        except error.SmiError:
+            exc = sys.exc_info()[1]
+
+            (debug.logger & debug.flagIns and
+             debug.logger('%s: exception %r' % (self, exc)))
+
+        if not node:
+            cbFun((name, val), **dict(context, error=exc))
+            return
+
+        node.readGet(varBind, **context)
+
+    def _getNextName(self, name):
+        try:
+            nextNode = self.getNextBranch(name)
+
+        except (error.NoSuchInstanceError, error.NoSuchObjectError):
+            return
+
+        else:
+            return nextNode.name
+
+    depthFirst, breadthFirst = 0, 1
+
+    def _readNext(self, meth, varBind, **context):
+        name, val = varBind
+
+        cbFun = context['cbFun']
 
         try:
             node = self.getBranch(name, **context)
 
         except (error.NoSuchInstanceError, error.NoSuchObjectError):
-            return name, exval.noSuchObject
 
-        else:
-            return node.readGet(varBind, **context)
+            node = exc = None
 
-    # Read next operation is subtree-specific
+            try:
+                node = self.getNextBranch(name, **context)
 
-    depthFirst, breadthFirst = 0, 1
+            except error.NoSuchObjectError:
+                val = exval.noSuchObject
+
+            except error.NoSuchInstanceError:
+                val = exval.noSuchInstance
+
+            except error.SmiError:
+                exc = sys.exc_info()[1]
+
+                (debug.logger & debug.flagIns and
+                 debug.logger('%s: exception %r' % (self, exc)))
+
+            if not node:
+                nextName = context.get('nextName')
+                if nextName:
+                    varBind = nextName, val
+
+                else:
+                    varBind = name, exval.endOfMibView
+
+                cbFun(varBind, **dict(context, error=exc))
+                return
+
+        nextName = self._getNextName(node.name)
+        if nextName:
+            context['nextName'] = nextName
+
+        actionFun = getattr(node, meth)
+        actionFun(varBind, **context)
 
     def readTestNext(self, varBind, **context):
-        name, val = varBind
+        """Test the ability to read the next Managed Object Instance.
 
-        topOfTheMib = context.get('oName') is None
-        if topOfTheMib:
-            context['oName'] = name
+        Implements the first of the two phases of the SNMP GETNEXT command
+        processing (:RFC:`1905#section-4.2.2`).
 
-        nextName = name
-        direction = self.depthFirst
+        The goal of the first phase is to make sure that requested Managed
+        Object Instance could potentially be read. When multiple Managed
+        Objects Instances are read at once (likely coming all in one SNMP PDU),
+        each of them has to run through the first (*testnext*) phase
+        successfully for the system to transition to the second (*getnext*)
+        phase.
 
-        while True:  # NOTE(etingof): linear search here
-            if direction == self.depthFirst:
-                direction = self.breadthFirst
-                try:
-                    node = self.getBranch(nextName, **context)
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
 
-                except (error.NoSuchInstanceError, error.NoSuchObjectError):
-                    continue
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            Managed Object Instance next to which to read
 
-            else:
-                try:
-                    node = self.getNextBranch(nextName, **context)
+        Other Parameters
+        ----------------
+        \*\*context:
 
-                except (error.NoSuchInstanceError, error.NoSuchObjectError):
-                    if topOfTheMib:
-                        return
-                    raise
+            Query parameters:
 
-                direction = self.depthFirst
-                nextName = node.name
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass read Managed Object Instance (the *next* one in the MIB tree
+              relative to the one being requested) or an error.
 
-            try:
-                return node.readTestNext(varBind, **context)
+            * `acFun` (callable) - user-supplied callable that is invoked to
+               authorize access to the Managed Object Instance which is *next*
+               to the one being requested. If not supplied, no access control
+               will be performed.
 
-            except (error.NoAccessError, error.NoSuchInstanceError, error.NoSuchObjectError):
-                pass
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`, `acFun`) have the same signature
+        as this method where `varBind` contains read Managed Object Instance
+        value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: readTestNext(%s, %r)' % (self, name, val)))
+
+        self._readNext('readTestNext', varBind, **context)
 
     def readGetNext(self, varBind, **context):
-        name, val = varBind
+        """Read the next Managed Object Instance.
 
-        topOfTheMib = context.get('oName') is None
-        if topOfTheMib:
-            context['oName'] = name
+        Implements the second of the two phases of the SNMP GETNEXT command
+        processing (:RFC:`1905#section-4.2.2`).
 
-        nextName = name
-        direction = self.depthFirst
+        The goal of the second phase is to actually read the Managed Object
+        Instance which is next in the MIB tree to the one being requested.
+        When multiple Managed Objects Instances are read at once (likely coming
+        all in one SNMP PDU), each of them has to run through the first
+        (*testnext*) and second (*getnext*) phases successfully for the whole
+        read operation to succeed.
 
-        while True:  # NOTE(etingof): linear search ahead!
-            if direction == self.depthFirst:
-                direction = self.breadthFirst
-                try:
-                    node = self.getBranch(nextName, **context)
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
 
-                except (error.NoSuchInstanceError, error.NoSuchObjectError):
-                    continue
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            Managed Object Instance to read
 
-            else:
-                try:
-                    node = self.getNextBranch(nextName, **context)
+        Other Parameters
+        ----------------
+        \*\*context:
 
-                except (error.NoSuchInstanceError, error.NoSuchObjectError):
-                    if topOfTheMib:
-                        return name, exval.endOfMib
-                    raise
+            Query parameters:
 
-                direction = self.depthFirst
-                nextName = node.name
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass read Managed Object Instance (the *next* one in the MIB tree
+              relative to the one being requested) or an error.
 
-            try:
-                return node.readGetNext((nextName, val), **context)
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this
+        method where `varBind` contains read Managed Object Instance value.
 
-            except (error.NoAccessError, error.NoSuchInstanceError, error.NoSuchObjectError):
-                pass
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: readGetNext(%s, %r)' % (self, name, val)))
+
+        self._readNext('readGetNext', varBind, **context)
 
     # Write operation
 
     def writeTest(self, varBind, **context):
+        """Test the ability to modify Managed Object Instance.
+
+        Implements the first of the multi-step workflow of the SNMP SET
+        command processing (:RFC:`1905#section-4.2.5`).
+
+        The goal of the first phase is to make sure that requested Managed
+        Object Instance could potentially be changed. When multiple Managed
+        Objects Instances are modified at once (likely coming all in one SNMP
+        PDU), each of them has to run through the first (*test*) phase
+        successfully for the system to transition to the second (*commit*)
+        phase.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to set
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+            * `acFun` (callable) - user-supplied callable that is invoked to
+               authorize access to the requested Managed Object Instance. If
+               not supplied, no access control will be performed.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`, `acFun`) have the same signature
+        as this method where `varBind` contains the new Managed Object Instance
+        value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
 
-        if name == self.name:
-            # Make sure variable is writable
-            acFun = context.get('acFun')
-            if acFun:
-                if (self.maxAccess not in ('readwrite', 'readcreate') or
-                        acFun('write', (name, self.syntax), **context)):
-                    raise error.NotWritableError(name=name, idx=context.get('idx'))
-        else:
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: writeTest(%s, %r)' % (self, name, val)))
+
+        try:
             node = self.getBranch(name, **context)
+
+        except (error.NoSuchInstanceError, error.NoSuchObjectError):
+            self.createTest(varBind, **context)
+
+        else:
             node.writeTest(varBind, **context)
 
     def writeCommit(self, varBind, **context):
+        """Commit new value of the Managed Object Instance.
+
+        Implements the second of the multi-step workflow of the SNMP SET
+        command processing (:RFC:`1905#section-4.2.5`).
+
+        The goal of the second phase is to actually modify the requested Managed
+        Object Instance. When multiple Managed Objects Instances are modified at
+        once (likely coming all in one SNMP PDU), each of them has to run through
+        the second (*commit*) phase successfully for the system to transition to
+        the third (*cleanup*) phase. If any single *commit* step fails, the system
+        transitions into the *undo* state for each of Managed Objects Instances
+        being processed at once.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to set
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this
+        method where `varBind` contains the new Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
 
-        node = self.getBranch(name, **context)
-        node.writeCommit(varBind, **context)
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: writeCommit(%s, %r)' % (self, name, val)))
+
+        cbFun = context['cbFun']
+
+        instances = context['instances'].setdefault(self.name, {self.ST_CREATE: {}, self.ST_DESTROY: {}})
+        idx = context['idx']
+
+        if idx in instances[self.ST_CREATE]:
+            self.createCommit(varBind, **context)
+            return
+ 
+        if idx in instances[self.ST_DESTROY]:
+            self.destroyCommit(varBind, **context)
+            return
+
+        try:
+            node = self.getBranch(name, **context)
+
+        except (error.NoSuchInstanceError, error.NoSuchObjectError):
+            exc = sys.exc_info()[1]
+            cbFun(varBind, **dict(context, error=exc))
+
+        else:
+            node.writeCommit(varBind, **context)
 
     def writeCleanup(self, varBind, **context):
+        """Finalize Managed Object Instance modification.
+
+        Implements the successful third step of the multi-step workflow of the
+        SNMP SET command processing (:RFC:`1905#section-4.2.5`).
+
+        The goal of the third (successful) phase is to seal the new state of the
+        requested Managed Object Instance. Once the system transition into the
+        *cleanup* state, no roll back to the previous Managed Object Instance
+        state is possible.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to set
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this
+        method where `varBind` contains the new Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
+
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: writeCleanup(%s, %r)' % (self, name, val)))
+
+        cbFun = context['cbFun']
 
         self.branchVersionId += 1
 
-        node = self.getBranch(name, **context)
-        node.writeCleanup(varBind, **context)
+        instances = context['instances'].setdefault(self.name, {self.ST_CREATE: {}, self.ST_DESTROY: {}})
+        idx = context['idx']
+
+        if idx in instances[self.ST_CREATE]:
+            self.createCleanup(varBind, **context)
+            return
+
+        if idx in instances[self.ST_DESTROY]:
+            self.destroyCleanup(varBind, **context)
+            return
+
+        try:
+            node = self.getBranch(name, **context)
+
+        except (error.NoSuchInstanceError, error.NoSuchObjectError):
+            exc = sys.exc_info()[1]
+            cbFun(varBind, **dict(context, error=exc))
+
+        else:
+            node.writeCleanup(varBind, **context)
 
     def writeUndo(self, varBind, **context):
+        """Finalize Managed Object Instance modification.
+
+        Implements the third (unsuccessful) step of the multi-step workflow
+        of the SNMP SET command processing (:RFC:`1905#section-4.2.5`).
+
+        The goal of the third phase is to roll the Managed Object Instance
+        being modified back into its previous state. The system transitions
+        into the *undo* state whenever any of the simultaneously modified
+        Managed Objects Instances fail on the *commit* state transitioning.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to set
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this
+        method where `varBind` contains the new Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
 
-        node = self.getBranch(name, **context)
-        node.writeUndo(varBind, **context)
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: writeUndo(%s, %r)' % (self, name, val)))
+
+        cbFun = context['cbFun']
+
+        instances = context['instances'].setdefault(self.name, {self.ST_CREATE: {}, self.ST_DESTROY: {}})
+        idx = context['idx']
+
+        if idx in instances[self.ST_CREATE]:
+            self.createUndo(varBind, **context)
+            return
+
+        if idx in instances[self.ST_DESTROY]:
+            self.destroyUndo(varBind, **context)
+            return
+
+        try:
+            node = self.getBranch(name, **context)
+
+        except (error.NoSuchInstanceError, error.NoSuchObjectError):
+            exc = sys.exc_info()[1]
+            cbFun(varBind, **dict(context, error=exc))
+
+        else:
+            node.writeUndo(varBind, **context)
 
 
-class MibScalar(MibTree):
-    """Scalar MIB variable. Implements access control checking."""
+class MibTree(ManagedMibObject):
+    """Managed MIB Tree root object.
+
+    Represents the root node of the MIB tree implementing management
+    instrumentation.
+
+    Objects of this type can't carry any value of their own, they serve
+    for holding and ordering other (children) nodes such as
+    :class:`MibScalar`, :class:`MibTable`, :class:`MibTableRowcalar` objects.
+
+    In the MIB tree, :class:`MibScalar` objects reside right under the tree
+    top, each can have a single :class:`MibScalarInstance` object attached:
+
+        MibTree
+           |
+           +----MibScalar
+           |
+           +----MibTable
+           |
+           +----MibTableRow
+    """
+
+
+class MibScalar(ManagedMibObject):
+    """Managed scalar MIB object.
+
+    Represents scalar SMI OBJECT-TYPE object implementing management
+    instrumentation.
+
+    Objects of this type can't carry any value of their own, they serve
+    as structural "blueprints" for :class:`MibScalarInstance` objects.
+
+    In the MIB tree, :class:`MibScalar` objects reside right under the tree
+    top, each can have a single :class:`MibScalarInstance` object attached:
+
+        MibTree
+           |
+           +----MibScalar
+                    |
+                    +-----MibScalarInstance
+    """
     maxAccess = 'readonly'
+
+    _suffix = (0,)
 
     #
     # Subtree traversal
@@ -578,118 +1084,517 @@ class MibScalar(MibTree):
 
     def getBranch(self, name, **context):
         try:
-            return MibTree.getBranch(self, name, **context)
+            return ManagedMibObject.getBranch(self, name, **context)
 
         except (error.NoSuchInstanceError, error.NoSuchObjectError):
             raise error.NoSuchInstanceError(name=name, idx=context.get('idx'))
 
     def getNextBranch(self, name, **context):
         try:
-            return MibTree.getNextBranch(self, name, **context)
+            return ManagedMibObject.getNextBranch(self, name, **context)
 
         except (error.NoSuchInstanceError, error.NoSuchObjectError):
             raise error.NoSuchInstanceError(name=name, idx=context.get('idx'))
 
     def getNode(self, name, **context):
         try:
-            return MibTree.getNode(self, name, **context)
+            return ManagedMibObject.getNode(self, name, **context)
 
         except (error.NoSuchInstanceError, error.NoSuchObjectError):
             raise error.NoSuchInstanceError(name=name, idx=context.get('idx'))
 
     def getNextNode(self, name, **context):
         try:
-            return MibTree.getNextNode(self, name, **context)
+            return ManagedMibObject.getNextNode(self, name, **context)
 
         except (error.NoSuchInstanceError, error.NoSuchObjectError):
             raise error.NoSuchInstanceError(name=name, idx=context.get('idx'))
 
     # MIB instrumentation methods
 
-    # Read operation
+    def readGet(self, varBind, **context):
+        """Read Managed Object Instance.
 
-    def readTest(self, varBind, **context):
+        Implements the second of the two phases of the SNMP GET command
+        processing (:RFC:`1905#section-4.2.1`).
+
+        The goal of the second phase is to actually read the requested Managed
+        Object Instance. When multiple Managed Objects Instances are read at
+        once (likely coming all in one SNMP PDU), each of them has to run through
+        the first (*test*) and second (*read) phases successfully for the whole
+        read operation to succeed.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Beyond that, this object imposes access control logic towards the
+        underlying :class:`MibScalarInstance` objects by invoking the `acFun`
+        callable.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            Managed Object Instance to read
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass read Managed Object Instance or an error.
+
+            * `acFun` (callable) - user-supplied callable that is invoked to
+               authorize access to the requested Managed Object Instance. If
+               not supplied, no access control will be performed.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`, `acFun`) has the same signature as
+        this method where `varBind` contains read Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
+
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: readGet(%s, %r)' % (self, name, val)))
+
+        cbFun = context['cbFun']
 
         if name == self.name:
-            raise error.NoAccessError(name=name, idx=context.get('idx'))
+            cbFun((name, exval.noSuchInstance), **context)
+            return
 
         acFun = context.get('acFun')
         if acFun:
             if (self.maxAccess not in ('readonly', 'readwrite', 'readcreate') or
                     acFun('read', (name, self.syntax), **context)):
-                raise error.NoAccessError(name=name, idx=context.get('idx'))
+                cbFun((name, exval.noSuchInstance), **context)
+                return
 
-        MibTree.readTest(self, varBind, **context)
-
-    def readGet(self, varBind, **context):
-        name, val = varBind
-
-        try:
-            node = self.getBranch(name, **context)
-
-        except error.NoSuchInstanceError:
-            return name, exval.noSuchInstance
-
-        else:
-            return node.readGet(varBind, **context)
-
-    def readTestNext(self, varBind, **context):
-        name, val = varBind
-
-        acFun = context.get('acFun')
-        if acFun:
-            if (self.maxAccess not in ('readonly', 'readwrite', 'readcreate') or
-                    acFun('read', (name, self.syntax), **context)):
-                raise error.NoAccessError(name=name, idx=context.get('idx'))
-
-        MibTree.readTestNext(self, varBind, **context)
+        ManagedMibObject.readGet(self, varBind, **context)
 
     def readGetNext(self, varBind, **context):
+        """Read the next Managed Object Instance.
+
+        Implements the second of the two phases of the SNMP GETNEXT command
+        processing (:RFC:`1905#section-4.2.2`).
+
+        The goal of the second phase is to actually read the Managed Object
+        Instance which is next in the MIB tree to the one being requested.
+        When multiple Managed Objects Instances are read at once (likely coming
+        all in one SNMP PDU), each of them has to run through the first
+        (*testnext*) and second (*getnext*) phases successfully for the whole
+        read operation to succeed.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Beyond that, this object imposes access control logic towards the
+        underlying :class:`MibScalarInstance` objects by invoking the `acFun`
+        callable.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            Managed Object Instance to read
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass read Managed Object Instance (the *next* one in the MIB tree
+              relative to the one being requested) or an error.
+
+            * `acFun` (callable) - user-supplied callable that is invoked to
+               authorize access to the Managed Object Instance which is *next*
+               to the one being requested. If not supplied, no access control
+               will be performed.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`, `acFun`) have the same signature
+        as this method where `varBind` contains read Managed Object Instance
+        value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
 
-        # have to duplicate AC here as *Next code above treats
-        # noAccess as a noSuchObject at the Test stage, goes on
-        # to Reading
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: readGetNext(%s, %r)' % (self, name, val)))
+
         acFun = context.get('acFun')
         if acFun:
             if (self.maxAccess not in ('readonly', 'readwrite', 'readcreate') or
                     acFun('read', (name, self.syntax), **context)):
-                raise error.NoAccessError(name=name, idx=context.get('idx'))
+                nextName = context.get('nextName')
+                if nextName:
+                    varBind = nextName, exval.noSuchInstance
+                else:
+                    varBind = name, exval.endOfMibView
 
-        return MibTree.readGetNext(self, varBind, **context)
+                cbFun = context['cbFun']
+                cbFun(varBind, **context)
+                return
 
-    # Two-phase commit implementation
+        ManagedMibObject.readGetNext(self, varBind, **context)
 
     def writeTest(self, varBind, **context):
+        """Test the ability to modify Managed Object Instance.
+
+        Implements the first of the multi-step workflow of the SNMP SET
+        command processing (:RFC:`1905#section-4.2.5`).
+
+        The goal of the first phase is to make sure that requested Managed
+        Object Instance could potentially be changed. When multiple Managed
+        Objects Instances are modified at once (likely coming all in one SNMP
+        PDU), each of them has to run through the first (*test*) phase
+        successfully for the system to transition to the second (*commit*)
+        phase.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Beyond that, this object imposes access control logic towards the
+        underlying :class:`MibScalarInstance` objects by invoking the `acFun`
+        callable.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to set
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+            * `acFun` (callable) - user-supplied callable that is invoked to
+               authorize access to the requested Managed Object Instance. If
+               not supplied, no access control will be performed.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`, `acFun`) have the same signature
+        as this method where `varBind` contains the new Managed Object Instance
+        value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
 
-        if name == self.name:
-            raise error.NoAccessError(name=name, idx=context.get('idx'))
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: writeTest(%s, %r)' % (self, name, val)))
 
         acFun = context.get('acFun')
         if acFun:
             if (self.maxAccess not in ('readwrite', 'readcreate') or
                     acFun('write', (name, self.syntax), **context)):
-                raise error.NotWritableError(name=name, idx=context.get('idx'))
+                exc = error.NotWritableError(name=name, idx=context.get('idx'))
+                cbFun = context['cbFun']
+                cbFun(varBind, **dict(context, error=exc))
+                return
 
-        MibTree.writeTest(self, varBind, **context)
+        ManagedMibObject.writeTest(self, varBind, **context)
+
+    def _checkSuffix(self, name):
+        suffix = name[:len(self.name)]
+        return suffix == (0,)
+
+    def createTest(self, varBind, **context):
+        """Test the ability to create a Managed Object Instance.
+
+        Implements the first of the multi-step workflow similar to the SNMP SET
+        command processing (:RFC:`1905#section-4.2.5`).
+
+        The goal of the first phase is to make sure that requested Managed
+        Object Instance could potentially be created. When multiple Managed
+        Objects Instances are modified at once (likely coming all in one SNMP
+        PDU), each of them has to run through the first (*test*) phase
+        successfully for the system to transition to the second (*commit*)
+        phase.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to create
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable): user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+            * `instances` (dict): user-supplied dict for temporarily holding
+              Managed Objects Instances being created.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this method
+        where `varBind` contains the new Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
+        name, val = varBind
+
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: createTest(%s, %r)' % (self, name, val)))
+
+        cbFun = context['cbFun']
+
+        if not self._checkSuffix(name):
+            exc = error.NoCreationError(name=name, idx=context.get('idx'))
+            cbFun(varBind, **dict(context, error=exc))
+            return
+
+        acFun = context.get('acFun')
+        if acFun:
+            if self.maxAccess != 'readcreate' or acFun('write', varBind, **context):
+                debug.logger & debug.flagACL and debug.logger(
+                    'createTest: %s=%r %s at %s' % (name, val, self.maxAccess, self.name))
+                exc = error.NoCreationError(name=name, idx=context.get('idx'))
+                cbFun(varBind, **dict(context, error=exc))
+                return
+
+        instances = context['instances'].setdefault(self.name, {self.ST_CREATE: {}, self.ST_DESTROY: {}})
+        idx = context['idx']
+
+        instId = name[len(self.name):]
+
+        if name in self._vars:
+            cbFun(varBind, **context)
+            return
+
+        instances[self.ST_CREATE][idx] = MibScalarInstance(self.name, instId, self.syntax.clone())
+
+        instances[self.ST_CREATE][idx].writeTest((name, val), **context)
+
+    def createCommit(self, varBind, **context):
+        """Create Managed Object Instance.
+
+        Implements the second of the multi-step workflow similar to the SNMP SET
+        command processing (:RFC:`1905#section-4.2.5`).
+
+        The goal of the second phase is to actually create requested Managed
+        Object Instance. When multiple Managed Objects Instances are created/modified
+        at once (likely coming all in one SNMP PDU), each of them has to run through
+        the second (*commit*) phase successfully for the system to transition to
+        the third (*cleanup*) phase. If any single *commit* step fails, the system
+        transitions into the *undo* state for each of Managed Objects Instances
+        being processed at once.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to create
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+            * `instances` (dict): user-supplied dict for temporarily holding
+              Managed Objects Instances being created.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this
+        method where `varBind` contains the new Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
+        name, val = varBind
+
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: writeCommit(%s, %r)' % (self, name, val)))
+
+        cbFun = context['cbFun']
+
+        instances = context['instances'].setdefault(self.name, {self.ST_CREATE: {}, self.ST_DESTROY: {}})
+        idx = context['idx']
+
+        if name in self._vars:
+            cbFun(varBind, **context)
+            return
+
+        # NOTE: multiple names are possible in a single PDU, that could collide
+        # Therefore let's keep old object indexed by (negative) var-bind index
+        self._vars[name], instances[self.ST_CREATE][-idx - 1] = instances[self.ST_CREATE][idx], self._vars.get(name)
+
+        instances[self.ST_CREATE][idx].writeCommit(varBind, **context)
+
+    def createCleanup(self, varBind, **context):
+        """Finalize Managed Object Instance creation.
+
+        Implements the successful third step of the multi-step workflow similar to
+        the SNMP SET command processing (:RFC:`1905#section-4.2.5`).
+
+        The goal of the third (successful) phase is to seal the new Managed Object
+        Instance. Once the system transitions into the *cleanup* state, no roll back
+        to the previous Managed Object Instance state is possible.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to create
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+            * `instances` (dict): user-supplied dict for temporarily holding
+              Managed Objects Instances being created.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this
+        method where `varBind` contains the new Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
+        name, val = varBind
+
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: createCleanup(%s, %r)' % (self, name, val)))
+
+        instances = context['instances'].setdefault(self.name, {self.ST_CREATE: {}, self.ST_DESTROY: {}})
+        idx = context['idx']
+
+        self.branchVersionId += 1
+
+        instances[self.ST_CREATE].pop(-idx - 1, None)
+
+        self._vars[name].writeCleanup(varBind, **context)
+
+    def createUndo(self, varBind, **context):
+        """Undo Managed Object Instance creation.
+
+        Implements the third (unsuccessful) step of the multi-step workflow
+        similar to the SNMP SET command processing (:RFC:`1905#section-4.2.5`).
+
+        The goal of the third phase is to delete the Managed Object Instance
+        being created. The system transitions into the *undo* state whenever
+        any of the simultaneously modified Managed Objects Instances fail on the
+        *commit* state transitioning.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to create
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+            * `instances` (dict): user-supplied dict for temporarily holding
+              Managed Objects Instances being created.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this
+        method where `varBind` contains the new Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
+        name, val = varBind
+
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: createUndo(%s, %r)' % (self, name, val)))
+
+        instances = context['instances'].setdefault(self.name, {self.ST_CREATE: {}, self.ST_DESTROY: {}})
+        idx = context['idx']
+
+        instances[self.ST_CREATE].pop(-idx - 1, None)
+
+        obj = self._vars.pop(name, None)
+        if obj:
+            obj.writeUndo(varBind, **context)
+
+        else:
+            cbFun = context['cbFun']
+            cbFun(varBind, **context)
 
 
-class MibScalarInstance(MibTree):
-    """Scalar MIB variable instance. Implements read/write operations."""
+class MibScalarInstance(ManagedMibObject):
+    """Managed scalar instance MIB object.
 
+    Represents an instance of a scalar SMI OBJECT-TYPE object implementing
+    management instrumentation.
+
+    Objects of this type carry the actual value or somehow interface the
+    data source.
+
+    In the MIB tree, :class:`MibScalarInstance` objects reside right under their
+    :class:`MibScalarInstance` parent object:
+
+        MibTree
+           |
+           +----MibScalar
+                    |
+                    +-----MibScalarInstance
+    """
     def __init__(self, typeName, instId, syntax):
-        MibTree.__init__(self, typeName + instId, syntax)
+        ManagedMibObject.__init__(self, typeName + instId, syntax)
         self.typeName = typeName
         self.instId = instId
-        self.__oldSyntax = None
 
     #
     # Managed object value access methods
     #
 
-    # noinspection PyUnusedLocal
     def getValue(self, name, **context):
         debug.logger & debug.flagIns and debug.logger('getValue: returning %r for %s' % (self.syntax, self.name))
         return self.syntax.clone()
@@ -721,14 +1626,14 @@ class MibScalarInstance(MibTree):
 
     def getBranch(self, name, **context):
         try:
-            return MibTree.getBranch(self, name, **context)
+            return ManagedMibObject.getBranch(self, name, **context)
 
         except (error.NoSuchInstanceError, error.NoSuchObjectError):
             raise error.NoSuchInstanceError(name=name, idx=context.get('idx'))
 
     def getNextBranch(self, name, **context):
         try:
-            return MibTree.getNextBranch(self, name, **context)
+            return ManagedMibObject.getNextBranch(self, name, **context)
 
         except (error.NoSuchInstanceError, error.NoSuchObjectError):
             raise error.NoSuchInstanceError(name=name, idx=context.get('idx'))
@@ -744,169 +1649,500 @@ class MibScalarInstance(MibTree):
 
     # MIB instrumentation methods
 
-    # Read operation
-
     def readTest(self, varBind, **context):
+        """Test the ability to read Managed Object Instance.
+
+        Implements the first of the two phases of the SNMP GET command
+        processing (:RFC:`1905#section-4.2.1`).
+
+        The goal of the first phase is to make sure that requested Managed
+        Object Instance could potentially be read. When multiple Managed
+        Objects Instances are read at once (likely coming all in one SNMP PDU),
+        each of them has to run through the first (*test*) phase successfully
+        for the system to transition to the second (*get*) phase.
+
+        The role of this object in the MIB tree is terminal. It does access the
+        actual Managed Object Instance.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            Managed Object Instance to read
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass read Managed Object Instance or an error.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this
+        method where `varBind` contains read Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
+
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: readTest(%s, %r)' % (self, name, val)))
+
+        cbFun = context['cbFun']
 
         if name != self.name:
-            raise error.NoSuchInstanceError(name=name, idx=context.get('idx'))
+            exc = error.NoSuchInstanceError(name=name, idx=context.get('idx'))
+            cbFun(varBind, **dict(context, error=exc))
+            return
+
+        cbFun((self.name, self.syntax), **context)
 
     def readGet(self, varBind, **context):
+        """Read Managed Object Instance.
+
+        Implements the second of the two phases of the SNMP GET command
+        processing (:RFC:`1905#section-4.2.1`).
+
+        The goal of the second phase is to actually read the requested Managed
+        Object Instance. When multiple Managed Objects Instances are read at
+        once (likely coming all in one SNMP PDU), each of them has to run through
+        the first (*test*) and second (*read) phases successfully for the whole
+        read operation to succeed.
+
+        The role of this object in the MIB tree is terminal. It does access the
+        actual Managed Object Instance.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            Managed Object Instance to read
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass read Managed Object Instance or an error.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) has the same signature as
+        this method where `varBind` contains read Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
 
-        # Return current variable (name, value)
-        if name == self.name:
-            debug.logger & debug.flagIns and debug.logger('readGet: %s=%r' % (self.name, self.syntax))
-            return self.name, self.getValue(name, **context)
-        else:
-            raise error.NoSuchInstanceError(name=name, idx=context.get('idx'))
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: readGet(%s, %r)' % (self, name, val)))
+
+        cbFun = context['cbFun']
+
+        if name != self.name:
+            exc = error.NoSuchInstanceError(name=name, idx=context.get('idx'))
+            cbFun(varBind, **dict(context, error=exc))
+            return
+
+        cbFun((self.name, self.getValue(name, **context)), **context)
 
     def readTestNext(self, varBind, **context):
+        """Test the ability to read the next Managed Object Instance.
+
+        Implements the first of the two phases of the SNMP GETNEXT command
+        processing (:RFC:`1905#section-4.2.2`).
+
+        The goal of the first phase is to make sure that requested Managed
+        Object Instance could potentially be read. When multiple Managed
+        Objects Instances are read at once (likely coming all in one SNMP PDU),
+        each of them has to run through the first (*testnext*) phase
+        successfully for the system to transition to the second (*getnext*)
+        phase.
+
+        The role of this object in the MIB tree is terminal. It does access the
+        actual Managed Object Instance.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            Managed Object Instance next to which to read
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass read Managed Object Instance (the *next* one in the MIB tree
+              relative to the one being requested) or an error.
+
+            * `acFun` (callable) - user-supplied callable that is invoked to
+               authorize access to the Managed Object Instance which is *next*
+               to the one being requested. If not supplied, no access control
+               will be performed.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`, `acFun`) have the same signature
+        as this method where `varBind` contains read Managed Object Instance
+        value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
 
-        oName = context.get('oName')
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: readTestNext(%s, %r)' % (self, name, val)))
 
-        if name != self.name or name <= oName:
-            raise error.NoSuchInstanceError(name=name, idx=context.get('idx'))
+        cbFun = context['cbFun']
+
+        if name >= self.name:
+            nextName = context.get('nextName')
+            if nextName:
+                varBind = nextName, exval.noSuchInstance
+            else:
+                varBind = name, exval.endOfMibView
+
+            cbFun(varBind, **context)
+            return
+
+        cbFun((self.name, self.syntax), **context)
 
     def readGetNext(self, varBind, **context):
+        """Read the next Managed Object Instance.
+
+        Implements the second of the two phases of the SNMP GETNEXT command
+        processing (:RFC:`1905#section-4.2.2`).
+
+        The goal of the second phase is to actually read the Managed Object
+        Instance which is next in the MIB tree to the one being requested.
+        When multiple Managed Objects Instances are read at once (likely coming
+        all in one SNMP PDU), each of them has to run through the first
+        (*testnext*) and second (*getnext*) phases successfully for the whole
+        read operation to succeed.
+
+        The role of this object in the MIB tree is terminal. It does access the
+        actual Managed Object Instance.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            Managed Object Instance to read
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass read Managed Object Instance (the *next* one in the MIB tree
+              relative to the one being requested) or an error.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this
+        method where `varBind` contains read Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
 
-        oName = context.get('oName')
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: readGetNext(%s, %r)' % (self, name, val)))
 
-        if name == self.name and name > oName:
-            debug.logger & debug.flagIns and debug.logger('readGetNext: %s=%r' % (self.name, self.syntax))
-            return self.readGet(varBind, **context)
+        cbFun = context['cbFun']
 
-        else:
-            raise error.NoSuchInstanceError(name=name, idx=context.get('idx'))
+        if name >= self.name:
+            nextName = context.get('nextName')
+            if nextName:
+                varBind = nextName, exval.noSuchInstance
+            else:
+                varBind = name, exval.endOfMibView
 
-    # Write operation: two-phase commit
+            cbFun(varBind, **context)
+            return
 
-    # noinspection PyAttributeOutsideInit
+        cbFun((self.name, self.getValue(self.name, **context)), **context)
+
     def writeTest(self, varBind, **context):
+        """Test the ability to modify Managed Object Instance.
+
+        Implements the first of the multi-step workflow of the SNMP SET
+        command processing (:RFC:`1905#section-4.2.5`).
+
+        The goal of the first phase is to make sure that requested Managed
+        Object Instance could potentially be changed. When multiple Managed
+        Objects Instances are modified at once (likely coming all in one SNMP
+        PDU), each of them has to run through the first (*test*) phase
+        successfully for the system to transition to the second (*commit*)
+        phase.
+
+        The role of this object in the MIB tree is terminal. It does access the
+        actual Managed Object Instance.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to set
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+            * `acFun` (callable) - user-supplied callable that is invoked to
+               authorize access to the requested Managed Object Instance. If
+               not supplied, no access control will be performed.
+
+            * `instances` (dict): user-supplied dict for temporarily holding
+              the values of the Managed Objects Instances being modified.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`, `acFun`) have the same signature
+        as this method where `varBind` contains the new Managed Object Instance
+        value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
+
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: writeTest(%s, %r)' % (self, name, val)))
+
+        cbFun = context['cbFun']
+
+        instances = context['instances'].setdefault(self.name, {self.ST_CREATE: {}, self.ST_DESTROY: {}})
+        idx = context['idx']
+
+        if name != self.name:
+            exc = error.NoSuchInstanceError(name=name, idx=context.get('idx'))
+            cbFun(varBind, **dict(context, error=exc))
 
         # Make sure write's allowed
-        if name == self.name:
-            try:
-                self.__newSyntax = self.setValue(val, name, **context)
+        try:
+            instances[self.ST_CREATE][idx] = self.setValue(val, name, **context)
 
-            except error.MibOperationError:
-                # SMI exceptions may carry additional content
-                why = sys.exc_info()[1]
-                if 'syntax' in why:
-                    self.__newSyntax = why['syntax']
-                    raise why
-                else:
-                    raise error.WrongValueError(name=name, idx=context.get('idx'), msg=sys.exc_info()[1])
-        else:
-            raise error.NoSuchInstanceError(name=name, idx=context.get('idx'))
+        except error.MibOperationError:
+            # SMI exceptions may carry additional content
+            exc = sys.exc_info()[1]
+            if 'syntax' in exc:
+                instances[self.ST_CREATE][idx] = exc['syntax']
+                cbFun(varBind, **dict(context, error=exc))
+                return
+
+            else:
+                exc = sys.exc_info()[1]
+                exc = error.WrongValueError(name=name, idx=context.get('idx'), msg=exc)
+                cbFun(varBind, **dict(context, error=exc))
+                return
+
+        cbFun((self.name, self.syntax), **context)
 
     def writeCommit(self, varBind, **context):
-        # Backup original value
-        if self.__oldSyntax is None:
-            self.__oldSyntax = self.syntax
-        # Commit new value
-        self.syntax = self.__newSyntax
+        """Commit new value of the Managed Object Instance.
 
-    # noinspection PyAttributeOutsideInit
+        Implements the second of the multi-step workflow of the SNMP SET
+        command processing (:RFC:`1905#section-4.2.5`).
+
+        The goal of the second phase is to actually modify the requested Managed
+        Object Instance. When multiple Managed Objects Instances are modified at
+        once (likely coming all in one SNMP PDU), each of them has to run through
+        the second (*commit*) phase successfully for the system to transition to
+        the third (*cleanup*) phase. If any single *commit* step fails, the system
+        transitions into the *undo* state for each of Managed Objects Instances
+        being processed at once.
+
+        The role of this object in the MIB tree is terminal. It does access the
+        actual Managed Object Instance.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to set
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+            * `instances` (dict): user-supplied dict for temporarily holding
+              the values of the Managed Objects Instances being modified.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this
+        method where `varBind` contains the new Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
+        name, val = varBind
+
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: writeCommit(%s, %r)' % (self, name, val)))
+
+        instances = context['instances'].setdefault(self.name, {self.ST_CREATE: {}, self.ST_DESTROY: {}})
+        idx = context['idx']
+
+        instances[self.ST_CREATE][-idx - 1], self.syntax = self.syntax, instances[self.ST_CREATE][idx]
+
+        cbFun = context['cbFun']
+        cbFun((self.name, self.syntax), **context)
+
     def writeCleanup(self, varBind, **context):
-        self.branchVersionId += 1
-        debug.logger & debug.flagIns and debug.logger('writeCleanup: %s=%r' % (name, val))
-        # Drop previous value
-        self.__newSyntax = self.__oldSyntax = None
+        """Finalize Managed Object Instance modification.
 
-    # noinspection PyAttributeOutsideInit
+        Implements the successful third step of the multi-step workflow of the
+        SNMP SET command processing (:RFC:`1905#section-4.2.5`).
+
+        The goal of the third (successful) phase is to seal the new state of the
+        requested Managed Object Instance. Once the system transition into the
+        *cleanup* state, no roll back to the previous Managed Object Instance
+        state is possible.
+
+        The role of this object in the MIB tree is terminal. It does access the
+        actual Managed Object Instance.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to set
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+            * `instances` (dict): user-supplied dict for temporarily holding
+              the values of the Managed Objects Instances being modified.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this
+        method where `varBind` contains the new Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
+        name, val = varBind
+
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: writeCleanup(%s, %r)' % (self, name, val)))
+
+        instances = context['instances'].setdefault(self.name, {self.ST_CREATE: {}, self.ST_DESTROY: {}})
+        idx = context['idx']
+
+        self.branchVersionId += 1
+
+        instances[self.ST_CREATE].pop(idx, None)
+        instances[self.ST_CREATE].pop(-idx - 1, None)
+
+        cbFun = context['cbFun']
+        cbFun((self.name, self.syntax), **context)
+
     def writeUndo(self, varBind, **context):
-        # Revive previous value
-        self.syntax = self.__oldSyntax
-        self.__newSyntax = self.__oldSyntax = None
+        """Undo Managed Object Instance modification.
 
-    # Table column instance specifics
+        Implements the third (unsuccessful) step of the multi-step workflow
+        of the SNMP SET command processing (:RFC:`1905#section-4.2.5`).
 
-    # Create operation
+        The goal of the third phase is to roll the Managed Object Instance
+        being modified back into its previous state. The system transitions
+        into the *undo* state whenever any of the simultaneously modified
+        Managed Objects Instances fail on the *commit* state transitioning.
 
-    # noinspection PyUnusedLocal,PyAttributeOutsideInit
-    def createTest(self, varBind, **context):
+        The role of this object in the MIB tree is terminal. It does access the
+        actual Managed Object Instance.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to set
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+            * `instances` (dict): user-supplied dict for temporarily holding
+              the values of the Managed Objects Instances being modified.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this
+        method where `varBind` contains the new Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
 
-        if name == self.name:
-            try:
-                self.__newSyntax = self.setValue(val, name, **context)
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: writeUndo(%s, %r)' % (self, name, val)))
 
-            except error.MibOperationError:
-                # SMI exceptions may carry additional content
-                why = sys.exc_info()[1]
-                if 'syntax' in why:
-                    self.__newSyntax = why['syntax']
-                else:
-                    raise error.WrongValueError(name=name, idx=context.get('idx'), msg=sys.exc_info()[1])
-        else:
-            raise error.NoSuchInstanceError(name=name, idx=context.get('idx'))
+        instances = context['instances'].setdefault(self.name, {self.ST_CREATE: {}, self.ST_DESTROY: {}})
+        idx = context['idx']
 
-    def createCommit(self, varBind, **context):
-        name, val = varBind
+        self.syntax = instances[self.ST_CREATE].pop(-idx - 1, None)
+        instances[self.ST_CREATE].pop(idx, None)
 
-        if val is not None:
-            self.writeCommit(varBind, **context)
-
-    def createCleanup(self, varBind, **context):
-        self.branchVersionId += 1
-        name, val = varBind
-
-        debug.logger & debug.flagIns and debug.logger('createCleanup: %s=%r' % (name, val))
-
-        if val is not None:
-            self.writeCleanup(varBind, **context)
-
-    def createUndo(self, varBind, **context):
-        name, val = varBind
-
-        if val is not None:
-            self.writeUndo(varBind, **context)
-
-    # Destroy operation
-
-    # noinspection PyUnusedLocal,PyAttributeOutsideInit
-    def destroyTest(self, varBind, **context):
-        name, val = varBind
-
-        if name == self.name:
-            try:
-                self.__newSyntax = self.setValue(val, name, **context)
-
-            except error.MibOperationError:
-                # SMI exceptions may carry additional content
-                why = sys.exc_info()[1]
-                if 'syntax' in why:
-                    self.__newSyntax = why['syntax']
-        else:
-            raise error.NoSuchInstanceError(name=name, idx=context.get('idx'))
-
-    def destroyCommit(self, varBind, **context):
-        pass
-
-    # noinspection PyUnusedLocal
-    def destroyCleanup(self, varBind, **context):
-        self.branchVersionId += 1
-
-    def destroyUndo(self, varBind, **context):
-        pass
+        cbFun = context['cbFun']
+        cbFun((self.name, self.syntax), **context)
 
 
 # Conceptual table classes
 
-class MibTableColumn(MibScalar):
-    """MIB table column. Manages a set of column instance variables"""
-    protoInstance = MibScalarInstance
+class MibTableColumn(MibScalar, ObjectType):
+    """Managed columnar instance MIB object.
 
-    def __init__(self, name, syntax):
-        MibScalar.__init__(self, name, syntax)
-        self.__createdInstances = {}
-        self.__destroyedInstances = {}
-        self.__rowOpWanted = {}
+    Represents columnar object (`OBJECT-TYPE`) of the SMI table implementing
+    management instrumentation.
+
+    Objects of this type do not carry the actual value, but can create or
+    destroy underlying :class:`MibScalarInstance` objects.
+
+    In the MIB tree, :class:`MibTableColumn` objects reside right under their
+    :class:`MibTableRow` parent object, each :class:`MibTableColumn` can have
+    zero or more children :class:`MibScalarInstance` objects representing SNMP
+    table cells:
+
+        MibTree
+           |
+           +----MibTableRow
+                     |
+                     +-------MibTableColumn
+                                   |
+                                   +------MibScalarInstance
+                                   +------MibScalarInstance
+                                   ...
+    """
 
     #
     # Subtree traversal
@@ -919,308 +2155,493 @@ class MibTableColumn(MibScalar):
             return self._vars[name]
         raise error.NoSuchInstanceError(name=name, idx=context.get('idx'))
 
-    def setProtoInstance(self, protoInstance):
-        self.protoInstance = protoInstance
-
     # Column creation (this should probably be converted into some state
-    # machine for clarity). Also, it might be a good idea to inidicate
+    # machine for clarity). Also, it might be a good idea to indicate
     # defaulted cols creation in a clearer way than just a val == None.
 
-    def createTest(self, varBind, **context):
-        name, val = varBind
-
-        # Make sure creation allowed, create a new column instance but
-        # do not replace the old one
-        if name == self.name:
-            raise error.NoAccessError(name=name, idx=context.get('idx'))
-
-        acFun = context.get('acFun')
-        if acFun:
-            if (val is not None and self.maxAccess != 'readcreate' or
-                    acFun('write', (name, self.syntax), **context)):
-                debug.logger & debug.flagACL and debug.logger(
-                    'createTest: %s=%r %s at %s' % (name, val, self.maxAccess, self.name))
-                raise error.NoCreationError(name=name, idx=context.get('idx'))
-
-        # Create instances if either it does not yet exist (row creation)
-        # or a value is passed (multiple OIDs in SET PDU)
-        if val is None and name in self.__createdInstances:
-            return
-
-        self.__createdInstances[name] = self.protoInstance(
-            self.name, name[len(self.name):], self.syntax.clone()
-        )
-
-        self.__createdInstances[name].createTest(varBind, **context)
-
-    def createCommit(self, varBind, **context):
-        name, val = varBind
-
-        # Commit new instance value
-        if name in self._vars:  # XXX
-            if name in self.__createdInstances:
-                self._vars[name].createCommit(varBind, **context)
-            return
-
-        self.__createdInstances[name].createCommit(varBind, **context)
-
-        # ...commit new column instance
-        self._vars[name], self.__createdInstances[name] = self.__createdInstances[name], self._vars.get(name)
-
-    def createCleanup(self, varBind, **context):
-        name, val = varBind
-
-        # Drop previous column instance
-        self.branchVersionId += 1
-        if name in self.__createdInstances:
-            if self.__createdInstances[name] is not None:
-                self.__createdInstances[name].createCleanup(varBind, **context)
-            del self.__createdInstances[name]
-
-        elif name in self._vars:
-            self._vars[name].createCleanup(varBind, **context)
-
-    def createUndo(self, varBind, **context):
-        name, val = varBind
-
-        # Set back previous column instance, drop the new one
-        if name in self.__createdInstances:
-            self._vars[name] = self.__createdInstances[name]
-            del self.__createdInstances[name]
-            # Remove new instance on rollback
-            if self._vars[name] is None:
-                del self._vars[name]
-
-            else:
-                # Catch half-created instances (hackerish)
-                try:
-                    self._vars[name] == 0
-
-                except PyAsn1Error:
-                    del self._vars[name]
-
-                else:
-                    self._vars[name].createUndo(varBind, **context)
+    def _checkSuffix(self, name):
+        # NOTE: we could have verified the index validity
+        return name[:len(self.name)]
 
     # Column destruction
 
     def destroyTest(self, varBind, **context):
+        """Test the ability to destroy a Managed Object Instance.
+
+        Implements the first of the multi-step workflow similar to SNMP SET
+        command processing (:RFC:`1905#section-4.2.5`).
+
+        The goal of the first phase is to make sure that requested Managed
+        Object Instance could potentially be destroyed. When multiple Managed
+        Objects Instances are modified at once (likely coming all in one SNMP
+        PDU), each of them has to run through the first (*test*) phase
+        successfully for the system to transition to the second (*commit*)
+        phase.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to destroy
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable): user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+            * `instances` (dict): user-supplied dict for temporarily holding
+              Managed Objects Instances being destroyed.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this method
+        where `varBind` contains the new Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
 
-        # Make sure destruction is allowed
-        if name == self.name:
-            raise error.NoAccessError(name=name, idx=context.get('idx'))
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: destroyTest(%s, %r)' % (self, name, val)))
 
-        if name not in self._vars:
+        cbFun = context['cbFun']
+
+        instances = context['instances'].setdefault(self.name, {self.ST_CREATE: {}, self.ST_DESTROY: {}})
+        idx = context['idx']
+
+        if not self._checkSuffix(name):
+            exc = error.NotWritableError(name=name, idx=context.get('idx'))
+            cbFun(varBind, **dict(context, error=exc))
             return
 
         acFun = context.get('acFun')
         if acFun:
-            if (val is not None and self.maxAccess != 'readcreate' or
-                    acFun('write', (name, self.syntax), **context)):
-                raise error.NoAccessError(name=name, idx=context.get('idx'))
+            if self.maxAccess != 'readcreate' or acFun('write', varBind, **context):
+                debug.logger & debug.flagACL and debug.logger(
+                    'destroyTest: %s=%r %s at %s' % (name, val, self.maxAccess, self.name))
+                exc = error.NotWritableError(name=name, idx=context.get('idx'))
+                cbFun(varBind, **dict(context, error=exc))
+                return
 
-        self._vars[name].destroyTest(varBind, **context)
+        try:
+            instances[self.ST_DESTROY][idx] = instances[self.ST_CREATE].pop(idx)
+
+        except KeyError:
+            pass
+
+        else:
+            (debug.logger & debug.flagIns and
+             debug.logger('%s: terminated columnar instance %s creation' % (self, name)))
+
+        cbFun(varBind, **context)
 
     def destroyCommit(self, varBind, **context):
+        """Destroy Managed Object Instance.
+
+        Implements the second of the multi-step workflow similar to the SNMP SET
+        command processing (:RFC:`1905#section-4.2.5`).
+
+        The goal of the second phase is to actually remove requested Managed
+        Object Instance from the MIB tree. When multiple Managed Objects Instances
+        are destroyed/modified at once (likely coming all in one SNMP PDU), each
+        of them has to run through the second (*commit*) phase successfully for
+        the system to transition to the third (*cleanup*) phase. If any single
+        *commit* step fails, the system transitions into the *undo* state for
+        each of Managed Objects Instances being processed at once.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to destroy
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+            * `instances` (dict): user-supplied dict for temporarily holding
+              Managed Objects Instances being destroyed.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this
+        method where `varBind` contains the new Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
 
-        # Make a copy of column instance and take it off the tree
-        if name in self._vars:
-            self._vars[name].destroyCommit(varBind, **context)
-            self.__destroyedInstances[name] = self._vars[name]
-            del self._vars[name]
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: destroyCommit(%s, %r)' % (self, name, val)))
+
+        instances = context['instances'].setdefault(self.name, {self.ST_CREATE: {}, self.ST_DESTROY: {}})
+        idx = context['idx']
+
+        # NOTE: multiple names are possible in a single PDU, that could collide
+        # Therefore let's keep old object indexed by (negative) var-bind index
+        try:
+            instances[self.ST_DESTROY][-idx - 1] = self._vars.pop(name)
+
+        except KeyError:
+            pass
+
+        cbFun = context['cbFun']
+        cbFun(varBind, **context)
 
     def destroyCleanup(self, varBind, **context):
+        """Finalize Managed Object Instance destruction.
+
+        Implements the successful third step of the multi-step workflow similar to
+        the SNMP SET command processing (:RFC:`1905#section-4.2.5`).
+
+        The goal of the third (successful) phase is to finalize the destruction
+        of the Managed Object Instance. Once the system transitions into the
+        *cleanup* state, no roll back to the previous Managed Object Instance
+        state is possible.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to destroy
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+            * `instances` (dict): user-supplied dict for temporarily holding
+              Managed Objects Instances being destroyed.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this
+        method where `varBind` contains the new Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
 
-        # Drop instance copy
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: destroyCleanup(%s, %r)' % (self, name, val)))
+
         self.branchVersionId += 1
 
-        if name in self.__destroyedInstances:
-            self.__destroyedInstances[name].destroyCleanup(varBind, **context)
-            debug.logger & debug.flagIns and debug.logger('destroyCleanup: %s=%r' % (name, val))
-            del self.__destroyedInstances[name]
+        instances = context['instances'].setdefault(self.name, {self.ST_CREATE: {}, self.ST_DESTROY: {}})
+        idx = context['idx']
+
+        instances[self.ST_DESTROY].pop(idx, None)
+        instances[self.ST_DESTROY].pop(-idx - 1, None)
+
+        cbFun = context['cbFun']
+        cbFun(varBind, **context)
 
     def destroyUndo(self, varBind, **context):
+        """Undo Managed Object Instance destruction.
+
+        Implements the third (unsuccessful) step of the multi-step workflow
+        similar to the SNMP SET command processing (:RFC:`1905#section-4.2.5`).
+
+        The goal of the third phase is to revive the Managed Object Instance
+        being destroyed. The system transitions into the *undo* state whenever
+        any of the simultaneously modified Managed Objects Instances fail on the
+        *commit* state transitioning.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to destroy
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+            * `instances` (dict): user-supplied dict for temporarily holding
+              Managed Objects Instances being destroyed.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this
+        method where `varBind` contains the new Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
 
-        # Set back column instance
-        if name in self.__destroyedInstances:
-            self._vars[name] = self.__destroyedInstances[name]
-            self._vars[name].destroyUndo(varBind, **context)
-            del self.__destroyedInstances[name]
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: destroyUndo(%s, %r)' % (self, name, val)))
 
-    # Set/modify column
+        instances = context['instances'].setdefault(self.name, {self.ST_CREATE: {}, self.ST_DESTROY: {}})
+        idx = context['idx']
 
-    def writeTest(self, varBind, **context):
-        name, val = varBind
-
-        # Besides common checks, request row creation on no-instance
         try:
-            # First try the instance
-            MibScalar.writeTest(self, varBind, **context)
+            self._vars[name] = instances[self.ST_DESTROY].pop(-idx - 1)
 
-        # ...otherwise proceed with creating new column
-        except (error.NoSuchInstanceError, error.RowCreationWanted):
-            excValue = sys.exc_info()[1]
-            if isinstance(excValue, error.RowCreationWanted):
-                self.__rowOpWanted[name] = excValue
-            else:
-                self.__rowOpWanted[name] = error.RowCreationWanted()
-            self.createTest(varBind, **context)
+        except KeyError:
+            self._vars.pop(name, None)
 
-        except error.RowDestructionWanted:
-            self.__rowOpWanted[name] = error.RowDestructionWanted()
-            self.destroyTest(varBind, **context)
+        instances[self.ST_DESTROY].pop(idx, None)
 
-        if name in self.__rowOpWanted:
-            debug.logger & debug.flagIns and debug.logger(
-                '%s flagged by %s=%r, exception %s' % (self.__rowOpWanted[name], name, val, sys.exc_info()[1]))
-            raise self.__rowOpWanted[name]
-
-    def __delegateWrite(self, subAction, varBind, **context):
-        name, val = varBind
-
-        if name not in self.__rowOpWanted:
-            actionFun = getattr(MibScalar, 'write' + subAction)
-            return actionFun(self, varBind, **context)
-
-        if isinstance(self.__rowOpWanted[name], error.RowCreationWanted):
-            actionFun = getattr(self, 'create' + subAction)
-            return actionFun(varBind, **context)
-
-        if isinstance(self.__rowOpWanted[name], error.RowDestructionWanted):
-            actionFun = getattr(self, 'destroy' + subAction)
-            return actionFun(varBind, **context)
-
-    def writeCommit(self, varBind, **context):
-        name, val = varBind
-
-        self.__delegateWrite('Commit', varBind, **context)
-        if name in self.__rowOpWanted:
-            raise self.__rowOpWanted[name]
-
-    def writeCleanup(self, varBind, **context):
-        name, val = varBind
-
-        self.branchVersionId += 1
-
-        self.__delegateWrite('Cleanup', varBind, **context)
-
-        if name in self.__rowOpWanted:
-            e = self.__rowOpWanted[name]
-            del self.__rowOpWanted[name]
-            debug.logger & debug.flagIns and debug.logger('%s dropped by %s=%r' % (e, name, val))
-            raise e
-
-    def writeUndo(self, varBind, **context):
-        name, val = varBind
-
-        if name in self.__rowOpWanted:
-            self.__rowOpWanted[name] = error.RowDestructionWanted()
-
-        self.__delegateWrite('Undo', varBind, **context)
-
-        if name in self.__rowOpWanted:
-            e = self.__rowOpWanted[name]
-            del self.__rowOpWanted[name]
-            debug.logger & debug.flagIns and debug.logger('%s dropped by %s=%r' % (e, name, val))
-            raise e
+        cbFun = context['cbFun']
+        cbFun(varBind, **context)
 
 
-class MibTableRow(MibTree):
-    """MIB table row (SMI 'Entry'). Manages a set of table columns.
-       Implements row creation/destruction.
+class MibTableRow(ManagedMibObject):
+    """Managed table row MIB object.
+
+    Represents SMI table row object (`OBJECT-TYPE`) implementing
+    management instrumentation.
+
+    Objects of this type can't carry any value of their own, their major
+    role is to ensure table row consistency by catching and propagating
+    columnar events (such as column creation or destruction coming from
+    :class:`RowStatus` via :class:`MibTableColumn`) across the whole row.
+
+    In the MIB tree, :class:`MibTableRow` objects reside right under the tree
+    top, each can have one or more :class:`MibTableColumn` objects attached:
+
+        MibTree
+           |
+           +----MibTableRow
+                    |
+                    +-----MibTableColumn
     """
 
     def __init__(self, name):
-        MibTree.__init__(self, name)
-        self.__idToIdxCache = cache.Cache()
-        self.__idxToIdCache = cache.Cache()
-        self.indexNames = ()
-        self.augmentingRows = {}
+        ManagedMibObject.__init__(self, name)
+        self._idToIdxCache = cache.Cache()
+        self._idxToIdCache = cache.Cache()
+        self._indexNames = ()
+        self._augmentingRows = set()
 
     # Table indices resolution. Handle almost all possible rfc1902 types
     # explicitly rather than by means of isSuperTypeOf() method because
     # some subtypes may be implicitly tagged what renders base tag
     # unavailable.
 
-    __intBaseTag = Integer.tagSet.getBaseTag()
-    __strBaseTag = OctetString.tagSet.getBaseTag()
-    __oidBaseTag = ObjectIdentifier.tagSet.getBaseTag()
-    __ipaddrTagSet = IpAddress.tagSet
-    __bitsBaseTag = Bits.tagSet.getBaseTag()
+    def oidToValue(self, syntax, identifier, impliedFlag=False, parentIndices=None):
+        """Turn SMI table instance identifier into a value object.
 
-    def setFromName(self, obj, value, impliedFlag=None, parentIndices=None):
-        if not value:
-            raise error.SmiError('Short OID for index %r' % (obj,))
-        if hasattr(obj, 'cloneFromName'):
-            return obj.cloneFromName(value, impliedFlag, parentRow=self, parentIndices=parentIndices)
-        baseTag = obj.getTagSet().getBaseTag()
-        if baseTag == self.__intBaseTag:
-            return obj.clone(value[0]), value[1:]
-        elif self.__ipaddrTagSet.isSuperTagSetOf(obj.getTagSet()):
-            return obj.clone('.'.join([str(x) for x in value[:4]])), value[4:]
-        elif baseTag == self.__strBaseTag:
+        SNMP SMI table objects are identified by OIDs composed of columnar
+        object ID and instance index. The index part can be composed
+        from the values of one or more tabular objects.
+
+        This method takes sequence of integers, representing the tail piece
+        of a tabular object identifier, and turns it into a value object.
+
+        Parameters
+        ----------
+        syntax: :py:class:`Integer`, :py:class:`OctetString`, :py:class:`ObjectIdentifier`, :py:class:`IpAddress` or :py:class:`Bits` -
+            one of the SNMP data types that can be used in SMI table indices.
+
+        identifier: :py:class:`tuple` - tuple of integers representing the tail
+            piece of an OBJECT IDENTIFIER (i.e. tabular object instance ID)
+
+        impliedFlag: :py:class:`bool` - if `False`, the length of the
+            serialized value is expected to be present as the first integer of
+            the sequence. Otherwise the length is not included (which is
+            frequently the case for the last index in the series or a
+            fixed-length value).
+
+        Returns
+        -------
+        :py:class:`object` - Initialized instance of `syntax`
+        """
+        if not identifier:
+            raise error.SmiError('Short OID for index %r' % (syntax,))
+
+        if hasattr(syntax, 'cloneFromName'):
+            return syntax.cloneFromName(
+                identifier, impliedFlag, parentRow=self, parentIndices=parentIndices)
+
+        baseTag = syntax.getTagSet().getBaseTag()
+        if baseTag == Integer.tagSet.getBaseTag():
+            return syntax.clone(identifier[0]), identifier[1:]
+
+        elif IpAddress.tagSet.isSuperTagSetOf(syntax.getTagSet()):
+            return syntax.clone(
+                '.'.join([str(x) for x in identifier[:4]])), identifier[4:]
+
+        elif baseTag == OctetString.tagSet.getBaseTag():
             # rfc1902, 7.7
             if impliedFlag:
-                return obj.clone(tuple(value)), ()
-            elif obj.isFixedLength():
-                l = obj.getFixedLength()
-                return obj.clone(tuple(value[:l])), value[l:]
-            else:
-                return obj.clone(tuple(value[1:value[0] + 1])), value[value[0] + 1:]
-        elif baseTag == self.__oidBaseTag:
-            if impliedFlag:
-                return obj.clone(value), ()
-            else:
-                return obj.clone(value[1:value[0] + 1]), value[value[0] + 1:]
-        # rfc2578, 7.1
-        elif baseTag == self.__bitsBaseTag:
-            return obj.clone(tuple(value[1:value[0] + 1])), value[value[0] + 1:]
-        else:
-            raise error.SmiError('Unknown value type for index %r' % (obj,))
+                return syntax.clone(tuple(identifier)), ()
 
-    def getAsName(self, obj, impliedFlag=None, parentIndices=None):
-        if hasattr(obj, 'cloneAsName'):
-            return obj.cloneAsName(impliedFlag, parentRow=self, parentIndices=parentIndices)
-        baseTag = obj.getTagSet().getBaseTag()
-        if baseTag == self.__intBaseTag:
-            # noinspection PyRedundantParentheses
-            return (int(obj),)
-        elif self.__ipaddrTagSet.isSuperTagSetOf(obj.getTagSet()):
-            return obj.asNumbers()
-        elif baseTag == self.__strBaseTag:
-            if impliedFlag or obj.isFixedLength():
+            elif syntax.isFixedLength():
+                l = syntax.getFixedLength()
+                return syntax.clone(tuple(identifier[:l])), identifier[l:]
+
+            else:
+                return syntax.clone(
+                    tuple(identifier[1:identifier[0] + 1])), identifier[identifier[0] + 1:]
+
+        elif baseTag == ObjectIdentifier.tagSet.getBaseTag():
+            if impliedFlag:
+                return syntax.clone(identifier), ()
+
+            else:
+                return syntax.clone(
+                    identifier[1:identifier[0] + 1]), identifier[identifier[0] + 1:]
+
+        # rfc2578, 7.1
+        elif baseTag == Bits.tagSet.getBaseTag():
+            return syntax.clone(
+                tuple(identifier[1:identifier[0] + 1])), identifier[identifier[0] + 1:]
+
+        else:
+            raise error.SmiError('Unknown value type for index %r' % (syntax,))
+
+    setFromName = oidToValue
+
+    def valueToOid(self, value, impliedFlag=False, parentIndices=None):
+        """Turn value object into SMI table instance identifier.
+
+        SNMP SMI table objects are identified by OIDs composed of columnar
+        object ID and instance index. The index part can be composed
+        from the values of one or more tabular objects.
+
+        This method takes an arbitrary value object and turns it into a
+        sequence of integers representing the tail piece of a tabular
+        object identifier.
+
+        Parameters
+        ----------
+        value: one of the SNMP data types that can be used in SMI table
+            indices. Allowed types are: :py:class:`Integer`,
+            :py:class:`OctetString`, :py:class:`ObjectIdentifier`,
+            :py:class:`IpAddress` and :py:class:`Bits`.
+
+        impliedFlag: :py:class:`bool` - if `False`, the length of the
+            serialized value is included as the first integer of the sequence.
+            Otherwise the length is not included (which is frequently the
+            case for the last index in the series or a fixed-length value).
+
+        Returns
+        -------
+        :py:class:`tuple` - tuple of integers representing the tail piece
+            of an OBJECT IDENTIFIER (i.e. tabular object instance ID)
+        """
+        if hasattr(value, 'cloneAsName'):
+            return value.cloneAsName(impliedFlag, parentRow=self, parentIndices=parentIndices)
+
+        baseTag = value.getTagSet().getBaseTag()
+        if baseTag == Integer.tagSet.getBaseTag():
+            return int(value),
+
+        elif IpAddress.tagSet.isSuperTagSetOf(value.getTagSet()):
+            return value.asNumbers()
+
+        elif baseTag == OctetString.tagSet.getBaseTag():
+            if impliedFlag or value.isFixedLength():
                 initial = ()
             else:
-                initial = (len(obj),)
-            return initial + obj.asNumbers()
-        elif baseTag == self.__oidBaseTag:
-            if impliedFlag:
-                return tuple(obj)
-            else:
-                return (len(obj),) + tuple(obj)
-        # rfc2578, 7.1
-        elif baseTag == self.__bitsBaseTag:
-            return (len(obj),) + obj.asNumbers()
-        else:
-            raise error.SmiError('Unknown value type for index %r' % (obj,))
+                initial = (len(value),)
+            return initial + value.asNumbers()
 
-    # Fate sharing mechanics
+        elif baseTag == ObjectIdentifier.tagSet.getBaseTag():
+            if impliedFlag:
+                return tuple(value)
+            else:
+                return (len(value),) + tuple(value)
+
+        # rfc2578, 7.1
+        elif baseTag == Bits.tagSet.getBaseTag():
+            return (len(value),) + value.asNumbers()
+
+        else:
+            raise error.SmiError('Unknown value type for index %r' % (value,))
+
+    getAsName = valueToOid
 
     def announceManagementEvent(self, action, varBind, **context):
+        """Announce mass operation on parent table's row.
+
+        SNMP SMI provides a way to extend already existing SMI table with
+        another table. Whenever a mass operation on parent table's column
+        is performed (e.g. row creation or destruction), this operation
+        has to be propagated over all the extending tables.
+
+        This method gets invoked on parent :py:class:`MibTableRow` whenever
+        row modification is performed on the parent table.
+
+        Parameters
+        ----------
+        action: :py:class:`str` any of :py:class:`MibInstrumController`'s states
+            being applied on the parent table's row.
+
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new :py:class:`RowStatus`  Managed Object Instance value being set
+            on parent table row
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked once
+                all the consumers of this notifications finished with their stuff
+                or an error occurs
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) expects two parameters: `varBind`
+        and `**context`.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
 
-        # Convert OID suffix into index vals
+        cbFun = context['cbFun']
+
+        if not self._augmentingRows:
+            cbFun(varBind, **context)
+            return
+
+        # Convert OID suffix into index values
         instId = name[len(self.name) + 1:]
         baseIndices = []
         indices = []
-        for impliedFlag, modName, symName in self.indexNames:
+        for impliedFlag, modName, symName in self._indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
-            syntax, instId = self.setFromName(mibObj.syntax, instId,
-                                              impliedFlag, indices)
+            syntax, instId = self.oidToValue(mibObj.syntax, instId,
+                                             impliedFlag, indices)
 
             if self.name == mibObj.name[:-1]:
                 baseIndices.append((mibObj.name, syntax))
@@ -1228,135 +2649,601 @@ class MibTableRow(MibTree):
             indices.append(syntax)
 
         if instId:
-            raise error.SmiError('Excessive instance identifier sub-OIDs left at %s: %s' % (self, instId))
-
-        if not baseIndices:
+            exc = error.SmiError('Excessive instance identifier sub-OIDs left at %s: %s' % (self, instId))
+            cbFun(varBind, **dict(context, error=exc))
             return
 
-        for modName, mibSym in self.augmentingRows:
+        if not baseIndices:
+            cbFun(varBind, **context)
+            return
+
+        count = [len(self._augmentingRows)]
+
+        def _cbFun(varBind, **context):
+            count[0] -= 1
+
+            if not count[0]:
+                cbFun(varBind, **context)
+
+        for modName, mibSym in self._augmentingRows:
             mibObj, = mibBuilder.importSymbols(modName, mibSym)
+            mibObj.receiveManagementEvent(action, (baseIndices, val), **dict(context, cbFun=_cbFun))
+
             debug.logger & debug.flagIns and debug.logger('announceManagementEvent %s to %s' % (action, mibObj))
-            mibObj.receiveManagementEvent(action, (baseIndices, val), **context)
 
     def receiveManagementEvent(self, action, varBind, **context):
+        """Apply mass operation on extending table's row.
+
+        SNMP SMI provides a way to extend already existing SMI table with
+        another table. Whenever a mass operation on parent table's column
+        is performed (e.g. row creation or destruction), this operation
+        has to be propagated over all the extending tables.
+
+        This method gets invoked on the extending :py:class:`MibTableRow`
+        object whenever row modification is performed on the parent table.
+
+        Parameters
+        ----------
+        action: :py:class:`str` any of :py:class:`MibInstrumController`'s states
+            to apply on extending table's row.
+
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new :py:class:`RowStatus`  Managed Object Instance value being set
+            on parent table row
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked once
+                the requested operation has been applied on all columns of the
+                extending table or an error occurs
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) expects two parameters: `varBind`
+        and `**context`.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         baseIndices, val = varBind
 
         # The default implementation supports one-to-one rows dependency
-        newSuffix = ()
+        instId = ()
+
         # Resolve indices intersection
-        for impliedFlag, modName, symName in self.indexNames:
+        for impliedFlag, modName, symName in self._indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
             parentIndices = []
             for name, syntax in baseIndices:
                 if name == mibObj.name:
-                    newSuffix += self.getAsName(syntax, impliedFlag, parentIndices)
+                    instId += self.valueToOid(syntax, impliedFlag, parentIndices)
                 parentIndices.append(syntax)
 
-        if newSuffix:
+        if instId:
             debug.logger & debug.flagIns and debug.logger(
-                'receiveManagementEvent %s for suffix %s' % (action, newSuffix))
-            self.__manageColumns(action, (), (newSuffix, val), **context)
+                'receiveManagementEvent %s for suffix %s' % (action, instId))
 
-    def registerAugmentions(self, *names):
-        for modName, symName in names:
-            if (modName, symName) in self.augmentingRows:
+            self._manageColumns(action, (self.name + (0,) + instId, val), **context)
+
+    def registerAugmentation(self, *names):
+        """Register table extension.
+
+        SNMP SMI provides a way to extend already existing SMI table with
+        another table. This method registers dependent (extending) table
+        (or type :py:class:`MibTableRow`) to already existing table.
+
+        Whenever a row of the parent table is created or destroyed, the
+        same mass columnar operation is applied on the extending table
+        row.
+
+        Parameters
+        ----------
+        names: :py:class:`tuple`
+            One or more `tuple`'s of `str` referring to the extending table by
+            MIB module name (first `str`) and `:py:class:`MibTableRow` object
+            name (second `str`).
+        """
+        for name in names:
+            if name in self._augmentingRows:
                 raise error.SmiError(
-                    'Row %s already augmented by %s::%s' % (self.name, modName, symName)
+                    'Row %s already augmented by %s::%s' % (self.name, name[0], name[1])
                 )
-            self.augmentingRows[(modName, symName)] = 1
+
+            self._augmentingRows.add(name)
+
         return self
+
+    registerAugmentions = registerAugmentation
 
     def setIndexNames(self, *names):
         for name in names:
-            self.indexNames += (name,)
+            self._indexNames += (name,)
         return self
 
     def getIndexNames(self):
-        return self.indexNames
+        return self._indexNames
 
-    def __manageColumns(self, action, excludeName, varBind, **context):
-        nameSuffix, val = varBind
+    def _manageColumns(self, action, varBind, **context):
+        """Apply a management action on all columns
+
+        Parameters
+        ----------
+        action: :py:class:`str` any of :py:class:`MibInstrumController`'s states
+            to apply on all columns but the one passed in `varBind`
+
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new :py:class:`RowStatus`  Managed Object Instance value being set
+            on table row
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked once
+              all columns have been processed or an error occurs
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) expects two parameters: `varBind`
+        and `**context`.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+
+        Assumes that row consistency check has been triggered by RowStatus
+        columnar object transition into `active` state.
+        """
+        name, val = varBind
+
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: _manageColumns(%s, %s, %r)' % (self, action, name, val)))
+
+        cbFun = context['cbFun']
+
+        colLen = len(self.name) + 1
 
         # Build a map of index names and values for automatic initialization
         indexVals = {}
-        instId = nameSuffix
+
+        instId = name[colLen:]
         indices = []
-        for impliedFlag, modName, symName in self.indexNames:
+
+        for impliedFlag, modName, symName in self._indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
-            syntax, instId = self.setFromName(mibObj.syntax, instId,
-                                              impliedFlag, indices)
+            syntax, instId = self.oidToValue(mibObj.syntax, instId, impliedFlag, indices)
             indexVals[mibObj.name] = syntax
             indices.append(syntax)
 
-        for name, var in self._vars.items():
-            if name == excludeName:
+        count = [len(self._vars)]
+
+        if name[:colLen] in self._vars:
+            count[0] -= 1
+
+        def _cbFun(varBind, **context):
+            count[0] -= 1
+
+            if not count[0]:
+                cbFun(varBind, **context)
+
+        for colName, colObj in self._vars.items():
+            acFun = context.get('acFun')
+
+            if colName in indexVals:
+                colInstanceValue = indexVals[colName]
+                # Index column is usually read-only
+                acFun = None
+
+            elif name[:colLen] == colName:
+                # status column is following `write` path
                 continue
 
-            actionFun = getattr(var, action)
-
-            if name in indexVals:
-                # NOTE(etingof): disable VACM call
-                _context = context.copy()
-                _context.pop('acFun', None)
-
-                actionFun((name + nameSuffix, indexVals[name]), **_context)
             else:
-                actionFun((name + nameSuffix, val), **context)
+                colInstanceValue = None
 
-            debug.logger & debug.flagIns and debug.logger('__manageColumns: action %s name %s suffix %s %svalue %r' % (
-                action, name, nameSuffix, name in indexVals and "index " or "", indexVals.get(name, val)))
+            actionFun = getattr(colObj, action)
 
-    def __delegate(self, subAction, varBind, **context):
+            colInstanceName = colName + name[colLen:]
+
+            actionFun((colInstanceName, colInstanceValue),
+                      **dict(context, acFun=acFun, cbFun=_cbFun))
+
+            debug.logger & debug.flagIns and debug.logger(
+                '_manageColumns: action %s name %s instance %s %svalue %r' % (
+                    action, name, instId, name in indexVals and "index " or "", indexVals.get(name, val)))
+
+    def _checkColumns(self, varBind, **context):
+        """Check the consistency of all columns.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new :py:class:`RowStatus`  Managed Object Instance value being set
+            on table row
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this
+        method where `varBind` contains the new Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+
+        Assume that row consistency check has been triggered by RowStatus
+        columnar object transition into `active` state.
+        """
         name, val = varBind
 
-        # Relay operation request to column, expect row operation request.
-        rowIsActive = False
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: _checkColumns(%s, %r)' % (self, name, val)))
 
-        try:
-            writeFun = getattr(self.getBranch(name, **context), 'write' + subAction)
-            writeFun(varBind, **context)
+        cbFun = context['cbFun']
 
-        except error.RowCreationWanted:
-            createAction = 'create' + subAction
+        # RowStatus != active
+        if val != 1:
+            cbFun(varBind, **context)
+            return
 
-            self.__manageColumns(
-                createAction, name[:len(self.name) + 1], (name[len(self.name) + 1:], None), **context
-            )
+        count = [len(self._vars)]
 
-            self.announceManagementEvent(createAction, (name, None), **context)
+        def _cbFun(varBind, **context):
+            count[0] -= 1
 
-            # watch for RowStatus == 'stActive'
-            rowIsActive = sys.exc_info()[1].get('syntax', 0) == 1
+            name, val = varBind
 
-        except error.RowDestructionWanted:
-            destroyAction = 'destroy' + subAction
+            if count[0] >= 0:
+                exc = context.get('error')
+                if exc or not val.hasValue():
+                    count[0] = -1  # ignore the rest of callbacks
+                    exc = error.InconsistentValueError(msg='Inconsistent column %s: %s' % (name, exc))
+                    cbFun(varBind, **dict(context, error=exc))
+                    return
 
-            self.__manageColumns(
-                destroyAction, name[:len(self.name) + 1], (name[len(self.name) + 1:], None), **context
-            )
+            if not count[0]:
+                cbFun(varBind, **context)
+                return
 
-            self.announceManagementEvent(destroyAction, (name, None), **context)
+        colLen = len(self.name) + 1
 
-        return rowIsActive
+        for colName, colObj in self._vars.items():
+            instName = colName + name[colLen:]
+
+            colObj.readGet((instName, None), **dict(context, cbFun=_cbFun))
+
+            debug.logger & debug.flagIns and debug.logger(
+                '%s: _checkColumns: checking instance %s' % (self, instName))
 
     def writeTest(self, varBind, **context):
-        self.__delegate('Test', varBind, **context)
+        """Test the ability to create/destroy or modify Managed Object Instance.
+
+        Implements the first of the multi-step workflow of the SNMP SET
+        command processing (:RFC:`1905#section-4.2.5`). On top of that,
+        handles possible SMI table management events i.e. row creation
+        and destruction via :class:`RowStatus` columnar object.
+
+        The goal of the first phase is to make sure that requested Managed
+        Object Instance could potentially be changed or created or destroyed.
+        When multiple Managed Objects Instances are modified at once (likely
+        coming all in one SNMP PDU), each of them has to run through the first
+        (*test*) phase successfully for the system to transition to the second
+        (*commit*) phase.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to set
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+            * `acFun` (callable) - user-supplied callable that is invoked to
+               authorize access to the requested Managed Object Instance. If
+               not supplied, no access control will be performed.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`, `acFun`) have the same signature
+        as this method where `varBind` contains the new Managed Object Instance
+        value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
+        name, val = varBind
+
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: writeTest(%s, %r)' % (self, name, val)))
+
+        cbFun = context['cbFun']
+
+        instances = context['instances'].setdefault(self.name, {self.ST_CREATE: {}, self.ST_DESTROY: {}})
+        idx = context['idx']
+
+        def _cbFun(varBind, **context):
+            exc = context.get('error')
+            if exc:
+                instances[idx] = exc
+
+                if isinstance(exc, error.RowCreationWanted):
+                    def _cbFun(*args, **context):
+                        self.announceManagementEvent('createTest', varBind, **dict(context, cbFun=cbFun))
+
+                    self._manageColumns('createTest', varBind, **dict(context, cbFun=_cbFun, error=None))
+                    return
+
+                if isinstance(exc, error.RowDestructionWanted):
+                    def _cbFun(*args, **context):
+                        self.announceManagementEvent('destroyTest', varBind, **dict(context, cbFun=cbFun))
+
+                    self._manageColumns('destroyTest', varBind, **dict(context, cbFun=_cbFun, error=None))
+                    return
+
+                if isinstance(exc, error.RowConsistencyWanted):
+                    context['error'] = None
+
+            cbFun(varBind, **context)
+
+        ManagedMibObject.writeTest(self, varBind, **dict(context, cbFun=_cbFun))
 
     def writeCommit(self, varBind, **context):
+        """Create/destroy or modify Managed Object Instance.
+
+        Implements the second of the multi-step workflow of the SNMP SET
+        command processing (:RFC:`1905#section-4.2.5`). On top of that,
+        handles possible SMI table management events i.e. row creation
+        and destruction via :class:`RowStatus` columnar object.
+
+        The goal of the second phase is to actually modify the requested Managed
+        Object Instance. When multiple Managed Objects Instances are modified at
+        once (likely coming all in one SNMP PDU), each of them has to run through
+        the second (*commit*) phase successfully for the system to transition to
+        the third (*cleanup*) phase. If any single *commit* step fails, the system
+        transitions into the *undo* state for each of Managed Objects Instances
+        being processed at once.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to set
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+            * `instances` (dict): user-supplied dict for temporarily holding
+              the values of the Managed Objects Instances being modified.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature
+        as this method where `varBind` contains the new Managed Object Instance
+        value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
         name, val = varBind
-        rowIsActive = self.__delegate('Commit', varBind, **context)
-        if rowIsActive:
-            for mibNode in self._vars.values():
-                colNode = mibNode.getNode(mibNode.name + name[len(self.name) + 1:], **context)
-                if not colNode.syntax.hasValue():
-                    raise error.InconsistentValueError(msg='Row consistency check failed for %r' % colNode)
+
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: writeCommit(%s, %r)' % (self, name, val)))
+
+        cbFun = context['cbFun']
+
+        instances = context['instances'].setdefault(self.name, {self.ST_CREATE: {}, self.ST_DESTROY: {}})
+        idx = context['idx']
+
+        def _cbFun(varBind, **context):
+            if idx in instances:
+                exc = instances[idx]
+                if isinstance(exc, error.RowCreationWanted):
+
+                    def _cbFun(*args, **context):
+                        exc = context.get('error')
+                        if exc:
+                            cbFun(varBind, **context)
+                            return
+
+                        def _cbFun(*args, **context):
+                            self.announceManagementEvent('createCommit', varBind, **dict(context, cbFun=cbFun))
+
+                        self._checkColumns(varBind, **dict(context, cbFun=_cbFun))
+
+                    self._manageColumns('createCommit', varBind, **dict(context, cbFun=_cbFun))
+                    return
+
+                if isinstance(exc, error.RowDestructionWanted):
+                    def _cbFun(*args, **context):
+                        self.announceManagementEvent('destroyCommit', varBind, **dict(context, cbFun=cbFun))
+
+                    self._manageColumns('destroyCommit', varBind, **dict(context, cbFun=_cbFun))
+                    return
+
+                if isinstance(exc, error.RowConsistencyWanted):
+                    self._checkColumns(varBind, **dict(context, cbFun=cbFun))
+                    return
+
+            cbFun(varBind, **context)
+
+        ManagedMibObject.writeCommit(self, varBind, **dict(context, cbFun=_cbFun))
 
     def writeCleanup(self, varBind, **context):
-        self.branchVersionId += 1
-        self.__delegate('Cleanup', varBind, **context)
+        """Finalize Managed Object Instance modification.
+
+        Implements the successful third step of the multi-step workflow of the
+        SNMP SET command processing (:RFC:`1905#section-4.2.5`). On top of that,
+        handles possible SMI table management events i.e. row creation and
+        destruction via :class:`RowStatus` columnar object.
+
+        The goal of the third (successful) phase is to seal the new state of the
+        requested Managed Object Instance. Once the system transition into the
+        *cleanup* state, no roll back to the previous Managed Object Instance
+        state is possible.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to set
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+            * `instances` (dict): user-supplied dict for temporarily holding
+              the values of the Managed Objects Instances being modified.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this
+        method where `varBind` contains the new Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
+        name, val = varBind
+
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: writeCleanup(%s, %r)' % (self, name, val)))
+
+        cbFun = context['cbFun']
+
+        instances = context['instances'].setdefault(self.name, {self.ST_CREATE: {}, self.ST_DESTROY: {}})
+        idx = context['idx']
+
+        def _cbFun(varBind, **context):
+            if idx in instances:
+                exc = instances.pop(idx)
+                if isinstance(exc, error.RowCreationWanted):
+                    def _cbFun(*args, **context):
+                        self.announceManagementEvent('createCleanup', varBind, **dict(context, cbFun=cbFun))
+
+                    self._manageColumns('createCleanup', varBind, **dict(context, cbFun=_cbFun))
+                    return
+
+                if isinstance(exc, error.RowDestructionWanted):
+                    def _cbFun(*args, **context):
+                        self.announceManagementEvent('destroyCleanup', varBind, **dict(context, cbFun=cbFun))
+
+                    self._manageColumns('destroyCleanup', varBind, **dict(context, cbFun=_cbFun))
+                    return
+
+            cbFun(varBind, **context)
+
+        ManagedMibObject.writeCleanup(self, varBind, **dict(context, cbFun=_cbFun))
 
     def writeUndo(self, varBind, **context):
-        self.__delegate('Undo', varBind, **context)
+        """Undo Managed Object Instance modification.
+
+        Implements the third (unsuccessful) step of the multi-step workflow
+        of the SNMP SET command processing (:RFC:`1905#section-4.2.5`). On top
+        of that, handles possible SMI table management events i.e. row creation
+        and destruction via :class:`RowStatus` columnar object.
+
+        The goal of the third phase is to roll the Managed Object Instance
+        being modified back into its previous state. The system transitions
+        into the *undo* state whenever any of the simultaneously modified
+        Managed Objects Instances fail on the *commit* state transitioning.
+
+        The role of this object in the MIB tree is non-terminal. It does not
+        access the actual Managed Object Instance, but just traverses one level
+        down the MIB tree and hands off the query to the underlying objects.
+
+        Parameters
+        ----------
+        varBind: :py:class:`~pysnmp.smi.rfc1902.ObjectType` object representing
+            new Managed Object Instance value to set
+
+        Other Parameters
+        ----------------
+        \*\*context:
+
+            Query parameters:
+
+            * `cbFun` (callable) - user-supplied callable that is invoked to
+              pass the new value of the Managed Object Instance or an error.
+
+            * `instances` (dict): user-supplied dict for temporarily holding
+              the values of the Managed Objects Instances being modified.
+
+        Notes
+        -----
+        The callback functions (e.g. `cbFun`) have the same signature as this
+        method where `varBind` contains the new Managed Object Instance value.
+
+        In case of an error, the `error` key in the `context` dict will contain
+        an exception object.
+        """
+        name, val = varBind
+
+        (debug.logger & debug.flagIns and
+         debug.logger('%s: writeUndo(%s, %r)' % (self, name, val)))
+
+        cbFun = context['cbFun']
+
+        instances = context['instances'].setdefault(self.name, {self.ST_CREATE: {}, self.ST_DESTROY: {}})
+        idx = context['idx']
+
+        def _cbFun(varBind, **context):
+            if idx in instances:
+                exc = instances.pop(idx)
+                if isinstance(exc, error.RowCreationWanted):
+                    def _cbFun(*args, **context):
+                        self.announceManagementEvent('createUndo', varBind, **dict(context, cbFun=cbFun))
+
+                    self._manageColumns('createUndo', varBind, **dict(context, cbFun=_cbFun))
+                    return
+
+                if isinstance(exc, error.RowDestructionWanted):
+                    def _cbFun(*args, **context):
+                        self.announceManagementEvent('destroyUndo', varBind, **dict(context, cbFun=cbFun))
+
+                    self._manageColumns('destroyUndo', varBind, **dict(context, cbFun=_cbFun))
+                    return
+
+            cbFun(varBind, **context)
+
+        ManagedMibObject.writeUndo(self, varBind, **dict(context, cbFun=_cbFun))
 
     # Table row management
 
@@ -1369,14 +3256,14 @@ class MibTableRow(MibTree):
 
     def getIndicesFromInstId(self, instId):
         """Return index values for instance identification"""
-        if instId in self.__idToIdxCache:
-            return self.__idToIdxCache[instId]
+        if instId in self._idToIdxCache:
+            return self._idToIdxCache[instId]
 
         indices = []
-        for impliedFlag, modName, symName in self.indexNames:
+        for impliedFlag, modName, symName in self._indexNames:
             mibObj, = mibBuilder.importSymbols(modName, symName)
             try:
-                syntax, instId = self.setFromName(mibObj.syntax, instId, impliedFlag, indices)
+                syntax, instId = self.oidToValue(mibObj.syntax, instId, impliedFlag, indices)
             except PyAsn1Error:
                 debug.logger & debug.flagIns and debug.logger('error resolving table indices at %s, %s: %s' % (self.__class__.__name__, instId, sys.exc_info()[1]))
                 indices = [instId]
@@ -1392,14 +3279,14 @@ class MibTableRow(MibTree):
             )
 
         indices = tuple(indices)
-        self.__idToIdxCache[instId] = indices
+        self._idToIdxCache[instId] = indices
 
         return indices
 
     def getInstIdFromIndices(self, *indices):
         """Return column instance identification from indices"""
         try:
-            return self.__idxToIdCache[indices]
+            return self._idxToIdCache[indices]
         except TypeError:
             cacheable = False
         except KeyError:
@@ -1407,16 +3294,16 @@ class MibTableRow(MibTree):
         idx = 0
         instId = ()
         parentIndices = []
-        for impliedFlag, modName, symName in self.indexNames:
+        for impliedFlag, modName, symName in self._indexNames:
             if idx >= len(indices):
                 break
             mibObj, = mibBuilder.importSymbols(modName, symName)
             syntax = mibObj.syntax.clone(indices[idx])
-            instId += self.getAsName(syntax, impliedFlag, parentIndices)
+            instId += self.valueToOid(syntax, impliedFlag, parentIndices)
             parentIndices.append(syntax)
             idx += 1
         if cacheable:
-            self.__idxToIdCache[indices] = instId
+            self._idxToIdCache[indices] = instId
         return instId
 
     # Table access by index
@@ -1436,19 +3323,34 @@ class MibTableRow(MibTree):
         return tuple(instNames)
 
 
-class MibTable(MibTree):
-    """MIB table. Manages a set of TableRow's"""
+class MibTable(ManagedMibObject):
+    """Managed MIB table object.
 
-    def __init__(self, name):
-        MibTree.__init__(self, name)
+    Represents SMI table object (`OBJECT-TYPE`) implementing
+    management instrumentation.
+
+    Objects of this type can't carry any value of their own and do not play
+    any part in table management.
+
+    In the MIB tree, :class:`MibTable` objects reside right under the tree
+    top and do not have any children.
+
+        MibTree
+           |
+           +----MibTable
+           |
+           +----MibTableRow
+                    |
+                    +-----MibTableColumn
+    """
 
 
 zeroDotZero = ObjectIdentity((0, 0))
 
 # OID tree
-itu_t = MibTree((0,)).setLabel('itu-t')
+itu_t = MibScalar((0,)).setLabel('itu-t')
 iso = MibTree((1,))
-joint_iso_itu_t = MibTree((2,)).setLabel('joint-iso-itu-t')
+#joint_iso_itu_t = MibScalar((2,)).setLabel('joint-iso-itu-t')
 org = MibIdentifier(iso.name + (3,))
 dod = MibIdentifier(org.name + (6,))
 internet = MibIdentifier(dod.name + (1,))
@@ -1478,7 +3380,7 @@ mibBuilder.exportSymbols(
     MibIdentifier=MibIdentifier, MibTree=MibTree,
     MibTableColumn=MibTableColumn, MibTableRow=MibTableRow,
     MibTable=MibTable, zeroDotZero=zeroDotZero,
-    itu_t=itu_t, iso=iso, joint_iso_itu_t=joint_iso_itu_t, org=org, dod=dod,
+    itu_t=itu_t, iso=iso, org=org, dod=dod,
     internet=internet, directory=directory, mgmt=mgmt, mib_2=mib_2,
     transmission=transmission, experimental=experimental, private=private,
     enterprises=enterprises, security=security, snmpV2=snmpV2,

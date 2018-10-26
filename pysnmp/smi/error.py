@@ -101,6 +101,7 @@ class InconsistentNameError(MibOperationError):
 
 
 # Aligned with SNMPv2 Var-Bind exceptions
+
 class NoSuchObjectError(MibOperationError):
     pass
 
@@ -114,6 +115,7 @@ class EndOfMibViewError(MibOperationError):
 
 
 # Row management
+
 class TableRowManagement(MibOperationError):
     pass
 
@@ -123,4 +125,14 @@ class RowCreationWanted(TableRowManagement):
 
 
 class RowDestructionWanted(TableRowManagement):
+    pass
+
+
+class RowConsistencyWanted(TableRowManagement):
+    pass
+
+
+# MIB instrumentation support for GETNEXT
+
+class SuggestedNextObject(MibOperationError):
     pass

@@ -43,7 +43,7 @@ def getCmd(snmpDispatcher, authData, transportTarget, *varBinds, **options):
 
     Other Parameters
     ----------------
-    \*\*options :
+    \*\*options:
         Request options:
 
         * `lookupMib` - load MIB and resolve response MIB variables at
