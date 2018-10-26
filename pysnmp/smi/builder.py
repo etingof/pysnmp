@@ -263,7 +263,7 @@ class MibBuilder(object):
         self.mibSymbols = {}
         self.__mibSources = []
         self.__modSeen = {}
-        self.__modPathsSeen = {}
+        self.__modPathsSeen = set()
         self.__mibCompiler = None
         self.setMibSources(*sources)
 
@@ -306,19 +306,19 @@ class MibBuilder(object):
                 debug.logger & debug.flagBld and debug.logger('loadModule: seen %s' % modPath)
                 break
             else:
-                self.__modPathsSeen[modPath] = 1
+                self.__modPathsSeen.add(modPath)
 
             debug.logger & debug.flagBld and debug.logger('loadModule: evaluating %s' % modPath)
 
             g = {'mibBuilder': self, 'userCtx': userCtx}
 
             try:
-                exec (modData, g)
+                exec(compile(modData, modPath, 'exec'), g)
 
             except Exception:
                 del self.__modPathsSeen[modPath]
                 raise error.MibLoadError(
-                    'MIB module \"%s\" load error: %s' % (modPath, traceback.format_exception(*sys.exc_info()))
+                    'MIB module \'%s\' load error: %s' % (modPath, traceback.format_exception(*sys.exc_info()))
                 )
 
             self.__modSeen[modName] = modPath
