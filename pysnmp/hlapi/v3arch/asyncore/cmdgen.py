@@ -121,7 +121,8 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
                              snmpEngine.cache, varBinds, lookupMib
                          ), cbCtx)
 
-    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
+    addrName, paramsName = lcd.configure(
+        snmpEngine, authData, transportTarget, contextData.contextName)
 
     return cmdgen.GetCommandGenerator().sendVarBinds(
         snmpEngine, addrName, contextData.contextEngineId,
@@ -232,7 +233,8 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
                          snmpEngine.cache, varBinds, lookupMib
                      ), cbCtx)
 
-    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
+    addrName, paramsName = lcd.configure(
+        snmpEngine, authData, transportTarget, contextData.contextName)
 
     return cmdgen.SetCommandGenerator().sendVarBinds(
         snmpEngine, addrName, contextData.contextEngineId,
@@ -343,7 +345,9 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
                       varBindTable],
                      cbCtx)
 
-    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
+    addrName, paramsName = lcd.configure(
+        snmpEngine, authData, transportTarget, contextData.contextName)
+
     return cmdgen.NextCommandGenerator().sendVarBinds(
         snmpEngine, addrName,
         contextData.contextEngineId, contextData.contextName,
@@ -483,7 +487,8 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
                      [vbProcessor.unmakeVarBinds(snmpEngine.cache, varBindTableRow, lookupMib) for varBindTableRow in
                       varBindTable], cbCtx)
 
-    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
+    addrName, paramsName = lcd.configure(
+        snmpEngine, authData, transportTarget, contextData.contextName)
 
     return cmdgen.BulkCommandGenerator().sendVarBinds(
         snmpEngine, addrName, contextData.contextEngineId,

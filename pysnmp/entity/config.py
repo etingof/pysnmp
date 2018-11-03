@@ -578,12 +578,13 @@ def addVacmUser(snmpEngine, securityModel, securityName, securityLevel,
 
 
 def delVacmUser(snmpEngine, securityModel, securityName, securityLevel,
-                readSubTree=(), writeSubTree=(), notifySubTree=()):
+                readSubTree=(), writeSubTree=(), notifySubTree=(),
+                contextName=null):
     (groupName, securityLevel, readView, writeView,
      notifyView) = __cookVacmUserInfo(snmpEngine, securityModel,
                                       securityName, securityLevel)
     delVacmGroup(snmpEngine, securityModel, securityName)
-    delVacmAccess(snmpEngine, groupName, null, securityModel, securityLevel)
+    delVacmAccess(snmpEngine, groupName, contextName, securityModel, securityLevel)
     if readSubTree:
         delVacmView(
             snmpEngine, readView, readSubTree
@@ -596,7 +597,6 @@ def delVacmUser(snmpEngine, securityModel, securityName, securityLevel,
         delVacmView(
             snmpEngine, notifyView, notifySubTree
         )
-
 
 # Notification target setup
 
