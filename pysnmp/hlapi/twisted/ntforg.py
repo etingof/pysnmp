@@ -137,9 +137,8 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
             else:
                 deferred.callback((errorStatus, errorIndex, varBindsUnmade))
 
-    notifyName = lcd.configure(
-        snmpEngine, authData, transportTarget, notifyType
-    )
+    notifyName = lcd.configure(snmpEngine, authData, transportTarget,
+                               notifyType, contextData.contextName)
 
     def __trapFun(deferred):
         deferred.callback((0, 0, []))

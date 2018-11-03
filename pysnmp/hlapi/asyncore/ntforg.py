@@ -131,7 +131,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
         )
 
     notifyName = lcd.configure(snmpEngine, authData, transportTarget,
-                               notifyType)
+                               notifyType, contextData.contextName)
 
     return ntforg.NotificationOriginator().sendVarBinds(
         snmpEngine, notifyName,

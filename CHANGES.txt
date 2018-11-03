@@ -7,6 +7,8 @@ Revision 4.4.7, released 2018-11-XX
   the stack frames (ultimately shown in traceback/debugger)
 - Fixed hlapi/v3arch transport target caching to ensure transport targets
   are different even if just timeout/retries options differ
+- Fixed hlapi LCD configurator to include `contextName`. Prior to this fix
+  sending SNMPv3 TRAP with non-default `contextName` would fail.
 
 Revision 4.4.6, released 2018-09-13
 -----------------------------------

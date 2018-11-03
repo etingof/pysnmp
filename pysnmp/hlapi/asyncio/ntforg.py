@@ -139,8 +139,8 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
             )
 
     notifyName = lcd.configure(
-        snmpEngine, authData, transportTarget, notifyType
-    )
+        snmpEngine, authData, transportTarget, notifyType,
+        contextData.contextName)
 
     future = asyncio.Future()
 
