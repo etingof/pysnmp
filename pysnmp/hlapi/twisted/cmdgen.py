@@ -129,7 +129,8 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
             else:
                 deferred.callback((errorStatus, errorIndex, varBindsUnmade))
 
-    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
+    addrName, paramsName = lcd.configure(
+        snmpEngine, authData, transportTarget, contextData.contextName)
 
     deferred = Deferred()
 
@@ -246,7 +247,8 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
             else:
                 deferred.callback((errorStatus, errorIndex, varBindsUnmade))
 
-    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
+    addrName, paramsName = lcd.configure(
+        snmpEngine, authData, transportTarget, contextData.contextName)
 
     deferred = Deferred()
 
@@ -377,7 +379,8 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
             else:
                 deferred.callback((errorStatus, errorIndex, varBindsUnmade))
 
-    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
+    addrName, paramsName = lcd.configure(
+        snmpEngine, authData, transportTarget, contextData.contextName)
 
     deferred = Deferred()
 
@@ -536,7 +539,8 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
             else:
                 deferred.callback((errorStatus, errorIndex, varBindsUnmade))
 
-    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
+    addrName, paramsName = lcd.configure(
+        snmpEngine, authData, transportTarget, contextData.contextName)
 
     deferred = Deferred()
 

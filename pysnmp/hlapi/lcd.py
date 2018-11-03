@@ -8,6 +8,8 @@ from pysnmp.entity import config
 from pysnmp import nextid, error
 from pysnmp.hlapi.auth import *
 
+from pyasn1.compat.octets import null
+
 __all__ = ['CommandGeneratorLcdConfigurator',
            'NotificationOriginatorLcdConfigurator']
 
@@ -24,17 +26,17 @@ class AbstractLcdConfigurator(object):
             snmpEngine.setUserContext(**{cacheId: cache})
         return cache
 
-    def configure(self, snmpEngine, authData, transportTarget, *options):
+    def configure(self, snmpEngine, *args, **kwargs):
         pass
 
-    def unconfigure(self, snmpEngine, authData=None):
+    def unconfigure(self, snmpEngine, *args, **kwargs):
         pass
 
 
 class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
     cacheKeys = ['auth', 'parm', 'tran', 'addr']
 
-    def configure(self, snmpEngine, authData, transportTarget, *options):
+    def configure(self, snmpEngine, authData, transportTarget, contextName, **options):
         cache = self._getCache(snmpEngine)
         if isinstance(authData, CommunityData):
             if authData.communityIndex not in cache['auth']:
@@ -117,7 +119,7 @@ class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
 
         return addrName, paramsName
 
-    def unconfigure(self, snmpEngine, authData=None):
+    def unconfigure(self, snmpEngine, authData=None, contextName=null, **options):
         cache = self._getCache(snmpEngine)
         if authData:
             if isinstance(authData, CommunityData):
@@ -198,9 +200,9 @@ class NotificationOriginatorLcdConfigurator(AbstractLcdConfigurator):
     cacheKeys = ['auth', 'name']
     _cmdGenLcdCfg = CommandGeneratorLcdConfigurator()
 
-    def configure(self, snmpEngine, authData, transportTarget, *options):
+    def configure(self, snmpEngine, authData, transportTarget, notifyType,
+                  contextName, **options):
         cache = self._getCache(snmpEngine)
-        notifyType = options and options[0] or 'trap'
         notifyName = None
 
         # Create matching transport tags if not given by user. Not good!
@@ -211,7 +213,8 @@ class NotificationOriginatorLcdConfigurator(AbstractLcdConfigurator):
         if isinstance(authData, CommunityData) and not authData.tag:
             authData.tag = transportTarget.tagList.split()[0]
 
-        addrName, paramsName = self._cmdGenLcdCfg.configure(snmpEngine, authData, transportTarget)
+        addrName, paramsName = self._cmdGenLcdCfg.configure(
+            snmpEngine, authData, transportTarget, contextName, **options)
         tagList = transportTarget.tagList.split()
         if not tagList:
             tagList = ['']
@@ -230,7 +233,7 @@ class NotificationOriginatorLcdConfigurator(AbstractLcdConfigurator):
                     notifyType
                 )
                 cache['name'][notifyNameKey] = notifyName, paramsName, 1
-        authDataKey = authData.securityName, authData.securityModel
+        authDataKey = authData.securityName, authData.securityModel, authData.securityLevel, contextName
         if authDataKey in cache['auth']:
             authDataX, subTree, useCount = cache['auth'][authDataKey]
             cache['auth'][authDataKey] = authDataX, subTree, useCount + 1
@@ -238,23 +241,24 @@ class NotificationOriginatorLcdConfigurator(AbstractLcdConfigurator):
             subTree = (1, 3, 6)
             config.addTrapUser(snmpEngine, authData.securityModel,
                                authData.securityName, authData.securityLevel,
-                               subTree)
+                               subTree, contextName=contextName)
             cache['auth'][authDataKey] = authData, subTree, 1
 
         return notifyName
 
-    def unconfigure(self, snmpEngine, authData=None):
+    def unconfigure(self, snmpEngine, authData=None, contextName=null, **options):
         cache = self._getCache(snmpEngine)
         if authData:
-            authDataKey = authData.securityName, authData.securityModel
+            authDataKey = authData.securityName, authData.securityModel, authData.securityLevel, contextName
             if authDataKey in cache['auth']:
                 authDataKeys = (authDataKey,)
             else:
                 raise error.PySnmpError('Unknown authData %s' % (authData,))
         else:
-            authDataKeys = tuple(cache['auth'].keys())
+            authDataKeys = tuple(cache['auth'])
 
-        addrNames, paramsNames = self._cmdGenLcdCfg.unconfigure(snmpEngine, authData)
+        addrNames, paramsNames = self._cmdGenLcdCfg.unconfigure(
+            snmpEngine, authData, contextName, **options)
 
         notifyAndParamsNames = [(cache['name'][x], x) for x in cache['name'].keys() if x[0] in paramsNames]
 

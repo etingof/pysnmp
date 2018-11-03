@@ -560,12 +560,13 @@ def addVacmUser(snmpEngine, securityModel, securityName, securityLevel,
 
 
 def delVacmUser(snmpEngine, securityModel, securityName, securityLevel,
-                readSubTree=(), writeSubTree=(), notifySubTree=()):
+                readSubTree=(), writeSubTree=(), notifySubTree=(),
+                contextName=null):
     (groupName, securityLevel, readView, writeView,
      notifyView) = __cookVacmUserInfo(snmpEngine, securityModel,
                                       securityName, securityLevel)
     delVacmGroup(snmpEngine, securityModel, securityName)
-    delVacmAccess(snmpEngine, groupName, null, securityModel, securityLevel)
+    delVacmAccess(snmpEngine, groupName, contextName, securityModel, securityLevel)
     if readSubTree:
         delVacmView(
             snmpEngine, readView, readSubTree
@@ -582,36 +583,40 @@ def delVacmUser(snmpEngine, securityModel, securityName, securityLevel,
 
 # Obsolete shortcuts for add/delVacmUser() wrappers
 
-def addRoUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
-    addVacmUser(snmpEngine, securityModel, securityName,
-                securityLevel, subTree)
-
-
-def delRoUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
-    delVacmUser(snmpEngine, securityModel, securityName, securityLevel,
-                subTree)
-
-
-def addRwUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
+def addRoUser(snmpEngine, securityModel, securityName, securityLevel,
+              subTree, contextName=null):
     addVacmUser(snmpEngine, securityModel, securityName, securityLevel,
-                subTree, subTree)
+                subTree, contextName=contextName)
 
 
-def delRwUser(snmpEngine, securityModel, securityName, securityLevel, subTree):
+def delRoUser(snmpEngine, securityModel, securityName, securityLevel,
+              subTree, contextName=null):
     delVacmUser(snmpEngine, securityModel, securityName, securityLevel,
-                subTree, subTree)
+                subTree, contextName=contextName)
+
+
+def addRwUser(snmpEngine, securityModel, securityName, securityLevel,
+              subTree, contextName=null):
+    addVacmUser(snmpEngine, securityModel, securityName, securityLevel,
+                subTree, subTree, contextName=contextName)
+
+
+def delRwUser(snmpEngine, securityModel, securityName, securityLevel,
+              subTree, contextName=null):
+    delVacmUser(snmpEngine, securityModel, securityName, securityLevel,
+                subTree, subTree, contextName=contextName)
 
 
 def addTrapUser(snmpEngine, securityModel, securityName,
-                securityLevel, subTree):
+                securityLevel, subTree, contextName=null):
     addVacmUser(snmpEngine, securityModel, securityName, securityLevel,
-                (), (), subTree)
+                (), (), subTree, contextName=contextName)
 
 
 def delTrapUser(snmpEngine, securityModel, securityName,
-                securityLevel, subTree):
+                securityLevel, subTree, contextName=null):
     delVacmUser(snmpEngine, securityModel, securityName, securityLevel,
-                (), (), subTree)
+                (), (), subTree, contextName=contextName)
 
 
 # Notification target setup

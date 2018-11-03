@@ -148,7 +148,8 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
                 (errorIndication, errorStatus, errorIndex, varBindsUnmade)
             )
 
-    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
+    addrName, paramsName = lcd.configure(
+        snmpEngine, authData, transportTarget, contextData.contextName)
 
     future = asyncio.Future()
 
@@ -254,7 +255,8 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
                 (errorIndication, errorStatus, errorIndex, varBindsUnmade)
             )
 
-    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
+    addrName, paramsName = lcd.configure(
+        snmpEngine, authData, transportTarget, contextData.contextName)
 
     future = asyncio.Future()
 
@@ -366,7 +368,8 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
                 (errorIndication, errorStatus, errorIndex, varBindsUnmade)
             )
 
-    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
+    addrName, paramsName = lcd.configure(
+        snmpEngine, authData, transportTarget, contextData.contextName)
 
     future = asyncio.Future()
 
@@ -507,7 +510,8 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
                 (errorIndication, errorStatus, errorIndex, varBindsUnmade)
             )
 
-    addrName, paramsName = lcd.configure(snmpEngine, authData, transportTarget)
+    addrName, paramsName = lcd.configure(
+        snmpEngine, authData, transportTarget, contextData.contextName)
 
     future = asyncio.Future()
 
