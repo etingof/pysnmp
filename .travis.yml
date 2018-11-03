@@ -5,19 +5,7 @@ matrix:
   - os: linux
     dist: xenial
     sudo: false
-    python: '2.6'
-  - os: linux
-    dist: xenial
-    sudo: false
     python: '2.7'
-  - os: linux
-    dist: xenial
-    sudo: false
-    python: '3.2'
-  - os: linux
-    dist: xenial
-    sudo: false
-    python: '3.3'
   - os: linux
     dist: xenial
     sudo: false
