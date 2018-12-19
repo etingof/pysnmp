@@ -36,7 +36,7 @@ else:
 
         def inet_pton(address_family, ip_string):
             if address_family == socket.AF_INET:
-                return inet_aton(ip_string)
+                return socket.inet_aton(ip_string)
             elif address_family != socket.AF_INET6:
                 raise socket.error(
                     'Unknown address family %s' % (address_family,)
@@ -84,7 +84,7 @@ else:
 
         def inet_ntop(address_family, packed_ip):
             if address_family == socket.AF_INET:
-                return inet_ntop(packed_ip)
+                return socket.inet_ntoa(packed_ip)
             elif address_family != socket.AF_INET6:
                 raise socket.error(
                     'Unknown address family %s' % (address_family,)

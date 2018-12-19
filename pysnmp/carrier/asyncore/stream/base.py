@@ -37,23 +37,22 @@ class StreamSocketTransport(DgramSocketTransport):
         self.__outQueue = []
         self._sendto = lambda s, b, a: s.send(b)
 
-        def __recvfrom(s: socket.socket, sz):
-            data = s.recv(2)
-            d = bytes()
-            if data:
+        def __recvfrom(s, sz):
+            header_data = bytearray(s.recv(2))
+            if header_data:
                 #1st byte is 0x30 - sequence
-                ll = data[1]
-                if ll & 0x80 != 0:
-                    ll &= 0x7f
-                    rdlen = s.recv(ll)
-                    data += rdlen
-                    rdlen, = struct.unpack("!I", bytes([0]*(4-ll))+rdlen)
+                seq_len = header_data[1]
+                if seq_len & 0x80 != 0:  # BER long definite length
+                    seq_len &= 0x7f
+                    payload_len = bytearray(s.recv(seq_len))
+                    header_data += payload_len
+                    remaining_bytes, = struct.unpack("!I", bytearray([0]*(4-seq_len))+payload_len)
                 else:
-                    rdlen = ll
+                    remaining_bytes = seq_len
 
-                d = s.recv(rdlen)
+                payload_data = bytearray(s.recv(remaining_bytes))
 
-            return data+d, self.addressType(s.getpeername())
+            return bytes(header_data+payload_data), self.addressType(s.getpeername())
 
         self._recvfrom = __recvfrom
 
