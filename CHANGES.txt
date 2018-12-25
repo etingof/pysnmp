@@ -1,5 +1,5 @@
 
-Revision 4.4.7, released 2018-11-XX
+Revision 4.4.7, released 2018-12-XX
 -----------------------------------
 
 - Exposed ASN.1 `Null` type through `rfc1902` module for convenience.
@@ -9,6 +9,8 @@ Revision 4.4.7, released 2018-11-XX
   are different even if just timeout/retries options differ
 - Fixed hlapi LCD configurator to include `contextName`. Prior to this fix
   sending SNMPv3 TRAP with non-default `contextName` would fail.
+- Fixed possible duplicate key occurrence in the `OrderedDict` following
+  a race condition
 
 Revision 4.4.6, released 2018-09-13
 -----------------------------------
