@@ -316,7 +316,7 @@ class MibBuilder(object):
                 exec(compile(modData, modPath, 'exec'), g)
 
             except Exception:
-                del self.__modPathsSeen[modPath]
+                self.__modPathsSeen.remove(modPath)
                 raise error.MibLoadError(
                     'MIB module \'%s\' load error: %s' % (modPath, traceback.format_exception(*sys.exc_info()))
                 )
@@ -373,7 +373,7 @@ class MibBuilder(object):
                     'No module %s at %s' % (modName, self)
                 )
             self.unexportSymbols(modName)
-            del self.__modPathsSeen[self.__modSeen[modName]]
+            self.__modPathsSeen.remove(self.__modSeen[modName])
             del self.__modSeen[modName]
 
             debug.logger & debug.flagBld and debug.logger('unloadModules: %s' % modName)
