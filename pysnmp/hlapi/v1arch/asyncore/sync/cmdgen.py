@@ -318,7 +318,8 @@ def nextCmd(snmpDispatcher, authData, transportTarget,
 
     while True:
         if not varBinds:
-            yield (errorIndication, errorStatus, errorIndex, varBindTable)
+            yield (errorIndication, errorStatus, errorIndex,
+                   varBindTable and varBindTable[0] or [])
             return
 
         cmdgen.nextCmd(snmpDispatcher, authData, transportTarget,
@@ -329,7 +330,8 @@ def nextCmd(snmpDispatcher, authData, transportTarget,
         errorIndication, errorStatus, errorIndex, varBindTable, varBinds = response
 
         if errorIndication:
-            yield (errorIndication, errorStatus, errorIndex, varBindTable)
+            yield (errorIndication, errorStatus, errorIndex,
+                   varBindTable and varBindTable[0] or [])
             return
 
         elif errorStatus:
@@ -338,7 +340,8 @@ def nextCmd(snmpDispatcher, authData, transportTarget,
                 # from SNMPv1 Agent through internal pysnmp proxy.
                 errorStatus = errorStatus.clone(0)
                 errorIndex = errorIndex.clone(0)
-            yield (errorIndication, errorStatus, errorIndex, varBindTable)
+            yield (errorIndication, errorStatus, errorIndex,
+                   varBindTable and varBindTable[0] or [])
             return
 
         else:
