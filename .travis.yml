@@ -3,37 +3,39 @@ cache: pip
 matrix:
   include:
   - os: linux
-    dist: xenial
-    sudo: false
+    dist: trusty
+    python: '2.6'
+  - os: linux
+    dist: trusty
     python: '2.7'
   - os: linux
-    dist: xenial
-    sudo: false
+    dist: trusty
+    python: '3.2'
+  - os: linux
+    dist: trusty
+    python: '3.3'
+  - os: linux
+    dist: trusty
     python: '3.4'
   - os: linux
-    dist: xenial
-    sudo: false
+    dist: trusty
     python: '3.5'
   - os: linux
-    dist: xenial
-    sudo: false
+    dist: trusty
     python: '3.6'
   - os: linux
     dist: xenial
     sudo: true
     python: '3.7'
   - os: linux
-    dist: xenial
-    sudo: false
+    dist: trusty
     python: 'nightly'
-#  - os: linux
-#    dist: xenial
-#    sudo: false
-#    python: 'pypy'
-#  - os: linux
-#    dist: xenial
-#    sudo: false
-#    python: 'pypy3'
+  - os: linux
+    dist: trusty
+    python: 'pypy'
+  - os: linux
+    dist: trusty
+    python: 'pypy3'
 install:
   - pip install -r requirements.txt -r devel-requirements.txt -r extra-requirements.txt
   - pip install -e .
