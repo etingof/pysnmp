@@ -1,7 +1,8 @@
 
-Revision 4.4.7, released 2018-12-XX
+Revision 4.4.7, released 2018-12-29
 -----------------------------------
 
+- Copyright notice extended to the year 2019
 - Exposed ASN.1 `Null` type through `rfc1902` module for convenience.
 - Use `compile()` before `exec`'ing MIB modules to attach filename to
   the stack frames (ultimately shown in traceback/debugger)
