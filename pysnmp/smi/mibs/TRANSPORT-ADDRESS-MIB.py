@@ -36,7 +36,7 @@ else:
 
         def inet_pton(address_family, ip_string):
             if address_family == socket.AF_INET:
-                return inet_aton(ip_string)
+                return socket.inet_aton(ip_string)
             elif address_family != socket.AF_INET6:
                 raise socket.error(
                     'Unknown address family %s' % (address_family,)
@@ -46,7 +46,7 @@ else:
             spaces = groups.count('')
 
             if '.' in groups[-1]:
-                groups[-1:] = ["%x" % x for x in struct.unpack("!HH", inet_aton(groups[-1]))]
+                groups[-1:] = ["%x" % x for x in struct.unpack("!HH", socket.inet_aton(groups[-1]))]
 
             if spaces == 1:
                 idx = groups.index('')
@@ -84,7 +84,7 @@ else:
 
         def inet_ntop(address_family, packed_ip):
             if address_family == socket.AF_INET:
-                return inet_ntop(packed_ip)
+                return socket.inet_ntop(packed_ip)
             elif address_family != socket.AF_INET6:
                 raise socket.error(
                     'Unknown address family %s' % (address_family,)

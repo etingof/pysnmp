@@ -12,6 +12,8 @@ Revision 4.4.7, released 2018-12-29
   sending SNMPv3 TRAP with non-default `contextName` would fail.
 - Fixed possible duplicate key occurrence in the `OrderedDict` following
   a race condition
+- Fixed undefined name references in `inet_pton`/`inet_ntop` substitute
+  routines for IPv6 in `TRANSPORT-ADDRESS-MIB.py`
 
 Revision 4.4.6, released 2018-09-13
 -----------------------------------
