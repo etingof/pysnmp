@@ -141,8 +141,8 @@ class AbstractSnmpDispatcher(object):
         return wholeMsg
 
     def _timerCb(self, timeNow):
-        for requestId, stateInfo in self._pendingReqs.items():
-            if stateInfo['timestamp'] < timeNow:
+        for requestId, stateInfo in tuple(self._pendingReqs.items()):
+            if stateInfo['timestamp'] > timeNow:
                 continue
 
             retries = stateInfo['retries']

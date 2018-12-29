@@ -45,7 +45,7 @@ class AbstractTransportDispatcher(object):
         self.__recvCallables = {}
         self.__timerCallables = []
         self.__ticks = 0
-        self.__timerResolution = 0.5
+        self.__timerResolution = 0.1
         self.__timerDelta = self.__timerResolution * 0.05
         self.__nextTime = 0
         self.__routingCbFun = None

@@ -16,7 +16,6 @@ from pysnmp.error import PySnmpError
 class AsyncoreDispatcher(AbstractTransportDispatcher):
     def __init__(self):
         self.__sockMap = {}  # use own map for MT safety
-        self.timeout = 0.5
         AbstractTransportDispatcher.__init__(self)
 
     def getSocketMap(self):
@@ -42,7 +41,7 @@ class AsyncoreDispatcher(AbstractTransportDispatcher):
     def runDispatcher(self, timeout=0.0):
         while self.jobsArePending() or self.transportsAreWorking():
             try:
-                loop(timeout and timeout or self.timeout,
+                loop(timeout or self.getTimerResolution(),
                      use_poll=True, map=self.__sockMap, count=1)
             except KeyboardInterrupt:
                 raise
