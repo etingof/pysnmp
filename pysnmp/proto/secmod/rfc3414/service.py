@@ -168,9 +168,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         tblIdx2 = usmUserEntry.getInstIdFromIndices(securityEngineID, userName)
 
-        # New row
-        mibInstrumController.writeVars(
-            (usmUserEntry.name + (13,) + tblIdx2, 4), **dict(snmpEngine=snmpEngine)
+        # New inactive row
+        mibInstrumController.writeMibObjects(
+            (usmUserEntry.name + (13,) + tblIdx2, 5), **dict(snmpEngine=snmpEngine)
         )
 
         # Set user&securityNames
@@ -183,6 +183,11 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         # Set protocols
         usmUserEntry.getNode(usmUserEntry.name + (5,) + tblIdx2).syntax = usmUserAuthProtocol.syntax
         usmUserEntry.getNode(usmUserEntry.name + (8,) + tblIdx2).syntax = usmUserPrivProtocol.syntax
+
+        # Activate row
+        mibInstrumController.writeMibObjects(
+            (usmUserEntry.name + (13,) + tblIdx2, 1), **dict(snmpEngine=snmpEngine)
+        )
 
         # Localize and set keys
         pysnmpUsmKeyEntry, = mibInstrumController.mibBuilder.importSymbols(

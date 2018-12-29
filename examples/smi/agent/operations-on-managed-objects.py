@@ -6,62 +6,131 @@ This script explains how SNMP Agent application manipulates
 its MIB possibly triggered by SNMP Manager's commands.
 
 """#
-# SNMP agent backend e.g. Agent access to Managed Objects
-from pysnmp.smi import builder, instrum, exval
+from pysnmp.smi import builder
+from pysnmp.smi import instrum
+from pysnmp.smi import exval
+from pysnmp.smi import error
+from pysnmp import debug
 
-print('Loading MIB modules...'),
+#debug.setLogger(debug.Debug('all'))
+
+
+def walkMib():
+    def cbFun(varBinds, **context):
+        err = context.get('error')
+        if err:
+            print(err)
+
+        for oid, val in varBinds:
+            if exval.endOfMib.isSameTypeWith(val):
+                context['app']['stop'] = True
+
+            elif not (exval.noSuchInstance.isSameTypeWith(val) or
+                      exval.noSuchObject.isSameTypeWith(val)):
+                print('%s = %s' % ('.'.join([str(x) for x in oid]),
+                                   not val.isValue and 'N/A' or val.prettyPrint()))
+
+            context['app']['varBinds'] = varBinds
+
+    app_context = {
+        'varBinds': [((1, 3, 6), None)],
+        'stop': False
+    }
+
+    print('Read whole MIB (table walk)')
+    while not app_context['stop']:
+        mibInstrum.readNextMibObjects(*app_context['varBinds'], cbFun=cbFun, app=app_context)
+
+
+print('Loading MIB modules...')
 mibBuilder = builder.MibBuilder().loadModules(
     'SNMPv2-MIB', 'SNMP-FRAMEWORK-MIB', 'SNMP-COMMUNITY-MIB'
 )
-print('done')
 
-print('Building MIB tree...'),
+print('Building MIB tree...')
 mibInstrum = instrum.MibInstrumController(mibBuilder)
-print('done')
 
-print('Building table entry index from human-friendly representation...'),
+walkMib()
+
+print('Building table entry index from human-friendly representation...')
 snmpCommunityEntry, = mibBuilder.importSymbols(
     'SNMP-COMMUNITY-MIB', 'snmpCommunityEntry'
 )
 instanceId = snmpCommunityEntry.getInstIdFromIndices('my-router')
-print('done')
+
+print('Create/update some of SNMP-COMMUNITY-MIB::snmpCommunityEntry table columns: ')
 
 
 def cbFun(varBinds, **context):
+    err = context.get('error')
+    if err:
+        print(err)
+
     for oid, val in varBinds:
         print('%s = %s' % ('.'.join([str(x) for x in oid]), not val.isValue and 'N/A' or val.prettyPrint()))
 
-print('Create/update SNMP-COMMUNITY-MIB::snmpCommunityEntry table row: ')
-mibInstrum.writeVars(
+
+mibInstrum.writeMibObjects(
     (snmpCommunityEntry.name + (2,) + instanceId, 'mycomm'),
     (snmpCommunityEntry.name + (3,) + instanceId, 'mynmsname'),
     (snmpCommunityEntry.name + (7,) + instanceId, 'volatile'),
     cbFun=cbFun
 )
-print('done')
+
+walkMib()
 
 
 def cbFun(varBinds, **context):
+    err = context.get('error')
+    if err:
+        print(err)
+
     for oid, val in varBinds:
-        if exval.endOfMib.isSameTypeWith(val):
-            context['state']['stop'] = True
         print('%s = %s' % ('.'.join([str(x) for x in oid]), not val.isValue and 'N/A' or val.prettyPrint()))
 
-    context['state']['varBinds'] = varBinds
 
-context = {
-    'cbFun': cbFun,
-    'state': {
-        'varBinds': [((1, 3, 6), None)],
-        'stop': False
-    }
-}
+print('Destroy SNMP-COMMUNITY-MIB::snmpCommunityEntry table row via RowStatus column: ')
 
-print('Read whole MIB (table walk)')
-while not context['state']['stop']:
-    mibInstrum.readNextVars(*context['state']['varBinds'], **context)
-print('done')
+mibInstrum.writeMibObjects(
+    (snmpCommunityEntry.name + (8,) + instanceId, 'destroy'),
+    cbFun=cbFun
+)
+
+walkMib()
+
+
+def cbFun(varBinds, **context):
+    err = context.get('errors', None)
+    if err:
+        print(err)
+    for oid, val in varBinds:
+        print('%s = %s' % ('.'.join([str(x) for x in oid]), not val.isValue and 'N/A' or val.prettyPrint()))
+
+
+print('Create SNMP-COMMUNITY-MIB::snmpCommunityEntry table row: ')
+
+mibInstrum.writeMibObjects(
+    (snmpCommunityEntry.name + (1,) + instanceId, 'mycomm'),
+    (snmpCommunityEntry.name + (2,) + instanceId, 'mycomm'),
+    (snmpCommunityEntry.name + (3,) + instanceId, 'mysecname'),
+    (snmpCommunityEntry.name + (4,) + instanceId, 'abcdef'),
+    (snmpCommunityEntry.name + (5,) + instanceId, ''),
+    (snmpCommunityEntry.name + (6,) + instanceId, 'mytag'),
+    (snmpCommunityEntry.name + (7,) + instanceId, 'nonVolatile'),
+    (snmpCommunityEntry.name + (8,) + instanceId, 'createAndGo'),
+    cbFun=cbFun
+)
+
+walkMib()
+
+print('Destroy SNMP-COMMUNITY-MIB::snmpCommunityEntry table row via RowStatus column: ')
+
+mibInstrum.writeMibObjects(
+    (snmpCommunityEntry.name + (8,) + instanceId, 'destroy'),
+    cbFun=cbFun
+)
+
+walkMib()
 
 print('Unloading MIB modules...'),
 mibBuilder.unloadModules()
-print('done')

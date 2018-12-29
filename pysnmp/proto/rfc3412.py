@@ -426,7 +426,7 @@ class MsgAndPduDispatcher(object):
                         transportDomain, transportAddress
                     )
 
-                # 4.2.2.1.3
+                # 4.2.2.1.3 (asynchronous function)
                 processPdu(snmpEngine, messageProcessingModel,
                            securityModel, securityName, securityLevel,
                            contextEngineId, contextName, pduVersion,
@@ -440,7 +440,7 @@ class MsgAndPduDispatcher(object):
                 if stateReference is not None:
                     del self.__transportInfo[stateReference]
 
-                debug.logger & debug.flagDsp and debug.logger('receiveMessage: processPdu succeeded')
+                debug.logger & debug.flagDsp and debug.logger('receiveMessage: processPdu initiated')
                 return restOfWholeMsg
         else:
             # 4.2.2.2 (response)

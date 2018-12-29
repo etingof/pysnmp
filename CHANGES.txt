@@ -27,7 +27,33 @@ Revision 5.0.0, released 2018-12-??
 
   * The `readVars`, `readNextVars` and `writeVars` methods of MIB
     instrumentation controller return immediately and deliver their
-    results via a call back.
+    results via a call back. These methods have been renamed into
+    `read/readNext/writeMibObjects`.
+
+  * The `read*`, `write*`, `create*` and `destroy*` methods of
+    the `SNMPv2-SMI` MIB objects redesigned to return immediately
+    and deliver their results via a call back.
+
+  * The `readNext*` methods of the `SNMPv2-SMI` MIB objects redesigned
+    to return the very next obejct even if it is not readable. In this
+    case the `noSuchObject` or `noSuchInstance` SNMP exception values
+    are returned. The motivation is to avoid deep stack recursion on
+    MIB walk. The caller is expected to watch these SNMP sentinels
+    and repeat the call.
+
+  * SMI tables manipulation mechanics (`create*` and `destroy*` methods)
+    of the `SNMPv2-SMI` MIB objects  redesigned for simplicity and
+    asynchronous use.
+
+  * Redesigned SMI tables can be created either by:
+
+     - Sending many PDUs carrying columnar objects followed by a PDU
+       that bring the `RowStatus` object into the `active` state.
+
+     - Or by sending a single PDU first having columnar objects initialized
+       followed by the `RowStatus` object.
+
+  * Scalar SMI objects changed to instantiate automatically on write.
 
   * CommandResponder application passes `snmpEngine` and optionally
     user-supplied `cbCtx` object throughout the MIB instrumentation

@@ -459,18 +459,18 @@ class RowStatus(TextualConvention, Integer):
         (stCreateAndGo, stNotInService): (InconsistentValueError, stNotInService),
         (stCreateAndGo, stActive): (InconsistentValueError, stActive),
         #
-        (stCreateAndWait, stNotExists): (RowCreationWanted, stActive),
+        (stCreateAndWait, stNotExists): (RowCreationWanted, stNotReady),
         (stCreateAndWait, stNotReady): (InconsistentValueError, stNotReady),
         (stCreateAndWait, stNotInService): (InconsistentValueError, stNotInService),
         (stCreateAndWait, stActive): (InconsistentValueError, stActive),
         #
         (stActive, stNotExists): (InconsistentValueError, stNotExists),
-        (stActive, stNotReady): (InconsistentValueError, stNotReady),
-        (stActive, stNotInService): (None, stActive),
+        (stActive, stNotReady): (RowConsistencyWanted, stActive),
+        (stActive, stNotInService): (RowConsistencyWanted, stActive),
         (stActive, stActive): (None, stActive),
         #
         (stNotInService, stNotExists): (InconsistentValueError, stNotExists),
-        (stNotInService, stNotReady): (InconsistentValueError, stNotReady),
+        (stNotInService, stNotReady): (None, stNotReady),
         (stNotInService, stNotInService): (None, stNotInService),
         (stNotInService, stActive): (None, stActive),
         #

@@ -33,7 +33,7 @@ snmpEngine = engine.SnmpEngine()
 config.addTransport(
     snmpEngine,
     udp.domainName,
-    udp.UdpTransport().openServerMode(('127.0.0.1', 161))
+    udp.UdpTransport().openServerMode(('127.0.0.1', 1161))
 )
 
 # SNMPv3/USM setup

@@ -9,6 +9,7 @@ from pysnmp.proto import rfc1902, rfc1905, rfc3411, errind, error
 from pysnmp.proto.api import v2c  # backend is always SMIv2 compliant
 from pysnmp.proto.proxy import rfc2576
 import pysnmp.smi.error
+from pysnmp.smi import exval
 from pysnmp import debug
 
 
@@ -158,22 +159,33 @@ class CommandResponderBase(object):
 
         self.initiateMgmtOperation(snmpEngine, stateReference, contextName, PDU)
 
+    @staticmethod
+    def _storeAccessContext(snmpEngine):
+        """Copy received message metadata while it lasts"""
+        execCtx = snmpEngine.observer.getExecutionContext('rfc3412.receiveMessage:request')
+        return {
+            'securityModel': execCtx['securityModel'],
+            'securityName': execCtx['securityName'],
+            'securityLevel': execCtx['securityLevel'],
+            'contextName': execCtx['contextName'],
+            'pduType': execCtx['pdu'].getTagSet()
+        }
+
     @classmethod
     def verifyAccess(cls, viewType, varBind, **context):
         name, val = varBind
 
         snmpEngine = context['snmpEngine']
 
-        execCtx = snmpEngine.observer.getExecutionContext('rfc3412.receiveMessage:request')
         (securityModel,
          securityName,
          securityLevel,
          contextName,
-         pduType) = (execCtx['securityModel'],
-                     execCtx['securityName'],
-                     execCtx['securityLevel'],
-                     execCtx['contextName'],
-                     execCtx['pdu'].getTagSet())
+         pduType) = (context['securityModel'],
+                     context['securityName'],
+                     context['securityLevel'],
+                     context['contextName'],
+                     context['pduType'])
 
         try:
             snmpEngine.accessControlModel[cls.acmID].isAccessAllowed(
@@ -221,44 +233,25 @@ class CommandResponderBase(object):
     def _getMgmtFun(self, contextName):
         return lambda *args, **kwargs: None
 
-    def _checkSmiErrors(self, varBinds):
+    def _mapSmiErrors(self, varBinds, **context):
         errorIndication = None
         errorStatus = errorIndex = 0
 
-        exception = None
+        errors = context.get('errors')
+        if not errors:
+            return errorIndication, errorStatus, errorIndex
 
-        for idx, varBind in enumerate(varBinds):
-            name, value = varBind
-            if isinstance(value, tuple):  # expect exception tuple
-                debug.logger & debug.flagApp and debug.logger(
-                    '_checkSmiErrors: exception reported for OID %s exception %s' % (name, value))
+        # Take the latest exception
+        err = errors[-1]
 
-                if not exception:
-                    exception = value
+        if isinstance(err, pysnmp.smi.error.GenError):
+            errorIndication = str(err)
 
-                # reset exception object
-                varBinds[idx] = name, v2c.null
-
-        try:
-            # TODO: perhaps chain exceptions
-            if exception:
-                debug.logger & debug.flagApp and debug.logger(
-                    '_checkSmiErrors: re-raising exception %s' % (exception,))
-                raise exception[1].with_traceback(exception[2])
-
-        # SNMPv2 SMI exceptions
-        except pysnmp.smi.error.GenError:
-            errorIndication = sys.exc_info()[1]
-            debug.logger & debug.flagApp and debug.logger(
-                '_checkSmiErrors: errorIndication %s' % (errorIndication,))
-
-        except pysnmp.smi.error.SmiError:
-            exc_type, exc_obj, trb = sys.exc_info()
-
-            errorStatus = self.SMI_ERROR_MAP.get(exc_type, 'genErr')
+        elif isinstance(err, pysnmp.smi.error.SmiError):
+            errorStatus = self.SMI_ERROR_MAP.get(err.__class__, 'genErr')
 
             try:
-                errorIndex = exc_obj['idx'] + 1
+                errorIndex = err['idx'] + 1
 
             except IndexError:
                 errorIndex = len(varBinds) and 1 or 0
@@ -267,13 +260,8 @@ class CommandResponderBase(object):
 
     def completeMgmtOperation(self, varBinds, **context):
 
-        try:
-            (errorIndication,
-             errorStatus, errorIndex) = self._checkSmiErrors(varBinds)
-
-        except pysnmp.error.PySnmpError:
-            self.releaseStateInformation(context['stateReference'])
-            return
+        (errorIndication,
+         errorStatus, errorIndex) = self._mapSmiErrors(varBinds, **context)
 
         stateReference = context['stateReference']
 
@@ -304,6 +292,8 @@ class CommandResponderBase(object):
                        cbFun=self.completeMgmtOperation,
                        cbCtx=self.cbCtx)
 
+        context.update(self._storeAccessContext(snmpEngine))
+
         mgmtFun(*varBinds, **context)
 
 
@@ -312,7 +302,7 @@ class GetCommandResponder(CommandResponderBase):
 
     # rfc1905: 4.2.1
     def _getMgmtFun(self, contextName):
-        return self.snmpContext.getMibInstrum(contextName).readVars
+        return self.snmpContext.getMibInstrum(contextName).readMibObjects
 
 
 class NextCommandResponder(CommandResponderBase):
@@ -320,41 +310,133 @@ class NextCommandResponder(CommandResponderBase):
 
     # rfc1905: 4.2.2
     def _getMgmtFun(self, contextName):
-        return self.snmpContext.getMibInstrum(contextName).readNextVars
+        return self.snmpContext.getMibInstrum(contextName).readNextMibObjects
+
+    def _getManagedObjectsInstances(self, varBinds, **context):
+        """Iterate over Managed Objects fulfilling SNMP query.
+
+        Parameters
+        ----------
+        varBinds
+        context
+
+        Returns
+        -------
+        :py:class:`list` - List of Managed Objects Instances to respond with or
+            `None` to indicate that not all objects have been gathered
+            so far.
+        """
+        rspVarBinds = context['rspVarBinds']
+        varBindsMap = context['varBindsMap']
+
+        rtrVarBinds = []
+
+        for idx, varBind in enumerate(varBinds):
+            name, val = varBind
+            if (exval.noSuchObject.isSameTypeWith(val) or
+                    exval.noSuchInstance.isSameTypeWith(val)):
+                varBindsMap[len(rtrVarBinds)] = varBindsMap.pop(idx, idx)
+                rtrVarBinds.append(varBind)
+
+            else:
+                rspVarBinds[varBindsMap.pop(idx, idx)] = varBind
+
+        if rtrVarBinds:
+            snmpEngine = context['snmpEngine']
+
+            # Need to unwind stack, can't recurse any more
+            def callLater(*args):
+                snmpEngine.transportDispatcher.unregisterTimerCbFun(callLater)
+                mgmtFun = context['mgmtFun']
+                mgmtFun(*varBinds, **context)
+
+            snmpEngine.transportDispatcher.registerTimerCbFun(callLater, 0.01)
+
+        else:
+            return rspVarBinds
+
+    def completeMgmtOperation(self, varBinds, **context):
+        rspVarBinds = self._getManagedObjectsInstances(varBinds, **context)
+        if rspVarBinds:
+            CommandResponderBase.completeMgmtOperation(self, rspVarBinds, **context)
+
+    def initiateMgmtOperation(self, snmpEngine, stateReference, contextName, PDU):
+        varBinds = v2c.apiPDU.getVarBinds(PDU)
+
+        mgmtFun = self._getMgmtFun(contextName)
+
+        context = dict(snmpEngine=snmpEngine,
+                       stateReference=stateReference,
+                       acFun=self.verifyAccess,
+                       cbFun=self.completeMgmtOperation,
+                       cbCtx=self.cbCtx,
+                       rspVarBinds=varBinds[:],
+                       varBindsMap={},
+                       mgmtFun=mgmtFun)
+
+        context.update(self._storeAccessContext(snmpEngine))
+
+        mgmtFun(*varBinds, **context)
 
 
-class BulkCommandResponder(CommandResponderBase):
+class BulkCommandResponder(NextCommandResponder):
     SUPPORTED_PDU_TYPES = (rfc1905.GetBulkRequestPDU.tagSet,)
     maxVarBinds = 64
 
-    def _getMgmtFun(self, contextName):
-        return self.snmpContext.getMibInstrum(contextName).readNextVars
-
     def _completeNonRepeaters(self, varBinds, **context):
-        context['rspVarBinds'][:] = varBinds
+        mgmtFun = context['mgmtFun']
 
-        if context['counters']['M'] and context['counters']['R']:
-            context['cbFun'] = self.completeMgmtOperation
+        if not varBinds:
+            # No non-repeaters requested, proceed with repeaters
+            mgmtFun(*context['reqVarBinds'],
+                    **dict(context, cbFun=self.completeMgmtOperation,
+                           varBinds=context['reqVarBinds'][:]))
+            return
 
-            mgmtFun = self._getMgmtFun(context['contextName'])
+        rspVarBinds = self._getManagedObjectsInstances(varBinds, **context)
+        if rspVarBinds:
+            context['allVarBinds'].extend(rspVarBinds)
 
-            mgmtFun(*context['reqVarBinds'], **context)
+            if context['counters']['M'] and context['counters']['R']:
 
-        else:
-            CommandResponderBase.completeMgmtOperation(self, context['rspVarBinds'], **context)
+                rspVarBinds = self._getManagedObjectsInstances(varBinds, **context)
+                if rspVarBinds:
+                    # Done with non-repeaters, proceed with repeaters
+                    mgmtFun(*context['reqVarBinds'],
+                            **dict(context,
+                                   cbFun=self.completeMgmtOperation,
+                                   varBindsMap={},
+                                   rspVarBinds=context['reqVarBinds'][:]))
+                    return
+
+            else:
+                CommandResponderBase.completeMgmtOperation(self, context['allVarBinds'], **context)
 
     def completeMgmtOperation(self, varBinds, **context):
-        context['rspVarBinds'].extend(varBinds)
-        context['counters']['M'] -= 1
+        rspVarBinds = self._getManagedObjectsInstances(varBinds, **context)
+        if rspVarBinds:
+            context['counters']['M'] -= 1
 
-        if context['counters']['M'] and context['counters']['R']:
-            mgmtFun = self._getMgmtFun(context['contextName'])
+            context['allVarBinds'].extend(rspVarBinds)
 
-            context['cbFun'] = self.completeMgmtOperation
-            mgmtFun(*varBinds[-context['counters']['R']:], **context)
+            eom = all(exval.endOfMibView.isSameTypeWith(value) for name, value in rspVarBinds)
 
-        else:
-            CommandResponderBase.completeMgmtOperation(self, context['rspVarBinds'], **context)
+            if not eom and context['counters']['M'] and context['counters']['R']:
+                snmpEngine = context['snmpEngine']
+
+                # Need to unwind stack, can't recurse any more
+                def callLater(*args):
+                    snmpEngine.transportDispatcher.unregisterTimerCbFun(callLater)
+                    mgmtFun = context['mgmtFun']
+                    reqVarBinds = varBinds[-context['counters']['R']:]
+                    mgmtFun(*reqVarBinds,
+                            **dict(context, cbFun=self.completeMgmtOperation,
+                                   varBindsMap={}, rspVarBinds=reqVarBinds[:]))
+
+                snmpEngine.transportDispatcher.registerTimerCbFun(callLater, 0.01)
+
+            else:
+                CommandResponderBase.completeMgmtOperation(self, context['allVarBinds'], **context)
 
     # rfc1905: 4.2.3
     def initiateMgmtOperation(self, snmpEngine, stateReference, contextName, PDU):
@@ -388,7 +470,12 @@ class BulkCommandResponder(CommandResponderBase):
                        cbCtx=self.cbCtx,
                        reqVarBinds=varBinds[N:],
                        counters={'M': M, 'R': R},
-                       rspVarBinds=[])
+                       rspVarBinds=varBinds[N:],
+                       allVarBinds=[],
+                       varBindsMap={},
+                       mgmtFun=mgmtFun)
+
+        context.update(self._storeAccessContext(snmpEngine))
 
         mgmtFun(*varBinds[:N], **context)
 
@@ -404,4 +491,4 @@ class SetCommandResponder(CommandResponderBase):
 
     # rfc1905: 4.2.5.1-13
     def _getMgmtFun(self, contextName):
-        return self.snmpContext.getMibInstrum(contextName).writeVars
+        return self.snmpContext.getMibInstrum(contextName).writeMibObjects

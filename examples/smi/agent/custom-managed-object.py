@@ -29,8 +29,10 @@ sysLocation, = mibBuilder.importSymbols('SNMPv2-MIB', 'sysLocation')
 class MySysLocationInstance(MibScalarInstance):
     # noinspection PyUnusedLocal
     def readGet(self, varBind, **context):
+        cbFun = context['cbFun']
+
         # Just return a custom value
-        return varBind[0], self.syntax.clone('The Leaky Cauldron')
+        cbFun((varBind[0], self.syntax.clone('The Leaky Cauldron')), **context)
 
 
 sysLocationInstance = MySysLocationInstance(
@@ -51,23 +53,22 @@ if __name__ == '__main__':
 
     mibInstrum = instrum.MibInstrumController(mibBuilder)
 
+
     def cbFun(varBinds, **context):
         for oid, val in varBinds:
             if exval.endOfMib.isSameTypeWith(val):
-                context['state']['stop'] = True
+                context['app']['stop'] = True
             print('%s = %s' % ('.'.join([str(x) for x in oid]), not val.isValue and 'N/A' or val.prettyPrint()))
 
-        context['state']['varBinds'] = varBinds
+        context['app']['varBinds'] = varBinds
 
-    context = {
-        'cbFun': cbFun,
-        'state': {
-            'varBinds': [((1, 3, 6), None)],
-            'stop': False
-        }
+
+    app_context = {
+        'varBinds': [((1, 3, 6), None)],
+        'stop': False
     }
 
     print('Remote manager read access to MIB instrumentation (table walk)')
-    while not context['state']['stop']:
-        mibInstrum.readNextVars(*context['state']['varBinds'], **context)
+    while not app_context['stop']:
+        mibInstrum.readNextMibObjects(*app_context['varBinds'], cbFun=cbFun, app=app_context)
     print('done')
