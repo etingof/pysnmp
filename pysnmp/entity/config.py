@@ -6,6 +6,7 @@
 #
 from pyasn1.compat.octets import null
 from pysnmp.carrier.asyncore.dgram import udp, udp6
+from pysnmp.carrier.asyncore.stream import tcp
 from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha, noauth
 from pysnmp.proto.secmod.rfc3414.priv import des, nopriv
 from pysnmp.proto.secmod.rfc3826.priv import aes
@@ -19,6 +20,7 @@ from pysnmp import error
 # Transports
 snmpUDPDomain = udp.snmpUDPDomain
 snmpUDP6Domain = udp6.snmpUDP6Domain
+snmpTCPDomain = tcp.snmpTCPDomain
 
 # Auth protocol
 usmHMACMD5AuthProtocol = hmacmd5.HmacMd5.serviceID
@@ -330,6 +332,12 @@ def addTargetAddr(snmpEngine, addrName, transportDomain, transportAddress,
         if sourceAddress is None:
             sourceAddress = ('::', 0)
         sourceAddress = TransportAddressIPv6(sourceAddress)
+    elif transportDomain[:len(snmpTCPDomain)] == snmpTCPDomain:
+        TransportAddressIPv4, = mibBuilder.importSymbols('TRANSPORT-ADDRESS-MIB', 'TransportAddressIPv4')
+        transportAddress = TransportAddressIPv4(transportAddress)
+        if sourceAddress is None:
+            sourceAddress = ('0.0.0.0', 0)
+        sourceAddress = TransportAddressIPv4(sourceAddress)
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeMibObjects(
         (snmpTargetAddrEntry.name + (9,) + tblIdx, 'destroy'),
