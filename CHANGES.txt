@@ -84,6 +84,11 @@ Revision 5.0.0, released 2018-12-??
   is to unify this method call with similar methods of CommandGenerator.
   This change should not compromise backward compatibility with pysnmp 4.
 
+Revision 4.4.8, released 2018-12-XX
+-----------------------------------
+
+No changes so far
+
 Revision 4.4.7, released 2018-12-29
 -----------------------------------
 
