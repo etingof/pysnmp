@@ -87,7 +87,8 @@ Revision 5.0.0, released 2018-12-??
 Revision 4.4.8, released 2018-12-XX
 -----------------------------------
 
-No changes so far
+- Fixed Pythonized MIB load (in the source form) - made sure to turn
+  it into a code object prior to its execution
 
 Revision 4.4.7, released 2018-12-29
 -----------------------------------
