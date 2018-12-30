@@ -1,5 +1,5 @@
 
-Revision 4.4.8, released 2018-12-XX
+Revision 4.4.8, released 2018-12-30
 -----------------------------------
 
 - Fixed Pythonized MIB load (in the source form) - made sure to turn
