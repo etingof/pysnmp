@@ -2,7 +2,8 @@
 Revision 4.4.9, released 2019-01-XX
 -----------------------------------
 
-No changes yet
+- Made MIB loader ignoring file and directory access errors
+- Fixed crash on MIB load failure in case of directory access error
 
 Revision 4.4.8, released 2018-12-30
 -----------------------------------

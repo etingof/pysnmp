@@ -44,14 +44,14 @@ class __AbstractMibSource(object):
         return '%s(%r)' % (self.__class__.__name__, self._srcName)
 
     def _uniqNames(self, files):
-        u = {}
+        u = set()
         for f in files:
-            if f[:9] == '__init__.':
+            if f.startswith('__init__.'):
                 continue
             for typ in (imp.PY_SOURCE, imp.PY_COMPILED):
                 for sfx, sfxLen, mode in self.__sfx[typ]:
                     if f[-sfxLen:] == sfx:
-                        u[f[:-sfxLen]] = None
+                        u.add(f[:-sfxLen])
         return tuple(u)
 
     # MibSource API follows
@@ -201,7 +201,8 @@ class ZipMibSource(__AbstractMibSource):
             return self.__loader.get_data(p), p
 
         except Exception:  # ZIP code seems to return all kinds of errors
-            raise IOError(ENOENT, 'No such file in ZIP archive: %s' % sys.exc_info()[1], p)
+            why = sys.exc_info()
+            raise IOError(ENOENT, 'File or ZIP archive %s access error: %s' % (p, why[1]))
 
 
 class DirMibSource(__AbstractMibSource):
@@ -213,8 +214,9 @@ class DirMibSource(__AbstractMibSource):
         try:
             return self._uniqNames(os.listdir(self._srcName))
         except OSError:
+            why = sys.exc_info()
             debug.logger & debug.flagBld and debug.logger(
-                'listdir() failed for %s: %s' % (self._srcName, sys.exc_info()[1]))
+                'listdir() failed for %s: %s' % (self._srcName, why[1]))
             return ()
 
     def _getTimestamp(self, f):
@@ -225,6 +227,7 @@ class DirMibSource(__AbstractMibSource):
             raise IOError(ENOENT, 'No such file: %s' % sys.exc_info()[1], p)
 
     def _getData(self, f, mode):
+        p = os.path.join(self._srcName, '*')
         try:
             if f in os.listdir(self._srcName):  # make FS case-sensitive
                 p = os.path.join(self._srcName, f)
@@ -234,12 +237,13 @@ class DirMibSource(__AbstractMibSource):
                 return data, p
 
         except (IOError, OSError):
-            why = sys.exc_info()[1]
-            if why.errno != ENOENT and ENOENT != -1:
-                raise error.MibLoadError('MIB file %s access error: %s' % (p, why))
+            why = sys.exc_info()
+            msg = 'File or directory %s access error: %s' % (p, why[1])
 
-        raise IOError(ENOENT, 'No such file: %s' % sys.exc_info()[1], f)
+        else:
+            msg = 'No such file or directory: %s' % p
 
+        raise IOError(ENOENT, msg)
 
 class MibBuilder(object):
     defaultCoreMibs = os.pathsep.join(
