@@ -84,7 +84,12 @@ Revision 5.0.0, released 2018-12-??
   is to unify this method call with similar methods of CommandGenerator.
   This change should not compromise backward compatibility with pysnmp 4.
 
-Revision 4.4.8, released 2018-12-XX
+Revision 4.4.9, released 2018-12-XX
+-----------------------------------
+- Made MIB loader ignoring file and directory access errors
+- Fixed crash on MIB load failure in case of directory access error
+
+Revision 4.4.8, released 2018-12-30
 -----------------------------------
 
 - Fixed Pythonized MIB load (in the source form) - made sure to turn
