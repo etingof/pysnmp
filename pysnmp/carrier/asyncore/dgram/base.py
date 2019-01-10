@@ -78,6 +78,7 @@ class DgramSocketTransport(AbstractSocketTransport):
 
             if self.socket.family == socket.AF_INET6:
                 self.socket.setsockopt(socket.SOL_IPV6, socket.IPV6_RECVPKTINFO, flag)
+                self.socket.setsockopt(socket.SOL_IPV6, socket.IPV6_V6ONLY, not flag)
 
         except socket.error:
             raise error.CarrierError('setsockopt() for %s failed: %s' % (self.socket.family == socket.AF_INET6 and "IPV6_RECVPKTINFO" or "IP_PKTINFO", sys.exc_info()[1]))
