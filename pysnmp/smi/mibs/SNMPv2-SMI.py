@@ -1693,7 +1693,7 @@ class MibScalarInstance(ManagedMibObject):
 
         cbFun = context['cbFun']
 
-        if name != self.name:
+        if name != self.name or not self.syntax.isValue:
             exc = error.NoSuchInstanceError(name=name, idx=context.get('idx'))
             cbFun(varBind, **dict(context, error=exc))
             return
@@ -1744,7 +1744,7 @@ class MibScalarInstance(ManagedMibObject):
 
         cbFun = context['cbFun']
 
-        if name != self.name:
+        if name != self.name or not self.syntax.isValue:
             exc = error.NoSuchInstanceError(name=name, idx=context.get('idx'))
             cbFun(varBind, **dict(context, error=exc))
             return
@@ -1803,7 +1803,7 @@ class MibScalarInstance(ManagedMibObject):
 
         cbFun = context['cbFun']
 
-        if name >= self.name:
+        if name >= self.name or not self.syntax.isValue:
             nextName = context.get('nextName')
             if nextName:
                 varBind = nextName, exval.noSuchInstance
@@ -1861,7 +1861,7 @@ class MibScalarInstance(ManagedMibObject):
 
         cbFun = context['cbFun']
 
-        if name >= self.name:
+        if name >= self.name or not self.syntax.isValue:
             nextName = context.get('nextName')
             if nextName:
                 varBind = nextName, exval.noSuchInstance
