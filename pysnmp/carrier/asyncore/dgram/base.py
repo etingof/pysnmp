@@ -75,8 +75,10 @@ class DgramSocketTransport(AbstractSocketTransport):
         try:
             if self.socket.family in (socket.AF_INET, socket.AF_INET6):
                 self.socket.setsockopt(socket.SOL_IP, socket.IP_PKTINFO, flag)
+
             if self.socket.family == socket.AF_INET6:
                 self.socket.setsockopt(socket.SOL_IPV6, socket.IPV6_RECVPKTINFO, flag)
+
         except socket.error:
             raise error.CarrierError('setsockopt() for %s failed: %s' % (self.socket.family == socket.AF_INET6 and "IPV6_RECVPKTINFO" or "IP_PKTINFO", sys.exc_info()[1]))
 
@@ -96,8 +98,10 @@ class DgramSocketTransport(AbstractSocketTransport):
                 self.socket.setsockopt(
                     socket.SOL_IPV6, socket.IP_TRANSPARENT, flag
                 )
+
         except socket.error:
             raise error.CarrierError('setsockopt() for IP_TRANSPARENT failed: %s' % sys.exc_info()[1])
+
         except OSError:
             raise error.CarrierError('IP_TRANSPARENT socket option requires superuser priveleges')
 
@@ -113,14 +117,17 @@ class DgramSocketTransport(AbstractSocketTransport):
     def normalizeAddress(self, transportAddress):
         if not isinstance(transportAddress, self.addressType):
             transportAddress = self.addressType(transportAddress)
+
         if not transportAddress.getLocalAddress():
             transportAddress.setLocalAddress(self.getLocalAddress())
+
         return transportAddress
 
     def getLocalAddress(self):
         # one evil OS does not seem to support getsockname() for DGRAM sockets
         try:
             return self.socket.getsockname()
+
         except Exception:
             return '0.0.0.0', 0
 
