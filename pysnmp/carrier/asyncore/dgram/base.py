@@ -73,12 +73,11 @@ class DgramSocketTransport(AbstractSocketTransport):
             raise error.CarrierError('sendmsg()/recvmsg() interface is not supported by this OS and/or Python version')
 
         try:
-            if self.socket.family in (socket.AF_INET, socket.AF_INET6):
+            if self.socket.family == socket.AF_INET:
                 self.socket.setsockopt(socket.SOL_IP, socket.IP_PKTINFO, flag)
 
             if self.socket.family == socket.AF_INET6:
                 self.socket.setsockopt(socket.SOL_IPV6, socket.IPV6_RECVPKTINFO, flag)
-                self.socket.setsockopt(socket.SOL_IPV6, socket.IPV6_V6ONLY, int(not flag))
 
         except socket.error:
             raise error.CarrierError('setsockopt() for %s failed: %s' % (self.socket.family == socket.AF_INET6 and "IPV6_RECVPKTINFO" or "IP_PKTINFO", sys.exc_info()[1]))
