@@ -31,7 +31,8 @@ else:
     import ctypes
     import ipaddress
     import socket
-    from pysnmp.carrier import sockfix, error
+    from pysnmp.carrier import sockfix
+    from pysnmp.carrier import error
 
     uint32_t = ctypes.c_uint32
     in_addr_t = uint32_t
@@ -92,7 +93,7 @@ else:
 
             debug.logger & debug.flagIO and debug.logger(
                 'recvfrom: received %d octets from %s to %s; '
-                'iov blob %s' % (len(data), _from, _to, debug.hexdump(ancdata)))
+                'iov blob %r' % (len(data), _from, _to, ancdata))
 
             return data, addressType(_from).setLocalAddress(_to)
 
@@ -120,7 +121,8 @@ else:
                 ancdata = [(socket.SOL_IPV6, socket.IPV6_PKTINFO, memoryview(_f).tobytes())]
 
             debug.logger & debug.flagIO and debug.logger(
-                'sendto: sending %d octets to %s; iov blob %s' % (len(data), _to, debug.hexdump(ancdata)))
+                'sendto: sending %d octets to %s; '
+                'iov blob %r' % (len(data), _to, ancdata))
 
             return s.sendmsg([_data], ancdata, 0, _to)
 
