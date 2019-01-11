@@ -121,8 +121,8 @@ else:
                 ancdata = [(socket.SOL_IPV6, socket.IPV6_PKTINFO, memoryview(_f).tobytes())]
 
             debug.logger & debug.flagIO and debug.logger(
-                'sendto: sending %d octets to %s; '
-                'iov blob %r' % (len(data), _to, ancdata))
+                'sendto: sending %d octets to %s; address %r; '
+                'iov blob %r' % (len(_data), _to, addr, ancdata))
 
             return s.sendmsg([_data], ancdata, 0, _to)
 
