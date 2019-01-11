@@ -6,7 +6,10 @@
 #
 import socket
 
-symbols = {
+from pysnmp import debug
+
+
+SYMBOLS = {
     'IP_PKTINFO': 8,
     'IP_TRANSPARENT': 19,
     'SOL_IPV6': 41,
@@ -14,6 +17,11 @@ symbols = {
     'IPV6_PKTINFO': 50
 }
 
-for symbol in symbols:
+for symbol, value in SYMBOLS.items():
     if not hasattr(socket, symbol):
-        setattr(socket, symbol, symbols[symbol])
+        setattr(socket, symbol, value)
+
+        debug.logger & debug.flagIO and debug.logger(
+            'WARNING: the socket module on this platform misses option %s. '
+            'Assuming its value is %d.' % (symbol, value)
+        )
