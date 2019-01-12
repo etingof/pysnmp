@@ -3,10 +3,9 @@ SNMP library for Python
 -----------------------
 [![PyPI](https://img.shields.io/pypi/v/pysnmp.svg?maxAge=2592000)](https://pypi.org/project/pysnmp/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/pysnmp.svg)](https://pypi.org/project/pysnmp/)
-[![Build status](https://travis-ci.org/etingof/pysnmp.svg?branch=master)](https://travis-ci.org/etingof/pysnmp)
 [![GitHub license](https://img.shields.io/badge/license-BSD-blue.svg)](https://raw.githubusercontent.com/etingof/pysnmp/master/LICENSE.rst)
+[![Build status](https://travis-ci.org/etingof/pysnmp.svg?branch=master)](https://travis-ci.org/etingof/pysnmp)
 [![Downloads](https://img.shields.io/pypi/dm/pysnmp.svg)](https://pypi.org/project/pysnmp/)
-[![Commits](https://img.shields.io/github/commit-activity/y/etingof/pysnmp.svg)](https://github.com/etingof/pysnmp/)
 
 This is a pure-Python, open source and free implementation of v1/v2c/v3
 SNMP engine distributed under 2-clause [BSD license](http://snmplabs.com/pysnmp/license.html).
