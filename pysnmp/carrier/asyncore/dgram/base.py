@@ -96,7 +96,7 @@ class DgramSocketTransport(AbstractSocketTransport):
                 )
             if self.socket.family == socket.AF_INET6:
                 self.socket.setsockopt(
-                    socket.SOL_IPV6, socket.IP_TRANSPARENT, flag
+                    socket.SOL_IPV6, socket.IPV6_TRANSPARENT, flag
                 )
 
         except socket.error:
