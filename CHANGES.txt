@@ -87,6 +87,7 @@ Revision 5.0.0, released 2018-12-??
 Revision 4.4.9, released 2018-12-XX
 -----------------------------------
 - Made MIB loader ignoring file and directory access errors
+- Added missing SNMP PDU error classes and their handling in Command Responder
 - Fixed crash on MIB load failure in case of directory access error
 - Fixed socket transparency option (IPV6_TRANSPARENT)to make IPv6
   transparent operation functional

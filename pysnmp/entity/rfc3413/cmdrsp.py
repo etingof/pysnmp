@@ -18,6 +18,12 @@ class CommandResponderBase(object):
     acmID = 3  # default MIB access control method to use
     SUPPORTED_PDU_TYPES = ()
     SMI_ERROR_MAP = {
+        pysnmp.smi.error.TooBigError: 'tooBig',
+        # this should never bubble up, SNMP exception objects should be passed as values
+        pysnmp.smi.error.NoSuchNameError: 'noSuchName',
+        pysnmp.smi.error.BadValueError: 'badValue',
+        pysnmp.smi.error.ReadOnlyError: 'readOnly',
+        pysnmp.smi.error.GenError: 'genErr',
         pysnmp.smi.error.NoAccessError: 'noAccess',
         pysnmp.smi.error.WrongTypeError: 'wrongType',
         pysnmp.smi.error.WrongLengthError: 'wrongLength',
@@ -248,6 +254,11 @@ class CommandResponderBase(object):
             errorIndication = str(err)
 
         elif isinstance(err, pysnmp.smi.error.SmiError):
+
+            if isinstance(err, pysnmp.smi.error.TooBigError):
+                # rfc1905: 4.2.1.3
+                varBinds = []
+
             errorStatus = self.SMI_ERROR_MAP.get(err.__class__, 'genErr')
 
             try:
@@ -256,12 +267,13 @@ class CommandResponderBase(object):
             except IndexError:
                 errorIndex = len(varBinds) and 1 or 0
 
-        return errorIndication, errorStatus, errorIndex
+        return errorIndication, errorStatus, errorIndex, varBinds
 
     def completeMgmtOperation(self, varBinds, **context):
 
         (errorIndication,
-         errorStatus, errorIndex) = self._mapSmiErrors(varBinds, **context)
+         errorStatus, errorIndex,
+         varBinds) = self._mapSmiErrors(varBinds, **context)
 
         stateReference = context['stateReference']
 
