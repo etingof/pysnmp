@@ -43,7 +43,24 @@ class MibOperationError(SmiError):
         self.__outArgs.update(d)
 
 
-# Aligned with SNMPv2 PDU error-status
+# Aligned with SNMPv2 PDU error-status values
+
+class TooBigError(MibOperationError):
+    pass
+
+
+class NoSuchNameError(MibOperationError):
+    pass
+
+
+class BadValueError(MibOperationError):
+    pass
+
+
+class ReadOnlyError(MibOperationError):
+    pass
+
+
 class GenError(MibOperationError):
     pass
 
@@ -100,20 +117,22 @@ class InconsistentNameError(MibOperationError):
     pass
 
 
-# Aligned with SNMPv2 Var-Bind exceptions
-class NoSuchObjectError(MibOperationError):
+# Aligned with SNMPv2 PDU exceptions or error-status values
+
+class NoSuchObjectError(NoSuchNameError):
     pass
 
 
-class NoSuchInstanceError(MibOperationError):
+class NoSuchInstanceError(NoSuchNameError):
     pass
 
 
-class EndOfMibViewError(MibOperationError):
+class EndOfMibViewError(NoSuchNameError):
     pass
 
 
-# Row management
+# SNMP table management exceptions
+
 class TableRowManagement(MibOperationError):
     pass
 
