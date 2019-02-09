@@ -1,5 +1,5 @@
 
-Revision 5.0.0, released 2018-12-??
+Revision 5.0.0, released 2019-03-XX
 -----------------------------------
 
 - SNMPv3 crypto operations that require external dependencies
@@ -84,12 +84,12 @@ Revision 5.0.0, released 2018-12-??
   is to unify this method call with similar methods of CommandGenerator.
   This change should not compromise backward compatibility with pysnmp 4.
 
-Revision 4.4.9, released 2018-12-XX
+Revision 4.4.9, released 2019-02-09
 -----------------------------------
 - Made MIB loader ignoring file and directory access errors
 - Added missing SNMP PDU error classes and their handling in Command Responder
 - Fixed crash on MIB load failure in case of directory access error
-- Fixed socket transparency option (IPV6_TRANSPARENT)to make IPv6
+- Fixed socket transparency option (IPV6_TRANSPARENT) to make IPv6
   transparent operation functional
 
 Revision 4.4.8, released 2018-12-30
