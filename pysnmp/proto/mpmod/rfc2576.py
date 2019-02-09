@@ -292,8 +292,8 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             debug.logger & debug.flagMP and debug.logger(
                 'prepareDataElements: SM returned securityEngineId %r securityName %r' % (securityEngineId, securityName))
 
-        except error.StatusInformation:
-            statusInformation = sys.exc_info()[1]
+        except error.StatusInformation as exc:
+            statusInformation = exc
 
             snmpEngine.observer.storeExecutionContext(
                 snmpEngine, 'rfc2576.prepareDataElements:sm-failure',

@@ -34,8 +34,8 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
                 )
             try:
                 sock = socket.socket(self.sockFamily, self.sockType)
-            except socket.error:
-                raise error.CarrierError('socket() failed: %s' % sys.exc_info()[1])
+            except socket.error as exc:
+                raise error.CarrierError('socket() failed: %s' % exc)
 
             try:
                 for b in socket.SO_RCVBUF, socket.SO_SNDBUF:
@@ -43,8 +43,8 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
                     if bsize < self.bufferSize:
                         sock.setsockopt(socket.SOL_SOCKET, b, self.bufferSize)
                         debug.logger & debug.flagIO and debug.logger('%s: socket %d buffer size increased from %d to %d for buffer %d' % (self.__class__.__name__, sock.fileno(), bsize, self.bufferSize, b))
-            except Exception:
-                debug.logger & debug.flagIO and debug.logger('%s: socket buffer size option mangling failure for buffer: %s' % (self.__class__.__name__, sys.exc_info()[1]))
+            except Exception as exc:
+                debug.logger & debug.flagIO and debug.logger('%s: socket buffer size option mangling failure for buffer: %s' % (self.__class__.__name__, exc))
 
         # The socket map is managed by the AsyncoreDispatcher on
         # which this transport is registered. Here we just prepare

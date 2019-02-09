@@ -87,8 +87,8 @@ class NotificationOriginator(object):
                     reqPDU, True, timeoutInTicks, self.processResponsePdu,
                     (sendRequestHandle, cbFun, cbCtx)
                 )
-            except error.StatusInformation:
-                statusInformation = sys.exc_info()[1]
+            except error.StatusInformation as exc:
+                statusInformation = exc
                 debug.logger & debug.flagApp and debug.logger(
                     'processResponsePdu: sendRequestHandle %s: sendPdu() failed with %r ' % (
                         sendRequestHandle, statusInformation))
@@ -303,8 +303,8 @@ class NotificationOriginator(object):
                     (notificationHandle, cbFun, cbCtx)
                 )
 
-            except error.StatusInformation:
-                statusInformation = sys.exc_info()[1]
+            except error.StatusInformation as exc:
+                statusInformation = exc
                 debug.logger & debug.flagApp and debug.logger(
                     'sendVarBinds: sendRequestHandle %s: sendPdu() failed with %r' % (
                         sendRequestHandle, statusInformation))

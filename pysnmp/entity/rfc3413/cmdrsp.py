@@ -116,9 +116,9 @@ class CommandResponderBase(object):
                 statusInformation
             )
 
-        except error.StatusInformation:
+        except error.StatusInformation as exc:
             debug.logger & debug.flagApp and debug.logger(
-                'sendPdu: stateReference %s, statusInformation %s' % (stateReference, sys.exc_info()[1]))
+                'sendPdu: stateReference %s, statusInformation %s' % (stateReference, exc))
             snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB',
                                                                                                      'snmpSilentDrops')
             snmpSilentDrops.syntax += 1
@@ -200,8 +200,8 @@ class CommandResponderBase(object):
             )
 
         # Map ACM errors onto SMI ones
-        except error.StatusInformation:
-            statusInformation = sys.exc_info()[1]
+        except error.StatusInformation as exc:
+            statusInformation = exc
             debug.logger & debug.flagApp and debug.logger(
                 '__verifyAccess: name %s, statusInformation %s' % (name, statusInformation))
             errorIndication = statusInformation['errorIndication']

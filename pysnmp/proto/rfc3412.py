@@ -330,8 +330,8 @@ class MsgAndPduDispatcher(object):
 
             debug.logger & debug.flagDsp and debug.logger('receiveMessage: MP succeded')
 
-        except error.StatusInformation:
-            statusInformation = sys.exc_info()[1]
+        except error.StatusInformation as exc:
+            statusInformation = exc
             if 'sendPduHandle' in statusInformation:
                 # Dropped REPORT -- re-run pending reqs queue as some
                 # of them may be waiting for this REPORT
@@ -345,8 +345,8 @@ class MsgAndPduDispatcher(object):
                 )
             return restOfWholeMsg
 
-        except PyAsn1Error:
-            debug.logger & debug.flagMP and debug.logger('receiveMessage: %s' % (sys.exc_info()[1],))
+        except PyAsn1Error as exc:
+            debug.logger & debug.flagMP and debug.logger('receiveMessage: %s' % exc)
             snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
             snmpInASNParseErrs.syntax += 1
 
@@ -395,9 +395,9 @@ class MsgAndPduDispatcher(object):
                         destTransportAddress
                     )
 
-                except PySnmpError:
+                except PySnmpError as exc:
                     debug.logger & debug.flagDsp and debug.logger(
-                        'receiveMessage: report failed, statusInformation %s' % sys.exc_info()[1])
+                        'receiveMessage: report failed, statusInformation %s' % exc)
 
                 else:
                     debug.logger & debug.flagDsp and debug.logger('receiveMessage: reporting succeeded')

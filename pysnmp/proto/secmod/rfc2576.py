@@ -358,9 +358,9 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         try:
             return securityParameters, encoder.encode(msg)
 
-        except PyAsn1Error:
+        except PyAsn1Error as exc:
             debug.logger & debug.flagMP and debug.logger(
-                'generateRequestMsg: serialization failure: %s' % sys.exc_info()[1])
+                'generateRequestMsg: serialization failure: %s' % exc)
             raise error.StatusInformation(errorIndication=errind.serializationError)
 
     def generateResponseMsg(self, snmpEngine, messageProcessingModel,
@@ -388,9 +388,9 @@ class SnmpV1SecurityModel(base.AbstractSecurityModel):
         try:
             return communityName, encoder.encode(msg)
 
-        except PyAsn1Error:
+        except PyAsn1Error as exc:
             debug.logger & debug.flagMP and debug.logger(
-                'generateResponseMsg: serialization failure: %s' % sys.exc_info()[1])
+                'generateResponseMsg: serialization failure: %s' % exc)
             raise error.StatusInformation(errorIndication=errind.serializationError)
 
     def processIncomingMsg(self, snmpEngine, messageProcessingModel,

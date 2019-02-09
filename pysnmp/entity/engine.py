@@ -134,9 +134,9 @@ class SnmpEngine(object):
                 os.write(fd, str2octs(snmpEngineBoots.syntax.prettyPrint()))
                 os.close(fd)
                 shutil.move(fn, f)
-            except Exception:
+            except Exception as exc:
                 debug.logger & debug.flagApp and debug.logger(
-                    'SnmpEngine: could not stored SNMP Engine Boots: %s' % sys.exc_info()[1])
+                    'SnmpEngine: could not stored SNMP Engine Boots: %s' % exc)
             else:
                 debug.logger & debug.flagApp and debug.logger(
                     'SnmpEngine: stored SNMP Engine Boots: %s' % snmpEngineBoots.syntax.prettyPrint())

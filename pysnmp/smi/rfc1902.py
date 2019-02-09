@@ -505,9 +505,9 @@ class ObjectIdentity(object):
                         instIds = rowNode.getInstIdFromIndices(*self.__args[2:])
                         self.__oid += instIds
                         self.__indices = rowNode.getIndicesFromInstId(instIds)
-                    except PyAsn1Error:
+                    except PyAsn1Error as exc:
                         raise SmiError('Instance index %r to OID conversion failure at object %r: %s' % (
-                            self.__args[2:], mibNode.getLabel(), sys.exc_info()[1]))
+                            self.__args[2:], mibNode.getLabel(), exc))
             elif self.__args[2:]:  # any other kind of MIB node with indices
                 if self.__args[2:]:
                     instId = rfc1902.ObjectName(
@@ -865,10 +865,10 @@ class ObjectType(object):
 
         try:
             self.__args[1] = self.__args[0].getMibNode().getSyntax().clone(self.__args[1])
-        except PyAsn1Error:
+        except PyAsn1Error as exc:
             raise SmiError('MIB object %r having type %r failed to cast value %r: %s' % (
                 self.__args[0].prettyPrint(), self.__args[0].getMibNode().getSyntax().__class__.__name__, self.__args[1],
-                sys.exc_info()[1]))
+                exc))
 
         if rfc1902.ObjectIdentifier().isSuperTypeOf(self.__args[1], matchConstraints=False):
             self.__args[1] = ObjectIdentity(self.__args[1]).resolveWithMib(mibViewController)

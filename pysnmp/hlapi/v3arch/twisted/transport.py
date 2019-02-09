@@ -56,5 +56,5 @@ class UdpTransportTarget(AbstractTransportTarget):
                                       socket.AF_INET,
                                       socket.SOCK_DGRAM,
                                       socket.IPPROTO_UDP)[0][4][:2]
-        except socket.gaierror:
-            raise PySnmpError('Bad IPv4/UDP transport address %s: %s' % ('@'.join([str(x) for x in transportAddr]), sys.exc_info()[1]))
+        except socket.gaierror as exc:
+            raise PySnmpError('Bad IPv4/UDP transport address %s: %s' % ('@'.join([str(x) for x in transportAddr]), exc))

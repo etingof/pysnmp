@@ -68,7 +68,7 @@ class AsyncioDispatcher(AbstractTransportDispatcher):
                 raise
             except Exception:
                 raise PySnmpError(';'.join(traceback.format_exception(*sys.exc_info())))
-    
+
     def registerTransport(self, tDomain, transport):
         if self.loopingcall is None and self.getTimerResolution() > 0:
             # Avoid deprecation warning for asyncio.async()

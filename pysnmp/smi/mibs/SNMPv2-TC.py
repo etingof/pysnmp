@@ -62,9 +62,9 @@ class TextualConvention(object):
             elif displayHintType == 'd':
                 try:
                     return '%.*f' % (int(decimalPrecision), float(value) / pow(10, int(decimalPrecision)))
-                except Exception:
+                except Exception as exc:
                     raise SmiError(
-                        'float evaluation error: %s' % sys.exc_info()[1]
+                        'float evaluation error: %s' % exc
                     )
             elif displayHintType == 'o':
                 return '0%o' % value
@@ -148,10 +148,10 @@ class TextualConvention(object):
                             try:
                                 number |= octets.oct2int(numberString[0])
                                 numberString = numberString[1:]
-                            except Exception:
+                            except Exception as exc:
                                 raise SmiError(
                                     'Display format eval failure: %s: %s'
-                                    % (numberString, sys.exc_info()[1])
+                                    % (numberString, exc)
                                 )
                         if displayFormat == 'x':
                             outputValue += '%02x' % number
@@ -210,23 +210,23 @@ class TextualConvention(object):
                         return base.prettyIn(self, -int(value[3:], 16))
                     else:
                         return base.prettyIn(self, int(value[2:], 16))
-                except Exception:
+                except Exception as exc:
                     raise SmiError(
-                        'integer evaluation error: %s' % sys.exc_info()[1]
+                        'integer evaluation error: %s' % exc
                     )
             elif displayHintType == 'd':
                 try:
                     return base.prettyIn(self, int(float(value) * 10**int(decimalPrecision)))
-                except Exception:
+                except Exception as exc:
                     raise SmiError(
-                        'float evaluation error: %s' % sys.exc_info()[1]
+                        'float evaluation error: %s' % exc
                     )
             elif displayHintType == 'o' and (value.startswith('0') or value.startswith('-0')):
                 try:
                     return base.prettyIn(self, int(value, 8))
-                except Exception:
+                except Exception as exc:
                     raise SmiError(
-                        'octal evaluation error: %s' % sys.exc_info()[1]
+                        'octal evaluation error: %s' % exc
                     )
             elif displayHintType == 'b' and (value.startswith('B') or value.startswith('-B')):
                 negative = value.startswith('-')
@@ -328,10 +328,10 @@ class TextualConvention(object):
 
                     try:
                         num = int(octets.octs2str(runningValue[:guessedOctetLength]), numBase[displayFormat])
-                    except Exception:
+                    except Exception as exc:
                         raise SmiError(
                             'Display format eval failure: %s: %s'
-                            % (runningValue[:guessedOctetLength], sys.exc_info()[1])
+                            % (runningValue[:guessedOctetLength], exc)
                         )
 
                     num_as_bytes = []

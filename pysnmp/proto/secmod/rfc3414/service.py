@@ -294,9 +294,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
                 debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: clone user info')
 
-            except PyAsn1Error:
+            except PyAsn1Error as exc:
                 debug.logger & debug.flagSM and debug.logger(
-                    '__generateRequestOrResponseMsg: %s' % (sys.exc_info()[1],))
+                    '__generateRequestOrResponseMsg: %s' % exc)
                 snmpInGenErrs, = mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInGenErrs')
                 snmpInGenErrs.syntax += 1
                 raise error.StatusInformation(
@@ -389,9 +389,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             try:
                 dataToEncrypt = encoder.encode(scopedPDU)
 
-            except PyAsn1Error:
+            except PyAsn1Error as exc:
                 debug.logger & debug.flagSM and debug.logger(
-                    '__generateRequestOrResponseMsg: scopedPDU serialization error: %s' % sys.exc_info()[1])
+                    '__generateRequestOrResponseMsg: scopedPDU serialization error: %s' % exc)
                 raise error.StatusInformation(
                     errorIndication=errind.serializationError
                 )
@@ -458,9 +458,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             try:
                 msg.setComponentByPosition(2, encoder.encode(securityParameters), verifyConstraints=False)
 
-            except PyAsn1Error:
+            except PyAsn1Error as exc:
                 debug.logger & debug.flagSM and debug.logger(
-                    '__generateRequestOrResponseMsg: securityParameters serialization error: %s' % sys.exc_info()[1])
+                    '__generateRequestOrResponseMsg: securityParameters serialization error: %s' % exc)
                 raise error.StatusInformation(
                     errorIndication=errind.serializationError
                 )
@@ -471,9 +471,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             try:
                 wholeMsg = encoder.encode(msg)
 
-            except PyAsn1Error:
+            except PyAsn1Error as exc:
                 debug.logger & debug.flagSM and debug.logger(
-                    '__generateRequestOrResponseMsg: msg serialization error: %s' % sys.exc_info()[1])
+                    '__generateRequestOrResponseMsg: msg serialization error: %s' % exc)
                 raise error.StatusInformation(
                     errorIndication=errind.serializationError
                 )
@@ -495,9 +495,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             try:
                 msg.setComponentByPosition(2, encoder.encode(securityParameters), verifyConstraints=False, matchTags=False, matchConstraints=False)
 
-            except PyAsn1Error:
+            except PyAsn1Error as exc:
                 debug.logger & debug.flagSM and debug.logger(
-                    '__generateRequestOrResponseMsg: secutiryParameters serialization error: %s' % sys.exc_info()[1])
+                    '__generateRequestOrResponseMsg: secutiryParameters serialization error: %s' % exc)
                 raise error.StatusInformation(
                     errorIndication=errind.serializationError
                 )
@@ -507,9 +507,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     '__generateRequestOrResponseMsg: plain outgoing msg: %s' % msg.prettyPrint())
                 authenticatedWholeMsg = encoder.encode(msg)
 
-            except PyAsn1Error:
+            except PyAsn1Error as exc:
                 debug.logger & debug.flagSM and debug.logger(
-                    '__generateRequestOrResponseMsg: msg serialization error: %s' % sys.exc_info()[1])
+                    '__generateRequestOrResponseMsg: msg serialization error: %s' % exc)
                 raise error.StatusInformation(
                     errorIndication=errind.serializationError
                 )
@@ -682,8 +682,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
                 )
 
-            except PyAsn1Error:
-                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: %s' % (sys.exc_info()[1],))
+            except PyAsn1Error as exc:
+                debug.logger & debug.flagSM and debug.logger('processIncomingMsg: %s' % exc)
                 snmpInGenErrs, = mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInGenErrs')
                 snmpInGenErrs.syntax += 1
                 raise error.StatusInformation(errorIndication=errind.invalidMsg)
@@ -948,9 +948,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
             try:
                 scopedPDU, rest = decoder.decode(decryptedData, asn1Spec=scopedPduSpec)
 
-            except PyAsn1Error:
+            except PyAsn1Error as exc:
                 debug.logger & debug.flagSM and debug.logger(
-                    'processIncomingMsg: scopedPDU decoder failed %s' % sys.exc_info()[0])
+                    'processIncomingMsg: scopedPDU decoder failed %s' % exc)
                 raise error.StatusInformation(
                     errorIndication=errind.decryptionError,
                     msgUserName=msgUserName

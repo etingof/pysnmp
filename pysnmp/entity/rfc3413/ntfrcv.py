@@ -84,9 +84,9 @@ class NotificationReceiver(object):
                     contextName, pduVersion, rspPDU, maxSizeResponseScopedPDU,
                     stateReference, statusInformation)
 
-            except error.StatusInformation:
+            except error.StatusInformation as exc:
                 debug.logger & debug.flagApp and debug.logger(
-                    'processPdu: stateReference %s, statusInformation %s' % (stateReference, sys.exc_info()[1]))
+                    'processPdu: stateReference %s, statusInformation %s' % (stateReference, exc))
                 snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB',
                                                                                                          'snmpSilentDrops')
                 snmpSilentDrops.syntax += 1

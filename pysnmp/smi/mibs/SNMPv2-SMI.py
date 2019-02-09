@@ -532,9 +532,7 @@ class ManagedMibObject(ObjectType):
         except error.NoSuchInstanceError:
             val = exval.noSuchInstance
 
-        except error.SmiError:
-            exc = sys.exc_info()[1]
-
+        except error.SmiError as exc:
             (debug.logger & debug.flagIns and
              debug.logger('%s: exception %r' % (self, exc)))
 
@@ -605,9 +603,7 @@ class ManagedMibObject(ObjectType):
         except error.NoSuchInstanceError:
             val = exval.noSuchInstance
 
-        except error.SmiError:
-            exc = sys.exc_info()[1]
-
+        except error.SmiError as exc:
             (debug.logger & debug.flagIns and
              debug.logger('%s: exception %r' % (self, exc)))
 
@@ -650,9 +646,7 @@ class ManagedMibObject(ObjectType):
             except error.NoSuchInstanceError:
                 val = exval.noSuchInstance
 
-            except error.SmiError:
-                exc = sys.exc_info()[1]
-
+            except error.SmiError as exc:
                 (debug.logger & debug.flagIns and
                  debug.logger('%s: exception %r' % (self, exc)))
 
@@ -891,8 +885,7 @@ class ManagedMibObject(ObjectType):
         try:
             node = self.getBranch(name, **context)
 
-        except (error.NoSuchInstanceError, error.NoSuchObjectError):
-            exc = sys.exc_info()[1]
+        except (error.NoSuchInstanceError, error.NoSuchObjectError) as exc:
             cbFun(varBind, **dict(context, error=exc))
 
         else:
@@ -958,8 +951,7 @@ class ManagedMibObject(ObjectType):
         try:
             node = self.getBranch(name, **context)
 
-        except (error.NoSuchInstanceError, error.NoSuchObjectError):
-            exc = sys.exc_info()[1]
+        except (error.NoSuchInstanceError, error.NoSuchObjectError) as exc:
             cbFun(varBind, **dict(context, error=exc))
 
         else:
@@ -1023,8 +1015,7 @@ class ManagedMibObject(ObjectType):
         try:
             node = self.getBranch(name, **context)
 
-        except (error.NoSuchInstanceError, error.NoSuchObjectError):
-            exc = sys.exc_info()[1]
+        except (error.NoSuchInstanceError, error.NoSuchObjectError) as exc:
             cbFun(varBind, **dict(context, error=exc))
 
         else:
@@ -1609,14 +1600,13 @@ class MibScalarInstance(ManagedMibObject):
             else:
                 return self.syntax.clone(value)
 
-        except PyAsn1Error:
-            exc_t, exc_v, exc_tb = sys.exc_info()
+        except PyAsn1Error as exc:
             debug.logger & debug.flagIns and debug.logger('setValue: %s=%r failed with traceback %s' % (
-                self.name, value, traceback.format_exception(exc_t, exc_v, exc_tb)))
-            if isinstance(exc_v, error.TableRowManagement):
-                raise exc_v
+                self.name, value, traceback.format_exception(*sys.exc_info())))
+            if isinstance(exc, error.TableRowManagement):
+                raise exc
             else:
-                raise error.WrongValueError(name=name, idx=context.get('idx'), msg=exc_v)
+                raise error.WrongValueError(name=name, idx=context.get('idx'), msg=exc)
 
     #
     # Subtree traversal
@@ -1937,16 +1927,14 @@ class MibScalarInstance(ManagedMibObject):
         try:
             instances[self.ST_CREATE][idx] = self.setValue(val, name, **context)
 
-        except error.MibOperationError:
+        except error.MibOperationError as exc:
             # SMI exceptions may carry additional content
-            exc = sys.exc_info()[1]
             if 'syntax' in exc:
                 instances[self.ST_CREATE][idx] = exc['syntax']
                 cbFun(varBind, **dict(context, error=exc))
                 return
 
             else:
-                exc = sys.exc_info()[1]
                 exc = error.WrongValueError(name=name, idx=context.get('idx'), msg=exc)
                 cbFun(varBind, **dict(context, error=exc))
                 return
@@ -3264,8 +3252,9 @@ class MibTableRow(ManagedMibObject):
             mibObj, = mibBuilder.importSymbols(modName, symName)
             try:
                 syntax, instId = self.oidToValue(mibObj.syntax, instId, impliedFlag, indices)
-            except PyAsn1Error:
-                debug.logger & debug.flagIns and debug.logger('error resolving table indices at %s, %s: %s' % (self.__class__.__name__, instId, sys.exc_info()[1]))
+            except PyAsn1Error as exc:
+                debug.logger & debug.flagIns and debug.logger(
+                    'error resolving table indices at %s, %s: %s' % (self.__class__.__name__, instId, exc))
                 indices = [instId]
                 instId = ()
                 break

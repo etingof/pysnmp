@@ -92,8 +92,8 @@ class CommandGenerator(object):
                 )
                 return
 
-            except StatusInformation:
-                statusInformation = sys.exc_info()[1]
+            except StatusInformation as exc:
+                statusInformation = exc
                 debug.logger & debug.flagApp and debug.logger(
                     'processResponsePdu: origSendRequestHandle %s, _sendPdu() failed with %r' % (
                     sendPduHandle, statusInformation))
@@ -290,8 +290,8 @@ class NextCommandGenerator(NextCommandGeneratorSingleRun):
                          (targetName, contextEngineId, contextName,
                           reqPDU, cbFun, cbCtx))
 
-        except StatusInformation:
-            statusInformation = sys.exc_info()[1]
+        except StatusInformation as exc:
+            statusInformation = exc
             debug.logger & debug.flagApp and debug.logger(
                 'sendVarBinds: sendPduHandle %s: sendPdu() failed with %r' % (sendRequestHandle, statusInformation))
             cbFun(snmpEngine, sendRequestHandle,
@@ -373,8 +373,8 @@ class BulkCommandGenerator(BulkCommandGeneratorSingleRun):
                          (targetName, nonRepeaters, maxRepetitions,
                           contextEngineId, contextName, reqPDU, cbFun, cbCtx))
 
-        except StatusInformation:
-            statusInformation = sys.exc_info()[1]
+        except StatusInformation as exc:
+            statusInformation = exc
             debug.logger & debug.flagApp and debug.logger(
                 'processResponseVarBinds: sendPduHandle %s: _sendPdu() failed with %r' % (
                     sendRequestHandle, statusInformation))

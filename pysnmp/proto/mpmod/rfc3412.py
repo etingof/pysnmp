@@ -530,8 +530,8 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             )
             debug.logger & debug.flagMP and debug.logger('prepareDataElements: SM succeeded')
 
-        except error.StatusInformation:
-            statusInformation, origTraceback = sys.exc_info()[1:3]
+        except error.StatusInformation as exc:
+            statusInformation = exc
 
             debug.logger & debug.flagMP and debug.logger(
                 'prepareDataElements: SM failed, statusInformation %s' % statusInformation)
@@ -596,8 +596,11 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
             if sys.version_info[0] <= 2:
                 raise statusInformation
             else:
+                origTraceback = sys.exc_info()[2]
+
                 try:
                     raise statusInformation.with_traceback(origTraceback)
+
                 finally:
                     # Break cycle between locals and traceback object
                     # (seems to be irrelevant on Py3 but just in case)

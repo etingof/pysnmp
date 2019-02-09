@@ -80,15 +80,14 @@ class __AbstractMibSource(object):
             try:
                 pycData, pycPath = self._getData(f + pycSfx, pycMode)
 
-            except IOError:
-                why = sys.exc_info()[1]
-                if ENOENT == -1 or why.errno == ENOENT:
+            except IOError as exc:
+                if ENOENT == -1 or exc.errno == ENOENT:
                     debug.logger & debug.flagBld and debug.logger(
-                        'file %s access error: %s' % (f + pycSfx, why)
+                        'file %s access error: %s' % (f + pycSfx, exc)
                     )
 
                 else:
-                    raise error.MibLoadError('MIB file %s access error: %s' % (f + pycSfx, why))
+                    raise error.MibLoadError('MIB file %s access error: %s' % (f + pycSfx, exc))
 
             else:
                 if self.__magic == pycData[:4]:
@@ -107,15 +106,14 @@ class __AbstractMibSource(object):
             try:
                 pyTime = self._getTimestamp(f + pySfx)
 
-            except IOError:
-                why = sys.exc_info()[1]
-                if ENOENT == -1 or why.errno == ENOENT:
+            except IOError as exc:
+                if ENOENT == -1 or exc.errno == ENOENT:
                     debug.logger & debug.flagBld and debug.logger(
-                        'file %s access error: %s' % (f + pySfx, why)
+                        'file %s access error: %s' % (f + pySfx, exc)
                     )
 
                 else:
-                    raise error.MibLoadError('MIB file %s access error: %s' % (f + pySfx, why))
+                    raise error.MibLoadError('MIB file %s access error: %s' % (f + pySfx, exc))
 
             else:
                 debug.logger & debug.flagBld and debug.logger('file %s mtime %d' % (f + pySfx, pyTime))
@@ -200,9 +198,9 @@ class ZipMibSource(__AbstractMibSource):
         try:
             return self.__loader.get_data(p), p
 
-        except Exception:  # ZIP code seems to return all kinds of errors
-            why = sys.exc_info()
-            raise IOError(ENOENT, 'File or ZIP archive %s access error: %s' % (p, why[1]))
+        # ZIP code seems to return all kinds of errors
+        except Exception as exc:
+            raise IOError(ENOENT, 'File or ZIP archive %s access error: %s' % (p, exc))
 
 
 class DirMibSource(__AbstractMibSource):
@@ -213,18 +211,17 @@ class DirMibSource(__AbstractMibSource):
     def _listdir(self):
         try:
             return self._uniqNames(os.listdir(self._srcName))
-        except OSError:
-            why = sys.exc_info()
+        except OSError as exc:
             debug.logger & debug.flagBld and debug.logger(
-                'listdir() failed for %s: %s' % (self._srcName, why[1]))
+                'listdir() failed for %s: %s' % (self._srcName, exc))
             return ()
 
     def _getTimestamp(self, f):
         p = os.path.join(self._srcName, f)
         try:
             return os.stat(p)[8]
-        except OSError:
-            raise IOError(ENOENT, 'No such file: %s' % sys.exc_info()[1], p)
+        except OSError as exc:
+            raise IOError(ENOENT, 'No such file: %s' % exc, p)
 
     def _getData(self, f, mode):
         p = os.path.join(self._srcName, '*')
@@ -236,14 +233,14 @@ class DirMibSource(__AbstractMibSource):
                 fp.close()
                 return data, p
 
-        except (IOError, OSError):
-            why = sys.exc_info()
-            msg = 'File or directory %s access error: %s' % (p, why[1])
+        except (IOError, OSError) as exc:
+            msg = 'File or directory %s access error: %s' % (p, exc)
 
         else:
             msg = 'No such file or directory: %s' % p
 
         raise IOError(ENOENT, msg)
+
 
 class MibBuilder(object):
     defaultCoreMibs = os.pathsep.join(
@@ -307,9 +304,9 @@ class MibBuilder(object):
             try:
                 codeObj, sfx = mibSource.read(modName)
 
-            except IOError:
+            except IOError as exc:
                 debug.logger & debug.flagBld and debug.logger(
-                    'loadModule: read %s from %s failed: %s' % (modName, mibSource, sys.exc_info()[1]))
+                    'loadModule: read %s from %s failed: %s' % (modName, mibSource, exc))
                 continue
 
             modPath = mibSource.fullPath(modName, sfx)

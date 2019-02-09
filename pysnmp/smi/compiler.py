@@ -28,7 +28,7 @@ try:
     from pysmi.codegen.pysnmp import PySnmpCodeGen, baseMibs
     from pysmi.compiler import MibCompiler
 
-except ImportError:
+except ImportError as exc:
     from pysnmp.smi import error
 
 
@@ -40,7 +40,7 @@ except ImportError:
         return addMibCompiler
 
 
-    addMibCompiler = addMibCompilerDecorator(sys.exc_info()[1])
+    addMibCompiler = addMibCompilerDecorator(exc)
 
 else:
 
