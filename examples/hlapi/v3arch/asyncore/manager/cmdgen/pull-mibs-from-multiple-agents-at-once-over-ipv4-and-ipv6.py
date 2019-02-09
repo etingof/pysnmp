@@ -68,6 +68,6 @@ snmpEngine = SnmpEngine()
 # Submit initial GETNEXT requests and wait for responses
 for authData, transportTarget, varBinds in targets:
     nextCmd(snmpEngine, authData, transportTarget, ContextData(),
-            *varBinds, **dict(cbFun=cbFun, cbCtx=(authData, transportTarget)))
+            *varBinds, cbFun=cbFun, cbCtx=(authData, transportTarget))
 
 snmpEngine.transportDispatcher.runDispatcher()

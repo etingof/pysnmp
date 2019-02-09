@@ -630,7 +630,7 @@ class Bits(OctetString):
 
     def __new__(cls, *args, **kwargs):
         if 'namedValues' in kwargs:
-            Bits = cls.withNamedBits(**dict(kwargs.pop('namedValues')))
+            Bits = cls.withNamedBits(**kwargs.pop('namedValues'))
             return Bits(*args, **kwargs)
 
         return OctetString.__new__(cls)

@@ -35,8 +35,8 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     if varBinds:
         cmdgen.getCmd(snmpEngine, authData, transportTarget,
                       contextData, *varBinds,
-                      **dict(cbFun=cbFun, cbCtx=cbCtx,
-                             lookupMib=options.get('lookupMib', True)))
+                      cbFun=cbFun, cbCtx=cbCtx,
+                      lookupMib=options.get('lookupMib', True))
 
         snmpEngine.transportDispatcher.runDispatcher()
 
@@ -67,8 +67,8 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     while True:
         cmdgen.setCmd(snmpEngine, authData, transportTarget,
                       contextData, *varBinds,
-                      **dict(cbFun=cbFun, cbCtx=cbCtx,
-                             lookupMib=options.get('lookupMib', True)))
+                      cbFun=cbFun, cbCtx=cbCtx,
+                      lookupMib=options.get('lookupMib', True))
 
         snmpEngine.transportDispatcher.runDispatcher()
 
@@ -107,8 +107,8 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     while True:
         cmdgen.nextCmd(snmpEngine, authData, transportTarget, contextData,
                        *[(x[0], Null('')) for x in varBinds],
-                       **dict(cbFun=cbFun, cbCtx=cbCtx,
-                              lookupMib=options.get('lookupMib', True)))
+                       cbFun=cbFun, cbCtx=cbCtx,
+                       lookupMib=options.get('lookupMib', True))
 
         snmpEngine.transportDispatcher.runDispatcher()
 
@@ -185,8 +185,8 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
         cmdgen.bulkCmd(snmpEngine, authData, transportTarget, contextData,
                        nonRepeaters, maxRepetitions,
                        *[(x[0], Null('')) for x in varBinds],
-                       **dict(cbFun=cbFun, cbCtx=cbCtx,
-                              lookupMib=options.get('lookupMib', True)))
+                       cbFun=cbFun, cbCtx=cbCtx,
+                       lookupMib=options.get('lookupMib', True))
 
         snmpEngine.transportDispatcher.runDispatcher()
 

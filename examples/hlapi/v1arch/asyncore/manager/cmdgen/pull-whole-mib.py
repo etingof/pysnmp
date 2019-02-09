@@ -39,6 +39,6 @@ bulkCmd(snmpDispatcher,
         UdpTransportTarget(('demo.snmplabs.com', 161)),
         0, 25,
         ('1.3.6.1.4.1', None),
-        **dict(cbFun=cbFun))
+        cbFun=cbFun)
 
 snmpDispatcher.transportDispatcher.runDispatcher()

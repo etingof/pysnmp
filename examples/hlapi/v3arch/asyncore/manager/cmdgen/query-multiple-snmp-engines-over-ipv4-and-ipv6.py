@@ -90,6 +90,6 @@ for authData, transportTarget, varBinds in targets:
     snmpEngine = transportTarget.getTransportInfo()[1][1] % 3 and \
                  snmpEngineA or snmpEngineB
     getCmd(snmpEngine, authData, transportTarget, ContextData(), *varBinds,
-           **dict(cbFun=cbFun, cbCtx=(snmpEngine, authData, transportTarget)))
+           cbFun=cbFun, cbCtx=(snmpEngine, authData, transportTarget))
 
 transportDispatcher.runDispatcher()

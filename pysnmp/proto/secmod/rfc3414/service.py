@@ -170,7 +170,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         # New inactive row
         mibInstrumController.writeMibObjects(
-            (usmUserEntry.name + (13,) + tblIdx2, 5), **dict(snmpEngine=snmpEngine)
+            (usmUserEntry.name + (13,) + tblIdx2, 5), snmpEngine=snmpEngine
         )
 
         # Set user&securityNames
@@ -186,7 +186,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
         # Activate row
         mibInstrumController.writeMibObjects(
-            (usmUserEntry.name + (13,) + tblIdx2, 1), **dict(snmpEngine=snmpEngine)
+            (usmUserEntry.name + (13,) + tblIdx2, 1), snmpEngine=snmpEngine
         )
 
         # Localize and set keys
