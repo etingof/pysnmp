@@ -22,15 +22,15 @@ class Udp6SocketTransport(DgramSocketTransport):
 
     def normalizeAddress(self, transportAddress):
         if '%' in transportAddress[0]:  # strip zone ID
-            ta = self.addressType((transportAddress[0].split('%')[0],
-                                   transportAddress[1],
-                                   0,  # flowinfo
-                                   0))  # scopeid
+            ta = self.ADDRESS_TYPE((transportAddress[0].split('%')[0],
+                                    transportAddress[1],
+                                    0,  # flowinfo
+                                    0))  # scopeid
         else:
-            ta = self.addressType((transportAddress[0],
-                                   transportAddress[1], 0, 0))
+            ta = self.ADDRESS_TYPE((transportAddress[0],
+                                    transportAddress[1], 0, 0))
 
-        if (isinstance(transportAddress, self.addressType) and
+        if (isinstance(transportAddress, self.ADDRESS_TYPE) and
                 transportAddress.getLocalAddress()):
             return ta.setLocalAddress(transportAddress.getLocalAddress())
         else:

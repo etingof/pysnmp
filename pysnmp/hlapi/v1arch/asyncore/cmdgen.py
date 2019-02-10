@@ -14,7 +14,7 @@ from pysnmp import error
 
 __all__ = ['getCmd', 'nextCmd', 'setCmd', 'bulkCmd']
 
-vbProcessor = CommandGeneratorVarBinds()
+VB_PROCESSOR = CommandGeneratorVarBinds()
 
 
 def getCmd(snmpDispatcher, authData, transportTarget, *varBinds, **options):
@@ -128,7 +128,7 @@ def getCmd(snmpDispatcher, authData, transportTarget, *varBinds, **options):
         varBinds = pMod.apiPDU.getVarBinds(rspPdu)
 
         if lookupMib:
-            varBinds = vbProcessor.unmakeVarBinds(snmpDispatcher.cache, varBinds)
+            varBinds = VB_PROCESSOR.unmakeVarBinds(snmpDispatcher.cache, varBinds)
 
         nextStateHandle = pMod.getNextRequestID()
 
@@ -149,7 +149,7 @@ def getCmd(snmpDispatcher, authData, transportTarget, *varBinds, **options):
     lookupMib, cbFun, cbCtx = [options.get(x) for x in ('lookupMib', 'cbFun', 'cbCtx')]
 
     if lookupMib:
-        varBinds = vbProcessor.makeVarBinds(snmpDispatcher.cache, varBinds)
+        varBinds = VB_PROCESSOR.makeVarBinds(snmpDispatcher.cache, varBinds)
 
     pMod = api.PROTOCOL_MODULES[authData.mpModel]
 
@@ -272,7 +272,7 @@ def setCmd(snmpDispatcher, authData, transportTarget,
         varBinds = pMod.apiPDU.getVarBinds(rspPdu)
 
         if lookupMib:
-            varBinds = vbProcessor.unmakeVarBinds(snmpDispatcher.cache, varBinds)
+            varBinds = VB_PROCESSOR.unmakeVarBinds(snmpDispatcher.cache, varBinds)
 
         nextStateHandle = pMod.getNextRequestID()
 
@@ -293,7 +293,7 @@ def setCmd(snmpDispatcher, authData, transportTarget,
     lookupMib, cbFun, cbCtx = [options.get(x) for x in ('lookupMib', 'cbFun', 'cbCtx')]
 
     if lookupMib:
-        varBinds = vbProcessor.makeVarBinds(snmpDispatcher.cache, varBinds)
+        varBinds = VB_PROCESSOR.makeVarBinds(snmpDispatcher.cache, varBinds)
 
     pMod = api.PROTOCOL_MODULES[authData.mpModel]
 
@@ -415,7 +415,7 @@ def nextCmd(snmpDispatcher, authData, transportTarget,
 
         if options.get('lookupMib'):
             varBindTable = [
-                vbProcessor.unmakeVarBinds(snmpDispatcher.cache, vbs) for vbs in varBindTable
+                VB_PROCESSOR.unmakeVarBinds(snmpDispatcher.cache, vbs) for vbs in varBindTable
             ]
 
         nextStateHandle = pMod.getNextRequestID()
@@ -438,7 +438,7 @@ def nextCmd(snmpDispatcher, authData, transportTarget,
     lookupMib, cbFun, cbCtx = [options.get(x) for x in ('lookupMib', 'cbFun', 'cbCtx')]
 
     if lookupMib:
-        varBinds = vbProcessor.makeVarBinds(snmpDispatcher.cache, varBinds)
+        varBinds = VB_PROCESSOR.makeVarBinds(snmpDispatcher.cache, varBinds)
 
     pMod = api.PROTOCOL_MODULES[authData.mpModel]
 
@@ -588,7 +588,7 @@ def bulkCmd(snmpDispatcher, authData, transportTarget,
 
         if options.get('lookupMib'):
             varBindTable = [
-                vbProcessor.unmakeVarBinds(snmpDispatcher.cache, vbs) for vbs in varBindTable
+                VB_PROCESSOR.unmakeVarBinds(snmpDispatcher.cache, vbs) for vbs in varBindTable
             ]
 
         nextStateHandle = pMod.getNextRequestID()
@@ -614,7 +614,7 @@ def bulkCmd(snmpDispatcher, authData, transportTarget,
     lookupMib, cbFun, cbCtx = [options.get(x) for x in ('lookupMib', 'cbFun', 'cbCtx')]
 
     if lookupMib:
-        varBinds = vbProcessor.makeVarBinds(snmpDispatcher.cache, varBinds)
+        varBinds = VB_PROCESSOR.makeVarBinds(snmpDispatcher.cache, varBinds)
 
     pMod = api.PROTOCOL_MODULES[authData.mpModel]
 

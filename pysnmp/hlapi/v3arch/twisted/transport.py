@@ -47,8 +47,9 @@ class UdpTransportTarget(AbstractTransportTarget):
     >>>
 
     """
-    transportDomain = udp.DOMAIN_NAME
-    protoTransport = udp.UdpTwistedTransport
+    TRANSPORT_DOMAIN = udp.DOMAIN_NAME
+    PROTO_TRANSPORT = udp.UdpTwistedTransport
+
     def _resolveAddr(self, transportAddr):
         try:
             return socket.getaddrinfo(transportAddr[0],

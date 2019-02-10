@@ -72,11 +72,11 @@ class AbstractSnmpDispatcher(object):
 
     def sendPdu(self, authData, transportTarget, reqPdu, cbFun=None, cbCtx=None):
         if (self._automaticDispatcher and
-                transportTarget.transportDomain not in self._configuredTransports):
+                transportTarget.TRANSPORT_DOMAIN not in self._configuredTransports):
             self.transportDispatcher.registerTransport(
-                transportTarget.transportDomain, transportTarget.protoTransport().openClientMode()
+                transportTarget.TRANSPORT_DOMAIN, transportTarget.PROTO_TRANSPORT().openClientMode()
             )
-            self._configuredTransports.add(transportTarget.transportDomain)
+            self._configuredTransports.add(transportTarget.TRANSPORT_DOMAIN)
 
         pMod = api.PROTOCOL_MODULES[authData.mpModel]
 
@@ -97,7 +97,7 @@ class AbstractSnmpDispatcher(object):
         )
 
         self.transportDispatcher.sendMessage(
-            outgoingMsg, transportTarget.transportDomain, transportTarget.transportAddr
+            outgoingMsg, transportTarget.TRANSPORT_DOMAIN, transportTarget.transportAddr
         )
 
         if (reqPdu.__class__ is getattr(pMod, 'SNMPv2TrapPDU', None) or
@@ -165,5 +165,5 @@ class AbstractSnmpDispatcher(object):
             outgoingMsg = stateInfo['outgoingMsg']
 
             self.transportDispatcher.sendMessage(
-                outgoingMsg, transportTarget.transportDomain, transportTarget.transportAddr
+                outgoingMsg, transportTarget.TRANSPORT_DOMAIN, transportTarget.transportAddr
             )
