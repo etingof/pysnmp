@@ -14,7 +14,7 @@ from pysnmp import error
 
 __all__ = ['sendNotification']
 
-vbProcessor = NotificationOriginatorVarBinds()
+VB_PROCESSOR = NotificationOriginatorVarBinds()
 
 
 def sendNotification(snmpDispatcher, authData, transportTarget,
@@ -132,7 +132,7 @@ def sendNotification(snmpDispatcher, authData, transportTarget,
         varBinds = pMod.apiTrapPDU.getVarBinds(rspPdu)
 
         if lookupMib:
-            varBinds = vbProcessor.unmakeVarBinds(snmpDispatcher.cache, varBinds)
+            varBinds = VB_PROCESSOR.unmakeVarBinds(snmpDispatcher.cache, varBinds)
 
         nextStateHandle = pMod.getNextRequestID()
 
@@ -153,7 +153,7 @@ def sendNotification(snmpDispatcher, authData, transportTarget,
     lookupMib, cbFun, cbCtx = [options.get(x) for x in ('lookupMib', 'cbFun', 'cbCtx')]
 
     if lookupMib:
-        varBinds = vbProcessor.makeVarBinds(snmpDispatcher.cache, varBinds)
+        varBinds = VB_PROCESSOR.makeVarBinds(snmpDispatcher.cache, varBinds)
 
     # # make sure required PDU payload is in place
     # completeVarBinds = []
@@ -171,7 +171,7 @@ def sendNotification(snmpDispatcher, authData, transportTarget,
     #     varBinds.insert(0, (ObjectIdentifier(pMod.apiTrapPDU.sysUpTime), pMod.Integer(0)))
 
     # input PDU is always v2c
-    pMod = api.protoModules[api.protoVersion2c]
+    pMod = api.PROTOCOL_MODULES[api.SNMP_VERSION_2C]
 
     if notifyType == 'trap':
         reqPdu = pMod.TrapPDU()

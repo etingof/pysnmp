@@ -26,4 +26,4 @@ class SnmpDispatcher(AbstractSnmpDispatcher):
     application. In a multithreaded environment, each thread that
     works with SNMP must have its own `SnmpDispatcher` instance.
     """
-    protoDispatcher = AsyncoreDispatcher
+    PROTO_DISPATCHER = AsyncoreDispatcher

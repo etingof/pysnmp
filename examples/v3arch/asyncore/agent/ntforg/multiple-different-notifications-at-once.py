@@ -43,7 +43,7 @@ config.addTargetParams(snmpEngine, 'my-creds-1', 'my-area', 'noAuthNoPriv', 1)
 
 config.addV3User(
     snmpEngine, 'usr-md5-none',
-    config.usmHMACMD5AuthProtocol, 'authkey1'
+    config.USM_AUTH_HMAC96_MD5, 'authkey1'
 )
 config.addTargetParams(snmpEngine, 'my-creds-2', 'usr-md5-none', 'authNoPriv')
 
@@ -51,20 +51,20 @@ config.addTargetParams(snmpEngine, 'my-creds-2', 'usr-md5-none', 'authNoPriv')
 # a target name
 config.addTransport(
     snmpEngine,
-    udp.domainName,
+    udp.DOMAIN_NAME,
     udp.UdpSocketTransport().openClientMode()
 )
 # First target
 config.addTargetAddr(
     snmpEngine, 'my-nms-1',
-    udp.domainName, ('104.236.166.95', 162),
+    udp.DOMAIN_NAME, ('104.236.166.95', 162),
     'my-creds-1',
     tagList='all-my-managers'
 )
 # Second target
 config.addTargetAddr(
     snmpEngine, 'my-nms-2',
-    udp.domainName, ('104.236.166.95', 162),
+    udp.DOMAIN_NAME, ('104.236.166.95', 162),
     'my-creds-2',
     tagList='all-my-managers'
 )

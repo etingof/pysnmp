@@ -9,10 +9,10 @@ from pysnmp.proto import error
 
 
 class AbstractMessageProcessingModel(object):
-    snmpMsgSpec = NotImplementedError
+    SNMP_MSG_SPEC = NotImplementedError
 
     def __init__(self):
-        self._snmpMsgSpec = self.snmpMsgSpec()  # local copy
+        self._snmpMsgSpec = self.SNMP_MSG_SPEC()  # local copy
         self._cache = cache.Cache()
 
     def prepareOutgoingMessage(self, snmpEngine, transportDomain,

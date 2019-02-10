@@ -56,7 +56,7 @@ snmpEngine.observer.registerObserver(
 # UDP over IPv4
 config.addTransport(
     snmpEngine,
-    udp.domainName,
+    udp.DOMAIN_NAME,
     udp.UdpTransport().openServerMode(('127.0.0.1', 161))
 )
 
@@ -65,8 +65,8 @@ config.addTransport(
 # user: usr-md5-des, auth: MD5, priv DES
 config.addV3User(
     snmpEngine, 'usr-md5-des',
-    config.usmHMACMD5AuthProtocol, 'authkey1',
-    config.usmDESPrivProtocol, 'privkey1'
+    config.USM_AUTH_HMAC96_MD5, 'authkey1',
+    config.USM_PRIV_CBC56_DES, 'privkey1'
 )
 
 # Allow full MIB access for each user at VACM

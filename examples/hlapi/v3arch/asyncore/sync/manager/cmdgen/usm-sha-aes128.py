@@ -11,22 +11,22 @@ Send SNMP GET request using the following options:
 
 Available authentication protocols:
 
-#. usmHMACMD5AuthProtocol
-#. usmHMACSHAAuthProtocol
-#. usmHMAC128SHA224AuthProtocol
-#. usmHMAC192SHA256AuthProtocol
-#. usmHMAC256SHA384AuthProtocol
-#. usmHMAC384SHA512AuthProtocol
-#. usmNoAuthProtocol
+#. USM_AUTH_HMAC96_MD5
+#. USM_AUTH_HMAC96_SHA
+#. USM_AUTH_HMAC128_SHA224
+#. USM_AUTH_HMAC192_SHA256
+#. USM_AUTH_HMAC256_SHA384
+#. USM_AUTH_HMAC384_SHA512
+#. USM_AUTH_NONE
 
 Available privacy protocols:
 
-#. usmDESPrivProtocol
-#. usm3DESEDEPrivProtocol
-#. usmAesCfb128Protocol
-#. usmAesCfb192Protocol
-#. usmAesCfb256Protocol
-#. usmNoPrivProtocol
+#. USM_PRIV_CBC56_DES
+#. USM_PRIV_CBC168_3DES
+#. USM_PRIV_CFB128_AES
+#. USM_PRIV_CFB192_AES
+#. USM_PRIV_CFB256_AES
+#. USM_PRIV_NONE
 
 Functionally similar to:
 
@@ -38,8 +38,8 @@ from pysnmp.hlapi import *
 errorIndication, errorStatus, errorIndex, varBinds = next(
     getCmd(SnmpEngine(),
            UsmUserData('usr-sha-aes', 'authkey1', 'privkey1',
-                       authProtocol=usmHMACSHAAuthProtocol,
-                       privProtocol=usmAesCfb128Protocol),
+                       authProtocol=USM_AUTH_HMAC96_SHA,
+                       privProtocol=USM_PRIV_CFB128_AES),
            UdpTransportTarget(('demo.snmplabs.com', 161)),
            ContextData(),
            ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)))

@@ -21,7 +21,7 @@ from pysnmp.proto import api
 from time import time
 
 # Protocol version to use
-pMod = api.protoModules[api.protoVersion1]
+pMod = api.PROTOCOL_MODULES[api.SNMP_VERSION_1]
 # pMod = api.protoModules[api.protoVersion2c]
 
 # Build PDU
@@ -72,12 +72,12 @@ transportDispatcher.registerTimerCbFun(cbTimerFun)
 
 # UDP/IPv4
 transportDispatcher.registerTransport(
-    udp.domainName, udp.UdpSocketTransport().openClientMode()
+    udp.DOMAIN_NAME, udp.UdpSocketTransport().openClientMode()
 )
 
 # Pass message to dispatcher
 transportDispatcher.sendMessage(
-    encoder.encode(reqMsg), udp.domainName, ('demo.snmplabs.com', 161)
+    encoder.encode(reqMsg), udp.DOMAIN_NAME, ('demo.snmplabs.com', 161)
 )
 transportDispatcher.jobStarted(1)
 

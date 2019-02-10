@@ -84,6 +84,10 @@ Revision 5.0.0, released 2019-03-XX
   is to unify this method call with similar methods of CommandGenerator.
   This change should not compromise backward compatibility with pysnmp 4.
 
+- The whole codebase PEP-eighted, in particular:
+
+  * Global constants turned UPPER_CASED
+
 Revision 4.4.9, released 2019-02-09
 -----------------------------------
 - Made MIB loader ignoring file and directory access errors
@@ -289,10 +293,10 @@ Revision 4.3.3, released 2017-02-04
   run.
 - Non-standard (but apparently used by many vendors) Reeder AES192/256
   key localization algorithm implemented and set as default for
-  usmAesCfb192Protocol and usmAesCfb256Protocol identifiers.
+  USM_PRIV_CFB192_AES and USM_PRIV_CFB256_AES identifiers.
   Original and more standard implementation can still be used
-  with the usmAesBlumenthalCfb192Protocol and
-  usmAesBlumenthalCfb192Protocol IDs respectively.
+  with the USM_PRIV_CFB192_AES_BLUMENTHAL and
+  USM_PRIV_CFB192_AES_BLUMENTHAL IDs respectively.
 - TextualConvention.prettyOut() improved to produce prettier and
   more SMI-compliant output.
 - TextualConvention.prettyIn() implemented to handle DISPLAY-HINT

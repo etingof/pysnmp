@@ -47,8 +47,9 @@ IS_PYTHON_344_PLUS = platform.python_version_tuple() >= ('3', '4', '4')
 
 class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
     """Base Asyncio datagram Transport, to be used with AsyncioDispatcher"""
-    sockFamily = None
-    addressType = lambda x: x
+    SOCK_FAMILY = None
+    ADDRESS_TYPE = lambda x: x
+
     transport = None
 
     def __init__(self, sock=None, sockMap=None, loop=None):
@@ -66,25 +67,25 @@ class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
 
     def connection_made(self, transport):
         self.transport = transport
-        debug.logger & debug.flagIO and debug.logger('connection_made: invoked')
+        debug.logger & debug.FLAG_IO and debug.logger('connection_made: invoked')
         while self._writeQ:
             outgoingMessage, transportAddress = self._writeQ.pop(0)
-            debug.logger & debug.flagIO and debug.logger('connection_made: transportAddress %r outgoingMessage %s' %
-                                                         (transportAddress, debug.hexdump(outgoingMessage)))
+            debug.logger & debug.FLAG_IO and debug.logger('connection_made: transportAddress %r outgoingMessage %s' %
+                                                          (transportAddress, debug.hexdump(outgoingMessage)))
             try:
                 self.transport.sendto(outgoingMessage, self.normalizeAddress(transportAddress))
             except Exception:
                 raise error.CarrierError(';'.join(traceback.format_exception(*sys.exc_info())))
 
     def connection_lost(self, exc):
-        debug.logger & debug.flagIO and debug.logger('connection_lost: invoked')
+        debug.logger & debug.FLAG_IO and debug.logger('connection_lost: invoked')
 
     # AbstractAsyncioTransport API
 
     def openClientMode(self, iface=None):
         try:
             c = self.loop.create_datagram_endpoint(
-                lambda: self, local_addr=iface, family=self.sockFamily
+                lambda: self, local_addr=iface, family=self.SOCK_FAMILY
             )
             # Avoid deprecation warning for asyncio.async()
             if IS_PYTHON_344_PLUS:
@@ -99,7 +100,7 @@ class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
     def openServerMode(self, iface):
         try:
             c = self.loop.create_datagram_endpoint(
-                lambda: self, local_addr=iface, family=self.sockFamily
+                lambda: self, local_addr=iface, family=self.SOCK_FAMILY
             )
             # Avoid deprecation warning for asyncio.async()
             if IS_PYTHON_344_PLUS:
@@ -118,7 +119,7 @@ class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
         AbstractAsyncioTransport.closeTransport(self)
 
     def sendMessage(self, outgoingMessage, transportAddress):
-        debug.logger & debug.flagIO and debug.logger('sendMessage: %s transportAddress %r outgoingMessage %s' % (
+        debug.logger & debug.FLAG_IO and debug.logger('sendMessage: %s transportAddress %r outgoingMessage %s' % (
             (self.transport is None and "queuing" or "sending"),
             transportAddress, debug.hexdump(outgoingMessage)
         ))
@@ -131,6 +132,6 @@ class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
                 raise error.CarrierError(';'.join(traceback.format_exception(*sys.exc_info())))
 
     def normalizeAddress(self, transportAddress):
-        if not isinstance(transportAddress, self.addressType):
-            transportAddress = self.addressType(transportAddress)
+        if not isinstance(transportAddress, self.ADDRESS_TYPE):
+            transportAddress = self.ADDRESS_TYPE(transportAddress)
         return transportAddress

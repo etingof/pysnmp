@@ -12,7 +12,7 @@ from pysnmp import debug
 # noinspection PyUnusedLocal
 class Vacm(object):
     """Void Access Control Model"""
-    accessModelID = 0
+    ACCESS_MODEL_ID = 0
 
     def isAccessAllowed(self,
                         snmpEngine,
@@ -22,7 +22,7 @@ class Vacm(object):
                         viewType,
                         contextName,
                         variableName):
-        debug.logger & debug.flagACL and debug.logger(
+        debug.logger & debug.FLAG_ACL and debug.logger(
             'isAccessAllowed: viewType %s for variableName %s - OK' % (viewType, variableName)
         )
 

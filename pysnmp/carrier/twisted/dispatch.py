@@ -34,9 +34,11 @@ class TwistedDispatcher(AbstractTransportDispatcher):
         if not reactor.running:
             try:
                 reactor.run()
+
             except KeyboardInterrupt:
                 raise
-            except:
+
+            except Exception:
                 raise PySnmpError('reactor error: %s' % ';'.join(traceback.format_exception(*sys.exc_info())))
 
     # jobstarted/jobfinished might be okay as-is

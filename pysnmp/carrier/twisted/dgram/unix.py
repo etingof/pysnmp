@@ -10,13 +10,15 @@ from pysnmp.carrier.base import AbstractTransportAddress
 from pysnmp.carrier.twisted.dgram.base import DgramTwistedTransport
 from pysnmp.carrier import error
 
-domainName = snmpLocalDomain = (1, 3, 6, 1, 2, 1, 100, 1, 13)
+DOMAIN_NAME = SNMP_LOCAL_DOMAIN = (1, 3, 6, 1, 2, 1, 100, 1, 13)
+
 
 class UnixTransportAddress(str, AbstractTransportAddress):
     pass
 
+
 class UnixTwistedTransport(DgramTwistedTransport):
-    addressType = UnixTransportAddress
+    ADDRESS_TYPE = UnixTransportAddress
     _lport = None
 
     # AbstractTwistedTransport API
@@ -42,5 +44,6 @@ class UnixTwistedTransport(DgramTwistedTransport):
             if d:
                 d.addCallback(lambda x: None)
         DgramTwistedTransport.closeTransport(self)
+
 
 UnixTransport = UnixTwistedTransport

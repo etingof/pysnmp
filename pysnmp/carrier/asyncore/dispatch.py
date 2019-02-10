@@ -35,8 +35,7 @@ class AsyncoreDispatcher(AbstractTransportDispatcher):
     def transportsAreWorking(self):
         for transport in self.__sockMap.values():
             if transport.writable():
-                return 1
-        return 0
+                return True
 
     def runDispatcher(self, timeout=0.0):
         while self.jobsArePending() or self.transportsAreWorking():
@@ -45,6 +44,7 @@ class AsyncoreDispatcher(AbstractTransportDispatcher):
                      use_poll=True, map=self.__sockMap, count=1)
             except KeyboardInterrupt:
                 raise
-            except:
+
+            except Exception:
                 raise PySnmpError('poll error: %s' % ';'.join(format_exception(*exc_info())))
             self.handleTimerTick(time())

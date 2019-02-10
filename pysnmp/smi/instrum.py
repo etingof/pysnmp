@@ -200,7 +200,7 @@ class MibInstrumController(AbstractMibInstrumController):
 
         self.lastBuildId = self.mibBuilder.lastBuildId
 
-        debug.logger & debug.flagIns and debug.logger('__indexMib: rebuilt')
+        debug.logger & debug.FLAG_INS and debug.logger('__indexMib: rebuilt')
 
     def flipFlopFsm(self, fsmTable, *varBinds, **context):
         """Read, modify, create or remove Managed Objects Instances.
@@ -275,19 +275,19 @@ class MibInstrumController(AbstractMibInstrumController):
 
             count[0] += 1
 
-            debug.logger & debug.flagIns and debug.logger(
+            debug.logger & debug.FLAG_INS and debug.logger(
                 '_cbFun: var-bind %d, processed %d, expected %d' % (
                 idx, count[0], len(varBinds)))
 
             if count[0] < len(varBinds):
                 return
 
-            debug.logger & debug.flagIns and debug.logger(
+            debug.logger & debug.FLAG_INS and debug.logger(
                 '_cbFun: finished, output var-binds %r' % (_varBinds,))
 
             self.flipFlopFsm(fsmTable, *varBinds, **dict(context, cbFun=cbFun))
 
-        debug.logger & debug.flagIns and debug.logger('flipFlopFsm: input var-binds %r' % (varBinds,))
+        debug.logger & debug.FLAG_INS and debug.logger('flipFlopFsm: input var-binds %r' % (varBinds,))
 
         mibTree, = self.mibBuilder.importSymbols('SNMPv2-SMI', 'iso')
 
@@ -306,7 +306,7 @@ class MibInstrumController(AbstractMibInstrumController):
 
             self.__indexMib()
 
-        debug.logger & debug.flagIns and debug.logger(
+        debug.logger & debug.FLAG_INS and debug.logger(
             'flipFlopFsm: current state %s, status %s' % (state, status))
 
         try:
@@ -319,7 +319,7 @@ class MibInstrumController(AbstractMibInstrumController):
             except KeyError:
                 raise error.SmiError('Unresolved FSM state %s, %s' % (state, status))
 
-        debug.logger & debug.flagIns and debug.logger(
+        debug.logger & debug.FLAG_INS and debug.logger(
             'flipFlopFsm: state %s status %s -> transitioned into state %s' % (state, status, newState))
 
         state = newState
@@ -352,7 +352,7 @@ class MibInstrumController(AbstractMibInstrumController):
                              instances=instances, errors=errors,
                              varBinds=_varBinds, nextName=None))
 
-            debug.logger & debug.flagIns and debug.logger(
+            debug.logger & debug.FLAG_INS and debug.logger(
                 'flipFlopFsm: func %s initiated for %r' % (actionFun, varBind))
 
     @staticmethod

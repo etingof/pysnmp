@@ -33,8 +33,8 @@ from pysnmp.carrier.asyncore.dgram import udp
 
 # Configuration parameters for each of SNMP Engines
 snmpEngineInfo = (
-    ('0102030405060708', udp.domainName + (0,), ('127.0.0.1', 161)),
-    ('0807060504030201', udp.domainName + (1,), ('127.0.0.2', 161))
+    ('0102030405060708', udp.DOMAIN_NAME + (0,), ('127.0.0.1', 161)),
+    ('0807060504030201', udp.DOMAIN_NAME + (1,), ('127.0.0.2', 161))
 )
 
 # Instantiate the single transport dispatcher object
@@ -66,8 +66,8 @@ for snmpEngineId, transportDomain, transportAddress in snmpEngineInfo:
     # user: usr-md5-des, auth: MD5, priv DES
     config.addV3User(
         snmpEngine, 'usr-md5-des',
-        config.usmHMACMD5AuthProtocol, 'authkey1',
-        config.usmDESPrivProtocol, 'privkey1'
+        config.USM_AUTH_HMAC96_MD5, 'authkey1',
+        config.USM_PRIV_CBC56_DES, 'privkey1'
     )
 
     # Allow full MIB access for this user / securityModels at VACM

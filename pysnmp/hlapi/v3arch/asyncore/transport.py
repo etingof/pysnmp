@@ -49,8 +49,8 @@ class UdpTransportTarget(AbstractTransportTarget):
     >>>
 
     """
-    transportDomain = udp.domainName
-    protoTransport = udp.UdpSocketTransport
+    TRANSPORT_DOMAIN = udp.DOMAIN_NAME
+    PROTO_TRANSPORT = udp.UdpSocketTransport
 
     def _resolveAddr(self, transportAddr):
         try:
@@ -107,8 +107,8 @@ class Udp6TransportTarget(AbstractTransportTarget):
     >>>
 
     """
-    transportDomain = udp6.domainName
-    protoTransport = udp6.Udp6SocketTransport
+    TRANSPORT_DOMAIN = udp6.DOMAIN_NAME
+    PROTO_TRANSPORT = udp6.Udp6SocketTransport
 
     def _resolveAddr(self, transportAddr):
         try:

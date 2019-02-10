@@ -42,7 +42,7 @@ snmpEngine = engine.SnmpEngine()
 # UDP over IPv4
 config.addTransport(
     snmpEngine,
-    udp.domainName + (1,),
+    udp.DOMAIN_NAME + (1,),
     udp.UdpTransport().openServerMode(('127.0.0.1', 161))
 )
 
@@ -51,7 +51,7 @@ config.addTransport(
 # UDP over IPv4
 config.addTransport(
     snmpEngine,
-    udp.domainName + (2,),
+    udp.DOMAIN_NAME + (2,),
     udp.UdpTransport().openClientMode()
 )
 
@@ -62,8 +62,8 @@ config.addTransport(
 # user: usr-md5-des, auth: MD5, priv DES
 config.addV3User(
     snmpEngine, 'usr-md5-des',
-    config.usmHMACMD5AuthProtocol, 'authkey1',
-    config.usmDESPrivProtocol, 'privkey1'
+    config.USM_AUTH_HMAC96_MD5, 'authkey1',
+    config.USM_PRIV_CBC56_DES, 'privkey1'
 )
 
 #
@@ -83,7 +83,7 @@ config.addTargetParams(snmpEngine, 'distant-agent-auth', 'my-area',
 
 config.addTargetAddr(
     snmpEngine, 'distant-agent',
-    udp.domainName + (2,), ('104.236.166.95', 161),
+    udp.DOMAIN_NAME + (2,), ('104.236.166.95', 161),
     'distant-agent-auth', retryCount=0
 )
 

@@ -19,8 +19,8 @@ from pysnmp.hlapi import *
 errorIndication, errorStatus, errorIndex, varBinds = next(
     getCmd(SnmpEngine(),
            UsmUserData('usr-sha-aes128', 'authkey1', 'privkey1',
-                       authProtocol=usmHMACSHAAuthProtocol,
-                       privProtocol=usmAesCfb128Protocol),
+                       authProtocol=USM_AUTH_HMAC96_SHA,
+                       privProtocol=USM_PRIV_CFB128_AES),
            UdpTransportTarget(('demo.snmplabs.com', 161)),
            ContextData(),
            ObjectType(ObjectIdentity('TCP-MIB',

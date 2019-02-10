@@ -19,6 +19,7 @@ __all__ = ['getCmd', 'nextCmd', 'setCmd', 'bulkCmd', 'next']
 def next(iter):
     return iter.next()
 
+
 def getCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
     # noinspection PyShadowingNames

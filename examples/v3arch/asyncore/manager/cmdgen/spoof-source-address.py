@@ -58,14 +58,14 @@ udpSocketTransport.enableTransparent()
 # Register this transport at SNMP Engine
 config.addTransport(
     snmpEngine,
-    udp.domainName,
+    udp.DOMAIN_NAME,
     udpSocketTransport
 )
 
 # Configure destination IPv4 address as well as source IPv4 address
 config.addTargetAddr(
     snmpEngine, 'my-router',
-    udp.domainName, ('104.236.166.95', 161),
+    udp.DOMAIN_NAME, ('104.236.166.95', 161),
     'my-creds',
     sourceAddress=('1.2.3.4', 0)
 )

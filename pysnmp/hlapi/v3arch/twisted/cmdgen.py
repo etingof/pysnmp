@@ -18,8 +18,8 @@ from twisted.python.failure import Failure
 
 __all__ = ['getCmd', 'nextCmd', 'setCmd', 'bulkCmd', 'isEndOfMib']
 
-vbProcessor = CommandGeneratorVarBinds()
-lcd = CommandGeneratorLcdConfigurator()
+VB_PROCESSOR = CommandGeneratorVarBinds()
+LCD = CommandGeneratorLcdConfigurator()
 
 isEndOfMib = lambda varBinds: not v2c.apiPDU.getNextVarBinds(varBinds)
 
@@ -120,7 +120,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
             deferred.errback(Failure(errorIndication))
         else:
             try:
-                varBindsUnmade = vbProcessor.unmakeVarBinds(snmpEngine.cache, varBinds, lookupMib)
+                varBindsUnmade = VB_PROCESSOR.unmakeVarBinds(snmpEngine.cache, varBinds, lookupMib)
 
             except Exception as e:
                 deferred.errback(Failure(e))
@@ -128,7 +128,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
             else:
                 deferred.callback((errorStatus, errorIndex, varBindsUnmade))
 
-    addrName, paramsName = lcd.configure(
+    addrName, paramsName = LCD.configure(
         snmpEngine, authData, transportTarget, contextData.contextName)
 
     deferred = Deferred()
@@ -136,7 +136,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     cmdgen.GetCommandGenerator().sendVarBinds(
         snmpEngine, addrName, contextData.contextEngineId,
         contextData.contextName,
-        vbProcessor.makeVarBinds(snmpEngine.cache, varBinds), __cbFun,
+        VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds), __cbFun,
         (options.get('lookupMib', True), deferred)
     )
     return deferred
@@ -237,7 +237,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
             deferred.errback(Failure(errorIndication))
         else:
             try:
-                varBindsUnmade = vbProcessor.unmakeVarBinds(snmpEngine.cache, varBinds, lookupMib)
+                varBindsUnmade = VB_PROCESSOR.unmakeVarBinds(snmpEngine.cache, varBinds, lookupMib)
 
             except Exception as e:
                 deferred.errback(Failure(e))
@@ -245,7 +245,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
             else:
                 deferred.callback((errorStatus, errorIndex, varBindsUnmade))
 
-    addrName, paramsName = lcd.configure(
+    addrName, paramsName = LCD.configure(
         snmpEngine, authData, transportTarget, contextData.contextName)
 
     deferred = Deferred()
@@ -253,7 +253,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     cmdgen.SetCommandGenerator().sendVarBinds(
         snmpEngine, addrName, contextData.contextEngineId,
         contextData.contextName,
-        vbProcessor.makeVarBinds(snmpEngine.cache, varBinds), __cbFun,
+        VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds), __cbFun,
         (options.get('lookupMib', True), deferred)
     )
     return deferred
@@ -365,9 +365,9 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
             deferred.errback(Failure(errorIndication))
         else:
             try:
-                varBindsUnmade = [vbProcessor.unmakeVarBinds(snmpEngine.cache,
-                                                             varBindTableRow,
-                                                             lookupMib)
+                varBindsUnmade = [VB_PROCESSOR.unmakeVarBinds(snmpEngine.cache,
+                                                              varBindTableRow,
+                                                              lookupMib)
                                   for varBindTableRow in varBindTable]
 
             except Exception as e:
@@ -376,7 +376,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
             else:
                 deferred.callback((errorStatus, errorIndex, varBindsUnmade))
 
-    addrName, paramsName = lcd.configure(
+    addrName, paramsName = LCD.configure(
         snmpEngine, authData, transportTarget, contextData.contextName)
 
     deferred = Deferred()
@@ -384,7 +384,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     cmdgen.NextCommandGenerator().sendVarBinds(
         snmpEngine, addrName, contextData.contextEngineId,
         contextData.contextName,
-        vbProcessor.makeVarBinds(snmpEngine.cache, varBinds), __cbFun,
+        VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds), __cbFun,
         (options.get('lookupMib', True), deferred)
     )
     return deferred
@@ -524,9 +524,9 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
             deferred.errback(Failure(errorIndication))
         else:
             try:
-                varBindsUnmade = [vbProcessor.unmakeVarBinds(snmpEngine.cache,
-                                                             varBindTableRow,
-                                                             lookupMib)
+                varBindsUnmade = [VB_PROCESSOR.unmakeVarBinds(snmpEngine.cache,
+                                                              varBindTableRow,
+                                                              lookupMib)
                                   for varBindTableRow in varBindTable]
 
             except Exception as e:
@@ -535,7 +535,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
             else:
                 deferred.callback((errorStatus, errorIndex, varBindsUnmade))
 
-    addrName, paramsName = lcd.configure(
+    addrName, paramsName = LCD.configure(
         snmpEngine, authData, transportTarget, contextData.contextName)
 
     deferred = Deferred()
@@ -543,7 +543,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     cmdgen.BulkCommandGenerator().sendVarBinds(
         snmpEngine, addrName, contextData.contextEngineId,
         contextData.contextName, nonRepeaters, maxRepetitions,
-        vbProcessor.makeVarBinds(snmpEngine.cache, varBinds),
+        VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds),
         __cbFun,
         (options.get('lookupMib', True), deferred)
     )

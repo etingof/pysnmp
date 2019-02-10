@@ -213,28 +213,28 @@ User-based
 The :py:class:`~pysnmp.hlapi.v3arch.UsmUserData` class provides SNMPv3 User-Based
 Security Model configuration for SNMP v3 systems.
 
-.. autoclass:: pysnmp.hlapi.v3arch.UsmUserData(userName, authKey=None, privKey=None, authProtocol=usmNoAuthProtocol, privProtocol=usmNoPrivProtocol, securityEngineId=None)
+.. autoclass:: pysnmp.hlapi.v3arch.UsmUserData(userName, authKey=None, privKey=None, authProtocol=USM_AUTH_NONE, privProtocol=USM_PRIV_NONE, securityEngineId=None)
 
 **Authentication protocol identifiers**
 
-.. autodata:: pysnmp.hlapi.v3arch.usmNoAuthProtocol
-.. autodata:: pysnmp.hlapi.v3arch.usmHMACMD5AuthProtocol
-.. autodata:: pysnmp.hlapi.v3arch.usmHMACSHAAuthProtocol
-.. autodata:: pysnmp.hlapi.v3arch.usmHMAC128SHA224AuthProtocol
-.. autodata:: pysnmp.hlapi.v3arch.usmHMAC192SHA256AuthProtocol
-.. autodata:: pysnmp.hlapi.v3arch.usmHMAC256SHA384AuthProtocol
-.. autodata:: pysnmp.hlapi.v3arch.usmHMAC384SHA512AuthProtocol
+.. autodata:: pysnmp.hlapi.v3arch.USM_AUTH_NONE
+.. autodata:: pysnmp.hlapi.v3arch.USM_AUTH_HMAC96_MD5
+.. autodata:: pysnmp.hlapi.v3arch.USM_AUTH_HMAC96_SHA
+.. autodata:: pysnmp.hlapi.v3arch.USM_AUTH_HMAC128_SHA224
+.. autodata:: pysnmp.hlapi.v3arch.USM_AUTH_HMAC192_SHA256
+.. autodata:: pysnmp.hlapi.v3arch.USM_AUTH_HMAC256_SHA384
+.. autodata:: pysnmp.hlapi.v3arch.USM_AUTH_HMAC384_SHA512
 
 **Privacy (encryption) protocol identifiers**
 
-.. autodata:: pysnmp.hlapi.v3arch.usmNoPrivProtocol
-.. autodata:: pysnmp.hlapi.v3arch.usmDESPrivProtocol
-.. autodata:: pysnmp.hlapi.v3arch.usm3DESEDEPrivProtocol
-.. autodata:: pysnmp.hlapi.v3arch.usmAesCfb128Protocol
-.. autodata:: pysnmp.hlapi.v3arch.usmAesCfb192Protocol
-.. autodata:: pysnmp.hlapi.v3arch.usmAesCfb256Protocol
-.. autodata:: pysnmp.hlapi.v3arch.usmAesBlumenthalCfb192Protocol
-.. autodata:: pysnmp.hlapi.v3arch.usmAesBlumenthalCfb256Protocol
+.. autodata:: pysnmp.hlapi.v3arch.USM_PRIV_NONE
+.. autodata:: pysnmp.hlapi.v3arch.USM_PRIV_CBC56_DES
+.. autodata:: pysnmp.hlapi.v3arch.USM_PRIV_CBC168_3DES
+.. autodata:: pysnmp.hlapi.v3arch.USM_PRIV_CFB128_AES
+.. autodata:: pysnmp.hlapi.v3arch.USM_PRIV_CFB192_AES
+.. autodata:: pysnmp.hlapi.v3arch.USM_PRIV_CFB256_AES
+.. autodata:: pysnmp.hlapi.v3arch.USM_PRIV_CFB192_AES_BLUMENTHAL
+.. autodata:: pysnmp.hlapi.v3arch.USM_PRIV_CFB256_AES_BLUMENTHAL
 
 .. note::
 

@@ -6,50 +6,50 @@
 #
 from pysnmp.proto import rfc1157, rfc1905
 
-readClassPDUs = {
-    rfc1157.GetRequestPDU.tagSet: 1,
-    rfc1157.GetNextRequestPDU.tagSet: 1,
-    rfc1905.GetRequestPDU.tagSet: 1,
-    rfc1905.GetNextRequestPDU.tagSet: 1,
-    rfc1905.GetBulkRequestPDU.tagSet: 1
+READ_CLASS_PDUS = {
+    rfc1157.GetRequestPDU.tagSet,
+    rfc1157.GetNextRequestPDU.tagSet,
+    rfc1905.GetRequestPDU.tagSet,
+    rfc1905.GetNextRequestPDU.tagSet,
+    rfc1905.GetBulkRequestPDU.tagSet
 }
 
-writeClassPDUs = {
-    rfc1157.SetRequestPDU.tagSet: 1,
-    rfc1905.SetRequestPDU.tagSet: 1
+WRITE_CLASS_PDUS = {
+    rfc1157.SetRequestPDU.tagSet,
+    rfc1905.SetRequestPDU.tagSet
 }
 
-responseClassPDUs = {
-    rfc1157.GetResponsePDU.tagSet: 1,
-    rfc1905.ResponsePDU.tagSet: 1,
-    rfc1905.ReportPDU.tagSet: 1
+RESPONSE_CLASS_PDUS = {
+    rfc1157.GetResponsePDU.tagSet,
+    rfc1905.ResponsePDU.tagSet,
+    rfc1905.ReportPDU.tagSet
 }
 
-notificationClassPDUs = {
-    rfc1157.TrapPDU.tagSet: 1,
-    rfc1905.SNMPv2TrapPDU.tagSet: 1,
-    rfc1905.InformRequestPDU.tagSet: 1
+NOTIFICATION_CLASS_PDUS = {
+    rfc1157.TrapPDU.tagSet,
+    rfc1905.SNMPv2TrapPDU.tagSet,
+    rfc1905.InformRequestPDU.tagSet
 }
 
-internalClassPDUs = {
-    rfc1905.ReportPDU.tagSet: 1
+INTERNAL_CLASS_PDUS = {
+    rfc1905.ReportPDU.tagSet
 }
 
-confirmedClassPDUs = {
-    rfc1157.GetRequestPDU.tagSet: 1,
-    rfc1157.GetNextRequestPDU.tagSet: 1,
-    rfc1157.SetRequestPDU.tagSet: 1,
-    rfc1905.GetRequestPDU.tagSet: 1,
-    rfc1905.GetNextRequestPDU.tagSet: 1,
-    rfc1905.GetBulkRequestPDU.tagSet: 1,
-    rfc1905.SetRequestPDU.tagSet: 1,
-    rfc1905.InformRequestPDU.tagSet: 1
+CONFIRMED_CLASS_PDUS = {
+    rfc1157.GetRequestPDU.tagSet,
+    rfc1157.GetNextRequestPDU.tagSet,
+    rfc1157.SetRequestPDU.tagSet,
+    rfc1905.GetRequestPDU.tagSet,
+    rfc1905.GetNextRequestPDU.tagSet,
+    rfc1905.GetBulkRequestPDU.tagSet,
+    rfc1905.SetRequestPDU.tagSet,
+    rfc1905.InformRequestPDU.tagSet
 }
 
-unconfirmedClassPDUs = {
-    rfc1157.GetResponsePDU.tagSet: 1,
-    rfc1905.ResponsePDU.tagSet: 1,
-    rfc1157.TrapPDU.tagSet: 1,
-    rfc1905.ReportPDU.tagSet: 1,
-    rfc1905.SNMPv2TrapPDU.tagSet: 1
+UNCONFIRMED_CLASS_PDUS = {
+    rfc1157.GetResponsePDU.tagSet,
+    rfc1905.ResponsePDU.tagSet,
+    rfc1157.TrapPDU.tagSet,
+    rfc1905.ReportPDU.tagSet,
+    rfc1905.SNMPv2TrapPDU.tagSet
 }

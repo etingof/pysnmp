@@ -43,7 +43,7 @@ snmpEngine = engine.SnmpEngine()
 # UDP over IPv4
 config.addTransport(
     snmpEngine,
-    udp.domainName + (1,),
+    udp.DOMAIN_NAME + (1,),
     udp.UdpTransport().openServerMode(('127.0.0.1', 161))
 )
 
@@ -52,7 +52,7 @@ config.addTransport(
 # UDP over IPv4
 config.addTransport(
     snmpEngine,
-    udp.domainName + (2,),
+    udp.DOMAIN_NAME + (2,),
     udp.UdpTransport().openClientMode()
 )
 
@@ -80,7 +80,7 @@ config.addTargetParams(snmpEngine, 'distant-agent-auth', 'distant-area',
 
 config.addTargetAddr(
     snmpEngine, 'distant-agent',
-    udp.domainName + (2,), ('104.236.166.95', 161),
+    udp.DOMAIN_NAME + (2,), ('104.236.166.95', 161),
     'distant-agent-auth', retryCount=0, tagList='distant'
 )
 

@@ -20,7 +20,7 @@ if version_info[:2] < (2, 6):
     def next(iter):
         return iter.next()
 
-vbProcessor = CommandGeneratorVarBinds()
+VB_PROCESSOR = CommandGeneratorVarBinds()
 
 
 def getCmd(snmpDispatcher, authData, transportTarget,
@@ -309,7 +309,7 @@ def nextCmd(snmpDispatcher, authData, transportTarget,
     maxRows = options.pop('maxRows', 0)
     maxCalls = options.pop('maxCalls', 0)
 
-    initialVarBinds = vbProcessor.makeVarBinds(snmpDispatcher.cache, varBinds)
+    initialVarBinds = VB_PROCESSOR.makeVarBinds(snmpDispatcher.cache, varBinds)
 
     totalRows = totalCalls = 0
 
@@ -360,7 +360,7 @@ def nextCmd(snmpDispatcher, authData, transportTarget,
                 nextVarBinds = (yield errorIndication, errorStatus, errorIndex, varBindRow)
 
                 if nextVarBinds:
-                    initialVarBinds = varBinds = vbProcessor.makeVarBinds(snmpDispatcher.cache, nextVarBinds)
+                    initialVarBinds = varBinds = VB_PROCESSOR.makeVarBinds(snmpDispatcher.cache, nextVarBinds)
 
                 totalRows += 1
                 totalCalls += 1
@@ -489,7 +489,7 @@ def bulkCmd(snmpDispatcher, authData, transportTarget,
     maxRows = options.pop('maxRows', 0)
     maxCalls = options.pop('maxCalls', 0)
 
-    initialVarBinds = vbProcessor.makeVarBinds(snmpDispatcher.cache, varBinds)
+    initialVarBinds = VB_PROCESSOR.makeVarBinds(snmpDispatcher.cache, varBinds)
 
     nullVarBinds = [False] * len(initialVarBinds)
 
@@ -570,4 +570,4 @@ def bulkCmd(snmpDispatcher, authData, transportTarget,
                 nextVarBinds = (yield errorIndication, errorStatus, errorIndex, varBindRow)
 
                 if nextVarBinds:
-                    initialVarBinds = varBinds = vbProcessor.makeVarBinds(snmpDispatcher.cache, nextVarBinds)
+                    initialVarBinds = varBinds = VB_PROCESSOR.makeVarBinds(snmpDispatcher.cache, nextVarBinds)

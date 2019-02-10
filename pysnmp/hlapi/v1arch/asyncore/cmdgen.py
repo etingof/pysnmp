@@ -151,7 +151,7 @@ def getCmd(snmpDispatcher, authData, transportTarget, *varBinds, **options):
     if lookupMib:
         varBinds = vbProcessor.makeVarBinds(snmpDispatcher.cache, varBinds)
 
-    pMod = api.protoModules[authData.mpModel]
+    pMod = api.PROTOCOL_MODULES[authData.mpModel]
 
     reqPdu = pMod.GetRequestPDU()
     pMod.apiPDU.setDefaults(reqPdu)
@@ -295,7 +295,7 @@ def setCmd(snmpDispatcher, authData, transportTarget,
     if lookupMib:
         varBinds = vbProcessor.makeVarBinds(snmpDispatcher.cache, varBinds)
 
-    pMod = api.protoModules[authData.mpModel]
+    pMod = api.PROTOCOL_MODULES[authData.mpModel]
 
     reqPdu = pMod.SetRequestPDU()
     pMod.apiPDU.setDefaults(reqPdu)
@@ -440,7 +440,7 @@ def nextCmd(snmpDispatcher, authData, transportTarget,
     if lookupMib:
         varBinds = vbProcessor.makeVarBinds(snmpDispatcher.cache, varBinds)
 
-    pMod = api.protoModules[authData.mpModel]
+    pMod = api.PROTOCOL_MODULES[authData.mpModel]
 
     reqPdu = pMod.GetNextRequestPDU()
     pMod.apiPDU.setDefaults(reqPdu)
@@ -616,7 +616,7 @@ def bulkCmd(snmpDispatcher, authData, transportTarget,
     if lookupMib:
         varBinds = vbProcessor.makeVarBinds(snmpDispatcher.cache, varBinds)
 
-    pMod = api.protoModules[authData.mpModel]
+    pMod = api.PROTOCOL_MODULES[authData.mpModel]
 
     reqPdu = pMod.GetBulkRequestPDU()
     pMod.apiBulkPDU.setDefaults(reqPdu)

@@ -33,7 +33,7 @@ class MibViewController(object):
         if self.lastBuildId == self.mibBuilder.lastBuildId:
             return
 
-        debug.logger & debug.flagMIB and debug.logger('indexMib: re-indexing MIB view')
+        debug.logger & debug.FLAG_MIB and debug.logger('indexMib: re-indexing MIB view')
 
         MibScalarInstance, = self.mibBuilder.importSymbols(
             'SNMPv2-SMI', 'MibScalarInstance'
@@ -210,7 +210,7 @@ class MibViewController(object):
                 str='Can\'t resolve node name %s::%s at %s' %
                     (modName, nodeName, self)
             )
-        debug.logger & debug.flagMIB and debug.logger(
+        debug.logger & debug.FLAG_MIB and debug.logger(
             'getNodeNameByOid: resolved %s:%s -> %s.%s' % (modName, nodeName, label, suffix))
         return oid, label, suffix
 
@@ -226,7 +226,7 @@ class MibViewController(object):
             raise error.NoSuchObjectError(
                 str='No such symbol %s::%s at %s' % (modName, nodeName, self)
             )
-        debug.logger & debug.flagMIB and debug.logger(
+        debug.logger & debug.FLAG_MIB and debug.logger(
             'getNodeNameByDesc: resolved %s:%s -> %s' % (modName, nodeName, oid))
         return self.getNodeNameByOid(oid, modName)
 

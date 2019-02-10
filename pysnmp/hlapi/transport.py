@@ -12,8 +12,8 @@ __all__ = []
 
 
 class AbstractTransportTarget(object):
-    transportDomain = None
-    protoTransport = AbstractTransport
+    TRANSPORT_DOMAIN = None
+    PROTO_TRANSPORT = AbstractTransport
 
     def __init__(self, transportAddr, timeout=1, retries=5, tagList=null):
         self.transportAddr = self._resolveAddr(transportAddr)
@@ -30,7 +30,7 @@ class AbstractTransportTarget(object):
         )
 
     def getTransportInfo(self):
-        return self.transportDomain, self.transportAddr
+        return self.TRANSPORT_DOMAIN, self.transportAddr
 
     def setLocalAddress(self, iface):
         """Set source address.
@@ -50,13 +50,13 @@ class AbstractTransportTarget(object):
         return self
 
     def openClientMode(self):
-        self.transport = self.protoTransport().openClientMode(self.iface)
+        self.transport = self.PROTO_TRANSPORT().openClientMode(self.iface)
         return self.transport
 
     def verifyDispatcherCompatibility(self, snmpEngine):
-        if not self.protoTransport.isCompatibleWithDispatcher(snmpEngine.transportDispatcher):
+        if not self.PROTO_TRANSPORT.isCompatibleWithDispatcher(snmpEngine.transportDispatcher):
             raise error.PySnmpError('Transport %r is not compatible with dispatcher %r' % (
-                self.protoTransport, snmpEngine.transportDispatcher))
+                self.PROTO_TRANSPORT, snmpEngine.transportDispatcher))
 
     def _resolveAddr(self, transportAddr):
         raise NotImplementedError()

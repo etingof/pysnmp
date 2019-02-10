@@ -7,8 +7,8 @@
 from pysnmp.proto.api import v1, v2c, verdec
 
 # Protocol versions
-protoVersion1 = 0
-protoVersion2c = 1
-protoModules = {protoVersion1: v1, protoVersion2c: v2c}
+SNMP_VERSION_1 = 0
+SNMP_VERSION_2C = 1
+PROTOCOL_MODULES = {SNMP_VERSION_1: v1, SNMP_VERSION_2C: v2c}
 
 decodeMessageVersion = verdec.decodeMessageVersion

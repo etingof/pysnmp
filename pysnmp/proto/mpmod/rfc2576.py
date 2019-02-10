@@ -20,8 +20,8 @@ from pysnmp import debug
 # references here goes to RFC3412.
 
 class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
-    messageProcessingModelID = univ.Integer(0)  # SNMPv1
-    snmpMsgSpec = v1.Message
+    MESSAGE_PROCESSING_MODEL_ID = univ.Integer(0)  # SNMPv1
+    SNMP_MSG_SPEC = v1.Message
 
     # rfc3412: 7.1
     def prepareOutgoingMessage(self, snmpEngine, transportDomain,
@@ -35,11 +35,11 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         snmpEngineId = snmpEngineId.syntax
 
         # rfc3412: 7.1.1b
-        if pdu.tagSet in rfc3411.confirmedClassPDUs:
+        if pdu.tagSet in rfc3411.CONFIRMED_CLASS_PDUS:
             # serve unique PDU request-id
             msgID = self._cache.newMsgID()
             reqID = pdu.getComponentByPosition(0)
-            debug.logger & debug.flagMP and debug.logger(
+            debug.logger & debug.FLAG_MP and debug.logger(
                 'prepareOutgoingMessage: PDU request-id %s replaced with unique ID %s' % (reqID, msgID))
 
         # rfc3412: 7.1.4
@@ -52,14 +52,14 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         if not contextName:
             contextName = null
 
-        debug.logger & debug.flagMP and debug.logger(
+        debug.logger & debug.FLAG_MP and debug.logger(
             'prepareOutgoingMessage: using contextEngineId %r contextName %r' % (contextEngineId, contextName))
 
         # rfc3412: 7.1.6
         scopedPDU = (contextEngineId, contextName, pdu)
 
         msg = self._snmpMsgSpec
-        msg.setComponentByPosition(0, self.messageProcessingModelID)
+        msg.setComponentByPosition(0, self.MESSAGE_PROCESSING_MODEL_ID)
         msg.setComponentByPosition(2)
         msg.getComponentByPosition(2).setComponentByType(
             pdu.tagSet, pdu, verifyConstraints=False, matchTags=False, matchConstraints=False
@@ -82,25 +82,25 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                                                              'snmpEngineMaxMessageSize')
 
         # fix unique request-id right prior PDU serialization
-        if pdu.tagSet in rfc3411.confirmedClassPDUs:
+        if pdu.tagSet in rfc3411.CONFIRMED_CLASS_PDUS:
             # noinspection PyUnboundLocalVariable
             pdu.setComponentByPosition(0, msgID)
 
         # rfc3412: 7.1.9.b
         (securityParameters,
          wholeMsg) = smHandler.generateRequestMsg(
-            snmpEngine, self.messageProcessingModelID, globalData,
+            snmpEngine, self.MESSAGE_PROCESSING_MODEL_ID, globalData,
             snmpEngineMaxMessageSize.syntax, securityModel,
             snmpEngineId, securityName, securityLevel, scopedPDU
         )
 
         # return original request-id right after PDU serialization
-        if pdu.tagSet in rfc3411.confirmedClassPDUs:
+        if pdu.tagSet in rfc3411.CONFIRMED_CLASS_PDUS:
             # noinspection PyUnboundLocalVariable
             pdu.setComponentByPosition(0, reqID)
 
         # rfc3412: 7.1.9.c
-        if pdu.tagSet in rfc3411.confirmedClassPDUs:
+        if pdu.tagSet in rfc3411.CONFIRMED_CLASS_PDUS:
             # XXX rfc bug? why stateReference should be created?
             self._cache.pushByMsgId(int(msgID), sendPduHandle=sendPduHandle,
                                     reqID=reqID, snmpEngineId=snmpEngineId,
@@ -161,7 +161,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         transportDomain = cachedParams['transportDomain']
         transportAddress = cachedParams['transportAddress']
 
-        debug.logger & debug.flagMP and debug.logger(
+        debug.logger & debug.FLAG_MP and debug.logger(
             'prepareResponseMessage: cache read msgID %s transportDomain %s transportAddress %s by stateReference %s' % (
                 msgID, transportDomain, transportAddress, stateReference))
 
@@ -185,7 +185,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.1.6
         scopedPDU = (contextEngineId, contextName, pdu)
 
-        debug.logger & debug.flagMP and debug.logger(
+        debug.logger & debug.FLAG_MP and debug.logger(
             'prepareResponseMessage: using contextEngineId %r contextName %r' % (contextEngineId, contextName))
 
         msg = self._snmpMsgSpec
@@ -213,7 +213,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
         # rfc3412: 7.1.8.a
         (securityParameters, wholeMsg) = smHandler.generateResponseMsg(
-            snmpEngine, self.messageProcessingModelID, globalData,
+            snmpEngine, self.MESSAGE_PROCESSING_MODEL_ID, globalData,
             maxMessageSize, securityModel, snmpEngineId, securityName,
             securityLevel, scopedPDU, securityStateReference
         )
@@ -249,7 +249,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.2.2
         msg, restOfWholeMsg = decoder.decode(wholeMsg, asn1Spec=self._snmpMsgSpec)
 
-        debug.logger & debug.flagMP and debug.logger('prepareDataElements: %s' % (msg.prettyPrint(),))
+        debug.logger & debug.FLAG_MP and debug.logger('prepareDataElements: %s' % (msg.prettyPrint(),))
 
         if eoo.endOfOctets.isSameTypeWith(msg):
             raise error.StatusInformation(errorIndication=errind.parseError)
@@ -289,7 +289,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                 securityModel, securityLevel, wholeMsg, msg
             )
 
-            debug.logger & debug.flagMP and debug.logger(
+            debug.logger & debug.FLAG_MP and debug.logger(
                 'prepareDataElements: SM returned securityEngineId %r securityName %r' % (securityEngineId, securityName))
 
         except error.StatusInformation as exc:
@@ -322,7 +322,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.2.8, 7.2.9 -> no-op
 
         # rfc3412: 7.2.10
-        if pduType in rfc3411.responseClassPDUs:
+        if pduType in rfc3411.RESPONSE_CLASS_PDUS:
             # get unique PDU request-id
             msgID = pdu.getComponentByPosition(0)
 
@@ -336,7 +336,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
             # recover original PDU request-id to return to app
             pdu.setComponentByPosition(0, cachedReqParams['reqID'])
 
-            debug.logger & debug.flagMP and debug.logger(
+            debug.logger & debug.FLAG_MP and debug.logger(
                 'prepareDataElements: unique PDU request-id %s replaced with original ID %s' % (
                     msgID, cachedReqParams['reqID']))
 
@@ -351,7 +351,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
         # rfc3412: 7.2.11 -> no-op
 
         # rfc3412: 7.2.12
-        if pduType in rfc3411.responseClassPDUs:
+        if pduType in rfc3411.RESPONSE_CLASS_PDUS:
             # rfc3412: 7.2.12a -> no-op
             # rfc3412: 7.2.12b
             # noinspection PyUnboundLocalVariable
@@ -393,12 +393,12 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                     stateReference)
 
         # rfc3412: 7.2.13
-        if pduType in rfc3411.confirmedClassPDUs:
+        if pduType in rfc3411.CONFIRMED_CLASS_PDUS:
             # store original PDU request-id and replace it with a unique one
             reqID = pdu.getComponentByPosition(0)
             msgID = self._cache.newMsgID()
             pdu.setComponentByPosition(0, msgID)
-            debug.logger & debug.flagMP and debug.logger(
+            debug.logger & debug.FLAG_MP and debug.logger(
                 'prepareDataElements: received PDU request-id %s replaced with unique ID %s' % (reqID, msgID))
 
             # rfc3412: 7.2.13a
@@ -440,7 +440,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                 snmpEngine, 'rfc2576.prepareDataElements:confirmed'
             )
 
-            debug.logger & debug.flagMP and debug.logger(
+            debug.logger & debug.FLAG_MP and debug.logger(
                 'prepareDataElements: cached by new stateReference %s' % stateReference)
 
             # rfc3412: 7.2.13c
@@ -451,7 +451,7 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
                     stateReference)
 
         # rfc3412: 7.2.14
-        if pduType in rfc3411.unconfirmedClassPDUs:
+        if pduType in rfc3411.UNCONFIRMED_CLASS_PDUS:
             # Pass new stateReference to let app browse request details
             stateReference = self._cache.newStateReference()
 
@@ -486,5 +486,5 @@ class SnmpV1MessageProcessingModel(AbstractMessageProcessingModel):
 
 
 class SnmpV2cMessageProcessingModel(SnmpV1MessageProcessingModel):
-    messageProcessingModelID = univ.Integer(1)  # SNMPv2c
-    snmpMsgSpec = v2c.Message
+    MESSAGE_PROCESSING_MODEL_ID = univ.Integer(1)  # SNMPv2c
+    SNMP_MSG_SPEC = v2c.Message

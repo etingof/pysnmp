@@ -9,7 +9,7 @@ from pysnmp.proto import error
 
 
 class AbstractSecurityModel(object):
-    securityModelID = None
+    SECURITY_MODEL_ID = None
 
     def __init__(self):
         self._cache = cache.Cache()

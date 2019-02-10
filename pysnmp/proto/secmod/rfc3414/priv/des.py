@@ -5,8 +5,10 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 import random
+
 try:
     from hashlib import md5, sha1
+
 except ImportError:
     import md5
     import sha
@@ -36,21 +38,21 @@ random.seed()
 # 8.2.4
 
 class Des(base.AbstractEncryptionService):
-    serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 2)  # usmDESPrivProtocol
-    keySize = 16
+    SERVICE_ID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 2)  # usmDESPrivProtocol
+    KEY_SIZE = 16
 
     if version_info < (2, 3):
-        _localInt = int(random.random() * 0xffffffff)
+        local_int = int(random.random() * 0xffffffff)
     else:
-        _localInt = random.randrange(0, 0xffffffff)
+        local_int = random.randrange(0, 0xffffffff)
 
     def hashPassphrase(self, authProtocol, privKey):
-        if authProtocol == hmacmd5.HmacMd5.serviceID:
+        if authProtocol == hmacmd5.HmacMd5.SERVICE_ID:
             hashAlgo = md5
-        elif authProtocol == hmacsha.HmacSha.serviceID:
+        elif authProtocol == hmacsha.HmacSha.SERVICE_ID:
             hashAlgo = sha1
-        elif authProtocol in hmacsha2.HmacSha2.hashAlgorithms:
-            hashAlgo = hmacsha2.HmacSha2.hashAlgorithms[authProtocol]
+        elif authProtocol in hmacsha2.HmacSha2.HASH_ALGORITHM:
+            hashAlgo = hmacsha2.HmacSha2.HASH_ALGORITHM[authProtocol]
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
@@ -58,18 +60,18 @@ class Des(base.AbstractEncryptionService):
         return localkey.hashPassphrase(privKey, hashAlgo)
 
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
-        if authProtocol == hmacmd5.HmacMd5.serviceID:
+        if authProtocol == hmacmd5.HmacMd5.SERVICE_ID:
             hashAlgo = md5
-        elif authProtocol == hmacsha.HmacSha.serviceID:
+        elif authProtocol == hmacsha.HmacSha.SERVICE_ID:
             hashAlgo = sha1
-        elif authProtocol in hmacsha2.HmacSha2.hashAlgorithms:
-            hashAlgo = hmacsha2.HmacSha2.hashAlgorithms[authProtocol]
+        elif authProtocol in hmacsha2.HmacSha2.HASH_ALGORITHM:
+            hashAlgo = hmacsha2.HmacSha2.HASH_ALGORITHM[authProtocol]
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
             )
         localPrivKey = localkey.localizeKey(privKey, snmpEngineID, hashAlgo)
-        return localPrivKey[:self.keySize]
+        return localPrivKey[:self.KEY_SIZE]
 
     # 8.1.1.1
     def __getEncryptionKey(self, privKey, snmpEngineBoots):
@@ -82,14 +84,14 @@ class Des(base.AbstractEncryptionService):
                 securityEngineBoots >> 16 & 0xff,
                 securityEngineBoots >> 8 & 0xff,
                 securityEngineBoots & 0xff,
-                self._localInt >> 24 & 0xff,
-                self._localInt >> 16 & 0xff,
-                self._localInt >> 8 & 0xff,
-                self._localInt & 0xff]
-        if self._localInt == 0xffffffff:
-            self._localInt = 0
+                self.local_int >> 24 & 0xff,
+                self.local_int >> 16 & 0xff,
+                self.local_int >> 8 & 0xff,
+                self.local_int & 0xff]
+        if self.local_int == 0xffffffff:
+            self.local_int = 0
         else:
-            self._localInt += 1
+            self.local_int += 1
 
         return (desKey.asOctets(),
                 univ.OctetString(salt).asOctets(),

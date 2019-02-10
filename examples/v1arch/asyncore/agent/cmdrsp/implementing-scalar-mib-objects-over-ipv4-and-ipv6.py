@@ -42,7 +42,7 @@ class SysDescr(object):
     def __ge__(self, other): return self.name >= other
 
     def __call__(self, protoVer):
-        return api.protoModules[protoVer].OctetString(
+        return api.PROTOCOL_MODULES[protoVer].OctetString(
             'PySNMP example command responder'
         )
 
@@ -64,7 +64,7 @@ class Uptime(object):
     def __ge__(self, other): return self.name >= other
 
     def __call__(self, protoVer):
-        return api.protoModules[protoVer].TimeTicks(
+        return api.PROTOCOL_MODULES[protoVer].TimeTicks(
             (time.time() - self.birthday) * 100
         )
 
@@ -81,8 +81,8 @@ for mibVar in mibInstr:
 def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
     while wholeMsg:
         msgVer = api.decodeMessageVersion(wholeMsg)
-        if msgVer in api.protoModules:
-            pMod = api.protoModules[msgVer]
+        if msgVer in api.PROTOCOL_MODULES:
+            pMod = api.PROTOCOL_MODULES[msgVer]
         else:
             print('Unsupported SNMP version %s' % msgVer)
             return
@@ -142,12 +142,12 @@ transportDispatcher.registerRecvCbFun(cbFun)
 
 # UDP/IPv4
 transportDispatcher.registerTransport(
-    udp.domainName, udp.UdpSocketTransport().openServerMode(('localhost', 161))
+    udp.DOMAIN_NAME, udp.UdpSocketTransport().openServerMode(('localhost', 161))
 )
 
 # UDP/IPv6
 transportDispatcher.registerTransport(
-    udp6.domainName, udp6.Udp6SocketTransport().openServerMode(('::1', 161))
+    udp6.DOMAIN_NAME, udp6.Udp6SocketTransport().openServerMode(('::1', 161))
 )
 
 transportDispatcher.jobStarted(1)

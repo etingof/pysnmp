@@ -17,48 +17,52 @@ from pysnmp import error
 # A shortcut to popular constants
 
 # Transports
-snmpUDPDomain = udp.snmpUDPDomain
-snmpUDP6Domain = udp6.snmpUDP6Domain
+SNMP_UDP_DOMAIN = udp.SNMP_UDP_DOMAIN
+SNMP_UDP6_DOMAIN = udp6.SNMP_UDP6_DOMAIN
 
 # Auth protocol
-usmHMACMD5AuthProtocol = hmacmd5.HmacMd5.serviceID
-usmHMACSHAAuthProtocol = hmacsha.HmacSha.serviceID
-usmHMAC128SHA224AuthProtocol = hmacsha2.HmacSha2.sha224ServiceID
-usmHMAC192SHA256AuthProtocol = hmacsha2.HmacSha2.sha256ServiceID
-usmHMAC256SHA384AuthProtocol = hmacsha2.HmacSha2.sha384ServiceID
-usmHMAC384SHA512AuthProtocol = hmacsha2.HmacSha2.sha512ServiceID
+USM_AUTH_HMAC96_MD5 = hmacmd5.HmacMd5.SERVICE_ID
+USM_AUTH_HMAC96_SHA = hmacsha.HmacSha.SERVICE_ID
+USM_AUTH_HMAC128_SHA224 = hmacsha2.HmacSha2.SHA224_SERVICE_ID
+USM_AUTH_HMAC192_SHA256 = hmacsha2.HmacSha2.SHA256_SERVICE_ID
+USM_AUTH_HMAC256_SHA384 = hmacsha2.HmacSha2.SHA384_SERVICE_ID
+USM_AUTH_HMAC384_SHA512 = hmacsha2.HmacSha2.SHA512_SERVICE_ID
 
-usmNoAuthProtocol = noauth.NoAuth.serviceID
+USM_AUTH_NONE = noauth.NoAuth.SERVICE_ID
 """No authentication service"""
 
 # Privacy protocol
-usmDESPrivProtocol = des.Des.serviceID
-usm3DESEDEPrivProtocol = des3.Des3.serviceID
-usmAesCfb128Protocol = aes.Aes.serviceID
-usmAesBlumenthalCfb192Protocol = aes192.AesBlumenthal192.serviceID  # semi-standard but not widely used
-usmAesBlumenthalCfb256Protocol = aes256.AesBlumenthal256.serviceID  # semi-standard but not widely used
-usmAesCfb192Protocol = aes192.Aes192.serviceID  # non-standard but used by many vendors
-usmAesCfb256Protocol = aes256.Aes256.serviceID  # non-standard but used by many vendors
-usmNoPrivProtocol = nopriv.NoPriv.serviceID
+USM_PRIV_CBC56_DES = des.Des.SERVICE_ID
+USM_PRIV_CBC168_3DES = des3.Des3.SERVICE_ID
+USM_PRIV_CFB128_AES = aes.Aes.SERVICE_ID
+USM_PRIV_CFB192_AES = aes192.Aes192.SERVICE_ID  # non-standard but used by many vendors
+USM_PRIV_CFB256_AES = aes256.Aes256.SERVICE_ID  # non-standard but used by many vendors
+USM_PRIV_CFB192_AES_BLUMENTHAL = aes192.AesBlumenthal192.SERVICE_ID  # semi-standard but not widely used
+USM_PRIV_CFB256_AES_BLUMENTHAL = aes256.AesBlumenthal256.SERVICE_ID  # semi-standard but not widely used
 
-# Auth services
-authServices = {hmacmd5.HmacMd5.serviceID: hmacmd5.HmacMd5(),
-                hmacsha.HmacSha.serviceID: hmacsha.HmacSha(),
-                hmacsha2.HmacSha2.sha224ServiceID: hmacsha2.HmacSha2(hmacsha2.HmacSha2.sha224ServiceID),
-                hmacsha2.HmacSha2.sha256ServiceID: hmacsha2.HmacSha2(hmacsha2.HmacSha2.sha256ServiceID),
-                hmacsha2.HmacSha2.sha384ServiceID: hmacsha2.HmacSha2(hmacsha2.HmacSha2.sha384ServiceID),
-                hmacsha2.HmacSha2.sha512ServiceID: hmacsha2.HmacSha2(hmacsha2.HmacSha2.sha512ServiceID),
-                noauth.NoAuth.serviceID: noauth.NoAuth()}
+USM_PRIV_NONE = nopriv.NoPriv.SERVICE_ID
 
-# Privacy services
-privServices = {des.Des.serviceID: des.Des(),
-                des3.Des3.serviceID: des3.Des3(),
-                aes.Aes.serviceID: aes.Aes(),
-                aes192.AesBlumenthal192.serviceID: aes192.AesBlumenthal192(),
-                aes256.AesBlumenthal256.serviceID: aes256.AesBlumenthal256(),
-                aes192.Aes192.serviceID: aes192.Aes192(),  # non-standard
-                aes256.Aes256.serviceID: aes256.Aes256(),  # non-standard
-                nopriv.NoPriv.serviceID: nopriv.NoPriv()}
+AUTH_SERVICES = {
+    hmacmd5.HmacMd5.SERVICE_ID: hmacmd5.HmacMd5(),
+    hmacsha.HmacSha.SERVICE_ID: hmacsha.HmacSha(),
+    hmacsha2.HmacSha2.SHA224_SERVICE_ID: hmacsha2.HmacSha2(hmacsha2.HmacSha2.SHA224_SERVICE_ID),
+    hmacsha2.HmacSha2.SHA256_SERVICE_ID: hmacsha2.HmacSha2(hmacsha2.HmacSha2.SHA256_SERVICE_ID),
+    hmacsha2.HmacSha2.SHA384_SERVICE_ID: hmacsha2.HmacSha2(hmacsha2.HmacSha2.SHA384_SERVICE_ID),
+    hmacsha2.HmacSha2.SHA512_SERVICE_ID: hmacsha2.HmacSha2(hmacsha2.HmacSha2.SHA512_SERVICE_ID),
+    noauth.NoAuth.SERVICE_ID: noauth.NoAuth()
+}
+
+PRIV_SERVICES = {
+    des.Des.SERVICE_ID: des.Des(),
+    des3.Des3.SERVICE_ID: des3.Des3(),
+    aes.Aes.SERVICE_ID: aes.Aes(),
+    aes192.AesBlumenthal192.SERVICE_ID: aes192.AesBlumenthal192(),
+    aes256.AesBlumenthal256.SERVICE_ID: aes256.AesBlumenthal256(),
+    aes192.Aes192.SERVICE_ID: aes192.Aes192(),  # non-standard
+    aes256.Aes256.SERVICE_ID: aes256.Aes256(),  # non-standard
+    nopriv.NoPriv.SERVICE_ID: nopriv.NoPriv()
+}
+
 
 # This module uses Management Instrumentation subsystem in purely
 # synchronous manner. The assumption is that the Management
@@ -133,8 +137,8 @@ def __cookV3UserInfo(snmpEngine, securityName, securityEngineId):
 
 
 def addV3User(snmpEngine, userName,
-              authProtocol=usmNoAuthProtocol, authKey=None,
-              privProtocol=usmNoPrivProtocol, privKey=None,
+              authProtocol=USM_AUTH_NONE, authKey=None,
+              privProtocol=USM_PRIV_NONE, privKey=None,
               securityEngineId=None,
               securityName=None):
     mibBuilder = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
@@ -166,21 +170,21 @@ def addV3User(snmpEngine, userName,
     )
 
     # Localize keys
-    if authProtocol in authServices:
-        hashedAuthPassphrase = authServices[authProtocol].hashPassphrase(
+    if authProtocol in AUTH_SERVICES:
+        hashedAuthPassphrase = AUTH_SERVICES[authProtocol].hashPassphrase(
             authKey and authKey or null
         )
-        localAuthKey = authServices[authProtocol].localizeKey(
+        localAuthKey = AUTH_SERVICES[authProtocol].localizeKey(
             hashedAuthPassphrase, snmpEngineID
         )
     else:
         raise error.PySnmpError('Unknown auth protocol %s' % (authProtocol,))
 
-    if privProtocol in privServices:
-        hashedPrivPassphrase = privServices[privProtocol].hashPassphrase(
+    if privProtocol in PRIV_SERVICES:
+        hashedPrivPassphrase = PRIV_SERVICES[privProtocol].hashPassphrase(
             authProtocol, privKey and privKey or null
         )
-        localPrivKey = privServices[privProtocol].localizeKey(
+        localPrivKey = PRIV_SERVICES[privProtocol].localizeKey(
             authProtocol, hashedPrivPassphrase, snmpEngineID
         )
     else:
@@ -318,13 +322,13 @@ def addTargetAddr(snmpEngine, addrName, transportDomain, transportAddress,
     (snmpTargetAddrEntry, snmpSourceAddrEntry,
      tblIdx) = __cookTargetAddrInfo(snmpEngine, addrName)
 
-    if transportDomain[:len(snmpUDPDomain)] == snmpUDPDomain:
+    if transportDomain[:len(SNMP_UDP_DOMAIN)] == SNMP_UDP_DOMAIN:
         SnmpUDPAddress, = mibBuilder.importSymbols('SNMPv2-TM', 'SnmpUDPAddress')
         transportAddress = SnmpUDPAddress(transportAddress)
         if sourceAddress is None:
             sourceAddress = ('0.0.0.0', 0)
         sourceAddress = SnmpUDPAddress(sourceAddress)
-    elif transportDomain[:len(snmpUDP6Domain)] == snmpUDP6Domain:
+    elif transportDomain[:len(SNMP_UDP6_DOMAIN)] == SNMP_UDP6_DOMAIN:
         TransportAddressIPv6, = mibBuilder.importSymbols('TRANSPORT-ADDRESS-MIB', 'TransportAddressIPv6')
         transportAddress = TransportAddressIPv6(transportAddress)
         if sourceAddress is None:
@@ -365,7 +369,7 @@ def addTransport(snmpEngine, transportDomain, transport):
                 'Transport %r is not compatible with dispatcher %r' % (transport, snmpEngine.transportDispatcher))
     else:
         snmpEngine.registerTransportDispatcher(
-            transport.protoTransportDispatcher()
+            transport.PROTO_TRANSPORT_DISPATCHER()
         )
         # here we note that we have created transportDispatcher automatically
         snmpEngine.setUserContext(automaticTransportDispatcher=0)

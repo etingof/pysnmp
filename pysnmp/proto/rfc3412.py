@@ -71,7 +71,7 @@ class MsgAndPduDispatcher(object):
             # 4.3.4
             self.__appsRegistration[k] = processPdu
 
-        debug.logger & debug.flagDsp and debug.logger(
+        debug.logger & debug.FLAG_DSP and debug.logger(
             'registerContextEngineId: contextEngineId %r pduTypes %s' % (contextEngineId, pduTypes))
 
     # 4.4.1
@@ -88,7 +88,7 @@ class MsgAndPduDispatcher(object):
             if k in self.__appsRegistration:
                 del self.__appsRegistration[k]
 
-        debug.logger & debug.flagDsp and debug.logger(
+        debug.logger & debug.FLAG_DSP and debug.logger(
             'unregisterContextEngineId: contextEngineId %r pduTypes %s' % (contextEngineId, pduTypes))
 
     def getRegisteredApp(self, contextEngineId, pduType):
@@ -118,7 +118,7 @@ class MsgAndPduDispatcher(object):
                 errorIndication=errind.unsupportedMsgProcessingModel
             )
 
-        debug.logger & debug.flagDsp and debug.logger(
+        debug.logger & debug.FLAG_DSP and debug.logger(
             'sendPdu: securityName %s, PDU\n%s' % (securityName, PDU.prettyPrint()))
 
         # 4.1.1.3
@@ -133,10 +133,10 @@ class MsgAndPduDispatcher(object):
                 cbCtx=cbCtx
             )
 
-            debug.logger & debug.flagDsp and debug.logger('sendPdu: current time %d ticks, one tick is %s seconds' % (
+            debug.logger & debug.FLAG_DSP and debug.logger('sendPdu: current time %d ticks, one tick is %s seconds' % (
                 snmpEngine.transportDispatcher.getTimerTicks(), snmpEngine.transportDispatcher.getTimerResolution()))
 
-        debug.logger & debug.flagDsp and debug.logger(
+        debug.logger & debug.FLAG_DSP and debug.logger(
             'sendPdu: new sendPduHandle %s, timeout %s ticks, cbFun %s' % (sendPduHandle, timeout, cbFun))
 
         origTransportDomain = transportDomain
@@ -153,7 +153,7 @@ class MsgAndPduDispatcher(object):
                 pduVersion, PDU, expectResponse, sendPduHandle
             )
 
-            debug.logger & debug.flagDsp and debug.logger('sendPdu: MP succeeded')
+            debug.logger & debug.FLAG_DSP and debug.logger('sendPdu: MP succeeded')
         except PySnmpError:
             if expectResponse:
                 self.__cache.pop(sendPduHandle)
@@ -222,7 +222,7 @@ class MsgAndPduDispatcher(object):
                 errorIndication=errind.unsupportedMsgProcessingModel
             )
 
-        debug.logger & debug.flagDsp and debug.logger(
+        debug.logger & debug.FLAG_DSP and debug.logger(
             'returnResponsePdu: PDU %s' % (PDU and PDU.prettyPrint() or "<empty>",))
 
         # 4.1.2.2
@@ -236,7 +236,7 @@ class MsgAndPduDispatcher(object):
                 statusInformation
             )
 
-            debug.logger & debug.flagDsp and debug.logger('returnResponsePdu: MP suceeded')
+            debug.logger & debug.FLAG_DSP and debug.logger('returnResponsePdu: MP suceeded')
 
         except error.StatusInformation:
             # 4.1.2.3
@@ -296,7 +296,7 @@ class MsgAndPduDispatcher(object):
             snmpInASNParseErrs.syntax += 1
             return null  # n.b the whole buffer gets dropped
 
-        debug.logger & debug.flagDsp and debug.logger('receiveMessage: msgVersion %s, msg decoded' % msgVersion)
+        debug.logger & debug.FLAG_DSP and debug.logger('receiveMessage: msgVersion %s, msg decoded' % msgVersion)
 
         messageProcessingModel = msgVersion
 
@@ -328,14 +328,14 @@ class MsgAndPduDispatcher(object):
                 snmpEngine, transportDomain, transportAddress, wholeMsg
             )
 
-            debug.logger & debug.flagDsp and debug.logger('receiveMessage: MP succeded')
+            debug.logger & debug.FLAG_DSP and debug.logger('receiveMessage: MP succeded')
 
         except error.StatusInformation as exc:
             statusInformation = exc
             if 'sendPduHandle' in statusInformation:
                 # Dropped REPORT -- re-run pending reqs queue as some
                 # of them may be waiting for this REPORT
-                debug.logger & debug.flagDsp and debug.logger(
+                debug.logger & debug.FLAG_DSP and debug.logger(
                     'receiveMessage: MP failed, statusInformation %s, forcing a retry' % statusInformation)
                 self.__expireRequest(
                     statusInformation['sendPduHandle'],
@@ -346,19 +346,19 @@ class MsgAndPduDispatcher(object):
             return restOfWholeMsg
 
         except PyAsn1Error as exc:
-            debug.logger & debug.flagMP and debug.logger('receiveMessage: %s' % exc)
+            debug.logger & debug.FLAG_MP and debug.logger('receiveMessage: %s' % exc)
             snmpInASNParseErrs, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB', 'snmpInASNParseErrs')
             snmpInASNParseErrs.syntax += 1
 
             return restOfWholeMsg
 
-        debug.logger & debug.flagDsp and debug.logger('receiveMessage: PDU %s' % PDU.prettyPrint())
+        debug.logger & debug.FLAG_DSP and debug.logger('receiveMessage: PDU %s' % PDU.prettyPrint())
 
         # 4.2.2
         if sendPduHandle is None:
             # 4.2.2.1 (request or notification)
 
-            debug.logger & debug.flagDsp and debug.logger('receiveMessage: pduType %s' % pduType)
+            debug.logger & debug.FLAG_DSP and debug.logger('receiveMessage: pduType %s' % pduType)
             # 4.2.2.1.1
             processPdu = self.getRegisteredApp(contextEngineId, pduType)
 
@@ -376,7 +376,7 @@ class MsgAndPduDispatcher(object):
                     'val': snmpUnknownPDUHandlers.syntax
                 }
 
-                debug.logger & debug.flagDsp and debug.logger('receiveMessage: unhandled PDU type')
+                debug.logger & debug.FLAG_DSP and debug.logger('receiveMessage: unhandled PDU type')
 
                 # 4.2.2.1.2.c
                 try:
@@ -396,11 +396,11 @@ class MsgAndPduDispatcher(object):
                     )
 
                 except PySnmpError as exc:
-                    debug.logger & debug.flagDsp and debug.logger(
+                    debug.logger & debug.FLAG_DSP and debug.logger(
                         'receiveMessage: report failed, statusInformation %s' % exc)
 
                 else:
-                    debug.logger & debug.flagDsp and debug.logger('receiveMessage: reporting succeeded')
+                    debug.logger & debug.FLAG_DSP and debug.logger('receiveMessage: reporting succeeded')
 
                 # 4.2.2.1.2.d
                 return restOfWholeMsg
@@ -440,7 +440,7 @@ class MsgAndPduDispatcher(object):
                 if stateReference is not None:
                     del self.__transportInfo[stateReference]
 
-                debug.logger & debug.flagDsp and debug.logger('receiveMessage: processPdu initiated')
+                debug.logger & debug.FLAG_DSP and debug.logger('receiveMessage: processPdu initiated')
                 return restOfWholeMsg
         else:
             # 4.2.2.2 (response)
@@ -455,7 +455,7 @@ class MsgAndPduDispatcher(object):
                 snmpUnknownPDUHandlers.syntax += 1
                 return restOfWholeMsg
 
-            debug.logger & debug.flagDsp and debug.logger(
+            debug.logger & debug.FLAG_DSP and debug.logger(
                 'receiveMessage: cache read by sendPduHandle %s' % sendPduHandle)
 
             # 4.2.2.2.3
@@ -489,7 +489,7 @@ class MsgAndPduDispatcher(object):
                 snmpEngine, 'rfc3412.receiveMessage:response'
             )
 
-            debug.logger & debug.flagDsp and debug.logger('receiveMessage: processResponsePdu succeeded')
+            debug.logger & debug.FLAG_DSP and debug.logger('receiveMessage: processResponsePdu succeeded')
 
             return restOfWholeMsg
 
@@ -515,7 +515,7 @@ class MsgAndPduDispatcher(object):
 
         processResponsePdu = cachedParams['cbFun']
 
-        debug.logger & debug.flagDsp and debug.logger('__expireRequest: req cachedParams %s' % cachedParams)
+        debug.logger & debug.FLAG_DSP and debug.logger('__expireRequest: req cachedParams %s' % cachedParams)
 
         # Fail timed-out requests
         if not statusInformation:

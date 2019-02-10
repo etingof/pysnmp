@@ -12,23 +12,23 @@ from pysnmp.carrier import sockfix, sockmsg, error
 from pysnmp import debug
 
 # Ignore these socket errors
-sockErrors = {errno.ESHUTDOWN: True,
-              errno.ENOTCONN: True,
-              errno.ECONNRESET: False,
-              errno.ECONNREFUSED: False,
-              errno.EAGAIN: False,
-              errno.EWOULDBLOCK: False}
+SOCK_ERRORS = {errno.ESHUTDOWN: True,
+               errno.ENOTCONN: True,
+               errno.ECONNRESET: False,
+               errno.ECONNREFUSED: False,
+               errno.EAGAIN: False,
+               errno.EWOULDBLOCK: False}
 
 if hasattr(errno, 'EBADFD'):
     # bad FD may happen upon FD closure on n-1 select() event
-    sockErrors[errno.EBADFD] = True
+    SOCK_ERRORS[errno.EBADFD] = True
 
 
 class DgramSocketTransport(AbstractSocketTransport):
-    sockType = socket.SOCK_DGRAM
-    retryCount = 3
-    retryInterval = 1
-    addressType = lambda x: x
+    SOCK_TYPE = socket.SOCK_DGRAM
+    RETRY_COUNT = 3
+    RETRY_INTERVAL = 1
+    ADDRESS_TYPE = lambda x: x
 
     def __init__(self, sock=None, sockMap=None):
         self.__outQueue = []
@@ -36,7 +36,7 @@ class DgramSocketTransport(AbstractSocketTransport):
 
         def __recvfrom(s, sz):
             d, a = s.recvfrom(sz)
-            return d, self.addressType(a)
+            return d, self.ADDRESS_TYPE(a)
 
         self._recvfrom = __recvfrom
         AbstractSocketTransport.__init__(self, sock, sockMap)
@@ -64,7 +64,7 @@ class DgramSocketTransport(AbstractSocketTransport):
             )
         except socket.error as exc:
             raise error.CarrierError('setsockopt() for SO_BROADCAST failed: %s' % exc)
-        debug.logger & debug.flagIO and debug.logger('enableBroadcast: %s option SO_BROADCAST on socket %s' % (flag and "enabled" or "disabled", self.socket.fileno()))
+        debug.logger & debug.FLAG_IO and debug.logger('enableBroadcast: %s option SO_BROADCAST on socket %s' % (flag and "enabled" or "disabled", self.socket.fileno()))
         return self
 
     def enablePktInfo(self, flag=1):
@@ -82,10 +82,10 @@ class DgramSocketTransport(AbstractSocketTransport):
         except socket.error as exc:
             raise error.CarrierError('setsockopt() for %s failed: %s' % (self.socket.family == socket.AF_INET6 and "IPV6_RECVPKTINFO" or "IP_PKTINFO", exc))
 
-        self._sendto = sockmsg.getSendTo(self.addressType)
-        self._recvfrom = sockmsg.getRecvFrom(self.addressType)
+        self._sendto = sockmsg.getSendTo(self.ADDRESS_TYPE)
+        self._recvfrom = sockmsg.getRecvFrom(self.ADDRESS_TYPE)
 
-        debug.logger & debug.flagIO and debug.logger('enablePktInfo: %s option %s on socket %s' % (self.socket.family == socket.AF_INET6 and "IPV6_RECVPKTINFO" or "IP_PKTINFO", flag and "enabled" or "disabled", self.socket.fileno()))
+        debug.logger & debug.FLAG_IO and debug.logger('enablePktInfo: %s option %s on socket %s' % (self.socket.family == socket.AF_INET6 and "IPV6_RECVPKTINFO" or "IP_PKTINFO", flag and "enabled" or "disabled", self.socket.fileno()))
         return self
 
     def enableTransparent(self, flag=1):
@@ -105,18 +105,18 @@ class DgramSocketTransport(AbstractSocketTransport):
         except OSError:
             raise error.CarrierError('IP_TRANSPARENT socket option requires superuser priveleges')
 
-        debug.logger & debug.flagIO and debug.logger('enableTransparent: %s option IP_TRANSPARENT on socket %s' % (flag and "enabled" or "disabled", self.socket.fileno()))
+        debug.logger & debug.FLAG_IO and debug.logger('enableTransparent: %s option IP_TRANSPARENT on socket %s' % (flag and "enabled" or "disabled", self.socket.fileno()))
         return self
 
     def sendMessage(self, outgoingMessage, transportAddress):
         self.__outQueue.append(
             (outgoingMessage, self.normalizeAddress(transportAddress))
         )
-        debug.logger & debug.flagIO and debug.logger('sendMessage: outgoingMessage queued (%d octets) %s' % (len(outgoingMessage), debug.hexdump(outgoingMessage)))
+        debug.logger & debug.FLAG_IO and debug.logger('sendMessage: outgoingMessage queued (%d octets) %s' % (len(outgoingMessage), debug.hexdump(outgoingMessage)))
 
     def normalizeAddress(self, transportAddress):
-        if not isinstance(transportAddress, self.addressType):
-            transportAddress = self.addressType(transportAddress)
+        if not isinstance(transportAddress, self.ADDRESS_TYPE):
+            transportAddress = self.ADDRESS_TYPE(transportAddress)
 
         if not transportAddress.getLocalAddress():
             transportAddress.setLocalAddress(self.getLocalAddress())
@@ -140,17 +140,17 @@ class DgramSocketTransport(AbstractSocketTransport):
 
     def handle_write(self):
         outgoingMessage, transportAddress = self.__outQueue.pop(0)
-        debug.logger & debug.flagIO and debug.logger('handle_write: transportAddress %r -> %r outgoingMessage (%d octets) %s' % (transportAddress.getLocalAddress(), transportAddress, len(outgoingMessage), debug.hexdump(outgoingMessage)))
+        debug.logger & debug.FLAG_IO and debug.logger('handle_write: transportAddress %r -> %r outgoingMessage (%d octets) %s' % (transportAddress.getLocalAddress(), transportAddress, len(outgoingMessage), debug.hexdump(outgoingMessage)))
         if not transportAddress:
-            debug.logger & debug.flagIO and debug.logger('handle_write: missing dst address, loosing outgoing msg')
+            debug.logger & debug.FLAG_IO and debug.logger('handle_write: missing dst address, loosing outgoing msg')
             return
         try:
             self._sendto(
                 self.socket, outgoingMessage, transportAddress
             )
         except socket.error as exc:
-            if exc.args[0] in sockErrors:
-                debug.logger & debug.flagIO and debug.logger('handle_write: ignoring socket error %s' % exc)
+            if exc.args[0] in SOCK_ERRORS:
+                debug.logger & debug.FLAG_IO and debug.logger('handle_write: ignoring socket error %s' % exc)
             else:
                 raise error.CarrierError('sendto() failed for %s: %s' % (transportAddress, exc))
 
@@ -161,7 +161,7 @@ class DgramSocketTransport(AbstractSocketTransport):
         try:
             incomingMessage, transportAddress = self._recvfrom(self.socket, 65535)
             transportAddress = self.normalizeAddress(transportAddress)
-            debug.logger & debug.flagIO and debug.logger(
+            debug.logger & debug.FLAG_IO and debug.logger(
                 'handle_read: transportAddress %r -> %r incomingMessage (%d octets) %s' % (transportAddress, transportAddress.getLocalAddress(), len(incomingMessage), debug.hexdump(incomingMessage)))
             if not incomingMessage:
                 self.handle_close()
@@ -170,9 +170,9 @@ class DgramSocketTransport(AbstractSocketTransport):
                 self._cbFun(self, transportAddress, incomingMessage)
                 return
         except socket.error as exc:
-            if exc.args[0] in sockErrors:
-                debug.logger & debug.flagIO and debug.logger('handle_read: known socket error %s' % exc)
-                sockErrors[exc.args[0]] and self.handle_close()
+            if exc.args[0] in SOCK_ERRORS:
+                debug.logger & debug.FLAG_IO and debug.logger('handle_read: known socket error %s' % exc)
+                SOCK_ERRORS[exc.args[0]] and self.handle_close()
                 return
             else:
                 raise error.CarrierError('recvfrom() failed: %s' % exc)

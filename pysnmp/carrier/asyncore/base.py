@@ -14,37 +14,37 @@ from pysnmp import debug
 
 
 class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
-    protoTransportDispatcher = AsyncoreDispatcher
-    sockFamily = sockType = None
-    retryCount = 0
-    retryInterval = 0
-    bufferSize = 131070
+    PROTO_TRANSPORT_DISPATCHER = AsyncoreDispatcher
+    SOCK_FAMILY = SOCK_TYPE = None
+    RETRY_COUNT = 0
+    RETRY_INTERVAL = 0
+    BUFFER_SIZE = 131070
 
     # noinspection PyUnusedLocal
     def __init__(self, sock=None, sockMap=None):
         asyncore.dispatcher.__init__(self)
         if sock is None:
-            if self.sockFamily is None:
+            if self.SOCK_FAMILY is None:
                 raise error.CarrierError(
                     'Address family %s not supported' % self.__class__.__name__
                 )
-            if self.sockType is None:
+            if self.SOCK_TYPE is None:
                 raise error.CarrierError(
                     'Socket type %s not supported' % self.__class__.__name__
                 )
             try:
-                sock = socket.socket(self.sockFamily, self.sockType)
+                sock = socket.socket(self.SOCK_FAMILY, self.SOCK_TYPE)
             except socket.error as exc:
                 raise error.CarrierError('socket() failed: %s' % exc)
 
             try:
                 for b in socket.SO_RCVBUF, socket.SO_SNDBUF:
                     bsize = sock.getsockopt(socket.SOL_SOCKET, b)
-                    if bsize < self.bufferSize:
-                        sock.setsockopt(socket.SOL_SOCKET, b, self.bufferSize)
-                        debug.logger & debug.flagIO and debug.logger('%s: socket %d buffer size increased from %d to %d for buffer %d' % (self.__class__.__name__, sock.fileno(), bsize, self.bufferSize, b))
+                    if bsize < self.BUFFER_SIZE:
+                        sock.setsockopt(socket.SOL_SOCKET, b, self.BUFFER_SIZE)
+                        debug.logger & debug.FLAG_IO and debug.logger('%s: socket %d buffer size increased from %d to %d for buffer %d' % (self.__class__.__name__, sock.fileno(), bsize, self.BUFFER_SIZE, b))
             except Exception as exc:
-                debug.logger & debug.flagIO and debug.logger('%s: socket buffer size option mangling failure for buffer: %s' % (self.__class__.__name__, exc))
+                debug.logger & debug.FLAG_IO and debug.logger('%s: socket buffer size option mangling failure for buffer: %s' % (self.__class__.__name__, exc))
 
         # The socket map is managed by the AsyncoreDispatcher on
         # which this transport is registered. Here we just prepare
@@ -82,8 +82,10 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
         self.close()
 
     # asyncore API
+
     def handle_close(self):
         raise error.CarrierError('Transport unexpectedly closed')
 
     def handle_error(self):
-        raise
+        exc = sys.exc_info()[1]
+        raise exc

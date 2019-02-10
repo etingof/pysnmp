@@ -39,12 +39,12 @@ config.addTargetParams(snmpEngine, 'my-creds', 'my-area', 'noAuthNoPriv', 0)
 # a target name
 config.addTransport(
     snmpEngine,
-    udp.domainName,
+    udp.DOMAIN_NAME,
     udp.UdpSocketTransport().openClientMode()
 )
 config.addTargetAddr(
     snmpEngine, 'my-nms',
-    udp.domainName, ('104.236.166.95', 162),
+    udp.DOMAIN_NAME, ('104.236.166.95', 162),
     'my-creds',
     tagList='all-my-managers'
 )

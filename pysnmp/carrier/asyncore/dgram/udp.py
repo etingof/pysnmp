@@ -8,7 +8,7 @@ from socket import AF_INET
 from pysnmp.carrier.base import AbstractTransportAddress
 from pysnmp.carrier.asyncore.dgram.base import DgramSocketTransport
 
-domainName = snmpUDPDomain = (1, 3, 6, 1, 6, 1, 1)
+DOMAIN_NAME = SNMP_UDP_DOMAIN = (1, 3, 6, 1, 6, 1, 1)
 
 
 class UdpTransportAddress(tuple, AbstractTransportAddress):
@@ -16,8 +16,8 @@ class UdpTransportAddress(tuple, AbstractTransportAddress):
 
 
 class UdpSocketTransport(DgramSocketTransport):
-    sockFamily = AF_INET
-    addressType = UdpTransportAddress
+    SOCK_FAMILY = AF_INET
+    ADDRESS_TYPE = UdpTransportAddress
 
 
 UdpTransport = UdpSocketTransport

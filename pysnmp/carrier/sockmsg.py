@@ -27,6 +27,7 @@ if sys.version_info[:2] < (3, 3):
 
     def getSendTo(addressType):
         raise error.CarrierError('sendmsg()/recvmsg() interface is not supported by this OS and/or Python version')
+
 else:
     import ctypes
     import ipaddress
@@ -91,7 +92,7 @@ else:
                     _to = (str(addr), s.getsockname()[1])
                     break
 
-            debug.logger & debug.flagIO and debug.logger(
+            debug.logger & debug.FLAG_IO and debug.logger(
                 'recvfrom: received %d octets from %s to %s; '
                 'iov blob %r' % (len(data), _from, _to, ancdata))
 
@@ -120,7 +121,7 @@ else:
                 _f.ipi6_addr = in6_addr.from_buffer_copy(addr.packed)
                 ancdata = [(socket.SOL_IPV6, socket.IPV6_PKTINFO, memoryview(_f).tobytes())]
 
-            debug.logger & debug.flagIO and debug.logger(
+            debug.logger & debug.FLAG_IO and debug.logger(
                 'sendto: sending %d octets to %s; address %r; '
                 'iov blob %r' % (len(_data), _to, addr, ancdata))
 

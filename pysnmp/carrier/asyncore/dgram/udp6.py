@@ -9,7 +9,7 @@ from pysnmp.carrier.base import AbstractTransportAddress
 from pysnmp.carrier.asyncore.dgram.base import DgramSocketTransport
 import socket
 
-domainName = snmpUDP6Domain = (1, 3, 6, 1, 2, 1, 100, 1, 2)
+DOMAIN_NAME = SNMP_UDP6_DOMAIN = (1, 3, 6, 1, 2, 1, 100, 1, 2)
 
 
 class Udp6TransportAddress(tuple, AbstractTransportAddress):
@@ -17,8 +17,8 @@ class Udp6TransportAddress(tuple, AbstractTransportAddress):
 
 
 class Udp6SocketTransport(DgramSocketTransport):
-    sockFamily = socket.has_ipv6 and socket.AF_INET6 or None
-    addressType = Udp6TransportAddress
+    SOCK_FAMILY = socket.has_ipv6 and socket.AF_INET6 or None
+    ADDRESS_TYPE = Udp6TransportAddress
 
     def normalizeAddress(self, transportAddress):
         if '%' in transportAddress[0]:  # strip zone ID
