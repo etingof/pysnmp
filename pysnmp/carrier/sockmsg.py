@@ -20,7 +20,6 @@ import sys
 from pysnmp import debug
 
 if sys.version_info[:2] < (3, 3):
-    # noinspection PyUnusedLocal
     def getRecvFrom(addressType):
         raise error.CarrierError('sendmsg()/recvmsg() interface is not supported by this OS and/or Python version')
 
