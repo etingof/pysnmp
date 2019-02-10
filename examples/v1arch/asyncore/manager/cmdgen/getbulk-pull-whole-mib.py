@@ -106,10 +106,10 @@ transportDispatcher.registerRecvCbFun(cbRecvFun)
 transportDispatcher.registerTimerCbFun(cbTimerFun)
 
 transportDispatcher.registerTransport(
-    udp.domainName, udp.UdpSocketTransport().openClientMode()
+    udp.DOMAIN_NAME, udp.UdpSocketTransport().openClientMode()
 )
 transportDispatcher.sendMessage(
-    encoder.encode(reqMsg), udp.domainName, ('demo.snmplabs.com', 161)
+    encoder.encode(reqMsg), udp.DOMAIN_NAME, ('demo.snmplabs.com', 161)
 )
 transportDispatcher.jobStarted(1)
 

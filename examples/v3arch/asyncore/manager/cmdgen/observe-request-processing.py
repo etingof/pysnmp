@@ -56,8 +56,8 @@ snmpEngine.observer.registerObserver(
 # user: usr-sha-aes, auth: SHA, priv AES
 config.addV3User(
     snmpEngine, 'usr-sha-aes',
-    config.usmHMACSHAAuthProtocol, 'authkey1',
-    config.usmAesCfb128Protocol, 'privkey1'
+    config.USM_AUTH_HMAC96_SHA, 'authkey1',
+    config.USM_PRIV_CFB128_AES, 'privkey1'
 )
 config.addTargetParams(snmpEngine, 'my-creds', 'usr-sha-aes', 'authPriv')
 
@@ -69,12 +69,12 @@ config.addTargetParams(snmpEngine, 'my-creds', 'usr-sha-aes', 'authPriv')
 # UDP/IPv4
 config.addTransport(
     snmpEngine,
-    udp.domainName,
+    udp.DOMAIN_NAME,
     udp.UdpSocketTransport().openClientMode()
 )
 config.addTargetAddr(
     snmpEngine, 'my-router',
-    udp.domainName, ('104.236.166.95', 161),
+    udp.DOMAIN_NAME, ('104.236.166.95', 161),
     'my-creds'
 )
 

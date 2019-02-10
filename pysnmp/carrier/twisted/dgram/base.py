@@ -26,20 +26,20 @@ class DgramTwistedTransport(DatagramProtocol, AbstractTwistedTransport):
             reactor.callLater(0, self._cbFun, self, transportAddress, datagram)
 
     def startProtocol(self):
-        debug.logger & debug.flagIO and debug.logger('startProtocol: invoked')
+        debug.logger & debug.FLAG_IO and debug.logger('startProtocol: invoked')
         while self._writeQ:
             outgoingMessage, transportAddress = self._writeQ.pop(0)
-            debug.logger & debug.flagIO and debug.logger('startProtocol: transportAddress %r outgoingMessage %s' % (transportAddress, debug.hexdump(outgoingMessage)))
+            debug.logger & debug.FLAG_IO and debug.logger('startProtocol: transportAddress %r outgoingMessage %s' % (transportAddress, debug.hexdump(outgoingMessage)))
             try:
                 self.transport.write(outgoingMessage, transportAddress)
             except Exception as exc:
                 raise error.CarrierError('Twisted exception: %s' % exc)
 
     def stopProtocol(self):
-        debug.logger & debug.flagIO and debug.logger('stopProtocol: invoked')
+        debug.logger & debug.FLAG_IO and debug.logger('stopProtocol: invoked')
 
     def sendMessage(self, outgoingMessage, transportAddress):
-        debug.logger & debug.flagIO and debug.logger('startProtocol: %s transportAddress %r outgoingMessage %s' % ((self.transport is None and "queuing" or "sending"), transportAddress, debug.hexdump(outgoingMessage)))
+        debug.logger & debug.FLAG_IO and debug.logger('startProtocol: %s transportAddress %r outgoingMessage %s' % ((self.transport is None and "queuing" or "sending"), transportAddress, debug.hexdump(outgoingMessage)))
         if self.transport is None:
             self._writeQ.append((outgoingMessage, transportAddress))
         else:

@@ -14,8 +14,8 @@ from pysnmp.hlapi.v3arch.asyncore.transport import *
 
 __all__ = ['sendNotification']
 
-vbProcessor = NotificationOriginatorVarBinds()
-lcd = NotificationOriginatorLcdConfigurator()
+VB_PROCESSOR = NotificationOriginatorVarBinds()
+LCD = NotificationOriginatorLcdConfigurator()
 
 
 def sendNotification(snmpEngine, authData, transportTarget, contextData,
@@ -156,18 +156,18 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
         return cbFun and cbFun(
             snmpEngine, sendRequestHandle, errorIndication,
             errorStatus, errorIndex,
-            vbProcessor.unmakeVarBinds(
+            VB_PROCESSOR.unmakeVarBinds(
                 snmpEngine.cache, varBinds, lookupMib
             ), cbCtx
         )
 
-    notifyName = lcd.configure(snmpEngine, authData, transportTarget,
+    notifyName = LCD.configure(snmpEngine, authData, transportTarget,
                                notifyType, contextData.contextName)
 
     return ntforg.NotificationOriginator().sendVarBinds(
         snmpEngine, notifyName,
         contextData.contextEngineId, contextData.contextName,
-        vbProcessor.makeVarBinds(snmpEngine.cache, varBinds), __cbFun,
+        VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds), __cbFun,
         (options.get('lookupMib', True),
          options.get('cbFun'), options.get('cbCtx'))
     )

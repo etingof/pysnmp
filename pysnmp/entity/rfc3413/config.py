@@ -63,20 +63,20 @@ def getTargetAddr(snmpEngine, snmpTargetAddrName):
 
         transport = snmpEngine.transportDispatcher.getTransport(snmpTargetAddrTDomain)
 
-        if snmpTargetAddrTDomain[:len(config.snmpUDPDomain)] == config.snmpUDPDomain:
+        if snmpTargetAddrTDomain[:len(config.SNMP_UDP_DOMAIN)] == config.SNMP_UDP_DOMAIN:
             SnmpUDPAddress, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('SNMPv2-TM',
                                                                                                     'SnmpUDPAddress')
-            snmpTargetAddrTAddress = transport.addressType(
+            snmpTargetAddrTAddress = transport.ADDRESS_TYPE(
                 SnmpUDPAddress(snmpTargetAddrTAddress)
             ).setLocalAddress(SnmpUDPAddress(snmpSourceAddrTAddress))
-        elif snmpTargetAddrTDomain[:len(config.snmpUDP6Domain)] == config.snmpUDP6Domain:
+        elif snmpTargetAddrTDomain[:len(config.SNMP_UDP6_DOMAIN)] == config.SNMP_UDP6_DOMAIN:
             TransportAddressIPv6, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
                 'TRANSPORT-ADDRESS-MIB', 'TransportAddressIPv6')
-            snmpTargetAddrTAddress = transport.addressType(
+            snmpTargetAddrTAddress = transport.ADDRESS_TYPE(
                 TransportAddressIPv6(snmpTargetAddrTAddress)
             ).setLocalAddress(TransportAddressIPv6(snmpSourceAddrTAddress))
         elif snmpTargetAddrTDomain[:len(config.snmpLocalDomain)] == config.snmpLocalDomain:
-            snmpTargetAddrTAddress = transport.addressType(
+            snmpTargetAddrTAddress = transport.ADDRESS_TYPE(
                 snmpTargetAddrTAddress
             )
 

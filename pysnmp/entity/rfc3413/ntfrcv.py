@@ -53,11 +53,11 @@ class NotificationReceiver(object):
         errorIndex = 0
         varBinds = v2c.apiPDU.getVarBinds(PDU)
 
-        debug.logger & debug.flagApp and debug.logger(
+        debug.logger & debug.FLAG_APP and debug.logger(
             'processPdu: stateReference %s, varBinds %s' % (stateReference, varBinds))
 
         # 3.4
-        if PDU.tagSet in rfc3411.confirmedClassPDUs:
+        if PDU.tagSet in rfc3411.CONFIRMED_CLASS_PDUS:
             # 3.4.1 --> no-op
 
             rspPDU = v2c.apiPDU.getResponse(PDU)
@@ -67,7 +67,7 @@ class NotificationReceiver(object):
             v2c.apiPDU.setErrorIndex(rspPDU, errorIndex)
             v2c.apiPDU.setVarBinds(rspPDU, varBinds)
 
-            debug.logger & debug.flagApp and debug.logger(
+            debug.logger & debug.FLAG_APP and debug.logger(
                 'processPdu: stateReference %s, confirm PDU %s' % (stateReference, rspPDU.prettyPrint()))
 
             # Agent-side API complies with SMIv2
@@ -85,18 +85,18 @@ class NotificationReceiver(object):
                     stateReference, statusInformation)
 
             except error.StatusInformation as exc:
-                debug.logger & debug.flagApp and debug.logger(
+                debug.logger & debug.FLAG_APP and debug.logger(
                     'processPdu: stateReference %s, statusInformation %s' % (stateReference, exc))
                 snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB',
                                                                                                          'snmpSilentDrops')
                 snmpSilentDrops.syntax += 1
 
-        elif PDU.tagSet in rfc3411.unconfirmedClassPDUs:
+        elif PDU.tagSet in rfc3411.UNCONFIRMED_CLASS_PDUS:
             pass
         else:
             raise error.ProtocolError('Unexpected PDU class %s' % PDU.tagSet)
 
-        debug.logger & debug.flagApp and debug.logger(
+        debug.logger & debug.FLAG_APP and debug.logger(
             'processPdu: stateReference %s, user cbFun %s, cbCtx %s, varBinds %s' % (
                 stateReference, self.__cbFun, self.__cbCtx, varBinds))
 

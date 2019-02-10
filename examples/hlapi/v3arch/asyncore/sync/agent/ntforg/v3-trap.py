@@ -28,8 +28,8 @@ errorIndication, errorStatus, errorIndex, varBinds = next(
     sendNotification(
         SnmpEngine(OctetString(hexValue='8000000001020304')),
         UsmUserData('usr-sha-aes128', 'authkey1', 'privkey1',
-                    authProtocol=usmHMACSHAAuthProtocol,
-                    privProtocol=usmAesCfb128Protocol),
+                    authProtocol=USM_AUTH_HMAC96_SHA,
+                    privProtocol=USM_PRIV_CFB128_AES),
         UdpTransportTarget(('demo.snmplabs.com', 162)),
         ContextData(),
         'trap',

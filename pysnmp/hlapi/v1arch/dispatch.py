@@ -33,13 +33,14 @@ class AbstractSnmpDispatcher(object):
     works with SNMP must have its own `SnmpDispatcher` instance.
     """
 
-    protoDispatcher = None
+    PROTO_DISPATCHER = None
 
     def __init__(self, transportDispatcher=None):
         if transportDispatcher:
             self.transportDispatcher = transportDispatcher
+
         else:
-            self.transportDispatcher = self.protoDispatcher()
+            self.transportDispatcher = self.PROTO_DISPATCHER()
 
         self._automaticDispatcher = transportDispatcher is not self.transportDispatcher
         self._configuredTransports = set()
@@ -77,7 +78,7 @@ class AbstractSnmpDispatcher(object):
             )
             self._configuredTransports.add(transportTarget.transportDomain)
 
-        pMod = api.protoModules[authData.mpModel]
+        pMod = api.PROTOCOL_MODULES[authData.mpModel]
 
         reqMsg = pMod.Message()
         pMod.apiMessage.setDefaults(reqMsg)
@@ -114,9 +115,9 @@ class AbstractSnmpDispatcher(object):
         except error.ProtocolError:
             return null  # n.b the whole buffer gets dropped
 
-        debug.logger & debug.flagDsp and debug.logger('receiveMessage: msgVersion %s, msg decoded' % mpModel)
+        debug.logger & debug.FLAG_DSP and debug.logger('receiveMessage: msgVersion %s, msg decoded' % mpModel)
 
-        pMod = api.protoModules[mpModel]
+        pMod = api.PROTOCOL_MODULES[mpModel]
 
         while wholeMsg:
             rspMsg, wholeMsg = decoder.decode(wholeMsg, asn1Spec=pMod.Message())

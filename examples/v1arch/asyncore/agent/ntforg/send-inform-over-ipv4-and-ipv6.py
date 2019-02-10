@@ -67,10 +67,10 @@ transportDispatcher.registerTimerCbFun(cbTimerFun)
 
 # UDP/IPv4
 transportDispatcher.registerTransport(
-    udp.domainName, udp.UdpSocketTransport().openClientMode()
+    udp.DOMAIN_NAME, udp.UdpSocketTransport().openClientMode()
 )
 transportDispatcher.sendMessage(
-    encoder.encode(trapMsg), udp.domainName, ('demo.snmplabs.com', 162)
+    encoder.encode(trapMsg), udp.DOMAIN_NAME, ('demo.snmplabs.com', 162)
 )
 transportDispatcher.jobStarted(1)
 

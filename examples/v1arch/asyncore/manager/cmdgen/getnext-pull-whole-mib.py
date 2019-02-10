@@ -21,7 +21,7 @@ from pysnmp.proto import api
 from time import time
 
 # Protocol version to use
-pMod = api.protoModules[api.protoVersion1]
+pMod = api.PROTOCOL_MODULES[api.SNMP_VERSION_1]
 # pMod = api.protoModules[api.protoVersion2c]
 
 # SNMP table header
@@ -98,10 +98,10 @@ transportDispatcher.registerRecvCbFun(cbRecvFun)
 transportDispatcher.registerTimerCbFun(cbTimerFun)
 
 transportDispatcher.registerTransport(
-    udp.domainName, udp.UdpSocketTransport().openClientMode()
+    udp.DOMAIN_NAME, udp.UdpSocketTransport().openClientMode()
 )
 transportDispatcher.sendMessage(
-    encoder.encode(reqMsg), udp.domainName, ('demo.snmplabs.com', 161)
+    encoder.encode(reqMsg), udp.DOMAIN_NAME, ('demo.snmplabs.com', 161)
 )
 transportDispatcher.jobStarted(1)
 

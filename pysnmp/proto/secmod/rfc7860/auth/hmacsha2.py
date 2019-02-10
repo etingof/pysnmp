@@ -26,37 +26,40 @@ from pysnmp.proto import errind, error
 # 7.2.4
 
 class HmacSha2(base.AbstractAuthenticationService):
-    sha224ServiceID = (1, 3, 6, 1, 6, 3, 10, 1, 1, 4)  # usmHMAC128SHA224AuthProtocol
-    sha256ServiceID = (1, 3, 6, 1, 6, 3, 10, 1, 1, 5)  # usmHMAC192SHA256AuthProtocol
-    sha384ServiceID = (1, 3, 6, 1, 6, 3, 10, 1, 1, 6)  # usmHMAC256SHA384AuthProtocol
-    sha512ServiceID = (1, 3, 6, 1, 6, 3, 10, 1, 1, 7)  # usmHMAC384SHA512AuthProtocol
-    keyLengths = {
-        sha224ServiceID: 28,
-        sha256ServiceID: 32,
-        sha384ServiceID: 48,
-        sha512ServiceID: 64
+    SHA224_SERVICE_ID = (1, 3, 6, 1, 6, 3, 10, 1, 1, 4)  # usmHMAC128SHA224AuthProtocol
+    SHA256_SERVICE_ID = (1, 3, 6, 1, 6, 3, 10, 1, 1, 5)  # usmHMAC192SHA256AuthProtocol
+    SHA384_SERVICE_ID = (1, 3, 6, 1, 6, 3, 10, 1, 1, 6)  # usmHMAC256SHA384AuthProtocol
+    SHA512_SERVICE_ID = (1, 3, 6, 1, 6, 3, 10, 1, 1, 7)  # usmHMAC384SHA512AuthProtocol
+
+    KEY_LENGTH = {
+        SHA224_SERVICE_ID: 28,
+        SHA256_SERVICE_ID: 32,
+        SHA384_SERVICE_ID: 48,
+        SHA512_SERVICE_ID: 64
     }
-    digestLengths = {
-        sha224ServiceID: 16,
-        sha256ServiceID: 24,
-        sha384ServiceID: 32,
-        sha512ServiceID: 48
+
+    DIGEST_LENGTH = {
+        SHA224_SERVICE_ID: 16,
+        SHA256_SERVICE_ID: 24,
+        SHA384_SERVICE_ID: 32,
+        SHA512_SERVICE_ID: 48
     }
-    hashAlgorithms = {
-        sha224ServiceID: sha224,
-        sha256ServiceID: sha256,
-        sha384ServiceID: sha384,
-        sha512ServiceID: sha512
+
+    HASH_ALGORITHM = {
+        SHA224_SERVICE_ID: sha224,
+        SHA256_SERVICE_ID: sha256,
+        SHA384_SERVICE_ID: sha384,
+        SHA512_SERVICE_ID: sha512
     }
     
-    __ipad = [0x36] * 64
-    __opad = [0x5C] * 64
+    IPAD = [0x36] * 64
+    OPAD = [0x5C] * 64
     
     def __init__(self, oid):
-        if oid not in self.hashAlgorithms:
+        if oid not in self.HASH_ALGORITHM:
             raise error.ProtocolError('No SHA-2 authentication algorithm %s available' % (oid,))
-        self.__hashAlgo = self.hashAlgorithms[oid]
-        self.__digestLength = self.digestLengths[oid]
+        self.__hashAlgo = self.HASH_ALGORITHM[oid]
+        self.__digestLength = self.DIGEST_LENGTH[oid]
         self.__placeHolder = univ.OctetString((0,) * self.__digestLength).asOctets()
 
     def hashPassphrase(self, authKey):

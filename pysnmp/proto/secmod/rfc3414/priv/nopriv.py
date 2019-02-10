@@ -9,7 +9,7 @@ from pysnmp.proto import errind, error
 
 
 class NoPriv(base.AbstractEncryptionService):
-    serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 1)  # usmNoPrivProtocol
+    SERVICE_ID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 1)  # usmNoPrivProtocol
 
     def hashPassphrase(self, authProtocol, privKey):
         return

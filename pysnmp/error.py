@@ -9,6 +9,7 @@ import sys
 
 
 class PySnmpError(Exception):
+
     def __init__(self, *args):
         msg = args and str(args[0]) or ''
 

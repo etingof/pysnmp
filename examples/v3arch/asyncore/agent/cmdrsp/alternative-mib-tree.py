@@ -32,7 +32,7 @@ snmpEngine = engine.SnmpEngine()
 # UDP over IPv4
 config.addTransport(
     snmpEngine,
-    udp.domainName,
+    udp.DOMAIN_NAME,
     udp.UdpTransport().openServerMode(('127.0.0.1', 1161))
 )
 
@@ -41,7 +41,7 @@ config.addTransport(
 # user: usr-md5-none, auth: MD5, priv NONE
 config.addV3User(
     snmpEngine, 'usr-md5-none',
-    config.usmHMACMD5AuthProtocol, 'authkey1'
+    config.USM_AUTH_HMAC96_MD5, 'authkey1'
 )
 
 # Allow full MIB access for each user at VACM

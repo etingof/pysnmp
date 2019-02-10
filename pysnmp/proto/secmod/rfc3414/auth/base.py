@@ -8,7 +8,7 @@ from pysnmp.proto import errind, error
 
 
 class AbstractAuthenticationService(object):
-    serviceID = None
+    SERVICE_ID = None
 
     def hashPassphrase(self, authKey):
         raise error.ProtocolError(errind.noAuthentication)

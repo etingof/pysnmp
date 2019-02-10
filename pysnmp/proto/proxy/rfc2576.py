@@ -10,7 +10,7 @@ from pysnmp import debug
 
 # 2.1.1
 
-__v1ToV2ValueMap = {
+V1_TO_V2_VALUE_MAP = {
     v1.Integer.tagSet: v2c.Integer32(),
     v1.OctetString.tagSet: v2c.OctetString(),
     v1.Null.tagSet: v2c.Null(),
@@ -22,7 +22,7 @@ __v1ToV2ValueMap = {
     v1.Opaque.tagSet: v2c.Opaque()
 }
 
-__v2ToV1ValueMap = {  # XXX do not re-create same-type items?
+V2_TO_V1_VALUE_MAP = {  # XXX do not re-create same-type items?
     v2c.Integer32.tagSet: v1.Integer(),
     v2c.OctetString.tagSet: v1.OctetString(),
     v2c.Null.tagSet: v1.Null(),
@@ -36,7 +36,7 @@ __v2ToV1ValueMap = {  # XXX do not re-create same-type items?
 
 # PDU map
 
-__v1ToV2PduMap = {
+V1_TO_V2_PDU_MAP = {
     v1.GetRequestPDU.tagSet: v2c.GetRequestPDU(),
     v1.GetNextRequestPDU.tagSet: v2c.GetNextRequestPDU(),
     v1.SetRequestPDU.tagSet: v2c.SetRequestPDU(),
@@ -44,7 +44,7 @@ __v1ToV2PduMap = {
     v1.TrapPDU.tagSet: v2c.SNMPv2TrapPDU()
 }
 
-__v2ToV1PduMap = {
+V2_TO_V1_PDU_MAP = {
     v2c.GetRequestPDU.tagSet: v1.GetRequestPDU(),
     v2c.GetNextRequestPDU.tagSet: v1.GetNextRequestPDU(),
     v2c.SetRequestPDU.tagSet: v1.SetRequestPDU(),
@@ -55,7 +55,7 @@ __v2ToV1PduMap = {
 
 # Trap map
 
-__v1ToV2TrapMap = {
+V1_TO_V2_TRAP_MAP = {
     0: (1, 3, 6, 1, 6, 3, 1, 1, 5, 1),
     1: (1, 3, 6, 1, 6, 3, 1, 1, 5, 2),
     2: (1, 3, 6, 1, 6, 3, 1, 1, 5, 3),
@@ -64,7 +64,7 @@ __v1ToV2TrapMap = {
     5: (1, 3, 6, 1, 6, 3, 1, 1, 5, 6)
 }
 
-__v2ToV1TrapMap = {
+V2_TO_V1_TRAP_MAP = {
     (1, 3, 6, 1, 6, 3, 1, 1, 5, 1): 0,
     (1, 3, 6, 1, 6, 3, 1, 1, 5, 2): 1,
     (1, 3, 6, 1, 6, 3, 1, 1, 5, 3): 2,
@@ -75,7 +75,7 @@ __v2ToV1TrapMap = {
 
 # 4.3
 
-__v2ToV1ErrorMap = {
+V2_TO_V1_ERROR_MAP = {
     0: 0,
     1: 1,
     5: 5,
@@ -94,19 +94,17 @@ __v2ToV1ErrorMap = {
     16: 2
 }
 
-__zeroInt = v1.Integer(0)
-
 
 def v1ToV2(v1Pdu, origV2Pdu=None, snmpTrapCommunity=''):
     pduType = v1Pdu.tagSet
-    v2Pdu = __v1ToV2PduMap[pduType].clone()
+    v2Pdu = V1_TO_V2_PDU_MAP[pduType].clone()
 
-    debug.logger & debug.flagPrx and debug.logger('v1ToV2: v1Pdu %s' % v1Pdu.prettyPrint())
+    debug.logger & debug.FLAG_PRX and debug.logger('v1ToV2: v1Pdu %s' % v1Pdu.prettyPrint())
 
     v2VarBinds = []
 
     # 3.1
-    if pduType in rfc3411.notificationClassPDUs:
+    if pduType in rfc3411.NOTIFICATION_CLASS_PDUS:
         # 3.1.1
         sysUpTime = v1.apiTrapPDU.getTimeStamp(v1Pdu)
 
@@ -117,7 +115,7 @@ def v1ToV2(v1Pdu, origV2Pdu=None, snmpTrapCommunity=''):
 
         # 3.1.3
         else:
-            snmpTrapOIDParam = v2c.ObjectIdentifier(__v1ToV2TrapMap[genericTrap])
+            snmpTrapOIDParam = v2c.ObjectIdentifier(V1_TO_V2_TRAP_MAP[genericTrap])
 
         # 3.1.4
         v2VarBinds.append((v2c.apiTrapPDU.sysUpTime, sysUpTime))
@@ -139,10 +137,10 @@ def v1ToV2(v1Pdu, origV2Pdu=None, snmpTrapCommunity=''):
         if v1Val.tagSet == v1.NetworkAddress.tagSet:
             v1Val = v1Val.getComponent()
         v2VarBinds.append(
-            (oid, __v1ToV2ValueMap[v1Val.tagSet].clone(v1Val))
+            (oid, V1_TO_V2_VALUE_MAP[v1Val.tagSet].clone(v1Val))
         )
 
-    if pduType in rfc3411.responseClassPDUs:
+    if pduType in rfc3411.RESPONSE_CLASS_PDUS:
         # 4.1.2.2.1&2
         errorStatus = int(v1.apiPDU.getErrorStatus(v1Pdu))
         errorIndex = int(v1.apiPDU.getErrorIndex(v1Pdu, muteErrors=True))
@@ -158,41 +156,43 @@ def v1ToV2(v1Pdu, origV2Pdu=None, snmpTrapCommunity=''):
 
         # 4.1.2.1 --> no-op
 
-    elif pduType in rfc3411.confirmedClassPDUs:
+    elif pduType in rfc3411.CONFIRMED_CLASS_PDUS:
         v2c.apiPDU.setErrorStatus(v2Pdu, 0)
         v2c.apiPDU.setErrorIndex(v2Pdu, 0)
 
-    if pduType not in rfc3411.notificationClassPDUs:
+    if pduType not in rfc3411.NOTIFICATION_CLASS_PDUS:
         v2c.apiPDU.setRequestID(v2Pdu, int(v1.apiPDU.getRequestID(v1Pdu)))
 
     v2c.apiPDU.setVarBinds(v2Pdu, v2VarBinds)
 
-    debug.logger & debug.flagPrx and debug.logger('v1ToV2: v2Pdu %s' % v2Pdu.prettyPrint())
+    debug.logger & debug.FLAG_PRX and debug.logger('v1ToV2: v2Pdu %s' % v2Pdu.prettyPrint())
 
     return v2Pdu
 
 
 def v2ToV1(v2Pdu, origV1Pdu=None):
-    debug.logger & debug.flagPrx and debug.logger('v2ToV1: v2Pdu %s' % v2Pdu.prettyPrint())
+    debug.logger & debug.FLAG_PRX and debug.logger('v2ToV1: v2Pdu %s' % v2Pdu.prettyPrint())
 
     pduType = v2Pdu.tagSet
 
-    if pduType in __v2ToV1PduMap:
-        v1Pdu = __v2ToV1PduMap[pduType].clone()
+    if pduType in V2_TO_V1_PDU_MAP:
+        v1Pdu = V2_TO_V1_PDU_MAP[pduType].clone()
     else:
         raise error.ProtocolError('Unsupported PDU type')
 
     v2VarBinds = v2c.apiPDU.getVarBinds(v2Pdu)
     v1VarBinds = []
 
+    zeroInt = v1.Integer(0)
+
     # 3.2
-    if pduType in rfc3411.notificationClassPDUs:
+    if pduType in rfc3411.NOTIFICATION_CLASS_PDUS:
         # 3.2.1
         snmpTrapOID, snmpTrapOIDParam = v2VarBinds[1]
         if snmpTrapOID != v2c.apiTrapPDU.snmpTrapOID:
             raise error.ProtocolError('Second OID not snmpTrapOID')
         snmpTrapOID, snmpTrapOIDParam = v2VarBinds[1]
-        if snmpTrapOIDParam in __v2ToV1TrapMap:
+        if snmpTrapOIDParam in V2_TO_V1_TRAP_MAP:
             for oid, val in v2VarBinds:
                 if oid == v2c.apiTrapPDU.snmpTrapEnterprise:
                     v1.apiTrapPDU.setEnterprise(v1Pdu, val)
@@ -216,14 +216,14 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
             v1.apiTrapPDU.setAgentAddr(v1Pdu, v1.IpAddress('0.0.0.0'))
 
         # 3.2.3
-        if snmpTrapOIDParam in __v2ToV1TrapMap:
-            v1.apiTrapPDU.setGenericTrap(v1Pdu, __v2ToV1TrapMap[snmpTrapOIDParam])
+        if snmpTrapOIDParam in V2_TO_V1_TRAP_MAP:
+            v1.apiTrapPDU.setGenericTrap(v1Pdu, V2_TO_V1_TRAP_MAP[snmpTrapOIDParam])
         else:
             v1.apiTrapPDU.setGenericTrap(v1Pdu, 6)
 
         # 3.2.4
-        if snmpTrapOIDParam in __v2ToV1TrapMap:
-            v1.apiTrapPDU.setSpecificTrap(v1Pdu, __zeroInt)
+        if snmpTrapOIDParam in V2_TO_V1_TRAP_MAP:
+            v1.apiTrapPDU.setSpecificTrap(v1Pdu, zeroInt)
         else:
             v1.apiTrapPDU.setSpecificTrap(v1Pdu, snmpTrapOIDParam[-1])
 
@@ -232,7 +232,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
 
         __v2VarBinds = []
         for oid, val in v2VarBinds[2:]:
-            if oid in __v2ToV1TrapMap or \
+            if oid in V2_TO_V1_TRAP_MAP or \
                     oid in (v2c.apiTrapPDU.sysUpTime,
                             v2c.apiTrapPDU.snmpTrapAddress,
                             v2c.apiTrapPDU.snmpTrapEnterprise):
@@ -243,10 +243,10 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         # 3.2.6 --> done below
 
     else:
-        v1.apiPDU.setErrorStatus(v1Pdu, __zeroInt)
-        v1.apiPDU.setErrorIndex(v1Pdu, __zeroInt)
+        v1.apiPDU.setErrorStatus(v1Pdu, zeroInt)
+        v1.apiPDU.setErrorIndex(v1Pdu, zeroInt)
 
-    if pduType in rfc3411.responseClassPDUs:
+    if pduType in rfc3411.RESPONSE_CLASS_PDUS:
         idx = len(v2VarBinds) - 1
         while idx >= 0:
             # 4.1.2.1
@@ -274,25 +274,25 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         v2ErrorStatus = v2c.apiPDU.getErrorStatus(v2Pdu)
         if v2ErrorStatus:
             v1.apiPDU.setErrorStatus(
-                v1Pdu, __v2ToV1ErrorMap.get(v2ErrorStatus, 5)
+                v1Pdu, V2_TO_V1_ERROR_MAP.get(v2ErrorStatus, 5)
             )
             v1.apiPDU.setErrorIndex(v1Pdu, v2c.apiPDU.getErrorIndex(v2Pdu, muteErrors=True))
 
-    elif pduType in rfc3411.confirmedClassPDUs:
+    elif pduType in rfc3411.CONFIRMED_CLASS_PDUS:
         v1.apiPDU.setErrorStatus(v1Pdu, 0)
         v1.apiPDU.setErrorIndex(v1Pdu, 0)
 
     # Translate Var-Binds
-    if (pduType in rfc3411.responseClassPDUs and
+    if (pduType in rfc3411.RESPONSE_CLASS_PDUS and
             v1.apiPDU.getErrorStatus(v1Pdu)):
         v1VarBinds = v1.apiPDU.getVarBinds(origV1Pdu)
     else:
         for oid, v2Val in v2VarBinds:
             v1VarBinds.append(
-                (oid, __v2ToV1ValueMap[v2Val.tagSet].clone(v2Val))
+                (oid, V2_TO_V1_VALUE_MAP[v2Val.tagSet].clone(v2Val))
             )
 
-    if pduType in rfc3411.notificationClassPDUs:
+    if pduType in rfc3411.NOTIFICATION_CLASS_PDUS:
         v1.apiTrapPDU.setVarBinds(v1Pdu, v1VarBinds)
     else:
         v1.apiPDU.setVarBinds(v1Pdu, v1VarBinds)
@@ -301,6 +301,6 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
             v1Pdu, v2c.apiPDU.getRequestID(v2Pdu)
         )
 
-    debug.logger & debug.flagPrx and debug.logger('v2ToV1: v1Pdu %s' % v1Pdu.prettyPrint())
+    debug.logger & debug.FLAG_PRX and debug.logger('v2ToV1: v1Pdu %s' % v1Pdu.prettyPrint())
 
     return v1Pdu

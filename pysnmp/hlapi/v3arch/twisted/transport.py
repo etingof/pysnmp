@@ -47,7 +47,7 @@ class UdpTransportTarget(AbstractTransportTarget):
     >>>
 
     """
-    transportDomain = udp.domainName
+    transportDomain = udp.DOMAIN_NAME
     protoTransport = udp.UdpTwistedTransport
     def _resolveAddr(self, transportAddr):
         try:

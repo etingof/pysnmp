@@ -64,21 +64,21 @@ class SnmpEngine(object):
         else:
             self.msgAndPduDsp = msgAndPduDsp
         self.messageProcessingSubsystems = {
-            SnmpV1MessageProcessingModel.messageProcessingModelID:
+            SnmpV1MessageProcessingModel.MESSAGE_PROCESSING_MODEL_ID:
                 SnmpV1MessageProcessingModel(),
-            SnmpV2cMessageProcessingModel.messageProcessingModelID:
+            SnmpV2cMessageProcessingModel.MESSAGE_PROCESSING_MODEL_ID:
                 SnmpV2cMessageProcessingModel(),
-            SnmpV3MessageProcessingModel.messageProcessingModelID:
+            SnmpV3MessageProcessingModel.MESSAGE_PROCESSING_MODEL_ID:
                 SnmpV3MessageProcessingModel()
         }
         self.securityModels = {
-            SnmpV1SecurityModel.securityModelID: SnmpV1SecurityModel(),
-            SnmpV2cSecurityModel.securityModelID: SnmpV2cSecurityModel(),
-            SnmpUSMSecurityModel.securityModelID: SnmpUSMSecurityModel()
+            SnmpV1SecurityModel.SECURITY_MODEL_ID: SnmpV1SecurityModel(),
+            SnmpV2cSecurityModel.SECURITY_MODEL_ID: SnmpV2cSecurityModel(),
+            SnmpUSMSecurityModel.SECURITY_MODEL_ID: SnmpUSMSecurityModel()
         }
         self.accessControlModel = {
-            void.Vacm.accessModelID: void.Vacm(),
-            rfc3415.Vacm.accessModelID: rfc3415.Vacm()
+            void.Vacm.ACCESS_MODEL_ID: void.Vacm(),
+            rfc3415.Vacm.ACCESS_MODEL_ID: rfc3415.Vacm()
         }
 
         self.transportDispatcher = None
@@ -102,7 +102,7 @@ class SnmpEngine(object):
             origSnmpEngineID.syntax = origSnmpEngineID.syntax.clone(snmpEngineID)
             self.snmpEngineID = origSnmpEngineID.syntax
 
-            debug.logger & debug.flagApp and debug.logger(
+            debug.logger & debug.FLAG_APP and debug.logger(
                 'SnmpEngine: using custom SNMP Engine ID: %s' % self.snmpEngineID.prettyPrint())
 
             # Attempt to make some of snmp Engine settings persistent.
@@ -110,7 +110,7 @@ class SnmpEngine(object):
 
             persistentPath = os.path.join(tempfile.gettempdir(), '__pysnmp', self.snmpEngineID.prettyPrint())
 
-            debug.logger & debug.flagApp and debug.logger('SnmpEngine: using persistent directory: %s' % persistentPath)
+            debug.logger & debug.FLAG_APP and debug.logger('SnmpEngine: using persistent directory: %s' % persistentPath)
 
             if not os.path.exists(persistentPath):
                 try:
@@ -135,10 +135,10 @@ class SnmpEngine(object):
                 os.close(fd)
                 shutil.move(fn, f)
             except Exception as exc:
-                debug.logger & debug.flagApp and debug.logger(
+                debug.logger & debug.FLAG_APP and debug.logger(
                     'SnmpEngine: could not stored SNMP Engine Boots: %s' % exc)
             else:
-                debug.logger & debug.flagApp and debug.logger(
+                debug.logger & debug.FLAG_APP and debug.logger(
                     'SnmpEngine: stored SNMP Engine Boots: %s' % snmpEngineBoots.syntax.prettyPrint())
 
     def __repr__(self):

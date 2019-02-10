@@ -17,8 +17,8 @@ from twisted.python.failure import Failure
 
 __all__ = ['sendNotification']
 
-vbProcessor = NotificationOriginatorVarBinds()
-lcd = NotificationOriginatorLcdConfigurator()
+VB_PROCESSOR = NotificationOriginatorVarBinds()
+LCD = NotificationOriginatorLcdConfigurator()
 
 def sendNotification(snmpEngine, authData, transportTarget, contextData,
                      notifyType, *varBinds, **options):
@@ -156,7 +156,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
             deferred.errback(Failure(errorIndication))
         else:
             try:
-                varBindsUnmade = vbProcessor.unmakeVarBinds(
+                varBindsUnmade = VB_PROCESSOR.unmakeVarBinds(
                     snmpEngine.cache, varBinds, lookupMib
                 )
 
@@ -166,7 +166,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
             else:
                 deferred.callback((errorStatus, errorIndex, varBindsUnmade))
 
-    notifyName = lcd.configure(snmpEngine, authData, transportTarget,
+    notifyName = LCD.configure(snmpEngine, authData, transportTarget,
                                notifyType, contextData.contextName)
 
     def __trapFun(deferred):
@@ -179,7 +179,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
         notifyName,
         contextData.contextEngineId,
         contextData.contextName,
-        vbProcessor.makeVarBinds(snmpEngine.cache, varBinds),
+        VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds),
         __cbFun,
         (options.get('lookupMib', True), deferred)
     )

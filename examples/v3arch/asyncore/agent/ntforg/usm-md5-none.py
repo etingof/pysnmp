@@ -28,7 +28,7 @@ snmpEngine = engine.SnmpEngine()
 # Add USM user
 config.addV3User(
     snmpEngine, 'usr-md5-none',
-    config.usmHMACMD5AuthProtocol, 'authkey1'
+    config.USM_AUTH_HMAC96_MD5, 'authkey1'
 )
 config.addTargetParams(snmpEngine, 'my-creds', 'usr-md5-none', 'authNoPriv')
 
@@ -36,12 +36,12 @@ config.addTargetParams(snmpEngine, 'my-creds', 'usr-md5-none', 'authNoPriv')
 # a target name
 config.addTransport(
     snmpEngine,
-    udp.domainName,
+    udp.DOMAIN_NAME,
     udp.UdpSocketTransport().openClientMode()
 )
 config.addTargetAddr(
     snmpEngine, 'my-nms',
-    udp.domainName, ('104.236.166.95', 162),
+    udp.DOMAIN_NAME, ('104.236.166.95', 162),
     'my-creds',
     tagList='all-my-managers'
 )

@@ -23,8 +23,8 @@ except ImportError:
 
 __all__ = ['sendNotification']
 
-vbProcessor = NotificationOriginatorVarBinds()
-lcd = NotificationOriginatorLcdConfigurator()
+VB_PROCESSOR = NotificationOriginatorVarBinds()
+LCD = NotificationOriginatorLcdConfigurator()
 
 
 @asyncio.coroutine
@@ -142,8 +142,8 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
         if future.cancelled():
             return
         try:
-            varBindsUnmade = vbProcessor.unmakeVarBinds(snmpEngine.cache, varBinds,
-                                                        lookupMib)
+            varBindsUnmade = VB_PROCESSOR.unmakeVarBinds(snmpEngine.cache, varBinds,
+                                                         lookupMib)
         except Exception as e:
             future.set_exception(e)
         else:
@@ -151,7 +151,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
                     (errorIndication, errorStatus, errorIndex, varBindsUnmade)
             )
 
-    notifyName = lcd.configure(
+    notifyName = LCD.configure(
         snmpEngine, authData, transportTarget, notifyType,
         contextData.contextName)
 
@@ -162,7 +162,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
         notifyName,
         contextData.contextEngineId,
         contextData.contextName,
-        vbProcessor.makeVarBinds(snmpEngine.cache, varBinds),
+        VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds),
         __cbFun,
         (options.get('lookupMib', True), future)
     )

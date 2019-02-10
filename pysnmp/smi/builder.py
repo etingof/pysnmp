@@ -14,8 +14,10 @@ import traceback
 
 try:
     from errno import ENOENT
+
 except ImportError:
     ENOENT = -1
+
 from pysnmp import __version__ as pysnmp_version
 from pysnmp.smi import error
 from pysnmp import debug
@@ -38,7 +40,7 @@ class __AbstractMibSource(object):
             if typ not in self.__sfx:
                 self.__sfx[typ] = []
             self.__sfx[typ].append((sfx, len(sfx), mode))
-        debug.logger & debug.flagBld and debug.logger('trying %s' % self)
+        debug.logger & debug.FLAG_BLD and debug.logger('trying %s' % self)
 
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, self._srcName)
@@ -82,7 +84,7 @@ class __AbstractMibSource(object):
 
             except IOError as exc:
                 if ENOENT == -1 or exc.errno == ENOENT:
-                    debug.logger & debug.flagBld and debug.logger(
+                    debug.logger & debug.FLAG_BLD and debug.logger(
                         'file %s access error: %s' % (f + pycSfx, exc)
                     )
 
@@ -94,13 +96,13 @@ class __AbstractMibSource(object):
                     pycData = pycData[4:]
                     pycTime = struct.unpack('<L', pycData[:4])[0]
                     pycData = pycData[4:]
-                    debug.logger & debug.flagBld and debug.logger(
+                    debug.logger & debug.FLAG_BLD and debug.logger(
                         'file %s mtime %d' % (pycPath, pycTime)
                     )
                     break
 
                 else:
-                    debug.logger & debug.flagBld and debug.logger('bad magic in %s' % pycPath)
+                    debug.logger & debug.FLAG_BLD and debug.logger('bad magic in %s' % pycPath)
 
         for pySfx, pySfxLen, pyMode in self.__sfx[imp.PY_SOURCE]:
             try:
@@ -108,7 +110,7 @@ class __AbstractMibSource(object):
 
             except IOError as exc:
                 if ENOENT == -1 or exc.errno == ENOENT:
-                    debug.logger & debug.flagBld and debug.logger(
+                    debug.logger & debug.FLAG_BLD and debug.logger(
                         'file %s access error: %s' % (f + pySfx, exc)
                     )
 
@@ -116,7 +118,7 @@ class __AbstractMibSource(object):
                     raise error.MibLoadError('MIB file %s access error: %s' % (f + pySfx, exc))
 
             else:
-                debug.logger & debug.flagBld and debug.logger('file %s mtime %d' % (f + pySfx, pyTime))
+                debug.logger & debug.FLAG_BLD and debug.logger('file %s mtime %d' % (f + pySfx, pyTime))
                 break
 
         if pycTime != -1 and pycTime >= pyTime:
@@ -212,7 +214,7 @@ class DirMibSource(__AbstractMibSource):
         try:
             return self._uniqNames(os.listdir(self._srcName))
         except OSError as exc:
-            debug.logger & debug.flagBld and debug.logger(
+            debug.logger & debug.FLAG_BLD and debug.logger(
                 'listdir() failed for %s: %s' % (self._srcName, exc))
             return ()
 
@@ -243,10 +245,11 @@ class DirMibSource(__AbstractMibSource):
 
 
 class MibBuilder(object):
-    defaultCoreMibs = os.pathsep.join(
+    DEFAULT_CORE_MIBS = os.pathsep.join(
         ('pysnmp.smi.mibs.instances', 'pysnmp.smi.mibs')
     )
-    defaultMiscMibs = 'pysnmp_mibs'
+
+    DEFAULT_MISC_MIBS = 'pysnmp_mibs'
 
     moduleID = 'PYSNMP_MODULE_ID'
 
@@ -262,10 +265,10 @@ class MibBuilder(object):
             if ev in os.environ:
                 for m in os.environ[ev].split(os.pathsep):
                     sources.append(ZipMibSource(m))
-        if not sources and self.defaultMiscMibs:
-            for m in self.defaultMiscMibs.split(os.pathsep):
+        if not sources and self.DEFAULT_MISC_MIBS:
+            for m in self.DEFAULT_MISC_MIBS.split(os.pathsep):
                 sources.append(ZipMibSource(m))
-        for m in self.defaultCoreMibs.split(os.pathsep):
+        for m in self.DEFAULT_CORE_MIBS.split(os.pathsep):
             sources.insert(0, ZipMibSource(m))
         self.mibSymbols = {}
         self.__mibSources = []
@@ -288,11 +291,11 @@ class MibBuilder(object):
 
     def addMibSources(self, *mibSources):
         self.__mibSources.extend([s.init() for s in mibSources])
-        debug.logger & debug.flagBld and debug.logger('addMibSources: new MIB sources %s' % (self.__mibSources,))
+        debug.logger & debug.FLAG_BLD and debug.logger('addMibSources: new MIB sources %s' % (self.__mibSources,))
 
     def setMibSources(self, *mibSources):
         self.__mibSources = [s.init() for s in mibSources]
-        debug.logger & debug.flagBld and debug.logger('setMibSources: new MIB sources %s' % (self.__mibSources,))
+        debug.logger & debug.FLAG_BLD and debug.logger('setMibSources: new MIB sources %s' % (self.__mibSources,))
 
     def getMibSources(self):
         return tuple(self.__mibSources)
@@ -300,25 +303,25 @@ class MibBuilder(object):
     def loadModule(self, modName, **userCtx):
         """Load and execute MIB modules as Python code"""
         for mibSource in self.__mibSources:
-            debug.logger & debug.flagBld and debug.logger('loadModule: trying %s at %s' % (modName, mibSource))
+            debug.logger & debug.FLAG_BLD and debug.logger('loadModule: trying %s at %s' % (modName, mibSource))
             try:
                 codeObj, sfx = mibSource.read(modName)
 
             except IOError as exc:
-                debug.logger & debug.flagBld and debug.logger(
+                debug.logger & debug.FLAG_BLD and debug.logger(
                     'loadModule: read %s from %s failed: %s' % (modName, mibSource, exc))
                 continue
 
             modPath = mibSource.fullPath(modName, sfx)
 
             if modPath in self.__modPathsSeen:
-                debug.logger & debug.flagBld and debug.logger('loadModule: seen %s' % modPath)
+                debug.logger & debug.FLAG_BLD and debug.logger('loadModule: seen %s' % modPath)
                 break
 
             else:
                 self.__modPathsSeen.add(modPath)
 
-            debug.logger & debug.flagBld and debug.logger('loadModule: evaluating %s' % modPath)
+            debug.logger & debug.FLAG_BLD and debug.logger('loadModule: evaluating %s' % modPath)
 
             g = {'mibBuilder': self, 'userCtx': userCtx}
 
@@ -333,7 +336,7 @@ class MibBuilder(object):
 
             self.__modSeen[modName] = modPath
 
-            debug.logger & debug.flagBld and debug.logger('loadModule: loaded %s' % modPath)
+            debug.logger & debug.FLAG_BLD and debug.logger('loadModule: loaded %s' % modPath)
 
             break
 
@@ -366,7 +369,7 @@ class MibBuilder(object):
 
             except error.MibNotFoundError:
                 if self.__mibCompiler:
-                    debug.logger & debug.flagBld and debug.logger('loadModules: calling MIB compiler for %s' % modName)
+                    debug.logger & debug.FLAG_BLD and debug.logger('loadModules: calling MIB compiler for %s' % modName)
                     status = self.__mibCompiler.compile(modName, genTexts=self.loadTexts)
                     errs = '; '.join([hasattr(x, 'error') and str(x.error) or x for x in status.values() if
                                       x in ('failed', 'missing')])
@@ -390,7 +393,7 @@ class MibBuilder(object):
             self.__modPathsSeen.remove(self.__modSeen[modName])
             del self.__modSeen[modName]
 
-            debug.logger & debug.flagBld and debug.logger('unloadModules: %s' % modName)
+            debug.logger & debug.FLAG_BLD and debug.logger('unloadModules: %s' % modName)
 
         return self
 
@@ -420,7 +423,7 @@ class MibBuilder(object):
         mibSymbols = self.mibSymbols[modName]
 
         for symObj in anonymousSyms:
-            debug.logger & debug.flagBld and debug.logger(
+            debug.logger & debug.FLAG_BLD and debug.logger(
                 'exportSymbols: anonymous symbol %s::__pysnmp_%ld' % (modName, self._autoName))
             mibSymbols['__pysnmp_%ld' % self._autoName] = symObj
             self._autoName += 1
@@ -440,7 +443,7 @@ class MibBuilder(object):
 
             mibSymbols[symName] = symObj
 
-            debug.logger & debug.flagBld and debug.logger('exportSymbols: symbol %s::%s' % (modName, symName))
+            debug.logger & debug.FLAG_BLD and debug.logger('exportSymbols: symbol %s::%s' % (modName, symName))
 
         self.lastBuildId += 1
 
@@ -457,7 +460,7 @@ class MibBuilder(object):
                 )
             del mibSymbols[symName]
 
-            debug.logger & debug.flagBld and debug.logger('unexportSymbols: symbol %s::%s' % (modName, symName))
+            debug.logger & debug.FLAG_BLD and debug.logger('unexportSymbols: symbol %s::%s' % (modName, symName))
 
         if not self.mibSymbols[modName]:
             del self.mibSymbols[modName]

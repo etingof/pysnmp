@@ -10,7 +10,7 @@ from pysnmp.carrier.base import AbstractTransportAddress
 from pysnmp.carrier.twisted.dgram.base import DgramTwistedTransport
 from pysnmp.carrier import error
 
-domainName = snmpUDPDomain = (1, 3, 6, 1, 6, 1, 1)
+DOMAIN_NAME = SNMP_UDP_DOMAIN = (1, 3, 6, 1, 6, 1, 1)
 
 
 class UdpTransportAddress(tuple, AbstractTransportAddress):
@@ -18,7 +18,7 @@ class UdpTransportAddress(tuple, AbstractTransportAddress):
 
 
 class UdpTwistedTransport(DgramTwistedTransport):
-    addressType = UdpTransportAddress
+    ADDRESS_TYPE = UdpTransportAddress
     _lport = None
 
     # AbstractTwistedTransport API

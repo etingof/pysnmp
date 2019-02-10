@@ -15,7 +15,7 @@ from pysnmp import debug
 
 # 3.2
 class CommandResponderBase(object):
-    acmID = 3  # default MIB access control method to use
+    ACM_ID = 3  # default MIB access control method to use
     SUPPORTED_PDU_TYPES = ()
     SMI_ERROR_MAP = {
         pysnmp.smi.error.TooBigError: 'tooBig',
@@ -75,7 +75,7 @@ class CommandResponderBase(object):
         v2c.apiPDU.setErrorIndex(PDU, errorIndex)
         v2c.apiPDU.setVarBinds(PDU, varBinds)
 
-        debug.logger & debug.flagApp and debug.logger(
+        debug.logger & debug.FLAG_APP and debug.logger(
             'sendVarBinds: stateReference %s, errorStatus %s, errorIndex %s, varBinds %s' % (
             stateReference, errorStatus, errorIndex, varBinds)
         )
@@ -117,7 +117,7 @@ class CommandResponderBase(object):
             )
 
         except error.StatusInformation as exc:
-            debug.logger & debug.flagApp and debug.logger(
+            debug.logger & debug.FLAG_APP and debug.logger(
                 'sendPdu: stateReference %s, statusInformation %s' % (stateReference, exc))
             snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB',
                                                                                                      'snmpSilentDrops')
@@ -140,8 +140,8 @@ class CommandResponderBase(object):
             origPdu = None
 
         # 3.2.1
-        if (PDU.tagSet not in rfc3411.readClassPDUs and
-                PDU.tagSet not in rfc3411.writeClassPDUs):
+        if (PDU.tagSet not in rfc3411.READ_CLASS_PDUS and
+                PDU.tagSet not in rfc3411.WRITE_CLASS_PDUS):
             raise error.ProtocolError('Unexpected PDU class %s' % PDU.tagSet)
 
         # 3.2.2 --> no-op
@@ -160,7 +160,7 @@ class CommandResponderBase(object):
         # 3.2.5
         varBinds = v2c.apiPDU.getVarBinds(PDU)
 
-        debug.logger & debug.flagApp and debug.logger(
+        debug.logger & debug.FLAG_APP and debug.logger(
             'processPdu: stateReference %s, varBinds %s' % (stateReference, varBinds))
 
         self.initiateMgmtOperation(snmpEngine, stateReference, contextName, PDU)
@@ -194,7 +194,7 @@ class CommandResponderBase(object):
                      context['pduType'])
 
         try:
-            snmpEngine.accessControlModel[cls.acmID].isAccessAllowed(
+            snmpEngine.accessControlModel[cls.ACM_ID].isAccessAllowed(
                 snmpEngine, securityModel, securityName,
                 securityLevel, viewType, contextName, name
             )
@@ -202,7 +202,7 @@ class CommandResponderBase(object):
         # Map ACM errors onto SMI ones
         except error.StatusInformation as exc:
             statusInformation = exc
-            debug.logger & debug.flagApp and debug.logger(
+            debug.logger & debug.FLAG_APP and debug.logger(
                 '__verifyAccess: name %s, statusInformation %s' % (name, statusInformation))
             errorIndication = statusInformation['errorIndication']
             # 3.2.5...
@@ -469,7 +469,7 @@ class BulkCommandResponder(NextCommandResponder):
         if R:
             M = min(M, self.maxVarBinds // R)
 
-        debug.logger & debug.flagApp and debug.logger(
+        debug.logger & debug.FLAG_APP and debug.logger(
             'initiateMgmtOperation: N %d, M %d, R %d' % (N, M, R))
 
         mgmtFun = self._getMgmtFun(contextName)

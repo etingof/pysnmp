@@ -9,7 +9,7 @@ from pysnmp.proto import errind, error
 
 
 class NoAuth(base.AbstractAuthenticationService):
-    serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 1, 1)  # usmNoAuthProtocol
+    SERVICE_ID = (1, 3, 6, 1, 6, 3, 10, 1, 1, 1)  # usmNoAuthProtocol
 
     def hashPassphrase(self, authKey):
         return

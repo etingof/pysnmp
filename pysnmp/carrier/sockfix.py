@@ -22,7 +22,7 @@ for symbol, value in SYMBOLS.items():
     if not hasattr(socket, symbol):
         setattr(socket, symbol, value)
 
-        debug.logger & debug.flagIO and debug.logger(
+        debug.logger & debug.FLAG_IO and debug.logger(
             'WARNING: the socket module on this platform misses option %s. '
             'Assuming its value is %d.' % (symbol, value)
         )

@@ -5,8 +5,10 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 import random
+
 try:
     from hashlib import md5, sha1
+
 except ImportError:
     import md5
     import sha
@@ -36,25 +38,26 @@ random.seed()
 #
 
 class Aes(base.AbstractEncryptionService):
-    serviceID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 4)  # usmAesCfb128Protocol
-    keySize = 16
-    _localInt = random.randrange(0, 0xffffffffffffffff)
+    SERVICE_ID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 4)  # usmAesCfb128Protocol
+    KEY_SIZE = 16
+
+    local_int = random.randrange(0, 0xffffffffffffffff)
 
     # 3.1.2.1
     def __getEncryptionKey(self, privKey, snmpEngineBoots, snmpEngineTime):
-        salt = [self._localInt >> 56 & 0xff,
-                self._localInt >> 48 & 0xff,
-                self._localInt >> 40 & 0xff,
-                self._localInt >> 32 & 0xff,
-                self._localInt >> 24 & 0xff,
-                self._localInt >> 16 & 0xff,
-                self._localInt >> 8 & 0xff,
-                self._localInt & 0xff]
+        salt = [self.local_int >> 56 & 0xff,
+                self.local_int >> 48 & 0xff,
+                self.local_int >> 40 & 0xff,
+                self.local_int >> 32 & 0xff,
+                self.local_int >> 24 & 0xff,
+                self.local_int >> 16 & 0xff,
+                self.local_int >> 8 & 0xff,
+                self.local_int & 0xff]
 
-        if self._localInt == 0xffffffffffffffff:
-            self._localInt = 0
+        if self.local_int == 0xffffffffffffffff:
+            self.local_int = 0
         else:
-            self._localInt += 1
+            self.local_int += 1
 
         return self.__getDecryptionKey(privKey, snmpEngineBoots, snmpEngineTime, salt) + (
         univ.OctetString(salt).asOctets(),)
@@ -74,15 +77,15 @@ class Aes(base.AbstractEncryptionService):
               snmpEngineTime >> 8 & 0xff,
               snmpEngineTime & 0xff] + salt
 
-        return privKey[:self.keySize].asOctets(), univ.OctetString(iv).asOctets()
+        return privKey[:self.KEY_SIZE].asOctets(), univ.OctetString(iv).asOctets()
 
     def hashPassphrase(self, authProtocol, privKey):
-        if authProtocol == hmacmd5.HmacMd5.serviceID:
+        if authProtocol == hmacmd5.HmacMd5.SERVICE_ID:
             hashAlgo = md5
-        elif authProtocol == hmacsha.HmacSha.serviceID:
+        elif authProtocol == hmacsha.HmacSha.SERVICE_ID:
             hashAlgo = sha1
-        elif authProtocol in hmacsha2.HmacSha2.hashAlgorithms:
-            hashAlgo = hmacsha2.HmacSha2.hashAlgorithms[authProtocol]
+        elif authProtocol in hmacsha2.HmacSha2.HASH_ALGORITHM:
+            hashAlgo = hmacsha2.HmacSha2.HASH_ALGORITHM[authProtocol]
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
@@ -90,18 +93,18 @@ class Aes(base.AbstractEncryptionService):
         return localkey.hashPassphrase(privKey, hashAlgo)
 
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
-        if authProtocol == hmacmd5.HmacMd5.serviceID:
+        if authProtocol == hmacmd5.HmacMd5.SERVICE_ID:
             hashAlgo = md5
-        elif authProtocol == hmacsha.HmacSha.serviceID:
+        elif authProtocol == hmacsha.HmacSha.SERVICE_ID:
             hashAlgo = sha1
-        elif authProtocol in hmacsha2.HmacSha2.hashAlgorithms:
-            hashAlgo = hmacsha2.HmacSha2.hashAlgorithms[authProtocol]
+        elif authProtocol in hmacsha2.HmacSha2.HASH_ALGORITHM:
+            hashAlgo = hmacsha2.HmacSha2.HASH_ALGORITHM[authProtocol]
         else:
             raise error.ProtocolError(
                 'Unknown auth protocol %s' % (authProtocol,)
             )
         localPrivKey = localkey.localizeKey(privKey, snmpEngineID, hashAlgo)
-        return localPrivKey[:self.keySize]
+        return localPrivKey[:self.KEY_SIZE]
 
     # 3.2.4.1
     def encryptData(self, encryptKey, privParameters, dataToEncrypt):

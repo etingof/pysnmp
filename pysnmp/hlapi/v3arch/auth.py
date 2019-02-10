@@ -8,15 +8,89 @@ from pysnmp.entity import config
 from pysnmp import error
 from pyasn1.compat.octets import null
 
-__all__ = ['CommunityData', 'UsmUserData',
-           'usm3DESEDEPrivProtocol', 'usmAesCfb128Protocol',
-           'usmAesCfb192Protocol', 'usmAesCfb256Protocol',
-           'usmAesBlumenthalCfb192Protocol', 'usmAesBlumenthalCfb256Protocol',
-           'usmDESPrivProtocol', 'usmHMACMD5AuthProtocol',
-           'usmHMACSHAAuthProtocol', 'usmHMAC128SHA224AuthProtocol',
-           'usmHMAC192SHA256AuthProtocol', 'usmHMAC256SHA384AuthProtocol',
-           'usmHMAC384SHA512AuthProtocol', 'usmNoAuthProtocol',
-           'usmNoPrivProtocol']
+__all__ = [
+    'CommunityData', 'UsmUserData',
+    'USM_AUTH_NONE', 'USM_AUTH_HMAC96_MD5',
+    'USM_AUTH_HMAC96_SHA', 'USM_AUTH_HMAC128_SHA224',
+    'USM_AUTH_HMAC192_SHA256', 'USM_AUTH_HMAC256_SHA384',
+    'USM_AUTH_HMAC384_SHA512', 'USM_PRIV_NONE',
+    'USM_PRIV_CBC56_DES', 'USM_PRIV_CBC168_3DES',
+    'USM_PRIV_CFB128_AES', 'USM_PRIV_CFB192_AES',
+    'USM_PRIV_CFB256_AES', 'USM_PRIV_CFB192_AES_BLUMENTHAL',
+    'USM_PRIV_CFB256_AES_BLUMENTHAL',
+    # backward-compatible constants
+    'usm3DESEDEPrivProtocol', 'usmAesCfb128Protocol',
+    'usmAesCfb192Protocol', 'usmAesCfb256Protocol',
+    'usmAesBlumenthalCfb192Protocol', 'usmAesBlumenthalCfb256Protocol',
+    'usmDESPrivProtocol', 'usmHMACMD5AuthProtocol',
+    'usmHMACSHAAuthProtocol', 'usmHMAC128SHA224AuthProtocol',
+    'usmHMAC192SHA256AuthProtocol', 'usmHMAC256SHA384AuthProtocol',
+    'usmHMAC384SHA512AuthProtocol', 'usmNoAuthProtocol',
+    'usmNoPrivProtocol'
+]
+
+
+USM_AUTH_NONE = config.USM_AUTH_NONE
+"""No Authentication Protocol"""
+
+USM_AUTH_HMAC96_MD5 = config.USM_AUTH_HMAC96_MD5
+"""The HMAC-MD5-96 Digest Authentication Protocol (:RFC:`3414#section-6`)"""
+
+USM_AUTH_HMAC96_SHA = config.USM_AUTH_HMAC96_SHA
+"""The HMAC-SHA-96 Digest Authentication Protocol AKA SHA-1 (:RFC:`3414#section-7`)"""
+
+USM_AUTH_HMAC128_SHA224 = config.USM_AUTH_HMAC128_SHA224
+"""The HMAC-SHA-2 Digest Authentication Protocols (:RFC:`7860`)"""
+
+USM_AUTH_HMAC192_SHA256 = config.USM_AUTH_HMAC192_SHA256
+"""The HMAC-SHA-2 Digest Authentication Protocols (:RFC:`7860`)"""
+
+USM_AUTH_HMAC256_SHA384 = config.USM_AUTH_HMAC256_SHA384
+"""The HMAC-SHA-2 Digest Authentication Protocols (:RFC:`7860`)"""
+
+USM_AUTH_HMAC384_SHA512 = config.USM_AUTH_HMAC384_SHA512
+"""The HMAC-SHA-2 Digest Authentication Protocols (:RFC:`7860`)"""
+
+USM_PRIV_NONE = config.USM_PRIV_NONE
+"""No Privacy Protocol"""
+
+USM_PRIV_CBC56_DES = config.USM_PRIV_CBC56_DES
+"""The CBC56-DES Symmetric Encryption Protocol (:RFC:`3414#section-8`)"""
+
+USM_PRIV_CBC168_3DES = config.USM_PRIV_CBC168_3DES
+"""The 3DES-EDE Symmetric Encryption Protocol (`draft-reeder-snmpv3-usm-3desede-00 <https:://tools.ietf.org/html/draft-reeder-snmpv3-usm-3desede-00#section-5>`_)"""
+
+USM_PRIV_CFB128_AES = config.USM_PRIV_CFB128_AES
+"""The CFB128-AES-128 Symmetric Encryption Protocol (:RFC:`3826#section-3`)"""
+
+USM_PRIV_CFB192_AES = config.USM_PRIV_CFB192_AES
+"""The CFB128-AES-192 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_) with Reeder key localization"""
+
+USM_PRIV_CFB256_AES = config.USM_PRIV_CFB256_AES
+"""The CFB128-AES-256 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_) with Reeder key localization"""
+
+USM_PRIV_CFB192_AES_BLUMENTHAL = config.USM_PRIV_CFB192_AES_BLUMENTHAL
+"""The CFB128-AES-192 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)"""
+
+USM_PRIV_CFB256_AES_BLUMENTHAL = config.USM_PRIV_CFB256_AES_BLUMENTHAL
+"""The CFB128-AES-256 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)"""
+
+# Backward-compatible protocol IDs
+usmNoAuthProtocol = USM_AUTH_NONE
+usmHMACMD5AuthProtocol = USM_AUTH_HMAC96_MD5
+usmHMACSHAAuthProtocol = USM_AUTH_HMAC96_SHA
+usmHMAC128SHA224AuthProtocol = USM_AUTH_HMAC128_SHA224
+usmHMAC192SHA256AuthProtocol = USM_AUTH_HMAC192_SHA256
+usmHMAC256SHA384AuthProtocol = USM_AUTH_HMAC256_SHA384
+usmHMAC384SHA512AuthProtocol = USM_AUTH_HMAC384_SHA512
+usmNoPrivProtocol = USM_PRIV_NONE
+usmDESPrivProtocol = USM_PRIV_CBC56_DES
+usm3DESEDEPrivProtocol = USM_PRIV_CBC168_3DES
+usmAesCfb128Protocol = USM_PRIV_CFB128_AES
+usmAesCfb192Protocol = USM_PRIV_CFB192_AES
+usmAesCfb256Protocol = USM_PRIV_CFB256_AES
+usmAesBlumenthalCfb192Protocol = USM_PRIV_CFB192_AES_BLUMENTHAL
+usmAesBlumenthalCfb256Protocol = USM_PRIV_CFB256_AES_BLUMENTHAL
 
 
 class CommunityData(object):
@@ -151,51 +225,6 @@ class CommunityData(object):
             securityName is None and self.securityName or securityName
         )
 
-usmNoAuthProtocol = config.usmNoAuthProtocol
-"""No Authentication Protocol"""
-
-usmHMACMD5AuthProtocol = config.usmHMACMD5AuthProtocol
-"""The HMAC-MD5-96 Digest Authentication Protocol (:RFC:`3414#section-6`)"""
-
-usmHMACSHAAuthProtocol = config.usmHMACSHAAuthProtocol
-"""The HMAC-SHA-96 Digest Authentication Protocol AKA SHA-1 (:RFC:`3414#section-7`)"""
-
-usmHMAC128SHA224AuthProtocol = config.usmHMAC128SHA224AuthProtocol
-"""The HMAC-SHA-2 Digest Authentication Protocols (:RFC:`7860`)"""
-
-usmHMAC192SHA256AuthProtocol = config.usmHMAC192SHA256AuthProtocol
-"""The HMAC-SHA-2 Digest Authentication Protocols (:RFC:`7860`)"""
-
-usmHMAC256SHA384AuthProtocol = config.usmHMAC256SHA384AuthProtocol
-"""The HMAC-SHA-2 Digest Authentication Protocols (:RFC:`7860`)"""
-
-usmHMAC384SHA512AuthProtocol = config.usmHMAC384SHA512AuthProtocol
-"""The HMAC-SHA-2 Digest Authentication Protocols (:RFC:`7860`)"""
-
-usmNoPrivProtocol = config.usmNoPrivProtocol
-"""No Privacy Protocol"""
-
-usmDESPrivProtocol = config.usmDESPrivProtocol
-"""The CBC-DES Symmetric Encryption Protocol (:RFC:`3414#section-8`)"""
-
-usm3DESEDEPrivProtocol = config.usm3DESEDEPrivProtocol
-"""The 3DES-EDE Symmetric Encryption Protocol (`draft-reeder-snmpv3-usm-3desede-00 <https:://tools.ietf.org/html/draft-reeder-snmpv3-usm-3desede-00#section-5>`_)"""
-
-usmAesCfb128Protocol = config.usmAesCfb128Protocol
-"""The CFB128-AES-128 Symmetric Encryption Protocol (:RFC:`3826#section-3`)"""
-
-usmAesCfb192Protocol = config.usmAesCfb192Protocol
-"""The CFB128-AES-192 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_) with Reeder key localization"""
-
-usmAesCfb256Protocol = config.usmAesCfb256Protocol
-"""The CFB128-AES-256 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_) with Reeder key localization"""
-
-usmAesBlumenthalCfb192Protocol = config.usmAesBlumenthalCfb192Protocol
-"""The CFB128-AES-192 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)"""
-
-usmAesBlumenthalCfb256Protocol = config.usmAesBlumenthalCfb256Protocol
-"""The CFB128-AES-256 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)"""
-
 
 class UsmUserData(object):
     """Creates SNMP v3 User Security Model (USM) configuration entry.
@@ -264,8 +293,8 @@ class UsmUserData(object):
 
     """
     authKey = privKey = None
-    authProtocol = config.usmNoAuthProtocol
-    privProtocol = config.usmNoPrivProtocol
+    authProtocol = config.USM_AUTH_NONE
+    privProtocol = config.USM_PRIV_NONE
     securityLevel = 'noAuthNoPriv'
     securityModel = 3
     mpModel = 3
@@ -285,7 +314,7 @@ class UsmUserData(object):
         if authKey is not None:
             self.authKey = authKey
             if authProtocol is None:
-                self.authProtocol = config.usmHMACMD5AuthProtocol
+                self.authProtocol = config.USM_AUTH_HMAC96_MD5
             else:
                 self.authProtocol = authProtocol
             if self.securityLevel != 'authPriv':
@@ -293,11 +322,11 @@ class UsmUserData(object):
 
         if privKey is not None:
             self.privKey = privKey
-            if self.authProtocol == config.usmNoAuthProtocol:
+            if self.authProtocol == config.USM_AUTH_NONE:
                 raise error.PySnmpError('Privacy implies authenticity')
             self.securityLevel = 'authPriv'
             if privProtocol is None:
-                self.privProtocol = config.usmDESPrivProtocol
+                self.privProtocol = config.USM_PRIV_CBC56_DES
             else:
                 self.privProtocol = privProtocol
 

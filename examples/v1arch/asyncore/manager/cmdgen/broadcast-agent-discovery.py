@@ -32,7 +32,7 @@ maxNumberResponses = 10
 
 # Protocol version to use
 # pMod = api.protoModules[api.protoVersion1]
-pMod = api.protoModules[api.protoVersion2c]
+pMod = api.PROTOCOL_MODULES[api.SNMP_VERSION_2C]
 
 # Build PDU
 reqPDU = pMod.GetRequestPDU()
@@ -85,11 +85,11 @@ transportDispatcher.registerTimerCbFun(cbTimerFun)
 
 # UDP/IPv4
 udpSocketTransport = udp.UdpSocketTransport().openClientMode().enableBroadcast()
-transportDispatcher.registerTransport(udp.domainName, udpSocketTransport)
+transportDispatcher.registerTransport(udp.DOMAIN_NAME, udpSocketTransport)
 
 # Pass message to dispatcher
 transportDispatcher.sendMessage(
-    encoder.encode(reqMsg), udp.domainName, ('255.255.255.255', 161)
+    encoder.encode(reqMsg), udp.DOMAIN_NAME, ('255.255.255.255', 161)
 )
 
 # wait for a maximum of 10 responses or time out

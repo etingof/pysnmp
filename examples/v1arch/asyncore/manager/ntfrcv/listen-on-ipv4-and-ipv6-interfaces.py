@@ -30,8 +30,8 @@ from pysnmp.proto import api
 def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
     while wholeMsg:
         msgVer = int(api.decodeMessageVersion(wholeMsg))
-        if msgVer in api.protoModules:
-            pMod = api.protoModules[msgVer]
+        if msgVer in api.PROTOCOL_MODULES:
+            pMod = api.PROTOCOL_MODULES[msgVer]
         else:
             print('Unsupported SNMP version %s' % msgVer)
             return
@@ -44,7 +44,7 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
               )
         reqPDU = pMod.apiMessage.getPDU(reqMsg)
         if reqPDU.isSameTypeWith(pMod.TrapPDU()):
-            if msgVer == api.protoVersion1:
+            if msgVer == api.SNMP_VERSION_1:
                 print('Enterprise: %s' % (pMod.apiTrapPDU.getEnterprise(reqPDU).prettyPrint()))
                 print('Agent Address: %s' % (pMod.apiTrapPDU.getAgentAddr(reqPDU).prettyPrint()))
                 print('Generic Trap: %s' % (pMod.apiTrapPDU.getGenericTrap(reqPDU).prettyPrint()))
@@ -65,12 +65,12 @@ transportDispatcher.registerRecvCbFun(cbFun)
 
 # UDP/IPv4
 transportDispatcher.registerTransport(
-    udp.domainName, udp.UdpSocketTransport().openServerMode(('localhost', 162))
+    udp.DOMAIN_NAME, udp.UdpSocketTransport().openServerMode(('localhost', 162))
 )
 
 # UDP/IPv6
 transportDispatcher.registerTransport(
-    udp6.domainName, udp6.Udp6SocketTransport().openServerMode(('::1', 162))
+    udp6.DOMAIN_NAME, udp6.Udp6SocketTransport().openServerMode(('::1', 162))
 )
 
 transportDispatcher.jobStarted(1)

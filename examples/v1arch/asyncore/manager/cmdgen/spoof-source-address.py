@@ -42,7 +42,7 @@ transportAddress.setLocalAddress(('1.2.3.4', 0))
 
 # Protocol version to use
 # pMod = api.protoModules[api.protoVersion1]
-pMod = api.protoModules[api.protoVersion2c]
+pMod = api.PROTOCOL_MODULES[api.SNMP_VERSION_2C]
 
 # Build PDU
 reqPDU = pMod.GetRequestPDU()
@@ -103,11 +103,11 @@ udpSocketTransport.enablePktInfo()
 # Enable IP source spoofing (requires root privileges)
 udpSocketTransport.enableTransparent()
 
-transportDispatcher.registerTransport(udp.domainName, udpSocketTransport)
+transportDispatcher.registerTransport(udp.DOMAIN_NAME, udpSocketTransport)
 
 # Pass message to dispatcher
 transportDispatcher.sendMessage(
-    encoder.encode(reqMsg), udp.domainName, transportAddress
+    encoder.encode(reqMsg), udp.DOMAIN_NAME, transportAddress
 )
 
 # We might never receive any response as we sent request with fake source IP

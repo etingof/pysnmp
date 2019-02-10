@@ -29,13 +29,13 @@ snmpEngine = engine.SnmpEngine()
 # UDP over IPv4 at 127.0.0.1:161
 config.addTransport(
     snmpEngine,
-    udp.domainName + (1,),
+    udp.DOMAIN_NAME + (1,),
     udp.UdpTransport().openServerMode(('127.0.0.1', 161))
 )
 # UDP over IPv4 at 127.0.0.2:161
 config.addTransport(
     snmpEngine,
-    udp.domainName + (2,),
+    udp.DOMAIN_NAME + (2,),
     udp.UdpTransport().openServerMode(('127.0.0.2', 161))
 )
 

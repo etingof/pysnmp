@@ -12,7 +12,7 @@ from pysnmp import debug
 # 3.2
 class Vacm(object):
     """View-based Access Control Model"""
-    accessModelID = 3
+    ACCESS_MODEL_ID = 3
 
     _powOfTwoSeq = (128, 64, 32, 16, 8, 4, 2, 1)
 
@@ -26,7 +26,7 @@ class Vacm(object):
                         variableName):
         mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
 
-        debug.logger & debug.flagACL and debug.logger(
+        debug.logger & debug.FLAG_ACL and debug.logger(
             'isAccessAllowed: securityModel %s, securityName %s, securityLevel %s, viewType %s, contextName %s for variableName %s' % (
                 securityModel, securityName, securityLevel, viewType, contextName, variableName))
 

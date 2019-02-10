@@ -40,12 +40,12 @@ config.addTargetParams(snmpEngine, 'my-creds', 'my-area', 'noAuthNoPriv', 1)
 # UDP/IPv4
 config.addTransport(
     snmpEngine,
-    udp.domainName,
+    udp.DOMAIN_NAME,
     udp.UdpSocketTransport().openClientMode()
 )
 config.addTargetAddr(
     snmpEngine, 'my-router',
-    udp.domainName, ('104.236.166.95', 161),
+    udp.DOMAIN_NAME, ('104.236.166.95', 161),
     'my-creds',
     timeout=300,  # in 1/100 sec
     retryCount=5

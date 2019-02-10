@@ -46,7 +46,7 @@ class CommandGenerator(object):
 
         # 3.1.3
         if statusInformation:
-            debug.logger & debug.flagApp and debug.logger(
+            debug.logger & debug.FLAG_APP and debug.logger(
                 'processResponsePdu: sendPduHandle %s, statusInformation %s' % (sendPduHandle, statusInformation))
 
             errorIndication = statusInformation['errorIndication']
@@ -59,7 +59,7 @@ class CommandGenerator(object):
                 origRetries += 1
 
             if origRetries > origRetryCount or origDiscoveryRetries > self.__options.get('discoveryRetries', 4):
-                debug.logger & debug.flagApp and debug.logger(
+                debug.logger & debug.FLAG_APP and debug.logger(
                     'processResponsePdu: sendPduHandle %s, retry count %d exceeded' % (sendPduHandle, origRetries))
                 cbFun(snmpEngine, origSendRequestHandle, errorIndication, None, cbCtx)
                 return
@@ -94,7 +94,7 @@ class CommandGenerator(object):
 
             except StatusInformation as exc:
                 statusInformation = exc
-                debug.logger & debug.flagApp and debug.logger(
+                debug.logger & debug.FLAG_APP and debug.logger(
                     'processResponsePdu: origSendRequestHandle %s, _sendPdu() failed with %r' % (
                     sendPduHandle, statusInformation))
                 cbFun(snmpEngine, origSendRequestHandle,
@@ -108,7 +108,7 @@ class CommandGenerator(object):
                 origContextEngineId and origContextEngineId != contextEngineId or
                 origContextName and origContextName != contextName or
                 origPduVersion != pduVersion):
-            debug.logger & debug.flagApp and debug.logger(
+            debug.logger & debug.FLAG_APP and debug.logger(
                 'processResponsePdu: sendPduHandle %s, request/response data mismatch' % sendPduHandle)
 
             cbFun(snmpEngine, origSendRequestHandle,
@@ -121,7 +121,7 @@ class CommandGenerator(object):
 
         # 3.1.2
         if v2c.apiPDU.getRequestID(PDU) != v2c.apiPDU.getRequestID(origPdu):
-            debug.logger & debug.flagApp and debug.logger(
+            debug.logger & debug.FLAG_APP and debug.logger(
                 'processResponsePdu: sendPduHandle %s, request-id/response-id mismatch' % sendPduHandle)
             cbFun(snmpEngine, origSendRequestHandle,
                   'badResponse', None, cbCtx)
@@ -176,7 +176,7 @@ class CommandGenerator(object):
             retryCount, 0, 0
         )
 
-        debug.logger & debug.flagApp and debug.logger(
+        debug.logger & debug.FLAG_APP and debug.logger(
             'sendPdu: sendPduHandle %s, timeout %d*10 ms/%d ticks, retry 0 of %d' % (
                 sendPduHandle, timeout, timeoutInTicks, retryCount))
 
@@ -273,7 +273,7 @@ class NextCommandGenerator(NextCommandGeneratorSingleRun):
                      v2c.apiPDU.getErrorStatus(PDU),
                      v2c.apiPDU.getErrorIndex(PDU, muteErrors=True),
                      varBindTable, cbCtx):
-            debug.logger & debug.flagApp and debug.logger(
+            debug.logger & debug.FLAG_APP and debug.logger(
                 'processResponseVarBinds: sendRequestHandle %s, app says to stop walking' % sendRequestHandle)
             return  # app says enough
 
@@ -292,7 +292,7 @@ class NextCommandGenerator(NextCommandGeneratorSingleRun):
 
         except StatusInformation as exc:
             statusInformation = exc
-            debug.logger & debug.flagApp and debug.logger(
+            debug.logger & debug.FLAG_APP and debug.logger(
                 'sendVarBinds: sendPduHandle %s: sendPdu() failed with %r' % (sendRequestHandle, statusInformation))
             cbFun(snmpEngine, sendRequestHandle,
                   statusInformation['errorIndication'],
@@ -356,7 +356,7 @@ class BulkCommandGenerator(BulkCommandGeneratorSingleRun):
                      v2c.apiBulkPDU.getErrorStatus(PDU),
                      v2c.apiBulkPDU.getErrorIndex(PDU, muteErrors=True),
                      varBindTable, cbCtx):
-            debug.logger & debug.flagApp and debug.logger(
+            debug.logger & debug.FLAG_APP and debug.logger(
                 'processResponseVarBinds: sendRequestHandle %s, app says to stop walking' % sendRequestHandle)
             return  # app says enough
 
@@ -375,7 +375,7 @@ class BulkCommandGenerator(BulkCommandGeneratorSingleRun):
 
         except StatusInformation as exc:
             statusInformation = exc
-            debug.logger & debug.flagApp and debug.logger(
+            debug.logger & debug.FLAG_APP and debug.logger(
                 'processResponseVarBinds: sendPduHandle %s: _sendPdu() failed with %r' % (
                     sendRequestHandle, statusInformation))
             cbFun(snmpEngine, sendRequestHandle,

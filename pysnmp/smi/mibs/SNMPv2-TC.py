@@ -501,7 +501,7 @@ class RowStatus(TextualConvention, Integer):
 
         newState = self.clone(newState)
 
-        debug.logger & debug.flagIns and debug.logger(
+        debug.logger & debug.FLAG_INS and debug.logger(
             'RowStatus state change from %r to %r produced new state %r, error indication %r' % (
                 self, value, newState, excValue))
 

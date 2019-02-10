@@ -43,7 +43,7 @@ snmpEngine = engine.SnmpEngine()
 # UDP over IPv6
 config.addTransport(
     snmpEngine,
-    udp6.domainName,
+    udp6.DOMAIN_NAME,
     udp6.Udp6Transport().openServerMode(('::1', 161))
 )
 
@@ -52,7 +52,7 @@ config.addTransport(
 # UDP over IPv4
 config.addTransport(
     snmpEngine,
-    udp.domainName,
+    udp.DOMAIN_NAME,
     udp.UdpTransport().openClientMode()
 )
 
@@ -81,7 +81,7 @@ config.addTargetParams(
 )
 config.addTargetAddr(
     snmpEngine, 'distant-agent',
-    udp.domainName, ('104.236.166.95', 161),
+    udp.DOMAIN_NAME, ('104.236.166.95', 161),
     'distant-agent-auth', retryCount=0, tagList='remote'
 )
 

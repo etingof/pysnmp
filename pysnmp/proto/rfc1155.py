@@ -105,7 +105,6 @@ class NetworkAddress(univ.Choice):
             raise SmiError('unknown NetworkAddress type %r' % (kind,))
 
 
-
 class Gauge(univ.Integer):
     tagSet = univ.Integer.tagSet.tagImplicitly(
         tag.Tag(tag.tagClassApplication, tag.tagFormatSimple, 0x02)

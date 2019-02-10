@@ -42,8 +42,8 @@ class UdpTransportAddress(tuple, AbstractTransportAddress):
 
 
 class UdpAsyncioTransport(DgramAsyncioProtocol):
-    sockFamily = socket.AF_INET
-    addressType = UdpTransportAddress
+    SOCK_FAMILY = socket.AF_INET
+    ADDRESS_TYPE = UdpTransportAddress
 
 
 UdpTransport = UdpAsyncioTransport

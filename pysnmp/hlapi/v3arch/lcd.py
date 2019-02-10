@@ -79,22 +79,22 @@ class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
             )
             cache['parm'][paramsKey] = paramsName, 1
 
-        if transportTarget.transportDomain in cache['tran']:
-            transport, useCount = cache['tran'][transportTarget.transportDomain]
+        if transportTarget.TRANSPORT_DOMAIN in cache['tran']:
+            transport, useCount = cache['tran'][transportTarget.TRANSPORT_DOMAIN]
             transportTarget.verifyDispatcherCompatibility(snmpEngine)
-            cache['tran'][transportTarget.transportDomain] = transport, useCount + 1
-        elif config.getTransport(snmpEngine, transportTarget.transportDomain):
+            cache['tran'][transportTarget.TRANSPORT_DOMAIN] = transport, useCount + 1
+        elif config.getTransport(snmpEngine, transportTarget.TRANSPORT_DOMAIN):
             transportTarget.verifyDispatcherCompatibility(snmpEngine)
         else:
             transport = transportTarget.openClientMode()
             config.addTransport(
                 snmpEngine,
-                transportTarget.transportDomain,
+                transportTarget.TRANSPORT_DOMAIN,
                 transport
             )
-            cache['tran'][transportTarget.transportDomain] = transport, 1
+            cache['tran'][transportTarget.TRANSPORT_DOMAIN] = transport, 1
 
-        transportKey = (paramsName, transportTarget.transportDomain,
+        transportKey = (paramsName, transportTarget.TRANSPORT_DOMAIN,
                         transportTarget.transportAddr,
                         transportTarget.timeout,
                         transportTarget.retries,
@@ -108,7 +108,7 @@ class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
             addrName = 'a%s' % self.nextID()
             config.addTargetAddr(
                 snmpEngine, addrName,
-                transportTarget.transportDomain,
+                transportTarget.TRANSPORT_DOMAIN,
                 transportTarget.transportAddr,
                 paramsName,
                 transportTarget.timeout * 100,
