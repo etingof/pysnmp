@@ -245,7 +245,7 @@ class CommandResponderBase(object):
 
         errors = context.get('errors')
         if not errors:
-            return errorIndication, errorStatus, errorIndex
+            return errorIndication, errorStatus, errorIndex, varBinds
 
         # Take the latest exception
         err = errors[-1]
