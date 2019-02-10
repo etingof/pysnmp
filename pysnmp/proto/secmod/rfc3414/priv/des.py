@@ -16,8 +16,6 @@ except ImportError:
     md5 = md5.new
     sha1 = sha.new
 
-from sys import version_info
-
 try:
     from pysnmpcrypto import des, PysnmpCryptoError
 
@@ -41,10 +39,7 @@ class Des(base.AbstractEncryptionService):
     SERVICE_ID = (1, 3, 6, 1, 6, 3, 10, 1, 2, 2)  # usmDESPrivProtocol
     KEY_SIZE = 16
 
-    if version_info < (2, 3):
-        local_int = int(random.random() * 0xffffffff)
-    else:
-        local_int = random.randrange(0, 0xffffffff)
+    local_int = random.randrange(0, 0xffffffff)
 
     def hashPassphrase(self, authProtocol, privKey):
         if authProtocol == hmacmd5.HmacMd5.SERVICE_ID:

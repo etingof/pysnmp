@@ -4,7 +4,6 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-from sys import version_info
 from pyasn1.type import univ, tag, constraint, namedtype, namedval
 from pysnmp.proto import rfc1155, error
 

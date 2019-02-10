@@ -4,7 +4,6 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-from sys import version_info
 from pysnmp.hlapi.v3arch.asyncore import cmdgen
 from pysnmp.hlapi.varbinds import *
 from pysnmp.proto.rfc1905 import endOfMibView
@@ -12,13 +11,6 @@ from pysnmp.proto import errind
 from pyasn1.type.univ import Null
 
 __all__ = ['getCmd', 'nextCmd', 'setCmd', 'bulkCmd']
-
-if version_info[:2] < (2, 6):
-    __all__.append('next')
-
-    # noinspection PyShadowingBuiltins
-    def next(iter):
-        return iter.next()
 
 
 def getCmd(snmpEngine, authData, transportTarget, contextData,
