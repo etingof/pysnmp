@@ -91,7 +91,7 @@ snmpEngine.transportDispatcher.jobStarted(1)  # this job would never finish
 # Run I/O dispatcher which would receive queries and send confirmations
 try:
     snmpEngine.transportDispatcher.runDispatcher()
-except:
+
+finally:
     snmpEngine.observer.unregisterObserver()
     snmpEngine.transportDispatcher.closeDispatcher()
-    raise

@@ -71,15 +71,15 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
             # Report SNMP table
             for tableRow in varBindTable:
                 for name, val in tableRow:
-                    print('from: %s, %s = %s' % (
-                        transportAddress, name.prettyPrint(), val.prettyPrint()
-                    )
-                          )
+                    print('from: %s, %s = %s' % (transportAddress,
+                                                 name.prettyPrint(),
+                                                 val.prettyPrint()))
 
             # Stop on EOM
             for oid, val in varBindTable[-1]:
                 if not isinstance(val, v2c.Null):
                     break
+
             else:
                 transportDispatcher.jobFinished(1)
                 continue
@@ -88,13 +88,17 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
             v2c.apiBulkPDU.setVarBinds(
                 reqPDU, [(x, v2c.null) for x, y in varBindTable[-1]]
             )
+
             v2c.apiBulkPDU.setRequestID(reqPDU, v2c.getNextRequestID())
+
             transportDispatcher.sendMessage(
                 encoder.encode(reqMsg), transportDomain, transportAddress
             )
+
             global startedAt
             if time() - startedAt > 3:
                 raise Exception('Request timed out')
+
             startedAt = time()
 
     return wholeMsg
@@ -108,9 +112,11 @@ transportDispatcher.registerTimerCbFun(cbTimerFun)
 transportDispatcher.registerTransport(
     udp.DOMAIN_NAME, udp.UdpSocketTransport().openClientMode()
 )
+
 transportDispatcher.sendMessage(
     encoder.encode(reqMsg), udp.DOMAIN_NAME, ('demo.snmplabs.com', 161)
 )
+
 transportDispatcher.jobStarted(1)
 
 # Dispatcher will finish as job#1 counter reaches zero

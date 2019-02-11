@@ -17,14 +17,15 @@ Functionally similar to:
 """#
 from pysnmp.hlapi.v1arch import *
 
-errorIndication, errorStatus, errorIndex, varBinds = next(
-    setCmd(SnmpDispatcher(),
-           CommunityData('public'),
-           UdpTransportTarget(('demo.snmplabs.com', 161)),
-           ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysORDescr', 1),
-                      'new description'),
-           lookupMib=True)
+iterator = setCmd(
+    SnmpDispatcher(),
+    CommunityData('public'),
+    UdpTransportTarget(('demo.snmplabs.com', 161)),
+    ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysORDescr', 1), 'new description'),
+    lookupMib=True
 )
+
+errorIndication, errorStatus, errorIndex, varBinds = next(iterator)
 
 if errorIndication:
     print(errorIndication)

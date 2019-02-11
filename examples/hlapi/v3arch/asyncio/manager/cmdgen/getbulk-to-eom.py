@@ -23,22 +23,25 @@ from pysnmp.hlapi.v3arch.asyncio import *
 
 @asyncio.coroutine
 def run(varBinds):
+
     snmpEngine = SnmpEngine()
+
     while True:
-        (errorIndication,
-         errorStatus,
-         errorIndex,
-         varBindTable) = yield from bulkCmd(
+        iterator = bulkCmd(
             snmpEngine,
             UsmUserData('usr-none-none'),
             UdpTransportTarget(('demo.snmplabs.com', 161)),
             ContextData(),
             0, 50,
-            *varBinds)
+            *varBinds
+        )
+
+        errorIndication, errorStatus, errorIndex, varBindTable = yield from iterator
 
         if errorIndication:
             print(errorIndication)
             break
+
         elif errorStatus:
             print('%s at %s' % (
                 errorStatus.prettyPrint(),

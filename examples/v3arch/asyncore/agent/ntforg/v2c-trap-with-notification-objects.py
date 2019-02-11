@@ -38,6 +38,7 @@ from pysnmp.smi import rfc1902, view
 # Agent runtime.
 #
 instanceIndex = (1,)
+
 objects = {
     ('IF-MIB', 'ifIndex'): instanceIndex[0],
     ('IF-MIB', 'ifAdminStatus'): 'up',
@@ -66,6 +67,7 @@ config.addTransport(
     udp.DOMAIN_NAME,
     udp.UdpSocketTransport().openClientMode()
 )
+
 config.addTargetAddr(
     snmpEngine, 'my-nms-1',
     udp.DOMAIN_NAME, ('104.236.166.95', 162),

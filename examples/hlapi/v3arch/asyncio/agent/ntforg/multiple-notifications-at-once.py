@@ -29,10 +29,8 @@ from pysnmp.hlapi.v3arch.asyncio import *
 
 @asyncio.coroutine
 def sendone(snmpEngine, hostname, notifyType):
-    (errorIndication,
-     errorStatus,
-     errorIndex,
-     varBinds) = yield from sendNotification(
+
+    iterator = sendNotification(
         snmpEngine,
         CommunityData('public', tag=hostname),
         UdpTransportTarget((hostname, 162), tagList=hostname),
@@ -48,10 +46,14 @@ def sendone(snmpEngine, hostname, notifyType):
         )
     )
 
+    errorIndication, errorStatus, errorIndex, varBinds = yield from iterator
+
     if errorIndication:
         print(errorIndication)
+
     elif errorStatus:
         print('%s: at %s' % (errorStatus.prettyPrint(), errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
+
     else:
         for varBind in varBinds:
             print(' = '.join([x.prettyPrint() for x in varBind]))
@@ -61,6 +63,8 @@ snmpEngine = SnmpEngine()
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(
-    asyncio.wait([sendone(snmpEngine, 'demo.snmplabs.com', 'trap'),
-                  sendone(snmpEngine, 'demo.snmplabs.com', 'inform')])
+    asyncio.wait(
+        [sendone(snmpEngine, 'demo.snmplabs.com', 'trap'),
+         sendone(snmpEngine, 'demo.snmplabs.com', 'inform')]
+    )
 )

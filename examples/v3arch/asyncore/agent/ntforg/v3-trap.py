@@ -35,6 +35,7 @@ config.addV3User(
     config.USM_AUTH_HMAC96_MD5, 'authkey1',
     config.USM_PRIV_CBC56_DES, 'privkey1'
 )
+
 config.addTargetParams(snmpEngine, 'my-creds', 'usr-md5-des', 'authPriv')
 
 # Setup transport endpoint and bind it with security settings yielding
@@ -44,6 +45,7 @@ config.addTransport(
     udp.DOMAIN_NAME,
     udp.UdpSocketTransport().openClientMode()
 )
+
 config.addTargetAddr(
     snmpEngine, 'my-nms',
     udp.DOMAIN_NAME, ('104.236.166.95', 162),

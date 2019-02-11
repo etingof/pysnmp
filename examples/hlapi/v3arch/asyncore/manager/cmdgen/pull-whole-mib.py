@@ -21,13 +21,16 @@ from pysnmp.hlapi.v3arch.asyncore import *
 # noinspection PyUnusedLocal,PyUnusedLocal,PyUnusedLocal
 def cbFun(snmpEngine, sendRequestHandle, errorIndication,
           errorStatus, errorIndex, varBindTable, cbCtx):
+
     if errorIndication:
         print(errorIndication)
         return
+
     elif errorStatus:
         print('%s at %s' % (errorStatus.prettyPrint(),
                             errorIndex and varBindTable[-1][int(errorIndex) - 1][0] or '?'))
         return
+
     else:
         for varBindRow in varBindTable:
             for varBind in varBindRow:

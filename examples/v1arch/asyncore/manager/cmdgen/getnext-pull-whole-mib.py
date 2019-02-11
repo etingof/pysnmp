@@ -53,25 +53,30 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
     while wholeMsg:
         rspMsg, wholeMsg = decoder.decode(wholeMsg, asn1Spec=pMod.Message())
         rspPDU = pMod.apiMessage.getPDU(rspMsg)
+
         # Match response to request
         if pMod.apiPDU.getRequestID(reqPDU) == pMod.apiPDU.getRequestID(rspPDU):
+
             # Check for SNMP errors reported
             errorStatus = pMod.apiPDU.getErrorStatus(rspPDU)
             if errorStatus and errorStatus != 2:
                 raise Exception(errorStatus)
+
             # Format var-binds table
             varBindTable = pMod.apiPDU.getVarBindTable(reqPDU, rspPDU)
+
             # Report SNMP table
             for tableRow in varBindTable:
                 for name, val in tableRow:
-                    print('from: %s, %s = %s' % (
-                        transportAddress, name.prettyPrint(), val.prettyPrint()
-                    )
-                          )
+                    print('from: %s, %s = %s' % (transportAddress,
+                                                 name.prettyPrint(),
+                                                 val.prettyPrint()))
+
             # Stop on EOM
             for oid, val in varBindTable[-1]:
                 if not isinstance(val, pMod.Null):
                     break
+
             else:
                 transportDispatcher.jobFinished(1)
                 continue
@@ -80,13 +85,18 @@ def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
             pMod.apiPDU.setVarBinds(
                 reqPDU, [(x, pMod.null) for x, y in varBindTable[-1]]
             )
+
             pMod.apiPDU.setRequestID(reqPDU, pMod.getNextRequestID())
+
             transportDispatcher.sendMessage(
                 encoder.encode(reqMsg), transportDomain, transportAddress
             )
+
             global startedAt
+
             if time() - startedAt > 3:
                 raise Exception('Request timed out')
+
             startedAt = time()
 
     return wholeMsg
@@ -100,9 +110,11 @@ transportDispatcher.registerTimerCbFun(cbTimerFun)
 transportDispatcher.registerTransport(
     udp.DOMAIN_NAME, udp.UdpSocketTransport().openClientMode()
 )
+
 transportDispatcher.sendMessage(
     encoder.encode(reqMsg), udp.DOMAIN_NAME, ('demo.snmplabs.com', 161)
 )
+
 transportDispatcher.jobStarted(1)
 
 transportDispatcher.runDispatcher()

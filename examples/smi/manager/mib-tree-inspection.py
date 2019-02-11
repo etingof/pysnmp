@@ -66,19 +66,25 @@ print(rowNode.getIndicesFromInstId(oid))
 
 print('MIB tree traversal')
 oid, label, suffix = mibView.getFirstNodeName()
-while 1:
+
+while True:
     try:
         modName, nodeDesc, suffix = mibView.getNodeLocation(oid)
         print('%s::%s == %s' % (modName, nodeDesc, oid))
         oid, label, suffix = mibView.getNextNodeName(oid)
+
     except error.NoSuchObjectError:
         break
 
 print('Modules traversal')
 modName = mibView.getFirstModuleName()
-while 1:
-    if modName: print(modName)
+
+while True:
+    if modName:
+        print(modName)
+
     try:
         modName = mibView.getNextModuleName(modName)
+
     except error.SmiError:
         break

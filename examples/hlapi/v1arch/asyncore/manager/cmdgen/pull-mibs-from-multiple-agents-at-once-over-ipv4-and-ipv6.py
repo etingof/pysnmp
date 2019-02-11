@@ -19,20 +19,23 @@ from pysnmp.hlapi.v1arch.asyncore import *
 
 # List of targets in the following format:
 # ((authData, transportTarget, varNames), ...)
-targets = (
+TARGETS = (
     # 1-st target (SNMPv1 over IPv4/UDP)
     (CommunityData('public', mpModel=0),
      UdpTransportTarget(('demo.snmplabs.com', 161)),
      (ObjectType(ObjectIdentity('1.3.6.1.2.1')),
       ObjectType(ObjectIdentity('1.3.6.1.3.1')))),
+
     # 2-nd target (SNMPv2c over IPv4/UDP)
     (CommunityData('public'),
      UdpTransportTarget(('demo.snmplabs.com', 161)),
      (ObjectType(ObjectIdentity('1.3.6.1.4.1')),)),
+
     # 3-th target (SNMPv3 over IPv6/UDP)
     (CommunityData('public'),
      Udp6TransportTarget(('::1', 161)),
      (ObjectType(ObjectIdentity('IF-MIB', 'ifTable')),))
+
     # N-th target
     # ...
 )
@@ -53,11 +56,12 @@ def cbFun(errorIndication, errorStatus, errorIndex, varBindTable, **context):
 
         return context.get('nextVarBinds')
 
+
 snmpDispatcher = SnmpDispatcher()
 
 # Submit a bunch of initial GETNEXT requests
-for authData, transportTarget, varBinds in targets:
+for authData, transportTarget, varBinds in TARGETS:
     nextCmd(snmpDispatcher, authData, transportTarget, *varBinds,
-           cbFun=cbFun, lookupMib=True)
+            cbFun=cbFun, lookupMib=True)
 
 snmpDispatcher.transportDispatcher.runDispatcher()

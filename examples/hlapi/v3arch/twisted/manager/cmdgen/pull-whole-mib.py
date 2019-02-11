@@ -26,6 +26,7 @@ def success(args, reactor, snmpEngine):
         print('%s: %s at %s' % (hostname,
                                 errorStatus.prettyPrint(),
                                 errorIndex and varBindTable[0][int(errorIndex) - 1][0] or '?'))
+
     else:
         for varBindRow in varBindTable:
             for varBind in varBindRow:
@@ -40,13 +41,17 @@ def failure(errorIndication):
 
 
 def getnext(reactor, snmpEngine, varBinds):
-    d = nextCmd(snmpEngine,
-                UsmUserData('usr-md5-none', 'authkey1'),
-                UdpTransportTarget(('demo.snmplabs.com', 161)),
-                ContextData(),
-                varBinds)
-    d.addCallback(success, reactor, snmpEngine).addErrback(failure)
-    return d
+    deferred = nextCmd(
+        snmpEngine,
+        UsmUserData('usr-md5-none', 'authkey1'),
+        UdpTransportTarget(('demo.snmplabs.com', 161)),
+        ContextData(),
+        varBinds
+    )
+
+    deferred.addCallback(success, reactor, snmpEngine).addErrback(failure)
+
+    return deferred
 
 
 react(getnext, [SnmpEngine(), ObjectType(ObjectIdentity('SNMPv2-MIB', 'system'))])

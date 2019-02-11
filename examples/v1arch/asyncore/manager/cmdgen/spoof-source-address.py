@@ -72,19 +72,25 @@ def cbTimerFun(timeNow):
 # noinspection PyUnusedLocal,PyUnusedLocal
 def cbRecvFun(transportDispatcher, transportDomain, transportAddress,
               wholeMsg, reqPDU=reqPDU):
+
     while wholeMsg:
         rspMsg, wholeMsg = decoder.decode(wholeMsg, asn1Spec=pMod.Message())
         rspPDU = pMod.apiMessage.getPDU(rspMsg)
+
         # Match response to request
         if pMod.apiPDU.getRequestID(reqPDU) == pMod.apiPDU.getRequestID(rspPDU):
+
             # Check for SNMP errors reported
             errorStatus = pMod.apiPDU.getErrorStatus(rspPDU)
             if errorStatus:
                 print(errorStatus.prettyPrint())
+
             else:
                 for oid, val in pMod.apiPDU.getVarBinds(rspPDU):
                     print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
+
             transportDispatcher.jobFinished(1)
+
     return wholeMsg
 
 
@@ -116,7 +122,6 @@ transportDispatcher.jobStarted(1)
 # Dispatcher will finish as all jobs counter reaches zero
 try:
     transportDispatcher.runDispatcher()
-except StopWaiting:
+
+finally:
     transportDispatcher.closeDispatcher()
-else:
-    raise

@@ -45,7 +45,8 @@ config.addV3User(
 )
 
 # Allow full MIB access for each user at VACM
-config.addVacmUser(snmpEngine, 3, 'usr-md5-none', 'authNoPriv', (1, 3, 6, 1, 2, 1), (1, 3, 6, 1, 2, 1))
+config.addVacmUser(snmpEngine, 3, 'usr-md5-none', 'authNoPriv',
+                   (1, 3, 6, 1, 2, 1), (1, 3, 6, 1, 2, 1))
 
 # Create an SNMP context with ContextEngineId = 8000000001020304
 snmpContext = context.SnmpContext(
@@ -72,6 +73,6 @@ snmpEngine.transportDispatcher.jobStarted(1)
 # Run I/O dispatcher which would receive queries and send responses
 try:
     snmpEngine.transportDispatcher.runDispatcher()
-except:
+
+finally:
     snmpEngine.transportDispatcher.closeDispatcher()
-    raise

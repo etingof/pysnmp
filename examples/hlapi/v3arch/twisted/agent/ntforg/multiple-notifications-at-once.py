@@ -28,12 +28,13 @@ from pysnmp.hlapi.v3arch.twisted import *
 
 
 def success(args, hostname):
-    (errorStatus, errorIndex, varBinds) = args
+    errorStatus, errorIndex, varBinds = args
 
     if errorStatus:
         print('%s: %s at %s' % (hostname,
                                 errorStatus.prettyPrint(),
                                 errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
+
     else:
         for varBind in varBinds:
             print(' = '.join([x.prettyPrint() for x in varBind]))
@@ -45,7 +46,8 @@ def failure(errorIndication, hostname):
 
 # noinspection PyUnusedLocal
 def sendone(reactor, snmpEngine, hostname, notifyType):
-    d = sendNotification(
+
+    deferred = sendNotification(
         snmpEngine,
         CommunityData('public', tag=hostname),
         UdpTransportTarget((hostname, 162), tagList=hostname),
@@ -60,8 +62,10 @@ def sendone(reactor, snmpEngine, hostname, notifyType):
             ('1.3.6.1.2.1.1.1.0', OctetString('my system'))
         )
     )
-    d.addCallback(success, hostname).addErrback(failure, hostname)
-    return d
+
+    deferred.addCallback(success, hostname).addErrback(failure, hostname)
+
+    return deferred
 
 
 def sendall(reactor, destinations):

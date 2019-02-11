@@ -35,6 +35,7 @@ def cbFun(errorIndication, errorStatus, errorIndex, varBindTable, **context):
 
     return context.get('nextVarBinds')
 
+
 snmpDispatcher = SnmpDispatcher()
 
 stateHandle = nextCmd(

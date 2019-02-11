@@ -18,25 +18,30 @@ Functionally similar to:
 """#
 from pysnmp.hlapi import *
 
-for (errorIndication,
-     errorStatus,
-     errorIndex,
-     varBinds) in nextCmd(SnmpEngine(),
-                          UsmUserData('usr-sha-aes128', 'authkey1', 'privkey1',
-                                      authProtocol=USM_AUTH_HMAC96_SHA,
-                                      privProtocol=USM_PRIV_CFB128_AES),
-                          UdpTransportTarget(('demo.snmplabs.com', 161)),
-                          ContextData(),
-                          ObjectType(ObjectIdentity('SNMPv2-MIB')),
-                          maxRows=100, ignoreNonIncreasingOid=True):
+iterator = nextCmd(
+    SnmpEngine(),
+    UsmUserData(
+        'usr-sha-aes128', 'authkey1', 'privkey1',
+        authProtocol=USM_AUTH_HMAC96_SHA,
+        privProtocol=USM_PRIV_CFB128_AES
+    ),
+    UdpTransportTarget(('demo.snmplabs.com', 161)),
+    ContextData(),
+    ObjectType(ObjectIdentity('SNMPv2-MIB')),
+    maxRows=100, ignoreNonIncreasingOid=True
+)
+
+for errorIndication, errorStatus, errorIndex, varBinds in iterator:
 
     if errorIndication:
         print(errorIndication)
         break
+
     elif errorStatus:
         print('%s at %s' % (errorStatus.prettyPrint(),
                             errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
         break
+
     else:
         for varBind in varBinds:
             print(' = '.join([x.prettyPrint() for x in varBind]))

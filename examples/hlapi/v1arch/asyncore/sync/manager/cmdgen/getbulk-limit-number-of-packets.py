@@ -19,16 +19,17 @@ Functionally similar to:
 """#
 from pysnmp.hlapi.v1arch import *
 
-for (errorIndication,
-     errorStatus,
-     errorIndex,
-     varBinds) in bulkCmd(SnmpDispatcher(),
-                          CommunityData('public'),
-                          UdpTransportTarget(('demo.snmplabs.com', 161)),
-                          0, 50,
-                          ObjectType(ObjectIdentity('SNMPv2-MIB', 'system')),
-                          lookupMib=True,
-                          maxCalls=10):
+iterator = bulkCmd(
+    SnmpDispatcher(),
+    CommunityData('public'),
+    UdpTransportTarget(('demo.snmplabs.com', 161)),
+    0, 50,
+    ObjectType(ObjectIdentity('SNMPv2-MIB', 'system')),
+    lookupMib=True,
+    maxCalls=10
+)
+
+for errorIndication, errorStatus, errorIndex, varBinds in iterator:
 
     if errorIndication:
         print(errorIndication)

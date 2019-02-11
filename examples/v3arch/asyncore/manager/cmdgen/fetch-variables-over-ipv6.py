@@ -44,6 +44,7 @@ config.addTransport(
     udp6.DOMAIN_NAME,
     udp6.Udp6SocketTransport().openClientMode()
 )
+
 config.addTargetAddr(
     snmpEngine, 'my-router',
     udp6.DOMAIN_NAME, ('::1', 161),
@@ -58,13 +59,17 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
     if errorIndication:
         print(errorIndication)
         return
+
     if errorStatus:
         print('%s at %s' % (errorStatus.prettyPrint(),
                             errorIndex and varBindTable[-1][int(errorIndex) - 1][0] or '?'))
         return  # stop on error
+
     for varBindRow in varBindTable:
+
         for oid, val in varBindRow:
             print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
+
     return True  # signal dispatcher to continue
 
 

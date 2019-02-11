@@ -26,8 +26,10 @@ from pysnmp.hlapi.v3arch.asyncio import *
 
 @asyncio.coroutine
 def run():
+
     snmpEngine = SnmpEngine()
-    errorIndication, errorStatus, errorIndex, varBinds = yield from sendNotification(
+
+    iterator = sendNotification(
         snmpEngine,
         CommunityData('public', mpModel=0),
         UdpTransportTarget(('demo.snmplabs.com', 162)),
@@ -42,6 +44,8 @@ def run():
             ('1.3.6.1.2.1.1.1.0', OctetString('my system'))
         )
     )
+
+    errorIndication, errorStatus, errorIndex, varBinds = yield from iterator
 
     if errorIndication:
         print(errorIndication)

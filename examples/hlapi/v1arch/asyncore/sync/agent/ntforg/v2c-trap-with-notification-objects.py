@@ -19,21 +19,21 @@ Functionally similar to:
 """#
 from pysnmp.hlapi.v1arch import *
 
-errorIndication, errorStatus, errorIndex, varBinds = next(
-    sendNotification(
-        SnmpDispatcher(),
-        CommunityData('public'),
-        UdpTransportTarget(('demo.snmplabs.com', 162)),
-        'trap',
-        # SNMPv2-MIB::sysUpTime.0 = 12345
-        ('1.3.6.1.2.1.1.3.0', TimeTicks(12345)),
-        # SNMPv2-SMI::snmpTrapOID.0 = SNMPv2-MIB::warmStart
-        NotificationType(ObjectIdentity('SNMPv2-MIB', 'warmStart')),
-        # SNMPv2-MIB::sysName.0
-        ('1.3.6.1.2.1.1.1.0', OctetString('my system')),
-        lookupMib=True
-    )
+iterator = sendNotification(
+    SnmpDispatcher(),
+    CommunityData('public'),
+    UdpTransportTarget(('demo.snmplabs.com', 162)),
+    'trap',
+    # SNMPv2-MIB::sysUpTime.0 = 12345
+    ('1.3.6.1.2.1.1.3.0', TimeTicks(12345)),
+    # SNMPv2-SMI::snmpTrapOID.0 = SNMPv2-MIB::warmStart
+    NotificationType(ObjectIdentity('SNMPv2-MIB', 'warmStart')),
+    # SNMPv2-MIB::sysName.0
+    ('1.3.6.1.2.1.1.1.0', OctetString('my system')),
+    lookupMib=True
 )
+
+errorIndication, errorStatus, errorIndex, varBinds = next(iterator)
 
 if errorIndication:
     print(errorIndication)

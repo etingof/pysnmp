@@ -16,20 +16,26 @@ Functionally similar to:
 """#
 from pysnmp.hlapi import *
 
-errorIndication, errorStatus, errorIndex, varBinds = next(
-    setCmd(SnmpEngine(),
-           CommunityData('public'),
-           UdpTransportTarget(('demo.snmplabs.com', 161)),
-           ContextData(),
-           ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysORDescr', 1),
-                      'new system name'))
+iterator = setCmd(
+    SnmpEngine(),
+    CommunityData('public'),
+    UdpTransportTarget(('demo.snmplabs.com', 161)),
+    ContextData(),
+    ObjectType(
+        ObjectIdentity('SNMPv2-MIB', 'sysORDescr', 1),
+        'new system name'
+    )
 )
+
+errorIndication, errorStatus, errorIndex, varBinds = next(iterator)
 
 if errorIndication:
     print(errorIndication)
+
 elif errorStatus:
     print('%s at %s' % (errorStatus.prettyPrint(),
                         errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
+
 else:
     for varBind in varBinds:
         print(' = '.join([x.prettyPrint() for x in varBind]))

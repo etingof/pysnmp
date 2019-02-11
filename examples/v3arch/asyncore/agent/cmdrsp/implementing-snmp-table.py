@@ -47,7 +47,8 @@ config.addTransport(
 config.addV1System(snmpEngine, 'my-area', 'public')
 
 # Allow read MIB access for this user / securityModels at VACM
-config.addVacmUser(snmpEngine, 2, 'my-area', 'noAuthNoPriv', (1, 3, 6, 6), (1, 3, 6, 6))
+config.addVacmUser(snmpEngine, 2, 'my-area', 'noAuthNoPriv',
+                   (1, 3, 6, 6), (1, 3, 6, 6))
 
 # Create an SNMP context
 snmpContext = context.SnmpContext(snmpEngine)
@@ -72,17 +73,24 @@ RowStatus, = mibBuilder.importSymbols('SNMPv2-TC', 'RowStatus')
 mibBuilder.exportSymbols(
     '__EXAMPLE-MIB',
     # table object
-    exampleTable=MibTable((1, 3, 6, 6, 1)).setMaxAccess('readcreate'),
+    exampleTable=MibTable((1, 3, 6, 6, 1))
+        .setMaxAccess('readcreate'),
     # table row object, also carries references to table indices
-    exampleTableEntry=MibTableRow((1, 3, 6, 6, 1, 5)).setMaxAccess('readcreate').setIndexNames((0, '__EXAMPLE-MIB', 'exampleTableColumn1')),
+    exampleTableEntry=MibTableRow((1, 3, 6, 6, 1, 5))
+        .setMaxAccess('readcreate')
+        .setIndexNames((0, '__EXAMPLE-MIB', 'exampleTableColumn1')),
     # table column: string index
-    exampleTableColumn1=MibTableColumn((1, 3, 6, 6, 1, 5, 1), v2c.OctetString()).setMaxAccess('readcreate'),
+    exampleTableColumn1=MibTableColumn((1, 3, 6, 6, 1, 5, 1), v2c.OctetString())
+        .setMaxAccess('readcreate'),
     # table column: string value
-    exampleTableColumn2=MibTableColumn((1, 3, 6, 6, 1, 5, 2), v2c.OctetString()).setMaxAccess('readcreate'),
+    exampleTableColumn2=MibTableColumn((1, 3, 6, 6, 1, 5, 2), v2c.OctetString())
+        .setMaxAccess('readcreate'),
     # table column: integer value with default
-    exampleTableColumn3=MibTableColumn((1, 3, 6, 6, 1, 5, 3), v2c.Integer32(123)).setMaxAccess('readcreate'),
+    exampleTableColumn3=MibTableColumn((1, 3, 6, 6, 1, 5, 3), v2c.Integer32(123))
+        .setMaxAccess('readcreate'),
     # table column: row status
-    exampleTableStatus=MibTableColumn((1, 3, 6, 6, 1, 5, 4), RowStatus('notExists')).setMaxAccess('readcreate')
+    exampleTableStatus=MibTableColumn((1, 3, 6, 6, 1, 5, 4), RowStatus('notExists'))
+        .setMaxAccess('readcreate')
 )
 
 # --- end of custom SNMP table definition, empty table now exists ---
@@ -99,8 +107,11 @@ mibBuilder.exportSymbols(
     'exampleTableColumn3',
     'exampleTableStatus'
 )
+
 rowInstanceId = exampleTableEntry.getInstIdFromIndices('example record one')
+
 mibInstrumentation = snmpContext.getMibInstrum()
+
 mibInstrumentation.writeMibObjects(
     (exampleTableColumn2.name + rowInstanceId, 'my string value'),
     (exampleTableColumn3.name + rowInstanceId, 123456),
@@ -121,6 +132,6 @@ snmpEngine.transportDispatcher.jobStarted(1)
 # Run I/O dispatcher which would receive queries and send responses
 try:
     snmpEngine.transportDispatcher.runDispatcher()
-except:
+
+finally:
     snmpEngine.transportDispatcher.closeDispatcher()
-    raise

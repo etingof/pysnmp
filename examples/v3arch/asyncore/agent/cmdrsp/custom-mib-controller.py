@@ -53,6 +53,7 @@ snmpContext = context.SnmpContext(snmpEngine)
 # any Managed Objects attached. It supports only GET's and
 # always echos request var-binds in response.
 class EchoMibInstrumController(instrum.AbstractMibInstrumController):
+
     def readMibObjects(self, *varBinds, **context):
         cbFun = context.get('cbFun')
         if cbFun:
@@ -76,6 +77,6 @@ snmpEngine.transportDispatcher.jobStarted(1)
 # Run I/O dispatcher which would receive queries and send responses
 try:
     snmpEngine.transportDispatcher.runDispatcher()
-except:
+
+finally:
     snmpEngine.transportDispatcher.closeDispatcher()
-    raise

@@ -16,11 +16,15 @@ Functionally similar to:
 """#
 from pysnmp.hlapi.v1arch import *
 
-for response in getCmd(SnmpDispatcher(),
-                       CommunityData('public'),
-                       UdpTransportTarget(('demo.snmplabs.com', 161)),
-                       ('1.3.6.1.2.1.1.1.0', None),
-                       ('1.3.6.1.2.1.1.6.0', None)):
+iterator = getCmd(
+    SnmpDispatcher(),
+    CommunityData('public'),
+    UdpTransportTarget(('demo.snmplabs.com', 161)),
+    ('1.3.6.1.2.1.1.1.0', None),
+    ('1.3.6.1.2.1.1.6.0', None)
+)
+
+for response in iterator:
 
     errorIndication, errorStatus, errorIndex, varBinds = response
 

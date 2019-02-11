@@ -18,15 +18,18 @@ Functionally similar to:
 """#
 from pysnmp.hlapi.v1arch import *
 
-errorIndication, errorStatus, errorIndex, varBinds = next(
-    getCmd(SnmpDispatcher(),
-           CommunityData('public'),
-           UdpTransportTarget(('demo.snmplabs.com', 161)),
-           ObjectType(ObjectIdentity('IF-MIB', 'ifInOctets', 1).addAsn1MibSource(
-               'file:///usr/share/snmp',
-               'http://mibs.snmplabs.com/asn1/@mib@')),
-           lookupMib=True)
+iterator = getCmd(
+    SnmpDispatcher(),
+    CommunityData('public'),
+    UdpTransportTarget(('demo.snmplabs.com', 161)),
+    ObjectType(ObjectIdentity('IF-MIB', 'ifInOctets', 1).addAsn1MibSource(
+        'file:///usr/share/snmp',
+        'http://mibs.snmplabs.com/asn1/@mib@')
+    ),
+    lookupMib=True
 )
+
+errorIndication, errorStatus, errorIndex, varBinds = next(iterator)
 
 if errorIndication:
     print(errorIndication)

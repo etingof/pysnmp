@@ -30,14 +30,16 @@ Functionally similar to:
 """#
 from pysnmp.hlapi.v1arch import *
 
-errorIndication, errorStatus, errorIndex, varBinds = next(
-    getCmd(SnmpDispatcher(),
-           CommunityData('public'),
-           UdpTransportTarget(
-               ('demo.snmplabs.com', 161), timeout=2.0, retries=0
-           ),
-           (('1.3.6.1.2.1.1.1.0', None)))
+iterator = getCmd(
+    SnmpDispatcher(),
+    CommunityData('public'),
+    UdpTransportTarget(
+       ('demo.snmplabs.com', 161), timeout=2.0, retries=0
+    ),
+    ('1.3.6.1.2.1.1.1.0', None)
 )
+
+errorIndication, errorStatus, errorIndex, varBinds = next(iterator)
 
 if errorIndication:
     print(errorIndication)

@@ -35,29 +35,33 @@ else:
 
 # List of targets in the following format:
 # ( ( authData, transportTarget, varNames ), ... )
-targets = (
+TARGETS = (
     # 1-st target (SNMPv1 over IPv4/UDP)
     (CommunityData('public', mpModel=0),
      UdpTransportTarget(('demo.snmplabs.com', 161)),
      (ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
       ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0)))),
+
     # 2-nd target (SNMPv2c over IPv4/UDP)
     (CommunityData('public'),
      UdpTransportTarget(('demo.snmplabs.com', 161)),
      (ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
       ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0)))),
-    # 3-nd target (SNMPv2c over IPv4/UDP) - same community and 
+
+    # 3-nd target (SNMPv2c over IPv4/UDP) - same community and
     # different transport address.
     (CommunityData('public'),
      Udp6TransportTarget(('localhost', 161)),
      (ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysContact', 0)),
       ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysName', 0)))),
+
     # 4-th target (SNMPv2c over IPv4/UDP) - same community and
     # different transport port.
     (CommunityData('public'),
      UdpTransportTarget(('demo.snmplabs.com', 1161)),
      (ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
       ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0)))),
+
     # N-th target
     # ...
 )
@@ -112,7 +116,7 @@ class ThreadPool(object):
 pool = ThreadPool(3)
 
 # Submit GET requests
-for authData, transportTarget, varBinds in targets:
+for authData, transportTarget, varBinds in TARGETS:
     pool.addRequest(authData, transportTarget, varBinds)
 
 # Wait for responses or errors
@@ -120,11 +124,14 @@ pool.waitCompletion()
 
 # Walk through responses
 for errorIndication, errorStatus, errorIndex, varBinds in pool.getResponses():
+
     if errorIndication:
         print(errorIndication)
+
     elif errorStatus:
         print('%s at %s' % (errorStatus.prettyPrint(),
                             errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
+
     else:
         for varBind in varBinds:
             print(' = '.join([x.prettyPrint() for x in varBind]))

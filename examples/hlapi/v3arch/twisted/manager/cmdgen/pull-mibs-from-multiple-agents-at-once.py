@@ -21,12 +21,13 @@ from pysnmp.hlapi.v3arch.twisted import *
 
 
 def success(args, reactor, snmpEngine, hostname):
-    (errorStatus, errorIndex, varBindTable) = args
+    errorStatus, errorIndex, varBindTable = args
 
     if errorStatus:
         print('%s: %s at %s' % (hostname,
                                 errorStatus.prettyPrint(),
                                 errorIndex and varBindTable[0][int(errorIndex) - 1][0] or '?'))
+
     else:
         for varBindRow in varBindTable:
             for varBind in varBindRow:
@@ -41,17 +42,22 @@ def failure(errorIndication):
 
 
 def getbulk(reactor, snmpEngine, hostname, varBinds):
-    d = bulkCmd(snmpEngine,
-                UsmUserData('usr-md5-none', 'authkey1'),
-                UdpTransportTarget(hostname),
-                ContextData(),
-                0, 25,
-                varBinds)
-    d.addCallback(success, reactor, snmpEngine, hostname).addErrback(failure)
-    return d
+    deferred = bulkCmd(
+        snmpEngine,
+        UsmUserData('usr-md5-none', 'authkey1'),
+        UdpTransportTarget(hostname),
+        ContextData(),
+        0, 25,
+        varBinds
+    )
+
+    deferred.addCallback(success, reactor, snmpEngine, hostname).addErrback(failure)
+
+    return deferred
 
 
 def getall(reactor, hostnames):
+
     snmpEngine = SnmpEngine()
 
     return DeferredList(

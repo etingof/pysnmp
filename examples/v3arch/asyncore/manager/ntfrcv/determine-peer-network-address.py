@@ -49,9 +49,10 @@ def cbFun(snmpEngine, stateReference, contextEngineId, contextName,
     )
 
     # ... and use inner SNMP engine data to figure out peer address
-    print('Notification from %s, ContextEngineId "%s", ContextName "%s"' % ('@'.join([str(x) for x in execContext['transportAddress']]),
-                                                                            contextEngineId.prettyPrint(),
-                                                                            contextName.prettyPrint()))
+    print('Notification from %s, ContextEngineId "%s", '
+          'ContextName "%s"' % ('@'.join([str(x) for x in execContext['transportAddress']]),
+                                contextEngineId.prettyPrint(),
+                                contextName.prettyPrint()))
     for name, val in varBinds:
         print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
 
@@ -64,6 +65,6 @@ snmpEngine.transportDispatcher.jobStarted(1)  # this job would never finish
 # Run I/O dispatcher which would receive queries and send confirmations
 try:
     snmpEngine.transportDispatcher.runDispatcher()
-except:
+
+finally:
     snmpEngine.transportDispatcher.closeDispatcher()
-    raise
