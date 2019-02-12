@@ -4,8 +4,9 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
+from pysnmp.proto import errind
+from pysnmp.proto import error
 from pysnmp.proto.secmod.rfc3414.priv import base
-from pysnmp.proto import errind, error
 
 
 class NoPriv(base.AbstractEncryptionService):

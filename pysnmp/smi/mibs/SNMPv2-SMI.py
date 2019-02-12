@@ -6,12 +6,16 @@
 #
 import sys
 import traceback
-from pysnmp.smi.indices import OidOrderedDict
-from pysnmp.smi import exval, error
-from pysnmp.proto import rfc1902
-from pysnmp import cache, debug
-from pyasn1.type import univ
+
 from pyasn1.error import PyAsn1Error
+from pyasn1.type import univ
+
+from pysnmp import cache
+from pysnmp import debug
+from pysnmp.proto import rfc1902
+from pysnmp.smi import error
+from pysnmp.smi import exval
+from pysnmp.smi.indices import OidOrderedDict
 
 Integer, ObjectIdentifier = mibBuilder.importSymbols(
     "ASN1", "Integer", "ObjectIdentifier"

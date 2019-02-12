@@ -4,18 +4,14 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-try:
-    from hashlib import md5
-
-except ImportError:
-    import md5
-
-    md5 = md5.new
+from hashlib import md5
 
 from pyasn1.type import univ
-from pysnmp.proto.secmod.rfc3414.auth import base
+
+from pysnmp.proto import errind
+from pysnmp.proto import error
 from pysnmp.proto.secmod.rfc3414 import localkey
-from pysnmp.proto import errind, error
+from pysnmp.proto.secmod.rfc3414.auth import base
 
 TWELVE_ZEROS = univ.OctetString((0,) * 12).asOctets()
 FORTY_EIGHT_ZEROS = (0,) * 48

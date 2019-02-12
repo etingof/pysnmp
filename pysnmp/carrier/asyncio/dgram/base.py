@@ -30,17 +30,19 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
 #
-import sys
 import platform
+import sys
 import traceback
-from pysnmp.carrier.asyncio.base import AbstractAsyncioTransport
-from pysnmp.carrier import error
-from pysnmp import debug
 
 try:
     import asyncio
+
 except ImportError:
     import trollius as asyncio
+
+from pysnmp import debug
+from pysnmp.carrier import error
+from pysnmp.carrier.asyncio.base import AbstractAsyncioTransport
 
 IS_PYTHON_344_PLUS = platform.python_version_tuple() >= ('3', '4', '4')
 

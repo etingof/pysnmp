@@ -5,12 +5,20 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 import sys
-from pysnmp.proto.mpmod.base import AbstractMessageProcessingModel
-from pysnmp.proto import rfc1905, rfc3411, api, errind, error
-from pyasn1.type import univ, namedtype, constraint
-from pyasn1.codec.ber import decoder, eoo
-from pyasn1.error import PyAsn1Error
+
+from pyasn1.codec.ber import decoder
+from pyasn1.codec.ber import eoo
+from pyasn1.type import constraint
+from pyasn1.type import namedtype
+from pyasn1.type import univ
+
 from pysnmp import debug
+from pysnmp.proto import api
+from pysnmp.proto import errind
+from pysnmp.proto import error
+from pysnmp.proto import rfc1905
+from pysnmp.proto import rfc3411
+from pysnmp.proto.mpmod.base import AbstractMessageProcessingModel
 
 # API to rfc1905 protocol objects
 pMod = api.PROTOCOL_MODULES[api.SNMP_VERSION_2C]

@@ -8,16 +8,17 @@
 # Authors: Matt Hooks <me@matthooks.com>
 #          Zachary Lorusso <zlorusso@gmail.com>
 #
-from pysnmp.smi.rfc1902 import *
 from pysnmp.hlapi.v3arch.auth import *
 from pysnmp.hlapi.v3arch.context import *
 from pysnmp.hlapi.v3arch.lcd import *
 from pysnmp.hlapi.varbinds import *
 from pysnmp.hlapi.v3arch.asyncio.transport import *
 from pysnmp.entity.rfc3413 import ntforg
+from pysnmp.smi.rfc1902 import *
 
 try:
     import asyncio
+
 except ImportError:
     import trollius as asyncio
 

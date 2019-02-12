@@ -5,16 +5,8 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 import random
-
-try:
-    from hashlib import md5, sha1
-
-except ImportError:
-    import md5
-    import sha
-
-    md5 = md5.new
-    sha1 = sha.new
+from hashlib import md5
+from hashlib import sha1
 
 try:
     from pysnmpcrypto import des3, PysnmpCryptoError
@@ -24,12 +16,13 @@ except ImportError:
     des3 = None
 
 from pysnmp.proto.secmod.rfc3414.priv import base
-from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha
+from pysnmp.proto.secmod.rfc3414.auth import hmacmd5
+from pysnmp.proto.secmod.rfc3414.auth import hmacsha
 from pysnmp.proto.secmod.rfc3414 import localkey
 from pysnmp.proto.secmod.rfc7860.auth import hmacsha2
-from pysnmp.proto import errind, error
+from pysnmp.proto import errind
+from pysnmp.proto import error
 from pyasn1.type import univ
-from pyasn1.compat.octets import null
 
 random.seed()
 

@@ -4,8 +4,9 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-from pysnmp.proto import errind, error
 from pysnmp import debug
+from pysnmp.proto import errind
+from pysnmp.proto import error
 
 
 # rfc3415 3.2

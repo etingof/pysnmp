@@ -4,14 +4,14 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-from pysnmp.entity.rfc3413 import cmdgen
-from pysnmp.smi.rfc1902 import *
 from pysnmp.hlapi.varbinds import *
 from pysnmp.hlapi.v3arch.auth import *
 from pysnmp.hlapi.v3arch.context import *
 from pysnmp.hlapi.v3arch.lcd import *
 from pysnmp.hlapi.v3arch.asyncore.transport import *
+from pysnmp.entity.rfc3413 import cmdgen
 from pysnmp.proto.api import v2c
+from pysnmp.smi.rfc1902 import *
 
 __all__ = ['getCmd', 'nextCmd', 'setCmd', 'bulkCmd', 'isEndOfMib']
 

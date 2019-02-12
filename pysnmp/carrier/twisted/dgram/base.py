@@ -4,12 +4,12 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-import sys
-from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
-from pysnmp.carrier.twisted.base import AbstractTwistedTransport
-from pysnmp.carrier import error
+from twisted.internet.protocol import DatagramProtocol
+
 from pysnmp import debug
+from pysnmp.carrier import error
+from pysnmp.carrier.twisted.base import AbstractTwistedTransport
 
 
 class DgramTwistedTransport(DatagramProtocol, AbstractTwistedTransport):

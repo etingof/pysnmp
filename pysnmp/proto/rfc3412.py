@@ -4,14 +4,18 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-import sys
 from pyasn1.compat.octets import null
 from pyasn1.error import PyAsn1Error
-from pysnmp.smi import builder, instrum
-from pysnmp.proto import errind, error, cache
-from pysnmp.proto.api import verdec  # XXX
+
+from pysnmp import debug
+from pysnmp import nextid
 from pysnmp.error import PySnmpError
-from pysnmp import nextid, debug
+from pysnmp.proto import cache
+from pysnmp.proto import errind
+from pysnmp.proto import error
+from pysnmp.proto.api import verdec  # XXX
+from pysnmp.smi import builder
+from pysnmp.smi import instrum
 
 
 class MsgAndPduDispatcher(object):

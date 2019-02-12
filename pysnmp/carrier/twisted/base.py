@@ -12,8 +12,8 @@
 #
 # Description: twisted DatagramProtocol UDP transport
 #
-from pysnmp.carrier.twisted.dispatch import TwistedDispatcher
 from pysnmp.carrier.base import AbstractTransport
+from pysnmp.carrier.twisted.dispatch import TwistedDispatcher
 
 
 class AbstractTwistedTransport(AbstractTransport):

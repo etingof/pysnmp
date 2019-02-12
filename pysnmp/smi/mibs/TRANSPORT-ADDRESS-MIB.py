@@ -11,16 +11,19 @@
 # Using Python version 3.4.2 (v3.4.2:ab2c023a9432, Oct  5 2014, 20:42:22)
 #
 
-from pyasn1.compat.octets import int2oct, oct2int
-from pysnmp import error
-from pysnmp.carrier import sockfix
 import socket
+
+from pyasn1.compat.octets import int2oct
+from pyasn1.compat.octets import oct2int
+
+from pysnmp import error
 
 has_ipv6 = socket.has_ipv6
 
 if hasattr(socket, 'inet_ntop') and hasattr(socket, 'inet_pton'):
     inet_ntop = socket.inet_ntop
     inet_pton = socket.inet_pton
+
 else:
     import sys
 
@@ -30,6 +33,7 @@ else:
         inet_ntop = lambda x, y: inet_ntoa(y)
         inet_pton = lambda x, y: inet_aton(y)
         has_ipv6 = False
+
     elif has_ipv6:
         import struct  # The case of old Python at old Windows
 

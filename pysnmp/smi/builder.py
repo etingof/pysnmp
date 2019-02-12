@@ -4,11 +4,11 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-import os
-import sys
 import imp
-import struct
 import marshal
+import os
+import struct
+import sys
 import time
 import traceback
 
@@ -18,16 +18,16 @@ try:
 except ImportError:
     ENOENT = -1
 
-from pysnmp import __version__ as pysnmp_version
-from pysnmp.smi import error
-from pysnmp import debug
-
 if sys.version_info[0] <= 2:
     import types
 
     classTypes = (types.ClassType, type)
 else:
     classTypes = (type,)
+
+from pysnmp import __version__ as pysnmp_version
+from pysnmp.smi import error
+from pysnmp import debug
 
 
 class __AbstractMibSource(object):

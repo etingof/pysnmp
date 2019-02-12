@@ -4,10 +4,14 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-from pyasn1.type import univ, tag, constraint, namedtype
 from pyasn1.error import PyAsn1Error
-from pysnmp.smi.error import SmiError
+from pyasn1.type import constraint
+from pyasn1.type import namedtype
+from pyasn1.type import tag
+from pyasn1.type import univ
+
 from pysnmp.proto import error
+from pysnmp.smi.error import SmiError
 
 __all__ = ['Opaque', 'NetworkAddress', 'ObjectName', 'TimeTicks',
            'Counter', 'Gauge', 'IpAddress']

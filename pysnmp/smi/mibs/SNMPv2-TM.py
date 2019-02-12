@@ -12,13 +12,15 @@
 #
 try:
     from socket import inet_ntop, inet_pton, AF_INET
+
 except ImportError:
     from socket import inet_ntoa, inet_aton, AF_INET
 
     inet_ntop = lambda x, y: inet_ntoa(y)
     inet_pton = lambda x, y: inet_aton(y)
 
-from pyasn1.compat.octets import int2oct, oct2int
+from pyasn1.compat.octets import int2oct
+from pyasn1.compat.octets import oct2int
 
 OctetString, = mibBuilder.importSymbols('ASN1', 'OctetString')
 ConstraintsIntersection, ConstraintsUnion, SingleValueConstraint, ValueRangeConstraint, ValueSizeConstraint = mibBuilder.importSymbols("ASN1-REFINEMENT", "ConstraintsIntersection", "ConstraintsUnion", "SingleValueConstraint", "ValueRangeConstraint", "ValueSizeConstraint")

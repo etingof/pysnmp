@@ -5,8 +5,9 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 from pyasn1.error import PyAsn1Error
-from pysnmp.error import PySnmpError
+
 from pysnmp import debug
+from pysnmp.error import PySnmpError
 
 
 class ProtocolError(PySnmpError, PyAsn1Error):

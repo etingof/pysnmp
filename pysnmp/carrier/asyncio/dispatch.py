@@ -30,9 +30,10 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
 #
-import sys
 import platform
+import sys
 import traceback
+
 from pysnmp.carrier.base import AbstractTransportDispatcher
 from pysnmp.error import PySnmpError
 

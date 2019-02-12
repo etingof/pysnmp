@@ -31,8 +31,9 @@
 # THE POSSIBILITY OF SUCH DAMAGE.
 #
 import socket
-from pysnmp.carrier.base import AbstractTransportAddress
+
 from pysnmp.carrier.asyncio.dgram.base import DgramAsyncioProtocol
+from pysnmp.carrier.base import AbstractTransportAddress
 
 domainName = snmpUDPDomain = (1, 3, 6, 1, 6, 1, 1)
 

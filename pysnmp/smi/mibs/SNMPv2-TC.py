@@ -4,14 +4,15 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-import sys
 import inspect
 import string
-from pysnmp.smi.error import *
-from pysnmp import debug
-from pyasn1.type import univ
+
 from pyasn1.compat import octets
+from pyasn1.type import univ
 from pyasn1.type.base import Asn1Item
+
+from pysnmp import debug
+from pysnmp.smi.error import *
 
 OctetString, Integer, ObjectIdentifier = mibBuilder.importSymbols('ASN1', 'OctetString', 'Integer', 'ObjectIdentifier')
 NamedValues, = mibBuilder.importSymbols("ASN1-ENUMERATION", "NamedValues")

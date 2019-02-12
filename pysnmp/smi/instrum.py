@@ -4,13 +4,8 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-import sys
-import traceback
-import functools
-from pysnmp import nextid
-from pysnmp.proto import rfc1905
-from pysnmp.smi import error
 from pysnmp import debug
+from pysnmp.smi import error
 
 __all__ = ['AbstractMibInstrumController', 'MibInstrumController']
 

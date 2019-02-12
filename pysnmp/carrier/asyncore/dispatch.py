@@ -4,11 +4,12 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-from time import time
-from sys import exc_info
-from traceback import format_exception
-from asyncore import socket_map
 from asyncore import loop
+from asyncore import socket_map
+from sys import exc_info
+from time import time
+from traceback import format_exception
+
 from pysnmp.carrier.base import AbstractTransportDispatcher
 from pysnmp.error import PySnmpError
 

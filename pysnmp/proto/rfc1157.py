@@ -4,7 +4,11 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-from pyasn1.type import univ, tag, namedtype, namedval
+from pyasn1.type import namedtype
+from pyasn1.type import namedval
+from pyasn1.type import tag
+from pyasn1.type import univ
+
 from pysnmp.proto import rfc1155
 
 __all__ = ['GetNextRequestPDU', 'GetResponsePDU', 'SetRequestPDU',

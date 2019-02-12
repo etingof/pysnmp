@@ -4,11 +4,11 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-import sys
 from twisted.internet import reactor
+
+from pysnmp.carrier import error
 from pysnmp.carrier.base import AbstractTransportAddress
 from pysnmp.carrier.twisted.dgram.base import DgramTwistedTransport
-from pysnmp.carrier import error
 
 DOMAIN_NAME = SNMP_UDP_DOMAIN = (1, 3, 6, 1, 6, 1, 1)
 

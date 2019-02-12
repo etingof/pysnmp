@@ -4,15 +4,16 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-import sys
-from pysnmp.proto import rfc1902, rfc1905
+from pyasn1.error import PyAsn1Error
+from pyasn1.type.base import AbstractSimpleAsn1Item
+
+from pysnmp import debug
+from pysnmp.proto import rfc1902
+from pysnmp.proto import rfc1905
 from pysnmp.proto.api import v2c
 from pysnmp.smi.builder import ZipMibSource
 from pysnmp.smi.compiler import addMibCompiler
 from pysnmp.smi.error import SmiError
-from pyasn1.type.base import AbstractSimpleAsn1Item
-from pyasn1.error import PyAsn1Error
-from pysnmp import debug
 
 __all__ = ['ObjectIdentity', 'ObjectType', 'NotificationType']
 

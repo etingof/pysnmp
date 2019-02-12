@@ -4,7 +4,9 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-from pysnmp.proto.api import v1, v2c, verdec
+from pysnmp.proto.api import v1
+from pysnmp.proto.api import v2c
+from pysnmp.proto.api import verdec
 
 # Protocol versions
 SNMP_VERSION_1 = 0

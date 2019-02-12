@@ -5,7 +5,6 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 import socket
-import sys
 
 from pysnmp import error
 from pysnmp.carrier.asyncore.dgram import udp, udp6

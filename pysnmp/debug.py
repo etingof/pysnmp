@@ -5,9 +5,11 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 import logging
+
 from pyasn1.compat.octets import octs2ints
-from pysnmp import error
+
 from pysnmp import __version__
+from pysnmp import error
 
 FLAG_NONE = 0x0000
 FLAG_IO = 0x0001

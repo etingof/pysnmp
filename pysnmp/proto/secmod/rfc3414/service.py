@@ -5,20 +5,33 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 import time
-import sys
+
+from pyasn1.codec.ber import decoder
+from pyasn1.codec.ber import encoder
+from pyasn1.codec.ber import eoo
+from pyasn1.compat.octets import null
+from pyasn1.error import PyAsn1Error
+from pyasn1.type import constraint
+from pyasn1.type import namedtype
+from pyasn1.type import univ
+
+from pysnmp import debug
+from pysnmp.proto import errind
+from pysnmp.proto import error
+from pysnmp.proto import rfc1155
+from pysnmp.proto import rfc3411
 from pysnmp.proto.secmod.base import AbstractSecurityModel
-from pysnmp.proto.secmod.rfc3414.auth import hmacmd5, hmacsha, noauth
-from pysnmp.proto.secmod.rfc3414.priv import des, nopriv
+from pysnmp.proto.secmod.eso.priv import aes192
+from pysnmp.proto.secmod.eso.priv import aes256
+from pysnmp.proto.secmod.eso.priv import des3
+from pysnmp.proto.secmod.rfc3414.auth import hmacmd5
+from pysnmp.proto.secmod.rfc3414.auth import hmacsha
+from pysnmp.proto.secmod.rfc3414.auth import noauth
+from pysnmp.proto.secmod.rfc3414.priv import des
+from pysnmp.proto.secmod.rfc3414.priv import nopriv
 from pysnmp.proto.secmod.rfc3826.priv import aes
 from pysnmp.proto.secmod.rfc7860.auth import hmacsha2
-from pysnmp.proto.secmod.eso.priv import des3, aes192, aes256
 from pysnmp.smi.error import NoSuchInstanceError
-from pysnmp.proto import rfc1155, rfc3411, errind, error
-from pysnmp import debug
-from pyasn1.type import univ, namedtype, constraint
-from pyasn1.codec.ber import encoder, decoder, eoo
-from pyasn1.error import PyAsn1Error
-from pyasn1.compat.octets import null
 
 
 # USM security params

@@ -4,7 +4,8 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-from pysnmp.proto import errind, error
+from pysnmp.proto import errind
+from pysnmp.proto import error
 
 
 class AbstractAuthenticationService(object):

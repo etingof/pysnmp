@@ -4,11 +4,12 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-from pysnmp.entity import config
-from pysnmp import nextid, error
-from pysnmp.hlapi.v3arch.auth import *
-
 from pyasn1.compat.octets import null
+
+from pysnmp import error
+from pysnmp import nextid
+from pysnmp.entity import config
+from pysnmp.hlapi.v3arch.auth import *
 
 __all__ = ['CommandGeneratorLcdConfigurator',
            'NotificationOriginatorLcdConfigurator']

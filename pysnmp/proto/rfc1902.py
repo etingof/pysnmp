@@ -4,7 +4,13 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-from pyasn1.type import univ, tag, constraint, namedtype, namedval
+
+from pyasn1.type import constraint
+from pyasn1.type import namedtype
+from pyasn1.type import namedval
+from pyasn1.type import tag
+from pyasn1.type import univ
+
 from pysnmp.proto import rfc1155, error
 
 __all__ = ['Opaque', 'TimeTicks', 'Bits', 'Integer', 'OctetString',

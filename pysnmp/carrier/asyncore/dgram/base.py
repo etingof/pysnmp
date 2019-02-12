@@ -4,20 +4,22 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-import socket
 import errno
-import sys
-from pysnmp.carrier.asyncore.base import AbstractSocketTransport
-from pysnmp.carrier import sockfix, sockmsg, error
+import socket
+
 from pysnmp import debug
+from pysnmp.carrier import sockmsg, error
+from pysnmp.carrier.asyncore.base import AbstractSocketTransport
 
 # Ignore these socket errors
-SOCK_ERRORS = {errno.ESHUTDOWN: True,
-               errno.ENOTCONN: True,
-               errno.ECONNRESET: False,
-               errno.ECONNREFUSED: False,
-               errno.EAGAIN: False,
-               errno.EWOULDBLOCK: False}
+SOCK_ERRORS = {
+    errno.ESHUTDOWN: True,
+    errno.ENOTCONN: True,
+    errno.ECONNRESET: False,
+    errno.ECONNREFUSED: False,
+    errno.EAGAIN: False,
+    errno.EWOULDBLOCK: False
+}
 
 if hasattr(errno, 'EBADFD'):
     # bad FD may happen upon FD closure on n-1 select() event
