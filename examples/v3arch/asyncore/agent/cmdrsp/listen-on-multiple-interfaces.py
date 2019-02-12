@@ -32,6 +32,7 @@ config.addTransport(
     udp.DOMAIN_NAME + (1,),
     udp.UdpTransport().openServerMode(('127.0.0.1', 161))
 )
+
 # UDP over IPv4 at 127.0.0.2:161
 config.addTransport(
     snmpEngine,
@@ -62,6 +63,6 @@ snmpEngine.transportDispatcher.jobStarted(1)
 # Run I/O dispatcher which would receive queries and send responses
 try:
     snmpEngine.transportDispatcher.runDispatcher()
-except:
+
+finally:
     snmpEngine.transportDispatcher.closeDispatcher()
-    raise

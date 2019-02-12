@@ -42,6 +42,7 @@ config.addTransport(
     udp.DOMAIN_NAME,
     udp.UdpSocketTransport().openClientMode()
 )
+
 config.addTargetAddr(
     snmpEngine, 'my-nms',
     udp.DOMAIN_NAME, ('104.236.166.95', 162),

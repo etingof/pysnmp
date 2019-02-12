@@ -34,11 +34,12 @@ from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
 
 # List of targets in the following format:
 # ( ( authData, transportTarget ), ... )
-targets = (
+TARGETS = (
     # 1-st target (SNMPv2c over IPv4/UDP)
     (CommunityData('public'),
      UdpTransportTarget(('demo.snmplabs.com', 1162)),
      ContextData()),
+
     # 2-nd target (SNMPv3 over IPv4/UDP)
     (UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
      UdpTransportTarget(('demo.snmplabs.com', 162)),
@@ -49,13 +50,22 @@ targets = (
 # noinspection PyUnusedLocal
 def cbFun(snmpEngine, sendRequestHandle, errorIndication,
           errorStatus, errorIndex, varBinds, cbCtx):
-    snmpEngine = cbCtx
+
     if errorIndication:
-        print('Notification %s for %s not sent: %s' % (sendRequestHandle, snmpEngine.snmpEngineID.prettyPrint(), errorIndication))
+        print('Notification %s for %s not sent: %s' % (
+            sendRequestHandle, snmpEngine.snmpEngineID.prettyPrint(),
+            errorIndication))
+
     elif errorStatus:
-        print('Notification Receiver returned error for request %s, SNMP Engine %s: %s @%s' % (sendRequestHandle, snmpEngine.snmpEngineID.prettyPrint(), errorStatus, errorIndex))
+        print('Notification Receiver returned error for request %s, '
+              'SNMP Engine %s: %s @%s' % (sendRequestHandle,
+                                          snmpEngine.snmpEngineID.prettyPrint(),
+                                          errorStatus, errorIndex))
+
     else:
-        print('Notification %s for SNMP Engine %s delivered:' % (sendRequestHandle, snmpEngine.snmpEngineID.prettyPrint()))
+        print('Notification %s for SNMP Engine %s delivered: ' % (
+            sendRequestHandle, snmpEngine.snmpEngineID.prettyPrint()))
+
         for name, val in varBinds:
             print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
 
@@ -74,9 +84,12 @@ snmpEngineA.registerTransportDispatcher(transportDispatcher, 'A')
 snmpEngineB = SnmpEngine()
 snmpEngineB.registerTransportDispatcher(transportDispatcher, 'B')
 
-for authData, transportTarget, contextData in targets:
+for authData, transportTarget, contextData in TARGETS:
+
+    # Pick one of the two SNMP engines
     snmpEngine = (transportTarget.getTransportInfo()[1][1] % 3 and
                   snmpEngineA or snmpEngineB)
+
     sendPduHandle = sendNotification(
         snmpEngine,
         authData,
@@ -86,7 +99,7 @@ for authData, transportTarget, contextData in targets:
         NotificationType(
             ObjectIdentity('SNMPv2-MIB', 'coldStart')
         ).addVarBinds(('1.3.6.1.2.1.1.1.0', 'my name')),
-        cbFun=cbFun, cbCtx=snmpEngine
+        cbFun=cbFun
     )
 
 transportDispatcher.runDispatcher()

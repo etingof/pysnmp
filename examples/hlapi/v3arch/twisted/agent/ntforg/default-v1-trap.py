@@ -25,7 +25,7 @@ from pysnmp.hlapi.v3arch.twisted import *
 
 
 def success(args, hostname):
-    (errorStatus, errorIndex, varBinds) = args
+    errorStatus, errorIndex, varBinds = args
 
     if errorStatus:
         print('%s: %s at %s' % (
@@ -34,6 +34,7 @@ def success(args, hostname):
             errorIndex and varBinds[int(errorIndex) - 1][0] or '?'
         )
               )
+
     else:
         for varBind in varBinds:
             print(' = '.join([x.prettyPrint() for x in varBind]))
@@ -45,7 +46,8 @@ def failure(errorIndication, hostname):
 
 # noinspection PyUnusedLocal
 def run(reactor, hostname):
-    d = sendNotification(
+
+    deferred = sendNotification(
         SnmpEngine(),
         CommunityData('public', mpModel=0),
         UdpTransportTarget((hostname, 162)),
@@ -60,8 +62,10 @@ def run(reactor, hostname):
             ('1.3.6.1.2.1.1.1.0', OctetString('my system'))
         )
     )
-    d.addCallback(success, hostname).addErrback(failure, hostname)
-    return d
+
+    deferred.addCallback(success, hostname).addErrback(failure, hostname)
+
+    return deferred
 
 
 react(run, ['demo.snmplabs.com'])

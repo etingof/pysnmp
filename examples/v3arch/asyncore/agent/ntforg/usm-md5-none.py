@@ -30,6 +30,7 @@ config.addV3User(
     snmpEngine, 'usr-md5-none',
     config.USM_AUTH_HMAC96_MD5, 'authkey1'
 )
+
 config.addTargetParams(snmpEngine, 'my-creds', 'usr-md5-none', 'authNoPriv')
 
 # Setup transport endpoint and bind it with security settings yielding
@@ -39,6 +40,7 @@ config.addTransport(
     udp.DOMAIN_NAME,
     udp.UdpSocketTransport().openClientMode()
 )
+
 config.addTargetAddr(
     snmpEngine, 'my-nms',
     udp.DOMAIN_NAME, ('104.236.166.95', 162),
@@ -69,9 +71,7 @@ ntfOrg = ntforg.NotificationOriginator()
 def cbFun(snmpEngine, sendRequestHandle, errorIndication,
           errorStatus, errorIndex, varBinds, cbCtx):
     print('Notification %s, status - %s' % (
-        sendRequestHandle, errorIndication and errorIndication or 'delivered'
-    )
-          )
+        sendRequestHandle, errorIndication and errorIndication or 'delivered'))
 
 
 # Build and submit notification message to dispatcher

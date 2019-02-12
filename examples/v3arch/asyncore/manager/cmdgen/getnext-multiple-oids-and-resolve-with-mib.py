@@ -54,6 +54,7 @@ config.addTransport(
     udp.DOMAIN_NAME,
     udp.UdpSocketTransport().openClientMode()
 )
+
 config.addTargetAddr(
     snmpEngine, 'my-router',
     udp.DOMAIN_NAME, ('104.236.166.95', 161),
@@ -68,17 +69,20 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
     if errorIndication:
         print(errorIndication)
         return
+
     # SNMPv1 response may contain noSuchName error *and* SNMPv2c exception,
     # so we ignore noSuchName error here
     if errorStatus and errorStatus != 2:
         print('%s at %s' % (errorStatus.prettyPrint(),
                             errorIndex and varBindTable[-1][int(errorIndex) - 1][0] or '?'))
         return  # stop on error
+
     for varBindRow in varBindTable:
         for varBind in varBindRow:
             print(rfc1902.ObjectType(rfc1902.ObjectIdentity(varBind[0]),
                                      varBind[1]).resolveWithMib(mibViewController).prettyPrint())
-    return 1  # signal dispatcher to continue
+
+    return True  # signal dispatcher to continue
 
 
 # Prepare initial request to be sent

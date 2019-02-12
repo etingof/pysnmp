@@ -27,39 +27,45 @@ else:
 
 # List of targets in the following format:
 # ( ( authData, transportTarget, varNames ), ... )
-targets = (
+TARGETS = (
     # 1-st target (SNMPv1 over IPv4/UDP)
     (CommunityData('public', mpModel=0),
      UdpTransportTarget(('demo.snmplabs.com', 161)),
      (ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
       ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0)))),
+
     # 2-nd target (SNMPv2c over IPv4/UDP)
     (CommunityData('public'),
      UdpTransportTarget(('demo.snmplabs.com', 161)),
      (ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
       ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0)))),
-    # 3-nd target (SNMPv2c over IPv4/UDP) - same community and 
+
+    # 3-nd target (SNMPv2c over IPv4/UDP) - same community and
     # different transport address.
     (CommunityData('public'),
      UdpTransportTarget(('localhost', 161)),
      (ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysContact', 0)),
       ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysName', 0)))),
+
     # 4-nd target (SNMPv3 over IPv4/UDP)
     (UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
      UdpTransportTarget(('demo.snmplabs.com', 161)),
      (ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
       ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0)))),
+
     # 5-th target (SNMPv3 over IPv6/UDP)
     (UsmUserData('usr-md5-none', 'authkey1'),
      Udp6TransportTarget(('::1', 161)),
      (ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
       ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0)))),
+
     # N-th target
     # ...
 )
 
 
 class Worker(Thread):
+
     def __init__(self, requests, responses):
         Thread.__init__(self)
         self.snmpEngine = SnmpEngine()
@@ -71,15 +77,17 @@ class Worker(Thread):
     def run(self):
         while True:
             authData, transportTarget, varBinds = self.requests.get()
+
             self.responses.append(
                 next(getCmd(self.snmpEngine,
                      authData, transportTarget, ContextData(), *varBinds))
             )
-            if hasattr(self.requests, 'task_done'):  # 2.5+
-                self.requests.task_done()
+
+            self.requests.task_done()
 
 
 class ThreadPool(object):
+
     def __init__(self, num_threads):
         self.requests = Queue(num_threads)
         self.responses = []
@@ -106,7 +114,7 @@ class ThreadPool(object):
 pool = ThreadPool(3)
 
 # Submit GET requests
-for authData, transportTarget, varBinds in targets:
+for authData, transportTarget, varBinds in TARGETS:
     pool.addRequest(authData, transportTarget, varBinds)
 
 # Wait for responses or errors
@@ -114,11 +122,14 @@ pool.waitCompletion()
 
 # Walk through responses
 for errorIndication, errorStatus, errorIndex, varBinds in pool.getResponses():
+
     if errorIndication:
         print(errorIndication)
+
     elif errorStatus:
         print('%s at %s' % (errorStatus.prettyPrint(),
                             errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
+
     else:
         for varBind in varBinds:
             print(' = '.join([x.prettyPrint() for x in varBind]))

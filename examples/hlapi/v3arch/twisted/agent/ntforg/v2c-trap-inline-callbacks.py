@@ -24,7 +24,7 @@ from pysnmp.hlapi.v3arch.twisted import *
 @defer.inlineCallbacks
 def sendtrap(reactor, snmpEngine, hostname):
 
-    yield sendNotification(
+    deferred = sendNotification(
         snmpEngine,
         CommunityData('public', mpModel=0),
         UdpTransportTarget((hostname, 162)),
@@ -39,8 +39,10 @@ def sendtrap(reactor, snmpEngine, hostname):
         )
     )
 
+    yield deferred
+
+
 # Preserve SnmpEngine instance across [potentially] multiple calls to safe on initialization
 snmpEngine = SnmpEngine()
 
 react(sendtrap, [snmpEngine, 'demo.snmplabs.com'])
-

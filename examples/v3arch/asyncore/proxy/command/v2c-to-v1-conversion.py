@@ -89,13 +89,13 @@ config.addContext(snmpEngine, '')
 
 
 class CommandResponder(cmdrsp.CommandResponderBase):
-    cmdGenMap = {
+    CMDGEN_MAP = {
         v2c.GetRequestPDU.tagSet: cmdgen.GetCommandGenerator(),
         v2c.SetRequestPDU.tagSet: cmdgen.SetCommandGenerator(),
         v2c.GetNextRequestPDU.tagSet: cmdgen.NextCommandGeneratorSingleRun(),
         v2c.GetBulkRequestPDU.tagSet: cmdgen.BulkCommandGeneratorSingleRun()
     }
-    SUPPORTED_PDU_TYPES = cmdGenMap.keys()  # This app will handle these PDUs
+    SUPPORTED_PDU_TYPES = tuple(CMDGEN_MAP)  # This app will handle these PDUs
 
     # SNMP request relay
     def handleMgmtOperation(self, snmpEngine, stateReference, contextName,
@@ -103,12 +103,13 @@ class CommandResponder(cmdrsp.CommandResponderBase):
         cbCtx = stateReference, PDU
         contextEngineId = None  # address authoritative SNMP Engine
         try:
-            self.cmdGenMap[PDU.tagSet].sendPdu(
+            self.CMDGEN_MAP[PDU.tagSet].sendPdu(
                 snmpEngine, 'distant-agent',
                 contextEngineId, contextName,
                 PDU,
                 self.handleResponsePdu, cbCtx
             )
+
         except error.PySnmpError:
             self.handleResponsePdu(
                 snmpEngine, stateReference, 'error', None, cbCtx
@@ -138,6 +139,6 @@ snmpEngine.transportDispatcher.jobStarted(1)  # this job would never finish
 # Run I/O dispatcher which would receive queries and send responses
 try:
     snmpEngine.transportDispatcher.runDispatcher()
-except:
+
+finally:
     snmpEngine.transportDispatcher.closeDispatcher()
-    raise

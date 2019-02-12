@@ -43,6 +43,7 @@ config.addTransport(
     udp.DOMAIN_NAME,
     udp.UdpSocketTransport().openClientMode()
 )
+
 config.addTargetAddr(
     snmpEngine, 'my-router',
     udp.DOMAIN_NAME, ('104.236.166.95', 161),
@@ -58,9 +59,11 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
           errorStatus, errorIndex, varBinds, cbCtx):
     if errorIndication:
         print(errorIndication)
+
     elif errorStatus:
         print('%s at %s' % (errorStatus.prettyPrint(),
                             errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
+
     else:
         for oid, val in varBinds:
             print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))

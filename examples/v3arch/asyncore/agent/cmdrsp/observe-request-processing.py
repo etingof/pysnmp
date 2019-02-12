@@ -36,7 +36,9 @@ snmpEngine = engine.SnmpEngine()
 def requestObserver(snmpEngine, execpoint, variables, cbCtx):
     print('Execution point: %s' % execpoint)
     print('* transportDomain: %s' % '.'.join([str(x) for x in variables['transportDomain']]))
-    print('* transportAddress: %s (local %s)' % ('@'.join([str(x) for x in variables['transportAddress']]), '@'.join([str(x) for x in variables['transportAddress'].getLocalAddress()])))
+    print('* transportAddress: %s (local %s)' % (
+        '@'.join([str(x) for x in variables['transportAddress']]), '@'.join(
+            [str(x) for x in variables['transportAddress'].getLocalAddress()])))
     print('* securityModel: %s' % variables['securityModel'])
     print('* securityName: %s' % variables['securityName'])
     print('* securityLevel: %s' % variables['securityLevel'])
@@ -70,7 +72,8 @@ config.addV3User(
 )
 
 # Allow full MIB access for each user at VACM
-config.addVacmUser(snmpEngine, 3, 'usr-md5-des', 'authPriv', (1, 3, 6, 1, 2, 1), (1, 3, 6, 1, 2, 1))
+config.addVacmUser(snmpEngine, 3, 'usr-md5-des', 'authPriv',
+                   (1, 3, 6, 1, 2, 1), (1, 3, 6, 1, 2, 1))
 
 # Get default SNMP context this SNMP engine serves
 snmpContext = context.SnmpContext(snmpEngine)
@@ -87,7 +90,7 @@ snmpEngine.transportDispatcher.jobStarted(1)
 # Run I/O dispatcher which would receive queries and send responses
 try:
     snmpEngine.transportDispatcher.runDispatcher()
-except:
+
+finally:
     snmpEngine.observer.unregisterObserver()
     snmpEngine.transportDispatcher.closeDispatcher()
-    raise

@@ -65,19 +65,23 @@ print('Remote securityEngineId = %s' % securityEngineId.prettyPrint())
 authData = UsmUserData('usr-md5-none', 'authkey1',
                        securityEngineId=securityEngineId)
 
-errorIndication, errorStatus, errorIndex, varBinds = next(
-    getCmd(snmpEngine,
-           authData,
-           transportTarget,
-           ContextData(),
-           ObjectType(ObjectIdentity('1.3.6.1.2.1.1.1.0')))
+iterator = getCmd(
+    snmpEngine,
+    authData,
+    transportTarget,
+    ContextData(),
+    ObjectType(ObjectIdentity('1.3.6.1.2.1.1.1.0'))
 )
+
+errorIndication, errorStatus, errorIndex, varBinds = next(iterator)
 
 if errorIndication:
     print(errorIndication)
+
 elif errorStatus:
     print('%s at %s' % (errorStatus.prettyPrint(),
                         errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
+
 else:
     for name, val in varBinds:
         print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))

@@ -29,6 +29,7 @@ def success(args, hostname):
         print('%s: %s at %s' % (hostname,
                                 errorStatus.prettyPrint(),
                                 errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
+
     else:
         for varBind in varBinds:
             print(' = '.join([x.prettyPrint() for x in varBind]))
@@ -43,13 +44,17 @@ def getSystem(reactor, hostname):
     snmpEngine = SnmpEngine()
 
     def getScalar(objectType):
-        d = getCmd(snmpEngine,
-                   CommunityData('public', mpModel=0),
-                   UdpTransportTarget((hostname, 161)),
-                   ContextData(),
-                   objectType)
-        d.addCallback(success, hostname).addErrback(failure, hostname)
-        return d
+        deferred = getCmd(
+            snmpEngine,
+            CommunityData('public', mpModel=0),
+            UdpTransportTarget((hostname, 161)),
+            ContextData(),
+            objectType
+        )
+
+        deferred.addCallback(success, hostname).addErrback(failure, hostname)
+
+        return deferred
 
     return DeferredList(
         [getScalar(ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0))),

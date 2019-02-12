@@ -54,8 +54,9 @@ config.addV1System(snmpEngine, 'my-area', 'public')
 # noinspection PyUnusedLocal,PyUnusedLocal,PyUnusedLocal
 def cbFun(snmpEngine, stateReference, contextEngineId, contextName,
           varBinds, cbCtx):
-    print('Notification from ContextEngineId "%s", Context "%s"' % (contextEngineId.prettyPrint(),
-                                                                    contextName.prettyPrint()))
+    print('Notification from ContextEngineId "%s", '
+          'Context "%s"' % (contextEngineId.prettyPrint(),
+                            contextName.prettyPrint()))
     for name, val in varBinds:
         print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
 

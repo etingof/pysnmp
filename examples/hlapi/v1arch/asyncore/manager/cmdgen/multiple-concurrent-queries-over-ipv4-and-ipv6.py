@@ -19,23 +19,26 @@ from pysnmp.hlapi.v1arch.asyncore import *
 
 # List of targets in the following format:
 # ((authData, transportTarget, varNames), ...)
-targets = (
+TARGETS = (
     # 1-st target (SNMPv1 over IPv4/UDP)
     (CommunityData('public', mpModel=0),
      UdpTransportTarget(('demo.snmplabs.com', 161)),
      (ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
       ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0)))),
+
     # 2-nd target (SNMPv2c over IPv4/UDP)
     (CommunityData('public'),
      UdpTransportTarget(('demo.snmplabs.com', 161)),
      (ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)),
       ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysLocation', 0)))),
-    # 3-nd target (SNMPv2c over IPv4/UDP) - same community and 
+
+    # 3-nd target (SNMPv2c over IPv4/UDP) - same community and
     # different transport address.
     (CommunityData('public'),
      Udp6TransportTarget(('::1', 161)),
      (ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysContact', 0)),
       ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysName', 0)))),
+
     # N-th target
     # ...
 )
@@ -53,10 +56,11 @@ def cbFun(errorIndication, errorStatus, errorIndex, varBinds, **context):
         for varBind in varBinds:
             print(' = '.join([x.prettyPrint() for x in varBind]))
 
+
 snmpDispatcher = SnmpDispatcher()
 
 # Submit a bunch of initial GET requests
-for authData, transportTarget, varBinds in targets:
+for authData, transportTarget, varBinds in TARGETS:
     getCmd(snmpDispatcher, authData, transportTarget, *varBinds,
            cbFun=cbFun, lookupMib=True)
 

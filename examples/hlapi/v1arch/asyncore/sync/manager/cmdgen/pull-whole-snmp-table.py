@@ -18,20 +18,21 @@ Functionally similar to:
 """#
 from pysnmp.hlapi.v1arch import *
 
-for (errorIndication,
-     errorStatus,
-     errorIndex,
-     varBinds) in nextCmd(SnmpDispatcher(),
-                          CommunityData('public', mpModel=0),
-                          UdpTransportTarget(('demo.snmplabs.com', 161)),
-                          ObjectType(ObjectIdentity('IF-MIB', 'ifDescr')),
-                          ObjectType(ObjectIdentity('IF-MIB', 'ifType')),
-                          ObjectType(ObjectIdentity('IF-MIB', 'ifMtu')),
-                          ObjectType(ObjectIdentity('IF-MIB', 'ifSpeed')),
-                          ObjectType(ObjectIdentity('IF-MIB', 'ifPhysAddress')),
-                          ObjectType(ObjectIdentity('IF-MIB', 'ifType')),
-                          lookupMib=True,
-                          lexicographicMode=False):
+iterator = nextCmd(
+    SnmpDispatcher(),
+    CommunityData('public', mpModel=0),
+    UdpTransportTarget(('demo.snmplabs.com', 161)),
+    ObjectType(ObjectIdentity('IF-MIB', 'ifDescr')),
+    ObjectType(ObjectIdentity('IF-MIB', 'ifType')),
+    ObjectType(ObjectIdentity('IF-MIB', 'ifMtu')),
+    ObjectType(ObjectIdentity('IF-MIB', 'ifSpeed')),
+    ObjectType(ObjectIdentity('IF-MIB', 'ifPhysAddress')),
+    ObjectType(ObjectIdentity('IF-MIB', 'ifType')),
+    lookupMib=True,
+    lexicographicMode=False
+)
+
+for errorIndication, errorStatus, errorIndex, varBinds in iterator:
 
     if errorIndication:
         print(errorIndication)

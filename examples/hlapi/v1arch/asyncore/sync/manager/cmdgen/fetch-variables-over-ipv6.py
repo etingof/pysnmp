@@ -15,14 +15,16 @@ Functionally similar to:
 """#
 from pysnmp.hlapi.v1arch import *
 
-errorIndication, errorStatus, errorIndex, varBinds = next(
-    getCmd(SnmpDispatcher(),
-           CommunityData('public'),
-           Udp6TransportTarget(('::1', 161)),
-           ('1.3.6.1.2.1.1.1.0', None),
-           ('1.3.6.1.2.1.1.2.0', None),
-           ('1.3.6.1.2.1.1.3.0', None))
+iterator = getCmd(
+    SnmpDispatcher(),
+    CommunityData('public'),
+    Udp6TransportTarget(('::1', 161)),
+    ('1.3.6.1.2.1.1.1.0', None),
+    ('1.3.6.1.2.1.1.2.0', None),
+    ('1.3.6.1.2.1.1.3.0', None)
 )
+
+errorIndication, errorStatus, errorIndex, varBinds = next(iterator)
 
 if errorIndication:
     print(errorIndication)

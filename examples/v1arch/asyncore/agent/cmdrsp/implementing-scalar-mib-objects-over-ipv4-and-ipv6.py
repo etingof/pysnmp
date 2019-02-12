@@ -80,26 +80,35 @@ for mibVar in mibInstr:
 
 def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
     while wholeMsg:
+
         msgVer = api.decodeMessageVersion(wholeMsg)
+
         if msgVer in api.PROTOCOL_MODULES:
             pMod = api.PROTOCOL_MODULES[msgVer]
+
         else:
             print('Unsupported SNMP version %s' % msgVer)
             return
+
         reqMsg, wholeMsg = decoder.decode(
             wholeMsg, asn1Spec=pMod.Message(),
         )
+
         rspMsg = pMod.apiMessage.getResponse(reqMsg)
         rspPDU = pMod.apiMessage.getPDU(rspMsg)
         reqPDU = pMod.apiMessage.getPDU(reqMsg)
+
         varBinds = []
         pendingErrors = []
         errorIndex = 0
+
         # GETNEXT PDU
         if reqPDU.isSameTypeWith(pMod.GetNextRequestPDU()):
+
             # Produce response var-binds
             for oid, val in pMod.apiPDU.getVarBinds(reqPDU):
                 errorIndex = errorIndex + 1
+
                 # Search next OID to report
                 nextIdx = bisect.bisect(mibInstr, oid)
                 if nextIdx == len(mibInstr):
@@ -108,15 +117,20 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
                     pendingErrors.append(
                         (pMod.apiPDU.setEndOfMibError, errorIndex)
                     )
+
                 else:
                     # Report value if OID is found
                     varBinds.append(
                         (mibInstr[nextIdx].name, mibInstr[nextIdx](msgVer))
                     )
+
         elif reqPDU.isSameTypeWith(pMod.GetRequestPDU()):
+
             for oid, val in pMod.apiPDU.getVarBinds(reqPDU):
+
                 if oid in mibInstrIdx:
                     varBinds.append((oid, mibInstrIdx[oid](msgVer)))
+
                 else:
                     # No such instance
                     varBinds.append((oid, val))
@@ -124,16 +138,21 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
                         (pMod.apiPDU.setNoSuchInstanceError, errorIndex)
                     )
                     break
+
         else:
             # Report unsupported request type
             pMod.apiPDU.setErrorStatus(rspPDU, 'genErr')
+
         pMod.apiPDU.setVarBinds(rspPDU, varBinds)
+
         # Commit possible error indices to response PDU
         for f, i in pendingErrors:
             f(rspPDU, i)
+
         transportDispatcher.sendMessage(
             encoder.encode(rspMsg), transportDomain, transportAddress
         )
+
     return wholeMsg
 
 
@@ -155,6 +174,7 @@ transportDispatcher.jobStarted(1)
 try:
     # Dispatcher will never finish as job#1 never reaches zero
     transportDispatcher.runDispatcher()
-except:
+
+except Exception:
     transportDispatcher.closeDispatcher()
     raise

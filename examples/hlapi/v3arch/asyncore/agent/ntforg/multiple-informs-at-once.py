@@ -20,11 +20,12 @@ from pysnmp.hlapi.v3arch.asyncore import *
 
 # List of targets in the followin format:
 # ( ( authData, transportTarget ), ... )
-targets = (
+TARGETS = (
     # 1-st target (SNMPv2c over IPv4/UDP)
     (CommunityData('public'),
      UdpTransportTarget(('demo.snmplabs.com', 162)),
      ContextData()),
+
     # 2-nd target (SNMPv3 over IPv4/UDP)
     (UsmUserData('usr-md5-des', 'authkey1', 'privkey1'),
      UdpTransportTarget(('demo.snmplabs.com', 162)),
@@ -48,7 +49,7 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
 
 snmpEngine = SnmpEngine()
 
-for authData, transportTarget, contextData in targets:
+for authData, transportTarget, contextData in TARGETS:
     sendPduHandle = sendNotification(
         snmpEngine,
         authData,

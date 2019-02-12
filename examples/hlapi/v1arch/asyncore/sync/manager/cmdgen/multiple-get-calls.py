@@ -27,15 +27,18 @@ queue = [
     [ObjectType(ObjectIdentity('IF-MIB', 'ifOutOctets', 1))]
 ]
 
-iterator = getCmd(SnmpDispatcher(),
-                  CommunityData('public'),
-                  UdpTransportTarget(('demo.snmplabs.com', 161)),
-                  lookupMib=True)
+iterator = getCmd(
+    SnmpDispatcher(),
+    CommunityData('public'),
+    UdpTransportTarget(('demo.snmplabs.com', 161)),
+    lookupMib=True
+)
 
 next(iterator)
 
 while queue:
     errorIndication, errorStatus, errorIndex, varBinds = iterator.send(queue.pop())
+
     if errorIndication:
         print(errorIndication)
 

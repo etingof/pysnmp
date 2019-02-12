@@ -43,6 +43,7 @@ config.addTransport(
     udp.DOMAIN_NAME,
     udp.UdpSocketTransport().openClientMode()
 )
+
 # First target
 config.addTargetAddr(
     snmpEngine, 'my-nms-1',
@@ -50,6 +51,7 @@ config.addTargetAddr(
     'my-creds',
     tagList='all-my-managers'
 )
+
 # Second target
 config.addTargetAddr(
     snmpEngine, 'my-nms-2',
@@ -57,6 +59,7 @@ config.addTargetAddr(
     'my-creds',
     tagList='all-my-managers'
 )
+
 # Third target
 config.addTargetAddr(
     snmpEngine, 'my-nms-3',

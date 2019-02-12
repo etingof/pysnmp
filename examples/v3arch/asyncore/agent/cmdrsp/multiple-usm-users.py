@@ -43,11 +43,13 @@ config.addV3User(
     config.USM_AUTH_HMAC96_MD5, 'authkey1',
     config.USM_PRIV_CBC56_DES, 'privkey1'
 )
+
 # user: usr-sha-none, auth: SHA, priv NONE
 config.addV3User(
     snmpEngine, 'usr-sha-none',
     config.USM_AUTH_HMAC96_SHA, 'authkey1'
 )
+
 # user: usr-sha-none, auth: SHA, priv AES
 config.addV3User(
     snmpEngine, 'usr-sha-aes128',
@@ -75,6 +77,6 @@ snmpEngine.transportDispatcher.jobStarted(1)
 # Run I/O dispatcher which would receive queries and send responses
 try:
     snmpEngine.transportDispatcher.runDispatcher()
-except:
+
+finally:
     snmpEngine.transportDispatcher.closeDispatcher()
-    raise

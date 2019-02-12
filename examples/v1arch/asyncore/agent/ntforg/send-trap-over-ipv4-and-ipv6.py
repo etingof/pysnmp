@@ -52,6 +52,7 @@ transportDispatcher = AsyncoreDispatcher()
 transportDispatcher.registerTransport(
     udp.DOMAIN_NAME, udp.UdpSocketTransport().openClientMode()
 )
+
 transportDispatcher.sendMessage(
     encoder.encode(trapMsg), udp.DOMAIN_NAME, ('demo.snmplabs.com', 162)
 )
@@ -60,6 +61,7 @@ transportDispatcher.sendMessage(
 transportDispatcher.registerTransport(
     udp6.DOMAIN_NAME, udp6.Udp6SocketTransport().openClientMode()
 )
+
 transportDispatcher.sendMessage(
     encoder.encode(trapMsg), udp6.DOMAIN_NAME, ('::1', 162)
 )

@@ -56,15 +56,15 @@ config.addV1System(snmpEngine, 'my-area', 'public')
 
 # Callback function for receiving notifications
 # noinspection PyUnusedLocal
-def cbFun(snmpEngine,
-          stateReference,
-          contextEngineId, contextName,
-          varBinds,
-          cbCtx):
+def cbFun(snmpEngine, stateReference, contextEngineId,
+          contextName, varBinds, cbCtx):
+
     transportDomain, transportAddress = snmpEngine.msgAndPduDsp.getTransportInfo(stateReference)
-    print('Notification from %s, SNMP Engine %s, Context %s' % (transportAddress,
-                                                                contextEngineId.prettyPrint(),
-                                                                contextName.prettyPrint()))
+
+    print('Notification from %s, SNMP Engine %s, '
+          'Context %s' % (transportAddress, contextEngineId.prettyPrint(),
+                          contextName.prettyPrint()))
+
     for name, val in varBinds:
         print('%s = %s' % (name.prettyPrint(), val.prettyPrint()))
 

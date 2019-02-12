@@ -20,12 +20,13 @@ from pysnmp.hlapi.v3arch.twisted import *
 
 
 def success(args, hostname):
-    (errorStatus, errorIndex, varBinds) = args
+    errorStatus, errorIndex, varBinds = args
 
     if errorStatus:
         print('%s: %s at %s' % (hostname,
                                 errorStatus.prettyPrint(),
                                 errorIndex and varBinds[int(errorIndex) - 1][0] or '?'))
+
     else:
         for varBind in varBinds:
             print(' = '.join([x.prettyPrint() for x in varBind]))
@@ -37,15 +38,17 @@ def failure(errorIndication, hostname):
 
 # noinspection PyUnusedLocal
 def getSysDescr(reactor, hostname):
-    d = getCmd(SnmpEngine(),
-               CommunityData('public', mpModel=0),
-               UdpTransportTarget((hostname, 161)),
-               ContextData(),
-               ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0)))
+    deferred = getCmd(
+        SnmpEngine(),
+        CommunityData('public', mpModel=0),
+        UdpTransportTarget((hostname, 161)),
+        ContextData(),
+        ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysDescr', 0))
+    )
 
-    d.addCallback(success, hostname).addErrback(failure, hostname)
+    deferred.addCallback(success, hostname).addErrback(failure, hostname)
 
-    return d
+    return deferred
 
 
 react(getSysDescr, ['demo.snmplabs.com'])

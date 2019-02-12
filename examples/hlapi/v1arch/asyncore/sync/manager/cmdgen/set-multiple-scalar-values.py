@@ -21,18 +21,27 @@ Functionally similar to:
 """#
 from pysnmp.hlapi.v1arch import *
 
-errorIndication, errorStatus, errorIndex, varBinds = next(
-    setCmd(SnmpDispatcher(),
-           CommunityData('public', mpModel=0),
-           UdpTransportTarget(('demo.snmplabs.com', 161)),
-           ObjectType(ObjectIdentity('SNMPv2-MIB', 'sysORID', 1),
-                      ObjectIdentifier('1.3.6.1.4.1.20408.1.1')),
-           ObjectType(ObjectIdentity('1.3.6.1.2.1.1.9.1.2.1'),
-                      '1.3.6.1.4.1.20408.1.1'),
-           ObjectType(ObjectIdentity('1.3.6.1.2.1.1.9.1.3.1'),
-                      OctetString('new system name')),
-           lookupMib=True)
+iterator = setCmd(
+    SnmpDispatcher(),
+    CommunityData('public', mpModel=0),
+    UdpTransportTarget(('demo.snmplabs.com', 161)),
+    ObjectType(
+        ObjectIdentity('SNMPv2-MIB', 'sysORID', 1),
+        ObjectIdentifier('1.3.6.1.4.1.20408.1.1')
+    ),
+    ObjectType(
+        ObjectIdentity('1.3.6.1.2.1.1.9.1.2.1'),
+        '1.3.6.1.4.1.20408.1.1'
+    ),
+    ObjectType(
+        ObjectIdentity('1.3.6.1.2.1.1.9.1.3.1'),
+        OctetString('new system name')
+    ),
+    lookupMib=True
 )
+
+
+errorIndication, errorStatus, errorIndex, varBinds = next(iterator)
 
 if errorIndication:
     print(errorIndication)

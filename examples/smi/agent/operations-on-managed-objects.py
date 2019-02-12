@@ -10,12 +10,10 @@ from pysnmp.smi import builder
 from pysnmp.smi import instrum
 from pysnmp.smi import exval
 from pysnmp.smi import error
-from pysnmp import debug
-
-#debug.setLogger(debug.Debug('all'))
 
 
 def walkMib():
+
     def cbFun(varBinds, **context):
         err = context.get('error')
         if err:
@@ -38,6 +36,7 @@ def walkMib():
     }
 
     print('Read whole MIB (table walk)')
+
     while not app_context['stop']:
         mibInstrum.readNextMibObjects(*app_context['varBinds'], cbFun=cbFun, app=app_context)
 
@@ -103,6 +102,7 @@ def cbFun(varBinds, **context):
     err = context.get('errors', None)
     if err:
         print(err)
+
     for oid, val in varBinds:
         print('%s = %s' % ('.'.join([str(x) for x in oid]), not val.isValue and 'N/A' or val.prettyPrint()))
 

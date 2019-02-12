@@ -33,6 +33,7 @@ snmpEngine = engine.SnmpEngine()
 config.addV3User(
     snmpEngine, 'usr-none-none',
 )
+
 config.addTargetParams(snmpEngine, 'my-creds', 'usr-none-none', 'noAuthNoPriv')
 
 #
@@ -46,6 +47,7 @@ config.addTransport(
     udp.DOMAIN_NAME,
     udp.UdpSocketTransport().openClientMode()
 )
+
 config.addTargetAddr(
     snmpEngine, 'my-router',
     udp.DOMAIN_NAME, ('104.236.166.95', 161),
@@ -60,16 +62,20 @@ def cbFun(snmpEngine, sendRequestHandle, errorIndication,
     if errorIndication:
         print(errorIndication)
         return
+
     if errorStatus:
         print('%s at %s' % (errorStatus.prettyPrint(),
                             errorIndex and varBindTable[-1][int(errorIndex) - 1][0] or '?'))
-        return  # stop on error
+        return False  # stop on error
+
     for varBindRow in varBindTable:
         for oid, val in varBindRow:
             if initialOID.isPrefixOf(oid):
                 print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
+
             else:
                 return False  # signal dispatcher to stop
+
     return True  # signal dispatcher to continue
 
 

@@ -45,6 +45,7 @@ config.addV3User(
     snmpEngine, 'usr-md5-none',
     config.USM_AUTH_HMAC96_MD5, 'authkey1'
 )
+
 config.addTargetParams(snmpEngine, 'my-creds-2', 'usr-md5-none', 'authNoPriv')
 
 # Setup transport endpoint and bind it with security settings yielding
@@ -54,6 +55,7 @@ config.addTransport(
     udp.DOMAIN_NAME,
     udp.UdpSocketTransport().openClientMode()
 )
+
 # First target
 config.addTargetAddr(
     snmpEngine, 'my-nms-1',
@@ -61,6 +63,7 @@ config.addTargetAddr(
     'my-creds-1',
     tagList='all-my-managers'
 )
+
 # Second target
 config.addTargetAddr(
     snmpEngine, 'my-nms-2',

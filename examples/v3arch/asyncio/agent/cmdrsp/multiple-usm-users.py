@@ -52,11 +52,13 @@ config.addV3User(
     config.USM_AUTH_HMAC96_MD5, 'authkey1',
     config.USM_PRIV_CBC56_DES, 'privkey1'
 )
+
 # user: usr-sha-none, auth: SHA, priv NONE
 config.addV3User(
     snmpEngine, 'usr-sha-none',
     config.USM_AUTH_HMAC96_SHA, 'authkey1'
 )
+
 # user: usr-sha-none, auth: SHA, priv AES
 config.addV3User(
     snmpEngine, 'usr-sha-aes128',
@@ -65,9 +67,12 @@ config.addV3User(
 )
 
 # Allow full MIB access for each user at VACM
-config.addVacmUser(snmpEngine, 3, 'usr-md5-des', 'authPriv', (1, 3, 6, 1, 2, 1), (1, 3, 6, 1, 2, 1))
-config.addVacmUser(snmpEngine, 3, 'usr-sha-none', 'authNoPriv', (1, 3, 6, 1, 2, 1), (1, 3, 6, 1, 2, 1))
-config.addVacmUser(snmpEngine, 3, 'usr-sha-aes128', 'authPriv', (1, 3, 6, 1, 2, 1), (1, 3, 6, 1, 2, 1))
+config.addVacmUser(snmpEngine, 3, 'usr-md5-des', 'authPriv',
+                   (1, 3, 6, 1, 2, 1), (1, 3, 6, 1, 2, 1))
+config.addVacmUser(snmpEngine, 3, 'usr-sha-none', 'authNoPriv',
+                   (1, 3, 6, 1, 2, 1), (1, 3, 6, 1, 2, 1))
+config.addVacmUser(snmpEngine, 3, 'usr-sha-aes128', 'authPriv',
+                   (1, 3, 6, 1, 2, 1), (1, 3, 6, 1, 2, 1))
 
 # Get default SNMP context this SNMP engine serves
 snmpContext = context.SnmpContext(snmpEngine)
