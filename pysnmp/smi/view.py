@@ -5,9 +5,11 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 import sys
-from pysnmp.smi.indices import OrderedDict, OidOrderedDict
-from pysnmp.smi import error
+
 from pysnmp import debug
+from pysnmp.smi import error
+from pysnmp.smi.indices import OidOrderedDict
+from pysnmp.smi.indices import OrderedDict
 
 __all__ = ['MibViewController']
 

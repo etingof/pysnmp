@@ -5,8 +5,11 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 from pyasn1.type import univ
-from pysnmp.proto import rfc1155, rfc1157, error
+
 from pysnmp import nextid
+from pysnmp.proto import error
+from pysnmp.proto import rfc1155
+from pysnmp.proto import rfc1157
 
 # Shortcuts to SNMP types
 Integer = univ.Integer

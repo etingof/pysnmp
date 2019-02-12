@@ -7,7 +7,8 @@
 import socket
 import sys
 
-from pysnmp.carrier.asyncio.dgram import udp, udp6
+from pysnmp.carrier.asyncio.dgram import udp
+from pysnmp.carrier.asyncio.dgram import udp6
 from pysnmp.error import PySnmpError
 from pysnmp.hlapi.transport import AbstractTransportTarget
 

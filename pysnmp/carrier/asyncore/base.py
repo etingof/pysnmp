@@ -4,13 +4,14 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
+import asyncore
 import socket
 import sys
-import asyncore
-from pysnmp.carrier import error
-from pysnmp.carrier.base import AbstractTransport
-from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
+
 from pysnmp import debug
+from pysnmp.carrier import error
+from pysnmp.carrier.asyncore.dispatch import AsyncoreDispatcher
+from pysnmp.carrier.base import AbstractTransport
 
 
 class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):

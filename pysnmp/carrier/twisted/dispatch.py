@@ -12,8 +12,13 @@
 #
 # Description: Transport dispatcher based on twisted.internet.reactor
 #
-import sys, time, traceback
-from twisted.internet import reactor, task
+import sys
+import time
+import traceback
+
+from twisted.internet import reactor
+from twisted.internet import task
+
 from pysnmp.carrier.base import AbstractTransportDispatcher
 from pysnmp.error import PySnmpError
 

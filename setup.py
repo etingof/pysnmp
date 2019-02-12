@@ -5,9 +5,9 @@ SNMP v1/v2c/v3 engine and Standard Applications suite written in pure-Python.
 Supports Manager/Agent/Proxy roles, Manager/Agent-side MIBs, asynchronous
 operation and multiple network transports.
 """
-import sys
 import os
 import re
+import sys
 
 classifiers = """\
 Development Status :: 5 - Production/Stable

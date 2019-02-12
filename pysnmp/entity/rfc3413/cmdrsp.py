@@ -4,13 +4,16 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-import sys
-from pysnmp.proto import rfc1902, rfc1905, rfc3411, errind, error
+import pysnmp.smi.error
+from pysnmp import debug
+from pysnmp.proto import errind
+from pysnmp.proto import error
+from pysnmp.proto import rfc1902
+from pysnmp.proto import rfc1905
+from pysnmp.proto import rfc3411
 from pysnmp.proto.api import v2c  # backend is always SMIv2 compliant
 from pysnmp.proto.proxy import rfc2576
-import pysnmp.smi.error
 from pysnmp.smi import exval
-from pysnmp import debug
 
 
 # 3.2

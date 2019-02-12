@@ -5,6 +5,7 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 from pyasn1.type import univ
+
 from pysnmp.proto import rfc1902
 
 mibBuilder.exportSymbols(

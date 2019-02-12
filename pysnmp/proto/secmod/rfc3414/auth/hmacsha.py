@@ -4,17 +4,14 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-try:
-    from hashlib import sha1
-except ImportError:
-    import sha
-
-    sha1 = sha.new
+from hashlib import sha1
 
 from pyasn1.type import univ
-from pysnmp.proto.secmod.rfc3414.auth import base
+
+from pysnmp.proto import errind
+from pysnmp.proto import error
 from pysnmp.proto.secmod.rfc3414 import localkey
-from pysnmp.proto import errind, error
+from pysnmp.proto.secmod.rfc3414.auth import base
 
 TWELVE_ZEROS = univ.OctetString((0,) * 12).asOctets()
 FORTY_FOUR_ZEROS = (0,) * 44

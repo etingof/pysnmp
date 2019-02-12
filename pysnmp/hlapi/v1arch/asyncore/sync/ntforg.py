@@ -6,8 +6,6 @@
 #
 from pysnmp.hlapi.v1arch.asyncore import ntforg
 from pysnmp.hlapi.varbinds import *
-from pysnmp.proto import errind
-from pyasn1.type.univ import Null
 
 __all__ = ['sendNotification']
 

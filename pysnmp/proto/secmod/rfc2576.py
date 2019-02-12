@@ -4,14 +4,16 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-import sys
 from pyasn1.codec.ber import encoder
 from pyasn1.error import PyAsn1Error
-from pysnmp.proto.secmod import base
-from pysnmp.carrier.asyncore.dgram import udp, udp6
-from pysnmp.smi.error import NoSuchInstanceError
-from pysnmp.proto import errind, error
+
 from pysnmp import debug
+from pysnmp.carrier.asyncore.dgram import udp
+from pysnmp.carrier.asyncore.dgram import udp6
+from pysnmp.proto import errind
+from pysnmp.proto import error
+from pysnmp.proto.secmod import base
+from pysnmp.smi.error import NoSuchInstanceError
 
 
 class SnmpV1SecurityModel(base.AbstractSecurityModel):

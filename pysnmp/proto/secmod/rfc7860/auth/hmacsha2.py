@@ -4,10 +4,12 @@
 # Copyright (c) 2005-2018, Olivier Verriest <verri@x25.pm>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-import sys
 import hmac
 try:
-    from hashlib import sha224, sha256, sha384, sha512
+    from hashlib import sha224
+    from hashlib import sha256
+    from hashlib import sha384
+    from hashlib import sha512
 
 except ImportError:
 

@@ -4,7 +4,9 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-from pysnmp.proto import rfc1157, rfc1905
+from pysnmp.proto import rfc1157
+from pysnmp.proto import rfc1905
+
 
 READ_CLASS_PDUS = set(
     (rfc1157.GetRequestPDU.tagSet,

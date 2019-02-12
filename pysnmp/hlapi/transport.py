@@ -5,8 +5,9 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 from pyasn1.compat.octets import null
-from pysnmp.carrier.base import AbstractTransport
+
 from pysnmp import error
+from pysnmp.carrier.base import AbstractTransport
 
 __all__ = []
 

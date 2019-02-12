@@ -4,9 +4,10 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-from pysnmp.entity import config
-from pysnmp import error
 from pyasn1.compat.octets import null
+
+from pysnmp import error
+from pysnmp.entity import config
 
 __all__ = [
     'CommunityData', 'UsmUserData',

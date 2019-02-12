@@ -8,7 +8,6 @@ import socket
 
 from pysnmp import debug
 
-
 SYMBOLS = {
     'IP_PKTINFO': 8,
     'IP_TRANSPARENT': 19,

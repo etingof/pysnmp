@@ -4,16 +4,14 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-import sys
-from pyasn1.compat.octets import null
+from pysnmp import debug
+from pysnmp import nextid
 from pysnmp.entity.rfc3413 import config
-from pysnmp.proto.proxy import rfc2576
+from pysnmp.proto import errind
+from pysnmp.proto import error
 from pysnmp.proto import rfc3411
 from pysnmp.proto.api import v2c
-from pysnmp.proto import errind, error
-from pysnmp.smi import view, rfc1902
-from pysnmp import nextid
-from pysnmp import debug
+from pysnmp.proto.proxy import rfc2576
 
 getNextHandle = nextid.Integer(0x7fffffff)
 

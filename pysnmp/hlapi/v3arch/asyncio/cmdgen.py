@@ -31,7 +31,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
 #
-from pysnmp.smi.rfc1902 import *
 from pysnmp.hlapi.v3arch.auth import *
 from pysnmp.hlapi.v3arch.context import *
 from pysnmp.hlapi.v3arch.lcd import *
@@ -39,6 +38,7 @@ from pysnmp.hlapi.varbinds import *
 from pysnmp.hlapi.v3arch.asyncio.transport import *
 from pysnmp.entity.rfc3413 import cmdgen
 from pysnmp.proto.api import v2c
+from pysnmp.smi.rfc1902 import *
 
 try:
     import asyncio

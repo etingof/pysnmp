@@ -4,8 +4,9 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-from pysnmp.smi.error import SmiError, NoSuchInstanceError
 from pysnmp.entity import config
+from pysnmp.smi.error import NoSuchInstanceError
+from pysnmp.smi.error import SmiError
 
 
 def getTargetAddr(snmpEngine, snmpTargetAddrName):

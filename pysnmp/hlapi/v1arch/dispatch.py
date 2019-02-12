@@ -6,12 +6,12 @@
 #
 from time import time
 
-from pysnmp.proto.api import verdec
+from pyasn1.codec.ber import encoder, decoder
+
+from pysnmp import debug
 from pysnmp.proto import api
 from pysnmp.proto import error
-from pysnmp import debug
-
-from pyasn1.codec.ber import encoder, decoder
+from pysnmp.proto.api import verdec
 
 __all__ = []
 

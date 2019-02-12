@@ -11,6 +11,7 @@ try:
     from socket import AF_UNIX
 except ImportError:
     AF_UNIX = None
+
 from pysnmp.carrier.base import AbstractTransportAddress
 from pysnmp.carrier.asyncore.dgram.base import DgramSocketTransport
 

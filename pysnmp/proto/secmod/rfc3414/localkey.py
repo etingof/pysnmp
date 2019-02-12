@@ -4,39 +4,34 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-try:
-    from hashlib import md5, sha1
-
-except ImportError:
-    import md5
-    import sha
-
-    md5 = md5.new
-    sha1 = sha.new
+from hashlib import md5
+from hashlib import sha1
 
 from pyasn1.type import univ
 
 
 def hashPassphrase(passphrase, hashFunc):
     passphrase = univ.OctetString(passphrase).asOctets()
-    # noinspection PyDeprecation,PyCallingNonCallable
     hasher = hashFunc()
     ringBuffer = passphrase * (64 // len(passphrase) + 1)
-    # noinspection PyTypeChecker
     ringBufferLen = len(ringBuffer)
     count = 0
     mark = 0
+
     while count < 16384:
         e = mark + 64
         if e < ringBufferLen:
             hasher.update(ringBuffer[mark:e])
             mark = e
+
         else:
             hasher.update(
                 ringBuffer[mark:ringBufferLen] + ringBuffer[0:e - ringBufferLen]
             )
             mark = e - ringBufferLen
+
         count += 1
+
     return hasher.digest()
 
 

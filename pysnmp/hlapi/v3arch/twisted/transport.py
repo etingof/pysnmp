@@ -5,7 +5,6 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 import socket
-import sys
 
 from pysnmp.carrier.twisted.dgram import udp
 from pysnmp.error import PySnmpError

@@ -4,9 +4,13 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-from pysnmp.proto import rfc1901, rfc1902, rfc1905
+from pyasn1.type import constraint
+from pyasn1.type import univ
+
+from pysnmp.proto import rfc1901
+from pysnmp.proto import rfc1902
+from pysnmp.proto import rfc1905
 from pysnmp.proto.api import v1
-from pyasn1.type import univ, constraint
 
 # Shortcuts to SNMP types
 Null = univ.Null

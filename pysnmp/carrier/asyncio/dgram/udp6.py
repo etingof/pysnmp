@@ -5,9 +5,9 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 import socket
-from pysnmp.carrier.base import AbstractTransportAddress
-from pysnmp.carrier.asyncio.dgram.base import DgramAsyncioProtocol
 
+from pysnmp.carrier.asyncio.dgram.base import DgramAsyncioProtocol
+from pysnmp.carrier.base import AbstractTransportAddress
 
 domainName = snmpUDP6Domain = (1, 3, 6, 1, 2, 1, 100, 1, 2)
 

@@ -5,9 +5,9 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 
-from pysnmp.hlapi.varbinds import *
 from pysnmp.hlapi.v1arch.auth import *
 from pysnmp.hlapi.v1arch.asyncore import *
+from pysnmp.hlapi.varbinds import *
 from pysnmp.smi.rfc1902 import *
 from pysnmp.proto import api
 from pysnmp import error
