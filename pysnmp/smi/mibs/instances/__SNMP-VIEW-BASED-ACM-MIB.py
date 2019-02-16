@@ -4,13 +4,31 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-MibScalarInstance, = mibBuilder.importSymbols('SNMPv2-SMI', 'MibScalarInstance')
+# This file instantiates some of the MIB managed objects for SNMP engine use
+#
 
-vacmViewSpinLock, = mibBuilder.importSymbols('SNMP-VIEW-BASED-ACM-MIB', 'vacmViewSpinLock')
+if 'mibBuilder' not in globals():
+    import sys
 
-__vacmViewSpinLock = MibScalarInstance(vacmViewSpinLock.name, (0,), vacmViewSpinLock.syntax)
+    sys.stderr.write(__doc__)
+    sys.exit(1)
+
+MibScalarInstance, = mibBuilder.importSymbols(
+    'SNMPv2-SMI',
+    'MibScalarInstance'
+)
+
+vacmViewSpinLock, = mibBuilder.importSymbols(
+    'SNMP-VIEW-BASED-ACM-MIB',
+    'vacmViewSpinLock'
+)
+
+_vacmViewSpinLock = MibScalarInstance(
+    vacmViewSpinLock.name, (0,),
+    vacmViewSpinLock.syntax
+)
 
 mibBuilder.exportSymbols(
     "__SNMP-VIEW-BASED-ACM-MIB",
-    vacmViewSpinLock=__vacmViewSpinLock
+    vacmViewSpinLock=_vacmViewSpinLock
 )
