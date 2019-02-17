@@ -4,9 +4,17 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
+# This module supplies built-in ASN.1 types to the MIBs importing it.
+#
+from pysnmp.proto import rfc1902
+
 from pyasn1.type import univ
 
-from pysnmp.proto import rfc1902
+if 'mibBuilder' not in globals():
+    import sys
+
+    sys.stderr.write(__doc__)
+    sys.exit(1)
 
 mibBuilder.exportSymbols(
     'ASN1',

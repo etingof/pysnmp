@@ -4,18 +4,47 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-# PySNMP MIB module RFC1158-MIB (http://snmplabs.com/pysnmp)
 # ASN.1 source http://mibs.snmplabs.com:80/asn1/RFC1158-MIB
-# Produced by pysmi-0.1.3 at Mon Apr 17 12:12:07 2017
-# On host grommit.local platform Darwin version 16.4.0 by user ilya
-# Using Python version 3.4.2 (v3.4.2:ab2c023a9432, Oct  5 2014, 20:42:22)
+# Produced by pysmi-0.4.0 at Thu Feb 14 23:20:17 2019
 #
 # It is a stripped version of MIB that contains only symbols that is
 # unique to SMIv1 and have no analogues in SMIv2
 #
-Integer32, MibScalar, MibTable, MibTableRow, MibTableColumn, TimeTicks, iso, Gauge32, MibIdentifier, Bits, Counter32 = mibBuilder.importSymbols("SNMPv2-SMI", "Integer32", "MibScalar", "MibTable", "MibTableRow", "MibTableColumn", "TimeTicks", "iso", "Gauge32", "MibIdentifier", "Bits","Counter32")
-snmpInBadTypes = MibScalar((1, 3, 6, 1, 2, 1, 11, 7), Counter32()).setMaxAccess("readonly")
-if mibBuilder.loadTexts: snmpInBadTypes.setStatus('mandatory')
-snmpOutReadOnlys = MibScalar((1, 3, 6, 1, 2, 1, 11, 23), Counter32()).setMaxAccess("readonly")
-if mibBuilder.loadTexts: snmpOutReadOnlys.setStatus('mandatory')
-mibBuilder.exportSymbols("RFC1158-MIB", snmpOutReadOnlys=snmpOutReadOnlys, snmpInBadTypes=snmpInBadTypes)
+
+if 'mibBuilder' not in globals():
+    import sys
+
+    sys.stderr.write(__doc__)
+    sys.exit(1)
+
+(Counter32,
+ MibScalar) = mibBuilder.importSymbols(
+    "SNMPv2-SMI",
+    "Counter32",
+    "MibScalar")
+
+_SnmpInBadTypes_Type = Counter32
+_SnmpInBadTypes_Object = MibScalar
+snmpInBadTypes = _SnmpInBadTypes_Object(
+    (1, 3, 6, 1, 2, 1, 11, 7),
+    _SnmpInBadTypes_Type()
+)
+snmpInBadTypes.setMaxAccess("read-only")
+if mibBuilder.loadTexts:
+    snmpInBadTypes.setStatus("mandatory")
+
+_SnmpOutReadOnlys_Type = Counter32
+_SnmpOutReadOnlys_Object = MibScalar
+snmpOutReadOnlys = _SnmpOutReadOnlys_Object(
+    (1, 3, 6, 1, 2, 1, 11, 23),
+    _SnmpOutReadOnlys_Type()
+)
+snmpOutReadOnlys.setMaxAccess("read-only")
+if mibBuilder.loadTexts:
+    snmpOutReadOnlys.setStatus("mandatory")
+
+mibBuilder.exportSymbols(
+    "RFC1158-MIB",
+    **{"snmpInBadTypes": snmpInBadTypes,
+       "snmpOutReadOnlys": snmpOutReadOnlys}
+)
