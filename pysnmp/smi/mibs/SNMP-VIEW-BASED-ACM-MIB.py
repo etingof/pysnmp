@@ -201,6 +201,30 @@ if mibBuilder.loadTexts:
 A human readable name identifying a particular context at a particular SNMP
 entity. The empty contextName (zero length) represents the default context.
 """)
+
+# NOTE: The RowStatus column is not present in the MIB
+
+_VacmContextStatus_Type = RowStatus
+_VacmContextStatus_Object = MibTableColumn
+vacmContextStatus = _VacmContextStatus_Object(
+    (1, 3, 6, 1, 6, 3, 16, 1, 1, 1, 2),
+    _VacmContextStatus_Type()
+)
+vacmContextStatus.setMaxAccess("readcreate")
+if mibBuilder.loadTexts:
+    vacmContextStatus.setStatus('current')
+if mibBuilder.loadTexts:
+    vacmContextStatus.setDescription("""\
+The status of this conceptual row. Until instances of all corresponding columns
+are appropriately configured, the value of the corresponding instance of the
+vacmContextTableStatus column is 'notReady'. In particular, a newly created
+row cannot be made active until a value has been set for vacmContextName. The
+RowStatus TC [RFC2579] requires that this DESCRIPTION clause states under
+which circumstances other objects in this row can be modified: The value of
+this object has no effect on whether other objects in this conceptual row can
+be modified.
+""")
+
 _VacmSecurityToGroupTable_Object = MibTable
 vacmSecurityToGroupTable = _VacmSecurityToGroupTable_Object(
     (1, 3, 6, 1, 6, 3, 16, 1, 2)
@@ -473,7 +497,7 @@ _VacmAccessContextMatch_Type.__name__ = "Integer32"
 _VacmAccessContextMatch_Object = MibTableColumn
 vacmAccessContextMatch = _VacmAccessContextMatch_Object(
     (1, 3, 6, 1, 6, 3, 16, 1, 4, 1, 4),
-    _VacmAccessContextMatch_Type()
+    _VacmAccessContextMatch_Type().clone('exact')
 )
 vacmAccessContextMatch.setMaxAccess("read-create")
 if mibBuilder.loadTexts:
@@ -585,7 +609,7 @@ class _VacmAccessStorageType_Type(StorageType):
 _VacmAccessStorageType_Object = MibTableColumn
 vacmAccessStorageType = _VacmAccessStorageType_Object(
     (1, 3, 6, 1, 6, 3, 16, 1, 4, 1, 8),
-    _VacmAccessStorageType_Type()
+    _VacmAccessStorageType_Type().clone('nonVolatile')
 )
 vacmAccessStorageType.setMaxAccess("read-create")
 if mibBuilder.loadTexts:
@@ -807,7 +831,7 @@ _VacmViewTreeFamilyType_Type.__name__ = "Integer32"
 _VacmViewTreeFamilyType_Object = MibTableColumn
 vacmViewTreeFamilyType = _VacmViewTreeFamilyType_Object(
     (1, 3, 6, 1, 6, 3, 16, 1, 5, 2, 1, 4),
-    _VacmViewTreeFamilyType_Type()
+    _VacmViewTreeFamilyType_Type().clone('included')
 )
 vacmViewTreeFamilyType.setMaxAccess("read-create")
 if mibBuilder.loadTexts:
@@ -914,6 +938,7 @@ mibBuilder.exportSymbols(
        "vacmContextTable": vacmContextTable,
        "vacmContextEntry": vacmContextEntry,
        "vacmContextName": vacmContextName,
+       "vacmContextStatus": vacmContextStatus,
        "vacmSecurityToGroupTable": vacmSecurityToGroupTable,
        "vacmSecurityToGroupEntry": vacmSecurityToGroupEntry,
        "vacmSecurityModel": vacmSecurityModel,

@@ -232,7 +232,7 @@ _SnmpNotifyType_Type.__name__ = "Integer32"
 _SnmpNotifyType_Object = MibTableColumn
 snmpNotifyType = _SnmpNotifyType_Object(
     (1, 3, 6, 1, 6, 3, 13, 1, 1, 1, 3),
-    _SnmpNotifyType_Type()
+    _SnmpNotifyType_Type().clone('trap')
 )
 snmpNotifyType.setMaxAccess("read-create")
 if mibBuilder.loadTexts:
@@ -258,7 +258,7 @@ class _SnmpNotifyStorageType_Type(StorageType):
 _SnmpNotifyStorageType_Object = MibTableColumn
 snmpNotifyStorageType = _SnmpNotifyStorageType_Object(
     (1, 3, 6, 1, 6, 3, 13, 1, 1, 1, 4),
-    _SnmpNotifyStorageType_Type()
+    _SnmpNotifyStorageType_Type().clone('nonVolatile')
 )
 snmpNotifyStorageType.setMaxAccess("read-create")
 if mibBuilder.loadTexts:
@@ -342,7 +342,7 @@ class _SnmpNotifyFilterProfileStorType_Type(StorageType):
 _SnmpNotifyFilterProfileStorType_Object = MibTableColumn
 snmpNotifyFilterProfileStorType = _SnmpNotifyFilterProfileStorType_Object(
     (1, 3, 6, 1, 6, 3, 13, 1, 2, 1, 2),
-    _SnmpNotifyFilterProfileStorType_Type()
+    _SnmpNotifyFilterProfileStorType_Type().clone('nonVolatile')
 )
 snmpNotifyFilterProfileStorType.setMaxAccess("read-create")
 if mibBuilder.loadTexts:
@@ -486,7 +486,7 @@ _SnmpNotifyFilterType_Type.__name__ = "Integer32"
 _SnmpNotifyFilterType_Object = MibTableColumn
 snmpNotifyFilterType = _SnmpNotifyFilterType_Object(
     (1, 3, 6, 1, 6, 3, 13, 1, 3, 1, 3),
-    _SnmpNotifyFilterType_Type()
+    _SnmpNotifyFilterType_Type().clone('included')
 )
 snmpNotifyFilterType.setMaxAccess("read-create")
 if mibBuilder.loadTexts:
