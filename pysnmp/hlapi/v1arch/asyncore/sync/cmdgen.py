@@ -158,7 +158,7 @@ def setCmd(snmpDispatcher, authData, transportTarget,
 
     Notes
     -----
-    The `setCmd` generator will be exhausted immidiately unless
+    The `setCmd` generator will be exhausted immediately unless
     a new sequence of `varBinds` are send back into running generator
     (supported since Python 2.6).
 

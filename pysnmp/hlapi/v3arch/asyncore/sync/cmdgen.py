@@ -66,7 +66,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
 
     Notes
     -----
-    The `getCmd` generator will be exhausted immidiately unless
+    The `getCmd` generator will be exhausted immediately unless
     a new sequence of `varBinds` are send back into running generator
     (supported since Python 2.6).
 
@@ -172,7 +172,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
 
     Notes
     -----
-    The `setCmd` generator will be exhausted immidiately unless
+    The `setCmd` generator will be exhausted immediately unless
     a new sequence of `varBinds` are send back into running generator
     (supported since Python 2.6).
 
