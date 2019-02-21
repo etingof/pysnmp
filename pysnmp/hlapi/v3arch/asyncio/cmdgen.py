@@ -51,7 +51,7 @@ __all__ = ['getCmd', 'nextCmd', 'setCmd', 'bulkCmd', 'isEndOfMib']
 VB_PROCESSOR = CommandGeneratorVarBinds()
 LCD = CommandGeneratorLcdConfigurator()
 
-isEndOfMib = lambda varBinds: not v2c.apiPDU.getNextVarBinds(varBinds)
+isEndOfMib = lambda varBinds: not v2c.apiPDU.getNextVarBinds(varBinds)[1]
 
 
 @asyncio.coroutine
