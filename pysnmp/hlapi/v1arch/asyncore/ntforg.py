@@ -86,7 +86,6 @@ def sendNotification(snmpDispatcher, authData, transportTarget,
     advised to maintain it for the lifecycle of the application/thread for
     as long as possible.
 
-
     Returns
     -------
     sendRequestHandle: int

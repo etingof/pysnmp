@@ -924,14 +924,14 @@ class NotificationType(object):
 
     Parameters
     ----------
-    objectIdentity : :py:class:`~pysnmp.smi.rfc1902.ObjectIdentity`
+    objectIdentity: :py:class:`~pysnmp.smi.rfc1902.ObjectIdentity`
         Class instance representing MIB notification type identification.
-    instanceIndex : :py:class:`~pysnmp.proto.rfc1902.ObjectName`
+    instanceIndex: :py:class:`~pysnmp.proto.rfc1902.ObjectName`
         Trailing part of MIB variables OID identification that represents
         concrete instance of a MIB variable. When notification is prepared,
         `instanceIndex` is appended to each MIB variable identification
         listed in NOTIFICATION-TYPE->OBJECTS clause.
-    objects : dict
+    objects: dict
         Dictionary-like object that may return values by OID key. The
         `objects` dictionary is consulted when notification is being
         prepared. OIDs are taken from MIB variables listed in

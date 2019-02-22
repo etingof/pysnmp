@@ -107,13 +107,6 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
         Or its derivative indicating that an error occurred while
         performing SNMP operation.
 
-    Notes
-    -----
-    The `sendNotification` generator will be exhausted immediately unless
-    an instance of :py:class:`~pysnmp.smi.rfc1902.NotificationType` class
-    or a sequence of :py:class:`~pysnmp.smi.rfc1902.ObjectType` `varBinds`
-    are send back into running generator (supported since Python 2.6).
-
     Examples
     --------
     >>> import asyncio

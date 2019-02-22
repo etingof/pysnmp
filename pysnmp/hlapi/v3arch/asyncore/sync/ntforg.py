@@ -19,19 +19,19 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
 
     Parameters
     ----------
-    snmpEngine : :py:class:`~pysnmp.hlapi.SnmpEngine`
+    snmpEngine: :py:class:`~pysnmp.hlapi.SnmpEngine`
         Class instance representing SNMP engine.
 
-    authData : :py:class:`~pysnmp.hlapi.CommunityData` or :py:class:`~pysnmp.hlapi.UsmUserData`
+    authData: :py:class:`~pysnmp.hlapi.CommunityData` or :py:class:`~pysnmp.hlapi.UsmUserData`
         Class instance representing SNMP credentials.
 
-    transportTarget : :py:class:`~pysnmp.hlapi.asyncore.UdpTransportTarget` or :py:class:`~pysnmp.hlapi.asyncore.Udp6TransportTarget`
+    transportTarget: :py:class:`~pysnmp.hlapi.asyncore.UdpTransportTarget` or :py:class:`~pysnmp.hlapi.asyncore.Udp6TransportTarget`
         Class instance representing transport type along with SNMP peer address.
 
-    contextData : :py:class:`~pysnmp.hlapi.ContextData`
+    contextData: :py:class:`~pysnmp.hlapi.ContextData`
         Class instance representing SNMP ContextEngineId and ContextName values.
 
-    notifyType : str
+    notifyType: str
         Indicates type of notification to be sent. Recognized literal
         values are *trap* or *inform*.
 
@@ -71,7 +71,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
            properly formed SNMP notification (to comply MIB definition). If you
            build notification PDU out of :py:class:`~pysnmp.smi.rfc1902.ObjectType`
            objects or simple tuples of OID-value objects, it is your responsibility
-           to provide well-formed notificaton payload.
+           to provide well-formed notification payload.
 
     Other Parameters
     ----------------
@@ -81,13 +81,13 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
 
     Yields
     ------
-    errorIndication : str
+    errorIndication: str
         True value indicates SNMP engine error.
-    errorStatus : str
+    errorStatus: str
         True value indicates SNMP PDU error.
-    errorIndex : int
+    errorIndex: int
         Non-zero value refers to `varBinds[errorIndex-1]`
-    varBinds : tuple
+    varBinds: tuple
         A sequence of :py:class:`~pysnmp.smi.rfc1902.ObjectType` class
         instances representing MIB variables returned in SNMP response.
 

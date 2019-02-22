@@ -82,7 +82,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
            properly formed SNMP notification (to comply MIB definition). If you
            build notification PDU out of :py:class:`~pysnmp.smi.rfc1902.ObjectType`
            objects or simple tuples of OID-value objects, it is your responsibility
-           to provide well-formed notificaton payload.
+           to provide well-formed notification payload.
 
     Other Parameters
     ----------------

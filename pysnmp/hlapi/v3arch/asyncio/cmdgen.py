@@ -500,6 +500,7 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
                               for varBindTableRow in varBindTable]
         except Exception as e:
             future.set_exception(e)
+
         else:
             future.set_result(
                 (errorIndication, errorStatus, errorIndex, varBindsUnmade)
