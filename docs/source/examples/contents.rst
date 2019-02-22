@@ -83,6 +83,11 @@ The v1 architecture
 
    /examples/hlapi/v1arch/asyncore/contents
 
+.. toctree::
+   :maxdepth: 2
+
+   /examples/hlapi/v1arch/asyncio/contents
+
 Low-level v3 architecture
 -------------------------
 

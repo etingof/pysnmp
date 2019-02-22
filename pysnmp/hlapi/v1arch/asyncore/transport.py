@@ -42,7 +42,6 @@ class UdpTransportTarget(AbstractTransportTarget):
     >>> UdpTransportTarget(('demo.snmplabs.com', 161))
     UdpTransportTarget(('195.218.195.228', 161), timeout=1, retries=5)
     >>>
-
     """
     TRANSPORT_DOMAIN = udp.DOMAIN_NAME
     PROTO_TRANSPORT = udp.UdpSocketTransport
