@@ -2,6 +2,8 @@
 Revision 5.0.0, released 2019-03-XX
 -----------------------------------
 
+- Python 2.6 becomes the minimum supported Python version! \o/
+
 - SNMPv3 crypto operations that require external dependencies
   made dependent on the optional external
   package -- pysnmpcrypto.
@@ -69,7 +71,7 @@ Revision 5.0.0, released 2019-03-XX
   By way of introducing v1arch hlapi, the sub-packages layout changed
   so that `pysnmp.hlapi` is moved to `pysnmp.hlapi.v3arch` and the new
   v1arch layer is introduced in `pysnmp.hlapi.v1arch`. This change does
-  not break backward compatibility as `pysnmp.hlapi` still defaults to
+  NOT break backward compatibility as `pysnmp.hlapi` still defaults to
   `pysnmp.hlapi.v3arch`.
 
   The `pysnmp.hlapi.v1arch` is designed to be as much similar in use
@@ -79,6 +81,14 @@ Revision 5.0.0, released 2019-03-XX
   differences between SNMP versions is not present in this new `v1arch`
   layer.
 
+  The same SMI MIB services that exist for v3arch high-level API can be
+  used with all v1arch calls.
+
+- New high-level `asyncio` bindings to the lightweight v1arch layer
+  have been introduced as `pysnmp.hlapi.v1arch.asyncio` sub-package. The
+  goal being to provide fast SNMP manager within `asyncio` framework at
+  the expense of limiting its functionality to SNMP v1 and v2c support.
+
 - The signature of the hlapi `.sendNotification()` call has changed
   to accept `*varBinds` instead of a sequence of `varBinds`. The rationale
   is to unify this method call with similar methods of CommandGenerator.
@@ -87,6 +97,7 @@ Revision 5.0.0, released 2019-03-XX
 - The whole codebase PEP-eighted, in particular:
 
   * Global constants turned UPPER_CASED
+  * Long lines wrapped by more or less 80 chars
 
 Revision 4.4.9, released 2019-02-09
 -----------------------------------
