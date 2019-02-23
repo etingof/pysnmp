@@ -8,7 +8,7 @@ from pysnmp.hlapi.v1arch.auth import *
 from pysnmp.hlapi.v1arch.asyncore import *
 from pysnmp.hlapi.varbinds import *
 from pysnmp.smi.rfc1902 import *
-from pysnmp.proto import api
+from pysnmp.proto.api import v2c
 from pysnmp.proto.proxy import rfc2576
 from pysnmp import error
 
@@ -48,24 +48,27 @@ def sendNotification(snmpDispatcher, authData, transportTarget,
         or :py:class:`~pysnmp.smi.rfc1902.ObjectType` class instances
         of :py:class:`~pysnmp.smi.rfc1902.NotificationType` objects.
 
-        SNMP Notification PDU places rigid requirement on the ordering of
-        the variable-bindings.
-
-        Mandatory variable-bindings:
+        Besides user variable-bindings, SNMP Notification PDU requires at
+        least two variable-bindings to be present:
 
         0. SNMPv2-MIB::sysUpTime.0 = <agent uptime>
-        1. SNMPv2-SMI::snmpTrapOID.0 = {SNMPv2-MIB::coldStart, ...}
+        1. SNMPv2-SMI::snmpTrapOID.0 = <notification ID>
 
-        Optional variable-bindings (applicable to SNMP v1 TRAP):
+        When sending SNMPv1 TRAP, more variable-bindings could be present:
 
         2. SNMP-COMMUNITY-MIB::snmpTrapAddress.0 = <agent-IP>
         3. SNMP-COMMUNITY-MIB::snmpTrapCommunity.0 = <snmp-community-name>
         4. SNMP-COMMUNITY-MIB::snmpTrapEnterprise.0 = <enterprise-OID>
 
-        Informational variable-bindings:
+        If user does not supply some or any of the above variable-bindings or
+        if they are at the wrong positions, the system will add/reorder the
+        missing ones automatically.
 
-        * SNMPv2-SMI::NOTIFICATION-TYPE
-        * SNMPv2-SMI::OBJECT-TYPE
+        On top of that, some notification types imply including some additional
+        variable-bindings providing additional details on the event being
+        reported. Therefore it is generally easier to use
+        :py:class:`~pysnmp.smi.rfc1902.NotificationType` object which will
+        help adding relevant variable-bindings.
 
     Other Parameters
     ----------------
@@ -116,6 +119,42 @@ def sendNotification(snmpDispatcher, authData, transportTarget,
     >>> snmpDispatcher.transportDispatcher.runDispatcher()
     """
 
+    sysUpTime = v2c.apiTrapPDU.sysUpTime
+    snmpTrapOID = v2c.apiTrapPDU.snmpTrapOID
+
+    def _ensureVarBinds(varBinds):
+        # Add sysUpTime if not present already
+        if not varBinds or varBinds[0][0] != sysUpTime:
+            varBinds.insert(0, (v2c.ObjectIdentifier(sysUpTime), v2c.TimeTicks(0)))
+
+        # Search for and reposition sysUpTime if it's elsewhere
+        for idx, varBind in enumerate(varBinds[1:]):
+            if varBind[0] == sysUpTime:
+                varBinds[0] = varBind
+                del varBinds[idx]
+                break
+
+        if len(varBinds) < 2:
+            raise error.PySnmpError('SNMP notification PDU requires '
+                                    'SNMPv2-MIB::snmpTrapOID.0 to be present')
+
+        # Search for and reposition snmpTrapOID if it's elsewhere
+        for idx, varBind in enumerate(varBinds[2:]):
+            if varBind[0] == snmpTrapOID:
+                del varBinds[idx]
+                if varBinds[1][0] == snmpTrapOID:
+                    varBinds[1] = varBind
+                else:
+                    varBinds.insert(1, varBind)
+                break
+
+        # Fail on missing snmpTrapOID
+        if varBinds[1][0] != snmpTrapOID:
+            raise error.PySnmpError('SNMP notification PDU requires '
+                                    'SNMPv2-MIB::snmpTrapOID.0 to be present')
+
+        return varBinds
+
     def _cbFun(snmpDispatcher, stateHandle, errorIndication, rspPdu, _cbCtx):
         if not cbFun:
             return
@@ -125,10 +164,10 @@ def sendNotification(snmpDispatcher, authData, transportTarget,
                   cbCtx=cbCtx, snmpDispatcher=snmpDispatcher, stateHandle=stateHandle)
             return
 
-        errorStatus = pMod.apiTrapPDU.getErrorStatus(rspPdu)
-        errorIndex = pMod.apiTrapPDU.getErrorIndex(rspPdu)
+        errorStatus = v2c.apiTrapPDU.getErrorStatus(rspPdu)
+        errorIndex = v2c.apiTrapPDU.getErrorIndex(rspPdu)
 
-        varBinds = pMod.apiTrapPDU.getVarBinds(rspPdu)
+        varBinds = v2c.apiTrapPDU.getVarBinds(rspPdu)
 
         if lookupMib:
             varBinds = VB_PROCESSOR.unmakeVarBinds(snmpDispatcher.cache, varBinds)
@@ -144,8 +183,8 @@ def sendNotification(snmpDispatcher, authData, transportTarget,
         if not nextVarBinds:
             return
 
-        pMod.apiTrapPDU.setRequestID(reqPdu, nextStateHandle)
-        pMod.apiTrapPDU.setVarBinds(reqPdu, nextVarBinds)
+        v2c.apiTrapPDU.setRequestID(reqPdu, nextStateHandle)
+        v2c.apiTrapPDU.setVarBinds(reqPdu, _ensureVarBinds(nextVarBinds))
 
         return snmpDispatcher.sendPdu(authData, transportTarget, reqPdu, cbFun=_cbFun)
 
@@ -154,31 +193,17 @@ def sendNotification(snmpDispatcher, authData, transportTarget,
     if lookupMib:
         varBinds = VB_PROCESSOR.makeVarBinds(snmpDispatcher.cache, varBinds)
 
-    # # make sure required PDU payload is in place
-    # completeVarBinds = []
-    #
-    # # ensure sysUpTime
-    # if len(varBinds) < 1 or varBinds[0][0] != pMod.apiTrapPDU.sysUpTime:
-    #     varBinds.insert(0, (ObjectIdentifier(pMod.apiTrapPDU.sysUpTime), pMod.Integer(0)))
-    #
-    # # ensure sysUpTime
-    # if len(varBinds) < 1 or varBinds[0][0] != pMod.apiTrapPDU.sysUpTime:
-    #     varBinds.insert(0, (ObjectIdentifier(pMod.apiTrapPDU.sysUpTime), pMod.Integer(0)))
-    #
-    # # ensure snmpTrapOID
-    # if len(varBinds) < 2 or varBinds[1][0] != pMod.apiTrapPDU.snmpTrapOID:
-    #     varBinds.insert(0, (ObjectIdentifier(pMod.apiTrapPDU.sysUpTime), pMod.Integer(0)))
-
-    # input PDU is always v2c
-    pMod = api.PROTOCOL_MODULES[api.SNMP_VERSION_2C]
-
     if notifyType == 'trap':
-        reqPdu = pMod.TrapPDU()
+        reqPdu = v2c.TrapPDU()
     else:
-        reqPdu = pMod.InformRequestPDU()
+        reqPdu = v2c.InformRequestPDU()
 
-    pMod.apiTrapPDU.setDefaults(reqPdu)
-    pMod.apiTrapPDU.setVarBinds(reqPdu, varBinds)
+    v2c.apiTrapPDU.setDefaults(reqPdu)
+    v2c.apiTrapPDU.setVarBinds(reqPdu, varBinds)
+
+    varBinds = v2c.apiTrapPDU.getVarBinds(reqPdu)
+
+    v2c.apiTrapPDU.setVarBinds(reqPdu, _ensureVarBinds(varBinds))
 
     if authData.mpModel == 0:
         reqPdu = rfc2576.v2ToV1(reqPdu)

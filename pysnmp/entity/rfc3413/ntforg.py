@@ -204,42 +204,60 @@ class NotificationOriginator(object):
             'sendVarBinds: notificationTarget %s, contextEngineId %s, contextName "%s", varBinds %s' % (
                 notificationTarget, contextEngineId or '<default>', contextName, varBinds))
 
+        mibBuilder = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
+
         if contextName:
-            __SnmpAdminString, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
+            __SnmpAdminString, = mibBuilder.importSymbols(
                 'SNMP-FRAMEWORK-MIB', 'SnmpAdminString')
             contextName = __SnmpAdminString(contextName)
 
         # 3.3
-        (notifyTag, notifyType) = config.getNotificationInfo(snmpEngine, notificationTarget)
+        notifyTag, notifyType = config.getNotificationInfo(
+            snmpEngine, notificationTarget)
 
         notificationHandle = getNextHandle()
 
         debug.logger & debug.FLAG_APP and debug.logger(
-            'sendVarBinds: notificationHandle %s, notifyTag %s, notifyType %s' % (
-                notificationHandle, notifyTag, notifyType))
+            'sendVarBinds: notificationHandle %s, notifyTag %s, '
+            'notifyType %s' % (notificationHandle, notifyTag, notifyType))
 
         varBinds = [(v2c.ObjectIdentifier(x), y) for x, y in varBinds]
 
         # 3.3.2 & 3.3.3
-        snmpTrapOID, sysUpTime = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB',
-                                                                                                       'snmpTrapOID',
-                                                                                                       'sysUpTime')
+        snmpTrapOID, sysUpTime = mibBuilder.importSymbols(
+            '__SNMPv2-MIB', 'snmpTrapOID', 'sysUpTime')
 
-        for idx in range(len(varBinds)):
-            if idx and varBinds[idx][0] == sysUpTime.getName():
-                if varBinds[0][0] == sysUpTime.getName():
-                    varBinds[0] = varBinds[idx]
+        snmpTrapOID = snmpTrapOID.getName()
+        sysUpTime, uptime = sysUpTime.getName(), sysUpTime.getSyntax()
+
+        # Add sysUpTime if not present already
+        if not varBinds or varBinds[0][0] != sysUpTime:
+            varBinds.insert(0, (v2c.ObjectIdentifier(sysUpTime), uptime.clone()))
+
+        # Search for and reposition sysUpTime if it's elsewhere
+        for idx, varBind in enumerate(varBinds[1:]):
+            if varBind[0] == sysUpTime:
+                varBinds[0] = varBind
+                del varBinds[idx]
+                break
+
+        if len(varBinds) < 2:
+            raise error.PySnmpError('SNMP notification PDU requires '
+                                    'SNMPv2-MIB::snmpTrapOID.0 to be present')
+
+        # Search for and reposition snmpTrapOID if it's elsewhere
+        for idx, varBind in enumerate(varBinds[2:]):
+            if varBind[0] == snmpTrapOID:
+                del varBinds[idx]
+                if varBinds[1][0] == snmpTrapOID:
+                    varBinds[1] = varBind
                 else:
-                    varBinds.insert(0, varBinds[idx])
-                    del varBinds[idx]
+                    varBinds.insert(1, varBind)
+                break
 
-            if varBinds[0][0] != sysUpTime.getName():
-                varBinds.insert(0, (v2c.ObjectIdentifier(sysUpTime.getName()),
-                                    sysUpTime.getSyntax().clone()))
-
-        if len(varBinds) < 2 or varBinds[1][0] != snmpTrapOID.getName():
-            varBinds.insert(1, (v2c.ObjectIdentifier(snmpTrapOID.getName()),
-                                snmpTrapOID.getSyntax()))
+        if varBinds[1][0] != snmpTrapOID:
+            raise error.PySnmpError('SNMP notification PDU requires '
+                                    'SNMPv2-MIB::snmpTrapOID.0 to be present')
 
         sendRequestHandle = -1
 
@@ -265,7 +283,7 @@ class NotificationOriginator(object):
                     securityName, securityLevel))
 
             for varName, varVal in varBinds:
-                if varName in (sysUpTime.name, snmpTrapOID.name):
+                if varName in (sysUpTime, snmpTrapOID):
                     continue
                 try:
                     snmpEngine.accessControlModel[self.ACM_ID].isAccessAllowed(

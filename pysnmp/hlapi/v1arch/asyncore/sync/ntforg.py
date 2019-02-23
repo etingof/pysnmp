@@ -41,24 +41,27 @@ def sendNotification(snmpDispatcher, authData, transportTarget,
         or :py:class:`~pysnmp.smi.rfc1902.ObjectType` class instances
         of :py:class:`~pysnmp.smi.rfc1902.NotificationType` objects.
 
-        SNMP Notification PDU places rigid requirement on the ordering of
-        the variable-bindings.
-
-        Mandatory variable-bindings:
+        Besides user variable-bindings, SNMP Notification PDU requires at
+        least two variable-bindings to be present:
 
         0. SNMPv2-MIB::sysUpTime.0 = <agent uptime>
-        1. SNMPv2-SMI::snmpTrapOID.0 = {SNMPv2-MIB::coldStart, ...}
+        1. SNMPv2-SMI::snmpTrapOID.0 = <notification ID>
 
-        Optional variable-bindings (applicable to SNMP v1 TRAP):
+        When sending SNMPv1 TRAP, more variable-bindings could be present:
 
         2. SNMP-COMMUNITY-MIB::snmpTrapAddress.0 = <agent-IP>
         3. SNMP-COMMUNITY-MIB::snmpTrapCommunity.0 = <snmp-community-name>
         4. SNMP-COMMUNITY-MIB::snmpTrapEnterprise.0 = <enterprise-OID>
 
-        Informational variable-bindings:
+        If user does not supply some or any of the above variable-bindings or
+        if they are at the wrong positions, the system will add/reorder the
+        missing ones automatically.
 
-        * SNMPv2-SMI::NOTIFICATION-TYPE
-        * SNMPv2-SMI::OBJECT-TYPE
+        On top of that, some notification types imply including some additional
+        variable-bindings providing additional details on the event being
+        reported. Therefore it is generally easier to use
+        :py:class:`~pysnmp.smi.rfc1902.NotificationType` object which will
+        help adding relevant variable-bindings.
 
     Other Parameters
     ----------------
