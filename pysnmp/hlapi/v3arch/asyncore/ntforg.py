@@ -152,22 +152,23 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
     # noinspection PyShadowingNames
     def __cbFun(snmpEngine, sendRequestHandle, errorIndication,
                 errorStatus, errorIndex, varBinds, cbCtx):
+
         lookupMib, cbFun, cbCtx = cbCtx
+
+        varBinds = VB_PROCESSOR.unmakeVarBinds(
+            snmpEngine.cache, varBinds, lookupMib)
+
         return cbFun and cbFun(
             snmpEngine, sendRequestHandle, errorIndication,
-            errorStatus, errorIndex,
-            VB_PROCESSOR.unmakeVarBinds(
-                snmpEngine.cache, varBinds, lookupMib
-            ), cbCtx
-        )
+            errorStatus, errorIndex, varBinds, cbCtx)
 
     notifyName = LCD.configure(snmpEngine, authData, transportTarget,
                                notifyType, contextData.contextName)
 
+    varBinds = VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds)
+
     return ntforg.NotificationOriginator().sendVarBinds(
         snmpEngine, notifyName,
         contextData.contextEngineId, contextData.contextName,
-        VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds), __cbFun,
-        (options.get('lookupMib', True),
-         options.get('cbFun'), options.get('cbCtx'))
-    )
+        varBinds, __cbFun, (options.get('lookupMib', True),
+                            options.get('cbFun'), options.get('cbCtx')))

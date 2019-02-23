@@ -4,17 +4,17 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-from pysnmp.hlapi.v1arch.auth import *
-from pysnmp.hlapi.varbinds import *
-from pysnmp.hlapi.v1arch.asyncio.transport import *
-from pysnmp.smi.rfc1902 import *
-from pysnmp.proto import api
-
 try:
     import asyncio
 
 except ImportError:
     import trollius as asyncio
+
+from pysnmp.hlapi.v1arch.auth import *
+from pysnmp.hlapi.varbinds import *
+from pysnmp.hlapi.v1arch.asyncio.transport import *
+from pysnmp.smi.rfc1902 import *
+from pysnmp.proto import api
 
 __all__ = ['getCmd', 'nextCmd', 'setCmd', 'bulkCmd', 'isEndOfMib']
 

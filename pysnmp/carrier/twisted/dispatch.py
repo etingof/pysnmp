@@ -28,9 +28,12 @@ class TwistedDispatcher(AbstractTransportDispatcher):
 
     def __init__(self, *args, **kwargs):
         AbstractTransportDispatcher.__init__(self)
+
         self.__transportCount = 0
+
         if 'timeout' in kwargs:
             self.setTimerResolution(kwargs['timeout'])
+
         self.loopingcall = task.LoopingCall(
             lambda self=self: self.handleTimerTick(time.time())
         )
@@ -44,22 +47,27 @@ class TwistedDispatcher(AbstractTransportDispatcher):
                 raise
 
             except Exception:
-                raise PySnmpError('reactor error: %s' % ';'.join(traceback.format_exception(*sys.exc_info())))
+                raise PySnmpError('reactor error: %s' % ';'.join(
+                    traceback.format_exception(*sys.exc_info())))
 
     # jobstarted/jobfinished might be okay as-is
 
-    def registerTransport(self, tDomain, transport):
+    def registerTransport(self, transportDomain, transport):
         if not self.loopingcall.running and self.getTimerResolution() > 0:
             self.loopingcall.start(self.getTimerResolution(), now=False)
+
         AbstractTransportDispatcher.registerTransport(
-            self, tDomain, transport
+            self, transportDomain, transport
         )
+
         self.__transportCount += 1
 
-    def unregisterTransport(self, tDomain):
-        t = AbstractTransportDispatcher.getTransport(self, tDomain)
-        if t is not None:
-            AbstractTransportDispatcher.unregisterTransport(self, tDomain)
+    def unregisterTransport(self, transportDomain):
+        transport = AbstractTransportDispatcher.getTransport(
+            self, transportDomain)
+        if transport:
+            AbstractTransportDispatcher.unregisterTransport(
+                self, transportDomain)
             self.__transportCount -= 1
 
         # The last transport has been removed, stop the timeout

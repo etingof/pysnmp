@@ -16,7 +16,8 @@ from pysnmp.error import PySnmpError
 
 class AsyncoreDispatcher(AbstractTransportDispatcher):
     def __init__(self):
-        self.__sockMap = {}  # use own map for MT safety
+        # use own map for MT safety
+        self.__sockMap = {}
         AbstractTransportDispatcher.__init__(self)
 
     def getSocketMap(self):
@@ -25,13 +26,14 @@ class AsyncoreDispatcher(AbstractTransportDispatcher):
     def setSocketMap(self, sockMap=socket_map):
         self.__sockMap = sockMap
 
-    def registerTransport(self, tDomain, t):
-        AbstractTransportDispatcher.registerTransport(self, tDomain, t)
-        t.registerSocket(self.__sockMap)
+    def registerTransport(self, transportDomain, transport):
+        AbstractTransportDispatcher.registerTransport(
+            self, transportDomain, transport)
+        transport.registerSocket(self.__sockMap)
 
-    def unregisterTransport(self, tDomain):
-        self.getTransport(tDomain).unregisterSocket(self.__sockMap)
-        AbstractTransportDispatcher.unregisterTransport(self, tDomain)
+    def unregisterTransport(self, transportDomain):
+        self.getTransport(transportDomain).unregisterSocket(self.__sockMap)
+        AbstractTransportDispatcher.unregisterTransport(self, transportDomain)
 
     def transportsAreWorking(self):
         for transport in self.__sockMap.values():
@@ -43,9 +45,12 @@ class AsyncoreDispatcher(AbstractTransportDispatcher):
             try:
                 loop(timeout or self.getTimerResolution(),
                      use_poll=True, map=self.__sockMap, count=1)
+
             except KeyboardInterrupt:
                 raise
 
             except Exception:
-                raise PySnmpError('poll error: %s' % ';'.join(format_exception(*exc_info())))
+                raise PySnmpError(
+                    'poll error: %s' % ';'.join(format_exception(*exc_info())))
+
             self.handleTimerTick(time())

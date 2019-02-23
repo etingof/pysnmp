@@ -102,7 +102,8 @@ def v1ToV2(v1Pdu, origV2Pdu=None, snmpTrapCommunity=''):
     pduType = v1Pdu.tagSet
     v2Pdu = V1_TO_V2_PDU_MAP[pduType].clone()
 
-    debug.logger & debug.FLAG_PRX and debug.logger('v1ToV2: v1Pdu %s' % v1Pdu.prettyPrint())
+    debug.logger & debug.FLAG_PRX and debug.logger(
+        'v1ToV2: v1Pdu %s' % v1Pdu.prettyPrint())
 
     v2VarBinds = []
 
@@ -114,21 +115,24 @@ def v1ToV2(v1Pdu, origV2Pdu=None, snmpTrapCommunity=''):
         # 3.1.2
         genericTrap = v1.apiTrapPDU.getGenericTrap(v1Pdu)
         if genericTrap == 6:
-            snmpTrapOIDParam = v1.apiTrapPDU.getEnterprise(v1Pdu) + (0, int(v1.apiTrapPDU.getSpecificTrap(v1Pdu)))
+            snmpTrapOIDParam = (v1.apiTrapPDU.getEnterprise(v1Pdu) +
+                                (0, int(v1.apiTrapPDU.getSpecificTrap(v1Pdu))))
 
         # 3.1.3
         else:
             snmpTrapOIDParam = v2c.ObjectIdentifier(V1_TO_V2_TRAP_MAP[genericTrap])
 
         # 3.1.4
-        v2VarBinds.append((v2c.apiTrapPDU.sysUpTime, sysUpTime))
-        v2VarBinds.append((v2c.apiTrapPDU.snmpTrapOID, snmpTrapOIDParam))
         v2VarBinds.append(
-            (v2c.apiTrapPDU.snmpTrapAddress, v1.apiTrapPDU.getAgentAddr(v1Pdu))
-        )
-        v2VarBinds.append((v2c.apiTrapPDU.snmpTrapCommunity, v2c.OctetString(snmpTrapCommunity)))
-        v2VarBinds.append((v2c.apiTrapPDU.snmpTrapEnterprise,
-                           v1.apiTrapPDU.getEnterprise(v1Pdu)))
+            (v2c.apiTrapPDU.sysUpTime, sysUpTime))
+        v2VarBinds.append(
+            (v2c.apiTrapPDU.snmpTrapOID, snmpTrapOIDParam))
+        v2VarBinds.append(
+            (v2c.apiTrapPDU.snmpTrapAddress, v1.apiTrapPDU.getAgentAddr(v1Pdu)))
+        v2VarBinds.append(
+            (v2c.apiTrapPDU.snmpTrapCommunity, v2c.OctetString(snmpTrapCommunity)))
+        v2VarBinds.append(
+            (v2c.apiTrapPDU.snmpTrapEnterprise, v1.apiTrapPDU.getEnterprise(v1Pdu)))
 
         varBinds = v1.apiTrapPDU.getVarBinds(v1Pdu)
 
@@ -142,13 +146,13 @@ def v1ToV2(v1Pdu, origV2Pdu=None, snmpTrapCommunity=''):
             v1Val = v1Val.getComponent()
 
         v2VarBinds.append(
-            (oid, V1_TO_V2_VALUE_MAP[v1Val.tagSet].clone(v1Val))
-        )
+            (oid, V1_TO_V2_VALUE_MAP[v1Val.tagSet].clone(v1Val)))
 
     if pduType in rfc3411.RESPONSE_CLASS_PDUS:
         # 4.1.2.2.1&2
         errorStatus = int(v1.apiPDU.getErrorStatus(v1Pdu))
         errorIndex = int(v1.apiPDU.getErrorIndex(v1Pdu, muteErrors=True))
+
         if errorStatus == 2:  # noSuchName
             if origV2Pdu.tagSet == v2c.GetNextRequestPDU.tagSet:
                 v2VarBinds = [(o, rfc1905.endOfMibView) for o, v in v2VarBinds]
@@ -171,13 +175,15 @@ def v1ToV2(v1Pdu, origV2Pdu=None, snmpTrapCommunity=''):
 
     v2c.apiPDU.setVarBinds(v2Pdu, v2VarBinds)
 
-    debug.logger & debug.FLAG_PRX and debug.logger('v1ToV2: v2Pdu %s' % v2Pdu.prettyPrint())
+    debug.logger & debug.FLAG_PRX and debug.logger(
+        'v1ToV2: v2Pdu %s' % v2Pdu.prettyPrint())
 
     return v2Pdu
 
 
 def v2ToV1(v2Pdu, origV1Pdu=None):
-    debug.logger & debug.FLAG_PRX and debug.logger('v2ToV1: v2Pdu %s' % v2Pdu.prettyPrint())
+    debug.logger & debug.FLAG_PRX and debug.logger(
+        'v2ToV1: v2Pdu %s' % v2Pdu.prettyPrint())
 
     pduType = v2Pdu.tagSet
 
@@ -224,7 +230,8 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         for oid, val in v2VarBinds:
             # snmpTrapAddress
             if oid == v2c.apiTrapPDU.snmpTrapAddress:
-                v1.apiTrapPDU.setAgentAddr(v1Pdu, v1.IpAddress(val))  # v2c.OctetString is more constrained
+                # v2c.OctetString is more constrained
+                v1.apiTrapPDU.setAgentAddr(v1Pdu, v1.IpAddress(val))
                 break
 
         else:
@@ -232,7 +239,8 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
 
         # 3.2.3
         if snmpTrapOIDParam in V2_TO_V1_TRAP_MAP:
-            v1.apiTrapPDU.setGenericTrap(v1Pdu, V2_TO_V1_TRAP_MAP[snmpTrapOIDParam])
+            v1.apiTrapPDU.setGenericTrap(
+                v1Pdu, V2_TO_V1_TRAP_MAP[snmpTrapOIDParam])
 
         else:
             v1.apiTrapPDU.setGenericTrap(v1Pdu, 6)
@@ -273,6 +281,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         while idx >= 0:
             # 4.1.2.1
             oid, val = v2VarBinds[idx]
+
             if v2c.Counter64.tagSet == val.tagSet:
                 if origV1Pdu.tagSet == v1.GetRequestPDU.tagSet:
                     v1.apiPDU.setErrorStatus(v1Pdu, 2)
@@ -298,8 +307,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
         v2ErrorStatus = v2c.apiPDU.getErrorStatus(v2Pdu)
         if v2ErrorStatus:
             v1.apiPDU.setErrorStatus(
-                v1Pdu, V2_TO_V1_ERROR_MAP.get(v2ErrorStatus, 5)
-            )
+                v1Pdu, V2_TO_V1_ERROR_MAP.get(v2ErrorStatus, 5))
             v1.apiPDU.setErrorIndex(v1Pdu, v2c.apiPDU.getErrorIndex(v2Pdu, muteErrors=True))
 
     elif pduType in rfc3411.CONFIRMED_CLASS_PDUS:
@@ -309,6 +317,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
     # Translate Var-Binds
     if (pduType in rfc3411.RESPONSE_CLASS_PDUS and
             v1.apiPDU.getErrorStatus(v1Pdu)):
+
         v1VarBinds = v1.apiPDU.getVarBinds(origV1Pdu)
 
     else:
@@ -327,6 +336,7 @@ def v2ToV1(v2Pdu, origV1Pdu=None):
             v1Pdu, v2c.apiPDU.getRequestID(v2Pdu)
         )
 
-    debug.logger & debug.FLAG_PRX and debug.logger('v2ToV1: v1Pdu %s' % v1Pdu.prettyPrint())
+    debug.logger & debug.FLAG_PRX and debug.logger(
+        'v2ToV1: v1Pdu %s' % v1Pdu.prettyPrint())
 
     return v1Pdu

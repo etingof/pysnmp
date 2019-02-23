@@ -33,9 +33,11 @@ except ImportError as exc:
 
 
     def addMibCompilerDecorator(errorMsg):
+
         def addMibCompiler(mibBuilder, **kwargs):
             if not kwargs.get('ifAvailable'):
-                raise error.SmiError('MIB compiler not available: %s' % errorMsg)
+                raise error.SmiError(
+                    'MIB compiler not available: %s' % errorMsg)
 
         return addMibCompiler
 
@@ -48,18 +50,25 @@ else:
         if kwargs.get('ifNotAdded') and mibBuilder.getMibCompiler():
             return
 
-        compiler = MibCompiler(parserFactory(**smiV1Relaxed)(),
-                               PySnmpCodeGen(),
-                               PyFileWriter(kwargs.get('destination') or DEFAULT_DEST))
+        compiler = MibCompiler(
+            parserFactory(**smiV1Relaxed)(),
+            PySnmpCodeGen(),
+            PyFileWriter(kwargs.get('destination') or DEFAULT_DEST))
 
-        compiler.addSources(*getReadersFromUrls(*kwargs.get('sources') or DEFAULT_SOURCES))
+        compiler.addSources(
+            *getReadersFromUrls(*kwargs.get('sources') or DEFAULT_SOURCES))
 
-        compiler.addSearchers(StubSearcher(*baseMibs))
-        compiler.addSearchers(*[PyPackageSearcher(x.fullPath()) for x in mibBuilder.getMibSources()])
-        compiler.addBorrowers(*[PyFileBorrower(x, genTexts=mibBuilder.loadTexts) for x in
-                                getReadersFromUrls(*kwargs.get('borrowers') or DEFAULT_BORROWERS,
-                                                   lowcaseMatching=False)])
+        compiler.addSearchers(
+            StubSearcher(*baseMibs))
+
+        compiler.addSearchers(
+            *[PyPackageSearcher(x.fullPath()) for x in mibBuilder.getMibSources()])
+
+        compiler.addBorrowers(
+            *[PyFileBorrower(x, genTexts=mibBuilder.loadTexts)
+              for x in getReadersFromUrls(
+                    *kwargs.get('borrowers') or DEFAULT_BORROWERS,
+                    lowcaseMatching=False)])
 
         mibBuilder.setMibCompiler(
-            compiler, kwargs.get('destination') or DEFAULT_DEST
-        )
+            compiler, kwargs.get('destination') or DEFAULT_DEST)

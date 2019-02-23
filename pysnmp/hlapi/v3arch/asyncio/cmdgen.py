@@ -31,6 +31,12 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 # THE POSSIBILITY OF SUCH DAMAGE.
 #
+try:
+    import asyncio
+
+except ImportError:
+    import trollius as asyncio
+
 from pysnmp.hlapi.v3arch.auth import *
 from pysnmp.hlapi.v3arch.context import *
 from pysnmp.hlapi.v3arch.lcd import *
@@ -39,12 +45,6 @@ from pysnmp.hlapi.v3arch.asyncio.transport import *
 from pysnmp.entity.rfc3413 import cmdgen
 from pysnmp.proto.api import v2c
 from pysnmp.smi.rfc1902 import *
-
-try:
-    import asyncio
-
-except ImportError:
-    import trollius as asyncio
 
 __all__ = ['getCmd', 'nextCmd', 'setCmd', 'bulkCmd', 'isEndOfMib']
 
@@ -134,17 +134,20 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
                 errorIndication, errorStatus, errorIndex,
                 varBinds, cbCtx):
         lookupMib, future = cbCtx
+
         if future.cancelled():
             return
+
         try:
-            varBindsUnmade = VB_PROCESSOR.unmakeVarBinds(snmpEngine.cache, varBinds,
-                                                         lookupMib)
+            varBindsUnmade = VB_PROCESSOR.unmakeVarBinds(
+                snmpEngine.cache, varBinds, lookupMib)
+
         except Exception as e:
             future.set_exception(e)
+
         else:
             future.set_result(
-                (errorIndication, errorStatus, errorIndex, varBindsUnmade)
-            )
+                (errorIndication, errorStatus, errorIndex, varBindsUnmade))
 
     addrName, paramsName = LCD.configure(
         snmpEngine, authData, transportTarget, contextData.contextName)
@@ -157,6 +160,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
         VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds), __cbFun,
         (options.get('lookupMib', True), future)
     )
+
     return future
 
 
@@ -240,13 +244,17 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
                 errorIndication, errorStatus, errorIndex,
                 varBinds, cbCtx):
         lookupMib, future = cbCtx
+
         if future.cancelled():
             return
+
         try:
-            varBindsUnmade = VB_PROCESSOR.unmakeVarBinds(snmpEngine.cache, varBinds,
-                                                         lookupMib)
+            varBindsUnmade = VB_PROCESSOR.unmakeVarBinds(
+                snmpEngine.cache, varBinds, lookupMib)
+
         except Exception as e:
             future.set_exception(e)
+
         else:
             future.set_result(
                 (errorIndication, errorStatus, errorIndex, varBindsUnmade)
@@ -263,6 +271,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
         VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds), __cbFun,
         (options.get('lookupMib', True), future)
     )
+
     return future
 
 
@@ -352,17 +361,20 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
         lookupMib, future = cbCtx
         if future.cancelled():
             return
+
         try:
-            varBindsUnmade = [VB_PROCESSOR.unmakeVarBinds(snmpEngine.cache,
-                                                          varBindTableRow,
-                                                          lookupMib)
-                              for varBindTableRow in varBindTable]
+            varBindsUnmade = [
+                VB_PROCESSOR.unmakeVarBinds(snmpEngine.cache, varBindTableRow,
+                                            lookupMib)
+                for varBindTableRow in varBindTable
+            ]
+
         except Exception as e:
             future.set_exception(e)
+
         else:
             future.set_result(
-                (errorIndication, errorStatus, errorIndex, varBindsUnmade)
-            )
+                (errorIndication, errorStatus, errorIndex, varBindsUnmade))
 
     addrName, paramsName = LCD.configure(
         snmpEngine, authData, transportTarget, contextData.contextName)
@@ -375,6 +387,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
         VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds), __cbFun,
         (options.get('lookupMib', True), future)
     )
+
     return future
 
 
@@ -491,20 +504,23 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
                 errorIndication, errorStatus, errorIndex,
                 varBindTable, cbCtx):
         lookupMib, future = cbCtx
+
         if future.cancelled():
             return
+
         try:
-            varBindsUnmade = [VB_PROCESSOR.unmakeVarBinds(snmpEngine.cache,
-                                                          varBindTableRow,
-                                                          lookupMib)
-                              for varBindTableRow in varBindTable]
+            varBindsUnmade = [
+                VB_PROCESSOR.unmakeVarBinds(
+                    snmpEngine.cache, varBindTableRow, lookupMib)
+                for varBindTableRow in varBindTable
+            ]
+
         except Exception as e:
             future.set_exception(e)
 
         else:
             future.set_result(
-                (errorIndication, errorStatus, errorIndex, varBindsUnmade)
-            )
+                (errorIndication, errorStatus, errorIndex, varBindsUnmade))
 
     addrName, paramsName = LCD.configure(
         snmpEngine, authData, transportTarget, contextData.contextName)
@@ -517,4 +533,5 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
         VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds), __cbFun,
         (options.get('lookupMib', True), future)
     )
+
     return future

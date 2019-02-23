@@ -21,6 +21,7 @@ __all__ = ['sendNotification']
 VB_PROCESSOR = NotificationOriginatorVarBinds()
 LCD = NotificationOriginatorLcdConfigurator()
 
+
 def sendNotification(snmpEngine, authData, transportTarget, contextData,
                      notifyType, *varBinds, **options):
     """Sends SNMP notification.
@@ -145,27 +146,26 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
     ...
     >>> react(run)
     (0, 0, [])
-    >>>
-
     """
     def __cbFun(snmpEngine, sendRequestHandle,
                 errorIndication, errorStatus, errorIndex,
                 varBinds, cbCtx):
+
         lookupMib, deferred = cbCtx
 
         if errorIndication:
             deferred.errback(Failure(errorIndication))
+
         else:
             try:
-                varBindsUnmade = VB_PROCESSOR.unmakeVarBinds(
-                    snmpEngine.cache, varBinds, lookupMib
-                )
+                varBinds = VB_PROCESSOR.unmakeVarBinds(
+                    snmpEngine.cache, varBinds, lookupMib)
 
             except Exception as e:
                 deferred.errback(Failure(e))
 
             else:
-                deferred.callback((errorStatus, errorIndex, varBindsUnmade))
+                deferred.callback((errorStatus, errorIndex, varBinds))
 
     notifyName = LCD.configure(snmpEngine, authData, transportTarget,
                                notifyType, contextData.contextName)
@@ -173,15 +173,13 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
     def __trapFun(deferred):
         deferred.callback((0, 0, []))
 
+    varBinds = VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds)
+
     deferred = Deferred()
 
     ntforg.NotificationOriginator().sendVarBinds(
-        snmpEngine,
-        notifyName,
-        contextData.contextEngineId,
-        contextData.contextName,
-        VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds),
-        __cbFun,
+        snmpEngine, notifyName, contextData.contextEngineId,
+        contextData.contextName, varBinds, __cbFun,
         (options.get('lookupMib', True), deferred)
     )
 

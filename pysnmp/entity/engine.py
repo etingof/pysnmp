@@ -65,8 +65,12 @@ class SnmpEngine(object):
 
         if msgAndPduDsp is None:
             self.msgAndPduDsp = MsgAndPduDispatcher()
+
         else:
             self.msgAndPduDsp = msgAndPduDsp
+
+        mibBuilder = self.msgAndPduDsp.mibInstrumController.mibBuilder
+
         self.messageProcessingSubsystems = {
             SnmpV1MessageProcessingModel.MESSAGE_PROCESSING_MODEL_ID:
                 SnmpV1MessageProcessingModel(),
@@ -75,11 +79,13 @@ class SnmpEngine(object):
             SnmpV3MessageProcessingModel.MESSAGE_PROCESSING_MODEL_ID:
                 SnmpV3MessageProcessingModel()
         }
+
         self.securityModels = {
             SnmpV1SecurityModel.SECURITY_MODEL_ID: SnmpV1SecurityModel(),
             SnmpV2cSecurityModel.SECURITY_MODEL_ID: SnmpV2cSecurityModel(),
             SnmpUSMSecurityModel.SECURITY_MODEL_ID: SnmpUSMSecurityModel()
         }
+
         self.accessControlModel = {
             void.Vacm.ACCESS_MODEL_ID: void.Vacm(),
             rfc3415.Vacm.ACCESS_MODEL_ID: rfc3415.Vacm()
@@ -88,48 +94,59 @@ class SnmpEngine(object):
         self.transportDispatcher = None
 
         if self.msgAndPduDsp.mibInstrumController is None:
-            raise error.PySnmpError(
-                'MIB instrumentation does not yet exist'
-            )
-        snmpEngineMaxMessageSize, = self.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
+            raise error.PySnmpError('MIB instrumentation does not yet exist')
+
+        snmpEngineMaxMessageSize, = mibBuilder.importSymbols(
             '__SNMP-FRAMEWORK-MIB', 'snmpEngineMaxMessageSize')
+
         snmpEngineMaxMessageSize.syntax = snmpEngineMaxMessageSize.syntax.clone(maxMessageSize)
-        snmpEngineBoots, = self.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB',
-                                                                                           'snmpEngineBoots')
+
+        snmpEngineBoots, = mibBuilder.importSymbols(
+            '__SNMP-FRAMEWORK-MIB', 'snmpEngineBoots')
+
         snmpEngineBoots.syntax += 1
-        origSnmpEngineID, = self.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB',
-                                                                                            'snmpEngineID')
+
+        origSnmpEngineID, = mibBuilder.importSymbols(
+            '__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
         if snmpEngineID is None:
             self.snmpEngineID = origSnmpEngineID.syntax
+
         else:
             origSnmpEngineID.syntax = origSnmpEngineID.syntax.clone(snmpEngineID)
             self.snmpEngineID = origSnmpEngineID.syntax
 
             debug.logger & debug.FLAG_APP and debug.logger(
-                'SnmpEngine: using custom SNMP Engine ID: %s' % self.snmpEngineID.prettyPrint())
+                'SnmpEngine: using custom SNMP Engine '
+                'ID: %s' % self.snmpEngineID.prettyPrint())
 
             # Attempt to make some of snmp Engine settings persistent.
             # This should probably be generalized as a non-volatile MIB store.
 
-            persistentPath = os.path.join(tempfile.gettempdir(), '__pysnmp', self.snmpEngineID.prettyPrint())
+            persistentPath = os.path.join(tempfile.gettempdir(), '__pysnmp',
+                                          self.snmpEngineID.prettyPrint())
 
-            debug.logger & debug.FLAG_APP and debug.logger('SnmpEngine: using persistent directory: %s' % persistentPath)
+            debug.logger & debug.FLAG_APP and debug.logger(
+                'SnmpEngine: using persistent directory: %s' % persistentPath)
 
             if not os.path.exists(persistentPath):
                 try:
                     os.makedirs(persistentPath)
+
                 except OSError:
                     return
 
             f = os.path.join(persistentPath, 'boots')
+
             try:
                 snmpEngineBoots.syntax = snmpEngineBoots.syntax.clone(open(f).read())
+
             except Exception:
                 pass
 
             try:
                 snmpEngineBoots.syntax += 1
+
             except Exception:
                 snmpEngineBoots.syntax = snmpEngineBoots.syntax.clone(1)
 
@@ -138,12 +155,15 @@ class SnmpEngine(object):
                 os.write(fd, str2octs(snmpEngineBoots.syntax.prettyPrint()))
                 os.close(fd)
                 shutil.move(fn, f)
+
             except Exception as exc:
                 debug.logger & debug.FLAG_APP and debug.logger(
                     'SnmpEngine: could not stored SNMP Engine Boots: %s' % exc)
+
             else:
                 debug.logger & debug.FLAG_APP and debug.logger(
-                    'SnmpEngine: stored SNMP Engine Boots: %s' % snmpEngineBoots.syntax.prettyPrint())
+                    'SnmpEngine: stored SNMP Engine Boots: '
+                    '%s' % snmpEngineBoots.syntax.prettyPrint())
 
     def __repr__(self):
         return '%s(snmpEngineID=%r)' % (self.__class__.__name__, self.snmpEngineID)
@@ -158,31 +178,28 @@ class SnmpEngine(object):
 
     def __receiveTimerTickCbFun(self, timeNow):
         self.msgAndPduDsp.receiveTimerTick(self, timeNow)
+
         for mpHandler in self.messageProcessingSubsystems.values():
             mpHandler.receiveTimerTick(self, timeNow)
+
         for smHandler in self.securityModels.values():
             smHandler.receiveTimerTick(self, timeNow)
 
     def registerTransportDispatcher(self, transportDispatcher, recvId=None):
-        if self.transportDispatcher is not None and \
-                self.transportDispatcher is not transportDispatcher:
-            raise error.PySnmpError(
-                'Transport dispatcher already registered'
-            )
-        transportDispatcher.registerRecvCbFun(
-            self.__receiveMessageCbFun, recvId
-        )
-        if self.transportDispatcher is None:
-            transportDispatcher.registerTimerCbFun(
-                self.__receiveTimerTickCbFun
-            )
+        if (self.transportDispatcher and
+                self.transportDispatcher is not transportDispatcher):
+            raise error.PySnmpError('Transport dispatcher already registered')
+
+        transportDispatcher.registerRecvCbFun(self.__receiveMessageCbFun, recvId)
+
+        if not self.transportDispatcher:
+            transportDispatcher.registerTimerCbFun(self.__receiveTimerTickCbFun)
             self.transportDispatcher = transportDispatcher
 
     def unregisterTransportDispatcher(self, recvId=None):
         if self.transportDispatcher is None:
-            raise error.PySnmpError(
-                'Transport dispatcher not registered'
-            )
+            raise error.PySnmpError('Transport dispatcher not registered')
+
         self.transportDispatcher.unregisterRecvCbFun(recvId)
         self.transportDispatcher.unregisterTimerCbFun()
         self.transportDispatcher = None
@@ -192,9 +209,7 @@ class SnmpEngine(object):
 
     # User app may attach opaque objects to SNMP Engine
     def setUserContext(self, **kwargs):
-        self.cache.update(
-            dict([('__%s' % k, kwargs[k]) for k in kwargs])
-        )
+        self.cache.update(dict([('__%s' % k, kwargs[k]) for k in kwargs]))
 
     def getUserContext(self, arg):
         return self.cache.get('__%s' % arg)
@@ -202,5 +217,6 @@ class SnmpEngine(object):
     def delUserContext(self, arg):
         try:
             del self.cache['__%s' % arg]
+
         except KeyError:
             pass

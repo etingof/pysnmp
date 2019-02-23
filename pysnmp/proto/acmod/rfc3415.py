@@ -17,65 +17,63 @@ class Vacm(object):
 
     _powOfTwoSeq = (128, 64, 32, 16, 8, 4, 2, 1)
 
-    def isAccessAllowed(self,
-                        snmpEngine,
-                        securityModel,
-                        securityName,
-                        securityLevel,
-                        viewType,
-                        contextName,
-                        variableName):
+    def isAccessAllowed(self, snmpEngine, securityModel, securityName,
+                        securityLevel, viewType, contextName, variableName):
+
         mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
+        mibBuilder = mibInstrumController.mibBuilder
 
         debug.logger & debug.FLAG_ACL and debug.logger(
-            'isAccessAllowed: securityModel %s, securityName %s, securityLevel %s, viewType %s, contextName %s for variableName %s' % (
-                securityModel, securityName, securityLevel, viewType, contextName, variableName))
+            'isAccessAllowed: securityModel %s, securityName %s, '
+            'securityLevel %s, viewType %s, contextName %s for '
+            'variableName %s' % (securityModel, securityName, securityLevel,
+                                 viewType, contextName, variableName))
 
         # 3.2.1
-        vacmContextEntry, = mibInstrumController.mibBuilder.importSymbols(
+        vacmContextEntry, = mibBuilder.importSymbols(
             'SNMP-VIEW-BASED-ACM-MIB', 'vacmContextEntry')
 
         tblIdx = vacmContextEntry.getInstIdFromIndices(contextName)
+
         try:
             vacmContextEntry.getNode(
-                vacmContextEntry.name + (1,) + tblIdx
-            ).syntax
+                vacmContextEntry.name + (1,) + tblIdx).syntax
 
         except NoSuchInstanceError:
             raise error.StatusInformation(errorIndication=errind.noSuchContext)
 
         # 3.2.2
-        vacmSecurityToGroupEntry, = mibInstrumController.mibBuilder.importSymbols(
+        vacmSecurityToGroupEntry, = mibBuilder.importSymbols(
             'SNMP-VIEW-BASED-ACM-MIB', 'vacmSecurityToGroupEntry')
+
         tblIdx = vacmSecurityToGroupEntry.getInstIdFromIndices(
-            securityModel, securityName
-        )
+            securityModel, securityName)
 
         try:
             vacmGroupName = vacmSecurityToGroupEntry.getNode(
-                vacmSecurityToGroupEntry.name + (3,) + tblIdx
-            ).syntax
+                vacmSecurityToGroupEntry.name + (3,) + tblIdx).syntax
 
         except NoSuchInstanceError:
             raise error.StatusInformation(errorIndication=errind.noGroupName)
 
         # 3.2.3
-        vacmAccessEntry, = mibInstrumController.mibBuilder.importSymbols(
-            'SNMP-VIEW-BASED-ACM-MIB', 'vacmAccessEntry'
-        )
+        vacmAccessEntry, = mibBuilder.importSymbols(
+            'SNMP-VIEW-BASED-ACM-MIB', 'vacmAccessEntry')
 
         # XXX partial context name match
         tblIdx = vacmAccessEntry.getInstIdFromIndices(
-            vacmGroupName, contextName, securityModel, securityLevel
-        )
+            vacmGroupName, contextName, securityModel, securityLevel)
 
         # 3.2.4
         if viewType == 'read':
             entryIdx = vacmAccessEntry.name + (5,) + tblIdx
+
         elif viewType == 'write':
             entryIdx = vacmAccessEntry.name + (6,) + tblIdx
+
         elif viewType == 'notify':
             entryIdx = vacmAccessEntry.name + (7,) + tblIdx
+
         else:
             raise error.ProtocolError('Unknown view type %s' % viewType)
 
@@ -93,19 +91,20 @@ class Vacm(object):
         # 3.2.5a
         vacmViewTreeFamilyEntry, = mibInstrumController.mibBuilder.importSymbols(
             'SNMP-VIEW-BASED-ACM-MIB', 'vacmViewTreeFamilyEntry')
+
         tblIdx = vacmViewTreeFamilyEntry.getInstIdFromIndices(viewName)
 
         # Walk over entries
         initialTreeName = treeName = vacmViewTreeFamilyEntry.name + (2,) + tblIdx
+
         maskName = vacmViewTreeFamilyEntry.name + (3,) + tblIdx
 
         while True:
             vacmViewTreeFamilySubtree = vacmViewTreeFamilyEntry.getNextNode(
-                treeName
-            )
+                treeName)
+
             vacmViewTreeFamilyMask = vacmViewTreeFamilyEntry.getNextNode(
-                maskName
-            )
+                maskName)
 
             treeName = vacmViewTreeFamilySubtree.name
             maskName = vacmViewTreeFamilyMask.name
@@ -125,10 +124,12 @@ class Vacm(object):
 
                 m = len(mask) - 1
                 idx = l - 1
+
                 while idx:
                     if (idx > m or mask[idx] and
                             vacmViewTreeFamilySubtree.syntax[idx] != variableName[idx]):
                         break
+
                     idx -= 1
 
                 if idx:

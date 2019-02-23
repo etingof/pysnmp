@@ -27,8 +27,7 @@ class AbstractTransportTarget(object):
     def __repr__(self):
         return '%s(%r, timeout=%r, retries=%r, tagList=%r)' % (
             self.__class__.__name__, self.transportAddr,
-            self.timeout, self.retries, self.tagList
-        )
+            self.timeout, self.retries, self.tagList)
 
     def getTransportInfo(self):
         return self.TRANSPORT_DOMAIN, self.transportAddr
@@ -55,9 +54,11 @@ class AbstractTransportTarget(object):
         return self.transport
 
     def verifyDispatcherCompatibility(self, snmpEngine):
-        if not self.PROTO_TRANSPORT.isCompatibleWithDispatcher(snmpEngine.transportDispatcher):
-            raise error.PySnmpError('Transport %r is not compatible with dispatcher %r' % (
-                self.PROTO_TRANSPORT, snmpEngine.transportDispatcher))
+        if not self.PROTO_TRANSPORT.isCompatibleWithDispatcher(
+                snmpEngine.transportDispatcher):
+            raise error.PySnmpError(
+                'Transport %r is not compatible with dispatcher '
+                '%r' % (self.PROTO_TRANSPORT, snmpEngine.transportDispatcher))
 
     def _resolveAddr(self, transportAddr):
         raise NotImplementedError()

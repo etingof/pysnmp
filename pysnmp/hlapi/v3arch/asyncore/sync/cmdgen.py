@@ -108,6 +108,7 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
             errorStatus = cbCtx['errorStatus']
             errorIndex = cbCtx['errorIndex']
             varBinds = cbCtx['varBinds']
+
         else:
             errorIndication = errorStatus = errorIndex = None
             varBinds = []
@@ -214,6 +215,7 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
             errorStatus = cbCtx['errorStatus']
             errorIndex = cbCtx['errorIndex']
             varBinds = cbCtx['varBinds']
+
         else:
             errorIndication = errorStatus = errorIndex = None
             varBinds = []
@@ -363,6 +365,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
             if errorIndication:
                 yield (errorIndication, errorStatus, errorIndex, varBinds)
                 return
+
             elif errorStatus:
                 if errorStatus == 2:
                     # Hide SNMPv1 noSuchName error which leaks in here
@@ -371,6 +374,7 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
                     errorIndex = errorIndex.clone(0)
                 yield (errorIndication, errorStatus, errorIndex, varBinds)
                 return
+
             else:
                 stopFlag = True
 
@@ -570,8 +574,10 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
         if errorIndication:
             yield (errorIndication, errorStatus, errorIndex,
                    varBindTable and varBindTable[0] or [])
+
             if errorIndication != errind.requestTimedOut:
                 return
+
         elif errorStatus:
             if errorStatus == 2:
                 # Hide SNMPv1 noSuchName error which leaks in here
@@ -580,26 +586,35 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
                 errorIndex = errorIndex.clone(0)
             yield (errorIndication, errorStatus, errorIndex, varBindTable and varBindTable[0] or [])
             return
+
         else:
             for row in range(len(varBindTable)):
                 stopFlag = True
+
                 if len(varBindTable[row]) != len(initialVars):
                     varBindTable = row and varBindTable[:row - 1] or []
                     break
+
                 for col in range(len(varBindTable[row])):
                     name, val = varBindTable[row][col]
+
                     if row:
                         previousVarBinds = varBindTable[row - 1]
+
                     if nullVarBinds[col]:
                         varBindTable[row][col] = previousVarBinds[col][0], endOfMibView
                         continue
+
                     stopFlag = False
+
                     if isinstance(val, Null):
                         varBindTable[row][col] = previousVarBinds[col][0], endOfMibView
                         nullVarBinds[col] = True
+
                     if not lexicographicMode and not initialVars[col].isPrefixOf(name):
                         varBindTable[row][col] = previousVarBinds[col][0], endOfMibView
                         nullVarBinds[col] = True
+
                 if stopFlag:
                     varBindTable = row and varBindTable[:row - 1] or []
                     break

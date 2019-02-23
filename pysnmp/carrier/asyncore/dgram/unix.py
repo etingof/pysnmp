@@ -9,6 +9,7 @@ import random
 
 try:
     from socket import AF_UNIX
+
 except ImportError:
     AF_UNIX = None
 
@@ -33,14 +34,20 @@ class UnixSocketTransport(DgramSocketTransport):
         if iface is None:
             # UNIX domain sockets must be explicitly bound
             iface = ''
+
             while len(iface) < 8:
                 iface += chr(random.randrange(65, 91))
                 iface += chr(random.randrange(97, 123))
-            iface = os.path.sep + 'tmp' + os.path.sep + 'pysnmp' + iface
+
+            iface = os.path.join(os.path.sep, 'tmp', 'pysnmp', iface)
+
         if os.path.exists(iface):
             os.remove(iface)
+
         DgramSocketTransport.openClientMode(self, iface)
+
         self._iface = iface
+
         return self
 
     def openServerMode(self, iface):
@@ -50,8 +57,10 @@ class UnixSocketTransport(DgramSocketTransport):
 
     def closeTransport(self):
         DgramSocketTransport.closeTransport(self)
+
         try:
             os.remove(self._iface)
+
         except OSError:
             pass
 

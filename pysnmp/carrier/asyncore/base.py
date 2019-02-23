@@ -24,17 +24,21 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
     # noinspection PyUnusedLocal
     def __init__(self, sock=None, sockMap=None):
         asyncore.dispatcher.__init__(self)
+
         if sock is None:
             if self.SOCK_FAMILY is None:
                 raise error.CarrierError(
                     'Address family %s not supported' % self.__class__.__name__
                 )
+
             if self.SOCK_TYPE is None:
                 raise error.CarrierError(
                     'Socket type %s not supported' % self.__class__.__name__
                 )
+
             try:
                 sock = socket.socket(self.SOCK_FAMILY, self.SOCK_TYPE)
+
             except socket.error as exc:
                 raise error.CarrierError('socket() failed: %s' % exc)
 
@@ -43,9 +47,16 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
                     bsize = sock.getsockopt(socket.SOL_SOCKET, b)
                     if bsize < self.BUFFER_SIZE:
                         sock.setsockopt(socket.SOL_SOCKET, b, self.BUFFER_SIZE)
-                        debug.logger & debug.FLAG_IO and debug.logger('%s: socket %d buffer size increased from %d to %d for buffer %d' % (self.__class__.__name__, sock.fileno(), bsize, self.BUFFER_SIZE, b))
+                        debug.logger & debug.FLAG_IO and debug.logger(
+                            '%s: socket %d buffer size increased from %d to %d '
+                            'for buffer %d' % (
+                                self.__class__.__name__, sock.fileno(),
+                                bsize, self.BUFFER_SIZE, b))
+
             except Exception as exc:
-                debug.logger & debug.FLAG_IO and debug.logger('%s: socket buffer size option mangling failure for buffer: %s' % (self.__class__.__name__, exc))
+                debug.logger & debug.FLAG_IO and debug.logger(
+                    '%s: socket buffer size option mangling failure for buffer: '
+                    '%s' % (self.__class__.__name__, exc))
 
         # The socket map is managed by the AsyncoreDispatcher on
         # which this transport is registered. Here we just prepare
@@ -54,6 +65,7 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
 
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.setblocking(0)
+
         self.set_socket(sock)
 
     def __hash__(self):
@@ -61,16 +73,6 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
 
     # The following two methods are part of base class so here we overwrite
     # them to separate socket management from dispatcher registration tasks.
-    # These two are just for dispatcher registration.
-    def add_channel(self, map=None):
-        if map is not None:
-            map[self._fileno] = self
-            self.connected = True
-
-    def del_channel(self, map=None):
-        if map is not None and self._fileno in map:
-            del map[self._fileno]
-            self.connected = False
 
     def registerSocket(self, sockMap=None):
         self.add_channel(sockMap)
@@ -83,6 +85,18 @@ class AbstractSocketTransport(asyncore.dispatcher, AbstractTransport):
         self.close()
 
     # asyncore API
+
+    # The first two methods are just for dispatcher registration
+
+    def add_channel(self, map=None):
+        if map is not None:
+            map[self._fileno] = self
+            self.connected = True
+
+    def del_channel(self, map=None):
+        if map is not None and self._fileno in map:
+            del map[self._fileno]
+            self.connected = False
 
     def handle_close(self):
         raise error.CarrierError('Transport unexpectedly closed')

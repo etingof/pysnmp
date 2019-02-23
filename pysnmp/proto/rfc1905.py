@@ -90,11 +90,12 @@ class VarBindList(univ.SequenceOf):
 
 errorStatus = univ.Integer(
     namedValues=namedval.NamedValues(
-        ('noError', 0), ('tooBig', 1), ('noSuchName', 2), ('badValue', 3), ('readOnly', 4),
-        ('genErr', 5), ('noAccess', 6), ('wrongType', 7), ('wrongLength', 8),
-        ('wrongEncoding', 9), ('wrongValue', 10), ('noCreation', 11),
-        ('inconsistentValue', 12), ('resourceUnavailable', 13), ('commitFailed', 14),
-        ('undoFailed', 15), ('authorizationError', 16), ('notWritable', 17),
+        ('noError', 0), ('tooBig', 1), ('noSuchName', 2), ('badValue', 3),
+        ('readOnly', 4), ('genErr', 5), ('noAccess', 6), ('wrongType', 7),
+        ('wrongLength', 8), ('wrongEncoding', 9), ('wrongValue', 10),
+        ('noCreation', 11), ('inconsistentValue', 12),
+        ('resourceUnavailable', 13), ('commitFailed', 14), ('undoFailed', 15),
+        ('authorizationError', 16), ('notWritable', 17),
         ('inconsistentName', 18))
     )
 
@@ -105,13 +106,17 @@ class PDU(univ.Sequence):
         namedtype.NamedType('request-id', rfc1902.Integer32()),
         namedtype.NamedType('error-status', errorStatus),
         namedtype.NamedType('error-index',
-                            univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, max_bindings))),
+                            univ.Integer().subtype(
+                                subtypeSpec=constraint.ValueRangeConstraint(
+                                    0, max_bindings))),
         namedtype.NamedType('variable-bindings', VarBindList())
     )
 
 
-nonRepeaters = univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, max_bindings))
-maxRepetitions = univ.Integer().subtype(subtypeSpec=constraint.ValueRangeConstraint(0, max_bindings))
+nonRepeaters = univ.Integer().subtype(
+    subtypeSpec=constraint.ValueRangeConstraint(0, max_bindings))
+maxRepetitions = univ.Integer().subtype(
+    subtypeSpec=constraint.ValueRangeConstraint(0, max_bindings))
 
 
 # Base class for bulk PDU

@@ -53,7 +53,8 @@ apiVarBind = v1.apiVarBind
 
 class PDUAPI(v1.PDUAPI):
     _errorStatus = rfc1905.errorStatus.clone(0)
-    _errorIndex = univ.Integer(0).subtype(subtypeSpec=constraint.ValueRangeConstraint(0, rfc1905.max_bindings))
+    _errorIndex = univ.Integer(0).subtype(
+        subtypeSpec=constraint.ValueRangeConstraint(0, rfc1905.max_bindings))
 
     def getResponse(self, reqPDU):
         rspPDU = ResponsePDU()
@@ -86,14 +87,14 @@ class PDUAPI(v1.PDUAPI):
     def setEndOfMibError(self, pdu, errorIndex):
         varBindList = self.getVarBindList(pdu)
         varBindList[errorIndex - 1].setComponentByPosition(
-            1, rfc1905.endOfMibView, verifyConstraints=False, matchTags=False, matchConstraints=False
-        )
+            1, rfc1905.endOfMibView, verifyConstraints=False, matchTags=False,
+            matchConstraints=False)
 
     def setNoSuchInstanceError(self, pdu, errorIndex):
         varBindList = self.getVarBindList(pdu)
         varBindList[errorIndex - 1].setComponentByPosition(
-            1, rfc1905.noSuchInstance, verifyConstraints=False, matchTags=False, matchConstraints=False
-        )
+            1, rfc1905.noSuchInstance, verifyConstraints=False, matchTags=False,
+            matchConstraints=False)
 
 
 apiPDU = PDUAPI()
@@ -105,15 +106,19 @@ class BulkPDUAPI(PDUAPI):
 
     def setDefaults(self, pdu):
         PDUAPI.setDefaults(self, pdu)
+
         pdu.setComponentByPosition(
-            0, getNextRequestID(), verifyConstraints=False, matchTags=False, matchConstraints=False
-        )
+            0, getNextRequestID(), verifyConstraints=False, matchTags=False,
+            matchConstraints=False)
+
         pdu.setComponentByPosition(
-            1, self._nonRepeaters, verifyConstraints=False, matchTags=False, matchConstraints=False
-        )
+            1, self._nonRepeaters, verifyConstraints=False, matchTags=False,
+            matchConstraints=False)
+
         pdu.setComponentByPosition(
-            2, self._maxRepetitions, verifyConstraints=False, matchTags=False, matchConstraints=False
-        )
+            2, self._maxRepetitions, verifyConstraints=False, matchTags=False,
+            matchConstraints=False)
+
         pdu.setComponentByPosition(3)
 
     @staticmethod
@@ -152,9 +157,11 @@ class BulkPDUAPI(PDUAPI):
         if R:
             for i in range(0, len(rspVarBinds) - N, R):
                 varBindRow = rspVarBinds[:N] + rspVarBinds[N + i:N + R + i]
+
                 # ignore stray OIDs / non-rectangular table
                 if len(varBindRow) == N + R:
                     varBindTable.append(varBindRow)
+
         elif N:
             varBindTable.append(rspVarBinds[:N])
 
@@ -175,9 +182,11 @@ class TrapPDUAPI(v1.PDUAPI):
 
     def setDefaults(self, pdu):
         v1.PDUAPI.setDefaults(self, pdu)
+
         varBinds = [(self.sysUpTime, self._zeroTime),
                     # generic trap
                     (self.snmpTrapOID, self._genTrap)]
+
         self.setVarBinds(pdu, varBinds)
 
 
@@ -188,16 +197,24 @@ class MessageAPI(v1.MessageAPI):
     _version = rfc1901.version.clone(1)
 
     def setDefaults(self, msg):
-        msg.setComponentByPosition(0, self._version, verifyConstraints=False, matchTags=False, matchConstraints=False)
-        msg.setComponentByPosition(1, self._community, verifyConstraints=False, matchTags=False, matchConstraints=False)
+        msg.setComponentByPosition(
+            0, self._version, verifyConstraints=False, matchTags=False,
+            matchConstraints=False)
+
+        msg.setComponentByPosition(
+            1, self._community, verifyConstraints=False, matchTags=False,
+            matchConstraints=False)
+
         return msg
 
     def getResponse(self, reqMsg):
         rspMsg = Message()
+
         self.setDefaults(rspMsg)
         self.setVersion(rspMsg, self.getVersion(reqMsg))
         self.setCommunity(rspMsg, self.getCommunity(reqMsg))
         self.setPDU(rspMsg, apiPDU.getResponse(self.getPDU(reqMsg)))
+
         return rspMsg
 
 

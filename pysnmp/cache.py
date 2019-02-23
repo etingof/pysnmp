@@ -10,36 +10,41 @@
 
 class Cache(object):
     def __init__(self, maxSize=256):
-        self.__maxSize = maxSize
-        self.__size = 0
-        self.__chopSize = maxSize // 10
-        self.__chopSize = self.__chopSize and self.__chopSize or 1
-        self.__cache = {}
-        self.__usage = {}
+        self._maxSize = maxSize
+        self._size = 0
+        self._chopSize = maxSize // 10
+        self._chopSize = self._chopSize or 1
+        self._cache = {}
+        self._usage = {}
 
     def __contains__(self, k):
-        return k in self.__cache
+        return k in self._cache
 
     def __getitem__(self, k):
-        self.__usage[k] += 1
-        return self.__cache[k]
+        self._usage[k] += 1
+        return self._cache[k]
 
     def __len__(self):
-        return self.__size
+        return self._size
 
     def __setitem__(self, k, v):
-        if self.__size >= self.__maxSize:
-            usageKeys = sorted(self.__usage, key=lambda x, d=self.__usage: d[x])
-            for _k in usageKeys[:self.__chopSize]:
-                del self.__cache[_k]
-                del self.__usage[_k]
-            self.__size -= self.__chopSize
-        if k not in self.__cache:
-            self.__size += 1
-            self.__usage[k] = 0
-        self.__cache[k] = v
+        if self._size >= self._maxSize:
+            usageKeys = sorted(
+                self._usage, key=lambda x, d=self._usage: d[x])
+
+            for _k in usageKeys[:self._chopSize]:
+                del self._cache[_k]
+                del self._usage[_k]
+
+            self._size -= self._chopSize
+
+        if k not in self._cache:
+            self._size += 1
+            self._usage[k] = 0
+
+        self._cache[k] = v
 
     def __delitem__(self, k):
-        del self.__cache[k]
-        del self.__usage[k]
-        self.__size -= 1
+        del self._cache[k]
+        del self._usage[k]
+        self._size -= 1

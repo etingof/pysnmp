@@ -38,15 +38,15 @@ Topic :: Software Development :: Libraries :: Python Modules
 
 
 def howto_install_setuptools():
-    print("""
-   Error: You need setuptools Python package!
+    print("""\
+Error: You need setuptools Python package!
 
-   It's very easy to install it, just type:
+It's very easy to install it, just type:
 
-   wget https://bootstrap.pypa.io/ez_setup.py
-   python ez_setup.py
+wget https://bootstrap.pypa.io/ez_setup.py
+python ez_setup.py
 
-   Then you could make eggs from this package.
+Then you could make eggs from this package.
 """)
 
 
@@ -94,8 +94,8 @@ try:
             observed_version < required_version):
         print("ERROR: your wheels won't come out round with setuptools %s! "
               "Upgrade to %s and try again." % (
-                '.'.join([str(x) for x in observed_version]),
-                '.'.join([str(x) for x in required_version])))
+                '.'.join(str(x) for x in observed_version),
+                '.'.join(str(x) for x in required_version)))
         sys.exit(1)
 
     # NOTE(etingof): older setuptools fail at parsing python_version

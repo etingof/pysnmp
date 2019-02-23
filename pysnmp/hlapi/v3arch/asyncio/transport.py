@@ -56,11 +56,11 @@ class UdpTransportTarget(AbstractTransportTarget):
 
     def _resolveAddr(self, transportAddr):
         try:
-            return socket.getaddrinfo(transportAddr[0],
-                                      transportAddr[1],
-                                      socket.AF_INET,
-                                      socket.SOCK_DGRAM,
-                                      socket.IPPROTO_UDP)[0][4][:2]
+            return socket.getaddrinfo(
+                transportAddr[0], transportAddr[1],
+                socket.AF_INET, socket.SOCK_DGRAM,
+                socket.IPPROTO_UDP)[0][4][:2]
+
         except socket.gaierror as exc:
             raise PySnmpError('Bad IPv4/UDP transport address %s: %s' % (
                 '@'.join([str(x) for x in transportAddr]), exc))
@@ -116,11 +116,11 @@ class Udp6TransportTarget(AbstractTransportTarget):
 
     def _resolveAddr(self, transportAddr):
         try:
-            return socket.getaddrinfo(transportAddr[0],
-                                      transportAddr[1],
-                                      socket.AF_INET6,
-                                      socket.SOCK_DGRAM,
-                                      socket.IPPROTO_UDP)[0][4][:2]
+            return socket.getaddrinfo(
+                transportAddr[0], transportAddr[1],
+                socket.AF_INET6, socket.SOCK_DGRAM,
+                socket.IPPROTO_UDP)[0][4][:2]
+
         except socket.gaierror as exc:
             raise PySnmpError('Bad IPv6/UDP transport address %s: %s' % (
                 '@'.join([str(x) for x in transportAddr]), exc))

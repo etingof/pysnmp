@@ -110,37 +110,40 @@ def getCmd(snmpEngine, authData, transportTarget, contextData,
     ...
     >>> react(run)
     (0, 0, [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'))])
-    >>>
-
     """
     def __cbFun(snmpEngine, sendRequestHandle,
                 errorIndication, errorStatus, errorIndex,
                 varBinds, cbCtx):
+
         lookupMib, deferred = cbCtx
+
         if errorIndication:
             deferred.errback(Failure(errorIndication))
+
         else:
             try:
-                varBindsUnmade = VB_PROCESSOR.unmakeVarBinds(snmpEngine.cache, varBinds, lookupMib)
+                varBinds = VB_PROCESSOR.unmakeVarBinds(snmpEngine.cache, varBinds, lookupMib)
 
             except Exception as e:
                 deferred.errback(Failure(e))
 
             else:
-                deferred.callback((errorStatus, errorIndex, varBindsUnmade))
+                deferred.callback((errorStatus, errorIndex, varBinds))
 
     addrName, paramsName = LCD.configure(
         snmpEngine, authData, transportTarget, contextData.contextName)
+
+    varBinds = VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds)
 
     deferred = Deferred()
 
     cmdgen.GetCommandGenerator().sendVarBinds(
         snmpEngine, addrName, contextData.contextEngineId,
-        contextData.contextName,
-        VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds), __cbFun,
-        (options.get('lookupMib', True), deferred)
-    )
+        contextData.contextName, varBinds, __cbFun,
+        (options.get('lookupMib', True), deferred))
+
     return deferred
+
 
 def setCmd(snmpEngine, authData, transportTarget, contextData,
            *varBinds, **options):
@@ -227,37 +230,40 @@ def setCmd(snmpEngine, authData, transportTarget, contextData,
     ...
     >>> react(run)
     (0, 0, [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('Linux i386'))])
-    >>>
-
     """
     def __cbFun(snmpEngine, sendRequestHandle,
                 errorIndication, errorStatus, errorIndex,
                 varBinds, cbCtx):
+
         lookupMib, deferred = cbCtx
+
         if errorIndication:
             deferred.errback(Failure(errorIndication))
+
         else:
             try:
-                varBindsUnmade = VB_PROCESSOR.unmakeVarBinds(snmpEngine.cache, varBinds, lookupMib)
+                varBinds = VB_PROCESSOR.unmakeVarBinds(snmpEngine.cache, varBinds, lookupMib)
 
             except Exception as e:
                 deferred.errback(Failure(e))
 
             else:
-                deferred.callback((errorStatus, errorIndex, varBindsUnmade))
+                deferred.callback((errorStatus, errorIndex, varBinds))
 
     addrName, paramsName = LCD.configure(
         snmpEngine, authData, transportTarget, contextData.contextName)
+
+    varBinds = VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds)
 
     deferred = Deferred()
 
     cmdgen.SetCommandGenerator().sendVarBinds(
         snmpEngine, addrName, contextData.contextEngineId,
-        contextData.contextName,
-        VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds), __cbFun,
-        (options.get('lookupMib', True), deferred)
-    )
+        contextData.contextName, varBinds, __cbFun,
+        (options.get('lookupMib', True), deferred))
+
     return deferred
+
 
 def nextCmd(snmpEngine, authData, transportTarget, contextData,
             *varBinds, **options):
@@ -352,43 +358,48 @@ def nextCmd(snmpEngine, authData, transportTarget, contextData,
     ...
     >>> react(run)
     (0, 0, [[ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'))]])
-    >>>
-
     """
     def __cbFun(snmpEngine, sendRequestHandle,
                 errorIndication, errorStatus, errorIndex,
                 varBindTable, cbCtx):
+
         lookupMib, deferred = cbCtx
-        if (options.get('ignoreNonIncreasingOid', False) and
-                errorIndication and isinstance(errorIndication, errind.OidNotIncreasing)):
+
+        if (options.get('ignoreNonIncreasingOid', False) and errorIndication
+                and isinstance(errorIndication, errind.OidNotIncreasing)):
             errorIndication = None
+
         if errorIndication:
             deferred.errback(Failure(errorIndication))
+
         else:
             try:
-                varBindsUnmade = [VB_PROCESSOR.unmakeVarBinds(snmpEngine.cache,
-                                                              varBindTableRow,
-                                                              lookupMib)
-                                  for varBindTableRow in varBindTable]
+                varBindTable = [
+                    VB_PROCESSOR.unmakeVarBinds(snmpEngine.cache,
+                                                varBindTableRow, lookupMib)
+                    for varBindTableRow in varBindTable
+                ]
 
             except Exception as e:
                 deferred.errback(Failure(e))
 
             else:
-                deferred.callback((errorStatus, errorIndex, varBindsUnmade))
+                deferred.callback((errorStatus, errorIndex, varBindTable))
 
     addrName, paramsName = LCD.configure(
         snmpEngine, authData, transportTarget, contextData.contextName)
+
+    varBinds = VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds)
 
     deferred = Deferred()
 
     cmdgen.NextCommandGenerator().sendVarBinds(
         snmpEngine, addrName, contextData.contextEngineId,
-        contextData.contextName,
-        VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds), __cbFun,
-        (options.get('lookupMib', True), deferred)
-    )
+        contextData.contextName, varBinds, __cbFun,
+        (options.get('lookupMib', True), deferred))
+
     return deferred
+
 
 def bulkCmd(snmpEngine, authData, transportTarget, contextData,
             nonRepeaters, maxRepetitions, *varBinds, **options):
@@ -511,41 +522,45 @@ def bulkCmd(snmpEngine, authData, transportTarget, contextData,
     ...
     >>> react(run)
     (0, 0, [[ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.1.0')), DisplayString('SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'))], [ObjectType(ObjectIdentity(ObjectName('1.3.6.1.2.1.1.2.0')), ObjectIdentifier('1.3.6.1.4.1.424242.1.1'))]])
-    >>>
-
     """
     def __cbFun(snmpEngine, sendRequestHandle,
                 errorIndication, errorStatus, errorIndex,
                 varBindTable, cbCtx):
+
         lookupMib, deferred = cbCtx
-        if options.get('ignoreNonIncreasingOid', False) and errorIndication and \
-                isinstance(errorIndication, errind.OidNotIncreasing):
+
+        if (options.get('ignoreNonIncreasingOid', False) and errorIndication
+                and isinstance(errorIndication, errind.OidNotIncreasing)):
             errorIndication = None
+
         if errorIndication:
             deferred.errback(Failure(errorIndication))
+
         else:
             try:
-                varBindsUnmade = [VB_PROCESSOR.unmakeVarBinds(snmpEngine.cache,
-                                                              varBindTableRow,
-                                                              lookupMib)
-                                  for varBindTableRow in varBindTable]
+                varBindTable = [
+                    VB_PROCESSOR.unmakeVarBinds(snmpEngine.cache,
+                                                varBindTableRow, lookupMib)
+                    for varBindTableRow in varBindTable
+                ]
 
             except Exception as e:
                 deferred.errback(Failure(e))
 
             else:
-                deferred.callback((errorStatus, errorIndex, varBindsUnmade))
+                deferred.callback((errorStatus, errorIndex, varBindTable))
 
     addrName, paramsName = LCD.configure(
         snmpEngine, authData, transportTarget, contextData.contextName)
+
+    varBinds = VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds)
 
     deferred = Deferred()
 
     cmdgen.BulkCommandGenerator().sendVarBinds(
         snmpEngine, addrName, contextData.contextEngineId,
         contextData.contextName, nonRepeaters, maxRepetitions,
-        VB_PROCESSOR.makeVarBinds(snmpEngine.cache, varBinds),
-        __cbFun,
-        (options.get('lookupMib', True), deferred)
-    )
+        varBinds, __cbFun, (options.get('lookupMib', True),
+                            deferred))
+
     return deferred

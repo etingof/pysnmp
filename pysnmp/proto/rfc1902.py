@@ -95,7 +95,8 @@ class Integer32(univ.Integer):
         """
 
         class X(cls):
-            subtypeSpec = cls.subtypeSpec + constraint.SingleValueConstraint(*values)
+            subtypeSpec = cls.subtypeSpec + constraint.SingleValueConstraint(
+                *values)
 
         X.__name__ = cls.__name__
         return X
@@ -106,7 +107,8 @@ class Integer32(univ.Integer):
         """
 
         class X(cls):
-            subtypeSpec = cls.subtypeSpec + constraint.ValueRangeConstraint(minimum, maximum)
+            subtypeSpec = cls.subtypeSpec + constraint.ValueRangeConstraint(
+                minimum, maximum)
 
         X.__name__ = cls.__name__
         return X
@@ -171,6 +173,7 @@ class Integer(Integer32):
                 *values.values())
 
         X.__name__ = cls.__name__
+
         return X
 
 
@@ -234,10 +237,12 @@ class OctetString(univ.OctetString):
         return self.fixedLength
 
     def clone(self, *args, **kwargs):
-        return univ.OctetString.clone(self, *args, **kwargs).setFixedLength(self.getFixedLength())
+        return univ.OctetString.clone(
+            self, *args, **kwargs).setFixedLength(self.getFixedLength())
 
     def subtype(self, *args, **kwargs):
-        return univ.OctetString.subtype(self, *args, **kwargs).setFixedLength(self.getFixedLength())
+        return univ.OctetString.subtype(
+            self, *args, **kwargs).setFixedLength(self.getFixedLength())
 
     @classmethod
     def withSize(cls, minimum, maximum):
@@ -245,7 +250,8 @@ class OctetString(univ.OctetString):
         """
 
         class X(cls):
-            subtypeSpec = cls.subtypeSpec + constraint.ValueSizeConstraint(minimum, maximum)
+            subtypeSpec = cls.subtypeSpec + constraint.ValueSizeConstraint(
+                minimum, maximum)
 
         X.__name__ = cls.__name__
         return X
@@ -328,11 +334,15 @@ class IpAddress(OctetString):
         if isinstance(value, str) and len(value) != 4:
             try:
                 value = [int(x) for x in value.split('.')]
-            except:
+
+            except Exception:
                 raise error.ProtocolError('Bad IP address syntax %s' % value)
+
         value = OctetString.prettyIn(self, value)
+
         if len(value) != 4:
             raise error.ProtocolError('Bad IP address syntax')
+
         return value
 
     def prettyOut(self, value):
@@ -340,6 +350,7 @@ class IpAddress(OctetString):
             return '.'.join(
                 ['%d' % x for x in self.__class__(value).asNumbers()]
             )
+
         else:
             return ''
 
@@ -643,30 +654,44 @@ class Bits(OctetString):
     def prettyIn(self, bits):
         if not isinstance(bits, (tuple, list)):
             return OctetString.prettyIn(self, bits)  # raw bitstring
+
         octets = []
+
         for bit in bits:  # tuple of named bits
             v = self.namedValues.getValue(bit)
+
             if v is None:
                 raise error.ProtocolError('Unknown named bit %s' % bit)
+
             d, m = divmod(v, 8)
             if d >= len(octets):
                 octets.extend([0] * (d - len(octets) + 1))
+
             octets[d] |= 0x01 << (7 - m)
+
         return OctetString.prettyIn(self, octets)
 
     def prettyOut(self, value):
         names = []
+
         ints = self.__class__(value).asNumbers()
+
         for i, v in enumerate(ints):
             v = ints[i]
+
             j = 7
+
             while j >= 0:
                 if v & (0x01 << j):
                     name = self.namedValues.getName(i * 8 + 7 - j)
+
                     if name is None:
                         name = 'UnknownBit-%s' % (i * 8 + 7 - j,)
+
                     names.append(name)
+
                 j -= 1
+
         return ', '.join([str(x) for x in names])
 
     @classmethod

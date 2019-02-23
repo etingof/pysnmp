@@ -20,6 +20,7 @@ class AbstractMessageProcessingModel(object):
                                securityModel, securityName, securityLevel,
                                contextEngineId, contextName, pduVersion,
                                pdu, expectResponse, sendPduHandle):
+
         raise error.ProtocolError('method not implemented')
 
     def prepareResponseMessage(self, snmpEngine, messageProcessingModel,
@@ -27,15 +28,18 @@ class AbstractMessageProcessingModel(object):
                                contextEngineId, contextName, pduVersion,
                                pdu, maxSizeResponseScopedPDU,
                                stateReference, statusInformation):
+
         raise error.ProtocolError('method not implemented')
 
     def prepareDataElements(self, snmpEngine, transportDomain,
                             transportAddress, wholeMsg):
+
         raise error.ProtocolError('method not implemented')
 
     def releaseStateInformation(self, sendPduHandle):
         try:
             self._cache.popBySendPduHandle(sendPduHandle)
+
         except error.ProtocolError:
             pass  # XXX maybe these should all follow some scheme?
 

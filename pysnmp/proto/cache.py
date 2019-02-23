@@ -9,30 +9,30 @@ from pysnmp.proto import error
 
 class Cache(object):
     def __init__(self):
-        self.__cacheRepository = {}
+        self._cacheRepository = {}
 
     def add(self, index, **kwargs):
-        self.__cacheRepository[index] = kwargs
+        self._cacheRepository[index] = kwargs
         return index
 
     def pop(self, index):
-        if index in self.__cacheRepository:
-            cachedParams = self.__cacheRepository[index]
+        if index in self._cacheRepository:
+            cachedParams = self._cacheRepository[index]
         else:
             return
-        del self.__cacheRepository[index]
+        del self._cacheRepository[index]
         return cachedParams
 
     def update(self, index, **kwargs):
-        if index not in self.__cacheRepository:
+        if index not in self._cacheRepository:
             raise error.ProtocolError(
                 'Cache miss on update for %s' % kwargs
             )
-        self.__cacheRepository[index].update(kwargs)
+        self._cacheRepository[index].update(kwargs)
 
     def expire(self, cbFun, cbCtx):
-        for index, cachedParams in list(self.__cacheRepository.items()):
+        for index, cachedParams in list(self._cacheRepository.items()):
             if cbFun:
                 if cbFun(index, cachedParams, cbCtx):
-                    if index in self.__cacheRepository:
-                        del self.__cacheRepository[index]
+                    if index in self._cacheRepository:
+                        del self._cacheRepository[index]

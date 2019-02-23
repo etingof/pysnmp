@@ -4,7 +4,6 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-
 from pysnmp.hlapi.v1arch.auth import *
 from pysnmp.hlapi.v1arch.asyncore import *
 from pysnmp.hlapi.varbinds import *

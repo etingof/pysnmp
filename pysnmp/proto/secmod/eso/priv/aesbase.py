@@ -24,19 +24,25 @@ class AbstractAesBlumenthal(aes.Aes):
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
         if authProtocol == hmacmd5.HmacMd5.SERVICE_ID:
             hashAlgo = md5
+
         elif authProtocol == hmacsha.HmacSha.SERVICE_ID:
             hashAlgo = sha1
+
         elif authProtocol in hmacsha2.HmacSha2.HASH_ALGORITHM:
             hashAlgo = hmacsha2.HmacSha2.HASH_ALGORITHM[authProtocol]
+
         else:
             raise error.ProtocolError(
-                'Unknown auth protocol %s' % (authProtocol,)
-            )
+                'Unknown auth protocol %s' % (authProtocol,))
 
-        localPrivKey = localkey.localizeKey(privKey, snmpEngineID, hashAlgo)
+        localPrivKey = localkey.localizeKey(
+            privKey, snmpEngineID, hashAlgo)
 
-        # now extend this key if too short by repeating steps that includes the hashPassphrase step
-        for count in range(1, int(ceil(self.KEY_SIZE * 1.0 / len(localPrivKey)))):
+        # now extend this key if too short by repeating steps that includes
+        # the hashPassphrase step
+        rounds = int(ceil(self.KEY_SIZE * 1.0 / len(localPrivKey)))
+
+        for _ in range(1, rounds):
             localPrivKey += hashAlgo(localPrivKey).digest()
 
         return localPrivKey[:self.KEY_SIZE]
@@ -64,14 +70,16 @@ class AbstractAesReeder(aes.Aes):
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
         if authProtocol == hmacmd5.HmacMd5.SERVICE_ID:
             hashAlgo = md5
+
         elif authProtocol == hmacsha.HmacSha.SERVICE_ID:
             hashAlgo = sha1
+
         elif authProtocol in hmacsha2.HmacSha2.HASH_ALGORITHM:
             hashAlgo = hmacsha2.HmacSha2.HASH_ALGORITHM[authProtocol]
+
         else:
             raise error.ProtocolError(
-                'Unknown auth protocol %s' % (authProtocol,)
-            )
+                'Unknown auth protocol %s' % (authProtocol,))
 
         localPrivKey = localkey.localizeKey(privKey, snmpEngineID, hashAlgo)
 
