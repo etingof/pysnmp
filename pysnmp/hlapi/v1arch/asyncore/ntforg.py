@@ -160,7 +160,7 @@ def sendNotification(snmpDispatcher, authData, transportTarget,
             return
 
         if errorIndication:
-            cbFun(errorIndication, pMod.Integer(0), pMod.Integer(0), None,
+            cbFun(errorIndication, v2c.Integer(0), v2c.Integer(0), None,
                   cbCtx=cbCtx, snmpDispatcher=snmpDispatcher, stateHandle=stateHandle)
             return
 
@@ -172,7 +172,7 @@ def sendNotification(snmpDispatcher, authData, transportTarget,
         if lookupMib:
             varBinds = VB_PROCESSOR.unmakeVarBinds(snmpDispatcher.cache, varBinds)
 
-        nextStateHandle = pMod.getNextRequestID()
+        nextStateHandle = v2c.getNextRequestID()
 
         nextVarBinds = cbFun(errorIndication, errorStatus, errorIndex, varBinds,
                              cbCtx=cbCtx,
