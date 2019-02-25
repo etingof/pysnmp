@@ -151,6 +151,7 @@ params.update({
                  'pysnmp.entity.rfc3413',
                  'pysnmp.hlapi',
                  'pysnmp.hlapi.v1arch',
+                 'pysnmp.hlapi.v1arch.asyncio',
                  'pysnmp.hlapi.v1arch.asyncore',
                  'pysnmp.hlapi.v1arch.asyncore.sync',
                  'pysnmp.hlapi.v3arch',
