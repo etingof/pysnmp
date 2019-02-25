@@ -24,7 +24,7 @@ iterator = nextCmd(
     ObjectType(ObjectIdentity('IF-MIB'))
 )
 
-for errorIndication, errorStatus, errorIndex, varBinds in interator:
+for errorIndication, errorStatus, errorIndex, varBinds in iterator:
 
     if errorIndication:
         print(errorIndication)

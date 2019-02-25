@@ -28,7 +28,7 @@ iterator = getCmd(
             '0.0.0.0', 22,
             '0.0.0.0', 0
         )
-    ),
+    ).addAsn1MibSource('http://mibs.snmplabs.com/asn1/@mib@'),
     lookupMib=True
 )
 
