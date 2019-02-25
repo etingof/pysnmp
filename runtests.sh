@@ -24,7 +24,7 @@ for x in examples/hlapi/v3arch/asyncore/sync/manager/cmdgen/*.py \
          examples/smi/agent/*.py
 do
     case "${PYTHON}-${x}" in
-    *spoof*|*ipv6*|python2*asyncio*)
+    *spoof*|*ipv6*|python2*asyncio*|*broadcast*)
         echo "skipping ${x}"
         continue
         ;;
