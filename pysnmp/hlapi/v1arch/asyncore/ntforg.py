@@ -131,7 +131,7 @@ def sendNotification(snmpDispatcher, authData, transportTarget,
         for idx, varBind in enumerate(varBinds[1:]):
             if varBind[0] == sysUpTime:
                 varBinds[0] = varBind
-                del varBinds[idx]
+                del varBinds[idx + 1]
                 break
 
         if len(varBinds) < 2:
@@ -141,7 +141,7 @@ def sendNotification(snmpDispatcher, authData, transportTarget,
         # Search for and reposition snmpTrapOID if it's elsewhere
         for idx, varBind in enumerate(varBinds[2:]):
             if varBind[0] == snmpTrapOID:
-                del varBinds[idx]
+                del varBinds[idx + 2]
                 if varBinds[1][0] == snmpTrapOID:
                     varBinds[1] = varBind
                 else:

@@ -31,7 +31,7 @@ iterator = sendNotification(
     ContextData(),
     'trap',
     NotificationType(
-        ObjectIdentity('1.3.6.1.4.1.20408.4.1.1.2.0.432'),
+        ObjectIdentity('1.3.6.1.4.1.20408.4.1.1.2.0.432')
     ).addVarBinds(
         ('1.3.6.1.2.1.1.3.0', 12345),
         ('1.3.6.1.6.3.18.1.3.0', '127.0.0.1'),
