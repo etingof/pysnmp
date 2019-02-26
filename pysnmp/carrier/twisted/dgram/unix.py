@@ -26,13 +26,16 @@ class UnixTwistedTransport(DgramTwistedTransport):
     def openClientMode(self, iface=''):
         try:
             self._lport = reactor.connectUNIXDatagram(iface, self)
+
         except Exception as exc:
             raise error.CarrierError(exc)
+
         return self
 
     def openServerMode(self, iface):
         try:
             self._lport = reactor.listenUNIXDatagram(iface, self)
+
         except Exception as exc:
             raise error.CarrierError(exc)
 
@@ -40,9 +43,10 @@ class UnixTwistedTransport(DgramTwistedTransport):
 
     def closeTransport(self):
         if self._lport is not None:
-            d = self._lport.stopListening()
-            if d:
-                d.addCallback(lambda x: None)
+            deferred = self._lport.stopListening()
+            if deferred:
+                deferred.addCallback(lambda x: None)
+
         DgramTwistedTransport.closeTransport(self)
 
 

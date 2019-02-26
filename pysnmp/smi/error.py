@@ -23,25 +23,25 @@ class MibNotFoundError(MibLoadError):
 
 class MibOperationError(SmiError):
     def __init__(self, **kwargs):
-        self.__outArgs = kwargs
+        self._outArgs = kwargs
 
     def __str__(self):
-        return '%s(%s)' % (self.__class__.__name__, self.__outArgs)
+        return '%s(%s)' % (self.__class__.__name__, self._outArgs)
 
     def __getitem__(self, key):
-        return self.__outArgs[key]
+        return self._outArgs[key]
 
     def __contains__(self, key):
-        return key in self.__outArgs
+        return key in self._outArgs
 
     def get(self, key, defVal=None):
-        return self.__outArgs.get(key, defVal)
+        return self._outArgs.get(key, defVal)
 
     def keys(self):
-        return self.__outArgs.keys()
+        return self._outArgs.keys()
 
     def update(self, d):
-        self.__outArgs.update(d)
+        self._outArgs.update(d)
 
 
 # Aligned with SNMPv2 PDU error-status values

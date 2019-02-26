@@ -35,5 +35,5 @@ from pysnmp.carrier.base import AbstractTransport
 
 
 class AbstractAsyncioTransport(AbstractTransport):
-    PROTO_TRANSPORT_DISPATCHER = AsyncioDispatcher
     """Base Asyncio Transport, to be used with AsyncioDispatcher"""
+    PROTO_TRANSPORT_DISPATCHER = AsyncioDispatcher

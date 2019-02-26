@@ -38,66 +38,85 @@ class Aes(base.AbstractEncryptionService):
     local_int = random.randrange(0, 0xffffffffffffffff)
 
     # 3.1.2.1
-    def __getEncryptionKey(self, privKey, snmpEngineBoots, snmpEngineTime):
-        salt = [self.local_int >> 56 & 0xff,
-                self.local_int >> 48 & 0xff,
-                self.local_int >> 40 & 0xff,
-                self.local_int >> 32 & 0xff,
-                self.local_int >> 24 & 0xff,
-                self.local_int >> 16 & 0xff,
-                self.local_int >> 8 & 0xff,
-                self.local_int & 0xff]
+    def _getEncryptionKey(self, privKey, snmpEngineBoots, snmpEngineTime):
+        salt = [
+            self.local_int >> 56 & 0xff,
+            self.local_int >> 48 & 0xff,
+            self.local_int >> 40 & 0xff,
+            self.local_int >> 32 & 0xff,
+            self.local_int >> 24 & 0xff,
+            self.local_int >> 16 & 0xff,
+            self.local_int >> 8 & 0xff,
+            self.local_int & 0xff
+        ]
 
         if self.local_int == 0xffffffffffffffff:
             self.local_int = 0
+
         else:
             self.local_int += 1
 
-        return self.__getDecryptionKey(privKey, snmpEngineBoots, snmpEngineTime, salt) + (
-        univ.OctetString(salt).asOctets(),)
+        key, iv = self._getDecryptionKey(
+            privKey, snmpEngineBoots, snmpEngineTime, salt)
 
-    def __getDecryptionKey(self, privKey, snmpEngineBoots,
-                           snmpEngineTime, salt):
+        return key, iv, univ.OctetString(salt).asOctets()
+
+    def _getDecryptionKey(self, privKey, snmpEngineBoots,
+                          snmpEngineTime, salt):
+
         snmpEngineBoots, snmpEngineTime, salt = (
-            int(snmpEngineBoots), int(snmpEngineTime), salt
-        )
+            int(snmpEngineBoots), int(snmpEngineTime), salt)
 
-        iv = [snmpEngineBoots >> 24 & 0xff,
-              snmpEngineBoots >> 16 & 0xff,
-              snmpEngineBoots >> 8 & 0xff,
-              snmpEngineBoots & 0xff,
-              snmpEngineTime >> 24 & 0xff,
-              snmpEngineTime >> 16 & 0xff,
-              snmpEngineTime >> 8 & 0xff,
-              snmpEngineTime & 0xff] + salt
+        iv = [
+            snmpEngineBoots >> 24 & 0xff,
+            snmpEngineBoots >> 16 & 0xff,
+            snmpEngineBoots >> 8 & 0xff,
+            snmpEngineBoots & 0xff,
+            snmpEngineTime >> 24 & 0xff,
+            snmpEngineTime >> 16 & 0xff,
+            snmpEngineTime >> 8 & 0xff,
+            snmpEngineTime & 0xff
+        ]
 
-        return privKey[:self.KEY_SIZE].asOctets(), univ.OctetString(iv).asOctets()
+        iv += salt
+
+        key = privKey[:self.KEY_SIZE].asOctets()
+        iv = univ.OctetString(iv).asOctets()
+
+        return key, iv
 
     def hashPassphrase(self, authProtocol, privKey):
         if authProtocol == hmacmd5.HmacMd5.SERVICE_ID:
             hashAlgo = md5
+
         elif authProtocol == hmacsha.HmacSha.SERVICE_ID:
             hashAlgo = sha1
+
         elif authProtocol in hmacsha2.HmacSha2.HASH_ALGORITHM:
             hashAlgo = hmacsha2.HmacSha2.HASH_ALGORITHM[authProtocol]
+
         else:
             raise error.ProtocolError(
-                'Unknown auth protocol %s' % (authProtocol,)
-            )
+                'Unknown auth protocol %s' % (authProtocol,))
+
         return localkey.hashPassphrase(privKey, hashAlgo)
 
     def localizeKey(self, authProtocol, privKey, snmpEngineID):
         if authProtocol == hmacmd5.HmacMd5.SERVICE_ID:
             hashAlgo = md5
+
         elif authProtocol == hmacsha.HmacSha.SERVICE_ID:
             hashAlgo = sha1
+
         elif authProtocol in hmacsha2.HmacSha2.HASH_ALGORITHM:
             hashAlgo = hmacsha2.HmacSha2.HASH_ALGORITHM[authProtocol]
+
         else:
             raise error.ProtocolError(
-                'Unknown auth protocol %s' % (authProtocol,)
-            )
+                'Unknown auth protocol %s' % (authProtocol,))
+
         localPrivKey = localkey.localizeKey(privKey, snmpEngineID, hashAlgo)
+
         return localPrivKey[:self.KEY_SIZE]
 
     # 3.2.4.1
@@ -105,21 +124,20 @@ class Aes(base.AbstractEncryptionService):
         snmpEngineBoots, snmpEngineTime, salt = privParameters
 
         # 3.3.1.1
-        aesKey, iv, salt = self.__getEncryptionKey(
-            encryptKey, snmpEngineBoots, snmpEngineTime
-        )
+        aesKey, iv, salt = self._getEncryptionKey(
+            encryptKey, snmpEngineBoots, snmpEngineTime)
 
         # 3.3.1.3
         # PyCrypto seems to require padding
-        dataToEncrypt = dataToEncrypt + univ.OctetString((0,) * (16 - len(dataToEncrypt) % 16)).asOctets()
+        padding = univ.OctetString((0,) * (16 - len(dataToEncrypt) % 16))
+        dataToEncrypt += padding
 
         try:
-            ciphertext = aes.encrypt(dataToEncrypt, aesKey, iv)
+            ciphertext = aes.encrypt(dataToEncrypt.asOctets(), aesKey, iv)
 
         except PysnmpCryptoError:
             raise error.StatusInformation(
-                errorIndication=errind.unsupportedPrivProtocol
-            )
+                errorIndication=errind.unsupportedPrivProtocol)
 
         # 3.3.1.4
         return univ.OctetString(ciphertext), univ.OctetString(salt)
@@ -131,16 +149,15 @@ class Aes(base.AbstractEncryptionService):
         # 3.3.2.1
         if len(salt) != 8:
             raise error.StatusInformation(
-                errorIndication=errind.decryptionError
-            )
+                errorIndication=errind.decryptionError)
 
         # 3.3.2.3
-        aesKey, iv = self.__getDecryptionKey(
-            decryptKey, snmpEngineBoots, snmpEngineTime, salt
-        )
+        aesKey, iv = self._getDecryptionKey(
+            decryptKey, snmpEngineBoots, snmpEngineTime, salt)
 
         # PyCrypto seems to require padding
-        encryptedData = encryptedData + univ.OctetString((0,) * (16 - len(encryptedData) % 16)).asOctets()
+        padding = univ.OctetString((0,) * (16 - len(encryptedData) % 16))
+        encryptedData += padding
 
         try:
             # 3.3.2.4-6
@@ -148,5 +165,4 @@ class Aes(base.AbstractEncryptionService):
 
         except PysnmpCryptoError:
             raise error.StatusInformation(
-                errorIndication=errind.unsupportedPrivProtocol
-            )
+                errorIndication=errind.unsupportedPrivProtocol)

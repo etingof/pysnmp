@@ -26,24 +26,30 @@ class UdpTwistedTransport(DgramTwistedTransport):
     def openClientMode(self, iface=None):
         if iface is None:
             iface = ('', 0)
+
         try:
             self._lport = reactor.listenUDP(iface[1], self, iface[0])
+
         except Exception as exc:
             raise error.CarrierError(exc)
+
         return self
 
     def openServerMode(self, iface):
         try:
             self._lport = reactor.listenUDP(iface[1], self, iface[0])
+
         except Exception as exc:
             raise error.CarrierError(exc)
+
         return self
 
     def closeTransport(self):
         if self._lport is not None:
-            d = self._lport.stopListening()
-            if d:
-                d.addCallback(lambda x: None)
+            deferred = self._lport.stopListening()
+            if deferred:
+                deferred.addCallback(lambda x: None)
+
             DgramTwistedTransport.closeTransport(self)
 
 

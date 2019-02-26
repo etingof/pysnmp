@@ -12,9 +12,12 @@ from pyasn1.type import univ
 
 def hashPassphrase(passphrase, hashFunc):
     passphrase = univ.OctetString(passphrase).asOctets()
+
     hasher = hashFunc()
+
     ringBuffer = passphrase * (64 // len(passphrase) + 1)
     ringBufferLen = len(ringBuffer)
+
     count = 0
     mark = 0
 
@@ -25,9 +28,11 @@ def hashPassphrase(passphrase, hashFunc):
             mark = e
 
         else:
-            hasher.update(
-                ringBuffer[mark:ringBufferLen] + ringBuffer[0:e - ringBufferLen]
-            )
+            chunk = ringBuffer[mark:ringBufferLen]
+            chunk += ringBuffer[0:e - ringBufferLen]
+
+            hasher.update(chunk)
+
             mark = e - ringBufferLen
 
         count += 1
@@ -36,11 +41,13 @@ def hashPassphrase(passphrase, hashFunc):
 
 
 def passwordToKey(passphrase, snmpEngineId, hashFunc):
-    return localizeKey(hashPassphrase(passphrase, hashFunc), snmpEngineId, hashFunc)
+    return localizeKey(
+        hashPassphrase(passphrase, hashFunc), snmpEngineId, hashFunc)
 
 
 def localizeKey(passKey, snmpEngineId, hashFunc):
     passKey = univ.OctetString(passKey).asOctets()
+
     # noinspection PyDeprecation,PyCallingNonCallable
     return hashFunc(passKey + snmpEngineId.asOctets() + passKey).digest()
 

@@ -34,24 +34,29 @@ import platform
 import sys
 import traceback
 
-from pysnmp.carrier.base import AbstractTransportDispatcher
-from pysnmp.error import PySnmpError
-
 try:
     import asyncio
+
 except ImportError:
     import trollius as asyncio
 
+from pysnmp.carrier.base import AbstractTransportDispatcher
+from pysnmp.error import PySnmpError
+
 IS_PYTHON_344_PLUS = platform.python_version_tuple() >= ('3', '4', '4')
+
 
 class AsyncioDispatcher(AbstractTransportDispatcher):
     """AsyncioDispatcher based on asyncio event loop"""
 
     def __init__(self, *args, **kwargs):
         AbstractTransportDispatcher.__init__(self)
+
         self.__transportCount = 0
+
         if 'timeout' in kwargs:
             self.setTimerResolution(kwargs['timeout'])
+
         self.loopingcall = None
         self.loop = kwargs.pop('loop', asyncio.get_event_loop())
 
@@ -65,25 +70,32 @@ class AsyncioDispatcher(AbstractTransportDispatcher):
         if not self.loop.is_running():
             try:
                 self.loop.run_forever()
+
             except KeyboardInterrupt:
                 raise
+
             except Exception:
-                raise PySnmpError(';'.join(traceback.format_exception(*sys.exc_info())))
+                raise PySnmpError(
+                    ';'.join(traceback.format_exception(*sys.exc_info())))
 
     def registerTransport(self, tDomain, transport):
         if self.loopingcall is None and self.getTimerResolution() > 0:
             # Avoid deprecation warning for asyncio.async()
             if IS_PYTHON_344_PLUS:
-              self.loopingcall = asyncio.ensure_future(self.handle_timeout())
-            else: # pragma: no cover
-              self.loopingcall = getattr(asyncio, 'async')(self.handle_timeout())
+                self.loopingcall = asyncio.ensure_future(self.handle_timeout())
+
+            else:
+                self.loopingcall = getattr(asyncio, 'async')(self.handle_timeout())
+
         AbstractTransportDispatcher.registerTransport(
             self, tDomain, transport
         )
+
         self.__transportCount += 1
 
     def unregisterTransport(self, tDomain):
         t = AbstractTransportDispatcher.getTransport(self, tDomain)
+
         if t is not None:
             AbstractTransportDispatcher.unregisterTransport(self, tDomain)
             self.__transportCount -= 1

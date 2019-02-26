@@ -31,7 +31,8 @@ class NotificationReceiver(object):
         def storeSnmpTrapCommunity(snmpEngine, execpoint, variables, cbCtx):
             self.__snmpTrapCommunity = variables.get('communityName', '')
 
-        snmpEngine.observer.registerObserver(storeSnmpTrapCommunity, 'rfc2576.processIncomingMsg')
+        snmpEngine.observer.registerObserver(
+            storeSnmpTrapCommunity, 'rfc2576.processIncomingMsg')
 
     def close(self, snmpEngine):
         snmpEngine.msgAndPduDsp.unregisterContextEngineId(
@@ -48,6 +49,7 @@ class NotificationReceiver(object):
         if messageProcessingModel == 0:
             origPdu = PDU
             PDU = rfc2576.v1ToV2(PDU, snmpTrapCommunity=self.__snmpTrapCommunity)
+
         else:
             origPdu = None
 
@@ -89,12 +91,17 @@ class NotificationReceiver(object):
             except error.StatusInformation as exc:
                 debug.logger & debug.FLAG_APP and debug.logger(
                     'processPdu: stateReference %s, statusInformation %s' % (stateReference, exc))
-                snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB',
-                                                                                                         'snmpSilentDrops')
+
+                mibBuilder = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
+
+                snmpSilentDrops, = mibBuilder.importSymbols(
+                    '__SNMPv2-MIB', 'snmpSilentDrops')
+
                 snmpSilentDrops.syntax += 1
 
         elif PDU.tagSet in rfc3411.UNCONFIRMED_CLASS_PDUS:
             pass
+
         else:
             raise error.ProtocolError('Unexpected PDU class %s' % PDU.tagSet)
 

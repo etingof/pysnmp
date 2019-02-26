@@ -38,7 +38,9 @@ class CommandGeneratorVarBinds(MibViewControllerManager):
                 varBind = ObjectType(*varBind)
 
             elif isinstance(varBind[0][0], tuple):  # legacy
-                varBind = ObjectType(ObjectIdentity(varBind[0][0][0], varBind[0][0][1], *varBind[0][1:]), varBind[1])
+                varBind = ObjectType(
+                    ObjectIdentity(varBind[0][0][0], varBind[0][0][1],
+                                   *varBind[0][1:]), varBind[1])
 
             else:
                 varBind = ObjectType(ObjectIdentity(varBind[0]), varBind[1])
@@ -50,7 +52,10 @@ class CommandGeneratorVarBinds(MibViewControllerManager):
     def unmakeVarBinds(self, userCache, varBinds, lookupMib=True):
         if lookupMib:
             mibViewController = self.getMibViewController(userCache)
-            varBinds = [ObjectType(ObjectIdentity(x[0]), x[1]).resolveWithMib(mibViewController) for x in varBinds]
+            varBinds = [
+                ObjectType(ObjectIdentity(x[0]),
+                           x[1]).resolveWithMib(mibViewController)
+                for x in varBinds]
 
         return varBinds
 
@@ -85,5 +90,9 @@ class NotificationOriginatorVarBinds(MibViewControllerManager):
     def unmakeVarBinds(self, userCache, varBinds, lookupMib=False):
         if lookupMib:
             mibViewController = self.getMibViewController(userCache)
-            varBinds = [ObjectType(ObjectIdentity(x[0]), x[1]).resolveWithMib(mibViewController) for x in varBinds]
+            varBinds = [
+                ObjectType(ObjectIdentity(x[0]),
+                           x[1]).resolveWithMib(mibViewController)
+                for x in varBinds]
+
         return varBinds

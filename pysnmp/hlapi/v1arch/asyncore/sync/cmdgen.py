@@ -4,11 +4,10 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-from pyasn1.type.univ import Null
-
 from pysnmp.hlapi.v1arch.asyncore import cmdgen
 from pysnmp.hlapi.varbinds import *
 from pysnmp.proto.rfc1905 import endOfMibView
+from pysnmp.proto.rfc1902 import Null
 
 __all__ = ['getCmd', 'nextCmd', 'setCmd', 'bulkCmd']
 

@@ -21,11 +21,13 @@ from pysnmp import debug
 
 if sys.version_info[:2] < (3, 3):
     def getRecvFrom(addressType):
-        raise error.CarrierError('sendmsg()/recvmsg() interface is not supported by this OS and/or Python version')
+        raise error.CarrierError('sendmsg()/recvmsg() interface is not '
+                                 'supported by this OS and/or Python version')
 
 
     def getSendTo(addressType):
-        raise error.CarrierError('sendmsg()/recvmsg() interface is not supported by this OS and/or Python version')
+        raise error.CarrierError('sendmsg()/recvmsg() interface is not '
+                                 'supported by this OS and/or Python version')
 
 else:
     import ctypes
@@ -82,13 +84,13 @@ else:
                 if anc[0] == socket.SOL_IP and anc[1] == socket.IP_PKTINFO:
                     addr = in_pktinfo.from_buffer_copy(anc[2])
                     addr = ipaddress.IPv4Address(memoryview(addr.ipi_addr).tobytes())
-                    _to = (str(addr), s.getsockname()[1])
+                    _to = str(addr), s.getsockname()[1]
                     break
 
                 elif anc[0] == socket.SOL_IPV6 and anc[1] == socket.IPV6_PKTINFO:
                     addr = in6_pktinfo.from_buffer_copy(anc[2])
                     addr = ipaddress.ip_address(memoryview(addr.ipi6_addr).tobytes())
-                    _to = (str(addr), s.getsockname()[1])
+                    _to = str(addr), s.getsockname()[1]
                     break
 
             debug.logger & debug.FLAG_IO and debug.logger(

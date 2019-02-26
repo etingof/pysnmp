@@ -27,8 +27,9 @@ class VarBindList(univ.SequenceOf):
 
 
 errorStatus = univ.Integer(
-    namedValues=namedval.NamedValues(('noError', 0), ('tooBig', 1), ('noSuchName', 2),
-                                     ('badValue', 3), ('readOnly', 4), ('genErr', 5)))
+    namedValues=namedval.NamedValues(
+        ('noError', 0), ('tooBig', 1), ('noSuchName', 2),
+        ('badValue', 3), ('readOnly', 4), ('genErr', 5)))
 
 
 class _RequestBase(univ.Sequence):
@@ -65,8 +66,10 @@ class SetRequestPDU(_RequestBase):
 
 
 genericTrap = univ.Integer().clone(
-    namedValues=namedval.NamedValues(('coldStart', 0), ('warmStart', 1), ('linkDown', 2), ('linkUp', 3),
-                                     ('authenticationFailure', 4), ('egpNeighborLoss', 5), ('enterpriseSpecific', 6)))
+    namedValues=namedval.NamedValues(
+        ('coldStart', 0), ('warmStart', 1), ('linkDown', 2), ('linkUp', 3),
+        ('authenticationFailure', 4), ('egpNeighborLoss', 5),
+        ('enterpriseSpecific', 6)))
 
 
 class TrapPDU(univ.Sequence):

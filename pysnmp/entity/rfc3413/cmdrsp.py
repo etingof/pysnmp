@@ -79,9 +79,8 @@ class CommandResponderBase(object):
         v2c.apiPDU.setVarBinds(PDU, varBinds)
 
         debug.logger & debug.FLAG_APP and debug.logger(
-            'sendVarBinds: stateReference %s, errorStatus %s, errorIndex %s, varBinds %s' % (
-            stateReference, errorStatus, errorIndex, varBinds)
-        )
+            'sendVarBinds: stateReference %s, errorStatus %s, errorIndex %s, '
+            'varBinds %s' % (stateReference, errorStatus, errorIndex, varBinds))
 
         self.sendPdu(snmpEngine, stateReference, PDU)
 
@@ -121,9 +120,12 @@ class CommandResponderBase(object):
 
         except error.StatusInformation as exc:
             debug.logger & debug.FLAG_APP and debug.logger(
-                'sendPdu: stateReference %s, statusInformation %s' % (stateReference, exc))
-            snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols('__SNMPv2-MIB',
-                                                                                                     'snmpSilentDrops')
+                'sendPdu: stateReference %s, statusInformation '
+                '%s' % (stateReference, exc))
+
+            snmpSilentDrops, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
+                '__SNMPv2-MIB', 'snmpSilentDrops')
+
             snmpSilentDrops.syntax += 1
 
     _getRequestType = rfc1905.GetRequestPDU.tagSet
@@ -172,6 +174,7 @@ class CommandResponderBase(object):
     def _storeAccessContext(snmpEngine):
         """Copy received message metadata while it lasts"""
         execCtx = snmpEngine.observer.getExecutionContext('rfc3412.receiveMessage:request')
+
         return {
             'securityModel': execCtx['securityModel'],
             'securityName': execCtx['securityName'],
@@ -205,14 +208,19 @@ class CommandResponderBase(object):
         # Map ACM errors onto SMI ones
         except error.StatusInformation as exc:
             statusInformation = exc
+
             debug.logger & debug.FLAG_APP and debug.logger(
-                '__verifyAccess: name %s, statusInformation %s' % (name, statusInformation))
+                '__verifyAccess: name %s, statusInformation '
+                '%s' % (name, statusInformation))
+
             errorIndication = statusInformation['errorIndication']
+
             # 3.2.5...
             if (errorIndication == errind.noSuchView or
                     errorIndication == errind.noAccessEntry or
                     errorIndication == errind.noGroupName):
-                raise pysnmp.smi.error.AuthorizationError(name=name, idx=context.get('idx'))
+                raise pysnmp.smi.error.AuthorizationError(
+                    name=name, idx=context.get('idx'))
 
             elif errorIndication == errind.otherError:
                 raise pysnmp.smi.error.GenError(name=name, idx=context.get('idx'))
@@ -221,16 +229,18 @@ class CommandResponderBase(object):
                 snmpUnknownContexts, = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder.importSymbols(
                     '__SNMP-TARGET-MIB', 'snmpUnknownContexts')
                 snmpUnknownContexts.syntax += 1
+
                 # Request REPORT generation
-                raise pysnmp.smi.error.GenError(name=name, idx=context.get('idx'),
-                                                oid=snmpUnknownContexts.name,
-                                                val=snmpUnknownContexts.syntax)
+                raise pysnmp.smi.error.GenError(
+                    name=name, idx=context.get('idx'), oid=snmpUnknownContexts.name,
+                    val=snmpUnknownContexts.syntax)
 
             elif errorIndication == errind.notInView:
                 return True
 
             else:
                 raise error.ProtocolError('Unknown ACM error %s' % errorIndication)
+
         else:
             # rfc2576: 4.1.2.1
             if (securityModel == 1 and val is not None and
@@ -273,7 +283,6 @@ class CommandResponderBase(object):
         return errorIndication, errorStatus, errorIndex, varBinds
 
     def completeMgmtOperation(self, varBinds, **context):
-
         (errorIndication,
          errorStatus, errorIndex,
          varBinds) = self._mapSmiErrors(varBinds, **context)
@@ -329,11 +338,6 @@ class NextCommandResponder(CommandResponderBase):
 
     def _getManagedObjectsInstances(self, varBinds, **context):
         """Iterate over Managed Objects fulfilling SNMP query.
-
-        Parameters
-        ----------
-        varBinds
-        context
 
         Returns
         -------
@@ -396,7 +400,7 @@ class NextCommandResponder(CommandResponderBase):
 
 class BulkCommandResponder(NextCommandResponder):
     SUPPORTED_PDU_TYPES = (rfc1905.GetBulkRequestPDU.tagSet,)
-    maxVarBinds = 64
+    MAX_VAR_BINDS = 64
 
     def _completeNonRepeaters(self, varBinds, **context):
         mgmtFun = context['mgmtFun']
@@ -470,7 +474,7 @@ class BulkCommandResponder(NextCommandResponder):
         R = max(len(varBinds) - N, 0)
 
         if R:
-            M = min(M, self.maxVarBinds // R)
+            M = min(M, self.MAX_VAR_BINDS // R)
 
         debug.logger & debug.FLAG_APP and debug.logger(
             'initiateMgmtOperation: N %d, M %d, R %d' % (N, M, R))

@@ -143,6 +143,7 @@ def sendNotification(snmpEngine, authData, transportTarget, contextData,
             errorStatus = cbCtx.get('errorStatus')
             errorIndex = cbCtx.get('errorIndex')
             varBinds = cbCtx.get('varBinds', [])
+
         else:
             errorIndication = errorStatus = errorIndex = None
             varBinds = []

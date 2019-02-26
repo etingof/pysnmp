@@ -31,21 +31,26 @@ class MetaObserver(object):
     def registerObserver(self, cbFun, *execpoints, **kwargs):
         if cbFun in self.__contexts:
             raise error.PySnmpError('duplicate observer %s' % cbFun)
+
         else:
             self.__contexts[cbFun] = kwargs.get('cbCtx')
+
         for execpoint in execpoints:
             if execpoint not in self.__observers:
                 self.__observers[execpoint] = []
+
             self.__observers[execpoint].append(cbFun)
 
     def unregisterObserver(self, cbFun=None):
         if cbFun is None:
             self.__observers.clear()
             self.__contexts.clear()
+
         else:
             for execpoint in dict(self.__observers):
                 if cbFun in self.__observers[execpoint]:
                     self.__observers[execpoint].remove(cbFun)
+
                 if not self.__observers[execpoint]:
                     del self.__observers[execpoint]
 
@@ -59,6 +64,7 @@ class MetaObserver(object):
         if execpoints:
             for execpoint in execpoints:
                 del self.__execpoints[execpoint]
+
         else:
             self.__execpoints.clear()
 

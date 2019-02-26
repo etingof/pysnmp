@@ -18,13 +18,17 @@ def decodeMessageVersion(wholeMsg):
             wholeMsg, asn1Spec=univ.Sequence(),
             recursiveFlag=False, substrateFun=lambda a, b, c: (a, b[:c])
         )
+
         ver, wholeMsg = decoder.decode(
             wholeMsg, asn1Spec=univ.Integer(),
             recursiveFlag=False, substrateFun=lambda a, b, c: (a, b[:c])
         )
+
         if eoo.endOfOctets.isSameTypeWith(ver):
             raise ProtocolError('EOO at SNMP version component')
+
         return ver
 
     except PyAsn1Error as exc:
-        raise ProtocolError('Invalid BER at SNMP version component: %s' % exc)
+        raise ProtocolError('Invalid BER at SNMP version '
+                            'component: %s' % exc)

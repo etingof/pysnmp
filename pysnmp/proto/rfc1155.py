@@ -29,15 +29,19 @@ class IpAddress(univ.OctetString):
         if isinstance(value, str) and len(value) != 4:
             try:
                 value = [int(x) for x in value.split('.')]
-            except:
+
+            except Exception:
                 raise error.ProtocolError('Bad IP address syntax %s' % value)
+
         if len(value) != 4:
             raise error.ProtocolError('Bad IP address syntax')
+
         return univ.OctetString.prettyIn(self, value)
 
     def prettyOut(self, value):
         if value:
             return '.'.join(['%d' % x for x in self.__class__(value).asNumbers()])
+
         else:
             return ''
 
@@ -70,18 +74,24 @@ class NetworkAddress(univ.Choice):
             if the type of *value* is not allowed for this Choice instance.
         """
         cloned = univ.Choice.clone(self, **kwargs)
+
         if value is not univ.noValue:
             if isinstance(value, NetworkAddress):
                 value = value.getComponent()
+
             elif not isinstance(value, IpAddress):
                 # IpAddress is the only supported type, perhaps forever because
                 # this is SNMPv1.
                 value = IpAddress(value)
+
             try:
                 tagSet = value.tagSet
+
             except AttributeError:
                 raise PyAsn1Error('component value %r has no tag set' % (value,))
+
             cloned.setComponentByType(tagSet, value)
+
         return cloned
 
     # RFC 1212, section 4.1.6:
@@ -94,17 +104,21 @@ class NetworkAddress(univ.Choice):
     def cloneFromName(self, value, impliedFlag, parentRow, parentIndices):
         kind = value[0]
         clone = self.clone()
+
         if kind == 1:
             clone['internet'] = tuple(value[1:5])
             return clone, value[5:]
+
         else:
             raise SmiError('unknown NetworkAddress type %r' % (kind,))
 
     def cloneAsName(self, impliedFlag, parentRow, parentIndices):
         kind = self.getName()
         component = self.getComponent()
+
         if kind == 'internet':
             return (1,) + tuple(component.asNumbers())
+
         else:
             raise SmiError('unknown NetworkAddress type %r' % (kind,))
 
@@ -145,7 +159,9 @@ class TypeCoercionHackMixIn:  # XXX keep this old-style class till pyasn1 types 
         if componentType:
             if idx >= len(componentType):
                 raise PyAsn1Error('Component type error out of range')
+
             t = componentType[idx].getType()
+
             if not t.getTagSet().isSuperTagSetOf(value.getTagSet()):
                 raise PyAsn1Error('Component type error %r vs %r' % (t, value))
 

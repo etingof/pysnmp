@@ -57,27 +57,38 @@ class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
     def __init__(self, sock=None, sockMap=None, loop=None):
         self._writeQ = []
         self._lport = None
+
         if loop is None:
             loop = asyncio.get_event_loop()
+
         self.loop = loop
 
     def datagram_received(self, datagram, transportAddress):
         if self._cbFun is None:
             raise error.CarrierError('Unable to call cbFun')
+
         else:
             self.loop.call_soon(self._cbFun, self, transportAddress, datagram)
 
     def connection_made(self, transport):
         self.transport = transport
+
         debug.logger & debug.FLAG_IO and debug.logger('connection_made: invoked')
+
         while self._writeQ:
             outgoingMessage, transportAddress = self._writeQ.pop(0)
-            debug.logger & debug.FLAG_IO and debug.logger('connection_made: transportAddress %r outgoingMessage %s' %
-                                                          (transportAddress, debug.hexdump(outgoingMessage)))
+
+            debug.logger & debug.FLAG_IO and debug.logger(
+                'connection_made: transportAddress %r outgoingMessage %s' % (
+                    transportAddress, debug.hexdump(outgoingMessage)))
+
             try:
-                self.transport.sendto(outgoingMessage, self.normalizeAddress(transportAddress))
+                self.transport.sendto(
+                    outgoingMessage, self.normalizeAddress(transportAddress))
+
             except Exception:
-                raise error.CarrierError(';'.join(traceback.format_exception(*sys.exc_info())))
+                raise error.CarrierError(
+                    ';'.join(traceback.format_exception(*sys.exc_info())))
 
     def connection_lost(self, exc):
         debug.logger & debug.FLAG_IO and debug.logger('connection_lost: invoked')
@@ -89,14 +100,17 @@ class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
             c = self.loop.create_datagram_endpoint(
                 lambda: self, local_addr=iface, family=self.SOCK_FAMILY
             )
+
             # Avoid deprecation warning for asyncio.async()
             if IS_PYTHON_344_PLUS:
               self._lport = asyncio.ensure_future(c)
+
             else: # pragma: no cover
               self._lport = getattr(asyncio, 'async')(c)
 
         except Exception:
             raise error.CarrierError(';'.join(traceback.format_exception(*sys.exc_info())))
+
         return self
 
     def openServerMode(self, iface):
@@ -104,36 +118,48 @@ class DgramAsyncioProtocol(asyncio.DatagramProtocol, AbstractAsyncioTransport):
             c = self.loop.create_datagram_endpoint(
                 lambda: self, local_addr=iface, family=self.SOCK_FAMILY
             )
+
             # Avoid deprecation warning for asyncio.async()
             if IS_PYTHON_344_PLUS:
               self._lport = asyncio.ensure_future(c)
+
             else: # pragma: no cover
               self._lport = getattr(asyncio, 'async')(c)
+
         except Exception:
             raise error.CarrierError(';'.join(traceback.format_exception(*sys.exc_info())))
+
         return self
 
     def closeTransport(self):
         if self._lport is not None:
             self._lport.cancel()
+
         if self.transport is not None:
             self.transport.close()
+
         AbstractAsyncioTransport.closeTransport(self)
 
     def sendMessage(self, outgoingMessage, transportAddress):
-        debug.logger & debug.FLAG_IO and debug.logger('sendMessage: %s transportAddress %r outgoingMessage %s' % (
-            (self.transport is None and "queuing" or "sending"),
-            transportAddress, debug.hexdump(outgoingMessage)
-        ))
+        debug.logger & debug.FLAG_IO and debug.logger(
+            'sendMessage: %s transportAddress %r outgoingMessage '
+            '%s' % (self.transport is None and "queuing" or "sending",
+                    transportAddress, debug.hexdump(outgoingMessage)))
+
         if self.transport is None:
             self._writeQ.append((outgoingMessage, transportAddress))
+
         else:
             try:
-                self.transport.sendto(outgoingMessage, self.normalizeAddress(transportAddress))
+                self.transport.sendto(
+                    outgoingMessage, self.normalizeAddress(transportAddress))
+
             except Exception:
-                raise error.CarrierError(';'.join(traceback.format_exception(*sys.exc_info())))
+                raise error.CarrierError(
+                    ';'.join(traceback.format_exception(*sys.exc_info())))
 
     def normalizeAddress(self, transportAddress):
         if not isinstance(transportAddress, self.ADDRESS_TYPE):
             transportAddress = self.ADDRESS_TYPE(transportAddress)
+
         return transportAddress

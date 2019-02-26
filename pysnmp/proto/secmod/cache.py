@@ -21,10 +21,8 @@ class Cache(object):
 
     def pop(self, stateReference):
         if stateReference in self.__cacheEntries:
-            securityData = self.__cacheEntries[stateReference]
-        else:
-            raise error.ProtocolError(
-                'Cache miss for stateReference=%s at %s' % (stateReference, self)
-            )
-        del self.__cacheEntries[stateReference]
-        return securityData
+            return self.__cacheEntries.pop(stateReference)
+
+        raise error.ProtocolError(
+            'Cache miss for stateReference=%s at '
+            '%s' % (stateReference, self))

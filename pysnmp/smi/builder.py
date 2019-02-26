@@ -33,25 +33,31 @@ from pysnmp import debug
 class __AbstractMibSource(object):
     def __init__(self, srcName):
         self._srcName = srcName
-        self.__magic = imp.get_magic()
-        self.__sfx = {}
-        self.__inited = None
+        self._magic = imp.get_magic()
+        self._sfx = {}
+        self._inited = None
+
         for sfx, mode, typ in imp.get_suffixes():
-            if typ not in self.__sfx:
-                self.__sfx[typ] = []
-            self.__sfx[typ].append((sfx, len(sfx), mode))
-        debug.logger & debug.FLAG_BLD and debug.logger('trying %s' % self)
+            if typ not in self._sfx:
+                self._sfx[typ] = []
+
+            self._sfx[typ].append((sfx, len(sfx), mode))
+
+        debug.logger & debug.FLAG_BLD and debug.logger(
+            'trying %s' % self)
 
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, self._srcName)
 
     def _uniqNames(self, files):
         u = set()
+
         for f in files:
             if f.startswith('__init__.'):
                 continue
+
             for typ in (imp.PY_SOURCE, imp.PY_COMPILED):
-                for sfx, sfxLen, mode in self.__sfx[typ]:
+                for sfx, sfxLen, mode in self._sfx[typ]:
                     if f[-sfxLen:] == sfx:
                         u.add(f[:-sfxLen])
         return tuple(u)
@@ -59,18 +65,23 @@ class __AbstractMibSource(object):
     # MibSource API follows
 
     def fullPath(self, f='', sfx=''):
-        return self._srcName + (f and (os.sep + f + sfx) or '')
+        if f:
+            return os.path.join(self._srcName, f) + sfx
+
+        return self._srcName
 
     def init(self):
-        if self.__inited is None:
-            self.__inited = self._init()
-            if self.__inited is self:
-                self.__inited = True
-        if self.__inited is True:
+        if self._inited is None:
+            self._inited = self._init()
+
+            if self._inited is self:
+                self._inited = True
+
+        if self._inited is True:
             return self
 
         else:
-            return self.__inited
+            return self._inited
 
     def listdir(self):
         return self._listdir()
@@ -78,54 +89,62 @@ class __AbstractMibSource(object):
     def read(self, f):
         pycTime = pyTime = -1
 
-        for pycSfx, pycSfxLen, pycMode in self.__sfx[imp.PY_COMPILED]:
+        for pycSfx, pycSfxLen, pycMode in self._sfx[imp.PY_COMPILED]:
+
+            pycFile = f + pycSfx
+
             try:
-                pycData, pycPath = self._getData(f + pycSfx, pycMode)
+                pycData, pycPath = self._getData(pycFile, pycMode)
 
             except IOError as exc:
                 if ENOENT == -1 or exc.errno == ENOENT:
                     debug.logger & debug.FLAG_BLD and debug.logger(
-                        'file %s access error: %s' % (f + pycSfx, exc)
-                    )
+                        'file %s access error: %s' % (pycFile, exc))
 
                 else:
-                    raise error.MibLoadError('MIB file %s access error: %s' % (f + pycSfx, exc))
+                    raise error.MibLoadError(
+                        'MIB file %s access error: %s' % (pycFile, exc))
 
             else:
-                if self.__magic == pycData[:4]:
+                if self._magic == pycData[:4]:
                     pycData = pycData[4:]
                     pycTime = struct.unpack('<L', pycData[:4])[0]
                     pycData = pycData[4:]
+
                     debug.logger & debug.FLAG_BLD and debug.logger(
-                        'file %s mtime %d' % (pycPath, pycTime)
-                    )
+                        'file %s mtime %d' % (pycPath, pycTime))
+
                     break
 
                 else:
-                    debug.logger & debug.FLAG_BLD and debug.logger('bad magic in %s' % pycPath)
+                    debug.logger & debug.FLAG_BLD and debug.logger(
+                        'bad magic in %s' % pycPath)
 
-        for pySfx, pySfxLen, pyMode in self.__sfx[imp.PY_SOURCE]:
+        for pySfx, pySfxLen, pyMode in self._sfx[imp.PY_SOURCE]:
+            pyFile = f + pySfx
+
             try:
-                pyTime = self._getTimestamp(f + pySfx)
+                pyTime = self._getTimestamp(pyFile)
 
             except IOError as exc:
                 if ENOENT == -1 or exc.errno == ENOENT:
                     debug.logger & debug.FLAG_BLD and debug.logger(
-                        'file %s access error: %s' % (f + pySfx, exc)
-                    )
+                        'file %s access error: %s' % (pyFile, exc))
 
                 else:
-                    raise error.MibLoadError('MIB file %s access error: %s' % (f + pySfx, exc))
+                    raise error.MibLoadError(
+                        'MIB file %s access error: %s' % (pyFile, exc))
 
             else:
-                debug.logger & debug.FLAG_BLD and debug.logger('file %s mtime %d' % (f + pySfx, pyTime))
+                debug.logger & debug.FLAG_BLD and debug.logger(
+                    'file %s mtime %d' % (pyFile, pyTime))
                 break
 
         if pycTime != -1 and pycTime >= pyTime:
             return marshal.loads(pycData), pycSfx
 
         if pyTime != -1:
-            modData, pyPath = self._getData(f + pySfx, pyMode)
+            modData, pyPath = self._getData(pyFile, pyMode)
             return compile(modData, pyPath, 'exec'), pyPath
 
         raise IOError(ENOENT, 'No suitable module found', f)
@@ -147,16 +166,21 @@ class __AbstractMibSource(object):
 class ZipMibSource(__AbstractMibSource):
     def _init(self):
         try:
-            p = __import__(self._srcName, globals(), locals(), ['__init__'])
-            if hasattr(p, '__loader__') and hasattr(p.__loader__, '_files'):
-                self.__loader = p.__loader__
+            mod = __import__(
+                self._srcName, globals(), locals(), ['__init__'])
+
+            if (hasattr(mod, '__loader__') and
+                    hasattr(mod.__loader__, '_files')):
+                self.__loader = mod.__loader__
                 self._srcName = self._srcName.replace('.', os.sep)
                 return self
-            elif hasattr(p, '__file__'):
+
+            elif hasattr(mod, '__file__'):
                 # Dir relative to PYTHONPATH
-                return DirMibSource(os.path.split(p.__file__)[0]).init()
+                return DirMibSource(os.path.split(mod.__file__)[0]).init()
+
             else:
-                raise error.MibLoadError('%s access error' % (p,))
+                raise error.MibLoadError('%s access error' % (mod,))
 
         except ImportError:
             # Dir relative to CWD
@@ -176,33 +200,40 @@ class ZipMibSource(__AbstractMibSource):
         return time.mktime(t)
 
     def _listdir(self):
-        l = []
+        dirs = []
+
         # noinspection PyProtectedMember
-        for f in self.__loader._files.keys():
-            d, f = os.path.split(f)
-            if d == self._srcName:
-                l.append(f)
-        return tuple(self._uniqNames(l))
+        for path in self.__loader._files:
+            dr, fl = os.path.split(path)
+            if dr == self._srcName:
+                dirs.append(fl)
+
+        return tuple(self._uniqNames(dirs))
 
     def _getTimestamp(self, f):
-        p = os.path.join(self._srcName, f)
+        path = os.path.join(self._srcName, f)
+
         # noinspection PyProtectedMember
-        if p in self.__loader._files:
+        if path in self.__loader._files:
             # noinspection PyProtectedMember
             return self._parseDosTime(
-                self.__loader._files[p][6], self.__loader._files[p][5]
+                self.__loader._files[path][6], self.__loader._files[path][5]
             )
+
         else:
-            raise IOError(ENOENT, 'No such file in ZIP archive', p)
+            raise IOError(ENOENT, 'No such file in ZIP archive', path)
 
     def _getData(self, f, mode=None):
-        p = os.path.join(self._srcName, f)
+        path = os.path.join(self._srcName, f)
+
         try:
-            return self.__loader.get_data(p), p
+            return self.__loader.get_data(path), path
 
         # ZIP code seems to return all kinds of errors
         except Exception as exc:
-            raise IOError(ENOENT, 'File or ZIP archive %s access error: %s' % (p, exc))
+            raise IOError(
+                ENOENT, 'File or ZIP archive %s access '
+                        'error: %s' % (path, exc))
 
 
 class DirMibSource(__AbstractMibSource):
@@ -213,33 +244,35 @@ class DirMibSource(__AbstractMibSource):
     def _listdir(self):
         try:
             return self._uniqNames(os.listdir(self._srcName))
+
         except OSError as exc:
             debug.logger & debug.FLAG_BLD and debug.logger(
                 'listdir() failed for %s: %s' % (self._srcName, exc))
             return ()
 
     def _getTimestamp(self, f):
-        p = os.path.join(self._srcName, f)
+        path = os.path.join(self._srcName, f)
         try:
-            return os.stat(p)[8]
+            return os.stat(path)[8]
         except OSError as exc:
-            raise IOError(ENOENT, 'No such file: %s' % exc, p)
+            raise IOError(ENOENT, 'No such file: %s' % exc, path)
 
-    def _getData(self, f, mode):
-        p = os.path.join(self._srcName, '*')
+    def _getData(self, fl, mode):
+        path = os.path.join(self._srcName, '*')
+
         try:
-            if f in os.listdir(self._srcName):  # make FS case-sensitive
-                p = os.path.join(self._srcName, f)
-                fp = open(p, mode)
+            if fl in os.listdir(self._srcName):  # make FS case-sensitive
+                path = os.path.join(self._srcName, fl)
+                fp = open(path, mode)
                 data = fp.read()
                 fp.close()
-                return data, p
+                return data, path
 
         except (IOError, OSError) as exc:
-            msg = 'File or directory %s access error: %s' % (p, exc)
+            msg = 'File or directory %s access error: %s' % (path, exc)
 
         else:
-            msg = 'No such file or directory: %s' % p
+            msg = 'No such file or directory: %s' % path
 
         raise IOError(ENOENT, msg)
 
@@ -260,91 +293,108 @@ class MibBuilder(object):
 
     def __init__(self):
         self.lastBuildId = self._autoName = 0
+
         sources = []
+
         for ev in 'PYSNMP_MIB_PKGS', 'PYSNMP_MIB_DIRS', 'PYSNMP_MIB_DIR':
             if ev in os.environ:
                 for m in os.environ[ev].split(os.pathsep):
                     sources.append(ZipMibSource(m))
+
         if not sources and self.DEFAULT_MISC_MIBS:
             for m in self.DEFAULT_MISC_MIBS.split(os.pathsep):
                 sources.append(ZipMibSource(m))
+
         for m in self.DEFAULT_CORE_MIBS.split(os.pathsep):
             sources.insert(0, ZipMibSource(m))
+
         self.mibSymbols = {}
-        self.__mibSources = []
-        self.__modSeen = {}
-        self.__modPathsSeen = set()
-        self.__mibCompiler = None
+        self._mibSources = []
+        self._modSeen = {}
+        self._modPathsSeen = set()
+        self._mibCompiler = None
+
         self.setMibSources(*sources)
 
     # MIB compiler management
 
     def getMibCompiler(self):
-        return self.__mibCompiler
+        return self._mibCompiler
 
     def setMibCompiler(self, mibCompiler, destDir):
         self.addMibSources(DirMibSource(destDir))
-        self.__mibCompiler = mibCompiler
+        self._mibCompiler = mibCompiler
         return self
 
     # MIB modules management
 
     def addMibSources(self, *mibSources):
-        self.__mibSources.extend([s.init() for s in mibSources])
-        debug.logger & debug.FLAG_BLD and debug.logger('addMibSources: new MIB sources %s' % (self.__mibSources,))
+        self._mibSources.extend([s.init() for s in mibSources])
+
+        debug.logger & debug.FLAG_BLD and debug.logger(
+            'addMibSources: new MIB sources %s' % (self._mibSources,))
 
     def setMibSources(self, *mibSources):
-        self.__mibSources = [s.init() for s in mibSources]
-        debug.logger & debug.FLAG_BLD and debug.logger('setMibSources: new MIB sources %s' % (self.__mibSources,))
+        self._mibSources = [s.init() for s in mibSources]
+
+        debug.logger & debug.FLAG_BLD and debug.logger(
+            'setMibSources: new MIB sources %s' % (self._mibSources,))
 
     def getMibSources(self):
-        return tuple(self.__mibSources)
+        return tuple(self._mibSources)
 
     def loadModule(self, modName, **userCtx):
         """Load and execute MIB modules as Python code"""
-        for mibSource in self.__mibSources:
-            debug.logger & debug.FLAG_BLD and debug.logger('loadModule: trying %s at %s' % (modName, mibSource))
+        for mibSource in self._mibSources:
+            debug.logger & debug.FLAG_BLD and debug.logger(
+                'loadModule: trying %s at %s' % (modName, mibSource))
+
             try:
                 codeObj, sfx = mibSource.read(modName)
 
             except IOError as exc:
                 debug.logger & debug.FLAG_BLD and debug.logger(
-                    'loadModule: read %s from %s failed: %s' % (modName, mibSource, exc))
+                    'loadModule: read %s from %s failed: '
+                    '%s' % (modName, mibSource, exc))
                 continue
 
             modPath = mibSource.fullPath(modName, sfx)
 
-            if modPath in self.__modPathsSeen:
-                debug.logger & debug.FLAG_BLD and debug.logger('loadModule: seen %s' % modPath)
+            if modPath in self._modPathsSeen:
+                debug.logger & debug.FLAG_BLD and debug.logger(
+                    'loadModule: seen %s' % modPath)
                 break
 
             else:
-                self.__modPathsSeen.add(modPath)
+                self._modPathsSeen.add(modPath)
 
-            debug.logger & debug.FLAG_BLD and debug.logger('loadModule: evaluating %s' % modPath)
+            debug.logger & debug.FLAG_BLD and debug.logger(
+                'loadModule: evaluating %s' % modPath)
 
-            g = {'mibBuilder': self, 'userCtx': userCtx}
+            g = {'mibBuilder': self,
+                 'userCtx': userCtx}
 
             try:
                 exec(codeObj, g)
 
             except Exception:
-                self.__modPathsSeen.remove(modPath)
+                self._modPathsSeen.remove(modPath)
                 raise error.MibLoadError(
-                    'MIB module \'%s\' load error: %s' % (modPath, traceback.format_exception(*sys.exc_info()))
-                )
+                    'MIB module "%s" load error: '
+                    '%s' % (modPath, traceback.format_exception(*sys.exc_info())))
 
-            self.__modSeen[modName] = modPath
+            self._modSeen[modName] = modPath
 
-            debug.logger & debug.FLAG_BLD and debug.logger('loadModule: loaded %s' % modPath)
+            debug.logger & debug.FLAG_BLD and debug.logger(
+                'loadModule: loaded %s' % modPath)
 
             break
 
-        if modName not in self.__modSeen:
+        if modName not in self._modSeen:
             raise error.MibNotFoundError(
-                'MIB file \"%s\" not found in search path (%s)' % (
-                    modName and modName + ".py[co]", ', '.join([str(x) for x in self.__mibSources]))
-            )
+                'MIB file "%s" not found in search path '
+                '(%s)' % (modName and modName + ".py[co]", ', '.join(
+                    [str(x) for x in self._mibSources])))
 
         return self
 
@@ -353,28 +403,36 @@ class MibBuilder(object):
         # Build a list of available modules
         if not modNames:
             modNames = {}
-            for mibSource in self.__mibSources:
+
+            for mibSource in self._mibSources:
                 for modName in mibSource.listdir():
                     modNames[modName] = None
+
             modNames = list(modNames)
 
         if not modNames:
             raise error.MibNotFoundError(
-                'No MIB module to load at %s' % (self,)
-            )
+                'No MIB module to load at %s' % (self,))
 
         for modName in modNames:
             try:
                 self.loadModule(modName, **userCtx)
 
             except error.MibNotFoundError:
-                if self.__mibCompiler:
-                    debug.logger & debug.FLAG_BLD and debug.logger('loadModules: calling MIB compiler for %s' % modName)
-                    status = self.__mibCompiler.compile(modName, genTexts=self.loadTexts)
-                    errs = '; '.join([hasattr(x, 'error') and str(x.error) or x for x in status.values() if
-                                      x in ('failed', 'missing')])
+                if self._mibCompiler:
+                    debug.logger & debug.FLAG_BLD and debug.logger(
+                        'loadModules: calling MIB compiler for %s' % modName)
+
+                    status = self._mibCompiler.compile(modName, genTexts=self.loadTexts)
+
+                    errs = '; '.join(
+                        hasattr(x, 'error') and str(x.error) or x
+                        for x in status.values()
+                        if x in ('failed', 'missing'))
+
                     if errs:
-                        raise error.MibNotFoundError('%s compilation error(s): %s' % (modName, errs))
+                        raise error.MibNotFoundError(
+                            '%s compilation error(s): %s' % (modName, errs))
 
                     # compilation succeeded, MIB might load now
                     self.loadModule(modName, **userCtx)
@@ -383,84 +441,103 @@ class MibBuilder(object):
 
     def unloadModules(self, *modNames):
         if not modNames:
-            modNames = list(self.mibSymbols.keys())
+            modNames = list(self.mibSymbols)
+
         for modName in modNames:
             if modName not in self.mibSymbols:
                 raise error.MibNotFoundError(
-                    'No module %s at %s' % (modName, self)
-                )
-            self.unexportSymbols(modName)
-            self.__modPathsSeen.remove(self.__modSeen[modName])
-            del self.__modSeen[modName]
+                    'No module %s at %s' % (modName, self))
 
-            debug.logger & debug.FLAG_BLD and debug.logger('unloadModules: %s' % modName)
+            self.unexportSymbols(modName)
+
+            self._modPathsSeen.remove(self._modSeen[modName])
+
+            del self._modSeen[modName]
+
+            debug.logger & debug.FLAG_BLD and debug.logger(
+                'unloadModules: %s' % modName)
 
         return self
 
     def importSymbols(self, modName, *symNames, **userCtx):
         if not modName:
             raise error.SmiError(
-                'importSymbols: empty MIB module name'
-            )
-        r = ()
+                'importSymbols: empty MIB module name')
+
+        symbols = []
+
         for symName in symNames:
             if modName not in self.mibSymbols:
                 self.loadModules(modName, **userCtx)
+
             if modName not in self.mibSymbols:
                 raise error.MibNotFoundError(
-                    'No module %s loaded at %s' % (modName, self)
-                )
+                    'No module %s loaded at %s' % (modName, self))
+
             if symName not in self.mibSymbols[modName]:
                 raise error.SmiError(
-                    'No symbol %s::%s at %s' % (modName, symName, self)
-                )
-            r = r + (self.mibSymbols[modName][symName],)
-        return r
+                    'No symbol %s::%s at %s' % (modName, symName, self))
+
+            symbols.append(self.mibSymbols[modName][symName])
+
+        return symbols
 
     def exportSymbols(self, modName, *anonymousSyms, **namedSyms):
         if modName not in self.mibSymbols:
             self.mibSymbols[modName] = {}
+
         mibSymbols = self.mibSymbols[modName]
 
         for symObj in anonymousSyms:
             debug.logger & debug.FLAG_BLD and debug.logger(
-                'exportSymbols: anonymous symbol %s::__pysnmp_%ld' % (modName, self._autoName))
+                'exportSymbols: anonymous symbol %s::'
+                '__pysnmp_%ld' % (modName, self._autoName))
+
             mibSymbols['__pysnmp_%ld' % self._autoName] = symObj
+
             self._autoName += 1
+
         for symName, symObj in namedSyms.items():
             if symName in mibSymbols:
                 raise error.SmiError(
-                    'Symbol %s already exported at %s' % (symName, modName)
-                )
+                    'Symbol %s already exported at %s' % (symName, modName))
 
-            if symName != self.moduleID and \
-                    not isinstance(symObj, classTypes):
+            if (symName != self.moduleID and
+                    not isinstance(symObj, classTypes)):
+
                 label = symObj.getLabel()
+
                 if label:
                     symName = label
+
                 else:
                     symObj.setLabel(symName)
 
             mibSymbols[symName] = symObj
 
-            debug.logger & debug.FLAG_BLD and debug.logger('exportSymbols: symbol %s::%s' % (modName, symName))
+            debug.logger & debug.FLAG_BLD and debug.logger(
+                'exportSymbols: symbol %s::%s' % (modName, symName))
 
         self.lastBuildId += 1
 
     def unexportSymbols(self, modName, *symNames):
         if modName not in self.mibSymbols:
             raise error.SmiError('No module %s at %s' % (modName, self))
+
         mibSymbols = self.mibSymbols[modName]
+
         if not symNames:
             symNames = list(mibSymbols.keys())
+
         for symName in symNames:
             if symName not in mibSymbols:
                 raise error.SmiError(
-                    'No symbol %s::%s at %s' % (modName, symName, self)
-                )
+                    'No symbol %s::%s at %s' % (modName, symName, self))
+
             del mibSymbols[symName]
 
-            debug.logger & debug.FLAG_BLD and debug.logger('unexportSymbols: symbol %s::%s' % (modName, symName))
+            debug.logger & debug.FLAG_BLD and debug.logger(
+                'unexportSymbols: symbol %s::%s' % (modName, symName))
 
         if not self.mibSymbols[modName]:
             del self.mibSymbols[modName]

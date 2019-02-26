@@ -12,6 +12,7 @@ from pysnmp.hlapi.transport import AbstractTransportTarget
 
 __all__ = ['UdpTransportTarget']
 
+
 class UdpTransportTarget(AbstractTransportTarget):
     """Creates UDP/IPv4 configuration entry and initialize socket API if needed.
 
@@ -43,18 +44,17 @@ class UdpTransportTarget(AbstractTransportTarget):
     >>> from pysnmp.hlapi.twisted import UdpTransportTarget
     >>> UdpTransportTarget(('demo.snmplabs.com', 161))
     UdpTransportTarget(('195.218.195.228', 161), timeout=1, retries=5, tagList='')
-    >>>
-
     """
     TRANSPORT_DOMAIN = udp.DOMAIN_NAME
     PROTO_TRANSPORT = udp.UdpTwistedTransport
 
     def _resolveAddr(self, transportAddr):
         try:
-            return socket.getaddrinfo(transportAddr[0],
-                                      transportAddr[1],
-                                      socket.AF_INET,
-                                      socket.SOCK_DGRAM,
-                                      socket.IPPROTO_UDP)[0][4][:2]
+            return socket.getaddrinfo(
+                transportAddr[0], transportAddr[1], socket.AF_INET,
+                socket.SOCK_DGRAM, socket.IPPROTO_UDP)[0][4][:2]
+
         except socket.gaierror as exc:
-            raise PySnmpError('Bad IPv4/UDP transport address %s: %s' % ('@'.join([str(x) for x in transportAddr]), exc))
+            raise PySnmpError(
+                'Bad IPv4/UDP transport address %s: '
+                '%s' % ('@'.join(str(x) for x in transportAddr), exc))
