@@ -743,6 +743,8 @@ class ManagedMibObject(ObjectType):
         In case of an error, the `error` key in the `context` dict will contain
         an exception object.
         """
+        name, val = varBind
+
         (debug.logger & debug.FLAG_INS and
          debug.logger('%s: readTestNext(%s, %r)' % (self, name, val)))
 
@@ -788,6 +790,8 @@ class ManagedMibObject(ObjectType):
         In case of an error, the `error` key in the `context` dict will contain
         an exception object.
         """
+        name, val = varBind
+
         (debug.logger & debug.FLAG_INS and
          debug.logger('%s: readGetNext(%s, %r)' % (self, name, val)))
 
