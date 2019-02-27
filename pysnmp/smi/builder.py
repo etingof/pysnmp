@@ -419,23 +419,25 @@ class MibBuilder(object):
                 self.loadModule(modName, **userCtx)
 
             except error.MibNotFoundError:
-                if self._mibCompiler:
-                    debug.logger & debug.FLAG_BLD and debug.logger(
-                        'loadModules: calling MIB compiler for %s' % modName)
+                if not self._mibCompiler:
+                    raise
 
-                    status = self._mibCompiler.compile(modName, genTexts=self.loadTexts)
+                debug.logger & debug.FLAG_BLD and debug.logger(
+                    'loadModules: calling MIB compiler for %s' % modName)
 
-                    errs = '; '.join(
-                        hasattr(x, 'error') and str(x.error) or x
-                        for x in status.values()
-                        if x in ('failed', 'missing'))
+                status = self._mibCompiler.compile(modName, genTexts=self.loadTexts)
 
-                    if errs:
-                        raise error.MibNotFoundError(
-                            '%s compilation error(s): %s' % (modName, errs))
+                errs = '; '.join(
+                    hasattr(x, 'error') and str(x.error) or x
+                    for x in status.values()
+                    if x in ('failed', 'missing'))
 
-                    # compilation succeeded, MIB might load now
-                    self.loadModule(modName, **userCtx)
+                if errs:
+                    raise error.MibNotFoundError(
+                        '%s compilation error(s): %s' % (modName, errs))
+
+                # compilation succeeded, MIB might load now
+                self.loadModule(modName, **userCtx)
 
         return self
 
