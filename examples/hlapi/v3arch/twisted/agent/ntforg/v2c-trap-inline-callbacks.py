@@ -26,7 +26,7 @@ def sendtrap(reactor, snmpEngine, hostname):
 
     deferred = sendNotification(
         snmpEngine,
-        CommunityData('public', mpModel=0),
+        CommunityData('public', mpModel=1),
         UdpTransportTarget((hostname, 162)),
         ContextData(),
         'trap',
