@@ -2,7 +2,9 @@
 Revision 4.4.10, released 2019-04-XX
 ------------------------------------
 
-- Respect non-default timer resolution in asyncore main loop
+- Fix to respect non-default timer resolution in asyncore main loop
+- Fix to update call interval of the existing periodic dispatcher jobs
+  on interval change (via .setTimerResolution())
 
 Revision 4.4.9, released 2019-02-09
 -----------------------------------

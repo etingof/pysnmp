@@ -36,6 +36,14 @@ class TimerCallable(object):
     def __ge__(self, cbFun):
         return self.__cbFun >= cbFun
 
+    @property
+    def interval(self):
+        return self.__callInterval
+
+    @interval.setter
+    def interval(self, callInterval):
+        self.__callInterval = callInterval
+
 
 class AbstractTransportDispatcher(object):
     def __init__(self):
@@ -151,6 +159,12 @@ class AbstractTransportDispatcher(object):
     def setTimerResolution(self, timerResolution):
         if timerResolution < 0.01 or timerResolution > 10:
             raise error.CarrierError('Impossible timer resolution')
+
+        for timerCallable in self.__timerCallables:
+            if timerCallable.interval == self.__timerResolution:
+                # Update periodics for default resolutions
+                timerCallable.interval = timerResolution
+
         self.__timerResolution = timerResolution
         self.__timerDelta = timerResolution * 0.05
 
