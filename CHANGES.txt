@@ -1,8 +1,8 @@
 
-Revision 4.4.10, released 2019-02-XX
+Revision 4.4.10, released 2019-04-XX
 ------------------------------------
 
-No changes yet
+- Respect non-default timer resolution in asyncore main loop
 
 Revision 4.4.9, released 2019-02-09
 -----------------------------------

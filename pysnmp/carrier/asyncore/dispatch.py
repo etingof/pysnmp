@@ -42,7 +42,7 @@ class AsyncoreDispatcher(AbstractTransportDispatcher):
     def runDispatcher(self, timeout=0.0):
         while self.jobsArePending() or self.transportsAreWorking():
             try:
-                loop(timeout and timeout or self.timeout,
+                loop(timeout or self.getTimerResolution(),
                      use_poll=True, map=self.__sockMap, count=1)
             except KeyboardInterrupt:
                 raise
