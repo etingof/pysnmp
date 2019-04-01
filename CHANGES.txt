@@ -2,9 +2,11 @@
 Revision 4.4.10, released 2019-04-XX
 ------------------------------------
 
-- Fix to respect non-default timer resolution in asyncore main loop
-- Fix to update call interval of the existing periodic dispatcher jobs
-  on interval change (via .setTimerResolution())
+- Rebased MIB importing code onto `importlib` because `imp` is long
+  deprecated
+- Fixed asyncore main loop to respect non-default timer resolution
+- Fixed `.setTimerResolution()` behaviour of abstract main loop dispatcher
+  to update call intervals of the existing periodic dispatcher jobs
 
 Revision 4.4.9, released 2019-02-09
 -----------------------------------
