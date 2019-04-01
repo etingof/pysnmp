@@ -99,6 +99,15 @@ Revision 5.0.0, released 2019-03-XX
   * Global constants turned UPPER_CASED
   * Long lines wrapped by more or less 80 chars
 
+Revision 4.4.10, released 2019-04-XX
+------------------------------------
+
+- Rebased MIB importing code onto `importlib` because `imp` is long
+  deprecated
+- Fixed asyncore main loop to respect non-default timer resolution
+- Fixed `.setTimerResolution()` behaviour of abstract main loop dispatcher
+  to update call intervals of the existing periodic dispatcher jobs
+
 Revision 4.4.9, released 2019-02-09
 -----------------------------------
 - Made MIB loader ignoring file and directory access errors

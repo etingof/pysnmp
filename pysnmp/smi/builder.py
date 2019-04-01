@@ -4,13 +4,28 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
-import imp
 import marshal
 import os
 import struct
 import sys
 import time
 import traceback
+
+try:
+    import importlib
+
+    PY_MAGIC_NUMBER = importlib.util.MAGIC_NUMBER
+    SOURCE_SUFFIXES = importlib.machinery.SOURCE_SUFFIXES
+    BYTECODE_SUFFIXES = importlib.machinery.BYTECODE_SUFFIXES
+
+except ImportError:
+    import imp
+
+    PY_MAGIC_NUMBER = imp.get_magic()
+    SOURCE_SUFFIXES = [imp.PY_SOURCE]
+    BYTECODE_SUFFIXES = [imp.PY_COMPILED]
+
+PY_SUFFIXES = SOURCE_SUFFIXES + BYTECODE_SUFFIXES
 
 try:
     from errno import ENOENT
@@ -33,18 +48,8 @@ from pysnmp import debug
 class __AbstractMibSource(object):
     def __init__(self, srcName):
         self._srcName = srcName
-        self._magic = imp.get_magic()
-        self._sfx = {}
         self._inited = None
-
-        for sfx, mode, typ in imp.get_suffixes():
-            if typ not in self._sfx:
-                self._sfx[typ] = []
-
-            self._sfx[typ].append((sfx, len(sfx), mode))
-
-        debug.logger & debug.FLAG_BLD and debug.logger(
-            'trying %s' % self)
+        debug.logger & debug.FLAG_BLD and debug.logger('trying %s' % self)
 
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, self._srcName)
@@ -56,10 +61,8 @@ class __AbstractMibSource(object):
             if f.startswith('__init__.'):
                 continue
 
-            for typ in (imp.PY_SOURCE, imp.PY_COMPILED):
-                for sfx, sfxLen, mode in self._sfx[typ]:
-                    if f[-sfxLen:] == sfx:
-                        u.add(f[:-sfxLen])
+            u.update(f[:-len(sfx)] for sfx in PY_SUFFIXES if f.endswith(sfx))
+
         return tuple(u)
 
     # MibSource API follows
@@ -89,12 +92,10 @@ class __AbstractMibSource(object):
     def read(self, f):
         pycTime = pyTime = -1
 
-        for pycSfx, pycSfxLen, pycMode in self._sfx[imp.PY_COMPILED]:
-
-            pycFile = f + pycSfx
+        for pycSfx in BYTECODE_SUFFIXES:
 
             try:
-                pycData, pycPath = self._getData(pycFile, pycMode)
+                pycData, pycPath = self._getData(f + pycSfx, 'rb')
 
             except IOError as exc:
                 if ENOENT == -1 or exc.errno == ENOENT:
@@ -106,7 +107,7 @@ class __AbstractMibSource(object):
                         'MIB file %s access error: %s' % (pycFile, exc))
 
             else:
-                if self._magic == pycData[:4]:
+                if PY_MAGIC_NUMBER == pycData[:4]:
                     pycData = pycData[4:]
                     pycTime = struct.unpack('<L', pycData[:4])[0]
                     pycData = pycData[4:]
@@ -120,7 +121,8 @@ class __AbstractMibSource(object):
                     debug.logger & debug.FLAG_BLD and debug.logger(
                         'bad magic in %s' % pycPath)
 
-        for pySfx, pySfxLen, pyMode in self._sfx[imp.PY_SOURCE]:
+        for pySfx in SOURCE_SUFFIXES:
+
             pyFile = f + pySfx
 
             try:
@@ -144,7 +146,7 @@ class __AbstractMibSource(object):
             return marshal.loads(pycData), pycSfx
 
         if pyTime != -1:
-            modData, pyPath = self._getData(pyFile, pyMode)
+            modData, pyPath = self._getData(f + pySfx, 'r')
             return compile(modData, pyPath, 'exec'), pyPath
 
         raise IOError(ENOENT, 'No suitable module found', f)
