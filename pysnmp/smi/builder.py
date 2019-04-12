@@ -14,16 +14,22 @@ import traceback
 try:
     import importlib
 
-    PY_MAGIC_NUMBER = importlib.util.MAGIC_NUMBER
-    SOURCE_SUFFIXES = importlib.machinery.SOURCE_SUFFIXES
-    BYTECODE_SUFFIXES = importlib.machinery.BYTECODE_SUFFIXES
+    try:
+        PY_MAGIC_NUMBER = importlib.util.MAGIC_NUMBER
+        SOURCE_SUFFIXES = importlib.machinery.SOURCE_SUFFIXES
+        BYTECODE_SUFFIXES = importlib.machinery.BYTECODE_SUFFIXES
+
+    except Exception:
+        raise ImportError()
 
 except ImportError:
     import imp
 
     PY_MAGIC_NUMBER = imp.get_magic()
-    SOURCE_SUFFIXES = [imp.PY_SOURCE]
-    BYTECODE_SUFFIXES = [imp.PY_COMPILED]
+    SOURCE_SUFFIXES = [s[0] for s in imp.get_suffixes()
+                       if s[2] == imp.PY_SOURCE]
+    BYTECODE_SUFFIXES = [s[0] for s in imp.get_suffixes()
+                         if s[2] == imp.PY_COMPILED]
 
 PY_SUFFIXES = SOURCE_SUFFIXES + BYTECODE_SUFFIXES
 
