@@ -91,7 +91,8 @@ class BulkPDUAPI(PDUAPI):
         pdu.setComponentByPosition(
             2, self._maxRepetitions, verifyConstraints=False, matchTags=False, matchConstraints=False
         )
-        pdu.setComponentByPosition(3)
+        varBindList = pdu.setComponentByPosition(3).getComponentByPosition(3)
+        varBindList.clear()
 
     @staticmethod
     def getNonRepeaters(pdu):

@@ -7,6 +7,9 @@ Revision 4.4.10, released 2019-04-XX
 - Fixed asyncore main loop to respect non-default timer resolution
 - Fixed `.setTimerResolution()` behaviour of abstract main loop dispatcher
   to update call intervals of the existing periodic dispatcher jobs
+- Fixed `var-bindings` initialization to prevent pyasn1 encoder failures
+  with newer pyasn1 versions where `SequenceOf` type looses its default
+  initializer.
 
 Revision 4.4.9, released 2019-02-09
 -----------------------------------

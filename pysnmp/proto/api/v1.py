@@ -66,7 +66,8 @@ class PDUAPI(object):
         pdu.setComponentByPosition(
             2, self._errorIndex, verifyConstraints=False, matchTags=False, matchConstraints=False
         )
-        pdu.setComponentByPosition(3)
+        varBindList = pdu.setComponentByPosition(3).getComponentByPosition(3)
+        varBindList.clear()
 
     @staticmethod
     def getRequestID(pdu):
@@ -170,7 +171,8 @@ class TrapPDUAPI(object):
         pdu.setComponentByPosition(2, self._genericTrap, verifyConstraints=False, matchTags=False, matchConstraints=False)
         pdu.setComponentByPosition(3, self._zeroInt, verifyConstraints=False, matchTags=False, matchConstraints=False)
         pdu.setComponentByPosition(4, self._zeroTime, verifyConstraints=False, matchTags=False, matchConstraints=False)
-        pdu.setComponentByPosition(5)
+        varBindList = pdu.setComponentByPosition(5).getComponentByPosition(5)
+        varBindList.clear()
 
     @staticmethod
     def getEnterprise(pdu):
