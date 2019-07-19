@@ -142,15 +142,17 @@ def v1ToV2(v1Pdu, origV2Pdu=None, snmpTrapCommunity=''):
             (oid, __v1ToV2ValueMap[v1Val.tagSet].clone(v1Val))
         )
 
-    if pduType in rfc3411.responseClassPDUs:
-        # 4.1.2.2.1&2
+    if pduType not in rfc3411.notificationClassPDUs:
         errorStatus = int(v1.apiPDU.getErrorStatus(v1Pdu))
         errorIndex = int(v1.apiPDU.getErrorIndex(v1Pdu, muteErrors=True))
-        if errorStatus == 2:  # noSuchName
-            if origV2Pdu.tagSet == v2c.GetNextRequestPDU.tagSet:
-                v2VarBinds = [(o, rfc1905.endOfMibView) for o, v in v2VarBinds]
-            else:
-                v2VarBinds = [(o, rfc1905.noSuchObject) for o, v in v2VarBinds]
+
+        if pduType in rfc3411.responseClassPDUs:
+            # 4.1.2.2.1&2
+            if errorStatus == 2:  # noSuchName
+                if origV2Pdu.tagSet == v2c.GetNextRequestPDU.tagSet:
+                    v2VarBinds = [(o, rfc1905.endOfMibView) for o, v in v2VarBinds]
+                else:
+                    v2VarBinds = [(o, rfc1905.noSuchObject) for o, v in v2VarBinds]
 
         # partial one-to-one mapping - 4.2.1
         v2c.apiPDU.setErrorStatus(v2Pdu, errorStatus)
@@ -158,12 +160,10 @@ def v1ToV2(v1Pdu, origV2Pdu=None, snmpTrapCommunity=''):
 
         # 4.1.2.1 --> no-op
 
-    elif pduType in rfc3411.confirmedClassPDUs:
-        v2c.apiPDU.setErrorStatus(v2Pdu, 0)
-        v2c.apiPDU.setErrorIndex(v2Pdu, 0)
-
-    if pduType not in rfc3411.notificationClassPDUs:
         v2c.apiPDU.setRequestID(v2Pdu, int(v1.apiPDU.getRequestID(v1Pdu)))
+
+    else:
+        v2c.apiPDU.setDefaults(v2Pdu)
 
     v2c.apiPDU.setVarBinds(v2Pdu, v2VarBinds)
 
