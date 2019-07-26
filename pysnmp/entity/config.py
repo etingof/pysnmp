@@ -11,6 +11,7 @@ from pysnmp.proto.secmod.rfc3414.priv import des, nopriv
 from pysnmp.proto.secmod.rfc3826.priv import aes
 from pysnmp.proto.secmod.rfc7860.auth import hmacsha2
 from pysnmp.proto.secmod.eso.priv import des3, aes192, aes256
+from pysnmp.proto import rfc1902
 from pysnmp.proto import rfc1905
 from pysnmp import error
 
@@ -461,22 +462,20 @@ def __cookVacmAccessInfo(snmpEngine, groupName, contextName, securityModel,
     return vacmAccessEntry, tblIdx
 
 
-def addVacmAccess(snmpEngine, groupName, contextName, securityModel,
-                  securityLevel, prefix, readView, writeView, notifyView):
-    vacmAccessEntry, tblIdx = __cookVacmAccessInfo(snmpEngine, groupName,
-                                                   contextName, securityModel,
-                                                   securityLevel)
-
-    addContext(snmpEngine, contextName)
+def addVacmAccess(snmpEngine, groupName, contextPrefix, securityModel,
+                  securityLevel, contextMatch, readView, writeView, notifyView):
+    vacmAccessEntry, tblIdx = __cookVacmAccessInfo(
+        snmpEngine, groupName, contextPrefix, securityModel,
+        securityLevel)
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmAccessEntry.name + (9,) + tblIdx, 'destroy'),)
     )
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
-        ((vacmAccessEntry.name + (1,) + tblIdx, contextName),
+        ((vacmAccessEntry.name + (1,) + tblIdx, contextPrefix),
          (vacmAccessEntry.name + (2,) + tblIdx, securityModel),
          (vacmAccessEntry.name + (3,) + tblIdx, securityLevel),
-         (vacmAccessEntry.name + (4,) + tblIdx, prefix),
+         (vacmAccessEntry.name + (4,) + tblIdx, contextMatch),
          (vacmAccessEntry.name + (5,) + tblIdx, readView),
          (vacmAccessEntry.name + (6,) + tblIdx, writeView),
          (vacmAccessEntry.name + (7,) + tblIdx, notifyView),
@@ -484,13 +483,10 @@ def addVacmAccess(snmpEngine, groupName, contextName, securityModel,
     )
 
 
-def delVacmAccess(snmpEngine, groupName, contextName, securityModel,
+def delVacmAccess(snmpEngine, groupName, contextPrefix, securityModel,
                   securityLevel):
-    vacmAccessEntry, tblIdx = __cookVacmAccessInfo(snmpEngine, groupName,
-                                                   contextName, securityModel,
-                                                   securityLevel)
-
-    delContext(snmpEngine, contextName)
+    vacmAccessEntry, tblIdx = __cookVacmAccessInfo(
+        snmpEngine, groupName, contextPrefix, securityModel, securityLevel)
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmAccessEntry.name + (9,) + tblIdx, 'destroy'),)
@@ -507,16 +503,30 @@ def __cookVacmViewInfo(snmpEngine, viewName, subTree):
     return vacmViewTreeFamilyEntry, tblIdx
 
 
-def addVacmView(snmpEngine, viewName, viewType, subTree, mask):
-    vacmViewTreeFamilyEntry, tblIdx = __cookVacmViewInfo(snmpEngine, viewName,
-                                                         subTree)
+def addVacmView(snmpEngine, viewName, viewType, subTree, subTreeMask):
+    vacmViewTreeFamilyEntry, tblIdx = __cookVacmViewInfo(
+        snmpEngine, viewName, subTree)
+
+    # Allow bitmask specification in form of an OID
+    if '.' in subTreeMask:
+        subTreeMask = rfc1902.ObjectIdentifier(subTreeMask)
+
+    if isinstance(subTreeMask, rfc1902.ObjectIdentifier):
+        subTreeMask = tuple(subTreeMask)
+        if len(subTreeMask) < len(subTree):
+            subTreeMask += (1,) * (len(subTree) - len(subTreeMask))
+
+        subTreeMask = rfc1902.OctetString.fromBinaryString(
+            ''.join(str(x) for x in subTreeMask))
+
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmViewTreeFamilyEntry.name + (6,) + tblIdx, 'destroy'),)
     )
+
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((vacmViewTreeFamilyEntry.name + (1,) + tblIdx, viewName),
          (vacmViewTreeFamilyEntry.name + (2,) + tblIdx, subTree),
-         (vacmViewTreeFamilyEntry.name + (3,) + tblIdx, mask),
+         (vacmViewTreeFamilyEntry.name + (3,) + tblIdx, subTreeMask),
          (vacmViewTreeFamilyEntry.name + (4,) + tblIdx, viewType),
          (vacmViewTreeFamilyEntry.name + (6,) + tblIdx, 'createAndGo'))
     )
@@ -548,15 +558,16 @@ def addVacmUser(snmpEngine, securityModel, securityName, securityLevel,
     (groupName, securityLevel, readView, writeView,
      notifyView) = __cookVacmUserInfo(snmpEngine, securityModel, securityName,
                                       securityLevel)
+    addContext(snmpEngine, contextName)
     addVacmGroup(snmpEngine, groupName, securityModel, securityName)
     addVacmAccess(snmpEngine, groupName, contextName, securityModel,
-                  securityLevel, 1, readView, writeView, notifyView)
+                  securityLevel, 'exact', readView, writeView, notifyView)
     if readSubTree:
-        addVacmView(snmpEngine, readView, "included", readSubTree, null)
+        addVacmView(snmpEngine, readView, 'included', readSubTree, null)
     if writeSubTree:
-        addVacmView(snmpEngine, writeView, "included", writeSubTree, null)
+        addVacmView(snmpEngine, writeView, 'included', writeSubTree, null)
     if notifySubTree:
-        addVacmView(snmpEngine, notifyView, "included", notifySubTree, null)
+        addVacmView(snmpEngine, notifyView, 'included', notifySubTree, null)
 
 
 def delVacmUser(snmpEngine, securityModel, securityName, securityLevel,
@@ -565,6 +576,7 @@ def delVacmUser(snmpEngine, securityModel, securityName, securityLevel,
     (groupName, securityLevel, readView, writeView,
      notifyView) = __cookVacmUserInfo(snmpEngine, securityModel,
                                       securityName, securityLevel)
+    delContext(snmpEngine, contextName)
     delVacmGroup(snmpEngine, securityModel, securityName)
     delVacmAccess(snmpEngine, groupName, contextName, securityModel, securityLevel)
     if readSubTree:

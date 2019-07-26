@@ -1,6 +1,18 @@
 
-Revision 4.4.10, released 2019-04-XX
+Revision 4.4.10, released 2019-07-XX
 ------------------------------------
+
+- Reworked VACM access control function. Most important changes include:
+
+  * Added subtree match negation support (vacmViewTreeFamilyType)
+  * Added subtree family mask support (vacmViewTreeFamilyMask)
+  * Added prefix content name matching support (vacmAccessContextMatch)
+  * Added key VACM tables caching for better `isAccessAllowed` lookup
+    performance
+
+  One potential incompatibility may be caused by the `addContext()` call
+  which now needs to be made explicitly during low-level VACM configuration
+  rather than be a side effect of `addVacmAccess()` call.
 
 - Rebased MIB importing code onto `importlib` because `imp` is long
   deprecated
