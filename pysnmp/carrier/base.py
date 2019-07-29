@@ -4,19 +4,25 @@
 # Copyright (c) 2005-2019, Ilya Etingof <etingof@gmail.com>
 # License: http://snmplabs.com/pysnmp/license.html
 #
+import sys
+
 from pysnmp.carrier import error
 
 
 class TimerCallable(object):
     def __init__(self, cbFun, callInterval):
         self.__cbFun = cbFun
-        self.__callInterval = callInterval
         self.__nextCall = 0
+
+        if sys.version_info > (2, 5):
+            self.__callInterval = callInterval
+        else:
+            self.interval = callInterval
 
     def __call__(self, timeNow):
         if self.__nextCall <= timeNow:
             self.__cbFun(timeNow)
-            self.__nextCall = timeNow + self.__callInterval
+            self.__nextCall = timeNow + self.interval
 
     def __eq__(self, cbFun):
         return self.__cbFun == cbFun
@@ -36,13 +42,14 @@ class TimerCallable(object):
     def __ge__(self, cbFun):
         return self.__cbFun >= cbFun
 
-    @property
-    def interval(self):
-        return self.__callInterval
+    if sys.version_info > (2, 5):
+        @property
+        def interval(self):
+            return self.__callInterval
 
-    @interval.setter
-    def interval(self, callInterval):
-        self.__callInterval = callInterval
+        @interval.setter
+        def interval(self, callInterval):
+            self.__callInterval = callInterval
 
 
 class AbstractTransportDispatcher(object):
