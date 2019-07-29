@@ -44,7 +44,7 @@ snmpEngine = engine.SnmpEngine()
 config.addTransport(
     snmpEngine,
     udp.domainName,
-    udp.UdpTransport().openServerMode(('127.0.0.1', 1161))
+    udp.UdpTransport().openServerMode(('127.0.0.1', 161))
 )
 
 # Register default MIB instrumentation controller with a new SNMP context
