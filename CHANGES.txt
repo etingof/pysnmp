@@ -1,5 +1,5 @@
 
-Revision 4.4.10, released 2019-07-XX
+Revision 4.4.10, released 2019-07-29
 ------------------------------------
 
 - Reworked VACM access control function. Most important changes include:
