@@ -14,7 +14,7 @@ class TimerCallable(object):
         self.__cbFun = cbFun
         self.__nextCall = 0
 
-        if sys.version_info > (2, 5):
+        if sys.version_info > (2, 6):
             self.__callInterval = callInterval
         else:
             self.interval = callInterval
@@ -42,7 +42,7 @@ class TimerCallable(object):
     def __ge__(self, cbFun):
         return self.__cbFun >= cbFun
 
-    if sys.version_info > (2, 5):
+    if sys.version_info > (2, 6):
         @property
         def interval(self):
             return self.__callInterval
