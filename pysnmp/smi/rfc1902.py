@@ -1236,13 +1236,19 @@ class NotificationType(object):
     def isFullyResolved(self):
         return self._state & self.ST_CLEAN
 
-    def resolveWithMib(self, mibViewController):
+    def resolveWithMib(self, mibViewController, ignoreErrors=True):
         """Perform MIB variable ID conversion and notification objects expansion.
 
         Parameters
         ----------
         mibViewController : :py:class:`~pysnmp.smi.view.MibViewController`
             class instance representing MIB browsing functionality.
+
+        Other Parameters
+        ----------------
+        ignoreErrors: :py:class:`bool`
+            If `True` (default), ignore MIB object name or value casting
+            failures if possible.
 
         Returns
         -------
@@ -1280,7 +1286,8 @@ class NotificationType(object):
 
         self._varBinds.append(
             ObjectType(ObjectIdentity(v2c.apiTrapPDU.snmpTrapOID),
-                       self._objectIdentity).resolveWithMib(mibViewController))
+                       self._objectIdentity).resolveWithMib(
+                mibViewController, ignoreErrors))
 
         SmiNotificationType, = mibViewController.mibBuilder.importSymbols(
             'SNMPv2-SMI', 'NotificationType')
@@ -1301,7 +1308,7 @@ class NotificationType(object):
                     objectIdentity, self._objects.get(
                         notificationObject, rfc1905.unSpecified))
 
-                objectType.resolveWithMib(mibViewController)
+                objectType.resolveWithMib(mibViewController, ignoreErrors)
 
                 self._varBinds.append(objectType)
 
@@ -1315,8 +1322,7 @@ class NotificationType(object):
         for varBinds in self._additionalVarBinds:
             if not isinstance(varBinds, ObjectType):
                 varBinds = ObjectType(ObjectIdentity(varBinds[0]), varBinds[1])
-
-            varBinds.resolveWithMib(mibViewController)
+            varBinds.resolveWithMib(mibViewController, ignoreErrors)
 
             if varBinds[0] in varBindsLocation:
                 self._varBinds[varBindsLocation[varBinds[0]]] = varBinds

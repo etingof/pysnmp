@@ -45,7 +45,8 @@ class CommandGeneratorVarBinds(MibViewControllerManager):
             else:
                 varBind = ObjectType(ObjectIdentity(varBind[0]), varBind[1])
 
-            resolvedVarBinds.append(varBind.resolveWithMib(mibViewController))
+            resolvedVarBinds.append(
+                varBind.resolveWithMib(mibViewController, ignoreErrors=False))
 
         return resolvedVarBinds
 
@@ -65,13 +66,16 @@ class NotificationOriginatorVarBinds(MibViewControllerManager):
         mibViewController = self.getMibViewController(userCache)
 
         if isinstance(varBinds, NotificationType):
-            return varBinds.resolveWithMib(mibViewController)
+            return varBinds.resolveWithMib(
+                mibViewController, ignoreErrors=False)
 
         resolvedVarBinds = []
 
         for varBind in varBinds:
             if isinstance(varBind, NotificationType):
-                resolvedVarBinds.extend(varBind.resolveWithMib(mibViewController))
+                resolvedVarBinds.extend(
+                    varBind.resolveWithMib(
+                        mibViewController, ignoreErrors=False))
                 continue
 
             if isinstance(varBind, ObjectType):
