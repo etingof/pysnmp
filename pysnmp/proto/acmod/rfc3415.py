@@ -140,7 +140,7 @@ class Vacm(object):
         mibInstrumController = snmpEngine.msgAndPduDsp.mibInstrumController
         mibBuilder = mibInstrumController.mibBuilder
 
-        debug.logger & debug.flagACL and debug.logger(
+        debug.logger & debug.FLAG_ACL and debug.logger(
             'isAccessAllowed: securityModel %s, securityName %s, '
             'securityLevel %s, viewType %s, contextName %s for '
             'variableName %s' % (securityModel, securityName,
