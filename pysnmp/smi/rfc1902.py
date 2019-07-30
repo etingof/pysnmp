@@ -1113,13 +1113,19 @@ class NotificationType(object):
     def isFullyResolved(self):
         return self.__state & self.stClean
 
-    def resolveWithMib(self, mibViewController):
+    def resolveWithMib(self, mibViewController, ignoreErrors=True):
         """Perform MIB variable ID conversion and notification objects expansion.
 
         Parameters
         ----------
         mibViewController : :py:class:`~pysnmp.smi.view.MibViewController`
             class instance representing MIB browsing functionality.
+
+        Other Parameters
+        ----------------
+        ignoreErrors: :py:class:`bool`
+            If `True` (default), ignore MIB object name or value casting
+            failures if possible.
 
         Returns
         -------
@@ -1158,7 +1164,7 @@ class NotificationType(object):
 
         self.__varBinds.append(
             ObjectType(ObjectIdentity(v2c.apiTrapPDU.snmpTrapOID),
-                       self.__objectIdentity).resolveWithMib(mibViewController)
+                       self.__objectIdentity).resolveWithMib(mibViewController, ignoreErrors)
         )
 
         SmiNotificationType, = mibViewController.mibBuilder.importSymbols('SNMPv2-SMI', 'NotificationType')
@@ -1170,11 +1176,11 @@ class NotificationType(object):
         if isinstance(mibNode, SmiNotificationType):
             for notificationObject in mibNode.getObjects():
                 objectIdentity = ObjectIdentity(*notificationObject + self.__instanceIndex).resolveWithMib(
-                    mibViewController)
+                    mibViewController, ignoreErrors)
                 self.__varBinds.append(
                     ObjectType(objectIdentity,
                                self.__objects.get(notificationObject, rfc1905.unSpecified)).resolveWithMib(
-                        mibViewController)
+                        mibViewController, ignoreErrors)
                 )
                 varBindsLocation[objectIdentity] = len(self.__varBinds) - 1
         else:
@@ -1184,7 +1190,7 @@ class NotificationType(object):
         for varBinds in self.__additionalVarBinds:
             if not isinstance(varBinds, ObjectType):
                 varBinds = ObjectType(ObjectIdentity(varBinds[0]), varBinds[1])
-            varBinds.resolveWithMib(mibViewController)
+            varBinds.resolveWithMib(mibViewController, ignoreErrors)
             if varBinds[0] in varBindsLocation:
                 self.__varBinds[varBindsLocation[varBinds[0]]] = varBinds
             else:

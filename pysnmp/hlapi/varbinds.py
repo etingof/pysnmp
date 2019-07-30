@@ -36,14 +36,15 @@ class CommandGeneratorVarBinds(AbstractVarBinds):
             else:
                 varBind = ObjectType(ObjectIdentity(varBind[0]), varBind[1])
 
-            __varBinds.append(varBind.resolveWithMib(mibViewController))
+            __varBinds.append(varBind.resolveWithMib(mibViewController, ignoreErrors=False))
 
         return __varBinds
 
     def unmakeVarBinds(self, snmpEngine, varBinds, lookupMib=True):
         if lookupMib:
             mibViewController = self.getMibViewController(snmpEngine)
-            varBinds = [ObjectType(ObjectIdentity(x[0]), x[1]).resolveWithMib(mibViewController) for x in varBinds]
+            varBinds = [ObjectType(ObjectIdentity(x[0]), x[1]).resolveWithMib(
+                mibViewController) for x in varBinds]
 
         return varBinds
 
@@ -52,7 +53,8 @@ class NotificationOriginatorVarBinds(AbstractVarBinds):
     def makeVarBinds(self, snmpEngine, varBinds):
         mibViewController = self.getMibViewController(snmpEngine)
         if isinstance(varBinds, NotificationType):
-            varBinds.resolveWithMib(mibViewController)
+            varBinds.resolveWithMib(
+                mibViewController, ignoreErrors=False)
         __varBinds = []
         for varBind in varBinds:
             if isinstance(varBind, ObjectType):
@@ -61,11 +63,13 @@ class NotificationOriginatorVarBinds(AbstractVarBinds):
                 varBind = ObjectType(*varBind)
             else:
                 varBind = ObjectType(ObjectIdentity(varBind[0]), varBind[1])
-            __varBinds.append(varBind.resolveWithMib(mibViewController))
+            __varBinds.append(varBind.resolveWithMib(
+                mibViewController, ignoreErrors=False))
         return __varBinds
 
     def unmakeVarBinds(self, snmpEngine, varBinds, lookupMib=False):
         if lookupMib:
             mibViewController = self.getMibViewController(snmpEngine)
-            varBinds = [ObjectType(ObjectIdentity(x[0]), x[1]).resolveWithMib(mibViewController) for x in varBinds]
+            varBinds = [ObjectType(ObjectIdentity(x[0]), x[1]).resolveWithMib(
+                mibViewController) for x in varBinds]
         return varBinds
