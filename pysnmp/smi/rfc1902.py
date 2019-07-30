@@ -805,13 +805,19 @@ class ObjectType(object):
         self.__args[0].loadMibs(*modNames)
         return self
 
-    def resolveWithMib(self, mibViewController):
+    def resolveWithMib(self, mibViewController, ignoreErrors=True):
         """Perform MIB variable ID and associated value conversion.
 
         Parameters
         ----------
         mibViewController : :py:class:`~pysnmp.smi.view.MibViewController`
             class instance representing MIB browsing functionality.
+
+        Other Parameters
+        ----------------
+        ignoreErrors: :py:class:`bool`
+            If `True` (default), ignore MIB object name or value casting
+            failures if possible.
 
         Returns
         -------
@@ -851,7 +857,8 @@ class ObjectType(object):
 
         if not isinstance(self.__args[0].getMibNode(),
                           (MibScalar, MibTableColumn)):
-            if not isinstance(self.__args[1], AbstractSimpleAsn1Item):
+            if (ignoreErrors and
+                    not isinstance(self.__args[1], AbstractSimpleAsn1Item)):
                 raise SmiError('MIB object %r is not OBJECT-TYPE (MIB not loaded?)' % (self.__args[0],))
             self.__state |= self.stClean
             return self
@@ -866,9 +873,15 @@ class ObjectType(object):
         try:
             self.__args[1] = self.__args[0].getMibNode().getSyntax().clone(self.__args[1])
         except PyAsn1Error:
-            raise SmiError('MIB object %r having type %r failed to cast value %r: %s' % (
-                self.__args[0].prettyPrint(), self.__args[0].getMibNode().getSyntax().__class__.__name__, self.__args[1],
-                sys.exc_info()[1]))
+            err = ('MIB object %r having type %r failed to cast value '
+                   '%r: %s' % (self.__args[0].prettyPrint(),
+                               self.__args[0].getMibNode().getSyntax().__class__.__name__,
+                               self.__args[1],
+                               sys.exc_info()[1]))
+
+            if (not ignoreErrors or
+                    not isinstance(self.__args[1], AbstractSimpleAsn1Item)):
+                raise SmiError(err)
 
         if rfc1902.ObjectIdentifier().isSuperTypeOf(self.__args[1], matchConstraints=False):
             self.__args[1] = ObjectIdentity(self.__args[1]).resolveWithMib(mibViewController)
