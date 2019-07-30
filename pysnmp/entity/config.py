@@ -621,7 +621,7 @@ def __cookVacmViewInfo(snmpEngine, viewName, subTree):
 def addVacmView(snmpEngine, viewName, viewType, subTree, subTreeMask):
 
     # Allow bitmask specification in form of an OID
-    if '.' in subTreeMask:
+    if rfc1902.OctetString('.').asOctets() in rfc1902.OctetString(subTreeMask):
         subTreeMask = rfc1902.ObjectIdentifier(subTreeMask)
 
     if isinstance(subTreeMask, rfc1902.ObjectIdentifier):
