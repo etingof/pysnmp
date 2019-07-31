@@ -135,7 +135,7 @@ params.update({
     'url': 'https://github.com/etingof/pysnmp',
     'classifiers': [x for x in classifiers.split('\n') if x],
     'platforms': ['any'],
-    'license': 'BSD',
+    'license': 'BSD-2-Clause',
     'packages': ['pysnmp',
                  'pysnmp.smi',
                  'pysnmp.smi.mibs',
