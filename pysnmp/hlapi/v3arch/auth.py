@@ -18,7 +18,8 @@ __all__ = [
     'USM_PRIV_CBC56_DES', 'USM_PRIV_CBC168_3DES',
     'USM_PRIV_CFB128_AES', 'USM_PRIV_CFB192_AES',
     'USM_PRIV_CFB256_AES', 'USM_PRIV_CFB192_AES_BLUMENTHAL',
-    'USM_PRIV_CFB256_AES_BLUMENTHAL',
+    'USM_PRIV_CFB256_AES_BLUMENTHAL', 'USM_KEY_TYPE_PASSPHRASE',
+    'USM_KEY_TYPE_MASTER', 'USM_KEY_TYPE_LOCALIZED',
     # backward-compatible constants
     'usm3DESEDEPrivProtocol', 'usmAesCfb128Protocol',
     'usmAesCfb192Protocol', 'usmAesCfb256Protocol',
@@ -27,7 +28,8 @@ __all__ = [
     'usmHMACSHAAuthProtocol', 'usmHMAC128SHA224AuthProtocol',
     'usmHMAC192SHA256AuthProtocol', 'usmHMAC256SHA384AuthProtocol',
     'usmHMAC384SHA512AuthProtocol', 'usmNoAuthProtocol',
-    'usmNoPrivProtocol'
+    'usmNoPrivProtocol', 'usmKeyTypePassphrase', 'usmKeyTypeMaster',
+    'usmKeyTypeLocalized'
 ]
 
 
@@ -59,22 +61,41 @@ USM_PRIV_CBC56_DES = config.USM_PRIV_CBC56_DES
 """The CBC56-DES Symmetric Encryption Protocol (:RFC:`3414#section-8`)"""
 
 USM_PRIV_CBC168_3DES = config.USM_PRIV_CBC168_3DES
-"""The 3DES-EDE Symmetric Encryption Protocol (`draft-reeder-snmpv3-usm-3desede-00 <https:://tools.ietf.org/html/draft-reeder-snmpv3-usm-3desede-00#section-5>`_)"""
+"""The 3DES-EDE Symmetric Encryption Protocol (`draft-reeder-snmpv3-usm-3desede-00 \
+<https:://tools.ietf.org/html/draft-reeder-snmpv3-usm-3desede-00#section-5>`_)"""
 
 USM_PRIV_CFB128_AES = config.USM_PRIV_CFB128_AES
 """The CFB128-AES-128 Symmetric Encryption Protocol (:RFC:`3826#section-3`)"""
 
 USM_PRIV_CFB192_AES = config.USM_PRIV_CFB192_AES
-"""The CFB128-AES-192 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_) with Reeder key localization"""
+"""The CFB128-AES-192 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 \
+<https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_) \
+with Reeder key localization"""
 
 USM_PRIV_CFB256_AES = config.USM_PRIV_CFB256_AES
-"""The CFB128-AES-256 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_) with Reeder key localization"""
+"""The CFB128-AES-256 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 \
+<https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_) \
+with Reeder key localization"""
 
 USM_PRIV_CFB192_AES_BLUMENTHAL = config.USM_PRIV_CFB192_AES_BLUMENTHAL
-"""The CFB128-AES-192 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)"""
+"""The CFB128-AES-192 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 \
+<https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)"""
 
 USM_PRIV_CFB256_AES_BLUMENTHAL = config.USM_PRIV_CFB256_AES_BLUMENTHAL
-"""The CFB128-AES-256 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)"""
+"""The CFB128-AES-256 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 \
+<https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)"""
+
+# USM key types (PYSNMP-USM-MIB::pysnmpUsmKeyType)
+
+USM_KEY_TYPE_PASSPHRASE = config.USM_KEY_TYPE_PASSPHRASE
+"""USM key material type - plain-text pass phrase (:RFC:`3414#section-2.6`)"""
+
+USM_KEY_TYPE_MASTER = config.USM_KEY_TYPE_MASTER
+"""USM key material type - hashed pass-phrase AKA master key (:RFC:`3414#section-2.6`)"""
+
+USM_KEY_TYPE_LOCALIZED = config.USM_KEY_TYPE_LOCALIZED
+"""USM key material type - hashed pass-phrase hashed with Context SNMP Engine ID \
+(:RFC:`3414#section-2.6`)"""
 
 # Backward-compatible protocol IDs
 usmNoAuthProtocol = USM_AUTH_NONE
@@ -93,6 +114,10 @@ usmAesCfb256Protocol = USM_PRIV_CFB256_AES
 usmAesBlumenthalCfb192Protocol = USM_PRIV_CFB192_AES_BLUMENTHAL
 usmAesBlumenthalCfb256Protocol = USM_PRIV_CFB256_AES_BLUMENTHAL
 
+usmKeyTypePassphrase = USM_KEY_TYPE_PASSPHRASE
+usmKeyTypeMaster = USM_KEY_TYPE_MASTER
+usmKeyTypeLocalized = USM_KEY_TYPE_LOCALIZED
+
 
 class CommunityData(object):
     """Creates SNMP v1/v2c configuration entry.
@@ -109,21 +134,30 @@ class CommunityData(object):
 
     Parameters
     ----------
-    communityIndex: py:class:`str`
+    communityIndex: :py:class:`str`, :py:class:`~pysnmp.proto.rfc1902.OctetString`
         Unique index value of a row in snmpCommunityTable. If it is the
         only positional parameter, it is treated as a *communityName*.
-    communityName: py:class:`str`
+
+    communityName: :py:class:`str`, :py:class:`~pysnmp.proto.rfc1902.OctetString`
         SNMP v1/v2c community string.
-    mpModel: py:class:`int`
-        SNMP version - 0 for SNMPv1 and 1 for SNMPv2c.
-    contextEngineId: py:class:`str`
+
+    mpModel: :py:class:`int`
+        SNMP message processing model AKA SNMP version. Known SNMP versions are:
+
+        * `0` - for SNMP v1
+        * `1` - for SNMP v2c (default)
+
+
+    contextEngineId: :py:class:`str`, :py:class:`~pysnmp.proto.rfc1902.OctetString`
         Indicates the location of the context in which management
         information is accessed when using the community string
         specified by the above communityName.
-    contextName: py:class:`str`
+
+    contextName: :py:class:`str`, :py:class:`~pysnmp.proto.rfc1902.OctetString`
         The context in which management information is accessed when
         using the above communityName.
-    tag: py:class:`str`
+
+    tag: :py:class:`str`
         Arbitrary string that specifies a set of transport endpoints
         from which a command responder application will accept
         management requests with given *communityName* or to which
@@ -253,21 +287,26 @@ class UsmUserData(object):
 
     Parameters
     ----------
-    userName: py:class:`str`
+    userName: :py:class:`str`, :py:class:`~pysnmp.proto.rfc1902.OctetString`
         A human readable string representing the name of the SNMP USM user.
-    authKey: py:class:`str`
+
+    Other Parameters
+    ----------------
+    authKey: :py:class:`str`, :py:class:`~pysnmp.proto.rfc1902.OctetString`
         Initial value of the secret authentication key.  If not set,
         :py:class:`~pysnmp.hlapi.usmNoAuthProtocol`
         is implied.  If set and no *authProtocol* is specified,
         :py:class:`~pysnmp.hlapi.usmHMACMD5AuthProtocol`
         takes effect.
-    privKey: py:class:`str`
+
+    privKey: :py:class:`str`, :py:class:`~pysnmp.proto.rfc1902.OctetString`
         Initial value of the secret encryption key.  If not set,
         :py:class:`~pysnmp.hlapi.usmNoPrivProtocol`
         is implied.  If set and no *privProtocol* is specified,
         :py:class:`~pysnmp.hlapi.usmDESPrivProtocol`
         takes effect.
-    authProtocol: py:class:`tuple`
+
+    authProtocol: :py:class:`tuple`, :py:class:`~pysnmp.proto.rfc1902.ObjectIdentifier`
         An indication of whether messages sent on behalf of this USM user
         can be authenticated, and if so, the type of authentication protocol
         which is used.
@@ -281,7 +320,23 @@ class UsmUserData(object):
         * :py:class:`~pysnmp.hlapi.usmHMAC192SHA256AuthProtocol`
         * :py:class:`~pysnmp.hlapi.usmHMAC256SHA384AuthProtocol`
         * :py:class:`~pysnmp.hlapi.usmHMAC384SHA512AuthProtocol`
-    privProtocol: py:class:`tuple`
+
+
+    securityEngineId: :py:class:`~pysnmp.proto.rfc1902.OctetString`
+        The snmpEngineID of the authoritative SNMP engine to which a
+        dateRequest message is to be sent. Will be automatically
+        discovered from peer if not given.
+
+        See :RFC:`3414#section-2.5.1` for technical explanation.
+
+    securityName: :py:class:`str`, :py:class:`~pysnmp.proto.rfc1902.OctetString`
+        Together with the snmpEngineID it identifies a row in the
+        *SNMP-USER-BASED-SM-MIB::usmUserTable* that is to be used
+        for securing the message.
+
+        See :RFC:`3414#section-2.5.1` for technical explanation.
+
+    privProtocol: :py:class:`tuple`, :py:class:`~pysnmp.proto.rfc1902.ObjectIdentifier`
         An indication of whether messages sent on behalf of this USM user
         be encrypted, and if so, the type of encryption protocol which is used.
 
@@ -293,6 +348,29 @@ class UsmUserData(object):
         * :py:class:`~pysnmp.hlapi.usmAesCfb128Protocol`
         * :py:class:`~pysnmp.hlapi.usmAesCfb192Protocol`
         * :py:class:`~pysnmp.hlapi.usmAesCfb256Protocol`
+
+
+    authKeyType: :py:class:`int`
+        Type of `authKey` material. See :RFC:`3414#section-2.6` for
+        technical explanation.
+
+        Supported key types are:
+
+        * :py:class:`~pysnmp.hlapi.usmKeyTypePassphrase` (default)
+        * :py:class:`~pysnmp.hlapi.usmKeyTypeMaster`
+        * :py:class:`~pysnmp.hlapi.usmKeyTypeLocalized`
+
+
+    privKeyType: :py:class:`int`
+        Type of `privKey` material. See :RFC:`3414#section-2.6` for
+        technical explanation.
+
+        Supported key types are:
+
+        * :py:class:`~pysnmp.hlapi.usmKeyTypePassphrase` (default)
+        * :py:class:`~pysnmp.hlapi.usmKeyTypeMaster`
+        * :py:class:`~pysnmp.hlapi.usmKeyTypeLocalized`
+
 
     Examples
     --------
@@ -316,8 +394,9 @@ class UsmUserData(object):
                  authKey=None, privKey=None,
                  authProtocol=None, privProtocol=None,
                  securityEngineId=None,
-                 securityName=None):
-
+                 securityName=None,
+                 authKeyType=USM_KEY_TYPE_PASSPHRASE,
+                 privKeyType=USM_KEY_TYPE_PASSPHRASE):
         self.userName = userName
 
         if securityName is None:
@@ -353,6 +432,8 @@ class UsmUserData(object):
                 self.privProtocol = privProtocol
 
         self.securityEngineId = securityEngineId
+        self.authKeyType = authKeyType
+        self.privKeyType = privKeyType
 
     def __hash__(self):
         raise TypeError('%s is not hashable' % self.__class__.__name__)
@@ -360,17 +441,22 @@ class UsmUserData(object):
     def __repr__(self):
         return ('%s(userName=%r, authKey=<AUTHKEY>, privKey=<PRIVKEY>, '
                 'authProtocol=%r, privProtocol=%r, securityEngineId=%r, '
-                'securityName=%r)') % (
-            self.__class__.__name__, self.userName,
-            self.authProtocol, self.privProtocol,
+                'securityName=%r, authKeyType=%r, privKeyType=%r)') % (
+            self.__class__.__name__,
+            self.userName,
+            self.authProtocol,
+            self.privProtocol,
             self.securityEngineId is None and '<DEFAULT>' or self.securityEngineId,
-            self.securityName)
+            self.securityName,
+            self.authKeyType,
+            self.privKeyType
+        )
 
     def clone(self, userName=None,
               authKey=None, privKey=None,
               authProtocol=None, privProtocol=None,
-              securityEngineId=None, securityName=None):
-
+              securityEngineId=None, securityName=None,
+              authKeyType=None, privKeyType=None):
         return self.__class__(
             userName is None and self.userName or userName,
             authKey is None and self.authKey or authKey,
@@ -378,4 +464,7 @@ class UsmUserData(object):
             authProtocol is None and self.authProtocol or authProtocol,
             privProtocol is None and self.privProtocol or privProtocol,
             securityEngineId is None and self.securityEngineId or securityEngineId,
-            securityName=securityName is None and self.securityName or securityName)
+            securityName is None and self.securityName or securityName,
+            authKeyType is None and self.authKeyType or USM_KEY_TYPE_PASSPHRASE,
+            privKeyType is None and self.privKeyType or USM_KEY_TYPE_PASSPHRASE
+        )

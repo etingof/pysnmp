@@ -67,8 +67,10 @@ class CommandGeneratorLcdConfigurator(AbstractLcdConfigurator):
                     authData.userName,
                     authData.authProtocol, authData.authKey,
                     authData.privProtocol, authData.privKey,
-                    authData.securityEngineId,
-                    securityName=authData.securityName
+                    securityEngineId=authData.securityEngineId,
+                    securityName=authData.securityName,
+                    authKeyType=authData.authKeyType,
+                    privKeyType=authData.privKeyType
                 )
 
                 cache['auth'][authDataKey] = authData

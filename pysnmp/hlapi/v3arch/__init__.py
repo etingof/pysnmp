@@ -60,3 +60,12 @@ usmAesBlumenthalCfb192Protocol = auth.usmAesBlumenthalCfb192Protocol
 
 usmAesBlumenthalCfb256Protocol = auth.usmAesBlumenthalCfb256Protocol
 """The CFB128-AES-256 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)"""
+
+usmKeyTypePassphrase = auth.usmKeyTypePassphrase
+"""USM key material type - plain-text pass phrase (:RFC:`3414#section-2.6`)"""
+
+usmKeyTypeMaster = auth.usmKeyTypeMaster
+"""USM key material type - hashed pass-phrase AKA master key (:RFC:`3414#section-2.6`)"""
+
+usmKeyTypeLocalized = auth.usmKeyTypeLocalized
+"""USM key material type - hashed pass-phrase hashed with Context SNMP Engine ID (:RFC:`3414#section-2.6`)"""

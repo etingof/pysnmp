@@ -19,10 +19,12 @@ MibScalarInstance, = mibBuilder.importSymbols(
 )
 
 (pysnmpUsmDiscoverable,
- pysnmpUsmDiscovery) = mibBuilder.importSymbols(
+ pysnmpUsmDiscovery,
+ pysnmpUsmKeyType) = mibBuilder.importSymbols(
     'PYSNMP-USM-MIB',
     'pysnmpUsmDiscoverable',
-    'pysnmpUsmDiscovery'
+    'pysnmpUsmDiscovery',
+    'pysnmpUsmKeyType'
 )
 
 _pysnmpUsmDiscoverable = MibScalarInstance(
@@ -35,8 +37,15 @@ _pysnmpUsmDiscovery = MibScalarInstance(
     pysnmpUsmDiscovery.syntax
 )
 
+_pysnmpUsmKeyType = MibScalarInstance(
+    pysnmpUsmKeyType.name, (0,),
+    pysnmpUsmKeyType.syntax
+)
+
+
 mibBuilder.exportSymbols(
     "__PYSNMP-USM-MIB",
     pysnmpUsmDiscoverable=_pysnmpUsmDiscoverable,
-    pysnmpUsmDiscovery=_pysnmpUsmDiscovery
+    pysnmpUsmDiscovery=_pysnmpUsmDiscovery,
+    pysnmpUsmKeyType = _pysnmpUsmKeyType
 )

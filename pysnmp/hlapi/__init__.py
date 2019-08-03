@@ -5,5 +5,5 @@
 # License: http://snmplabs.com/pysnmp/license.html
 #
 
-# default is synchronous asyncore-based API
+# default is v3arch
 from pysnmp.hlapi.v3arch import *

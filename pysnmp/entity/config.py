@@ -51,6 +51,11 @@ USM_PRIV_CFB256_AES_BLUMENTHAL = aes256.AesBlumenthal256.SERVICE_ID  # semi-stan
 
 USM_PRIV_NONE = nopriv.NoPriv.SERVICE_ID
 
+# USM key types (PYSNMP-USM-MIB::pysnmpUsmKeyType)
+USM_KEY_TYPE_PASSPHRASE = 0
+USM_KEY_TYPE_MASTER = 1
+USM_KEY_TYPE_LOCALIZED = 2
+
 AUTH_SERVICES = {
     hmacmd5.HmacMd5.SERVICE_ID: hmacmd5.HmacMd5(),
     hmacsha.HmacSha.SERVICE_ID: hmacsha.HmacSha(),
@@ -164,8 +169,9 @@ def addV3User(snmpEngine, userName,
               authProtocol=USM_AUTH_NONE, authKey=None,
               privProtocol=USM_PRIV_NONE, privKey=None,
               securityEngineId=None,
-              securityName=None):
-
+              securityName=None,
+              authKeyType=USM_KEY_TYPE_PASSPHRASE,
+              privKeyType=USM_KEY_TYPE_PASSPHRASE):
     mibBuilder = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
 
     if securityName is None:
@@ -198,47 +204,62 @@ def addV3User(snmpEngine, userName,
         snmpEngine=snmpEngine
     )
 
-    # Localize keys
-    if authProtocol in AUTH_SERVICES:
-        hashedAuthPassphrase = AUTH_SERVICES[authProtocol].hashPassphrase(
-            authKey and authKey or null
-        )
-
-        localAuthKey = AUTH_SERVICES[authProtocol].localizeKey(
-            hashedAuthPassphrase, snmpEngineID
-        )
-
-    else:
+    if authProtocol not in AUTH_SERVICES:
         raise error.PySnmpError('Unknown auth protocol %s' % (authProtocol,))
 
-    if privProtocol in PRIV_SERVICES:
-        hashedPrivPassphrase = PRIV_SERVICES[privProtocol].hashPassphrase(
-            authProtocol, privKey and privKey or null
+    if privProtocol not in PRIV_SERVICES:
+        raise error.PySnmpError('Unknown privacy protocol %s' % (privProtocol,))
+
+    pysnmpUsmKeyType, = mibBuilder.importSymbols(
+        '__PYSNMP-USM-MIB', 'pysnmpUsmKeyType')
+
+    authKeyType = pysnmpUsmKeyType.syntax.clone(authKeyType)
+
+    # Localize authentication key unless given
+
+    masterAuthKey = localAuthKey = authKey
+
+    if authKeyType < USM_KEY_TYPE_MASTER:  # master key is not given
+        masterAuthKey = AUTH_SERVICES[authProtocol].hashPassphrase(
+            authKey or null
         )
 
+    if authKeyType < USM_KEY_TYPE_LOCALIZED:  # localized key is not given
+        localAuthKey = AUTH_SERVICES[authProtocol].localizeKey(
+            masterAuthKey, snmpEngineID
+        )
+
+    # Localize privacy key unless given
+
+    masterPrivKey = localPrivKey = privKey
+
+    privKeyType = pysnmpUsmKeyType.syntax.clone(privKeyType)
+
+    if privKeyType < USM_KEY_TYPE_MASTER:  # master key is not given
+        masterPrivKey = PRIV_SERVICES[privProtocol].hashPassphrase(
+            authProtocol, privKey or null
+        )
+
+    if privKeyType < USM_KEY_TYPE_LOCALIZED:  # localized key is not given
         localPrivKey = PRIV_SERVICES[privProtocol].localizeKey(
-            authProtocol, hashedPrivPassphrase, snmpEngineID
+            authProtocol, masterPrivKey, snmpEngineID
         )
 
-    else:
-        raise error.PySnmpError('Unknown priv protocol %s' % (privProtocol,))
-
-    # Commit localized keys
+    # Commit master and localized keys
     snmpEngine.msgAndPduDsp.mibInstrumController.writeMibObjects(
         (pysnmpUsmKeyEntry.name + (1,) + tblIdx1, localAuthKey),
         (pysnmpUsmKeyEntry.name + (2,) + tblIdx1, localPrivKey),
-        (pysnmpUsmKeyEntry.name + (3,) + tblIdx1, hashedAuthPassphrase),
-        (pysnmpUsmKeyEntry.name + (4,) + tblIdx1, hashedPrivPassphrase),
+        (pysnmpUsmKeyEntry.name + (3,) + tblIdx1, masterAuthKey),
+        (pysnmpUsmKeyEntry.name + (4,) + tblIdx1, masterPrivKey),
         snmpEngine=snmpEngine
     )
-
-    # Commit passphrases
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeMibObjects(
         (pysnmpUsmSecretEntry.name + (4,) + tblIdx2, 'destroy'),
         snmpEngine=snmpEngine
     )
 
+    # Commit plain-text pass-phrases
     snmpEngine.msgAndPduDsp.mibInstrumController.writeMibObjects(
         (pysnmpUsmSecretEntry.name + (1,) + tblIdx2, userName),
         (pysnmpUsmSecretEntry.name + (2,) + tblIdx2, authKey),

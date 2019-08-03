@@ -213,7 +213,7 @@ User-based
 The :py:class:`~pysnmp.hlapi.v3arch.UsmUserData` class provides SNMPv3 User-Based
 Security Model configuration for SNMP v3 systems.
 
-.. autoclass:: pysnmp.hlapi.v3arch.UsmUserData(userName, authKey=None, privKey=None, authProtocol=USM_AUTH_NONE, privProtocol=USM_PRIV_NONE, securityEngineId=None)
+.. autoclass:: pysnmp.hlapi.v3arch.UsmUserData(userName, authKey=None, privKey=None, authProtocol=USM_AUTH_NONE, privProtocol=USM_PRIV_NONE, securityEngineId=None, authKeyType=USM_KEY_TYPE_PASSPHRASE, privKeyType=USM_KEY_TYPE_PASSPHRASE)
 
 **Authentication protocol identifiers**
 
@@ -236,10 +236,16 @@ Security Model configuration for SNMP v3 systems.
 .. autodata:: pysnmp.hlapi.v3arch.USM_PRIV_CFB192_AES_BLUMENTHAL
 .. autodata:: pysnmp.hlapi.v3arch.USM_PRIV_CFB256_AES_BLUMENTHAL
 
+**Key material types**
+
+.. autodata:: pysnmp.hlapi.USM_KEY_TYPE_PASSPHRASE
+.. autodata:: pysnmp.hlapi.USM_KEY_TYPE_MASTER
+.. autodata:: pysnmp.hlapi.USM_KEY_TYPE_LOCALIZED
+
 .. note::
 
-   SNMP authentication and encryption keys must be at least *eight*
-   octets long.
+   SNMP authentication and encryption keys must be at least *8*
+   and at most *32* octets long.
 
 Transport configuration is I/O framework specific and is described in
 respective sections.

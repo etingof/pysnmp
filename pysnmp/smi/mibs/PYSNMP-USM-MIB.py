@@ -132,35 +132,39 @@ pysnmpUsmCfg = _PysnmpUsmCfg_ObjectIdentity(
 )
 
 
-class _PysnmpUsmDiscoverable_Type(Integer32):
-    defaultValue = 1
+class _PysnmpUsmKeyType_Type(Integer32):
+    defaultValue = 0
 
     subtypeSpec = Integer32.subtypeSpec
     subtypeSpec += ConstraintsUnion(
         SingleValueConstraint(
             *(0,
-              1)
+              2)
         )
     )
     namedValues = NamedValues(
-        *(("discoverable", 1),
-          ("notDiscoverable", 0))
+        *(("passphrase", 0),
+          ("master", 1),
+          ("localized", 2))
     )
 
-
-_PysnmpUsmDiscoverable_Type.__name__ = "Integer32"
-_PysnmpUsmDiscoverable_Object = MibScalar
-pysnmpUsmDiscoverable = _PysnmpUsmDiscoverable_Object(
-    (1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 1, 1),
-    _PysnmpUsmDiscoverable_Type()
+_PysnmpUsmKeyType_Type.__name__ = "Integer32"
+_PysnmpUsmKeyType_Object = MibScalar
+pysnmpUsmKeyType = _PysnmpUsmKeyType_Object(
+    (1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 1, 3),
+    _PysnmpUsmKeyType_Type()
 )
-pysnmpUsmDiscoverable.setMaxAccess("read-write")
+pysnmpUsmKeyType.setMaxAccess("not-accessible")
 if mibBuilder.loadTexts:
-    pysnmpUsmDiscoverable.setStatus("current")
+    pysnmpUsmKeyType.setStatus("current")
 if mibBuilder.loadTexts:
-    pysnmpUsmDiscoverable.setDescription("""\
-Whether SNMP engine would support its discovery by responding to unknown
-clients.
+    pysnmpUsmKeyType.setDescription("""\
+When configuring USM user, the value of this enumeration
+determines how the keys should be treated. The default
+value "passphrase" means that given keys are plain-text
+pass-phrases, "master" indicates that the keys are pre-hashed
+pass-phrases, while "localized" stands for pre-hashed
+pass-phrases mixed with SNMP Security Engine ID value.
 """)
 
 
@@ -194,6 +198,42 @@ if mibBuilder.loadTexts:
 Whether SNMP engine would try to figure out the EngineIDs of its peers by
 sending discover requests.
 """)
+
+
+class _PysnmpUsmDiscoverable_Type(Integer32):
+    defaultValue = 1
+
+    subtypeSpec = Integer32.subtypeSpec
+    subtypeSpec += ConstraintsUnion(
+        SingleValueConstraint(
+            *(0,
+              1)
+        )
+    )
+    namedValues = NamedValues(
+        *(("discoverable", 1),
+          ("notDiscoverable", 0))
+    )
+
+
+_PysnmpUsmDiscoverable_Type.__name__ = "Integer32"
+_PysnmpUsmDiscoverable_Object = MibScalar
+pysnmpUsmDiscoverable = _PysnmpUsmDiscoverable_Object(
+    (1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 1, 1),
+    _PysnmpUsmDiscoverable_Type()
+)
+pysnmpUsmDiscoverable.setMaxAccess("read-write")
+if mibBuilder.loadTexts:
+    pysnmpUsmDiscoverable.setStatus("current")
+if mibBuilder.loadTexts:
+    pysnmpUsmDiscoverable.setDescription("""\
+Whether SNMP engine would support its discovery by responding to unknown
+clients.
+""")
+
+
+
+
 _PysnmpUsmSecretTable_Object = MibTable
 pysnmpUsmSecretTable = _PysnmpUsmSecretTable_Object(
     (1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 2)
@@ -441,6 +481,7 @@ mibBuilder.exportSymbols(
        "pysnmpUsmCfg": pysnmpUsmCfg,
        "pysnmpUsmDiscoverable": pysnmpUsmDiscoverable,
        "pysnmpUsmDiscovery": pysnmpUsmDiscovery,
+       "pysnmpUsmKeyType": pysnmpUsmKeyType,
        "pysnmpUsmSecretTable": pysnmpUsmSecretTable,
        "pysnmpUsmSecretEntry": pysnmpUsmSecretEntry,
        "pysnmpUsmSecretUserName": pysnmpUsmSecretUserName,
