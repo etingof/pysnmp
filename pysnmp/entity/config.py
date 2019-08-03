@@ -43,6 +43,11 @@ usmAesCfb192Protocol = aes192.Aes192.serviceID  # non-standard but used by many 
 usmAesCfb256Protocol = aes256.Aes256.serviceID  # non-standard but used by many vendors
 usmNoPrivProtocol = nopriv.NoPriv.serviceID
 
+# USM key types (PYSNMP-USM-MIB::pysnmpUsmKeyType)
+usmKeyTypePassphrase = 0
+usmKeyTypeMaster = 1
+usmKeyTypeLocalized = 2
+
 # Auth services
 authServices = {hmacmd5.HmacMd5.serviceID: hmacmd5.HmacMd5(),
                 hmacsha.HmacSha.serviceID: hmacsha.HmacSha(),
@@ -133,7 +138,9 @@ def addV3User(snmpEngine, userName,
               privProtocol=usmNoPrivProtocol, privKey=None,
               securityEngineId=None,
               securityName=None,
-              # deprecated parameters follow
+              authKeyType=usmKeyTypePassphrase,
+              privKeyType=usmKeyTypePassphrase,
+              # deprecated parameter
               contextEngineId=None):
     mibBuilder = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
 
@@ -141,6 +148,7 @@ def addV3User(snmpEngine, userName,
         securityName = userName
     if securityEngineId is None:  # backward compatibility
         securityEngineId = contextEngineId
+
     (snmpEngineID, usmUserEntry, tblIdx1,
      pysnmpUsmSecretEntry, tblIdx2) = __cookV3UserInfo(snmpEngine, userName, securityEngineId)
 
@@ -162,40 +170,59 @@ def addV3User(snmpEngine, userName,
          (usmUserEntry.name + (13,) + tblIdx1, 'createAndGo'))
     )
 
-    # Localize keys
-    if authProtocol in authServices:
-        hashedAuthPassphrase = authServices[authProtocol].hashPassphrase(
-            authKey and authKey or null
-        )
-        localAuthKey = authServices[authProtocol].localizeKey(
-            hashedAuthPassphrase, snmpEngineID
-        )
-    else:
+    if authProtocol not in authServices:
         raise error.PySnmpError('Unknown auth protocol %s' % (authProtocol,))
 
-    if privProtocol in privServices:
-        hashedPrivPassphrase = privServices[privProtocol].hashPassphrase(
-            authProtocol, privKey and privKey or null
-        )
-        localPrivKey = privServices[privProtocol].localizeKey(
-            authProtocol, hashedPrivPassphrase, snmpEngineID
-        )
-    else:
-        raise error.PySnmpError('Unknown priv protocol %s' % (privProtocol,))
+    if privProtocol not in privServices:
+        raise error.PySnmpError('Unknown privacy protocol %s' % (privProtocol,))
 
-    # Commit localized keys
+    pysnmpUsmKeyType, = mibBuilder.importSymbols('__PYSNMP-USM-MIB', 'pysnmpUsmKeyType')
+
+    authKeyType = pysnmpUsmKeyType.syntax.clone(authKeyType)
+
+    # Localize authentication key unless given
+
+    masterAuthKey = localAuthKey = authKey
+
+    if authKeyType < usmKeyTypeMaster:  # master key is not given
+        masterAuthKey = authServices[authProtocol].hashPassphrase(
+            authKey or null
+        )
+
+    if authKeyType < usmKeyTypeLocalized:  # localized key is not given
+        localAuthKey = authServices[authProtocol].localizeKey(
+            masterAuthKey, snmpEngineID
+        )
+
+    # Localize privacy key unless given
+
+    masterPrivKey = localPrivKey = privKey
+
+    privKeyType = pysnmpUsmKeyType.syntax.clone(privKeyType)
+
+    if privKeyType < usmKeyTypeMaster:  # master key is not given
+        masterPrivKey = privServices[privProtocol].hashPassphrase(
+            authProtocol, privKey or null
+        )
+
+    if privKeyType < usmKeyTypeLocalized:  # localized key is not given
+        localPrivKey = privServices[privProtocol].localizeKey(
+            authProtocol, masterPrivKey, snmpEngineID
+        )
+
+    # Commit master and localized keys
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((pysnmpUsmKeyEntry.name + (1,) + tblIdx1, localAuthKey),
          (pysnmpUsmKeyEntry.name + (2,) + tblIdx1, localPrivKey),
-         (pysnmpUsmKeyEntry.name + (3,) + tblIdx1, hashedAuthPassphrase),
-         (pysnmpUsmKeyEntry.name + (4,) + tblIdx1, hashedPrivPassphrase))
+         (pysnmpUsmKeyEntry.name + (3,) + tblIdx1, masterAuthKey),
+         (pysnmpUsmKeyEntry.name + (4,) + tblIdx1, masterPrivKey))
     )
-
-    # Commit passphrases
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((pysnmpUsmSecretEntry.name + (4,) + tblIdx2, 'destroy'),)
     )
+
+    # Commit plain-text pass-phrases
     snmpEngine.msgAndPduDsp.mibInstrumController.writeVars(
         ((pysnmpUsmSecretEntry.name + (1,) + tblIdx2, userName),
          (pysnmpUsmSecretEntry.name + (2,) + tblIdx2, authKey),

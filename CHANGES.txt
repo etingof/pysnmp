@@ -2,7 +2,7 @@
 Revision 4.4.11, released 2019-08-XX
 ------------------------------------
 
-No changes yet
+- Added SNMPv3 USM master and localized keys support to LCD configuration
 
 Revision 4.4.10, released 2019-07-29
 ------------------------------------
