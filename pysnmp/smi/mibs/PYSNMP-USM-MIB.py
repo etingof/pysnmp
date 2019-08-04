@@ -34,7 +34,7 @@ if mibBuilder.loadTexts: pysnmpUsmDiscoverable.setDescription('Whether SNMP engi
 pysnmpUsmDiscovery = MibScalar((1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 1, 2), Integer32().subtype(subtypeSpec=ConstraintsUnion(SingleValueConstraint(0, 1))).clone(namedValues=NamedValues(("doNotDiscover", 0), ("doDiscover", 1))).clone('doDiscover')).setMaxAccess("readwrite")
 if mibBuilder.loadTexts: pysnmpUsmDiscovery.setStatus('current')
 if mibBuilder.loadTexts: pysnmpUsmDiscovery.setDescription('Whether SNMP engine would try to figure out the EngineIDs of its peers by sending discover requests.')
-pysnmpUsmKeyType = MibScalar((1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 1, 3), Integer32().subtype(subtypeSpec=ConstraintsUnion(SingleValueConstraint(0, 2))).clone(namedValues=NamedValues(("passphrase", 0), ("master", 1), ("localized", 2))).clone('passphrase')).setMaxAccess("not-accessible")
+pysnmpUsmKeyType = MibScalar((1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 1, 3), Integer32().subtype(subtypeSpec=ConstraintsUnion(SingleValueConstraint(0, 1, 2))).clone(namedValues=NamedValues(("passphrase", 0), ("master", 1), ("localized", 2))).clone('passphrase')).setMaxAccess("not-accessible")
 if mibBuilder.loadTexts: pysnmpUsmKeyType.setStatus('current')
 if mibBuilder.loadTexts: pysnmpUsmKeyType.setDescription('When configuring USM user, the value of this enumeration determines how the keys should be treated. The default value "passphrase" means that given keys are plain-text pass-phrases, "master" indicates that the keys are pre-hashed pass-phrases, while "localized" stands for pre-hashed pass-phrases mixed with SNMP Security Engine ID value.')
 pysnmpUsmUser = MibIdentifier((1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 3))
