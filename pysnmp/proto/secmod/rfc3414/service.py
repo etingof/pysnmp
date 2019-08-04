@@ -250,8 +250,27 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 usmUserPrivKeyLocalized = cachedSecurityData['usmUserPrivKeyLocalized']
             else:
                 usmUserPrivKeyLocalized = None
+
             securityEngineID = snmpEngineID
-            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: user info read from cache')
+
+            debug.logger & debug.flagSM and debug.logger(
+                '__generateRequestOrResponseMsg: using cached USM user entry '
+                'usmUserName "%s" '
+                'usmUserSecurityName "%s" '
+                'usmUserAuthProtocol "%s" '
+                'usmUserAuthKeyLocalized "%s" '
+                'usmUserPrivProtocol "%s" '
+                'usmUserPrivKeyLocalized "%s" for '
+                'securityEngineID "%s" and  securityName "%s" found by '
+                'securityStateReference "%s" ' % (
+                    usmUserName, usmUserSecurityName,
+                    usmUserAuthProtocol,
+                    usmUserAuthKeyLocalized.prettyPrint(),
+                    usmUserPrivProtocol,
+                    usmUserPrivKeyLocalized.prettyPrint(),
+                    securityEngineID.prettyPrint(),
+                    securityName, securityStateReference))
+
         elif securityName:
             # 3.1.1b
             try:
@@ -262,7 +281,23 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     securityEngineID,
                     self.__sec2usr(snmpEngine, securityName, securityEngineID)
                 )
-                debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: read user info')
+
+                debug.logger & debug.flagSM and debug.logger(
+                    '__generateRequestOrResponseMsg: found USM user entry '
+                    'usmUserName "%s" '
+                    'usmUserSecurityName "%s" '
+                    'usmUserAuthProtocol "%s" '
+                    'usmUserAuthKeyLocalized "%s" '
+                    'usmUserPrivProtocol "%s" '
+                    'usmUserPrivKeyLocalized "%s" by '
+                    'securityEngineID "%s" and  securityName "%s"' % (
+                        usmUserName, usmUserSecurityName,
+                        usmUserAuthProtocol,
+                        usmUserAuthKeyLocalized.prettyPrint(),
+                        usmUserPrivProtocol,
+                        usmUserPrivKeyLocalized.prettyPrint(),
+                        securityEngineID.prettyPrint(),
+                        securityName))
 
             except NoSuchInstanceError:
                 pysnmpUsmDiscovery, = mibBuilder.importSymbols('__PYSNMP-USM-MIB', 'pysnmpUsmDiscovery')
@@ -278,15 +313,34 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                             self.__sec2usr(snmpEngine, securityName)
                         )
 
+                        debug.logger & debug.flagSM and debug.logger(
+                            '__generateRequestOrResponseMsg: cloned USM user entry '
+                            'usmUserName "%s" '
+                            'usmUserSecurityName "%s" '
+                            'usmUserAuthProtocol "%s" '
+                            'usmUserAuthKeyLocalized "%s" '
+                            'usmUserPrivProtocol "%s" '
+                            'usmUserPrivKeyLocalized "%s" for '
+                            'securityEngineID "%s" and  securityName "%s"' % (
+                                usmUserName, usmUserSecurityName,
+                                usmUserAuthProtocol,
+                                usmUserAuthKeyLocalized.prettyPrint(),
+                                usmUserPrivProtocol,
+                                usmUserPrivKeyLocalized.prettyPrint(),
+                                securityEngineID.prettyPrint(), securityName))
+
                     except NoSuchInstanceError:
+                        debug.logger & debug.flagSM and debug.logger(
+                            '__generateRequestOrResponseMsg: failed to clone '
+                            'USM user for securityEngineID "%s" securityName '
+                            '"%s"' % (securityEngineID, securityName))
+
                         reportUnknownName = True
 
                 if reportUnknownName:
                     raise error.StatusInformation(
                         errorIndication=errind.unknownSecurityName
                     )
-
-                debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: clone user info')
 
             except PyAsn1Error:
                 debug.logger & debug.flagSM and debug.logger(
@@ -296,18 +350,27 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 raise error.StatusInformation(
                     errorIndication=errind.invalidMsg
                 )
+
         else:
             # empty username used for engineID discovery
             usmUserName = usmUserSecurityName = null
             usmUserAuthProtocol = noauth.NoAuth.serviceID
             usmUserPrivProtocol = nopriv.NoPriv.serviceID
             usmUserAuthKeyLocalized = usmUserPrivKeyLocalized = None
-            debug.logger & debug.flagSM and debug.logger('__generateRequestOrResponseMsg: use empty USM data')
 
-        # noinspection PyUnboundLocalVariable
-        debug.logger & debug.flagSM and debug.logger(
-            '__generateRequestOrResponseMsg: local usmUserName %r usmUserSecurityName %r usmUserAuthProtocol %s usmUserPrivProtocol %s securityEngineID %r securityName %r' % (
-                usmUserName, usmUserSecurityName, usmUserAuthProtocol, usmUserPrivProtocol, securityEngineID, securityName))
+            debug.logger & debug.flagSM and debug.logger(
+                '__generateRequestOrResponseMsg: using blank USM info '
+                'usmUserName "%s" '
+                'usmUserSecurityName "%s" '
+                'usmUserAuthProtocol "%s" '
+                'usmUserAuthKeyLocalized "%s" '
+                'usmUserPrivProtocol "%s" '
+                'usmUserPrivKeyLocalized "%s" for '
+                'securityEngineID "%s" and  securityName "%s"' % (
+                    usmUserName, usmUserSecurityName,
+                    usmUserAuthProtocol, usmUserAuthKeyLocalized,
+                    usmUserPrivProtocol, usmUserPrivKeyLocalized,
+                    securityEngineID.prettyPrint(), securityName))
 
         msg = globalData
 

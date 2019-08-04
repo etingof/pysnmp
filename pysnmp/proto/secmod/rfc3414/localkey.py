@@ -37,7 +37,8 @@ def hashPassphrase(passphrase, hashFunc):
             )
             mark = e - ringBufferLen
         count += 1
-    return hasher.digest()
+    digest = hasher.digest()
+    return univ.OctetString(digest)
 
 
 def passwordToKey(passphrase, snmpEngineId, hashFunc):
@@ -47,7 +48,8 @@ def passwordToKey(passphrase, snmpEngineId, hashFunc):
 def localizeKey(passKey, snmpEngineId, hashFunc):
     passKey = univ.OctetString(passKey).asOctets()
     # noinspection PyDeprecation,PyCallingNonCallable
-    return hashFunc(passKey + snmpEngineId.asOctets() + passKey).digest()
+    digest = hashFunc(passKey + snmpEngineId.asOctets() + passKey).digest()
+    return univ.OctetString(digest)
 
 
 # RFC3414: A.2.1
