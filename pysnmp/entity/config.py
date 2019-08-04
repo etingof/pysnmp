@@ -327,7 +327,7 @@ def addV3User(snmpEngine, userName,
             authKey and authKey.prettyPrint(),
             privKey and privKey.prettyPrint(),
             securityName,
-            securityEngineId and securityEngineId.prettyPrint()))
+            securityEngineId.prettyPrint()))
 
 
 def delV3User(snmpEngine,
