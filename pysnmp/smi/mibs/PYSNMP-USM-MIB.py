@@ -132,42 +132,6 @@ pysnmpUsmCfg = _PysnmpUsmCfg_ObjectIdentity(
 )
 
 
-class _PysnmpUsmKeyType_Type(Integer32):
-    defaultValue = 0
-
-    subtypeSpec = Integer32.subtypeSpec
-    subtypeSpec += ConstraintsUnion(
-        SingleValueConstraint(
-            *(0,
-              2)
-        )
-    )
-    namedValues = NamedValues(
-        *(("passphrase", 0),
-          ("master", 1),
-          ("localized", 2))
-    )
-
-_PysnmpUsmKeyType_Type.__name__ = "Integer32"
-_PysnmpUsmKeyType_Object = MibScalar
-pysnmpUsmKeyType = _PysnmpUsmKeyType_Object(
-    (1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 1, 3),
-    _PysnmpUsmKeyType_Type()
-)
-pysnmpUsmKeyType.setMaxAccess("not-accessible")
-if mibBuilder.loadTexts:
-    pysnmpUsmKeyType.setStatus("current")
-if mibBuilder.loadTexts:
-    pysnmpUsmKeyType.setDescription("""\
-When configuring USM user, the value of this enumeration
-determines how the keys should be treated. The default
-value "passphrase" means that given keys are plain-text
-pass-phrases, "master" indicates that the keys are pre-hashed
-pass-phrases, while "localized" stands for pre-hashed
-pass-phrases mixed with SNMP Security Engine ID value.
-""")
-
-
 class _PysnmpUsmDiscovery_Type(Integer32):
     defaultValue = 1
 
@@ -232,7 +196,41 @@ clients.
 """)
 
 
+class _PysnmpUsmKeyType_Type(Integer32):
+    defaultValue = 0
 
+    subtypeSpec = Integer32.subtypeSpec
+    subtypeSpec += ConstraintsUnion(
+        SingleValueConstraint(
+            *(0,
+              1,
+              2)
+        )
+    )
+    namedValues = NamedValues(
+        *(("passphrase", 0),
+          ("master", 1),
+          ("localized", 2))
+    )
+
+_PysnmpUsmKeyType_Type.__name__ = "Integer32"
+_PysnmpUsmKeyType_Object = MibScalar
+pysnmpUsmKeyType = _PysnmpUsmKeyType_Object(
+    (1, 3, 6, 1, 4, 1, 20408, 3, 1, 1, 1, 1, 3),
+    _PysnmpUsmKeyType_Type()
+)
+pysnmpUsmKeyType.setMaxAccess("not-accessible")
+if mibBuilder.loadTexts:
+    pysnmpUsmKeyType.setStatus("current")
+if mibBuilder.loadTexts:
+    pysnmpUsmKeyType.setDescription("""\
+When configuring USM user, the value of this enumeration
+determines how the keys should be treated. The default
+value "passphrase" means that given keys are plain-text
+pass-phrases, "master" indicates that the keys are pre-hashed
+pass-phrases, while "localized" stands for pre-hashed
+pass-phrases mixed with SNMP Security Engine ID value.
+""")
 
 _PysnmpUsmSecretTable_Object = MibTable
 pysnmpUsmSecretTable = _PysnmpUsmSecretTable_Object(
@@ -362,6 +360,7 @@ usmUserEntry.registerAugmentions(
     ("PYSNMP-USM-MIB",
      "pysnmpUsmKeyEntry")
 )
+
 pysnmpUsmKeyEntry.setIndexNames(*usmUserEntry.getIndexNames())
 if mibBuilder.loadTexts:
     pysnmpUsmKeyEntry.setStatus("current")
