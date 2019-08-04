@@ -199,7 +199,9 @@ def addV3User(snmpEngine, userName,
 
     # Localize authentication key unless given
 
-    masterAuthKey = localAuthKey = authKey = rfc1902.OctetString(authKey or null)
+    authKey = authKey and rfc1902.OctetString(authKey)
+
+    masterAuthKey = localAuthKey = authKey
 
     if authKeyType < usmKeyTypeMaster:  # pass phrase is given
         masterAuthKey = authServices[authProtocol].hashPassphrase(
@@ -215,7 +217,9 @@ def addV3User(snmpEngine, userName,
 
     privKeyType = pysnmpUsmKeyType.syntax.clone(privKeyType)
 
-    masterPrivKey = localPrivKey = privKey = rfc1902.OctetString(privKey or null)
+    privKey = privKey and rfc1902.OctetString(privKey)
+
+    masterPrivKey = localPrivKey = privKey
 
     if privKeyType < usmKeyTypeMaster:  # pass phrase is given
         masterPrivKey = privServices[privProtocol].hashPassphrase(
@@ -277,14 +281,14 @@ def addV3User(snmpEngine, userName,
         'privKey "%s" by index securityName "%s" securityEngineId '
         '"%s"' % (
             userName, securityName, authProtocol, privProtocol,
-            localAuthKey.prettyPrint(),
-            localPrivKey.prettyPrint(),
-            masterAuthKey.prettyPrint(),
-            masterPrivKey.prettyPrint(),
-            authKey.prettyPrint(),
-            privKey.prettyPrint(),
+            localAuthKey and localAuthKey.prettyPrint(),
+            localPrivKey and localPrivKey.prettyPrint(),
+            masterAuthKey and masterAuthKey.prettyPrint(),
+            masterPrivKey and masterPrivKey.prettyPrint(),
+            authKey and authKey.prettyPrint(),
+            privKey and privKey.prettyPrint(),
             securityName,
-            securityEngineId and securityEngineId.prettyPrint()))
+            securityEngineId.prettyPrint()))
 
 
 def delV3User(snmpEngine,
