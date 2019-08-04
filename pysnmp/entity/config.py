@@ -22,6 +22,7 @@ from pysnmp.proto.secmod.eso.priv import des3
 from pysnmp.proto import rfc1902
 from pysnmp.proto import rfc1905
 from pysnmp import error
+from pysnmp import debug
 
 # A shortcut to popular constants
 
@@ -110,6 +111,8 @@ def addV1System(snmpEngine, communityIndex, communityName,
     if contextName is None:
         contextName = null
 
+    securityName = securityName is not None and securityName or communityIndex
+
     snmpEngine.msgAndPduDsp.mibInstrumController.writeMibObjects(
         (snmpCommunityEntry.name + (8,) + tblIdx, 'destroy'),
         snmpEngine=snmpEngine
@@ -118,9 +121,7 @@ def addV1System(snmpEngine, communityIndex, communityName,
     snmpEngine.msgAndPduDsp.mibInstrumController.writeMibObjects(
         (snmpCommunityEntry.name + (1,) + tblIdx, communityIndex),
         (snmpCommunityEntry.name + (2,) + tblIdx, communityName),
-        (snmpCommunityEntry.name + (3,) + tblIdx, (
-                securityName is not None and securityName or
-                communityIndex)),
+        (snmpCommunityEntry.name + (3,) + tblIdx, securityName),
         (snmpCommunityEntry.name + (4,) + tblIdx, contextEngineId),
         (snmpCommunityEntry.name + (5,) + tblIdx, contextName),
         (snmpCommunityEntry.name + (6,) + tblIdx, transportTag),
@@ -128,6 +129,13 @@ def addV1System(snmpEngine, communityIndex, communityName,
         (snmpCommunityEntry.name + (8,) + tblIdx, 'createAndGo'),
         snmpEngine=snmpEngine
     )
+
+    debug.logger & debug.FLAG_SM and debug.logger(
+        'addV1System: added new table entry '
+        'communityIndex "%s" communityName "%s" securityName "%s" '
+        'contextEngineId "%s" contextName "%s" transportTag '
+        '"%s"' % (communityIndex, communityName, securityName,
+                  contextEngineId, contextName, transportTag))
 
 
 def delV1System(snmpEngine, communityIndex):
@@ -139,6 +147,10 @@ def delV1System(snmpEngine, communityIndex):
         snmpEngine=snmpEngine
     )
 
+    debug.logger & debug.FLAG_SM and debug.logger(
+        'delV1System: deleted table entry by communityIndex '
+        '"%s"' % (communityIndex,))
+
 
 def __cookV3UserInfo(snmpEngine, securityName, securityEngineId):
     mibBuilder = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
@@ -147,22 +159,22 @@ def __cookV3UserInfo(snmpEngine, securityName, securityEngineId):
         '__SNMP-FRAMEWORK-MIB', 'snmpEngineID')
 
     if securityEngineId is None:
-        snmpEngineID = snmpEngineID.syntax
+        securityEngineId = snmpEngineID.syntax
 
     else:
-        snmpEngineID = snmpEngineID.syntax.clone(securityEngineId)
+        securityEngineId = snmpEngineID.syntax.clone(securityEngineId)
 
     usmUserEntry, = mibBuilder.importSymbols(
         'SNMP-USER-BASED-SM-MIB', 'usmUserEntry')
 
-    tblIdx1 = usmUserEntry.getInstIdFromIndices(snmpEngineID, securityName)
+    tblIdx1 = usmUserEntry.getInstIdFromIndices(securityEngineId, securityName)
 
     pysnmpUsmSecretEntry, = mibBuilder.importSymbols(
         'PYSNMP-USM-MIB', 'pysnmpUsmSecretEntry')
 
     tblIdx2 = pysnmpUsmSecretEntry.getInstIdFromIndices(securityName)
 
-    return snmpEngineID, usmUserEntry, tblIdx1, pysnmpUsmSecretEntry, tblIdx2
+    return securityEngineId, usmUserEntry, tblIdx1, pysnmpUsmSecretEntry, tblIdx2
 
 
 def addV3User(snmpEngine, userName,
@@ -172,14 +184,15 @@ def addV3User(snmpEngine, userName,
               securityName=None,
               authKeyType=USM_KEY_TYPE_PASSPHRASE,
               privKeyType=USM_KEY_TYPE_PASSPHRASE):
+
     mibBuilder = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
 
     if securityName is None:
         securityName = userName
 
-    (snmpEngineID, usmUserEntry, tblIdx1,
+    (securityEngineId, usmUserEntry, tblIdx1,
      pysnmpUsmSecretEntry, tblIdx2) = __cookV3UserInfo(
-        snmpEngine, userName, securityEngineId)
+        snmpEngine, securityName, securityEngineId)
 
     # Load augmenting table before creating new row in base one
     pysnmpUsmKeyEntry, = mibBuilder.importSymbols(
@@ -217,6 +230,8 @@ def addV3User(snmpEngine, userName,
 
     # Localize authentication key unless given
 
+    authKey = authKey and rfc1902.OctetString(authKey)
+
     masterAuthKey = localAuthKey = authKey
 
     if authKeyType < USM_KEY_TYPE_MASTER:  # master key is not given
@@ -226,14 +241,16 @@ def addV3User(snmpEngine, userName,
 
     if authKeyType < USM_KEY_TYPE_LOCALIZED:  # localized key is not given
         localAuthKey = AUTH_SERVICES[authProtocol].localizeKey(
-            masterAuthKey, snmpEngineID
+            masterAuthKey, securityEngineId
         )
 
     # Localize privacy key unless given
 
-    masterPrivKey = localPrivKey = privKey
-
     privKeyType = pysnmpUsmKeyType.syntax.clone(privKeyType)
+
+    privKey = privKey and rfc1902.OctetString(privKey)
+
+    masterPrivKey = localPrivKey = privKey
 
     if privKeyType < USM_KEY_TYPE_MASTER:  # master key is not given
         masterPrivKey = PRIV_SERVICES[privProtocol].hashPassphrase(
@@ -242,37 +259,81 @@ def addV3User(snmpEngine, userName,
 
     if privKeyType < USM_KEY_TYPE_LOCALIZED:  # localized key is not given
         localPrivKey = PRIV_SERVICES[privProtocol].localizeKey(
-            authProtocol, masterPrivKey, snmpEngineID
+            authProtocol, masterPrivKey, securityEngineId
         )
 
-    # Commit master and localized keys
+    # Commit only the keys we have
+
     snmpEngine.msgAndPduDsp.mibInstrumController.writeMibObjects(
         (pysnmpUsmKeyEntry.name + (1,) + tblIdx1, localAuthKey),
-        (pysnmpUsmKeyEntry.name + (2,) + tblIdx1, localPrivKey),
-        (pysnmpUsmKeyEntry.name + (3,) + tblIdx1, masterAuthKey),
-        (pysnmpUsmKeyEntry.name + (4,) + tblIdx1, masterPrivKey),
-        snmpEngine=snmpEngine
+         snmpEngine=snmpEngine
     )
+
+    snmpEngine.msgAndPduDsp.mibInstrumController.writeMibObjects(
+        (pysnmpUsmKeyEntry.name + (2,) + tblIdx1, localPrivKey),
+        snmpEngine = snmpEngine
+    )
+
+    if authKeyType < USM_KEY_TYPE_LOCALIZED:
+        snmpEngine.msgAndPduDsp.mibInstrumController.writeMibObjects(
+            (pysnmpUsmKeyEntry.name + (3,) + tblIdx1, masterAuthKey),
+             snmpEngine=snmpEngine
+        )
+
+    if privKeyType < USM_KEY_TYPE_LOCALIZED:
+        snmpEngine.msgAndPduDsp.mibInstrumController.writeMibObjects(
+            (pysnmpUsmKeyEntry.name + (4,) + tblIdx1, masterPrivKey),
+            snmpEngine=snmpEngine
+        )
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeMibObjects(
         (pysnmpUsmSecretEntry.name + (4,) + tblIdx2, 'destroy'),
-        snmpEngine=snmpEngine
+         snmpEngine=snmpEngine
     )
 
-    # Commit plain-text pass-phrases
+    # Commit plain-text pass-phrases if we have them
+
     snmpEngine.msgAndPduDsp.mibInstrumController.writeMibObjects(
-        (pysnmpUsmSecretEntry.name + (1,) + tblIdx2, userName),
-        (pysnmpUsmSecretEntry.name + (2,) + tblIdx2, authKey),
-        (pysnmpUsmSecretEntry.name + (3,) + tblIdx2, privKey),
         (pysnmpUsmSecretEntry.name + (4,) + tblIdx2, 'createAndGo'),
         snmpEngine=snmpEngine
     )
+
+    if authKeyType < USM_KEY_TYPE_MASTER:
+        snmpEngine.msgAndPduDsp.mibInstrumController.writeMibObjects(
+            (pysnmpUsmSecretEntry.name + (1,) + tblIdx2, userName),
+            (pysnmpUsmSecretEntry.name + (2,) + tblIdx2, authKey),
+            snmpEngine=snmpEngine
+        )
+
+    if privKeyType < USM_KEY_TYPE_MASTER:
+        snmpEngine.msgAndPduDsp.mibInstrumController.writeMibObjects(
+            (pysnmpUsmSecretEntry.name + (1,) + tblIdx2, userName),
+            (pysnmpUsmSecretEntry.name + (3,) + tblIdx2, privKey),
+            snmpEngine=snmpEngine
+        )
+
+    debug.logger & debug.FLAG_SM and debug.logger(
+        'addV3User: added new table entries '
+        'userName "%s" securityName "%s" authProtocol %s '
+        'privProtocol %s localAuthKey "%s" localPrivKey "%s" '
+        'masterAuthKey "%s" masterPrivKey "%s" authKey "%s" '
+        'privKey "%s" by index securityName "%s" securityEngineId '
+        '"%s"' % (
+            userName, securityName, authProtocol, privProtocol,
+            localAuthKey and localAuthKey.prettyPrint(),
+            localPrivKey and localPrivKey.prettyPrint(),
+            masterAuthKey and masterAuthKey.prettyPrint(),
+            masterPrivKey and masterPrivKey.prettyPrint(),
+            authKey and authKey.prettyPrint(),
+            privKey and privKey.prettyPrint(),
+            securityName,
+            securityEngineId and securityEngineId.prettyPrint()))
 
 
 def delV3User(snmpEngine,
               userName,
               securityEngineId=None):
-    (snmpEngineID, usmUserEntry, tblIdx1, pysnmpUsmSecretEntry,
+    (securityEngineId, usmUserEntry, tblIdx1, pysnmpUsmSecretEntry,
      tblIdx2) = __cookV3UserInfo(snmpEngine, userName, securityEngineId)
 
     snmpEngine.msgAndPduDsp.mibInstrumController.writeMibObjects(
@@ -284,6 +345,13 @@ def delV3User(snmpEngine,
         (pysnmpUsmSecretEntry.name + (4,) + tblIdx2, 'destroy'),
         snmpEngine=snmpEngine
     )
+
+    debug.logger & debug.FLAG_SM and debug.logger(
+        'delV3User: deleted table entries by index '
+        'userName "%s" securityEngineId '
+        '"%s"' % (
+            userName,
+            securityEngineId.prettyPrint()))
 
     # Drop all derived rows
 

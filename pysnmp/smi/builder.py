@@ -100,8 +100,10 @@ class __AbstractMibSource(object):
 
         for pycSfx in BYTECODE_SUFFIXES:
 
+            pycFile = f + pycSfx
+
             try:
-                pycData, pycPath = self._getData(f + pycSfx, 'rb')
+                pycData, pycPath = self._getData(pycFile, 'rb')
 
             except IOError as exc:
                 if ENOENT == -1 or exc.errno == ENOENT:
