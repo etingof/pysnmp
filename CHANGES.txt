@@ -37,7 +37,7 @@ Revision 5.0.0, released 2019-08-XX
     and deliver their results via a call back.
 
   * The `readNext*` methods of the `SNMPv2-SMI` MIB objects redesigned
-    to return the very next obejct even if it is not readable. In this
+    to return the very next object even if it is not readable. In this
     case the `noSuchObject` or `noSuchInstance` SNMP exception values
     are returned. The motivation is to avoid deep stack recursion on
     MIB walk. The caller is expected to watch these SNMP sentinels

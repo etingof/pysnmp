@@ -16,56 +16,88 @@ from pysnmp.entity.engine import *
 # default is synchronous asyncore-based API
 from pysnmp.hlapi.v3arch.asyncore.sync import *
 
-usmNoAuthProtocol = auth.usmNoAuthProtocol
+USM_AUTH_NONE = auth.USM_AUTH_NONE
 """No Authentication Protocol"""
 
-usmHMACMD5AuthProtocol = auth.usmHMACMD5AuthProtocol
+USM_AUTH_HMAC96_MD5 = auth.USM_AUTH_HMAC96_MD5
 """The HMAC-MD5-96 Digest Authentication Protocol (:RFC:`3414#section-6`)"""
 
-usmHMACSHAAuthProtocol = auth.usmHMACSHAAuthProtocol
-"""The HMAC-SHA-96 Digest Authentication Protocol AKA SHA-1 (:RFC:`3414#section-7`)"""
+USM_AUTH_HMAC96_SHA = auth.USM_AUTH_HMAC96_SHA
+"""The HMAC-SHA-96 Digest Authentication Protocol AKA SHA-1 \
+(:RFC:`3414#section-7`)"""
 
-usmHMAC128SHA224AuthProtocol = auth.usmHMAC128SHA224AuthProtocol
+USM_AUTH_HMAC128_SHA224 = auth.USM_AUTH_HMAC128_SHA224
 """The HMAC-SHA-2 Digest Authentication Protocols (:RFC:`7860`)"""
 
-usmHMAC192SHA256AuthProtocol = auth.usmHMAC192SHA256AuthProtocol
+USM_AUTH_HMAC192_SHA256 = auth.USM_AUTH_HMAC192_SHA256
 """The HMAC-SHA-2 Digest Authentication Protocols (:RFC:`7860`)"""
 
-usmHMAC256SHA384AuthProtocol = auth.usmHMAC256SHA384AuthProtocol
+USM_AUTH_HMAC256_SHA384 = auth.USM_AUTH_HMAC256_SHA384
 """The HMAC-SHA-2 Digest Authentication Protocols (:RFC:`7860`)"""
 
-usmHMAC384SHA512AuthProtocol = auth.usmHMAC384SHA512AuthProtocol
+USM_AUTH_HMAC384_SHA512 = auth.USM_AUTH_HMAC384_SHA512
 """The HMAC-SHA-2 Digest Authentication Protocols (:RFC:`7860`)"""
 
-usmNoPrivProtocol = auth.usmNoPrivProtocol
+USM_PRIV_NONE = auth.USM_PRIV_NONE
 """No Privacy Protocol"""
 
-usmDESPrivProtocol = auth.usmDESPrivProtocol
+USM_PRIV_CBC56_DES = auth.USM_PRIV_CBC56_DES
 """The CBC-DES Symmetric Encryption Protocol (:RFC:`3414#section-8`)"""
 
-usm3DESEDEPrivProtocol = auth.usm3DESEDEPrivProtocol
-"""The 3DES-EDE Symmetric Encryption Protocol (`draft-reeder-snmpv3-usm-3desede-00 <https:://tools.ietf.org/html/draft-reeder-snmpv3-usm-3desede-00#section-5>`_)"""
+USM_PRIV_CBC168_3DES = auth.USM_PRIV_CBC168_3DES
+"""The 3DES-EDE Symmetric Encryption Protocol (`draft-reeder-snmpv3-usm-3desede-00 \
+<https:://tools.ietf.org/html/draft-reeder-snmpv3-usm-3desede-00#section-5>`_)"""
 
-usmAesCfb128Protocol = auth.usmAesCfb128Protocol
+USM_PRIV_CFB128_AES = auth.USM_PRIV_CFB128_AES
 """The CFB128-AES-128 Symmetric Encryption Protocol (:RFC:`3826#section-3`)"""
 
-usmAesCfb192Protocol = auth.usmAesCfb192Protocol
-"""The CFB128-AES-192 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_) with Reeder key localization"""
+USM_PRIV_CFB192_AES = auth.USM_PRIV_CFB192_AES
+"""The CFB128-AES-192 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 \
+<https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_) with \
+Reeder key localization"""
 
-usmAesCfb256Protocol = auth.usmAesCfb256Protocol
-"""The CFB128-AES-256 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_) with Reeder key localization"""
+USM_PRIV_CFB256_AES = auth.USM_PRIV_CFB256_AES
+"""The CFB128-AES-256 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 \
+<https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_) with \
+Reeder key localization"""
 
-usmAesBlumenthalCfb192Protocol = auth.usmAesBlumenthalCfb192Protocol
-"""The CFB128-AES-192 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)"""
+USM_PRIV_CFB192_AES_BLUMENTHAL = auth.USM_PRIV_CFB192_AES_BLUMENTHAL
+"""The CFB128-AES-192 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 \
+<https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)"""
 
-usmAesBlumenthalCfb256Protocol = auth.usmAesBlumenthalCfb256Protocol
-"""The CFB128-AES-256 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 <https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)"""
+USM_PRIV_CFB256_AES_BLUMENTHAL = auth.USM_PRIV_CFB256_AES_BLUMENTHAL
+"""The CFB128-AES-256 Symmetric Encryption Protocol (`draft-blumenthal-aes-usm-04 \
+<https:://tools.ietf.org/html/draft-blumenthal-aes-usm-04#section-3>`_)"""
 
-usmKeyTypePassphrase = auth.usmKeyTypePassphrase
+USM_KEY_TYPE_PASSPHRASE = auth.USM_KEY_TYPE_PASSPHRASE
 """USM key material type - plain-text pass phrase (:RFC:`3414#section-2.6`)"""
 
-usmKeyTypeMaster = auth.usmKeyTypeMaster
-"""USM key material type - hashed pass-phrase AKA master key (:RFC:`3414#section-2.6`)"""
+USM_KEY_TYPE_MASTER = auth.USM_KEY_TYPE_MASTER
+"""USM key material type - hashed pass-phrase AKA master key \
+(:RFC:`3414#section-2.6`)"""
 
-usmKeyTypeLocalized = auth.usmKeyTypeLocalized
-"""USM key material type - hashed pass-phrase hashed with Context SNMP Engine ID (:RFC:`3414#section-2.6`)"""
+USM_KEY_TYPE_LOCALIZED = auth.USM_KEY_TYPE_LOCALIZED
+"""USM key material type - hashed pass-phrase hashed with Context SNMP Engine \
+ID (:RFC:`3414#section-2.6`)"""
+
+# Backward-compatible protocol IDs
+
+usmNoAuthProtocol = USM_AUTH_NONE
+usmHMACMD5AuthProtocol = USM_AUTH_HMAC96_MD5
+usmHMACSHAAuthProtocol = USM_AUTH_HMAC96_SHA
+usmHMAC128SHA224AuthProtocol = USM_AUTH_HMAC128_SHA224
+usmHMAC192SHA256AuthProtocol = USM_AUTH_HMAC192_SHA256
+usmHMAC256SHA384AuthProtocol = USM_AUTH_HMAC256_SHA384
+usmHMAC384SHA512AuthProtocol = USM_AUTH_HMAC384_SHA512
+usmNoPrivProtocol = USM_PRIV_NONE
+usmDESPrivProtocol = USM_PRIV_CBC56_DES
+usm3DESEDEPrivProtocol = USM_PRIV_CBC168_3DES
+usmAesCfb128Protocol = USM_PRIV_CFB128_AES
+usmAesCfb192Protocol = USM_PRIV_CFB192_AES
+usmAesCfb256Protocol = USM_PRIV_CFB256_AES
+usmAesBlumenthalCfb192Protocol = USM_PRIV_CFB192_AES_BLUMENTHAL
+usmAesBlumenthalCfb256Protocol = USM_PRIV_CFB256_AES_BLUMENTHAL
+
+usmKeyTypePassphrase = USM_KEY_TYPE_PASSPHRASE
+usmKeyTypeMaster = USM_KEY_TYPE_MASTER
+usmKeyTypeLocalized = USM_KEY_TYPE_LOCALIZED
