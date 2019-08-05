@@ -74,23 +74,23 @@ mibBuilder.exportSymbols(
     '__EXAMPLE-MIB',
     # table object
     exampleTable=MibTable((1, 3, 6, 6, 1))
-        .setMaxAccess('readcreate'),
+        .setMaxAccess('read-create'),
     # table row object, also carries references to table indices
     exampleTableEntry=MibTableRow((1, 3, 6, 6, 1, 5))
-        .setMaxAccess('readcreate')
+        .setMaxAccess('read-create')
         .setIndexNames((0, '__EXAMPLE-MIB', 'exampleTableColumn1')),
     # table column: string index
     exampleTableColumn1=MibTableColumn((1, 3, 6, 6, 1, 5, 1), v2c.OctetString())
-        .setMaxAccess('readcreate'),
+        .setMaxAccess('read-create'),
     # table column: string value
     exampleTableColumn2=MibTableColumn((1, 3, 6, 6, 1, 5, 2), v2c.OctetString())
-        .setMaxAccess('readcreate'),
+        .setMaxAccess('read-create'),
     # table column: integer value with default
     exampleTableColumn3=MibTableColumn((1, 3, 6, 6, 1, 5, 3), v2c.Integer32(123))
-        .setMaxAccess('readcreate'),
+        .setMaxAccess('read-create'),
     # table column: row status
     exampleTableStatus=MibTableColumn((1, 3, 6, 6, 1, 5, 4), RowStatus('notExists'))
-        .setMaxAccess('readcreate')
+        .setMaxAccess('read-create')
 )
 
 # --- end of custom SNMP table definition, empty table now exists ---

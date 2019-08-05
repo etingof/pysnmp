@@ -210,7 +210,7 @@ vacmContextStatus = _VacmContextStatus_Object(
     (1, 3, 6, 1, 6, 3, 16, 1, 1, 1, 2),
     _VacmContextStatus_Type()
 )
-vacmContextStatus.setMaxAccess("readcreate")
+vacmContextStatus.setMaxAccess("read-create")
 if mibBuilder.loadTexts:
     vacmContextStatus.setStatus('current')
 if mibBuilder.loadTexts:

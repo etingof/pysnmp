@@ -1096,7 +1096,7 @@ class MibScalar(ManagedMibObject):
                     |
                     +-----MibScalarInstance
     """
-    maxAccess = 'readonly'
+    maxAccess = 'read-only'
 
     _suffix = (0,)
 
@@ -1195,7 +1195,7 @@ class MibScalar(ManagedMibObject):
 
         acFun = context.get('acFun')
         if acFun:
-            if (self.maxAccess not in ('readonly', 'readwrite', 'readcreate') or
+            if (self.maxAccess not in ('read-only', 'read-write', 'read-create') or
                     acFun('read', (name, self.syntax), **context)):
                 cbFun((name, exval.noSuchInstance), **context)
                 return
@@ -1259,7 +1259,7 @@ class MibScalar(ManagedMibObject):
 
         acFun = context.get('acFun')
         if acFun:
-            if (self.maxAccess not in ('readonly', 'readwrite', 'readcreate') or
+            if (self.maxAccess not in ('read-only', 'read-write', 'read-create') or
                     acFun('read', (name, self.syntax), **context)):
                 nextName = context.get('nextName')
                 if nextName:
@@ -1328,7 +1328,7 @@ class MibScalar(ManagedMibObject):
 
         acFun = context.get('acFun')
         if acFun:
-            if (self.maxAccess not in ('readwrite', 'readcreate') or
+            if (self.maxAccess not in ('read-write', 'read-create') or
                     acFun('write', (name, self.syntax), **context)):
                 exc = error.NotWritableError(name=name, idx=context.get('idx'))
                 cbFun = context['cbFun']
@@ -1397,7 +1397,7 @@ class MibScalar(ManagedMibObject):
 
         acFun = context.get('acFun')
         if acFun:
-            if self.maxAccess != 'readcreate' or acFun('write', varBind, **context):
+            if self.maxAccess != 'read-create' or acFun('write', varBind, **context):
                 debug.logger & debug.FLAG_ACL and debug.logger(
                     'createTest: %s=%r %s at %s' % (name, val, self.maxAccess, self.name))
                 exc = error.NoCreationError(name=name, idx=context.get('idx'))
@@ -2245,7 +2245,7 @@ class MibTableColumn(MibScalar, ObjectType):
 
         acFun = context.get('acFun')
         if acFun:
-            if self.maxAccess != 'readcreate' or acFun('write', varBind, **context):
+            if self.maxAccess != 'read-create' or acFun('write', varBind, **context):
                 debug.logger & debug.FLAG_ACL and debug.logger(
                     'destroyTest: %s=%r %s at %s' % (name, val, self.maxAccess, self.name))
                 exc = error.NotWritableError(name=name, idx=context.get('idx'))
