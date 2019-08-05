@@ -383,9 +383,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     'securityEngineID "%s" and  securityName "%s"' % (
                         usmUserName, usmUserSecurityName,
                         usmUserAuthProtocol,
-                        usmUserAuthKeyLocalized.prettyPrint(),
+                        usmUserAuthKeyLocalized and usmUserAuthKeyLocalized.prettyPrint(),
                         usmUserPrivProtocol,
-                        usmUserPrivKeyLocalized.prettyPrint(),
+                        usmUserPrivKeyLocalized and usmUserPrivKeyLocalized.prettyPrint(),
                         securityEngineID.prettyPrint(),
                         securityName))
 
@@ -416,9 +416,9 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                             'securityEngineID "%s" and  securityName "%s"' % (
                                 usmUserName, usmUserSecurityName,
                                 usmUserAuthProtocol,
-                                usmUserAuthKeyLocalized.prettyPrint(),
+                                usmUserAuthKeyLocalized and usmUserAuthKeyLocalized.prettyPrint(),
                                 usmUserPrivProtocol,
-                                usmUserPrivKeyLocalized.prettyPrint(),
+                                usmUserPrivKeyLocalized and usmUserPrivKeyLocalized.prettyPrint(),
                                 securityEngineID.prettyPrint(), securityName))
 
                     except NoSuchInstanceError:
