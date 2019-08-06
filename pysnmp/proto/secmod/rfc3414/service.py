@@ -13,12 +13,15 @@ from pysnmp.proto.secmod.rfc3826.priv import aes
 from pysnmp.proto.secmod.rfc7860.auth import hmacsha2
 from pysnmp.proto.secmod.eso.priv import des3, aes192, aes256
 from pysnmp.smi.error import NoSuchInstanceError
-from pysnmp.proto import rfc1155, errind, error
+from pysnmp.proto import api, rfc1155, errind, error
 from pysnmp import debug
 from pyasn1.type import univ, namedtype, constraint
 from pyasn1.codec.ber import encoder, decoder, eoo
 from pyasn1.error import PyAsn1Error
 from pyasn1.compat.octets import null
+
+# API to rfc1905 protocol objects
+pMod = api.protoModules[api.protoVersion2c]
 
 
 # USM security params
@@ -224,6 +227,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                                        scopedPDU, securityStateReference):
         mibBuilder = snmpEngine.msgAndPduDsp.mibInstrumController.mibBuilder
         snmpEngineID = mibBuilder.importSymbols('__SNMP-FRAMEWORK-MIB', 'snmpEngineID')[0].syntax
+        msg = globalData
 
         # 3.1.1
         if securityStateReference is not None:
@@ -271,7 +275,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     securityEngineID.prettyPrint(),
                     securityName, securityStateReference))
 
-        elif securityName:
+        elif securityEngineID:
             # 3.1.1b
             try:
                 (usmUserName, usmUserSecurityName, usmUserAuthProtocol,
@@ -352,14 +356,43 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                 )
 
         else:
-            # empty username used for engineID discovery
+            # 4. (start SNMP engine ID discovery)
+            securityEngineID = securityName = null
+            securityLevel = 1
+
+            scopedPDU.setComponentByPosition(
+                0, null, verifyConstraints=False,
+                matchTags=False, matchConstraints=False)
+
+            headerData = msg.getComponentByPosition(1)
+
+            # Clear possible auth&priv flags
+            headerData.setComponentByPosition(
+                2, univ.OctetString(hexValue='00'), verifyConstraints=False,
+                matchTags=False, matchConstraints=False
+            )
+
+            emptyPdu = scopedPDU.getComponentByPosition(2).getComponent()
+
+            # we edit the rest of the structures in-place because they
+            # are ours for as long as this stack lasts, however PDU
+            # is more persistent and should not be touched
+
+            emptyPdu = emptyPdu.clone()
+            pMod.apiPDU.setDefaults(emptyPdu)
+
+            scopedPDU.getComponentByPosition(2).setComponentByType(
+                emptyPdu.tagSet, emptyPdu, verifyConstraints=False,
+                matchTags=False, matchConstraints=False)
+
             usmUserName = usmUserSecurityName = null
             usmUserAuthProtocol = noauth.NoAuth.serviceID
             usmUserPrivProtocol = nopriv.NoPriv.serviceID
             usmUserAuthKeyLocalized = usmUserPrivKeyLocalized = None
 
             debug.logger & debug.flagSM and debug.logger(
-                '__generateRequestOrResponseMsg: using blank USM info '
+                '__generateRequestOrResponseMsg: using blank USM info for peer '
+                'SNMP engine ID discovery '
                 'usmUserName "%s" '
                 'usmUserSecurityName "%s" '
                 'usmUserAuthProtocol "%s" '
@@ -370,9 +403,8 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     usmUserName, usmUserSecurityName,
                     usmUserAuthProtocol, usmUserAuthKeyLocalized,
                     usmUserPrivProtocol, usmUserPrivKeyLocalized,
-                    securityEngineID.prettyPrint(), securityName))
-
-        msg = globalData
+                    securityEngineID and securityEngineID.prettyPrint(),
+                    securityName))
 
         # 3.1.2
         if securityLevel == 3:

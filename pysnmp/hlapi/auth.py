@@ -268,7 +268,9 @@ class UsmUserData(object):
     securityEngineId: :py:class:`~pysnmp.proto.rfc1902.OctetString`
         The snmpEngineID of the authoritative SNMP engine to which a
         dateRequest message is to be sent. Will be automatically
-        discovered from peer if not given.
+        discovered from peer if not given, unless localized keys
+        are used. In the latter case *securityEngineId* must be
+        specified.
 
         See :RFC:`3414#section-2.5.1` for technical explanation.
 
@@ -303,6 +305,10 @@ class UsmUserData(object):
         * :py:class:`~pysnmp.hlapi.usmKeyTypeMaster`
         * :py:class:`~pysnmp.hlapi.usmKeyTypeLocalized`
 
+
+        If `~pysnmp.hlapi.usmKeyTypeLocalized` is used, peer SNMP engine ID
+        discovery mechanism can't be leveraged for key localization, so
+        *securityEngineId* must be given by local configuration.
 
     privKeyType: :py:class:`int`
         Type of `privKey` material. See :RFC:`3414#section-2.6` for
