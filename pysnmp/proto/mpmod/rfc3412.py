@@ -234,33 +234,10 @@ class SnmpV3MessageProcessingModel(AbstractMessageProcessingModel):
 
         else:
             if peerSnmpEngineData is None:
-                # Force engineID discovery (rfc3414, 4)
-                securityEngineId = securityName = self._emptyStr
-                securityLevel = 1
-
-                # Clear possible auth&priv flags
-                headerData.setComponentByPosition(
-                    2, self._msgFlags[msgFlags & 0xfc], verifyConstraints=False,
-                    matchTags=False, matchConstraints=False)
-
-                # XXX
-                scopedPDU = self._scopedPDU
-                scopedPDU.setComponentByPosition(
-                    0, self._emptyStr, verifyConstraints=False, matchTags=False,
-                    matchConstraints=False)
-                scopedPDU.setComponentByPosition(1, contextName)
-                scopedPDU.setComponentByPosition(2)
-
-                # Use dead-empty PDU for engine-discovery report
-                emptyPdu = pdu.clone()
-                pMod.apiPDU.setDefaults(emptyPdu)
-
-                scopedPDU.getComponentByPosition(2).setComponentByType(
-                    emptyPdu.tagSet, emptyPdu, verifyConstraints=False,
-                    matchTags=False, matchConstraints=False)
-
                 debug.logger & debug.FLAG_MP and debug.logger(
-                    'prepareOutgoingMessage: force engineID discovery')
+                    'prepareOutgoingMessage: peer SNMP engine is not known')
+
+                securityEngineId = None
 
             else:
                 securityEngineId = peerSnmpEngineData['securityEngineId']
