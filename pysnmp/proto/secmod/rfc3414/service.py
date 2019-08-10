@@ -93,6 +93,11 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         nopriv.NoPriv.SERVICE_ID: nopriv.NoPriv()
     }
 
+    # If this, normally impossible, SNMP engine ID is present in LCD, we will use
+    # its master/localized keys when preparing SNMP message towards any unknown peer
+    # SNMP engine
+    WILDCARD_SECURITY_ENGINE_ID = pMod.OctetString(hexValue='0000000000')
+
     def __init__(self):
         AbstractSecurityModel.__init__(self)
         self._securityParametersSpec = UsmSecurityParameters()
@@ -370,13 +375,25 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
         elif securityEngineID:
             # 3.1.1b
             try:
-                (usmUserName, usmUserSecurityName, usmUserAuthProtocol,
-                 usmUserAuthKeyLocalized, usmUserPrivProtocol,
-                 usmUserPrivKeyLocalized) = self._getUserInfo(
-                    snmpEngine.msgAndPduDsp.mibInstrumController,
-                    securityEngineID,
-                    self._sec2usr(snmpEngine, securityName, securityEngineID)
-                )
+                try:
+                    (usmUserName, usmUserSecurityName, usmUserAuthProtocol,
+                     usmUserAuthKeyLocalized, usmUserPrivProtocol,
+                     usmUserPrivKeyLocalized) = self._getUserInfo(
+                        snmpEngine.msgAndPduDsp.mibInstrumController,
+                        securityEngineID,
+                        self._sec2usr(snmpEngine, securityName,
+                                      securityEngineID)
+                    )
+
+                except NoSuchInstanceError:
+                    (usmUserName, usmUserSecurityName, usmUserAuthProtocol,
+                     usmUserAuthKeyLocalized, usmUserPrivProtocol,
+                     usmUserPrivKeyLocalized) = self._getUserInfo(
+                        snmpEngine.msgAndPduDsp.mibInstrumController,
+                        self.WILDCARD_SECURITY_ENGINE_ID,
+                        self._sec2usr(snmpEngine, securityName,
+                                      self.WILDCARD_SECURITY_ENGINE_ID)
+                    )
 
                 debug.logger & debug.FLAG_SM and debug.logger(
                     '__generateRequestOrResponseMsg: found USM user entry '
@@ -881,29 +898,47 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
                     snmpEngine.msgAndPduDsp.mibInstrumController,
                     msgAuthoritativeEngineId, msgUserName
                 )
+
                 debug.logger & debug.FLAG_SM and debug.logger(
                     'processIncomingMsg: read user info from LCD')
 
             except NoSuchInstanceError:
-                debug.logger & debug.FLAG_SM and debug.logger(
-                    'processIncomingMsg: unknown securityEngineID %r '
-                    'msgUserName %r' % (msgAuthoritativeEngineId, msgUserName))
+                try:
+                    (usmUserName,
+                     usmUserSecurityName,
+                     usmUserAuthProtocol,
+                     usmUserAuthKeyLocalized,
+                     usmUserPrivProtocol,
+                     usmUserPrivKeyLocalized) = self._getUserInfo(
+                        snmpEngine.msgAndPduDsp.mibInstrumController,
+                        self.WILDCARD_SECURITY_ENGINE_ID, msgUserName
+                    )
 
-                usmStatsUnknownUserNames, = mibBuilder.importSymbols(
-                    '__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownUserNames')
-                usmStatsUnknownUserNames.syntax += 1
+                    debug.logger & debug.FLAG_SM and debug.logger(
+                        'processIncomingMsg: read wildcard user info from LCD')
 
-                raise error.StatusInformation(
-                    errorIndication=errind.unknownSecurityName,
-                    oid=usmStatsUnknownUserNames.name,
-                    val=usmStatsUnknownUserNames.syntax,
-                    securityStateReference=securityStateReference,
-                    securityLevel=securityLevel,
-                    contextEngineId=contextEngineId,
-                    contextName=contextName,
-                    msgUserName=msgUserName,
-                    maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
-                )
+                except NoSuchInstanceError:
+
+                    debug.logger & debug.FLAG_SM and debug.logger(
+                        'processIncomingMsg: unknown securityEngineID '
+                        '%r msgUserName %r' % (msgAuthoritativeEngineId,
+                                               msgUserName))
+
+                    usmStatsUnknownUserNames, = mibBuilder.importSymbols(
+                        '__SNMP-USER-BASED-SM-MIB', 'usmStatsUnknownUserNames')
+                    usmStatsUnknownUserNames.syntax += 1
+
+                    raise error.StatusInformation(
+                        errorIndication=errind.unknownSecurityName,
+                        oid=usmStatsUnknownUserNames.name,
+                        val=usmStatsUnknownUserNames.syntax,
+                        securityStateReference=securityStateReference,
+                        securityLevel=securityLevel,
+                        contextEngineId=contextEngineId,
+                        contextName=contextName,
+                        msgUserName=msgUserName,
+                        maxSizeResponseScopedPDU=maxSizeResponseScopedPDU
+                    )
 
             except PyAsn1Error as exc:
                 debug.logger & debug.FLAG_SM and debug.logger(

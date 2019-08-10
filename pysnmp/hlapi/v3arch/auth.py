@@ -331,11 +331,6 @@ class UsmUserData(object):
         * :py:class:`~pysnmp.hlapi.usmKeyTypeMaster`
         * :py:class:`~pysnmp.hlapi.usmKeyTypeLocalized`
 
-
-        If `~pysnmp.hlapi.usmKeyTypeLocalized` is used, peer SNMP engine ID
-        discovery mechanism can't be leveraged for key localization, so
-        *securityEngineId* must be given by local configuration.
-
     privKeyType: :py:class:`int`
         Type of `privKey` material. See :RFC:`3414#section-2.6` for
         technical explanation.
@@ -346,6 +341,21 @@ class UsmUserData(object):
         * :py:class:`~pysnmp.hlapi.usmKeyTypeMaster`
         * :py:class:`~pysnmp.hlapi.usmKeyTypeLocalized`
 
+    Notes
+    -----
+    If `~pysnmp.hlapi.usmKeyTypeLocalized` is used when running a
+    non-authoritative SNMP engine, USM key localization mechanism
+    is not invoked. As a consequence, local SNMP engine configuration
+    won't get automatically populated with remote SNMP engine's
+    *securityEngineId*.
+
+    Therefore peer SNMP engine's *securityEngineId* must be added
+    to local configuration and associated with its localized keys.
+
+    Alternatively, the magic *securityEngineId* value of five zeros
+    (*0x0000000000*) can be used to refer to the localized keys that
+    should be used with any unknown remote SNMP engine. This feature
+    is specific to pysnmp.
 
     Examples
     --------
