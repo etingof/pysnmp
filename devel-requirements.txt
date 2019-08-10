@@ -1,10 +1,16 @@
 Sphinx <= 1.6; python_version < '2.7'
 Sphinx > 1.6; python_version >= '2.7'
 trollius; python_version < '3.0'
+# NOTE: Twisted < 19.2.1 has a security problem in URL handling.
+# However, newer Twisted does not work on older Pythons. That's why
+# we have to pin to older Twisted here.
+# On the other hand, pysnmp does not use anything HTTP, however other
+# dependencies can rely on that.
 twisted < 15.4; python_version < '2.7'
 twisted; python_version == '2.7'
 twisted < 17.9; python_version == '3.0'
 twisted < 17.9; python_version == '3.1'
 twisted < 17.9; python_version == '3.2'
 twisted <= 17.9; python_version == '3.3'
-twisted; python_version >= '3.4'
+twisted <= 17.9; python_version == '3.4'
+twisted; python_version >= '3.5'
