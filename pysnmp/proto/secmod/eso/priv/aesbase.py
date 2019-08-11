@@ -43,7 +43,8 @@ class AbstractAesBlumenthal(aes.Aes):
         rounds = int(ceil(self.KEY_SIZE * 1.0 / len(localPrivKey)))
 
         for _ in range(1, rounds):
-            localPrivKey += hashAlgo(localPrivKey).digest()
+            localPrivKey += localPrivKey.clone(
+                hashAlgo(localPrivKey.asOctets()).digest())
 
         return localPrivKey[:self.KEY_SIZE]
 
