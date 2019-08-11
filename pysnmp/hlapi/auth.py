@@ -317,11 +317,11 @@ class UsmUserData(object):
 
     Notes
     -----
-    If `~pysnmp.hlapi.usmKeyTypeLocalized` is used when running a
-    non-authoritative SNMP engine, USM key localization mechanism
-    is not invoked. As a consequence, local SNMP engine configuration
-    won't get automatically populated with remote SNMP engine's
-    *securityEngineId*.
+    If :py:class:`~pysnmp.hlapi.usmKeyTypeLocalized` is used when
+    running a non-authoritative SNMP engine, USM key localization
+    mechanism is not invoked. As a consequence, local SNMP engine
+    configuration won't get automatically populated with remote SNMP
+    engine's *securityEngineId*.
 
     Therefore peer SNMP engine's *securityEngineId* must be added
     to local configuration and associated with its localized keys.
