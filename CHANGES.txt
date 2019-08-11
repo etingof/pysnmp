@@ -99,6 +99,11 @@ Revision 5.0.0, released 2019-09-XX
   * Global constants turned UPPER_CASED
   * Long lines wrapped by more or less 80 chars
 
+Revision 4.4.12, released 2019-08-XX
+------------------------------------
+
+No changes yet
+
 Revision 4.4.11, released 2019-08-10
 ------------------------------------
 
