@@ -42,7 +42,8 @@ class AbstractAesBlumenthal(aes.Aes):
 
         # now extend this key if too short by repeating steps that includes the hashPassphrase step
         for count in range(1, int(ceil(self.keySize * 1.0 / len(localPrivKey)))):
-            localPrivKey += hashAlgo(localPrivKey).digest()
+            localPrivKey += localPrivKey.clone(
+                hashAlgo(localPrivKey.asOctets()).digest())
 
         return localPrivKey[:self.keySize]
 
