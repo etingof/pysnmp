@@ -70,6 +70,28 @@ Advanced Command Generator
 :download:`Download</../../examples/hlapi/asyncore/sync/manager/cmdgen/specific-v3-engine-id.py>` script.
 
 
+.. include:: /../../examples/hlapi/asyncore/sync/manager/cmdgen/usm-master-keys.py
+   :start-after: """
+   :end-before: """#
+
+.. literalinclude:: /../../examples/hlapi/asyncore/sync/manager/cmdgen/usm-master-keys.py
+   :start-after: """#
+   :language: python
+
+:download:`Download</../../examples/hlapi/asyncore/sync/manager/cmdgen/usm-master-keys.py>` script.
+
+
+.. include:: /../../examples/hlapi/asyncore/sync/manager/cmdgen/usm-localized-keys.py
+   :start-after: """
+   :end-before: """#
+
+.. literalinclude:: /../../examples/hlapi/asyncore/sync/manager/cmdgen/usm-localized-keys.py
+   :start-after: """#
+   :language: python
+
+:download:`Download</../../examples/hlapi/asyncore/sync/manager/cmdgen/usm-localized-keys.py>` script.
+
+
 .. include:: /../../examples/hlapi/asyncore/sync/manager/cmdgen/query-agents-from-multuple-threads-over-ipv4-and-ipv6.py
    :start-after: """
    :end-before: """#
