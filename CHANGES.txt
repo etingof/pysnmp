@@ -1,5 +1,5 @@
 
-Revision 4.4.12, released 2019-09-XX
+Revision 4.4.12, released 2019-09-24
 ------------------------------------
 
 - Fixed broken SNMPv3 `msgFlag` initialization on authoritative SNMP
