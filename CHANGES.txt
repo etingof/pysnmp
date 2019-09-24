@@ -99,10 +99,12 @@ Revision 5.0.0, released 2019-09-XX
   * Global constants turned UPPER_CASED
   * Long lines wrapped by more or less 80 chars
 
-Revision 4.4.12, released 2019-08-XX
+Revision 4.4.12, released 2019-09-XX
 ------------------------------------
 
-No changes yet
+- Fixed broken SNMPv3 `msgFlag` initialization on authoritative SNMP
+  engine ID discovery. This bug causes secure communication with peer
+  SNMP engines to stall at SNMP engine ID discovery procedure.
 
 Revision 4.4.11, released 2019-08-10
 ------------------------------------

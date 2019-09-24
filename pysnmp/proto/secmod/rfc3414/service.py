@@ -482,7 +482,7 @@ class SnmpUSMSecurityModel(AbstractSecurityModel):
 
             # Clear possible auth&priv flags
             headerData.setComponentByPosition(
-                2, univ.OctetString(hexValue='00'), verifyConstraints=False,
+                2, univ.OctetString(hexValue='04'), verifyConstraints=False,
                 matchTags=False, matchConstraints=False
             )
 
