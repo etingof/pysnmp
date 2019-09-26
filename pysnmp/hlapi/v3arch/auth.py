@@ -313,8 +313,8 @@ class UsmUserData(object):
 
         Supported encryption protocol identifiers are:
 
-        * :py:class:`~pysnmp.hlapi.usmNoPrivProtocol` (default is *authKey* not given)
-        * :py:class:`~pysnmp.hlapi.usmDESPrivProtocol` (default if *authKey* is given)
+        * :py:class:`~pysnmp.hlapi.usmNoPrivProtocol` (default is *privhKey* not given)
+        * :py:class:`~pysnmp.hlapi.usmDESPrivProtocol` (default if *privKey* is given)
         * :py:class:`~pysnmp.hlapi.usm3DESEDEPrivProtocol`
         * :py:class:`~pysnmp.hlapi.usmAesCfb128Protocol`
         * :py:class:`~pysnmp.hlapi.usmAesCfb192Protocol`
