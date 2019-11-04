@@ -17,6 +17,27 @@ class CommandResponderBase(object):
     acmID = 3  # default MIB access control method to use
     pduTypes = ()
 
+    smiToSnmpErrorMap = {
+        pysnmp.smi.error.TooBigError: 'tooBig',
+        pysnmp.smi.error.NoSuchNameError: 'noSuchName',
+        pysnmp.smi.error.BadValueError: 'badValue',
+        pysnmp.smi.error.ReadOnlyError: 'readOnly',
+        pysnmp.smi.error.GenError: 'genErr',
+        pysnmp.smi.error.NoAccessError: 'noAccess',
+        pysnmp.smi.error.WrongTypeError: 'wrongType',
+        pysnmp.smi.error.WrongLengthError: 'wrongLength',
+        pysnmp.smi.error.WrongEncodingError: 'wrongEncoding',
+        pysnmp.smi.error.WrongValueError: 'wrongValue',
+        pysnmp.smi.error.NoCreationError: 'noCreation',
+        pysnmp.smi.error.InconsistentValueError: 'inconsistentValue',
+        pysnmp.smi.error.ResourceUnavailableError: 'resourceUnavailable',
+        pysnmp.smi.error.CommitFailedError: 'commitFailed',
+        pysnmp.smi.error.UndoFailedError: 'undoFailed',
+        pysnmp.smi.error.AuthorizationError: 'authorizationError',
+        pysnmp.smi.error.NotWritableError: 'notWritable',
+        pysnmp.smi.error.InconsistentNameError: 'inconsistentName'
+    }
+
     def __init__(self, snmpEngine, snmpContext):
         snmpEngine.msgAndPduDsp.registerContextEngineId(
             snmpContext.contextEngineId, self.pduTypes, self.processPdu
@@ -129,97 +150,55 @@ class CommandResponderBase(object):
 
         # 3.2.5
         varBinds = v2c.apiPDU.getVarBinds(PDU)
-        errorStatus, errorIndex = 'noError', 0
 
         debug.logger & debug.flagApp and debug.logger(
             'processPdu: stateReference %s, varBinds %s' % (stateReference, varBinds))
 
         try:
-            self.handleMgmtOperation(snmpEngine, stateReference,
-                                     contextName, PDU,
-                                     (self.__verifyAccess, snmpEngine))
+            self.handleMgmtOperation(
+                snmpEngine, stateReference, contextName, PDU,
+                (self.__verifyAccess, snmpEngine))
+
+            return
 
         # SNMPv2 SMI exceptions
-        except pysnmp.smi.error.GenError:
+        except pysnmp.smi.error.SmiError:
             errorIndication = sys.exc_info()[1]
+
             debug.logger & debug.flagApp and debug.logger(
-                'processPdu: stateReference %s, errorIndication %s' % (stateReference, errorIndication))
+                'processPdu: stateReference %s, errorIndication '
+                '%s' % (stateReference, errorIndication))
+
             if 'oid' in errorIndication:
-                # Request REPORT generation
+                # Request MP-model to produce REPORT response
                 statusInformation['oid'] = errorIndication['oid']
                 statusInformation['val'] = errorIndication['val']
 
-        # Handle PDU-level SMI errors
+            errorStatus = self.smiToSnmpErrorMap.get(
+                errorIndication.__class__, 'genErr')
 
-        except pysnmp.smi.error.TooBigError:
-            errorStatus, errorIndex = 'tooBig', 0
+            try:
+                errorIndex = errorIndication['idx'] + 1
+
+            except KeyError:
+                errorIndex = 1
+
+            if len(varBinds) > errorIndex:
+                errorIndex = 1
+
             # rfc1905: 4.2.1.3
-            varBinds = []
+            if errorStatus == 'tooBig':
+                errorIndex = 0
+                varBinds = []
 
-        # this should never bubble up, SNMP exception objects should be passed as values
-        except pysnmp.smi.error.NoSuchNameError:
-            errorStatus, errorIndex = 'noSuchName', sys.exc_info()[1]['idx'] + 1
-
-        except pysnmp.smi.error.BadValueError:
-            errorStatus, errorIndex = 'badValue', sys.exc_info()[1]['idx'] + 1
-
-        except pysnmp.smi.error.ReadOnlyError:
-            errorStatus, errorIndex = 'readOnly', sys.exc_info()[1]['idx'] + 1
-
-        except pysnmp.smi.error.GenError:
-            errorStatus, errorIndex = 'genErr', sys.exc_info()[1]['idx'] + 1
-
-        except pysnmp.smi.error.NoAccessError:
-            errorStatus, errorIndex = 'noAccess', sys.exc_info()[1]['idx'] + 1
-
-        except pysnmp.smi.error.WrongTypeError:
-            errorStatus, errorIndex = 'wrongType', sys.exc_info()[1]['idx'] + 1
-
-        except pysnmp.smi.error.WrongLengthError:
-            errorStatus, errorIndex = 'wrongLength', sys.exc_info()[1]['idx'] + 1
-
-        except pysnmp.smi.error.WrongEncodingError:
-            errorStatus, errorIndex = 'wrongEncoding', sys.exc_info()[1]['idx'] + 1
-
-        except pysnmp.smi.error.WrongValueError:
-            errorStatus, errorIndex = 'wrongValue', sys.exc_info()[1]['idx'] + 1
-
-        except pysnmp.smi.error.NoCreationError:
-            errorStatus, errorIndex = 'noCreation', sys.exc_info()[1]['idx'] + 1
-
-        except pysnmp.smi.error.InconsistentValueError:
-            errorStatus, errorIndex = 'inconsistentValue', sys.exc_info()[1]['idx'] + 1
-
-        except pysnmp.smi.error.ResourceUnavailableError:
-            errorStatus, errorIndex = 'resourceUnavailable', sys.exc_info()[1]['idx'] + 1
-
-        except pysnmp.smi.error.CommitFailedError:
-            errorStatus, errorIndex = 'commitFailed', sys.exc_info()[1]['idx'] + 1
-
-        except pysnmp.smi.error.UndoFailedError:
-            errorStatus, errorIndex = 'undoFailed', sys.exc_info()[1]['idx'] + 1
-
-        except pysnmp.smi.error.AuthorizationError:
-            errorStatus, errorIndex = 'authorizationError', sys.exc_info()[1]['idx'] + 1
-
-        except pysnmp.smi.error.NotWritableError:
-            errorStatus, errorIndex = 'notWritable', sys.exc_info()[1]['idx'] + 1
-
-        except pysnmp.smi.error.InconsistentNameError:
-            errorStatus, errorIndex = 'inconsistentName', sys.exc_info()[1]['idx'] + 1
-
-        except pysnmp.smi.error.SmiError:
-            errorStatus, errorIndex = 'genErr', len(varBinds) and 1
+            # Report error
+            self.sendVarBinds(snmpEngine, stateReference, errorStatus,
+                              errorIndex, varBinds)
 
         except pysnmp.error.PySnmpError:
-            self.releaseStateInformation(stateReference)
-            return
-
-        else:  # successful request processor must release state info
-            return
-
-        self.sendVarBinds(snmpEngine, stateReference, errorStatus,
-                          errorIndex, varBinds)
+            debug.logger & debug.flagApp and debug.logger(
+                'processPdu: stateReference %s, error '
+                '%s' % (stateReference, sys.exc_info()[1]))
 
         self.releaseStateInformation(stateReference)
 

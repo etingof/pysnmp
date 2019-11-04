@@ -1,8 +1,10 @@
 
-Revision 4.4.13, released 2019-10-XX
+Revision 4.4.13, released 2019-11-XX
 ------------------------------------
 
-No changes yet
+- Fixed `genErr` handing in Command Responder when mapping MIB instrumentation
+  exception onto SNMP errors. Prior to this fix, `genErr` would never be
+  reported back to SNMP manager.
 
 Revision 4.4.12, released 2019-09-24
 ------------------------------------
