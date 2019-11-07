@@ -63,7 +63,7 @@ try:
 
     setup, Command = setuptools.setup, setuptools.Command
 
-    observed_version = [int(x) for x in setuptools.__version__.split('.')]
+    observed_version = [int(x) for x in setuptools.__version__.split('.')[:3]]
     required_version = [36, 2, 0]
 
     # NOTE(etingof): require fresh setuptools to build proper wheels
