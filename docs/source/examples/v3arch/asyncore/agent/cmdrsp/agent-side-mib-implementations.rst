@@ -37,6 +37,17 @@ Agent-side MIB implementations
 :download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/alternative-mib-tree.py>` script.
 
 
+.. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/multiple-snmp-contexts.py
+   :start-after: """
+   :end-before: """#
+
+.. literalinclude:: /../../examples/v3arch/asyncore/agent/cmdrsp/multiple-snmp-contexts.py
+   :start-after: """#
+   :language: python
+
+:download:`Download</../../examples/v3arch/asyncore/agent/cmdrsp/multiple-snmp-contexts.py>` script.
+
+
 .. include:: /../../examples/v3arch/asyncore/agent/cmdrsp/custom-mib-controller.py
    :start-after: """
    :end-before: """#
