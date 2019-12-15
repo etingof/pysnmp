@@ -46,9 +46,6 @@ class AsyncoreDispatcher(AbstractTransportDispatcher):
                 loop(timeout or self.getTimerResolution(),
                      use_poll=True, map=self.__sockMap, count=1)
 
-            except KeyboardInterrupt:
-                raise
-
             except Exception:
                 raise PySnmpError(
                     'poll error: %s' % ';'.join(format_exception(*exc_info())))
