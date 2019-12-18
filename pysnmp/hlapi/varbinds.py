@@ -55,7 +55,7 @@ class CommandGeneratorVarBinds(MibViewControllerManager):
             mibViewController = self.getMibViewController(userCache)
             varBinds = [
                 ObjectType(ObjectIdentity(x[0]),
-                           x[1]).resolveWithMib(mibViewController)
+                           x[1]).resolveWithMib(mibViewController, ignoreErrors=False)
                 for x in varBinds]
 
         return varBinds
@@ -96,7 +96,7 @@ class NotificationOriginatorVarBinds(MibViewControllerManager):
             mibViewController = self.getMibViewController(userCache)
             varBinds = [
                 ObjectType(ObjectIdentity(x[0]),
-                           x[1]).resolveWithMib(mibViewController)
+                           x[1]).resolveWithMib(mibViewController, ignoreErrors=False)
                 for x in varBinds]
 
         return varBinds
