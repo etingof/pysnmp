@@ -156,4 +156,4 @@ or try browsing pysnmp
 
 Bug reports and PRs are appreciated! ;-)
 
-Copyright (c) 2005-2019, [Ilya Etingof](mailto:etingof@gmail.com). All rights reserved.
+Copyright (c) 2005-2020, [Ilya Etingof](mailto:etingof@gmail.com). All rights reserved.
