@@ -51,6 +51,8 @@ function cleanup()
 
 trap cleanup EXIT
 
+sleep 5
+
 PYTHON=${1:-python}
 
 for x in examples/hlapi/asyncore/sync/manager/cmdgen/*.py \
