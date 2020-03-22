@@ -3,6 +3,10 @@ Revision 4.4.13, released 2020-03-XX
 ------------------------------------
 
 - Copyright notice extended to the year 2020
+- Added `tox` runner with a handful of basic jobs
+- Invoke `tox` from `.travis` to reduce test harness duplication
+- Rework functional tests to run fully locally against
+  SNMP simulator.
 - Fixed `genErr` handing in Command Responder when mapping
   MIB instrumentation exception onto SNMP errors. Prior to
   this fix, `genErr` would never be reported back to SNMP
