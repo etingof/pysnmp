@@ -1,6 +1,6 @@
-include *.rst *.txt *.md *.sh
+include *.rst *.txt *.md
 recursive-include examples *.py
-recursive-include tests * * *.sh *.snmprec
+recursive-include tests *.sh *.snmprec
 recursive-include docs/source *.rst *.svg *.py
 recursive-include docs/mibs *.txt
 recursive-include docs *.conf Makefile
