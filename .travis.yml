@@ -7,13 +7,17 @@ before_install:
 matrix:
   include:
     - python: '2.7'
-    - python: '3.4'
+      env: TOXENV=py27-functest
     - python: '3.5'
+      env: TOXENV=py35-functest
     - python: '3.6'
+      env: TOXENV=py36-functest
     - python: '3.7'
+      env: TOXENV=py37-functest,docs,build
     - python: '3.8'
-    - python: 'pypy'
+      env: TOXENV=py38-functest
     - python: 'pypy3'
+      env: TOXENV=pypy3-functest
 install:
   - pip install tox
 script:
