@@ -16,7 +16,9 @@ matrix:
       env: TOXENV=py37-functest,docs,build
     - python: '3.8'
       env: TOXENV=py38-functest
-    - python: 'pypy3'
+    - python: 'pypy2.7-6.0'
+      env: TOXENV=pypy-functest
+    - python: 'pypy3.5-6.0'
       env: TOXENV=pypy3-functest
 install:
   - pip install tox
