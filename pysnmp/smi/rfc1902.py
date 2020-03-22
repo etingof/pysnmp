@@ -303,13 +303,19 @@ class ObjectIdentity(object):
 
     # this would eventually be called by an entity which posses a
     # reference to MibViewController
-    def resolveWithMib(self, mibViewController):
+    def resolveWithMib(self, mibViewController, ignoreErrors=True):
         """Perform MIB variable ID conversion.
 
         Parameters
         ----------
         mibViewController : :py:class:`~pysnmp.smi.view.MibViewController`
             class instance representing MIB browsing functionality.
+
+        Other Parameters
+        ----------------
+        ignoreErrors: :py:class:`bool`
+            If `True` (default), ignore MIB object name casting
+            failures if possible.
 
         Returns
         -------
@@ -383,7 +389,7 @@ class ObjectIdentity(object):
         self.__indices = ()
 
         if isinstance(self.__args[0], ObjectIdentity):
-            self.__args[0].resolveWithMib(mibViewController)
+            self.__args[0].resolveWithMib(mibViewController, ignoreErrors=ignoreErrors)
 
         if len(self.__args) == 1:  # OID or label or MIB module
             debug.logger & debug.flagMIB and debug.logger('resolving %s as OID or label' % self.__args)
