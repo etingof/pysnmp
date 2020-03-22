@@ -3,7 +3,7 @@ os: linux
 arch: arm64
 dist: bionic
 before_install:
-  - sudo apt-get -y install snmp snmp-mibs-downloader && sed -i 's/mibs :/# mibs :/g' /etc/snmp/snmp.conf
+  - sudo apt-get -y install snmp snmp-mibs-downloader && sudo sed -i 's/mibs :/# mibs :/g' /etc/snmp/snmp.conf
 matrix:
   include:
     - python: '2.7'
