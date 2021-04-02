@@ -68,7 +68,7 @@ def passwordToKeyMD5(passphrase, snmpEngineId):
 
 
 def passwordToKeySHA(passphrase, snmpEngineId):
-    return localizeKey(hashPassphraseMD5(passphrase), snmpEngineId, sha1)
+    return localizeKey(hashPassphraseSHA(passphrase), snmpEngineId, sha1)
 
 
 def localizeKeyMD5(passKey, snmpEngineId):
